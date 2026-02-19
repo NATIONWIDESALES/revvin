@@ -10,7 +10,7 @@ const Footer = () => {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <span className="text-sm font-bold text-primary-foreground">R</span>
               </div>
-              <span className="font-display text-lg font-bold">RefBoard</span>
+              <span className="font-display text-lg font-bold">Revvin</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               The marketplace connecting businesses with referral partners. Earn by sharing opportunities.
@@ -20,9 +20,9 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-semibold mb-3 text-sm">Platform</h4>
             <div className="space-y-2">
-              <Link to="/browse" className="block text-sm text-muted-foreground hover:text-primary">Browse Offers</Link>
+              <Link to="/browse" className="block text-sm text-muted-foreground hover:text-primary">Marketplace</Link>
               <Link to="/how-it-works" className="block text-sm text-muted-foreground hover:text-primary">How It Works</Link>
-              <Link to="/" className="block text-sm text-muted-foreground hover:text-primary">For Businesses</Link>
+              <Link to="/auth?mode=signup&role=business" className="block text-sm text-muted-foreground hover:text-primary">For Businesses</Link>
             </div>
           </div>
 
@@ -45,7 +45,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-10 border-t border-border pt-6 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} RefBoard. All rights reserved.
+          © {new Date().getFullYear()} Revvin. All rights reserved.
         </div>
       </div>
     </footer>

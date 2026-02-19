@@ -14,16 +14,319 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      badges: {
+        Row: {
+          badge_type: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          threshold: number
+        }
+        Insert: {
+          badge_type?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          threshold?: number
+        }
+        Update: {
+          badge_type?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          threshold?: number
+        }
+        Relationships: []
+      }
+      businesses: {
+        Row: {
+          city: string | null
+          created_at: string
+          description: string | null
+          id: string
+          industry: string | null
+          latitude: number | null
+          logo_url: string | null
+          longitude: number | null
+          name: string
+          state: string | null
+          updated_at: string
+          user_id: string
+          verified: boolean | null
+          website: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          name: string
+          state?: string | null
+          updated_at?: string
+          user_id: string
+          verified?: boolean | null
+          website?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          name?: string
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+          verified?: boolean | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      offers: {
+        Row: {
+          business_id: string
+          category: string
+          close_time_days: number | null
+          created_at: string
+          deal_size_max: number | null
+          deal_size_min: number | null
+          description: string | null
+          featured: boolean | null
+          id: string
+          location: string | null
+          payout: number
+          payout_type: string
+          qualification_criteria: string | null
+          remote_eligible: boolean | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          category: string
+          close_time_days?: number | null
+          created_at?: string
+          deal_size_max?: number | null
+          deal_size_min?: number | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          location?: string | null
+          payout?: number
+          payout_type?: string
+          qualification_criteria?: string | null
+          remote_eligible?: boolean | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          category?: string
+          close_time_days?: number | null
+          created_at?: string
+          deal_size_max?: number | null
+          deal_size_min?: number | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          location?: string | null
+          payout?: number
+          payout_type?: string
+          qualification_criteria?: string | null
+          remote_eligible?: boolean | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          state: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          business_id: string
+          created_at: string
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string | null
+          file_url: string | null
+          id: string
+          notes: string | null
+          offer_id: string
+          payout_amount: number | null
+          payout_status: string
+          referrer_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          customer_email?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          file_url?: string | null
+          id?: string
+          notes?: string | null
+          offer_id: string
+          payout_amount?: number | null
+          payout_status?: string
+          referrer_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          file_url?: string | null
+          id?: string
+          notes?: string | null
+          offer_id?: string
+          payout_amount?: number | null
+          payout_status?: string
+          referrer_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "business" | "referrer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +453,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["business", "referrer"],
+    },
   },
 } as const

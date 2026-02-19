@@ -12,4 +12,10 @@ export interface Offer {
   totalReferrals: number;
   successRate: number;
   featured: boolean;
+  dealSizeMin?: number;
+  dealSizeMax?: number;
+  closeTimeDays?: number;
+  remoteEligible?: boolean;
+  latitude?: number;
+  longitude?: number;
 }
