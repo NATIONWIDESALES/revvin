@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Zap } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -18,9 +18,9 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-            <span className="text-lg font-bold text-primary-foreground">R</span>
+        <Link to="/" className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow-sm">
+            <Zap className="h-4 w-4 text-primary-foreground" />
           </div>
           <span className="font-display text-xl font-bold text-foreground">Revvin</span>
         </Link>
@@ -52,7 +52,7 @@ const Navbar = () => {
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/auth">Sign In</Link>
               </Button>
-              <Button size="sm" asChild>
+              <Button size="sm" className="shadow-sm" asChild>
                 <Link to="/auth?mode=signup">Get Started</Link>
               </Button>
             </>
