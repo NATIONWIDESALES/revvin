@@ -5,18 +5,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  DollarSign, TrendingUp, Clock, CheckCircle2, XCircle,
-  Trophy, Star, Zap, Award, Send, ArrowRight
+  DollarSign, TrendingUp, Clock, CheckCircle2,
+  Trophy, Star, Zap, Award, Send, ArrowRight, Target, BarChart3
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 const iconMap: Record<string, any> = { trophy: Trophy, star: Star, zap: Zap, "dollar-sign": DollarSign, "trending-up": TrendingUp, award: Award };
 
-const statusColors: Record<string, string> = {
-  submitted: "bg-muted text-muted-foreground",
-  contacted: "bg-blue-100 text-blue-700",
-  in_progress: "bg-accent/20 text-accent-foreground",
-  won: "bg-earnings/20 text-earnings",
-  lost: "bg-destructive/10 text-destructive",
+const statusConfig: Record<string, { bg: string; text: string }> = {
+  submitted: { bg: "bg-muted", text: "text-muted-foreground" },
+  contacted: { bg: "bg-blue-50", text: "text-blue-700" },
+  in_progress: { bg: "bg-accent/10", text: "text-accent-foreground" },
+  won: { bg: "bg-earnings/10", text: "text-earnings" },
+  lost: { bg: "bg-destructive/10", text: "text-destructive" },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.5 } }),
 };
 
 const ReferrerDashboard = () => {
@@ -42,12 +48,21 @@ const ReferrerDashboard = () => {
   const totalEarnings = referrals.filter(r => r.payout_status === "paid").reduce((sum, r) => sum + (r.payout_amount ?? 0), 0);
   const pendingEarnings = referrals.filter(r => r.payout_status === "approved").reduce((sum, r) => sum + (r.payout_amount ?? 0), 0);
   const wonCount = referrals.filter(r => r.status === "won").length;
+  const successRate = referrals.length > 0 ? Math.round((wonCount / referrals.length) * 100) : 0;
 
   const stats = [
-    { label: "Total Earnings", value: `$${totalEarnings.toLocaleString()}`, icon: DollarSign, color: "text-earnings" },
-    { label: "Pending Payout", value: `$${pendingEarnings.toLocaleString()}`, icon: Clock, color: "text-accent" },
-    { label: "Deals Won", value: wonCount.toString(), icon: CheckCircle2, color: "text-primary" },
-    { label: "Total Referrals", value: referrals.length.toString(), icon: Send, color: "text-muted-foreground" },
+    { label: "Lifetime Earnings", value: `$${totalEarnings.toLocaleString()}`, icon: DollarSign, color: "text-earnings", bgColor: "bg-earnings/10" },
+    { label: "Pending Payout", value: `$${pendingEarnings.toLocaleString()}`, icon: Clock, color: "text-accent", bgColor: "bg-accent/10" },
+    { label: "Deals Won", value: wonCount.toString(), icon: CheckCircle2, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "Success Rate", value: `${successRate}%`, icon: Target, color: "text-primary", bgColor: "bg-primary/10" },
+  ];
+
+  // Milestones
+  const milestones = [
+    { label: "First Referral", target: 1, current: referrals.length, icon: Send },
+    { label: "5 Deals Won", target: 5, current: wonCount, icon: Trophy },
+    { label: "$1,000 Earned", target: 1000, current: totalEarnings, icon: DollarSign },
+    { label: "$5,000 Earned", target: 5000, current: totalEarnings, icon: Zap },
   ];
 
   if (loading) {
@@ -57,80 +72,168 @@ const ReferrerDashboard = () => {
   return (
     <div className="py-8">
       <div className="container max-w-6xl">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="font-display text-3xl font-bold text-foreground">Earnings Dashboard</h1>
-            <p className="mt-1 text-muted-foreground">Track your referrals and earnings</p>
-          </div>
-          <Button asChild className="gap-2">
-            <Link to="/browse">Find Opportunities <ArrowRight className="h-4 w-4" /></Link>
-          </Button>
-        </div>
-
-        {/* Stats */}
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((s) => (
-            <div key={s.label} className="rounded-xl border border-border bg-card p-5">
-              <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-muted p-2">
-                  <s.icon className={`h-5 w-5 ${s.color}`} />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">{s.label}</p>
-                  <p className="font-display text-2xl font-bold text-foreground">{s.value}</p>
-                </div>
-              </div>
+        <motion.div initial="hidden" animate="visible">
+          {/* Header */}
+          <motion.div variants={fadeUp} custom={0} className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="font-display text-3xl font-bold text-foreground">Earnings Dashboard</h1>
+              <p className="mt-1 text-muted-foreground">Track your referrals, earnings, and achievements</p>
             </div>
-          ))}
-        </div>
-
-        {/* Badges */}
-        {badges.length > 0 && (
-          <div className="mb-8">
-            <h2 className="font-display text-lg font-semibold mb-4">Your Badges</h2>
-            <div className="flex flex-wrap gap-3">
-              {badges.map((ub: any) => {
-                const Icon = iconMap[ub.badges?.icon] ?? Trophy;
-                return (
-                  <div key={ub.id} className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2">
-                    <Icon className="h-4 w-4 text-accent" />
-                    <span className="text-sm font-medium">{ub.badges?.name}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Referral List */}
-        <h2 className="font-display text-lg font-semibold mb-4">Your Referrals</h2>
-        {referrals.length === 0 ? (
-          <div className="rounded-xl border border-border bg-card py-16 text-center">
-            <Send className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-            <p className="font-medium text-foreground">No referrals yet</p>
-            <p className="mt-1 text-sm text-muted-foreground">Browse opportunities and submit your first referral</p>
-            <Button asChild className="mt-4" variant="outline">
-              <Link to="/browse">Browse Offers</Link>
+            <Button asChild className="gap-2 h-11">
+              <Link to="/browse">Find Opportunities <ArrowRight className="h-4 w-4" /></Link>
             </Button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {referrals.map((ref: any) => (
-              <div key={ref.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
-                <div className="flex-1">
-                  <p className="font-medium text-foreground">{ref.customer_name}</p>
-                  <p className="text-sm text-muted-foreground">{ref.offers?.title ?? "Offer"} • {ref.businesses?.name ?? "Business"}</p>
-                </div>
+          </motion.div>
+
+          {/* Stats */}
+          <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {stats.map((s) => (
+              <div key={s.label} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <Badge className={statusColors[ref.status] ?? ""}>{ref.status.replace("_", " ")}</Badge>
-                  {ref.payout_amount && (
-                    <span className="font-display font-bold text-earnings">${ref.payout_amount}</span>
-                  )}
+                  <div className={`rounded-xl p-2.5 ${s.bgColor}`}>
+                    <s.icon className={`h-5 w-5 ${s.color}`} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground font-medium">{s.label}</p>
+                    <p className="font-display text-2xl font-bold text-foreground">{s.value}</p>
+                  </div>
                 </div>
               </div>
             ))}
-          </div>
-        )}
+          </motion.div>
+
+          {/* Milestones & Badges */}
+          <motion.div variants={fadeUp} custom={2} className="mb-8 grid gap-6 md:grid-cols-2">
+            {/* Milestones */}
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <h2 className="font-display text-lg font-bold mb-4 flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-accent" /> Milestones
+              </h2>
+              <div className="space-y-4">
+                {milestones.map((m) => {
+                  const pct = Math.min(100, Math.round((m.current / m.target) * 100));
+                  const done = pct >= 100;
+                  return (
+                    <div key={m.label}>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="flex items-center gap-2 text-sm font-medium">
+                          <m.icon className={`h-4 w-4 ${done ? "text-earnings" : "text-muted-foreground"}`} />
+                          {m.label}
+                        </span>
+                        <span className={`text-xs font-medium ${done ? "text-earnings" : "text-muted-foreground"}`}>
+                          {done ? "✓ Complete" : `${pct}%`}
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${done ? "bg-earnings" : "bg-primary"}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Badges */}
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <h2 className="font-display text-lg font-bold mb-4 flex items-center gap-2">
+                <Award className="h-5 w-5 text-accent" /> Your Badges
+              </h2>
+              {badges.length === 0 ? (
+                <div className="py-8 text-center">
+                  <Award className="mx-auto mb-3 h-8 w-8 text-muted-foreground/50" />
+                  <p className="text-sm text-muted-foreground">Submit referrals to unlock badges</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {badges.map((ub: any) => {
+                    const Icon = iconMap[ub.badges?.icon] ?? Trophy;
+                    return (
+                      <div key={ub.id} className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-3">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10">
+                          <Icon className="h-4 w-4 text-accent" />
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium block">{ub.badges?.name}</span>
+                          <span className="text-xs text-muted-foreground">{ub.badges?.description}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Leaderboard Preview */}
+          <motion.div variants={fadeUp} custom={3} className="mb-8 rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <h2 className="font-display text-lg font-bold mb-4 flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" /> Leaderboard Preview
+            </h2>
+            <div className="space-y-2">
+              {[
+                { rank: 1, name: "Sarah M.", earnings: "$12,450", deals: 28 },
+                { rank: 2, name: "James K.", earnings: "$9,200", deals: 19 },
+                { rank: 3, name: "Emily R.", earnings: "$7,800", deals: 15 },
+                { rank: 4, name: "You", earnings: `$${totalEarnings.toLocaleString()}`, deals: wonCount, isYou: true },
+              ].map((entry) => (
+                <div key={entry.rank} className={`flex items-center justify-between rounded-xl p-3 ${entry.isYou ? "bg-primary/5 border border-primary/20" : "bg-muted/30"}`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
+                      entry.rank === 1 ? "bg-accent text-accent-foreground" :
+                      entry.rank === 2 ? "bg-muted text-foreground" :
+                      entry.rank === 3 ? "bg-muted text-foreground" :
+                      "bg-primary/10 text-primary"
+                    }`}>
+                      {entry.rank}
+                    </div>
+                    <span className={`text-sm font-medium ${entry.isYou ? "text-primary" : ""}`}>{entry.name}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="text-muted-foreground">{entry.deals} deals</span>
+                    <span className="font-display font-bold text-foreground">{entry.earnings}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Referral History */}
+          <motion.div variants={fadeUp} custom={4}>
+            <h2 className="font-display text-lg font-bold mb-4">Referral History</h2>
+            {referrals.length === 0 ? (
+              <div className="rounded-2xl border border-border bg-card py-16 text-center shadow-sm">
+                <Send className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
+                <p className="font-display text-lg font-semibold text-foreground">No referrals yet</p>
+                <p className="mt-2 text-sm text-muted-foreground">Browse opportunities and submit your first referral to start earning</p>
+                <Button asChild className="mt-5" variant="outline">
+                  <Link to="/browse">Browse Offers</Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {referrals.map((ref: any) => {
+                  const sc = statusConfig[ref.status] ?? statusConfig.submitted;
+                  return (
+                    <div key={ref.id} className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
+                      <div className="flex-1">
+                        <p className="font-medium text-foreground">{ref.customer_name}</p>
+                        <p className="text-sm text-muted-foreground">{ref.offers?.title ?? "Offer"} • {ref.businesses?.name ?? "Business"}</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge className={`${sc.bg} ${sc.text} border-0`}>{ref.status.replace("_", " ")}</Badge>
+                        {ref.payout_amount && (
+                          <span className="font-display font-bold text-earnings">${ref.payout_amount}</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );
