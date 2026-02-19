@@ -1,6 +1,6 @@
 import { Offer } from "@/types/offer";
 import { Link } from "react-router-dom";
-import { MapPin, Star, TrendingUp } from "lucide-react";
+import { MapPin, Star, TrendingUp, Clock, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface OfferCardProps {
@@ -34,7 +34,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           {offer.description}
         </p>
 
-        {/* Payout */}
+        {/* Payout + Deal Size */}
         <div className="mb-4 rounded-lg bg-muted p-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Earn per referral</span>
@@ -42,6 +42,12 @@ const OfferCard = ({ offer }: OfferCardProps) => {
               {offer.payoutType === "flat" ? `$${offer.payout}` : `${offer.payout}%`}
             </span>
           </div>
+          {(offer.dealSizeMin || offer.dealSizeMax) && (
+            <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" /> Deal size</span>
+              <span>${offer.dealSizeMin?.toLocaleString()} – ${offer.dealSizeMax?.toLocaleString()}</span>
+            </div>
+          )}
         </div>
 
         {/* Meta */}
@@ -56,8 +62,14 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           </span>
           <span className="flex items-center gap-1">
             <TrendingUp className="h-3.5 w-3.5" />
-            {offer.successRate}% success
+            {offer.successRate}%
           </span>
+          {offer.closeTimeDays && (
+            <span className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5" />
+              {offer.closeTimeDays}d
+            </span>
+          )}
         </div>
       </div>
     </Link>
