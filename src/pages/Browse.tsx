@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Search, SlidersHorizontal, Map, List, Building2, ArrowRight, PlusCircle, Globe } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import MapView from "@/components/MapView";
-import { mockOffers, categories, calculateOfferScore } from "@/data/mockOffers";
+import { categories, calculateOfferScore } from "@/data/mockOffers";
+import { useDbOffers } from "@/hooks/useDbOffers";
 import { Slider } from "@/components/ui/slider";
 import { motion } from "framer-motion";
 import { useCountry } from "@/contexts/CountryContext";
@@ -17,6 +18,7 @@ type SortOption = "payout" | "rating" | "success" | "fastest" | "newest" | "scor
 type CloseTimeFilter = "all" | "fast" | "medium" | "long";
 
 const Browse = () => {
+  const { data: allOffers = [], isLoading } = useDbOffers();
   const { country, displayCurrency, setDisplayCurrency } = useCountry();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -34,17 +36,17 @@ const Browse = () => {
 
   // Derive available states/cities from current country
   const availableStates = useMemo(() => {
-    const countryOffers = country === "ALL" ? mockOffers : mockOffers.filter(o => o.country === country);
+    const countryOffers = country === "ALL" ? allOffers : allOffers.filter(o => o.country === country);
     return [...new Set(countryOffers.map(o => o.state))].sort();
-  }, [country]);
+  }, [country, allOffers]);
 
   const availableCities = useMemo(() => {
-    let offers = country === "ALL" ? mockOffers : mockOffers.filter(o => o.country === country);
+    let offers = country === "ALL" ? allOffers : allOffers.filter(o => o.country === country);
     if (stateFilter) offers = offers.filter(o => o.state === stateFilter);
     return [...new Set(offers.map(o => o.city))].sort();
-  }, [country, stateFilter]);
+  }, [country, stateFilter, allOffers]);
 
-  const filtered = mockOffers
+  const filtered = allOffers
     .filter((o) => {
       const matchesCountry = country === "ALL" || o.country === country;
       const matchesSearch =
@@ -79,6 +81,14 @@ const Browse = () => {
     });
 
   const countryLabel = country === "CA" ? "Canada" : country === "US" ? "United States" : "North America";
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="py-8">
