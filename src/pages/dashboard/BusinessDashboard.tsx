@@ -159,11 +159,6 @@ const BusinessDashboard = () => {
     { label: "Mark closed & release payout", done: referrals.some(r => r.status === "won"), action: undefined },
   ];
 
-  const handleDemoMode = () => {
-    addFunds(5000, displayCurrency);
-    toast({ title: "🎮 Demo Mode", description: "Added $5,000 to your wallet. Create an offer to continue the demo." });
-  };
-
   if (loading) {
     return <div className="flex min-h-[60vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>;
   }
@@ -187,7 +182,7 @@ const BusinessDashboard = () => {
           </motion.div>
 
           {/* Checklist */}
-          <DashboardChecklist title="Start Here — Business Setup" items={checklistItems} onDemoMode={handleDemoMode} />
+          <DashboardChecklist title="Start Here — Business Setup" items={checklistItems} />
 
           {/* WALLET */}
           <motion.div variants={fadeUp} custom={0.5} className="mb-8 rounded-2xl border-2 border-primary/20 bg-card p-6 shadow-sm">
