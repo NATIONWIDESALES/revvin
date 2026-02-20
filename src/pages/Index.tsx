@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, DollarSign, Users, Building2, TrendingUp, Search, Shield, Briefcase, MapPin, CheckCircle2, Zap, BarChart3, Lock, FileCheck, BadgeCheck, Ban, Target, Gauge, AlertTriangle, Scale } from "lucide-react";
+import { ArrowRight, DollarSign, Users, Building2, TrendingUp, Search, Shield, Briefcase, MapPin, CheckCircle2, Zap, BarChart3, Lock, FileCheck, BadgeCheck, Ban, Target, Gauge, AlertTriangle, Scale, Star, Quote } from "lucide-react";
 import { motion } from "framer-motion";
 import OfferCard from "@/components/OfferCard";
 import { mockOffers } from "@/data/mockOffers";
+import { usePlatformStats } from "@/hooks/usePlatformStats";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const fadeUp = {
@@ -20,8 +21,68 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
+const testimonials = [
+  {
+    name: "Sarah Mitchell",
+    role: "Real Estate Referrer",
+    city: "Austin, TX",
+    avatar: "SM",
+    quote: "I referred a friend to a roofing company on Revvin and earned $800 when the job closed. It took me 5 minutes to submit — the rest was automatic.",
+    earned: "$12,450",
+    referrals: 18,
+  },
+  {
+    name: "James Thornton",
+    role: "Owner, Thornton HVAC",
+    city: "Dallas, TX",
+    avatar: "JT",
+    quote: "We've acquired 23 new customers through Revvin at a fraction of our Google Ads cost. The pay-per-close model means zero wasted spend.",
+    earned: "23 customers",
+    referrals: null,
+  },
+  {
+    name: "Maria Lopez",
+    role: "Insurance Agent & Referrer",
+    city: "Toronto, ON",
+    avatar: "ML",
+    quote: "I already talk to homeowners daily. Now I refer them to contractors on Revvin and earn side income. Last month alone I made $3,200.",
+    earned: "$9,800",
+    referrals: 14,
+  },
+  {
+    name: "David Kim",
+    role: "Owner, Kim Legal Services",
+    city: "Vancouver, BC",
+    avatar: "DK",
+    quote: "The escrow system gives me confidence. I fund my wallet, set a payout, and only pay when a referred client actually signs. It's how acquisition should work.",
+    earned: "31 clients",
+    referrals: null,
+  },
+];
+
+const formatCurrency = (n: number) => {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M+`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K+`;
+  return `$${n}`;
+};
+
+const formatNumber = (n: number) => {
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n >= 10_000 ? 0 : 1)}K+`;
+  return `${n}+`;
+};
+
 const Index = () => {
   const featured = mockOffers.filter((o) => o.featured).slice(0, 4);
+  const { data: stats } = usePlatformStats();
+
+  const statItems = [
+    { value: stats ? formatCurrency(stats.totalPayoutsAvailable) : "$2.4M+", label: "Payouts Available", icon: DollarSign },
+    { value: stats ? `${formatNumber(stats.activeBusinesses)}` : "850+", label: "Active Businesses", icon: Building2 },
+    { value: stats ? `${formatNumber(stats.totalReferrers)}` : "12K+", label: "Referrers", icon: Users },
+    { value: stats ? `$${stats.avgPayout}` : "$285", label: "Avg. Payout", icon: TrendingUp },
+    { value: "2", label: "Countries", icon: MapPin },
+    { value: stats ? `${stats.activeCities}` : "42", label: "Active Cities", icon: BarChart3 },
+  ];
 
   return (
     <div>
@@ -92,14 +153,7 @@ const Index = () => {
           >
             <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-4 text-center">Marketplace Momentum — 🇨🇦 Canada + 🇺🇸 USA</p>
             <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-6">
-              {[
-                { value: "$2.4M+", label: "Payouts Available", icon: DollarSign },
-                { value: "850+", label: "Active Businesses", icon: Building2 },
-                { value: "12,000+", label: "Referrers", icon: Users },
-                { value: "$285", label: "Avg. Payout", icon: TrendingUp },
-                { value: "2", label: "Countries", icon: MapPin },
-                { value: "42", label: "Active Cities", icon: BarChart3 },
-              ].map((stat, i) => (
+              {statItems.map((stat, i) => (
                 <motion.div key={stat.label} variants={fadeUp} custom={i} className="text-center">
                   <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
                     <stat.icon className="h-5 w-5 text-primary" />
@@ -109,6 +163,31 @@ const Index = () => {
                 </motion.div>
               ))}
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Trust Badges Strip */}
+      <section className="py-10">
+        <div className="container">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto max-w-4xl">
+            <motion.p variants={fadeUp} custom={0} className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider mb-5">
+              Trusted by businesses and referrers across North America
+            </motion.p>
+            <motion.div variants={fadeUp} custom={1} className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+              {[
+                { icon: Shield, label: "256-bit Encrypted" },
+                { icon: Lock, label: "Escrow Protected" },
+                { icon: BadgeCheck, label: "Verified Businesses" },
+                { icon: Scale, label: "Dispute Resolution" },
+                { icon: FileCheck, label: "PIPEDA & CCPA Compliant" },
+              ].map((badge, i) => (
+                <div key={badge.label} className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground shadow-sm">
+                  <badge.icon className="h-3.5 w-3.5 text-primary" />
+                  {badge.label}
+                </div>
+              ))}
+            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -142,8 +221,55 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Revvin vs Ads */}
+      {/* Testimonials */}
       <section className="border-y border-border bg-muted/30 py-24">
+        <div className="container">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+            <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
+              <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">Real Results</p>
+              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">What Our Users Say</h2>
+              <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Businesses and referrers across Canada and the USA are closing real deals on Revvin.</p>
+            </motion.div>
+            <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
+              {testimonials.map((t, i) => (
+                <motion.div key={t.name} variants={fadeUp} custom={i + 1} className="rounded-2xl border border-border bg-card p-6 relative">
+                  <Quote className="absolute top-5 right-5 h-8 w-8 text-primary/10" />
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                      {t.avatar}
+                    </div>
+                    <div>
+                      <p className="font-display text-sm font-bold">{t.name}</p>
+                      <p className="text-xs text-muted-foreground">{t.role} · {t.city}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-foreground/80 leading-relaxed mb-4">"{t.quote}"</p>
+                  <div className="flex items-center gap-4 pt-3 border-t border-border">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, si) => (
+                        <Star key={si} className="h-3.5 w-3.5 fill-accent text-accent" />
+                      ))}
+                    </div>
+                    {t.referrals !== null && (
+                      <span className="text-xs text-muted-foreground">
+                        {t.referrals} referrals · <span className="font-semibold text-earnings">{t.earned}</span> earned
+                      </span>
+                    )}
+                    {t.referrals === null && (
+                      <span className="text-xs text-muted-foreground">
+                        <span className="font-semibold text-foreground">{t.earned}</span> acquired
+                      </span>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Revvin vs Ads */}
+      <section className="py-24">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
@@ -218,7 +344,7 @@ const Index = () => {
       </section>
 
       {/* Split-Entry Onboarding Gate */}
-      <section className="py-24">
+      <section className="border-y border-border bg-muted/30 py-24">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
@@ -274,7 +400,7 @@ const Index = () => {
       </section>
 
       {/* Payout Economics */}
-      <section className="border-y border-border bg-muted/30 py-24">
+      <section className="py-24">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto max-w-4xl">
             <motion.div variants={fadeUp} custom={0} className="text-center mb-12">
@@ -315,7 +441,7 @@ const Index = () => {
       </section>
 
       {/* Featured Offers */}
-      <section className="py-24">
+      <section className="border-y border-border bg-muted/30 py-24">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="mb-12 flex items-end justify-between">
@@ -343,7 +469,7 @@ const Index = () => {
       </section>
 
       {/* Trust & Credibility Layer */}
-      <section className="border-t border-border bg-muted/30 py-24">
+      <section className="py-24">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
@@ -379,7 +505,7 @@ const Index = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="py-24">
+      <section className="border-t border-border bg-muted/30 py-24">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto max-w-3xl text-center">
             <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold text-foreground md:text-4xl">
