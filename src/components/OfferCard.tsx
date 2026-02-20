@@ -1,6 +1,6 @@
 import { Offer } from "@/types/offer";
 import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Star, TrendingUp, Clock, DollarSign, Wifi, BadgeCheck, ArrowRight } from "lucide-react";
+import { MapPin, Star, TrendingUp, Clock, DollarSign, Wifi, BadgeCheck, ArrowRight, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import QualificationTooltip from "@/components/QualificationTooltip";
@@ -55,11 +55,18 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           {offer.description}
         </p>
 
-        {/* Payout Highlight — BIGGER */}
+        {/* Payout Highlight */}
         <div className="mb-4 rounded-xl bg-earnings/5 border border-earnings/20 p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-earnings uppercase tracking-wide">Earn per referral</span>
-            <QualificationTooltip rules={offer.qualificationRules} />
+            <div className="flex items-center gap-1.5">
+              {offer.fundSecured && (
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 gap-0.5 border-primary/30 text-primary">
+                  <ShieldCheck className="h-3 w-3" /> Funds Secured
+                </Badge>
+              )}
+              <QualificationTooltip rules={offer.qualificationRules} />
+            </div>
           </div>
           <div className="text-center mb-2">
             <span className="earnings-badge rounded-full px-6 py-2 text-lg font-bold shadow-sm inline-block">
@@ -82,43 +89,17 @@ const OfferCard = ({ offer }: OfferCardProps) => {
 
         {/* Meta */}
         <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap mb-4">
-          <span className="flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5" />
-            {offer.location}
-          </span>
-          <span className="flex items-center gap-1">
-            <Star className="h-3.5 w-3.5 fill-accent text-accent" />
-            {offer.rating}
-          </span>
-          <span className="flex items-center gap-1">
-            <TrendingUp className="h-3.5 w-3.5" />
-            {offer.successRate}%
-          </span>
+          <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{offer.location}</span>
+          <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 fill-accent text-accent" />{offer.rating}</span>
+          <span className="flex items-center gap-1"><TrendingUp className="h-3.5 w-3.5" />{offer.successRate}%</span>
         </div>
 
         {/* CTAs */}
         <div className="flex gap-2 pt-2 border-t border-border">
-          <Button
-            size="sm"
-            className="flex-1 gap-1 text-xs"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              navigate(`/offer/${offer.id}`);
-            }}
-          >
+          <Button size="sm" className="flex-1 gap-1 text-xs" onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/offer/${offer.id}`); }}>
             Submit Referral <ArrowRight className="h-3 w-3" />
           </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-xs"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              navigate(`/offer/${offer.id}`);
-            }}
-          >
+          <Button size="sm" variant="ghost" className="text-xs" onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/offer/${offer.id}`); }}>
             View Offer
           </Button>
         </div>

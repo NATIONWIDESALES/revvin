@@ -22,6 +22,7 @@ const Browse = () => {
   const [payoutTypeFilter, setPayoutTypeFilter] = useState<"all" | "flat" | "percentage">("all");
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [fundSecuredOnly, setFundSecuredOnly] = useState(false);
   const [closeTimeFilter, setCloseTimeFilter] = useState<CloseTimeFilter>("all");
   const [showFilters, setShowFilters] = useState(false);
 
@@ -37,13 +38,14 @@ const Browse = () => {
       const matchesType = payoutTypeFilter === "all" || o.payoutType === payoutTypeFilter;
       const matchesRemote = !remoteOnly || o.remoteEligible;
       const matchesVerified = !verifiedOnly || o.verified !== false;
+      const matchesFundSecured = !fundSecuredOnly || o.fundSecured === true;
       const matchesCloseTime = closeTimeFilter === "all" || (() => {
         const days = o.closeTimeDays ?? 30;
         if (closeTimeFilter === "fast") return days <= 14;
         if (closeTimeFilter === "medium") return days > 14 && days <= 45;
         return days > 45;
       })();
-      return matchesSearch && matchesCat && matchesPayout && matchesType && matchesRemote && matchesVerified && matchesCloseTime;
+      return matchesSearch && matchesCat && matchesPayout && matchesType && matchesRemote && matchesVerified && matchesFundSecured && matchesCloseTime;
     })
     .sort((a, b) => {
       if (sortBy === "payout") return b.payout - a.payout;
@@ -168,19 +170,14 @@ const Browse = () => {
               <div>
                 <label className="text-sm font-medium mb-2 block">Options</label>
                 <div className="mt-2 flex flex-col gap-2">
-                  <Button
-                    size="sm"
-                    variant={remoteOnly ? "default" : "outline"}
-                    onClick={() => setRemoteOnly(!remoteOnly)}
-                  >
+                  <Button size="sm" variant={remoteOnly ? "default" : "outline"} onClick={() => setRemoteOnly(!remoteOnly)}>
                     Remote Eligible Only
                   </Button>
-                  <Button
-                    size="sm"
-                    variant={verifiedOnly ? "default" : "outline"}
-                    onClick={() => setVerifiedOnly(!verifiedOnly)}
-                  >
+                  <Button size="sm" variant={verifiedOnly ? "default" : "outline"} onClick={() => setVerifiedOnly(!verifiedOnly)}>
                     Verified Only
+                  </Button>
+                  <Button size="sm" variant={fundSecuredOnly ? "default" : "outline"} onClick={() => setFundSecuredOnly(!fundSecuredOnly)}>
+                    🛡️ Funds Secured Only
                   </Button>
                 </div>
               </div>
@@ -216,7 +213,7 @@ const Browse = () => {
             <Building2 className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
             <p className="font-display text-lg font-semibold text-foreground">No offers match your filters</p>
             <p className="mt-2 text-sm text-muted-foreground">Try adjusting your search, category, or filter criteria</p>
-            <Button variant="outline" className="mt-4" onClick={() => { setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]); setPayoutTypeFilter("all"); setRemoteOnly(false); setVerifiedOnly(false); setCloseTimeFilter("all"); }}>
+            <Button variant="outline" className="mt-4" onClick={() => { setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]); setPayoutTypeFilter("all"); setRemoteOnly(false); setVerifiedOnly(false); setFundSecuredOnly(false); setCloseTimeFilter("all"); }}>
               Clear All Filters
             </Button>
           </div>

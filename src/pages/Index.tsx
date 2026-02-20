@@ -123,9 +123,9 @@ const Index = () => {
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto grid max-w-5xl gap-8 md:grid-cols-3">
             {[
-              { step: "01", icon: Building2, title: "Business Posts Offer", desc: "Set a fixed dollar or percentage referral payout. Define qualification rules. Publish to the marketplace.", color: "bg-primary/10 text-primary" },
+              { step: "01", icon: Building2, title: "Business Funds Wallet & Posts Offer", desc: "Add funds to your Revvin Wallet. Set a fixed dollar or percentage payout. Publish to the marketplace.", color: "bg-primary/10 text-primary" },
               { step: "02", icon: Users, title: "Referrer Submits Customer", desc: "Know someone who needs the service? Submit their details. First submission wins — timestamped.", color: "bg-earnings/10 text-earnings" },
-              { step: "03", icon: DollarSign, title: "Deal Closes → Payout Released", desc: "Business closes the deal. Payout is verified and released. 90% to referrer, 10% platform fee.", color: "bg-accent/10 text-accent-foreground" },
+              { step: "03", icon: DollarSign, title: "Accept → Funds Reserved → Close → Payout", desc: "Business accepts referral, funds are escrowed. Deal closes → payout released. 90% to referrer, 10% platform fee.", color: "bg-accent/10 text-accent-foreground" },
             ].map((item, i) => (
               <motion.div key={item.step} variants={fadeUp} custom={i} className="group relative rounded-2xl border border-border bg-card p-8 text-center transition-all hover:shadow-lg hover:-translate-y-1">
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-md">
