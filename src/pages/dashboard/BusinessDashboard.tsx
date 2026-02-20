@@ -4,19 +4,25 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   DollarSign, Users, TrendingUp, PlusCircle, ArrowRight,
   CheckCircle2, XCircle, Clock, Eye, BarChart3, Building2, Shield,
-  Pause, Play, Edit, Target
+  Pause, Play, Edit, Target, Link2, Check, MapPin, AlertTriangle
 } from "lucide-react";
 import { motion } from "framer-motion";
+import OfferCompetitiveness from "@/components/OfferCompetitiveness";
+import ShareOfferLink from "@/components/ShareOfferLink";
 
 const statusConfig: Record<string, { bg: string; text: string }> = {
   submitted: { bg: "bg-muted", text: "text-muted-foreground" },
   contacted: { bg: "bg-blue-50", text: "text-blue-700" },
   in_progress: { bg: "bg-accent/10", text: "text-accent-foreground" },
+  qualified: { bg: "bg-primary/10", text: "text-primary" },
   won: { bg: "bg-earnings/10", text: "text-earnings" },
   lost: { bg: "bg-destructive/10", text: "text-destructive" },
+  paid: { bg: "bg-earnings/10", text: "text-earnings" },
+  duplicate: { bg: "bg-muted", text: "text-muted-foreground" },
 };
 
 const fadeUp = {
@@ -30,6 +36,9 @@ const BusinessDashboard = () => {
   const [offers, setOffers] = useState<any[]>([]);
   const [referrals, setReferrals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingPayout, setEditingPayout] = useState<string | null>(null);
+  const [newPayout, setNewPayout] = useState("");
+  const [copiedLink, setCopiedLink] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -60,6 +69,22 @@ const BusinessDashboard = () => {
     setOffers((prev) => prev.map((o) => (o.id === offerId ? { ...o, status: newStatus } : o)));
   };
 
+  const saveEditPayout = async (offerId: string) => {
+    const val = parseFloat(newPayout);
+    if (isNaN(val) || val <= 0) return;
+    await supabase.from("offers").update({ payout: val }).eq("id", offerId);
+    setOffers((prev) => prev.map((o) => (o.id === offerId ? { ...o, payout: val } : o)));
+    setEditingPayout(null);
+    setNewPayout("");
+  };
+
+  const inviteReferrers = (offerId: string) => {
+    const url = `${window.location.origin}/offer/${offerId}`;
+    navigator.clipboard.writeText(url);
+    setCopiedLink(offerId);
+    setTimeout(() => setCopiedLink(null), 2000);
+  };
+
   const totalPaid = referrals.filter(r => r.payout_status === "paid").reduce((s, r) => s + (r.payout_amount ?? 0), 0);
   const totalOwed = referrals.filter(r => r.status === "won" && r.payout_status !== "paid").reduce((s, r) => {
     const offer = r.offers;
@@ -70,13 +95,16 @@ const BusinessDashboard = () => {
   const conversionRate = referrals.length > 0 ? Math.round((wonCount / referrals.length) * 100) : 0;
   const activeOffers = offers.filter(o => o.status === "active").length;
   const avgAcquisitionCost = wonCount > 0 ? Math.round(totalPaid / wonCount) : 0;
+  const newRefs7d = referrals.filter(r => new Date(r.created_at) > new Date(Date.now() - 7 * 86400000)).length;
 
   const stats = [
-    { label: "Incoming Referrals", value: referrals.length.toString(), icon: Users, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "Active Offers", value: activeOffers.toString(), icon: Building2, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "New Referrals (7d)", value: newRefs7d.toString(), icon: Users, color: "text-primary", bgColor: "bg-primary/10" },
     { label: "Deals Closed", value: wonCount.toString(), icon: CheckCircle2, color: "text-earnings", bgColor: "bg-earnings/10" },
     { label: "Conversion Rate", value: `${conversionRate}%`, icon: TrendingUp, color: "text-accent-foreground", bgColor: "bg-accent/10" },
-    { label: "Avg. Acquisition Cost", value: wonCount > 0 ? `$${avgAcquisitionCost}` : "—", icon: Target, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "Est. Acquisition Cost", value: wonCount > 0 ? `$${avgAcquisitionCost}` : "—", icon: Target, color: "text-primary", bgColor: "bg-primary/10" },
     { label: "Commission Owed", value: `$${totalOwed.toLocaleString()}`, icon: Clock, color: "text-accent-foreground", bgColor: "bg-accent/10" },
+    { label: "Revenue Influenced", value: wonCount > 0 ? `$${(wonCount * 15000).toLocaleString()}` : "—", icon: BarChart3, color: "text-earnings", bgColor: "bg-earnings/10" },
     { label: "Total Paid Out", value: `$${totalPaid.toLocaleString()}`, icon: DollarSign, color: "text-muted-foreground", bgColor: "bg-muted" },
   ];
 
@@ -97,13 +125,15 @@ const BusinessDashboard = () => {
               </div>
               <p className="text-muted-foreground">{business?.name ?? "Your Business"} • {activeOffers} active {activeOffers === 1 ? "offer" : "offers"}</p>
             </div>
-            <Button asChild className="gap-2 h-11">
-              <Link to="/dashboard/create-offer"><PlusCircle className="h-4 w-4" /> Create Offer</Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button asChild className="gap-2 h-11">
+                <Link to="/dashboard/create-offer"><PlusCircle className="h-4 w-4" /> Create Offer</Link>
+              </Button>
+            </div>
           </motion.div>
 
           {/* Stats */}
-          <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((s) => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                 <div className="flex items-center gap-3">
@@ -117,6 +147,19 @@ const BusinessDashboard = () => {
                 </div>
               </div>
             ))}
+          </motion.div>
+
+          {/* Competitiveness Widget */}
+          <motion.div variants={fadeUp} custom={1.5} className="mb-8 grid gap-4 md:grid-cols-2">
+            <OfferCompetitiveness score={conversionRate > 50 ? 78 : 55} label={conversionRate > 50 ? "Strong" : "Competitive"} />
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-sm font-medium mb-3">Suggestions to Improve</p>
+              <ul className="space-y-2">
+                <li className="flex items-start gap-2 text-xs text-muted-foreground"><TrendingUp className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Increase payout to attract more referrers</li>
+                <li className="flex items-start gap-2 text-xs text-muted-foreground"><Clock className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Shorten payout timeline to Net 7</li>
+                <li className="flex items-start gap-2 text-xs text-muted-foreground"><Shield className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Complete business verification</li>
+              </ul>
+            </div>
           </motion.div>
 
           {/* Active Offers */}
@@ -151,24 +194,32 @@ const BusinessDashboard = () => {
                       <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{offer.description}</p>
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <span className="earnings-badge rounded-full px-3 py-0.5 text-xs font-bold">
-                            {offer.payout_type === "flat" ? `$${offer.payout}` : `${offer.payout}%`}
-                          </span>
+                          {editingPayout === offer.id ? (
+                            <div className="flex items-center gap-1">
+                              <Input type="number" value={newPayout} onChange={(e) => setNewPayout(e.target.value)} className="h-7 w-20 text-xs" placeholder={String(offer.payout)} />
+                              <Button size="sm" className="h-7 text-xs px-2" onClick={() => saveEditPayout(offer.id)}>Save</Button>
+                              <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => setEditingPayout(null)}>✕</Button>
+                            </div>
+                          ) : (
+                            <span className="earnings-badge rounded-full px-3 py-0.5 text-xs font-bold">
+                              {offer.payout_type === "flat" ? `$${offer.payout}` : `${offer.payout}%`}
+                            </span>
+                          )}
                           <span className="text-xs text-muted-foreground">{offer.category}</span>
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {offerRefs.length} referrals • {offerWon} won • {offerConversion}% conv.
+                          {offerRefs.length} refs • {offerWon} won • {offerConversion}%
                         </div>
                       </div>
-                      {/* Offer Actions */}
-                      <div className="flex items-center gap-2 pt-3 border-t border-border">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="gap-1 text-xs"
-                          onClick={() => toggleOfferStatus(offer.id, offer.status)}
-                        >
+                      <div className="flex items-center gap-2 pt-3 border-t border-border flex-wrap">
+                        <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => toggleOfferStatus(offer.id, offer.status)}>
                           {offer.status === "active" ? <><Pause className="h-3 w-3" /> Pause</> : <><Play className="h-3 w-3" /> Activate</>}
+                        </Button>
+                        <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => { setEditingPayout(offer.id); setNewPayout(String(offer.payout)); }}>
+                          <Edit className="h-3 w-3" /> Edit Payout
+                        </Button>
+                        <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => inviteReferrers(offer.id)}>
+                          {copiedLink === offer.id ? <><Check className="h-3 w-3" /> Copied!</> : <><Link2 className="h-3 w-3" /> Invite Referrers</>}
                         </Button>
                       </div>
                     </div>
@@ -215,14 +266,22 @@ const BusinessDashboard = () => {
                               <Button size="sm" variant="destructive" onClick={() => updateReferralStatus(ref.id, "lost")} className="gap-1">
                                 <XCircle className="h-3 w-3" /> Lost
                               </Button>
+                              <Button size="sm" variant="ghost" onClick={() => updateReferralStatus(ref.id, "duplicate")} className="gap-1 text-xs">
+                                <AlertTriangle className="h-3 w-3" /> Duplicate
+                              </Button>
                             </>
                           )}
                           {ref.status === "contacted" && (
-                            <Button size="sm" onClick={() => updateReferralStatus(ref.id, "in_progress")} className="gap-1">
-                              <Clock className="h-3 w-3" /> In Progress
-                            </Button>
+                            <>
+                              <Button size="sm" variant="outline" onClick={() => updateReferralStatus(ref.id, "qualified")} className="gap-1">
+                                <CheckCircle2 className="h-3 w-3" /> Qualified
+                              </Button>
+                              <Button size="sm" onClick={() => updateReferralStatus(ref.id, "in_progress")} className="gap-1">
+                                <Clock className="h-3 w-3" /> In Progress
+                              </Button>
+                            </>
                           )}
-                          {ref.status === "in_progress" && (
+                          {(ref.status === "in_progress" || ref.status === "qualified") && (
                             <>
                               <Button size="sm" onClick={() => updateReferralStatus(ref.id, "won")} className="gap-1">
                                 <CheckCircle2 className="h-3 w-3" /> Won

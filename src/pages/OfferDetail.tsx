@@ -3,11 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, MapPin, Star, TrendingUp, Users, DollarSign, CheckCircle2, Clock, Shield, Upload, Briefcase } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, MapPin, Star, TrendingUp, Users, DollarSign, CheckCircle2, Clock, Shield, Upload, Briefcase, BadgeCheck, AlertTriangle, Scale, FileCheck } from "lucide-react";
 import { mockOffers } from "@/data/mockOffers";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import ShareOfferLink from "@/components/ShareOfferLink";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -21,7 +25,11 @@ const OfferDetail = () => {
   const { id } = useParams();
   const offer = mockOffers.find((o) => o.id === id);
   const { toast } = useToast();
+  const { user } = useAuth();
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [referralId, setReferralId] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", notes: "" });
 
   if (!offer) {
@@ -35,10 +43,27 @@ const OfferDetail = () => {
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!consent) {
+      toast({ title: "Consent required", description: "Please confirm the customer has consented to being contacted.", variant: "destructive" });
+      return;
+    }
+
+    if (!user) {
+      toast({ title: "Sign in required", description: "Please sign in to submit a referral.", variant: "destructive" });
+      return;
+    }
+
+    setSubmitting(true);
+
+    // For mock offers (no real business_id in DB), show success with placeholder
+    // In production, this would use the real business_id from the offer
+    const placeholderId = crypto.randomUUID();
+    setReferralId(placeholderId);
     setSubmitted(true);
-    toast({ title: "Referral Submitted!", description: "You'll be notified when the business reviews it." });
+    setSubmitting(false);
+    toast({ title: "Referral Submitted!", description: "Track this referral inside your dashboard." });
   };
 
   const referrerEarns = offer.payoutType === "flat"
@@ -48,14 +73,25 @@ const OfferDetail = () => {
     ? Math.round(offer.payout * 0.1)
     : null;
 
+  const qualificationRules = offer.qualificationRules ?? [
+    "Lead must be new (not existing customer)",
+    "Customer must be reachable by phone or email",
+    "Located within the business service area",
+  ];
+
+  const payoutTimelineLabel = offer.payoutTimeline === "net7" ? "Net 7" : offer.payoutTimeline === "net14" ? "Net 14" : offer.payoutTimeline === "net30" ? "Net 30" : `~${offer.closeTimeDays} days`;
+
   return (
     <div className="py-8">
       <div className="container max-w-5xl">
-        <Button variant="ghost" size="sm" className="mb-6 gap-1" asChild>
-          <Link to="/browse">
-            <ArrowLeft className="h-4 w-4" /> Back to Marketplace
-          </Link>
-        </Button>
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="ghost" size="sm" className="gap-1" asChild>
+            <Link to="/browse">
+              <ArrowLeft className="h-4 w-4" /> Back to Marketplace
+            </Link>
+          </Button>
+          <ShareOfferLink offerId={offer.id} offerTitle={offer.title} />
+        </div>
 
         <div className="grid gap-8 lg:grid-cols-5">
           {/* Details Column */}
@@ -67,7 +103,10 @@ const OfferDetail = () => {
               </div>
               <div className="flex-1">
                 <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">{offer.title}</h1>
-                <p className="text-muted-foreground mt-1">{offer.business}</p>
+                <p className="text-muted-foreground mt-1 flex items-center gap-1">
+                  {offer.business}
+                  {offer.verified !== false && <BadgeCheck className="h-4 w-4 text-primary" />}
+                </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Badge variant="outline">{offer.category}</Badge>
                   {offer.featured && <Badge className="bg-accent text-accent-foreground">Featured</Badge>}
@@ -129,15 +168,13 @@ const OfferDetail = () => {
                   <p className="text-lg font-display font-bold">${offer.dealSizeMin.toLocaleString()} – ${offer.dealSizeMax.toLocaleString()}</p>
                 </div>
               )}
-              {offer.closeTimeDays && (
-                <div className="rounded-xl border border-border bg-card p-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Typical Close Time</span>
-                  </div>
-                  <p className="text-lg font-display font-bold">{offer.closeTimeDays} days</p>
+              <div className="rounded-xl border border-border bg-card p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Payout Timeline</span>
                 </div>
-              )}
+                <p className="text-lg font-display font-bold">{payoutTimelineLabel}</p>
+              </div>
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-2 mb-1">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -150,7 +187,7 @@ const OfferDetail = () => {
                   <Shield className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">Verification</span>
                 </div>
-                <p className="text-lg font-display font-bold text-primary">Verified Business</p>
+                <p className="text-lg font-display font-bold text-primary">{offer.verified !== false ? "Verified Business" : "Unverified"}</p>
               </div>
             </motion.div>
 
@@ -174,18 +211,38 @@ const OfferDetail = () => {
                     <p className="font-display text-xl font-bold">${platformFee}</p>
                   </div>
                 </div>
+                <p className="text-xs text-muted-foreground mt-3 text-center">Revvin takes a 10% management fee. You keep 90%.</p>
               </motion.div>
             )}
 
-            {/* How it works */}
-            <motion.div variants={fadeUp} custom={5}>
-              <h2 className="font-display text-lg font-semibold mb-4">How This Referral Works</h2>
+            {/* Qualification Rules */}
+            <motion.div variants={fadeUp} custom={5} className="rounded-2xl border border-border bg-card p-6">
+              <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
+                <FileCheck className="h-5 w-5 text-primary" /> Qualification Rules
+              </h3>
+              <ul className="space-y-2.5">
+                {qualificationRules.map((rule, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    {rule}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">
+                <AlertTriangle className="h-3.5 w-3.5 text-accent shrink-0 mt-0.5" />
+                <span><strong>Duplicate Lead Policy:</strong> First submission wins, timestamped. If someone already submitted this lead, yours will be marked as duplicate.</span>
+              </div>
+            </motion.div>
+
+            {/* How Verification Works */}
+            <motion.div variants={fadeUp} custom={6}>
+              <h2 className="font-display text-lg font-semibold mb-4">How Verification Works</h2>
               <div className="space-y-3">
                 {[
-                  "Submit the referral using the form with contact details",
+                  "You submit the referral with contact details and context",
                   `${offer.business} reviews and reaches out to your lead`,
-                  "If the deal closes, your commission is approved automatically",
-                  `You earn ${offer.payoutType === "flat" ? `$${referrerEarns}` : `${offer.payout}%`} paid directly to your account`,
+                  "Revvin tracks the deal status and verifies the outcome",
+                  `Deal closes → your commission ($${referrerEarns}) is approved and paid`,
                 ].map((step, i) => (
                   <div key={i} className="flex items-start gap-3 rounded-lg bg-card border border-border p-3">
                     <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
@@ -195,6 +252,41 @@ const OfferDetail = () => {
                   </div>
                 ))}
               </div>
+            </motion.div>
+
+            {/* Business Credibility */}
+            <motion.div variants={fadeUp} custom={7} className="rounded-2xl border border-border bg-card p-6">
+              <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
+                <BadgeCheck className="h-5 w-5 text-primary" /> Business Credibility
+              </h3>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-lg bg-muted/50 p-3 text-center">
+                  <BadgeCheck className="mx-auto mb-1 h-5 w-5 text-primary" />
+                  <p className="text-xs font-medium">Verification Level</p>
+                  <p className="text-sm font-bold text-primary">{offer.verified !== false ? "Verified" : "Pending"}</p>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-3 text-center">
+                  <Shield className="mx-auto mb-1 h-5 w-5 text-muted-foreground" />
+                  <p className="text-xs font-medium">License / Insurance</p>
+                  <p className="text-sm text-muted-foreground">On file</p>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-3 text-center">
+                  <Star className="mx-auto mb-1 h-5 w-5 text-accent" />
+                  <p className="text-xs font-medium">Reviews</p>
+                  <p className="text-sm font-bold">{offer.rating} / 5.0</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Secondary CTA */}
+            <motion.div variants={fadeUp} custom={8}>
+              <Button
+                variant="ghost"
+                className="text-sm text-muted-foreground hover:text-primary"
+                onClick={() => toast({ title: "Feedback submitted", description: "We'll relay your suggestion to improve this offer." })}
+              >
+                <Scale className="h-4 w-4 mr-1.5" /> Invite this business to improve their offer
+              </Button>
             </motion.div>
           </motion.div>
 
@@ -209,14 +301,19 @@ const OfferDetail = () => {
               </div>
 
               {submitted ? (
-                <div className="py-10 text-center">
+                <div className="py-8 text-center">
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-earnings/10">
                     <CheckCircle2 className="h-8 w-8 text-earnings" />
                   </div>
                   <h3 className="font-display text-xl font-bold">Referral Submitted!</h3>
                   <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                    We'll notify you when {offer.business} reviews it. Track the status in your dashboard.
+                    Track this referral inside your dashboard.
                   </p>
+                  {referralId && (
+                    <p className="mt-2 text-xs text-muted-foreground font-mono bg-muted/50 rounded px-2 py-1 inline-block">
+                      Ref ID: {referralId.slice(0, 8)}...
+                    </p>
+                  )}
 
                   {/* Tracking Preview */}
                   <div className="mt-6 rounded-xl border border-border bg-muted/50 p-4 text-left">
@@ -232,11 +329,11 @@ const OfferDetail = () => {
                   </div>
 
                   <div className="mt-6 flex gap-2">
-                    <Button variant="outline" className="flex-1" onClick={() => setSubmitted(false)}>
+                    <Button variant="outline" className="flex-1" onClick={() => { setSubmitted(false); setConsent(false); }}>
                       Submit Another
                     </Button>
                     <Button className="flex-1" asChild>
-                      <Link to="/dashboard">View Dashboard</Link>
+                      <Link to="/dashboard">Track in Dashboard</Link>
                     </Button>
                   </div>
                 </div>
@@ -288,8 +385,22 @@ const OfferDetail = () => {
                       </div>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full h-11 font-semibold" size="lg">
-                    Submit Referral
+
+                  {/* Consent */}
+                  <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-3">
+                    <Checkbox
+                      id="consent"
+                      checked={consent}
+                      onCheckedChange={(v) => setConsent(v === true)}
+                      className="mt-0.5"
+                    />
+                    <label htmlFor="consent" className="text-xs text-muted-foreground cursor-pointer leading-relaxed">
+                      I confirm the customer has consented to being contacted about this service. I acknowledge the referral terms.
+                    </label>
+                  </div>
+
+                  <Button type="submit" className="w-full h-11 font-semibold" size="lg" disabled={submitting}>
+                    {submitting ? "Submitting..." : "Submit Referral"}
                   </Button>
                   <p className="text-center text-xs text-muted-foreground">
                     By submitting, you agree to our referral terms and conditions.

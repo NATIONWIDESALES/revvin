@@ -1,13 +1,24 @@
 import { Offer } from "@/types/offer";
-import { Link } from "react-router-dom";
-import { MapPin, Star, TrendingUp, Clock, DollarSign, Shield, Wifi, BadgeCheck } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { MapPin, Star, TrendingUp, Clock, DollarSign, Wifi, BadgeCheck, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import QualificationTooltip from "@/components/QualificationTooltip";
 
 interface OfferCardProps {
   offer: Offer;
 }
 
+const payoutTimelineLabel = (timeline?: string) => {
+  if (timeline === "net7") return "Paid Net 7 after close";
+  if (timeline === "net14") return "Paid Net 14 after close";
+  if (timeline === "net30") return "Paid Net 30 after close";
+  return null;
+};
+
 const OfferCard = ({ offer }: OfferCardProps) => {
+  const navigate = useNavigate();
+
   return (
     <Link to={`/offer/${offer.id}`} className="group block">
       <div className="card-hover rounded-2xl border border-border bg-card p-6 shadow-sm h-full flex flex-col">
@@ -23,7 +34,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
               </h3>
               <p className="text-sm text-muted-foreground flex items-center gap-1">
                 {offer.business}
-                <BadgeCheck className="h-3.5 w-3.5 text-primary" />
+                {(offer.verified !== false) && <BadgeCheck className="h-3.5 w-3.5 text-primary" />}
               </p>
             </div>
           </div>
@@ -44,16 +55,19 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           {offer.description}
         </p>
 
-        {/* Payout Highlight */}
+        {/* Payout Highlight — BIGGER */}
         <div className="mb-4 rounded-xl bg-earnings/5 border border-earnings/20 p-4">
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-earnings uppercase tracking-wide">Earn per referral</span>
-            <span className="earnings-badge rounded-full px-4 py-1.5 text-sm font-bold shadow-sm">
+            <QualificationTooltip rules={offer.qualificationRules} />
+          </div>
+          <div className="text-center mb-2">
+            <span className="earnings-badge rounded-full px-6 py-2 text-lg font-bold shadow-sm inline-block">
               {offer.payoutType === "flat" ? `$${offer.payout}` : `${offer.payout}%`}
             </span>
           </div>
           {(offer.dealSizeMin || offer.dealSizeMax) && (
-            <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" /> Avg deal size</span>
               <span className="font-medium">${offer.dealSizeMin?.toLocaleString()} – ${offer.dealSizeMax?.toLocaleString()}</span>
             </div>
@@ -61,13 +75,13 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           {offer.closeTimeDays && (
             <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Payout timeline</span>
-              <span className="font-medium">~{offer.closeTimeDays} days</span>
+              <span className="font-medium">{payoutTimelineLabel(offer.payoutTimeline) ?? `~${offer.closeTimeDays} days`}</span>
             </div>
           )}
         </div>
 
         {/* Meta */}
-        <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap mb-4">
           <span className="flex items-center gap-1">
             <MapPin className="h-3.5 w-3.5" />
             {offer.location}
@@ -80,10 +94,33 @@ const OfferCard = ({ offer }: OfferCardProps) => {
             <TrendingUp className="h-3.5 w-3.5" />
             {offer.successRate}%
           </span>
-          <span className="flex items-center gap-1">
-            <BadgeCheck className="h-3.5 w-3.5 text-primary" />
-            Verified
-          </span>
+        </div>
+
+        {/* CTAs */}
+        <div className="flex gap-2 pt-2 border-t border-border">
+          <Button
+            size="sm"
+            className="flex-1 gap-1 text-xs"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              navigate(`/offer/${offer.id}`);
+            }}
+          >
+            Submit Referral <ArrowRight className="h-3 w-3" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-xs"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              navigate(`/offer/${offer.id}`);
+            }}
+          >
+            View Offer
+          </Button>
         </div>
       </div>
     </Link>

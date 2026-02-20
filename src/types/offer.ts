@@ -18,4 +18,8 @@ export interface Offer {
   remoteEligible?: boolean;
   latitude?: number;
   longitude?: number;
+  qualificationRules?: string[];
+  payoutTimeline?: "net7" | "net14" | "net30";
+  monthlyCapacity?: number;
+  verified?: boolean;
 }

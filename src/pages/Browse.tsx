@@ -1,22 +1,28 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, SlidersHorizontal, Map, List, Building2 } from "lucide-react";
+import { Search, SlidersHorizontal, Map, List, Building2, ArrowRight, PlusCircle } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import MapView from "@/components/MapView";
 import { mockOffers, categories } from "@/data/mockOffers";
 import { Slider } from "@/components/ui/slider";
 import { motion } from "framer-motion";
 
+type SortOption = "payout" | "rating" | "success" | "fastest" | "newest";
+type CloseTimeFilter = "all" | "fast" | "medium" | "long";
+
 const Browse = () => {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [sortBy, setSortBy] = useState<"payout" | "rating" | "success">("payout");
+  const [sortBy, setSortBy] = useState<SortOption>("payout");
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [payoutRange, setPayoutRange] = useState([0, 1000]);
   const [payoutTypeFilter, setPayoutTypeFilter] = useState<"all" | "flat" | "percentage">("all");
   const [remoteOnly, setRemoteOnly] = useState(false);
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [closeTimeFilter, setCloseTimeFilter] = useState<CloseTimeFilter>("all");
   const [showFilters, setShowFilters] = useState(false);
 
   const filtered = mockOffers
@@ -30,11 +36,20 @@ const Browse = () => {
       const matchesPayout = o.payout >= payoutRange[0] && o.payout <= payoutRange[1];
       const matchesType = payoutTypeFilter === "all" || o.payoutType === payoutTypeFilter;
       const matchesRemote = !remoteOnly || o.remoteEligible;
-      return matchesSearch && matchesCat && matchesPayout && matchesType && matchesRemote;
+      const matchesVerified = !verifiedOnly || o.verified !== false;
+      const matchesCloseTime = closeTimeFilter === "all" || (() => {
+        const days = o.closeTimeDays ?? 30;
+        if (closeTimeFilter === "fast") return days <= 14;
+        if (closeTimeFilter === "medium") return days > 14 && days <= 45;
+        return days > 45;
+      })();
+      return matchesSearch && matchesCat && matchesPayout && matchesType && matchesRemote && matchesVerified && matchesCloseTime;
     })
     .sort((a, b) => {
       if (sortBy === "payout") return b.payout - a.payout;
       if (sortBy === "rating") return b.rating - a.rating;
+      if (sortBy === "fastest") return (a.closeTimeDays ?? 99) - (b.closeTimeDays ?? 99);
+      if (sortBy === "newest") return parseInt(b.id) - parseInt(a.id);
       return b.successRate - a.successRate;
     });
 
@@ -74,13 +89,13 @@ const Browse = () => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search by business, service, or location..."
+              placeholder="Search by category, city, or business name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10 h-11"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
               variant={showFilters ? "default" : "outline"}
               size="sm"
@@ -89,7 +104,7 @@ const Browse = () => {
             >
               <SlidersHorizontal className="h-4 w-4" /> Filters
             </Button>
-            {(["payout", "rating", "success"] as const).map((s) => (
+            {(["payout", "fastest", "newest", "success"] as SortOption[]).map((s) => (
               <Button
                 key={s}
                 variant={sortBy === s ? "default" : "outline"}
@@ -97,7 +112,7 @@ const Browse = () => {
                 onClick={() => setSortBy(s)}
                 className="capitalize hidden sm:flex h-11"
               >
-                {s === "success" ? "Success Rate" : s}
+                {s === "success" ? "Success Rate" : s === "fastest" ? "Fastest Close" : s === "newest" ? "Newest" : "Highest Payout"}
               </Button>
             ))}
           </div>
@@ -111,7 +126,7 @@ const Browse = () => {
             exit={{ opacity: 0, height: 0 }}
             className="mb-6 rounded-2xl border border-border bg-card p-6 space-y-5 shadow-sm"
           >
-            <div className="grid gap-5 sm:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">
                   Payout Range: ${payoutRange[0]} – ${payoutRange[1]}+
@@ -135,14 +150,37 @@ const Browse = () => {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Eligibility</label>
-                <div className="mt-2">
+                <label className="text-sm font-medium mb-2 block">Close Time</label>
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  {([["all", "Any"], ["fast", "Fast (0–14d)"], ["medium", "Med (15–45d)"], ["long", "Long (45d+)"]] as [CloseTimeFilter, string][]).map(([key, label]) => (
+                    <Button
+                      key={key}
+                      size="sm"
+                      variant={closeTimeFilter === key ? "default" : "outline"}
+                      onClick={() => setCloseTimeFilter(key)}
+                      className="text-xs"
+                    >
+                      {label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Options</label>
+                <div className="mt-2 flex flex-col gap-2">
                   <Button
                     size="sm"
                     variant={remoteOnly ? "default" : "outline"}
                     onClick={() => setRemoteOnly(!remoteOnly)}
                   >
                     Remote Eligible Only
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={verifiedOnly ? "default" : "outline"}
+                    onClick={() => setVerifiedOnly(!verifiedOnly)}
+                  >
+                    Verified Only
                   </Button>
                 </div>
               </div>
@@ -178,11 +216,22 @@ const Browse = () => {
             <Building2 className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
             <p className="font-display text-lg font-semibold text-foreground">No offers match your filters</p>
             <p className="mt-2 text-sm text-muted-foreground">Try adjusting your search, category, or filter criteria</p>
-            <Button variant="outline" className="mt-4" onClick={() => { setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]); setPayoutTypeFilter("all"); setRemoteOnly(false); }}>
+            <Button variant="outline" className="mt-4" onClick={() => { setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]); setPayoutTypeFilter("all"); setRemoteOnly(false); setVerifiedOnly(false); setCloseTimeFilter("all"); }}>
               Clear All Filters
             </Button>
           </div>
         )}
+
+        {/* Business CTA strip */}
+        <div className="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h3 className="font-display text-lg font-bold">Are you a business?</h3>
+            <p className="text-sm text-muted-foreground">List your referral program and start receiving qualified leads today.</p>
+          </div>
+          <Button asChild className="gap-2 shrink-0">
+            <Link to="/auth?mode=signup&role=business"><PlusCircle className="h-4 w-4" /> Create an Offer</Link>
+          </Button>
+        </div>
       </div>
     </div>
   );

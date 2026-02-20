@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Browse from "./pages/Browse";
 import OfferDetail from "./pages/OfferDetail";
 import HowItWorks from "./pages/HowItWorks";
+import TrustCenter from "./pages/TrustCenter";
 import Auth from "./pages/Auth";
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import CreateOffer from "./pages/dashboard/CreateOffer";
@@ -31,6 +32,7 @@ const App = () => (
               <Route path="/browse" element={<Browse />} />
               <Route path="/offer/:id" element={<OfferDetail />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/trust" element={<TrustCenter />} />
               <Route path="/dashboard" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
               <Route path="/dashboard/create-offer" element={<ProtectedRoute requiredRole="business"><CreateOffer /></ProtectedRoute>} />
             </Route>
