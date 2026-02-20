@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   DollarSign, Users, TrendingUp, PlusCircle, ArrowRight,
-  CheckCircle2, XCircle, Clock, Eye, BarChart3, Building2, Shield
+  CheckCircle2, XCircle, Clock, Eye, BarChart3, Building2, Shield,
+  Pause, Play, Edit, Target
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -53,15 +54,29 @@ const BusinessDashboard = () => {
     setReferrals((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
   };
 
+  const toggleOfferStatus = async (offerId: string, currentStatus: string) => {
+    const newStatus = currentStatus === "active" ? "paused" : "active";
+    await supabase.from("offers").update({ status: newStatus }).eq("id", offerId);
+    setOffers((prev) => prev.map((o) => (o.id === offerId ? { ...o, status: newStatus } : o)));
+  };
+
   const totalPaid = referrals.filter(r => r.payout_status === "paid").reduce((s, r) => s + (r.payout_amount ?? 0), 0);
+  const totalOwed = referrals.filter(r => r.status === "won" && r.payout_status !== "paid").reduce((s, r) => {
+    const offer = r.offers;
+    if (!offer) return s;
+    return s + (offer.payout_type === "flat" ? Number(offer.payout) : 0);
+  }, 0);
   const wonCount = referrals.filter(r => r.status === "won").length;
   const conversionRate = referrals.length > 0 ? Math.round((wonCount / referrals.length) * 100) : 0;
   const activeOffers = offers.filter(o => o.status === "active").length;
+  const avgAcquisitionCost = wonCount > 0 ? Math.round(totalPaid / wonCount) : 0;
 
   const stats = [
     { label: "Incoming Referrals", value: referrals.length.toString(), icon: Users, color: "text-primary", bgColor: "bg-primary/10" },
     { label: "Deals Closed", value: wonCount.toString(), icon: CheckCircle2, color: "text-earnings", bgColor: "bg-earnings/10" },
-    { label: "Conversion Rate", value: `${conversionRate}%`, icon: TrendingUp, color: "text-accent", bgColor: "bg-accent/10" },
+    { label: "Conversion Rate", value: `${conversionRate}%`, icon: TrendingUp, color: "text-accent-foreground", bgColor: "bg-accent/10" },
+    { label: "Avg. Acquisition Cost", value: wonCount > 0 ? `$${avgAcquisitionCost}` : "—", icon: Target, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "Commission Owed", value: `$${totalOwed.toLocaleString()}`, icon: Clock, color: "text-accent-foreground", bgColor: "bg-accent/10" },
     { label: "Total Paid Out", value: `$${totalPaid.toLocaleString()}`, icon: DollarSign, color: "text-muted-foreground", bgColor: "bg-muted" },
   ];
 
@@ -77,7 +92,7 @@ const BusinessDashboard = () => {
           <motion.div variants={fadeUp} custom={0} className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <h1 className="font-display text-3xl font-bold text-foreground">Business Dashboard</h1>
+                <h1 className="font-display text-3xl font-bold text-foreground">Acquisition Dashboard</h1>
                 <Badge variant="secondary" className="gap-1"><Shield className="h-3 w-3" /> Verified</Badge>
               </div>
               <p className="text-muted-foreground">{business?.name ?? "Your Business"} • {activeOffers} active {activeOffers === 1 ? "offer" : "offers"}</p>
@@ -88,7 +103,7 @@ const BusinessDashboard = () => {
           </motion.div>
 
           {/* Stats */}
-          <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {stats.map((s) => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                 <div className="flex items-center gap-3">
@@ -126,6 +141,7 @@ const BusinessDashboard = () => {
                 {offers.map((offer: any) => {
                   const offerRefs = referrals.filter(r => r.offer_id === offer.id);
                   const offerWon = offerRefs.filter(r => r.status === "won").length;
+                  const offerConversion = offerRefs.length > 0 ? Math.round((offerWon / offerRefs.length) * 100) : 0;
                   return (
                     <div key={offer.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                       <div className="flex items-start justify-between mb-3">
@@ -133,7 +149,7 @@ const BusinessDashboard = () => {
                         <Badge variant={offer.status === "active" ? "default" : "secondary"}>{offer.status}</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{offer.description}</p>
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <span className="earnings-badge rounded-full px-3 py-0.5 text-xs font-bold">
                             {offer.payout_type === "flat" ? `$${offer.payout}` : `${offer.payout}%`}
@@ -141,8 +157,19 @@ const BusinessDashboard = () => {
                           <span className="text-xs text-muted-foreground">{offer.category}</span>
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {offerRefs.length} referrals • {offerWon} won
+                          {offerRefs.length} referrals • {offerWon} won • {offerConversion}% conv.
                         </div>
+                      </div>
+                      {/* Offer Actions */}
+                      <div className="flex items-center gap-2 pt-3 border-t border-border">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1 text-xs"
+                          onClick={() => toggleOfferStatus(offer.id, offer.status)}
+                        >
+                          {offer.status === "active" ? <><Pause className="h-3 w-3" /> Pause</> : <><Play className="h-3 w-3" /> Activate</>}
+                        </Button>
                       </div>
                     </div>
                   );
@@ -191,11 +218,9 @@ const BusinessDashboard = () => {
                             </>
                           )}
                           {ref.status === "contacted" && (
-                            <>
-                              <Button size="sm" onClick={() => updateReferralStatus(ref.id, "in_progress")} className="gap-1">
-                                <Clock className="h-3 w-3" /> In Progress
-                              </Button>
-                            </>
+                            <Button size="sm" onClick={() => updateReferralStatus(ref.id, "in_progress")} className="gap-1">
+                              <Clock className="h-3 w-3" /> In Progress
+                            </Button>
                           )}
                           {ref.status === "in_progress" && (
                             <>

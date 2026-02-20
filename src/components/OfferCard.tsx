@@ -1,6 +1,6 @@
 import { Offer } from "@/types/offer";
 import { Link } from "react-router-dom";
-import { MapPin, Star, TrendingUp, Clock, DollarSign, Shield, Wifi } from "lucide-react";
+import { MapPin, Star, TrendingUp, Clock, DollarSign, Shield, Wifi, BadgeCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface OfferCardProps {
@@ -23,7 +23,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
               </h3>
               <p className="text-sm text-muted-foreground flex items-center gap-1">
                 {offer.business}
-                <Shield className="h-3 w-3 text-primary" />
+                <BadgeCheck className="h-3.5 w-3.5 text-primary" />
               </p>
             </div>
           </div>
@@ -44,18 +44,24 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           {offer.description}
         </p>
 
-        {/* Payout + Deal Size */}
-        <div className="mb-4 rounded-xl bg-muted/50 border border-border/50 p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">Earn per referral</span>
-            <span className="earnings-badge rounded-full px-3.5 py-1 text-sm font-bold shadow-sm">
+        {/* Payout Highlight */}
+        <div className="mb-4 rounded-xl bg-earnings/5 border border-earnings/20 p-4">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold text-earnings uppercase tracking-wide">Earn per referral</span>
+            <span className="earnings-badge rounded-full px-4 py-1.5 text-sm font-bold shadow-sm">
               {offer.payoutType === "flat" ? `$${offer.payout}` : `${offer.payout}%`}
             </span>
           </div>
           {(offer.dealSizeMin || offer.dealSizeMax) && (
-            <div className="mt-2.5 flex items-center justify-between text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" /> Deal size</span>
+            <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" /> Avg deal size</span>
               <span className="font-medium">${offer.dealSizeMin?.toLocaleString()} – ${offer.dealSizeMax?.toLocaleString()}</span>
+            </div>
+          )}
+          {offer.closeTimeDays && (
+            <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Payout timeline</span>
+              <span className="font-medium">~{offer.closeTimeDays} days</span>
             </div>
           )}
         </div>
@@ -74,12 +80,10 @@ const OfferCard = ({ offer }: OfferCardProps) => {
             <TrendingUp className="h-3.5 w-3.5" />
             {offer.successRate}%
           </span>
-          {offer.closeTimeDays && (
-            <span className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              {offer.closeTimeDays}d
-            </span>
-          )}
+          <span className="flex items-center gap-1">
+            <BadgeCheck className="h-3.5 w-3.5 text-primary" />
+            Verified
+          </span>
         </div>
       </div>
     </Link>

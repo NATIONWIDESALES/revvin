@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   DollarSign, TrendingUp, Clock, CheckCircle2,
-  Trophy, Star, Zap, Award, Send, ArrowRight, Target, BarChart3
+  Trophy, Star, Zap, Award, Send, ArrowRight, Target, BarChart3, Wallet
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 const iconMap: Record<string, any> = { trophy: Trophy, star: Star, zap: Zap, "dollar-sign": DollarSign, "trending-up": TrendingUp, award: Award };
 
@@ -45,24 +46,46 @@ const ReferrerDashboard = () => {
     fetchData();
   }, [user]);
 
-  const totalEarnings = referrals.filter(r => r.payout_status === "paid").reduce((sum, r) => sum + (r.payout_amount ?? 0), 0);
-  const pendingEarnings = referrals.filter(r => r.payout_status === "approved").reduce((sum, r) => sum + (r.payout_amount ?? 0), 0);
+  const paidEarnings = referrals.filter(r => r.payout_status === "paid").reduce((sum, r) => sum + (r.payout_amount ?? 0), 0);
+  const confirmedEarnings = referrals.filter(r => r.status === "won" && r.payout_status === "approved").reduce((sum, r) => sum + (r.payout_amount ?? 0), 0);
+  const pendingEarnings = referrals.filter(r => ["submitted", "contacted", "in_progress"].includes(r.status)).reduce((sum, r) => {
+    const offer = r.offers;
+    if (!offer || offer.payout_type !== "flat") return sum;
+    return sum + Math.round(Number(offer.payout) * 0.9);
+  }, 0);
+  const lifetimeEarnings = paidEarnings + confirmedEarnings;
   const wonCount = referrals.filter(r => r.status === "won").length;
   const successRate = referrals.length > 0 ? Math.round((wonCount / referrals.length) * 100) : 0;
 
   const stats = [
-    { label: "Lifetime Earnings", value: `$${totalEarnings.toLocaleString()}`, icon: DollarSign, color: "text-earnings", bgColor: "bg-earnings/10" },
-    { label: "Pending Payout", value: `$${pendingEarnings.toLocaleString()}`, icon: Clock, color: "text-accent", bgColor: "bg-accent/10" },
-    { label: "Deals Won", value: wonCount.toString(), icon: CheckCircle2, color: "text-primary", bgColor: "bg-primary/10" },
-    { label: "Success Rate", value: `${successRate}%`, icon: Target, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "Pending Earnings", value: `$${pendingEarnings.toLocaleString()}`, icon: Clock, color: "text-accent-foreground", bgColor: "bg-accent/10" },
+    { label: "Confirmed Earnings", value: `$${confirmedEarnings.toLocaleString()}`, icon: CheckCircle2, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "Paid Earnings", value: `$${paidEarnings.toLocaleString()}`, icon: Wallet, color: "text-earnings", bgColor: "bg-earnings/10" },
+    { label: "Lifetime Earnings", value: `$${lifetimeEarnings.toLocaleString()}`, icon: DollarSign, color: "text-earnings", bgColor: "bg-earnings/10" },
+    { label: "Conversion Rate", value: `${successRate}%`, icon: Target, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "Deals Won", value: wonCount.toString(), icon: TrendingUp, color: "text-primary", bgColor: "bg-primary/10" },
   ];
 
-  // Milestones
+  // Build monthly earnings data for chart
+  const earningsByMonth = referrals
+    .filter(r => r.status === "won" && r.payout_amount)
+    .reduce((acc: Record<string, number>, r) => {
+      const month = new Date(r.created_at).toLocaleString("default", { month: "short", year: "2-digit" });
+      acc[month] = (acc[month] || 0) + (r.payout_amount ?? 0);
+      return acc;
+    }, {});
+  const chartData = Object.entries(earningsByMonth).map(([month, amount]) => ({ month, amount }));
+  // Add placeholder data if empty
+  const displayChartData = chartData.length > 0 ? chartData : [
+    { month: "Jan 26", amount: 0 },
+    { month: "Feb 26", amount: 0 },
+  ];
+
   const milestones = [
     { label: "First Referral", target: 1, current: referrals.length, icon: Send },
     { label: "5 Deals Won", target: 5, current: wonCount, icon: Trophy },
-    { label: "$1,000 Earned", target: 1000, current: totalEarnings, icon: DollarSign },
-    { label: "$5,000 Earned", target: 5000, current: totalEarnings, icon: Zap },
+    { label: "$1,000 Earned", target: 1000, current: lifetimeEarnings, icon: DollarSign },
+    { label: "$5,000 Earned", target: 5000, current: lifetimeEarnings, icon: Zap },
   ];
 
   if (loading) {
@@ -85,7 +108,7 @@ const ReferrerDashboard = () => {
           </motion.div>
 
           {/* Stats */}
-          <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {stats.map((s) => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                 <div className="flex items-center gap-3">
@@ -101,9 +124,29 @@ const ReferrerDashboard = () => {
             ))}
           </motion.div>
 
+          {/* Earnings Chart */}
+          <motion.div variants={fadeUp} custom={2} className="mb-8 rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <h2 className="font-display text-lg font-bold mb-4 flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-earnings" /> Earnings Over Time
+            </h2>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={displayChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
+                  <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${v}`} />
+                  <Tooltip
+                    formatter={(value: number) => [`$${value.toLocaleString()}`, "Earnings"]}
+                    contentStyle={{ borderRadius: "0.75rem", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
+                  />
+                  <Bar dataKey="amount" fill="hsl(var(--earnings))" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </motion.div>
+
           {/* Milestones & Badges */}
-          <motion.div variants={fadeUp} custom={2} className="mb-8 grid gap-6 md:grid-cols-2">
-            {/* Milestones */}
+          <motion.div variants={fadeUp} custom={3} className="mb-8 grid gap-6 md:grid-cols-2">
             <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
               <h2 className="font-display text-lg font-bold mb-4 flex items-center gap-2">
                 <Trophy className="h-5 w-5 text-accent" /> Milestones
@@ -124,10 +167,7 @@ const ReferrerDashboard = () => {
                         </span>
                       </div>
                       <div className="h-2 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all ${done ? "bg-earnings" : "bg-primary"}`}
-                          style={{ width: `${pct}%` }}
-                        />
+                        <div className={`h-full rounded-full transition-all ${done ? "bg-earnings" : "bg-primary"}`} style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   );
@@ -135,7 +175,6 @@ const ReferrerDashboard = () => {
               </div>
             </div>
 
-            {/* Badges */}
             <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
               <h2 className="font-display text-lg font-bold mb-4 flex items-center gap-2">
                 <Award className="h-5 w-5 text-accent" /> Your Badges
@@ -163,39 +202,6 @@ const ReferrerDashboard = () => {
                   })}
                 </div>
               )}
-            </div>
-          </motion.div>
-
-          {/* Leaderboard Preview */}
-          <motion.div variants={fadeUp} custom={3} className="mb-8 rounded-2xl border border-border bg-card p-6 shadow-sm">
-            <h2 className="font-display text-lg font-bold mb-4 flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-primary" /> Leaderboard Preview
-            </h2>
-            <div className="space-y-2">
-              {[
-                { rank: 1, name: "Sarah M.", earnings: "$12,450", deals: 28 },
-                { rank: 2, name: "James K.", earnings: "$9,200", deals: 19 },
-                { rank: 3, name: "Emily R.", earnings: "$7,800", deals: 15 },
-                { rank: 4, name: "You", earnings: `$${totalEarnings.toLocaleString()}`, deals: wonCount, isYou: true },
-              ].map((entry) => (
-                <div key={entry.rank} className={`flex items-center justify-between rounded-xl p-3 ${entry.isYou ? "bg-primary/5 border border-primary/20" : "bg-muted/30"}`}>
-                  <div className="flex items-center gap-3">
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
-                      entry.rank === 1 ? "bg-accent text-accent-foreground" :
-                      entry.rank === 2 ? "bg-muted text-foreground" :
-                      entry.rank === 3 ? "bg-muted text-foreground" :
-                      "bg-primary/10 text-primary"
-                    }`}>
-                      {entry.rank}
-                    </div>
-                    <span className={`text-sm font-medium ${entry.isYou ? "text-primary" : ""}`}>{entry.name}</span>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="text-muted-foreground">{entry.deals} deals</span>
-                    <span className="font-display font-bold text-foreground">{entry.earnings}</span>
-                  </div>
-                </div>
-              ))}
             </div>
           </motion.div>
 
