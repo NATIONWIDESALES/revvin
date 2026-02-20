@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, MapPin, Star, TrendingUp, Users, DollarSign, CheckCircle2, Clock, Shield, Briefcase, BadgeCheck, AlertTriangle, Scale, FileCheck } from "lucide-react";
 import { mockOffers } from "@/data/mockOffers";
+import { calculateOfferScore } from "@/data/mockOffers";
 import { useCountry } from "@/contexts/CountryContext";
 import { motion } from "framer-motion";
 import ShareOfferLink from "@/components/ShareOfferLink";
 import ReferralWizard from "@/components/ReferralWizard";
+import OfferScoreBadge from "@/components/OfferScoreBadge";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -50,7 +52,7 @@ const OfferDetail = () => {
   ];
 
   const payoutTimelineLabel = offer.payoutTimeline === "net7" ? "Net 7" : offer.payoutTimeline === "net14" ? "Net 14" : offer.payoutTimeline === "net30" ? "Net 30" : `~${offer.closeTimeDays} days`;
-
+  const offerScore = calculateOfferScore(offer);
   return (
     <div className="py-8">
       <div className="container max-w-5xl">
@@ -124,6 +126,11 @@ const OfferDetail = () => {
                   <div className="text-xs text-muted-foreground">Success Rate</div>
                 </div>
               </div>
+            </motion.div>
+
+            {/* Offer Score */}
+            <motion.div variants={fadeUp} custom={1.5}>
+              <OfferScoreBadge score={offerScore} compact={false} />
             </motion.div>
 
             {/* Description */}

@@ -6,13 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Search, SlidersHorizontal, Map, List, Building2, ArrowRight, PlusCircle, Globe } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import MapView from "@/components/MapView";
-import { mockOffers, categories } from "@/data/mockOffers";
+import { mockOffers, categories, calculateOfferScore } from "@/data/mockOffers";
 import { Slider } from "@/components/ui/slider";
 import { motion } from "framer-motion";
 import { useCountry } from "@/contexts/CountryContext";
+import CitySlots from "@/components/CitySlots";
 import type { Country } from "@/types/offer";
 
-type SortOption = "payout" | "rating" | "success" | "fastest" | "newest";
+type SortOption = "payout" | "rating" | "success" | "fastest" | "newest" | "score";
 type CloseTimeFilter = "all" | "fast" | "medium" | "long";
 
 const Browse = () => {
@@ -69,6 +70,7 @@ const Browse = () => {
       return matchesCountry && matchesSearch && matchesCat && matchesPayout && matchesType && matchesRemote && matchesVerified && matchesFundSecured && matchesState && matchesCity && matchesCloseTime;
     })
     .sort((a, b) => {
+      if (sortBy === "score") return calculateOfferScore(b).total - calculateOfferScore(a).total;
       if (sortBy === "payout") return b.payout - a.payout;
       if (sortBy === "rating") return b.rating - a.rating;
       if (sortBy === "fastest") return (a.closeTimeDays ?? 99) - (b.closeTimeDays ?? 99);
@@ -133,7 +135,7 @@ const Browse = () => {
             >
               <SlidersHorizontal className="h-4 w-4" /> Filters
             </Button>
-            {(["payout", "fastest", "newest", "success"] as SortOption[]).map((s) => (
+            {(["score", "payout", "fastest", "newest", "success"] as SortOption[]).map((s) => (
               <Button
                 key={s}
                 variant={sortBy === s ? "default" : "outline"}
@@ -141,7 +143,7 @@ const Browse = () => {
                 onClick={() => setSortBy(s)}
                 className="capitalize hidden sm:flex h-11"
               >
-                {s === "success" ? "Success Rate" : s === "fastest" ? "Fastest Close" : s === "newest" ? "Newest" : "Highest Payout"}
+                {s === "score" ? "Best Score" : s === "success" ? "Success Rate" : s === "fastest" ? "Fastest Close" : s === "newest" ? "Newest" : "Highest Payout"}
               </Button>
             ))}
           </div>
@@ -258,8 +260,34 @@ const Browse = () => {
           </div>
         )}
 
+        {/* City Slots */}
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          <CitySlots maxDisplay={6} showApplyButton={true} />
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <h3 className="font-display text-sm font-bold mb-3">📊 Marketplace Stats</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-muted/30 p-3 text-center">
+                <p className="font-display text-2xl font-bold text-foreground">{filtered.length}</p>
+                <p className="text-[10px] text-muted-foreground">Active Offers</p>
+              </div>
+              <div className="rounded-xl bg-muted/30 p-3 text-center">
+                <p className="font-display text-2xl font-bold text-foreground">{[...new Set(filtered.map(o => o.city))].length}</p>
+                <p className="text-[10px] text-muted-foreground">Cities</p>
+              </div>
+              <div className="rounded-xl bg-earnings/5 border border-earnings/20 p-3 text-center">
+                <p className="font-display text-2xl font-bold text-earnings">{filtered.filter(o => o.fundSecured).length}</p>
+                <p className="text-[10px] text-muted-foreground">Funds Secured</p>
+              </div>
+              <div className="rounded-xl bg-muted/30 p-3 text-center">
+                <p className="font-display text-2xl font-bold text-foreground">{[...new Set(filtered.map(o => o.category))].length}</p>
+                <p className="text-[10px] text-muted-foreground">Categories</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Business CTA strip */}
-        <div className="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-8 rounded-2xl border border-primary/20 bg-primary/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <h3 className="font-display text-lg font-bold">Are you a business?</h3>
             <p className="text-sm text-muted-foreground">List your referral program and start receiving qualified leads across {countryLabel}.</p>
