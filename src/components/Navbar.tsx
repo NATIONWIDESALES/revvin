@@ -16,6 +16,7 @@ const Navbar = () => {
   const links = [
     { to: "/", label: "Home" },
     { to: "/browse", label: "Marketplace" },
+    { to: "/how-it-works", label: "How It Works" },
     { to: "/for-businesses", label: "For Businesses" },
     { to: "/for-referrers", label: "For Referrers" },
     { to: "/trust", label: "Trust & Payouts" },
