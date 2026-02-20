@@ -18,6 +18,7 @@ import ForReferrers from "./pages/ForReferrers";
 import Auth from "./pages/Auth";
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import CreateOffer from "./pages/dashboard/CreateOffer";
+import ProfileEdit from "./pages/dashboard/ProfileEdit";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
@@ -50,6 +51,7 @@ const App = () => (
                   <Route path="/referral-agreement" element={<ReferralAgreement />} />
                   <Route path="/dashboard" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
                   <Route path="/dashboard/create-offer" element={<ProtectedRoute requiredRole="business"><CreateOffer /></ProtectedRoute>} />
+                  <Route path="/dashboard/profile" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
                   <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
                 </Route>
                 <Route path="*" element={<NotFound />} />

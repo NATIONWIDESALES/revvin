@@ -36,6 +36,11 @@ const CreateOffer = () => {
     closeTimeDays: "",
     remoteEligible: false,
     qualificationCriteria: "",
+    payoutTimeline: "net14" as "net7" | "net14" | "net30",
+    monthlyCapacity: "",
+    leadFreshness: "",
+    minProjectSize: "",
+    eligibleLocations: "",
   });
 
   useEffect(() => {
@@ -50,12 +55,19 @@ const CreateOffer = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (step < 4) {
+    if (step < 5) {
       setStep(step + 1);
       return;
     }
     if (!businessId) return;
     setLoading(true);
+
+    const qualRules = [
+      form.leadFreshness && `Lead freshness: ${form.leadFreshness}`,
+      form.minProjectSize && `Minimum project size: $${form.minProjectSize}`,
+      form.eligibleLocations && `Eligible locations: ${form.eligibleLocations}`,
+      form.qualificationCriteria,
+    ].filter(Boolean).join("\n");
 
     const { error } = await supabase.from("offers").insert({
       business_id: businessId,
@@ -69,7 +81,7 @@ const CreateOffer = () => {
       deal_size_max: form.dealSizeMax ? parseFloat(form.dealSizeMax) : null,
       close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
       remote_eligible: form.remoteEligible,
-      qualification_criteria: form.qualificationCriteria || null,
+      qualification_criteria: qualRules || null,
     });
 
     setLoading(false);
@@ -106,7 +118,7 @@ const CreateOffer = () => {
 
         {/* Step indicator */}
         <div className="flex items-center gap-2 mb-8">
-          {["Offer Details", "Payout & Timing", "Fund Wallet", "Preview & Publish"].map((label, i) => (
+          {["Offer Details", "Payout & Timing", "Qualification Rules", "Fund Wallet", "Preview & Publish"].map((label, i) => (
             <div key={label} className="flex items-center gap-2 flex-1">
               <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 ${
                 i + 1 <= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
@@ -114,7 +126,7 @@ const CreateOffer = () => {
                 {i + 1}
               </div>
               <span className={`text-sm font-medium hidden sm:block ${i + 1 <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
-              {i < 3 && <div className={`h-0.5 flex-1 rounded ${i + 1 < step ? "bg-primary" : "bg-border"}`} />}
+              {i < 4 && <div className={`h-0.5 flex-1 rounded ${i + 1 < step ? "bg-primary" : "bg-border"}`} />}
             </div>
           ))}
         </div>
@@ -214,6 +226,50 @@ const CreateOffer = () => {
 
           {step === 3 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+              <h2 className="font-display text-lg font-semibold">Qualification Rules</h2>
+              <p className="text-sm text-muted-foreground">Define what makes a qualified lead so referrers send you the right customers.</p>
+
+              <div>
+                <Label>Lead Freshness Requirement</Label>
+                <Input value={form.leadFreshness} onChange={(e) => update("leadFreshness", e.target.value)} placeholder="e.g. Lead must not be an existing customer" className="mt-1" />
+              </div>
+              <div>
+                <Label>Minimum Project Size ($)</Label>
+                <Input type="number" value={form.minProjectSize} onChange={(e) => update("minProjectSize", e.target.value)} placeholder="e.g. 5000" className="mt-1" />
+              </div>
+              <div>
+                <Label>Eligible Locations</Label>
+                <Input value={form.eligibleLocations} onChange={(e) => update("eligibleLocations", e.target.value)} placeholder="e.g. Metro Vancouver, Fraser Valley" className="mt-1" />
+              </div>
+              <div>
+                <Label>Payout Timeline</Label>
+                <div className="mt-1 flex gap-2">
+                  {(["net7", "net14", "net30"] as const).map((t) => (
+                    <Button key={t} type="button" variant={form.payoutTimeline === t ? "default" : "outline"} size="sm" onClick={() => update("payoutTimeline", t)} className="flex-1">
+                      {t === "net7" ? "Net 7" : t === "net14" ? "Net 14" : "Net 30"}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Label>Monthly Referral Capacity</Label>
+                <Input type="number" value={form.monthlyCapacity} onChange={(e) => update("monthlyCapacity", e.target.value)} placeholder="e.g. 15" className="mt-1" />
+                <p className="text-xs text-muted-foreground mt-1">How many referrals can you handle per month?</p>
+              </div>
+              <div>
+                <Label>Additional Criteria (optional)</Label>
+                <Textarea value={form.qualificationCriteria} onChange={(e) => update("qualificationCriteria", e.target.value)} placeholder="Any other requirements for qualified leads..." rows={3} className="mt-1" />
+              </div>
+
+              <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded-xl p-3">
+                <Shield className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                <span><strong>Duplicate Protection:</strong> First accepted submission wins, timestamped. Referrers are informed of this policy during submission.</span>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 4 && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
               <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
@@ -260,7 +316,7 @@ const CreateOffer = () => {
                 ) : (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-xl p-3">
                     <Shield className="h-4 w-4 shrink-0" />
-                    <span>Set a payout amount in the previous step to calculate required funding.</span>
+                    <span>Set a payout amount in a previous step to calculate required funding.</span>
                   </div>
                 )}
 
@@ -269,11 +325,10 @@ const CreateOffer = () => {
             </motion.div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
               <p className="text-sm text-muted-foreground">Here's how your offer will appear to referrers in the marketplace:</p>
               
-              {/* Listing Preview Card */}
               <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
                 <div className="flex items-start gap-3 mb-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-xl">
@@ -303,7 +358,7 @@ const CreateOffer = () => {
                   {form.closeTimeDays && (
                     <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Payout timeline</span>
-                      <span className="font-medium">~{form.closeTimeDays} days</span>
+                      <span className="font-medium">{form.payoutTimeline === "net7" ? "Net 7" : form.payoutTimeline === "net30" ? "Net 30" : "Net 14"} (~{form.closeTimeDays} days)</span>
                     </div>
                   )}
                 </div>
@@ -314,6 +369,17 @@ const CreateOffer = () => {
                   <Badge variant="outline" className="text-xs">{form.category}</Badge>
                 </div>
               </div>
+
+              {(form.leadFreshness || form.minProjectSize || form.eligibleLocations) && (
+                <div className="rounded-xl border border-border bg-muted/30 p-4">
+                  <p className="text-xs font-medium mb-2">Qualification Rules</p>
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    {form.leadFreshness && <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3 text-primary" /> {form.leadFreshness}</li>}
+                    {form.minProjectSize && <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3 text-primary" /> Min project: ${Number(form.minProjectSize).toLocaleString()}</li>}
+                    {form.eligibleLocations && <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3 text-primary" /> {form.eligibleLocations}</li>}
+                  </ul>
+                </div>
+              )}
 
               <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-xl p-3">
                 <Shield className="h-4 w-4 text-primary shrink-0" />
@@ -329,7 +395,7 @@ const CreateOffer = () => {
               </Button>
             )}
             <Button type="submit" size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
-              {loading ? "Publishing..." : step < 4 ? <>Next <ArrowRight className="h-4 w-4" /></> : "Publish Offer"}
+              {loading ? "Publishing..." : step < 5 ? <>Next <ArrowRight className="h-4 w-4" /></> : "Publish Offer"}
             </Button>
           </div>
         </form>

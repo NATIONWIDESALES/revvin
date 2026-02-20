@@ -176,9 +176,14 @@ const BusinessDashboard = () => {
               </div>
               <p className="text-muted-foreground">{business?.name ?? "Your Business"} • {activeOffers} active offer{activeOffers !== 1 ? "s" : ""} • {displayCurrency}</p>
             </div>
-            <Button asChild className="gap-2 h-11">
-              <Link to="/dashboard/create-offer"><PlusCircle className="h-4 w-4" /> Create Offer</Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" asChild className="gap-2 h-11">
+                <Link to="/dashboard/profile"><Edit className="h-4 w-4" /> Edit Profile</Link>
+              </Button>
+              <Button asChild className="gap-2 h-11">
+                <Link to="/dashboard/create-offer"><PlusCircle className="h-4 w-4" /> Create Offer</Link>
+              </Button>
+            </div>
           </motion.div>
 
           {/* Checklist */}
