@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   DollarSign, TrendingUp, Clock, CheckCircle2,
-  Trophy, Star, Zap, Award, Send, ArrowRight, Target, BarChart3, Wallet, Bell, Flame
+  Trophy, Star, Zap, Award, Send, ArrowRight, Target, BarChart3, Wallet, Bell, Flame, ShieldCheck
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -16,12 +16,14 @@ import InviteBusinessModal from "@/components/InviteBusinessModal";
 
 const iconMap: Record<string, any> = { trophy: Trophy, star: Star, zap: Zap, "dollar-sign": DollarSign, "trending-up": TrendingUp, award: Award };
 
-const statusConfig: Record<string, { bg: string; text: string }> = {
-  submitted: { bg: "bg-muted", text: "text-muted-foreground" },
-  contacted: { bg: "bg-blue-50", text: "text-blue-700" },
-  in_progress: { bg: "bg-accent/10", text: "text-accent-foreground" },
-  won: { bg: "bg-earnings/10", text: "text-earnings" },
-  lost: { bg: "bg-destructive/10", text: "text-destructive" },
+const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
+  submitted: { bg: "bg-muted", text: "text-muted-foreground", label: "Submitted" },
+  accepted: { bg: "bg-primary/10", text: "text-primary", label: "Funds Reserved" },
+  contacted: { bg: "bg-blue-50", text: "text-blue-700", label: "Contacted" },
+  in_progress: { bg: "bg-accent/10", text: "text-accent-foreground", label: "In Progress" },
+  won: { bg: "bg-earnings/10", text: "text-earnings", label: "Closed — Paid" },
+  lost: { bg: "bg-destructive/10", text: "text-destructive", label: "Lost" },
+  declined: { bg: "bg-muted", text: "text-muted-foreground", label: "Declined" },
 };
 
 const fadeUp = {
@@ -52,6 +54,11 @@ const ReferrerDashboard = () => {
 
   const paidEarnings = referrals.filter(r => r.payout_status === "paid").reduce((sum, r) => sum + (r.payout_amount ?? 0), 0);
   const confirmedEarnings = referrals.filter(r => r.status === "won" && r.payout_status === "approved").reduce((sum, r) => sum + (r.payout_amount ?? 0), 0);
+  const reservedEarnings = referrals.filter(r => r.status === "accepted").reduce((sum, r) => {
+    const offer = r.offers;
+    if (!offer || offer.payout_type !== "flat") return sum;
+    return sum + Math.round(Number(offer.payout) * 0.9);
+  }, 0);
   const pendingEarnings = referrals.filter(r => ["submitted", "contacted", "in_progress"].includes(r.status)).reduce((sum, r) => {
     const offer = r.offers;
     if (!offer || offer.payout_type !== "flat") return sum;
@@ -66,11 +73,11 @@ const ReferrerDashboard = () => {
 
   const stats = [
     { label: "Pending Earnings", value: `$${pendingEarnings.toLocaleString()}`, icon: Clock, color: "text-accent-foreground", bgColor: "bg-accent/10" },
+    { label: "Reserved (Escrowed)", value: `$${reservedEarnings.toLocaleString()}`, icon: ShieldCheck, color: "text-primary", bgColor: "bg-primary/10" },
     { label: "Confirmed Earnings", value: `$${confirmedEarnings.toLocaleString()}`, icon: CheckCircle2, color: "text-primary", bgColor: "bg-primary/10" },
     { label: "Paid Earnings", value: `$${paidEarnings.toLocaleString()}`, icon: Wallet, color: "text-earnings", bgColor: "bg-earnings/10" },
     { label: "Lifetime Earnings", value: `$${lifetimeEarnings.toLocaleString()}`, icon: DollarSign, color: "text-earnings", bgColor: "bg-earnings/10" },
     { label: "Conversion Rate", value: `${successRate}%`, icon: Target, color: "text-primary", bgColor: "bg-primary/10" },
-    { label: "Leaderboard Rank", value: referrals.length > 0 ? `Top ${Math.max(5, 25 - referrals.length)}` : "—", icon: Trophy, color: "text-accent-foreground", bgColor: "bg-accent/10" },
   ];
 
   const earningsByMonth = referrals
@@ -281,7 +288,7 @@ const ReferrerDashboard = () => {
                             <Bell className="h-3 w-3" /> Nudge
                           </Button>
                         )}
-                        <Badge className={`${sc.bg} ${sc.text} border-0`}>{ref.status.replace("_", " ")}</Badge>
+                        <Badge className={`${sc.bg} ${sc.text} border-0`}>{sc.label}</Badge>
                         {ref.payout_amount && (
                           <span className="font-display font-bold text-earnings">${ref.payout_amount}</span>
                         )}

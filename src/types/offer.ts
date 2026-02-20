@@ -22,4 +22,21 @@ export interface Offer {
   payoutTimeline?: "net7" | "net14" | "net30";
   monthlyCapacity?: number;
   verified?: boolean;
+  fundSecured?: boolean;
+}
+
+export interface WalletTransaction {
+  id: string;
+  type: "topup" | "reserve" | "release" | "payout" | "refund";
+  amount: number;
+  description: string;
+  date: string;
+  referralId?: string;
+}
+
+export interface WalletState {
+  available: number;
+  reserved: number;
+  totalFunded: number;
+  transactions: WalletTransaction[];
 }

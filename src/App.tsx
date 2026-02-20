@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { WalletProvider } from "@/contexts/WalletContext";
 import Layout from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -25,19 +26,21 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route element={<Layout />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/browse" element={<Browse />} />
-              <Route path="/offer/:id" element={<OfferDetail />} />
-              <Route path="/how-it-works" element={<HowItWorks />} />
-              <Route path="/trust" element={<TrustCenter />} />
-              <Route path="/dashboard" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
-              <Route path="/dashboard/create-offer" element={<ProtectedRoute requiredRole="business"><CreateOffer /></ProtectedRoute>} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <WalletProvider>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route element={<Layout />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/browse" element={<Browse />} />
+                <Route path="/offer/:id" element={<OfferDetail />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/trust" element={<TrustCenter />} />
+                <Route path="/dashboard" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
+                <Route path="/dashboard/create-offer" element={<ProtectedRoute requiredRole="business"><CreateOffer /></ProtectedRoute>} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </WalletProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
