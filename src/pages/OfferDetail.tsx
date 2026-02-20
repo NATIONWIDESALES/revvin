@@ -9,6 +9,7 @@ import { mockOffers } from "@/data/mockOffers";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCountry } from "@/contexts/CountryContext";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import ShareOfferLink from "@/components/ShareOfferLink";
@@ -26,6 +27,7 @@ const OfferDetail = () => {
   const offer = mockOffers.find((o) => o.id === id);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { formatPayout } = useCountry();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [referralId, setReferralId] = useState<string | null>(null);
@@ -159,7 +161,7 @@ const OfferDetail = () => {
               <div className="flex-1">
                 <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">{offer.title}</h1>
                 <p className="text-muted-foreground mt-1 flex items-center gap-1">
-                  {offer.business}
+                  {offer.country === "CA" ? "🇨🇦" : "🇺🇸"} {offer.business}
                   {offer.verified !== false && <BadgeCheck className="h-4 w-4 text-primary" />}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -183,9 +185,9 @@ const OfferDetail = () => {
                     <DollarSign className="h-5 w-5 text-earnings" />
                   </div>
                   <div className="font-display text-xl font-bold text-foreground">
-                    {offer.payoutType === "flat" ? `$${offer.payout}` : `${offer.payout}%`}
+                    {offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}
                   </div>
-                  <div className="text-xs text-muted-foreground">Per Referral</div>
+                  <div className="text-xs text-muted-foreground">Per Referral • {offer.currency}</div>
                 </div>
                 <div className="text-center">
                   <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10">
@@ -225,7 +227,7 @@ const OfferDetail = () => {
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">Estimated Deal Size</span>
                   </div>
-                  <p className="text-lg font-display font-bold">${offer.dealSizeMin.toLocaleString()} – ${offer.dealSizeMax.toLocaleString()}</p>
+                  <p className="text-lg font-display font-bold">{offer.currency === "CAD" ? "CA" : ""}${offer.dealSizeMin.toLocaleString()} – ${offer.dealSizeMax.toLocaleString()} {offer.currency}</p>
                 </div>
               )}
               <div className="rounded-xl border border-border bg-card p-4">
@@ -260,15 +262,15 @@ const OfferDetail = () => {
                 <div className="grid grid-cols-3 gap-3 text-center">
                   <div className="rounded-xl bg-card border border-border p-4">
                     <p className="text-xs text-muted-foreground mb-1">Referral Fee</p>
-                    <p className="font-display text-xl font-bold">${offer.payout}</p>
+                    <p className="font-display text-xl font-bold">{formatPayout(offer.payout, offer.currency)}</p>
                   </div>
                   <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-4">
                     <p className="text-xs text-muted-foreground mb-1">You Earn</p>
-                    <p className="font-display text-xl font-bold text-earnings">${referrerEarns}</p>
+                    <p className="font-display text-xl font-bold text-earnings">{formatPayout(referrerEarns, offer.currency)}</p>
                   </div>
                   <div className="rounded-xl bg-card border border-border p-4">
                     <p className="text-xs text-muted-foreground mb-1">Platform Fee</p>
-                    <p className="font-display text-xl font-bold">${platformFee}</p>
+                    <p className="font-display text-xl font-bold">{formatPayout(platformFee ?? 0, offer.currency)}</p>
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground mt-3 text-center">Revvin takes a 10% management fee. You keep 90%.</p>
@@ -308,7 +310,7 @@ const OfferDetail = () => {
                   "You submit the referral with contact details and context",
                   `${offer.business} reviews and reaches out to your lead`,
                   "Revvin tracks the deal status and verifies the outcome",
-                  `Deal closes → your commission ($${referrerEarns}) is approved and paid`,
+                  `Deal closes → your commission (${formatPayout(referrerEarns, offer.currency)}) is approved and paid`,
                 ].map((step, i) => (
                   <div key={i} className="flex items-start gap-3 rounded-lg bg-card border border-border p-3">
                     <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
@@ -361,7 +363,7 @@ const OfferDetail = () => {
             <div className="sticky top-24 rounded-2xl border border-border bg-card p-6 shadow-lg">
               <div className="mb-5 text-center">
                 <div className="earnings-badge mx-auto mb-3 inline-block rounded-full px-5 py-2.5 text-lg font-bold shadow-md">
-                  Earn {offer.payoutType === "flat" ? `$${referrerEarns}` : `${offer.payout}%`}
+                  Earn {offer.payoutType === "flat" ? formatPayout(referrerEarns, offer.currency) : `${offer.payout}%`}
                 </div>
                 <p className="text-sm text-muted-foreground">per successful referral</p>
               </div>

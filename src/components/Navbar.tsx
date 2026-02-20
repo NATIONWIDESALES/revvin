@@ -1,19 +1,29 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, X, Zap, Globe } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCountry } from "@/contexts/CountryContext";
+import type { Country } from "@/types/offer";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const { user, userRole, signOut } = useAuth();
+  const { country, setCountry } = useCountry();
 
   const links = [
     { to: "/", label: "Home" },
     { to: "/browse", label: "Marketplace" },
-    { to: "/how-it-works", label: "How It Works" },
-    { to: "/trust", label: "Trust Center" },
+    { to: "/for-businesses", label: "For Businesses" },
+    { to: "/for-referrers", label: "For Referrers" },
+    { to: "/trust", label: "Trust & Payouts" },
+  ];
+
+  const countryOptions: { value: "US" | "CA" | "ALL"; label: string; flag: string }[] = [
+    { value: "US", label: "USA", flag: "🇺🇸" },
+    { value: "CA", label: "Canada", flag: "🇨🇦" },
+    { value: "ALL", label: "Both", flag: "🌎" },
   ];
 
   return (
@@ -26,7 +36,7 @@ const Navbar = () => {
           <span className="font-display text-xl font-bold text-foreground">Revvin</span>
         </Link>
 
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-6 lg:flex">
           {links.map((link) => (
             <Link
               key={link.to}
@@ -41,6 +51,24 @@ const Navbar = () => {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
+          {/* Country Selector */}
+          <div className="flex items-center rounded-lg border border-border bg-muted/50 p-0.5 gap-0.5">
+            {countryOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setCountry(opt.value)}
+                className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                  country === opt.value
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span>{opt.flag}</span>
+                <span className="hidden sm:inline">{opt.label}</span>
+              </button>
+            ))}
+          </div>
+
           {user ? (
             <>
               <Button variant="ghost" size="sm" asChild>
@@ -60,13 +88,29 @@ const Navbar = () => {
           )}
         </div>
 
-        <button className="md:hidden" onClick={() => setOpen(!open)}>
+        <button className="lg:hidden" onClick={() => setOpen(!open)}>
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-border bg-background px-4 pb-4 md:hidden">
+        <div className="border-t border-border bg-background px-4 pb-4 lg:hidden">
+          {/* Mobile country selector */}
+          <div className="flex items-center gap-1 py-3">
+            {countryOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setCountry(opt.value)}
+                className={`flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex-1 justify-center ${
+                  country === opt.value
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {opt.flag} {opt.label}
+              </button>
+            ))}
+          </div>
           {links.map((link) => (
             <Link key={link.to} to={link.to} onClick={() => setOpen(false)} className="block py-3 text-sm font-medium text-muted-foreground hover:text-primary">
               {link.label}

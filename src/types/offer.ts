@@ -1,3 +1,6 @@
+export type Country = "CA" | "US";
+export type Currency = "CAD" | "USD";
+
 export interface Offer {
   id: string;
   title: string;
@@ -7,7 +10,11 @@ export interface Offer {
   description: string;
   payout: number;
   payoutType: "flat" | "percentage";
+  currency: Currency;
+  country: Country;
   location: string;
+  state: string;
+  city: string;
   rating: number;
   totalReferrals: number;
   successRate: number;
@@ -23,6 +30,7 @@ export interface Offer {
   monthlyCapacity?: number;
   verified?: boolean;
   fundSecured?: boolean;
+  serviceRadius?: string;
 }
 
 export interface WalletTransaction {

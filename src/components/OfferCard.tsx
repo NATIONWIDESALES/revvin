@@ -4,6 +4,7 @@ import { MapPin, Star, TrendingUp, Clock, DollarSign, Wifi, BadgeCheck, ArrowRig
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import QualificationTooltip from "@/components/QualificationTooltip";
+import { useCountry } from "@/contexts/CountryContext";
 
 interface OfferCardProps {
   offer: Offer;
@@ -18,6 +19,8 @@ const payoutTimelineLabel = (timeline?: string) => {
 
 const OfferCard = ({ offer }: OfferCardProps) => {
   const navigate = useNavigate();
+  const { formatPayout } = useCountry();
+  const countryFlag = offer.country === "CA" ? "🇨🇦" : "🇺🇸";
 
   return (
     <Link to={`/offer/${offer.id}`} className="group block">
@@ -33,7 +36,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
                 {offer.title}
               </h3>
               <p className="text-sm text-muted-foreground flex items-center gap-1">
-                {offer.business}
+                {countryFlag} {offer.business}
                 {(offer.verified !== false) && <BadgeCheck className="h-3.5 w-3.5 text-primary" />}
               </p>
             </div>
@@ -62,7 +65,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
             <div className="flex items-center gap-1.5">
               {offer.fundSecured && (
                 <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 gap-0.5 border-primary/30 text-primary">
-                  <ShieldCheck className="h-3 w-3" /> Funds Secured
+                  <ShieldCheck className="h-3 w-3" /> Secured
                 </Badge>
               )}
               <QualificationTooltip rules={offer.qualificationRules} />
@@ -70,13 +73,14 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           </div>
           <div className="text-center mb-2">
             <span className="earnings-badge rounded-full px-6 py-2 text-lg font-bold shadow-sm inline-block">
-              {offer.payoutType === "flat" ? `$${offer.payout}` : `${offer.payout}%`}
+              {offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}
             </span>
+            <span className="ml-2 text-xs font-medium text-muted-foreground">{offer.currency}</span>
           </div>
           {(offer.dealSizeMin || offer.dealSizeMax) && (
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" /> Avg deal size</span>
-              <span className="font-medium">${offer.dealSizeMin?.toLocaleString()} – ${offer.dealSizeMax?.toLocaleString()}</span>
+              <span className="font-medium">{offer.currency === "CAD" ? "CA" : ""}${offer.dealSizeMin?.toLocaleString()} – ${offer.dealSizeMax?.toLocaleString()}</span>
             </div>
           )}
           {offer.closeTimeDays && (
@@ -92,6 +96,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{offer.location}</span>
           <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 fill-accent text-accent" />{offer.rating}</span>
           <span className="flex items-center gap-1"><TrendingUp className="h-3.5 w-3.5" />{offer.successRate}%</span>
+          {offer.serviceRadius && <span className="text-[10px] text-muted-foreground/60">• {offer.serviceRadius}</span>}
         </div>
 
         {/* CTAs */}
