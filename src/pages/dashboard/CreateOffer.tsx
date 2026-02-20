@@ -8,18 +8,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, Wallet, CheckCircle2 } from "lucide-react";
 import { categories } from "@/data/mockOffers";
 import { motion } from "framer-motion";
+import { useWallet } from "@/contexts/WalletContext";
 
 const CreateOffer = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { wallet, addFunds, canCoverPayout } = useWallet();
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [businessName, setBusinessName] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
+  const [fundedThisSession, setFundedThisSession] = useState(false);
 
   const [form, setForm] = useState({
     title: "",
@@ -47,7 +50,7 @@ const CreateOffer = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (step < 3) {
+    if (step < 4) {
       setStep(step + 1);
       return;
     }
@@ -83,6 +86,13 @@ const CreateOffer = () => {
   const payoutNum = parseFloat(form.payout) || 0;
   const referrerEarns = form.payoutType === "flat" ? Math.round(payoutNum * 0.9) : payoutNum;
   const platformFee = form.payoutType === "flat" ? Math.round(payoutNum * 0.1) : null;
+  const fundSecured = payoutNum > 0 && canCoverPayout(payoutNum);
+
+  const handleAddFunds = (amount: number) => {
+    addFunds(amount);
+    setFundedThisSession(true);
+    toast({ title: `$${amount} added`, description: "Funds added to your Revvin Wallet." });
+  };
 
   return (
     <div className="py-8">
@@ -96,7 +106,7 @@ const CreateOffer = () => {
 
         {/* Step indicator */}
         <div className="flex items-center gap-2 mb-8">
-          {["Offer Details", "Payout & Timing", "Preview & Publish"].map((label, i) => (
+          {["Offer Details", "Payout & Timing", "Fund Wallet", "Preview & Publish"].map((label, i) => (
             <div key={label} className="flex items-center gap-2 flex-1">
               <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 ${
                 i + 1 <= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
@@ -104,7 +114,7 @@ const CreateOffer = () => {
                 {i + 1}
               </div>
               <span className={`text-sm font-medium hidden sm:block ${i + 1 <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
-              {i < 2 && <div className={`h-0.5 flex-1 rounded ${i + 1 < step ? "bg-primary" : "bg-border"}`} />}
+              {i < 3 && <div className={`h-0.5 flex-1 rounded ${i + 1 < step ? "bg-primary" : "bg-border"}`} />}
             </div>
           ))}
         </div>
@@ -204,6 +214,63 @@ const CreateOffer = () => {
 
           {step === 3 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+              <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                    <Wallet className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-base font-bold">Fund Your Revvin Wallet</h3>
+                    <p className="text-sm text-muted-foreground">Pre-fund your wallet so referrers see the "Funds Secured" badge on your offer.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div className="rounded-xl bg-muted/50 border border-border p-4 text-center">
+                    <p className="text-xs text-muted-foreground mb-1">Available Balance</p>
+                    <p className="font-display text-2xl font-bold text-foreground">${wallet.available.toLocaleString()}</p>
+                  </div>
+                  <div className="rounded-xl bg-earnings/5 border border-earnings/20 p-4 text-center">
+                    <p className="text-xs text-muted-foreground mb-1">Covers Payouts</p>
+                    <p className="font-display text-2xl font-bold text-earnings">
+                      {payoutNum > 0 ? Math.floor(wallet.available / payoutNum) : "—"}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-sm font-medium text-foreground mb-3">Quick Add Funds</p>
+                <div className="grid grid-cols-4 gap-2 mb-4">
+                  {[250, 500, 1000, 2500].map((amt) => (
+                    <Button key={amt} type="button" variant="outline" className="font-bold" onClick={() => handleAddFunds(amt)}>
+                      +${amt.toLocaleString()}
+                    </Button>
+                  ))}
+                </div>
+
+                {fundSecured ? (
+                  <div className="flex items-center gap-2 text-sm text-earnings bg-earnings/5 border border-earnings/20 rounded-xl p-3">
+                    <CheckCircle2 className="h-4 w-4 shrink-0" />
+                    <span><strong>Funds Secured</strong> — your offer will display the trust badge to referrers.</span>
+                  </div>
+                ) : payoutNum > 0 ? (
+                  <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/5 border border-destructive/20 rounded-xl p-3">
+                    <Shield className="h-4 w-4 shrink-0" />
+                    <span>Add at least <strong>${payoutNum.toLocaleString()}</strong> to enable the "Funds Secured" badge.</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-xl p-3">
+                    <Shield className="h-4 w-4 shrink-0" />
+                    <span>Set a payout amount in the previous step to calculate required funding.</span>
+                  </div>
+                )}
+
+                <p className="text-xs text-muted-foreground mt-3">Processing fees may apply. Funds are held securely and only reserved when you accept a referral.</p>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 4 && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
               <p className="text-sm text-muted-foreground">Here's how your offer will appear to referrers in the marketplace:</p>
               
               {/* Listing Preview Card */}
@@ -243,6 +310,7 @@ const CreateOffer = () => {
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   {form.location && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {form.location}</span>}
                   <span className="flex items-center gap-1"><BadgeCheck className="h-3.5 w-3.5 text-primary" /> Verified</span>
+                  {fundSecured && <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-earnings" /> Funds Secured</span>}
                   <Badge variant="outline" className="text-xs">{form.category}</Badge>
                 </div>
               </div>
@@ -261,7 +329,7 @@ const CreateOffer = () => {
               </Button>
             )}
             <Button type="submit" size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
-              {loading ? "Publishing..." : step < 3 ? <>Next <ArrowRight className="h-4 w-4" /></> : "Publish Offer"}
+              {loading ? "Publishing..." : step < 4 ? <>Next <ArrowRight className="h-4 w-4" /></> : "Publish Offer"}
             </Button>
           </div>
         </form>
