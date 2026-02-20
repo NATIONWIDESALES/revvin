@@ -77,22 +77,33 @@ const MapView = ({ offers }: MapViewProps) => {
         const offer = cluster.offers[0];
         const payoutLabel = offer.payoutType === "flat" ? `$${offer.payout}` : `${offer.payout}%`;
         const radius = Math.max(10, Math.min(22, offer.payout / 25));
+        const isSecured = !!offer.fundSecured;
+        const fillColor = isSecured ? "hsl(160, 84%, 22%)" : "hsl(220, 10%, 55%)";
+        const borderColor = isSecured ? "hsl(160, 84%, 30%)" : "hsl(220, 10%, 65%)";
 
         const marker = L.circleMarker([offer.latitude!, offer.longitude!], {
           radius,
-          fillColor: "hsl(160, 84%, 22%)",
-          color: "hsl(160, 84%, 30%)",
-          weight: 2,
+          fillColor,
+          color: borderColor,
+          weight: isSecured ? 3 : 2,
           opacity: 0.9,
           fillOpacity: 0.7,
         }).addTo(map);
+
+        const securedBadge = isSecured
+          ? `<div style="display:flex;align-items:center;gap:4px;font-size:11px;color:hsl(160,84%,22%);font-weight:600;margin-bottom:6px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Funds Secured
+            </div>`
+          : "";
 
         marker.bindPopup(`
           <div style="font-family: 'DM Sans', sans-serif; min-width: 220px; padding: 4px;">
             <div style="font-size: 15px; font-weight: 700; margin-bottom: 2px;">${offer.title}</div>
             <div style="font-size: 12px; color: #666; margin-bottom: 6px;">${offer.business} • ${offer.category}</div>
+            ${securedBadge}
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="background: linear-gradient(135deg, hsl(160, 72%, 40%), hsl(160, 84%, 30%)); color: white; padding: 4px 14px; border-radius: 999px; font-weight: 700; font-size: 14px;">
+              <span style="background: linear-gradient(135deg, ${fillColor}, ${borderColor}); color: white; padding: 4px 14px; border-radius: 999px; font-weight: 700; font-size: 14px;">
                 ${payoutLabel}
               </span>
               <span style="font-size: 11px; color: #999;">${offer.location}</span>
