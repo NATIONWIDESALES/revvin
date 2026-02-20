@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCountry } from "@/contexts/CountryContext";
+import { useWallet } from "@/contexts/WalletContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Wallet, CreditCard, Building2, ArrowRight, Loader2 } from "lucide-react";
+import { Wallet, CreditCard, Building2, ArrowRight, Loader2, Zap } from "lucide-react";
 
 interface AddFundsModalProps {
   open: boolean;
@@ -13,8 +14,9 @@ interface AddFundsModalProps {
 
 const AddFundsModal = ({ open, onClose }: AddFundsModalProps) => {
   const { country, displayCurrency, currencySymbol } = useCountry();
+  const { addFunds } = useWallet();
   const { toast } = useToast();
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState("500");
   const [method, setMethod] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -26,15 +28,26 @@ const AddFundsModal = ({ open, onClose }: AddFundsModalProps) => {
         { id: "card", label: "Credit Card", icon: CreditCard, note: "Visa, Mastercard" },
         { id: "interac", label: "Interac e-Transfer", icon: Building2, note: "Instant" },
         { id: "eft", label: "EFT / Bank Transfer", icon: Building2, note: "1-3 business days" },
+        { id: "demo", label: "Demo — Instant Credit", icon: Zap, note: "Simulated for demo" },
       ]
     : [
         { id: "card", label: "Credit Card", icon: CreditCard, note: "Visa, Mastercard, Amex" },
         { id: "ach", label: "ACH Bank Transfer", icon: Building2, note: "1-3 business days" },
+        { id: "demo", label: "Demo — Instant Credit", icon: Zap, note: "Simulated for demo" },
       ];
 
   const handleFund = async () => {
     const val = parseFloat(amount);
     if (!val || val <= 0 || !method) return;
+
+    // Demo mode — instant credit without Stripe
+    if (method === "demo") {
+      addFunds(val, displayCurrency);
+      toast({ title: "Wallet funded (demo)", description: `${currencySymbol(displayCurrency)}${val} added to your wallet.` });
+      onClose();
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-wallet-checkout", {
