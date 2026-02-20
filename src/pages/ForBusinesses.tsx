@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Building2, CheckCircle2, ArrowRight, DollarSign, Shield, Users, Wallet, BarChart3, Globe, Zap } from "lucide-react";
+import { Building2, CheckCircle2, ArrowRight, DollarSign, Shield, Users, Wallet, BarChart3, Globe } from "lucide-react";
+import CitySlots from "@/components/CitySlots";
 import { motion } from "framer-motion";
 
 const fadeUp = {
@@ -110,6 +111,18 @@ const ForBusinesses = () => (
               </motion.div>
             ))}
           </div>
+        </motion.div>
+      </div>
+    </section>
+
+    <section className="py-20">
+      <div className="container max-w-5xl">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+          <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold mb-4 text-center">Limited Verified Slots Per City</motion.h2>
+          <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-center mb-8 max-w-xl mx-auto">Only 5 verified businesses per category per city. Claim your slot before competitors do.</motion.p>
+          <motion.div variants={fadeUp} custom={2}>
+            <CitySlots maxDisplay={8} showApplyButton />
+          </motion.div>
         </motion.div>
       </div>
     </section>

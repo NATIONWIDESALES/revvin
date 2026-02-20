@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import OfferCompetitiveness from "@/components/OfferCompetitiveness";
 import DashboardChecklist from "@/components/DashboardChecklist";
 import AddFundsModal from "@/components/AddFundsModal";
+import BoostOfferPanel from "@/components/BoostOfferPanel";
 import { useToast } from "@/hooks/use-toast";
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
@@ -264,17 +265,10 @@ const BusinessDashboard = () => {
             ))}
           </motion.div>
 
-          {/* Competitiveness */}
+          {/* Competitiveness + Boost */}
           <motion.div variants={fadeUp} custom={1.5} className="mb-8 grid gap-4 md:grid-cols-2">
             <OfferCompetitiveness score={conversionRate > 50 ? 78 : 55} label={conversionRate > 50 ? "Strong" : "Competitive"} />
-            <div className="rounded-xl border border-border bg-card p-4">
-              <p className="text-sm font-medium mb-3">Improve Ranking</p>
-              <ul className="space-y-2">
-                <li className="flex items-start gap-2 text-xs text-muted-foreground"><TrendingUp className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Increase payout to attract more referrers</li>
-                <li className="flex items-start gap-2 text-xs text-muted-foreground"><Clock className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Shorten payout timeline to Net 7</li>
-                <li className="flex items-start gap-2 text-xs text-muted-foreground"><Wallet className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Add funds to enable "Funds Secured" badge</li>
-              </ul>
-            </div>
+            <BoostOfferPanel />
           </motion.div>
 
           {/* Offers */}
