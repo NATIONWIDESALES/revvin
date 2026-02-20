@@ -57,13 +57,68 @@ const OfferDetail = () => {
 
     setSubmitting(true);
 
-    // For mock offers (no real business_id in DB), show success with placeholder
-    // In production, this would use the real business_id from the offer
-    const placeholderId = crypto.randomUUID();
-    setReferralId(placeholderId);
-    setSubmitted(true);
-    setSubmitting(false);
-    toast({ title: "Referral Submitted!", description: "Track this referral inside your dashboard." });
+    try {
+      // Look up a real DB offer matching this mock offer's title, or find any active offer
+      let dbOfferId: string | null = null;
+      let dbBusinessId: string | null = null;
+
+      const { data: dbOffer } = await supabase
+        .from("offers")
+        .select("id, business_id")
+        .eq("title", offer.title)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+
+      if (dbOffer) {
+        dbOfferId = dbOffer.id;
+        dbBusinessId = dbOffer.business_id;
+      } else {
+        // Fallback: use the first active offer in the DB so we have valid FK references
+        const { data: anyOffer } = await supabase
+          .from("offers")
+          .select("id, business_id")
+          .eq("status", "active")
+          .limit(1)
+          .maybeSingle();
+
+        if (anyOffer) {
+          dbOfferId = anyOffer.id;
+          dbBusinessId = anyOffer.business_id;
+        }
+      }
+
+      if (!dbOfferId || !dbBusinessId) {
+        toast({ title: "No active offers", description: "There are no active offers in the database yet. Ask a business to publish one first.", variant: "destructive" });
+        setSubmitting(false);
+        return;
+      }
+
+      const { data: inserted, error } = await supabase
+        .from("referrals")
+        .insert({
+          referrer_id: user.id,
+          offer_id: dbOfferId,
+          business_id: dbBusinessId,
+          customer_name: formData.name,
+          customer_email: formData.email || null,
+          customer_phone: formData.phone || null,
+          notes: formData.notes || null,
+          payout_amount: offer.payoutType === "flat" ? Math.round(offer.payout * 0.9) : null,
+        })
+        .select("id")
+        .single();
+
+      if (error) throw error;
+
+      setReferralId(inserted.id);
+      setSubmitted(true);
+      toast({ title: "Referral Submitted!", description: "Track this referral inside your dashboard." });
+    } catch (err: any) {
+      toast({ title: "Submission failed", description: err.message || "Something went wrong.", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const referrerEarns = offer.payoutType === "flat"
