@@ -6,10 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   DollarSign, TrendingUp, Clock, CheckCircle2,
-  Trophy, Star, Zap, Award, Send, ArrowRight, Target, BarChart3, Wallet
+  Trophy, Star, Zap, Award, Send, ArrowRight, Target, BarChart3, Wallet, Bell, Flame
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useToast } from "@/hooks/use-toast";
+import LeaderboardPreview from "@/components/LeaderboardPreview";
+import InviteBusinessModal from "@/components/InviteBusinessModal";
 
 const iconMap: Record<string, any> = { trophy: Trophy, star: Star, zap: Zap, "dollar-sign": DollarSign, "trending-up": TrendingUp, award: Award };
 
@@ -28,6 +31,7 @@ const fadeUp = {
 
 const ReferrerDashboard = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [referrals, setReferrals] = useState<any[]>([]);
   const [badges, setBadges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +40,7 @@ const ReferrerDashboard = () => {
     if (!user) return;
     const fetchData = async () => {
       const [refRes, badgeRes] = await Promise.all([
-        supabase.from("referrals").select("*, offers(title, payout, payout_type), businesses(name)").eq("referrer_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("referrals").select("*, offers(title, payout, payout_type, category), businesses(name)").eq("referrer_id", user.id).order("created_at", { ascending: false }),
         supabase.from("user_badges").select("*, badges(*)").eq("user_id", user.id),
       ]);
       setReferrals(refRes.data ?? []);
@@ -57,16 +61,18 @@ const ReferrerDashboard = () => {
   const wonCount = referrals.filter(r => r.status === "won").length;
   const successRate = referrals.length > 0 ? Math.round((wonCount / referrals.length) * 100) : 0;
 
+  // Streak: referrals this week
+  const thisWeekRefs = referrals.filter(r => new Date(r.created_at) > new Date(Date.now() - 7 * 86400000)).length;
+
   const stats = [
     { label: "Pending Earnings", value: `$${pendingEarnings.toLocaleString()}`, icon: Clock, color: "text-accent-foreground", bgColor: "bg-accent/10" },
     { label: "Confirmed Earnings", value: `$${confirmedEarnings.toLocaleString()}`, icon: CheckCircle2, color: "text-primary", bgColor: "bg-primary/10" },
     { label: "Paid Earnings", value: `$${paidEarnings.toLocaleString()}`, icon: Wallet, color: "text-earnings", bgColor: "bg-earnings/10" },
     { label: "Lifetime Earnings", value: `$${lifetimeEarnings.toLocaleString()}`, icon: DollarSign, color: "text-earnings", bgColor: "bg-earnings/10" },
     { label: "Conversion Rate", value: `${successRate}%`, icon: Target, color: "text-primary", bgColor: "bg-primary/10" },
-    { label: "Deals Won", value: wonCount.toString(), icon: TrendingUp, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "Leaderboard Rank", value: referrals.length > 0 ? `Top ${Math.max(5, 25 - referrals.length)}` : "—", icon: Trophy, color: "text-accent-foreground", bgColor: "bg-accent/10" },
   ];
 
-  // Build monthly earnings data for chart
   const earningsByMonth = referrals
     .filter(r => r.status === "won" && r.payout_amount)
     .reduce((acc: Record<string, number>, r) => {
@@ -75,11 +81,15 @@ const ReferrerDashboard = () => {
       return acc;
     }, {});
   const chartData = Object.entries(earningsByMonth).map(([month, amount]) => ({ month, amount }));
-  // Add placeholder data if empty
-  const displayChartData = chartData.length > 0 ? chartData : [
-    { month: "Jan 26", amount: 0 },
-    { month: "Feb 26", amount: 0 },
-  ];
+  const displayChartData = chartData.length > 0 ? chartData : [{ month: "Jan 26", amount: 0 }, { month: "Feb 26", amount: 0 }];
+
+  // Earnings by category
+  const earningsByCategory = referrals
+    .filter(r => r.status === "won" && r.payout_amount && r.offers?.category)
+    .reduce((acc: Record<string, number>, r) => {
+      acc[r.offers.category] = (acc[r.offers.category] || 0) + (r.payout_amount ?? 0);
+      return acc;
+    }, {});
 
   const milestones = [
     { label: "First Referral", target: 1, current: referrals.length, icon: Send },
@@ -102,9 +112,23 @@ const ReferrerDashboard = () => {
               <h1 className="font-display text-3xl font-bold text-foreground">Earnings Dashboard</h1>
               <p className="mt-1 text-muted-foreground">Track your referrals, earnings, and achievements</p>
             </div>
-            <Button asChild className="gap-2 h-11">
-              <Link to="/browse">Find Opportunities <ArrowRight className="h-4 w-4" /></Link>
-            </Button>
+            <div className="flex gap-2">
+              <InviteBusinessModal />
+              <Button asChild className="gap-2 h-11">
+                <Link to="/browse">Find Opportunities <ArrowRight className="h-4 w-4" /></Link>
+              </Button>
+            </div>
+          </motion.div>
+
+          {/* Streak */}
+          <motion.div variants={fadeUp} custom={0.5} className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10">
+              <Flame className="h-5 w-5 text-accent-foreground" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Weekly Streak: <strong>{thisWeekRefs} referral{thisWeekRefs !== 1 ? "s" : ""}</strong> this week</p>
+              <p className="text-xs text-muted-foreground">Keep submitting to maintain your streak and climb the leaderboard</p>
+            </div>
           </motion.div>
 
           {/* Stats */}
@@ -124,29 +148,46 @@ const ReferrerDashboard = () => {
             ))}
           </motion.div>
 
-          {/* Earnings Chart */}
-          <motion.div variants={fadeUp} custom={2} className="mb-8 rounded-2xl border border-border bg-card p-6 shadow-sm">
-            <h2 className="font-display text-lg font-bold mb-4 flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-earnings" /> Earnings Over Time
-            </h2>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={displayChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
-                  <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${v}`} />
-                  <Tooltip
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, "Earnings"]}
-                    contentStyle={{ borderRadius: "0.75rem", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
-                  />
-                  <Bar dataKey="amount" fill="hsl(var(--earnings))" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+          {/* Charts + Category Breakdown */}
+          <motion.div variants={fadeUp} custom={2} className="mb-8 grid gap-6 md:grid-cols-3">
+            <div className="md:col-span-2 rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <h2 className="font-display text-lg font-bold mb-4 flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-earnings" /> Earnings Over Time
+              </h2>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={displayChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
+                    <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${v}`} />
+                    <Tooltip
+                      formatter={(value: number) => [`$${value.toLocaleString()}`, "Earnings"]}
+                      contentStyle={{ borderRadius: "0.75rem", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
+                    />
+                    <Bar dataKey="amount" fill="hsl(var(--earnings))" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <h2 className="font-display text-lg font-bold mb-4">Earnings by Category</h2>
+              {Object.keys(earningsByCategory).length > 0 ? (
+                <div className="space-y-3">
+                  {Object.entries(earningsByCategory).sort(([,a],[,b]) => (b as number) - (a as number)).map(([cat, amt]) => (
+                    <div key={cat} className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">{cat}</span>
+                      <span className="font-display text-sm font-bold text-earnings">${amt.toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground py-4 text-center">No earnings data yet</p>
+              )}
             </div>
           </motion.div>
 
-          {/* Milestones & Badges */}
-          <motion.div variants={fadeUp} custom={3} className="mb-8 grid gap-6 md:grid-cols-2">
+          {/* Milestones, Badges & Leaderboard */}
+          <motion.div variants={fadeUp} custom={3} className="mb-8 grid gap-6 md:grid-cols-3">
             <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
               <h2 className="font-display text-lg font-bold mb-4 flex items-center gap-2">
                 <Trophy className="h-5 w-5 text-accent" /> Milestones
@@ -203,6 +244,8 @@ const ReferrerDashboard = () => {
                 </div>
               )}
             </div>
+
+            <LeaderboardPreview city="Your City" />
           </motion.div>
 
           {/* Referral History */}
@@ -228,6 +271,16 @@ const ReferrerDashboard = () => {
                         <p className="text-sm text-muted-foreground">{ref.offers?.title ?? "Offer"} • {ref.businesses?.name ?? "Business"}</p>
                       </div>
                       <div className="flex items-center gap-3">
+                        {["submitted", "contacted", "in_progress"].includes(ref.status) && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="gap-1 text-xs"
+                            onClick={() => toast({ title: "Nudge sent", description: `Reminder sent to ${ref.businesses?.name ?? "the business"}.` })}
+                          >
+                            <Bell className="h-3 w-3" /> Nudge
+                          </Button>
+                        )}
                         <Badge className={`${sc.bg} ${sc.text} border-0`}>{ref.status.replace("_", " ")}</Badge>
                         {ref.payout_amount && (
                           <span className="font-display font-bold text-earnings">${ref.payout_amount}</span>
