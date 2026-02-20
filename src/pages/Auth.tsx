@@ -28,21 +28,11 @@ const Auth = () => {
           email,
           password,
           options: {
-            data: { full_name: fullName },
+            data: { full_name: fullName, role },
             emailRedirectTo: window.location.origin,
           },
         });
         if (error) throw error;
-
-        if (data.user) {
-          await supabase.from("user_roles").insert({ user_id: data.user.id, role });
-          if (role === "business") {
-            await supabase.from("businesses").insert({
-              user_id: data.user.id,
-              name: fullName + "'s Business",
-            });
-          }
-        }
 
         toast({ title: "Check your email", description: "We sent you a confirmation link to verify your account." });
       } else {
