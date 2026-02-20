@@ -33,7 +33,6 @@ const MapView = ({ offers }: MapViewProps) => {
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    // Clear existing markers
     map.eachLayer((layer) => {
       if (layer instanceof L.CircleMarker) map.removeLayer(layer);
     });
@@ -41,7 +40,9 @@ const MapView = ({ offers }: MapViewProps) => {
     offers.forEach((offer) => {
       if (!offer.latitude || !offer.longitude) return;
 
-      const radius = Math.max(8, Math.min(20, offer.payout / 30));
+      const payoutLabel = offer.payoutType === "flat" ? `$${offer.payout}` : `${offer.payout}%`;
+      const radius = Math.max(10, Math.min(22, offer.payout / 25));
+      
       const marker = L.circleMarker([offer.latitude, offer.longitude], {
         radius,
         fillColor: "hsl(160, 84%, 22%)",
@@ -52,14 +53,19 @@ const MapView = ({ offers }: MapViewProps) => {
       }).addTo(map);
 
       marker.bindPopup(`
-        <div style="font-family: 'DM Sans', sans-serif; min-width: 200px;">
-          <div style="font-size: 14px; font-weight: 700; margin-bottom: 4px;">${offer.title}</div>
-          <div style="font-size: 12px; color: #666; margin-bottom: 8px;">${offer.business}</div>
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="background: linear-gradient(135deg, hsl(160, 72%, 40%), hsl(160, 84%, 30%)); color: white; padding: 2px 10px; border-radius: 999px; font-weight: 700; font-size: 13px;">
-              ${offer.payoutType === "flat" ? "$" + offer.payout : offer.payout + "%"}
+        <div style="font-family: 'DM Sans', sans-serif; min-width: 220px; padding: 4px;">
+          <div style="font-size: 15px; font-weight: 700; margin-bottom: 2px;">${offer.title}</div>
+          <div style="font-size: 12px; color: #666; margin-bottom: 6px;">${offer.business} • ${offer.category}</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="background: linear-gradient(135deg, hsl(160, 72%, 40%), hsl(160, 84%, 30%)); color: white; padding: 4px 14px; border-radius: 999px; font-weight: 700; font-size: 14px;">
+              ${payoutLabel}
             </span>
             <span style="font-size: 11px; color: #999;">${offer.location}</span>
+          </div>
+          ${offer.dealSizeMin && offer.dealSizeMax ? `<div style="font-size: 11px; color: #888; margin-bottom: 4px;">Deal size: $${offer.dealSizeMin.toLocaleString()} – $${offer.dealSizeMax.toLocaleString()}</div>` : ""}
+          ${offer.closeTimeDays ? `<div style="font-size: 11px; color: #888;">Avg close: ${offer.closeTimeDays} days</div>` : ""}
+          <div style="margin-top: 8px; text-align: center;">
+            <span style="font-size: 11px; color: hsl(160, 84%, 22%); cursor: pointer; font-weight: 600;">View Details →</span>
           </div>
         </div>
       `);
@@ -69,7 +75,7 @@ const MapView = ({ offers }: MapViewProps) => {
   }, [offers, navigate]);
 
   return (
-    <div ref={mapRef} className="h-[500px] w-full rounded-xl border border-border overflow-hidden" />
+    <div ref={mapRef} className="h-[550px] w-full rounded-xl border border-border overflow-hidden" />
   );
 };
 
