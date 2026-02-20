@@ -18,6 +18,7 @@ import ForReferrers from "./pages/ForReferrers";
 import Auth from "./pages/Auth";
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import CreateOffer from "./pages/dashboard/CreateOffer";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
                   <Route path="/for-referrers" element={<ForReferrers />} />
                   <Route path="/dashboard" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
                   <Route path="/dashboard/create-offer" element={<ProtectedRoute requiredRole="business"><CreateOffer /></ProtectedRoute>} />
+                  <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useWallet } from "@/contexts/WalletContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { useToast } from "@/hooks/use-toast";
-import { Wallet, CreditCard, Building2, ArrowRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Wallet, CreditCard, Building2, ArrowRight, Loader2 } from "lucide-react";
 
 interface AddFundsModalProps {
   open: boolean;
@@ -12,11 +12,11 @@ interface AddFundsModalProps {
 }
 
 const AddFundsModal = ({ open, onClose }: AddFundsModalProps) => {
-  const { addFunds } = useWallet();
   const { country, displayCurrency, currencySymbol } = useCountry();
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("");
+  const [loading, setLoading] = useState(false);
 
   if (!open) return null;
 
@@ -32,17 +32,22 @@ const AddFundsModal = ({ open, onClose }: AddFundsModalProps) => {
         { id: "ach", label: "ACH Bank Transfer", icon: Building2, note: "1-3 business days" },
       ];
 
-  const handleFund = () => {
+  const handleFund = async () => {
     const val = parseFloat(amount);
     if (!val || val <= 0 || !method) return;
-    addFunds(val, displayCurrency);
-    toast({
-      title: `${currencySymbol(displayCurrency)}${val} added`,
-      description: `Funded via ${methods.find((m) => m.id === method)?.label}. Balance updated.`,
-    });
-    setAmount("");
-    setMethod("");
-    onClose();
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-wallet-checkout", {
+        body: { amount: val, currency: displayCurrency },
+      });
+      if (error || !data?.url) throw new Error(error?.message || "Failed to create checkout session");
+      window.open(data.url, "_blank");
+      onClose();
+    } catch (err: any) {
+      toast({ title: "Payment error", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -110,7 +115,7 @@ const AddFundsModal = ({ open, onClose }: AddFundsModalProps) => {
         </div>
 
         <p className="text-[10px] text-muted-foreground mb-4 flex items-center gap-1">
-          <CreditCard className="h-3 w-3" /> Powered by Stripe — prototype only
+          <CreditCard className="h-3 w-3" /> Secured by Stripe
         </p>
 
         <div className="flex gap-2">
@@ -119,10 +124,10 @@ const AddFundsModal = ({ open, onClose }: AddFundsModalProps) => {
           </Button>
           <Button
             className="flex-1 gap-1"
-            disabled={!amount || !method}
+            disabled={!amount || !method || loading}
             onClick={handleFund}
           >
-            Fund Wallet <ArrowRight className="h-4 w-4" />
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Fund Wallet <ArrowRight className="h-4 w-4" /></>}
           </Button>
         </div>
       </div>
