@@ -35,7 +35,7 @@ export interface Offer {
 
 export interface WalletTransaction {
   id: string;
-  type: "topup" | "reserve" | "release" | "payout" | "refund";
+  type: "topup" | "reserve" | "release" | "payout" | "refund" | "fee";
   amount: number;
   description: string;
   date: string;
@@ -45,6 +45,22 @@ export interface WalletTransaction {
 export interface WalletState {
   available: number;
   reserved: number;
+  paidOut: number;
+  platformFees: number;
   totalFunded: number;
   transactions: WalletTransaction[];
+}
+
+export type DisputeStatus = "submitted" | "under_review" | "resolved_paid" | "resolved_not_paid";
+
+export interface Dispute {
+  id: string;
+  referralId: string;
+  referrerId: string;
+  businessId: string;
+  reason: string;
+  status: DisputeStatus;
+  createdAt: string;
+  resolvedAt?: string;
+  resolution?: string;
 }

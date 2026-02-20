@@ -3,7 +3,7 @@ import type { WalletState, WalletTransaction } from "@/types/offer";
 
 interface WalletContextType {
   wallet: WalletState;
-  addFunds: (amount: number) => void;
+  addFunds: (amount: number, currency?: string) => void;
   reserveFunds: (amount: number, referralId: string, description: string) => boolean;
   releasePayout: (amount: number, referralId: string, description: string) => void;
   refundReserve: (amount: number, referralId: string, description: string) => void;
@@ -13,6 +13,8 @@ interface WalletContextType {
 const defaultWallet: WalletState = {
   available: 2500,
   reserved: 0,
+  paidOut: 0,
+  platformFees: 0,
   totalFunded: 2500,
   transactions: [
     { id: "t1", type: "topup", amount: 2500, description: "Initial wallet funding", date: new Date(Date.now() - 7 * 86400000).toISOString() },
@@ -33,13 +35,14 @@ export const useWallet = () => useContext(WalletContext);
 export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const [wallet, setWallet] = useState<WalletState>(defaultWallet);
 
-  const addFunds = useCallback((amount: number) => {
+  const addFunds = useCallback((amount: number, currency?: string) => {
+    const label = currency ? ` ${currency}` : "";
     setWallet((prev) => ({
       ...prev,
       available: prev.available + amount,
       totalFunded: prev.totalFunded + amount,
       transactions: [
-        { id: crypto.randomUUID(), type: "topup", amount, description: `Added $${amount} to wallet`, date: new Date().toISOString() },
+        { id: crypto.randomUUID(), type: "topup", amount, description: `Added $${amount}${label} to wallet`, date: new Date().toISOString() },
         ...prev.transactions,
       ],
     }));
@@ -62,11 +65,16 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   }, [wallet.available]);
 
   const releasePayout = useCallback((amount: number, referralId: string, description: string) => {
+    const referrerPayout = Math.round(amount * 0.9);
+    const fee = amount - referrerPayout;
     setWallet((prev) => ({
       ...prev,
       reserved: Math.max(0, prev.reserved - amount),
+      paidOut: prev.paidOut + referrerPayout,
+      platformFees: prev.platformFees + fee,
       transactions: [
-        { id: crypto.randomUUID(), type: "payout", amount, description, date: new Date().toISOString(), referralId },
+        { id: crypto.randomUUID(), type: "fee", amount: fee, description: `Platform fee (10%)`, date: new Date().toISOString(), referralId },
+        { id: crypto.randomUUID(), type: "payout", amount: referrerPayout, description, date: new Date().toISOString(), referralId },
         ...prev.transactions,
       ],
     }));
