@@ -13,10 +13,9 @@ interface ChecklistItem {
 interface DashboardChecklistProps {
   title: string;
   items: ChecklistItem[];
-  onDemoMode?: () => void;
 }
 
-const DashboardChecklist = ({ title, items, onDemoMode }: DashboardChecklistProps) => {
+const DashboardChecklist = ({ title, items }: DashboardChecklistProps) => {
   const [dismissed, setDismissed] = useState(false);
   const completedCount = items.filter((i) => i.done).length;
   const allDone = completedCount === items.length;
@@ -48,16 +47,6 @@ const DashboardChecklist = ({ title, items, onDemoMode }: DashboardChecklistProp
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {onDemoMode && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs h-7 px-2.5 gap-1"
-              onClick={onDemoMode}
-            >
-              🎮 Demo Mode
-            </Button>
-          )}
           <Button
             variant="ghost"
             size="sm"
