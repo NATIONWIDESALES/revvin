@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  DollarSign, TrendingUp, Clock, CheckCircle2,
+  DollarSign, TrendingUp, Clock, CheckCircle2, User,
   Trophy, Star, Zap, Award, Send, ArrowRight, Target, BarChart3, Wallet, Bell, Flame, ShieldCheck, Scale, AlertTriangle
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -144,6 +144,7 @@ const ReferrerDashboard = () => {
               <p className="mt-1 text-muted-foreground">Track referrals, earnings, and achievements • {displayCurrency}</p>
             </div>
             <div className="flex gap-2">
+              <Button variant="outline" asChild className="gap-2 h-11"><Link to="/dashboard/profile"><User className="h-4 w-4" /> Profile</Link></Button>
               <InviteBusinessModal />
               <Button asChild className="gap-2 h-11"><Link to="/browse">Find Opportunities <ArrowRight className="h-4 w-4" /></Link></Button>
             </div>
