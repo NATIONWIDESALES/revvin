@@ -350,18 +350,23 @@ const BusinessDashboard = () => {
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <Badge className={`${sc.bg} ${sc.text} border-0`}>{sc.label}</Badge>
+                          {/* submitted → accept / decline */}
                           {ref.status === "submitted" && (
                             <>
                               <Button size="sm" onClick={() => handleAccept(ref)} className="gap-1">
-                                <ShieldCheck className="h-3 w-3" /> Accept
+                                <ShieldCheck className="h-3 w-3" /> Accept & Reserve
                               </Button>
                               <Button size="sm" variant="destructive" onClick={() => handleDecline(ref)} className="gap-1">
                                 <XCircle className="h-3 w-3" /> Decline
                               </Button>
                             </>
                           )}
+                          {/* accepted → contacted / closed-won / lost */}
                           {ref.status === "accepted" && (
                             <>
+                              <Button size="sm" variant="outline" onClick={() => updateReferralStatus(ref.id, "contacted")} className="gap-1">
+                                <Eye className="h-3 w-3" /> Contacted
+                              </Button>
                               <Button size="sm" onClick={() => handleWon(ref)} className="gap-1">
                                 <CheckCircle2 className="h-3 w-3" /> Closed/Won
                               </Button>
@@ -370,10 +375,29 @@ const BusinessDashboard = () => {
                               </Button>
                             </>
                           )}
+                          {/* contacted → qualified / closed-won / lost */}
                           {ref.status === "contacted" && (
                             <>
-                              <Button size="sm" onClick={() => handleAccept(ref)} className="gap-1">Accept</Button>
-                              <Button size="sm" variant="outline" onClick={() => updateReferralStatus(ref.id, "qualified")} className="gap-1">Qualified</Button>
+                              <Button size="sm" variant="outline" onClick={() => updateReferralStatus(ref.id, "qualified")} className="gap-1">
+                                <Target className="h-3 w-3" /> Qualified
+                              </Button>
+                              <Button size="sm" onClick={() => handleWon(ref)} className="gap-1">
+                                <CheckCircle2 className="h-3 w-3" /> Closed/Won
+                              </Button>
+                              <Button size="sm" variant="destructive" onClick={() => handleLost(ref)} className="gap-1">
+                                <XCircle className="h-3 w-3" /> Lost
+                              </Button>
+                            </>
+                          )}
+                          {/* qualified → closed-won / lost */}
+                          {ref.status === "qualified" && (
+                            <>
+                              <Button size="sm" onClick={() => handleWon(ref)} className="gap-1">
+                                <CheckCircle2 className="h-3 w-3" /> Closed/Won
+                              </Button>
+                              <Button size="sm" variant="destructive" onClick={() => handleLost(ref)} className="gap-1">
+                                <XCircle className="h-3 w-3" /> Lost
+                              </Button>
                             </>
                           )}
                           {ref.status === "duplicate" && <span className="text-xs text-muted-foreground">Marked as duplicate</span>}

@@ -19,7 +19,8 @@ const iconMap: Record<string, any> = { trophy: Trophy, star: Star, zap: Zap, "do
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
   submitted: { bg: "bg-muted", text: "text-muted-foreground", label: "Submitted" },
   accepted: { bg: "bg-primary/10", text: "text-primary", label: "Funds Reserved" },
-  contacted: { bg: "bg-blue-50", text: "text-blue-700", label: "Contacted" },
+  contacted: { bg: "bg-blue-100/60", text: "text-blue-700", label: "Contacted" },
+  qualified: { bg: "bg-primary/10", text: "text-primary", label: "Qualified" },
   in_progress: { bg: "bg-accent/10", text: "text-accent-foreground", label: "In Progress" },
   won: { bg: "bg-earnings/10", text: "text-earnings", label: "Closed — Paid" },
   lost: { bg: "bg-destructive/10", text: "text-destructive", label: "Lost" },
