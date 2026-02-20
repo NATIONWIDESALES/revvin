@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  userRole: "business" | "referrer" | null;
+  userRole: "business" | "referrer" | "admin" | null;
   signOut: () => Promise<void>;
 }
 
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<"business" | "referrer" | null>(null);
+  const [userRole, setUserRole] = useState<"business" | "referrer" | "admin" | null>(null);
 
   const fetchRole = async (userId: string) => {
     const { data } = await supabase
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .select("role")
       .eq("user_id", userId)
       .maybeSingle();
-    setUserRole((data?.role as "business" | "referrer") ?? null);
+    setUserRole((data?.role as "business" | "referrer" | "admin") ?? null);
   };
 
   useEffect(() => {

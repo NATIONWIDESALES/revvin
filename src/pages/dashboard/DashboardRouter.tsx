@@ -1,6 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import ReferrerDashboard from "./ReferrerDashboard";
 import BusinessDashboard from "./BusinessDashboard";
+import AdminDashboard from "./AdminDashboard";
 
 const DashboardRouter = () => {
   const { userRole, loading } = useAuth();
@@ -13,6 +14,7 @@ const DashboardRouter = () => {
     );
   }
 
+  if (userRole === "admin") return <AdminDashboard />;
   if (userRole === "business") return <BusinessDashboard />;
   return <ReferrerDashboard />;
 };
