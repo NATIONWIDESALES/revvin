@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, DollarSign, Users, Building2, TrendingUp, Search, Shield, Briefcase, MapPin, CheckCircle2, Zap, BarChart3, Lock, FileCheck, BadgeCheck, Ban, Target, Gauge, AlertTriangle, Scale, Star, Quote } from "lucide-react";
 import { motion } from "framer-motion";
 import OfferCard from "@/components/OfferCard";
-import { mockOffers } from "@/data/mockOffers";
+import CitySlots from "@/components/CitySlots";
+import { mockOffers, cityJumpsCA, cityJumpsUS } from "@/data/mockOffers";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import heroBg from "@/assets/hero-bg.jpg";
 
@@ -264,6 +265,54 @@ const Index = () => {
                 </motion.div>
               ))}
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Featured Cities */}
+      <section className="py-24">
+        <div className="container">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+            <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
+              <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">Active Markets</p>
+              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Featured Cities</h2>
+              <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Referral programs are live across these metro areas in Canada and the United States.</p>
+            </motion.div>
+            <motion.div variants={fadeUp} custom={1} className="mx-auto max-w-5xl grid gap-6 md:grid-cols-2">
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">🇨🇦 Canada</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {cityJumpsCA.map((city) => {
+                    const count = mockOffers.filter(o => o.city === city.label || o.location.includes(city.label)).length;
+                    return (
+                      <Link key={city.label} to={`/browse`} className="group rounded-xl border border-border bg-card p-4 text-center transition-all hover:shadow-md hover:-translate-y-0.5">
+                        <p className="font-display text-sm font-bold group-hover:text-primary transition-colors">{city.label}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{count} offer{count !== 1 ? "s" : ""}</p>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">🇺🇸 United States</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {cityJumpsUS.map((city) => {
+                    const count = mockOffers.filter(o => o.city === city.label || o.location.includes(city.label)).length;
+                    return (
+                      <Link key={city.label} to={`/browse`} className="group rounded-xl border border-border bg-card p-4 text-center transition-all hover:shadow-md hover:-translate-y-0.5">
+                        <p className="font-display text-sm font-bold group-hover:text-primary transition-colors">{city.label}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{count} offer{count !== 1 ? "s" : ""}</p>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+            <motion.div variants={fadeUp} custom={2} className="mt-8 text-center">
+              <Button variant="outline" className="gap-2" asChild>
+                <Link to="/browse">Explore All Markets <ArrowRight className="h-4 w-4" /></Link>
+              </Button>
+            </motion.div>
           </motion.div>
         </div>
       </section>
