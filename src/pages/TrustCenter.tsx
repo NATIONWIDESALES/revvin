@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, BadgeCheck, Clock, Scale, AlertTriangle, DollarSign, Users, Briefcase, CheckCircle2, ArrowRight, Lock, FileCheck, Eye } from "lucide-react";
+import { Shield, BadgeCheck, Clock, Scale, AlertTriangle, DollarSign, Users, Briefcase, CheckCircle2, ArrowRight, Lock, FileCheck, Eye, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
 
 const fadeUp = {
@@ -20,17 +20,73 @@ const TrustCenter = () => {
               <Shield className="mx-auto mb-4 h-12 w-12 text-primary-foreground/80" />
             </motion.div>
             <motion.h1 variants={fadeUp} custom={1} className="font-display text-4xl font-bold text-primary-foreground md:text-5xl">
-              Trust & Protection
+              Trust & Payouts
             </motion.h1>
             <motion.p variants={fadeUp} custom={2} className="mt-4 text-lg text-primary-foreground/70 max-w-2xl mx-auto">
-              Revvin is built on transparency, verification, and fairness. Here's how we protect both sides of the marketplace.
+              Revvin's pre-funded wallet and escrow reserve system ensures every referral payout is backed by real money.
             </motion.p>
           </motion.div>
         </div>
       </section>
 
-      {/* Verification Levels */}
+      {/* Wallet & Escrow Model */}
       <section className="py-20">
+        <div className="container max-w-5xl">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+            <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold mb-3">How "Funds Secured" Works</motion.h2>
+            <motion.p variants={fadeUp} custom={1} className="text-muted-foreground mb-10 max-w-xl">
+              Every dollar of referral payout on Revvin is backed by a pre-funded business wallet. Here's the flow:
+            </motion.p>
+            <div className="space-y-4">
+              {[
+                { step: "1", title: "Business Funds Wallet", desc: "Before publishing an offer, the business adds funds to their Revvin Wallet. This is real money held on the platform.", icon: Wallet, color: "text-primary" },
+                { step: "2", title: "Offer Goes Live with \"Funds Secured\" Badge", desc: "If the wallet balance covers at least one payout, the offer earns the \"Funds Secured\" badge — visible on cards, detail pages, and map pins.", icon: Shield, color: "text-earnings" },
+                { step: "3", title: "Referral Accepted → Funds Reserved (Escrow)", desc: "When a business accepts a referral, the payout amount moves from Available balance to Reserved (escrow). The money is locked and dedicated to that referral.", icon: Lock, color: "text-primary" },
+                { step: "4", title: "Deal Closes → Payout Released", desc: "When the deal is marked Closed/Won, the reserved funds are released: 90% goes to the referrer, 10% is the Revvin platform fee.", icon: DollarSign, color: "text-earnings" },
+                { step: "↩", title: "Deal Lost → Funds Returned", desc: "If the referral is declined or the deal is lost, reserved funds are released back to the business's available balance. No money is lost.", icon: ArrowRight, color: "text-muted-foreground" },
+              ].map((item, i) => (
+                <motion.div key={item.step} variants={fadeUp} custom={i + 2} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shrink-0">{item.step}</div>
+                  <div className="flex-1">
+                    <h3 className="font-display font-bold">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-1">{item.desc}</p>
+                  </div>
+                  <item.icon className={`h-5 w-5 ${item.color} shrink-0 mt-1`} />
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Payout Example */}
+            <motion.div variants={fadeUp} custom={7} className="mt-10 rounded-2xl border border-border bg-muted/30 p-6">
+              <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
+                <Briefcase className="h-5 w-5 text-primary" /> Example: Escrow Payout Flow
+              </h3>
+              <div className="grid grid-cols-4 gap-3 text-center">
+                <div className="rounded-xl bg-card border border-border p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Referral Fee</p>
+                  <p className="font-display text-xl font-bold">$1,500</p>
+                </div>
+                <div className="rounded-xl bg-primary/10 border border-primary/20 p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Reserved (Escrow)</p>
+                  <p className="font-display text-xl font-bold text-primary">$1,500</p>
+                </div>
+                <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Referrer Earns</p>
+                  <p className="font-display text-xl font-bold text-earnings">$1,350</p>
+                </div>
+                <div className="rounded-xl bg-card border border-border p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Revvin Fee (10%)</p>
+                  <p className="font-display text-xl font-bold">$150</p>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-3 text-center">Funds move from Available → Reserved → Paid. You always know the money is there.</p>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Verification Levels */}
+      <section className="border-y border-border bg-muted/30 py-20">
         <div className="container max-w-5xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold mb-3">Business Verification Levels</motion.h2>
@@ -57,7 +113,7 @@ const TrustCenter = () => {
       </section>
 
       {/* How Outcomes Are Verified */}
-      <section className="border-y border-border bg-muted/30 py-20">
+      <section className="py-20">
         <div className="container max-w-5xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold mb-3">How Outcomes Are Verified</motion.h2>
@@ -67,9 +123,9 @@ const TrustCenter = () => {
             <div className="space-y-4">
               {[
                 { step: "1", title: "Referral Submitted", desc: "Referrer submits lead details with timestamp. First submission wins for duplicate protection.", icon: Users },
-                { step: "2", title: "Business Reviews", desc: "Business receives the lead, contacts the customer, and updates the referral status.", icon: Eye },
+                { step: "2", title: "Business Accepts → Funds Reserved", desc: "Business reviews the lead and accepts it. The payout amount is immediately moved from their available balance to escrow.", icon: Lock },
                 { step: "3", title: "Deal Outcome Recorded", desc: "Business marks the referral as won or lost. Revenue and deal details are logged.", icon: CheckCircle2 },
-                { step: "4", title: "Payout Approved", desc: "Revvin verifies the outcome and approves the payout. Referrer receives 90% of the referral fee.", icon: DollarSign },
+                { step: "4", title: "Payout Released from Escrow", desc: "Revvin verifies the outcome, releases reserved funds: referrer receives 90%, Revvin keeps 10%.", icon: DollarSign },
               ].map((item, i) => (
                 <motion.div key={item.step} variants={fadeUp} custom={i + 2} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shrink-0">{item.step}</div>

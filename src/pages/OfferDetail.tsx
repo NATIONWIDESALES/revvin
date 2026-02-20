@@ -166,6 +166,11 @@ const OfferDetail = () => {
                   <Badge variant="outline">{offer.category}</Badge>
                   {offer.featured && <Badge className="bg-accent text-accent-foreground">Featured</Badge>}
                   {offer.remoteEligible && <Badge variant="secondary">Remote Eligible</Badge>}
+                  {offer.fundSecured && (
+                    <Badge className="bg-earnings/10 text-earnings border border-earnings/20 gap-1">
+                      <Shield className="h-3 w-3" /> Funds Secured
+                    </Badge>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -267,6 +272,12 @@ const OfferDetail = () => {
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground mt-3 text-center">Revvin takes a 10% management fee. You keep 90%.</p>
+                {offer.fundSecured && (
+                  <div className="mt-4 flex items-center gap-2 text-sm text-earnings bg-earnings/5 border border-earnings/20 rounded-xl p-3">
+                    <Shield className="h-4 w-4 shrink-0" />
+                    <span><strong>Funds Secured</strong> — this payout is backed by the business's pre-funded Revvin Wallet. When accepted, funds are held in escrow until the deal closes.</span>
+                  </div>
+                )}
               </motion.div>
             )}
 
