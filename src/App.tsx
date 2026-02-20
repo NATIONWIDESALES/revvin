@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { CountryProvider } from "@/contexts/CountryContext";
+import { DemoModeProvider } from "@/contexts/DemoModeContext";
+import DemoEntryScreen from "@/components/DemoEntryScreen";
 import Layout from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -32,7 +34,9 @@ const App = () => (
         <AuthProvider>
           <WalletProvider>
             <CountryProvider>
-              <Routes>
+              <DemoModeProvider>
+                <DemoEntryScreen />
+                <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route element={<Layout />}>
                   <Route path="/" element={<Index />} />
@@ -48,6 +52,7 @@ const App = () => (
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
+                </DemoModeProvider>
             </CountryProvider>
           </WalletProvider>
         </AuthProvider>

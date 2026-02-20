@@ -4,6 +4,7 @@ import { Menu, X, Zap, Globe } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCountry } from "@/contexts/CountryContext";
+import DemoModeToggle from "@/components/DemoModeToggle";
 import type { Country } from "@/types/offer";
 
 const Navbar = () => {
@@ -51,6 +52,7 @@ const Navbar = () => {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
+          <DemoModeToggle />
           {/* Country Selector */}
           <div className="flex items-center rounded-lg border border-border bg-muted/50 p-0.5 gap-0.5">
             {countryOptions.map((opt) => (

@@ -101,6 +101,52 @@ export const mockOffers: Offer[] = [
     qualificationRules: ["Licensed real estate agent", "Active listing in Tri-Cities", "Booking within 7 days"],
     payoutTimeline: "net7", monthlyCapacity: 25, verified: true, fundSecured: true, serviceRadius: "30 km",
   },
+  // New Canada offers
+  {
+    id: "ca12", title: "Residential Electrician Services", business: "VoltWorks Electrical", businessLogo: "⚡", category: "Services",
+    description: "Refer homeowners needing panel upgrades, EV charger installation, or rewiring in Toronto & GTA.",
+    payout: 225, payoutType: "flat", currency: "CAD", country: "CA", location: "Toronto, ON", state: "ON", city: "Toronto",
+    rating: 4.6, totalReferrals: 112, successRate: 59, featured: false,
+    dealSizeMin: 2000, dealSizeMax: 12000, closeTimeDays: 7, remoteEligible: false, latitude: 43.6532, longitude: -79.3832,
+    qualificationRules: ["Homeowner needing electrical work", "Property in GTA", "Budget $2k+"],
+    payoutTimeline: "net7", monthlyCapacity: 20, verified: true, fundSecured: true, serviceRadius: "60 km",
+  },
+  {
+    id: "ca13", title: "Window & Door Replacement", business: "ClearView Windows", businessLogo: "🪟", category: "Services",
+    description: "Refer homeowners needing energy-efficient window or door replacements across Calgary & Edmonton.",
+    payout: 300, payoutType: "flat", currency: "CAD", country: "CA", location: "Calgary, AB", state: "AB", city: "Calgary",
+    rating: 4.5, totalReferrals: 65, successRate: 54, featured: false,
+    dealSizeMin: 5000, dealSizeMax: 25000, closeTimeDays: 14, remoteEligible: false, latitude: 51.0447, longitude: -114.0719,
+    qualificationRules: ["Homeowner with windows 15+ years old", "Property in Calgary or Edmonton", "Available for quote visit"],
+    payoutTimeline: "net14", monthlyCapacity: 10, verified: true, fundSecured: true, serviceRadius: "100 km",
+  },
+  {
+    id: "ca14", title: "Property Management Leads", business: "UrbanNest Property Mgmt", businessLogo: "🏢", category: "Real Estate",
+    description: "Refer landlords or property investors looking for professional property management in Vancouver.",
+    payout: 8, payoutType: "percentage", currency: "CAD", country: "CA", location: "Vancouver, BC", state: "BC", city: "Vancouver",
+    rating: 4.3, totalReferrals: 47, successRate: 41, featured: false,
+    dealSizeMin: 2000, dealSizeMax: 5000, closeTimeDays: 21, remoteEligible: true, latitude: 49.2827, longitude: -123.1207,
+    qualificationRules: ["Property owner with rental unit(s)", "Property in Metro Vancouver", "Minimum 1 rental unit"],
+    payoutTimeline: "net30", monthlyCapacity: 12, verified: true, fundSecured: false, serviceRadius: "40 km",
+  },
+  {
+    id: "ca15", title: "Commercial Cleaning — Offices", business: "SparkleNorth Cleaning", businessLogo: "✨", category: "Services",
+    description: "Refer office managers or building owners needing commercial cleaning services in Toronto.",
+    payout: 150, payoutType: "flat", currency: "CAD", country: "CA", location: "Toronto, ON", state: "ON", city: "Toronto",
+    rating: 4.4, totalReferrals: 88, successRate: 63, featured: false,
+    dealSizeMin: 1000, dealSizeMax: 4000, closeTimeDays: 5, remoteEligible: false, latitude: 43.6532, longitude: -79.3832,
+    qualificationRules: ["Commercial property or office space", "Minimum 1,000 sq ft", "Located in GTA"],
+    payoutTimeline: "net7", monthlyCapacity: 15, verified: true, fundSecured: true, serviceRadius: "50 km",
+  },
+  {
+    id: "ca16", title: "Pest Control Services", business: "BugShield Canada", businessLogo: "🐛", category: "Services",
+    description: "Refer homeowners or businesses needing pest inspection, removal, or prevention in Metro Vancouver.",
+    payout: 80, payoutType: "flat", currency: "CAD", country: "CA", location: "Vancouver, BC", state: "BC", city: "Vancouver",
+    rating: 4.6, totalReferrals: 134, successRate: 75, featured: false,
+    dealSizeMin: 300, dealSizeMax: 2000, closeTimeDays: 3, remoteEligible: false, latitude: 49.2827, longitude: -123.1207,
+    qualificationRules: ["Active pest issue or prevention need", "Property in Metro Vancouver", "Available for inspection"],
+    payoutTimeline: "net7", monthlyCapacity: 30, verified: true, fundSecured: true, serviceRadius: "40 km",
+  },
 
   // ===== UNITED STATES =====
   {
@@ -229,6 +275,61 @@ export const mockOffers: Offer[] = [
     qualificationRules: ["Business with 5+ workstations", "No current MSP contract", "Must be reachable"],
     payoutTimeline: "net14", monthlyCapacity: 10, verified: false, fundSecured: false, serviceRadius: "Pacific NW",
   },
+  // New US offers
+  {
+    id: "us15", title: "Garage Door Installation & Repair", business: "LiftMaster Doors", businessLogo: "🚪", category: "Services",
+    description: "Refer homeowners needing new garage doors, opener installations, or spring repairs in the Dallas-Fort Worth area.",
+    payout: 175, payoutType: "flat", currency: "USD", country: "US", location: "Dallas, TX", state: "TX", city: "Dallas",
+    rating: 4.5, totalReferrals: 93, successRate: 67, featured: false,
+    dealSizeMin: 800, dealSizeMax: 5000, closeTimeDays: 5, remoteEligible: false, latitude: 32.7767, longitude: -96.797,
+    qualificationRules: ["Homeowner with garage door issue", "Property in DFW metro", "Available for same-week service"],
+    payoutTimeline: "net7", monthlyCapacity: 20, verified: true, fundSecured: true, serviceRadius: "50 mi",
+  },
+  {
+    id: "us16", title: "Bathroom & Kitchen Remodel", business: "DesignBuild Renovations", businessLogo: "🛁", category: "Services",
+    description: "Refer homeowners planning bathroom or kitchen renovations. Full design-build service in LA metro.",
+    payout: 400, payoutType: "flat", currency: "USD", country: "US", location: "Los Angeles, CA", state: "CA", city: "Los Angeles",
+    rating: 4.7, totalReferrals: 68, successRate: 50, featured: false,
+    dealSizeMin: 15000, dealSizeMax: 60000, closeTimeDays: 30, remoteEligible: false, latitude: 34.0522, longitude: -118.2437,
+    qualificationRules: ["Homeowner planning renovation", "Budget $15k+", "Property in LA County"],
+    payoutTimeline: "net14", monthlyCapacity: 8, verified: true, fundSecured: true, serviceRadius: "40 mi",
+  },
+  {
+    id: "us17", title: "Pool Installation & Maintenance", business: "AquaBuild Pools", businessLogo: "🏊", category: "Services",
+    description: "Refer homeowners looking for pool installation, renovation, or weekly maintenance in Phoenix metro.",
+    payout: 600, payoutType: "flat", currency: "USD", country: "US", location: "Phoenix, AZ", state: "AZ", city: "Phoenix",
+    rating: 4.6, totalReferrals: 45, successRate: 58, featured: true,
+    dealSizeMin: 20000, dealSizeMax: 80000, closeTimeDays: 45, remoteEligible: false, latitude: 33.4484, longitude: -112.074,
+    qualificationRules: ["Homeowner with yard space", "Budget $20k+ for new builds", "Maricopa County"],
+    payoutTimeline: "net14", monthlyCapacity: 5, verified: true, fundSecured: true, serviceRadius: "50 mi",
+  },
+  {
+    id: "us18", title: "Moving & Relocation Services", business: "SwiftMove Logistics", businessLogo: "📦", category: "Services",
+    description: "Refer families or businesses planning local or long-distance moves in the Seattle area.",
+    payout: 100, payoutType: "flat", currency: "USD", country: "US", location: "Seattle, WA", state: "WA", city: "Seattle",
+    rating: 4.3, totalReferrals: 201, successRate: 72, featured: false,
+    dealSizeMin: 1000, dealSizeMax: 8000, closeTimeDays: 7, remoteEligible: false, latitude: 47.6062, longitude: -122.3321,
+    qualificationRules: ["Confirmed moving date", "Local or long-distance", "Seattle metro area"],
+    payoutTimeline: "net7", monthlyCapacity: 25, verified: true, fundSecured: true, serviceRadius: "80 mi",
+  },
+  {
+    id: "us19", title: "Auto Body & Collision Repair", business: "PrecisionBody Works", businessLogo: "🚗", category: "Services",
+    description: "Refer vehicle owners needing collision repair, paintwork, or dent removal in the New York metro area.",
+    payout: 200, payoutType: "flat", currency: "USD", country: "US", location: "New York, NY", state: "NY", city: "New York",
+    rating: 4.4, totalReferrals: 110, successRate: 60, featured: false,
+    dealSizeMin: 2000, dealSizeMax: 15000, closeTimeDays: 10, remoteEligible: false, latitude: 40.7128, longitude: -74.006,
+    qualificationRules: ["Vehicle with body damage", "Insurance claim or out-of-pocket", "NYC metro area"],
+    payoutTimeline: "net7", monthlyCapacity: 15, verified: true, fundSecured: true, serviceRadius: "30 mi",
+  },
+  {
+    id: "us20", title: "Tax Preparation & Advisory", business: "TrueBooks Accounting", businessLogo: "📊", category: "Finance",
+    description: "Refer small business owners or high-net-worth individuals needing tax preparation and advisory services.",
+    payout: 250, payoutType: "flat", currency: "USD", country: "US", location: "San Francisco, CA", state: "CA", city: "San Francisco",
+    rating: 4.7, totalReferrals: 156, successRate: 55, featured: false,
+    dealSizeMin: 1500, dealSizeMax: 10000, closeTimeDays: 14, remoteEligible: true, latitude: 37.7749, longitude: -122.4194,
+    qualificationRules: ["Business owner or HNW individual", "No existing CPA relationship", "US tax filing required"],
+    payoutTimeline: "net14", monthlyCapacity: 20, verified: true, fundSecured: true, serviceRadius: "Nationwide",
+  },
 ];
 
 export const categories = [
@@ -257,3 +358,52 @@ export const cityJumpsUS = [
   { label: "NYC", lat: 40.7128, lng: -74.006 },
   { label: "SF", lat: 37.7749, lng: -122.4194 },
 ];
+
+// ===== OFFER SCORING =====
+export interface OfferScore {
+  total: number;
+  fundSecuredScore: number;
+  verificationScore: number;
+  payoutCompetitiveness: number;
+  payoutSpeed: number;
+  closeTimeScore: number;
+}
+
+export function calculateOfferScore(offer: typeof mockOffers[0], allOffers?: typeof mockOffers): OfferScore {
+  const peers = (allOffers ?? mockOffers).filter(o => o.city === offer.city || o.category === offer.category);
+  const avgPayout = peers.length > 0 ? peers.reduce((s, o) => s + o.payout, 0) / peers.length : offer.payout;
+
+  const fundSecuredScore = offer.fundSecured ? 30 : 0;
+  const verificationScore = offer.verified ? 20 : 0;
+  const payoutCompetitiveness = Math.min(25, Math.round((offer.payout / Math.max(1, avgPayout)) * 15));
+  const payoutSpeed = offer.payoutTimeline === "net7" ? 15 : offer.payoutTimeline === "net14" ? 10 : 5;
+  const closeTimeScore = (offer.closeTimeDays ?? 30) <= 7 ? 10 : (offer.closeTimeDays ?? 30) <= 14 ? 7 : (offer.closeTimeDays ?? 30) <= 30 ? 4 : 2;
+
+  const total = Math.min(100, fundSecuredScore + verificationScore + payoutCompetitiveness + payoutSpeed + closeTimeScore);
+
+  return { total, fundSecuredScore, verificationScore, payoutCompetitiveness, payoutSpeed, closeTimeScore };
+}
+
+// ===== CITY SLOTS (scarcity concept) =====
+export interface CitySlot {
+  city: string;
+  country: "CA" | "US";
+  category: string;
+  maxSlots: 5;
+  filledSlots: number;
+  offers: string[];
+}
+
+export function getCitySlots(): CitySlot[] {
+  const slotMap: Record<string, CitySlot> = {};
+  mockOffers.forEach(offer => {
+    if (!offer.verified) return;
+    const key = `${offer.city}-${offer.category}`;
+    if (!slotMap[key]) {
+      slotMap[key] = { city: offer.city, country: offer.country, category: offer.category, maxSlots: 5, filledSlots: 0, offers: [] };
+    }
+    slotMap[key].filledSlots++;
+    slotMap[key].offers.push(offer.id);
+  });
+  return Object.values(slotMap).sort((a, b) => b.filledSlots - a.filledSlots);
+}

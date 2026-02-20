@@ -4,7 +4,9 @@ import { MapPin, Star, TrendingUp, Clock, DollarSign, Wifi, BadgeCheck, ArrowRig
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import QualificationTooltip from "@/components/QualificationTooltip";
+import OfferScoreBadge from "@/components/OfferScoreBadge";
 import { useCountry } from "@/contexts/CountryContext";
+import { calculateOfferScore } from "@/data/mockOffers";
 
 interface OfferCardProps {
   offer: Offer;
@@ -21,6 +23,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
   const navigate = useNavigate();
   const { formatPayout } = useCountry();
   const countryFlag = offer.country === "CA" ? "🇨🇦" : "🇺🇸";
+  const offerScore = calculateOfferScore(offer);
 
   return (
     <Link to={`/offer/${offer.id}`} className="group block">
@@ -97,6 +100,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 fill-accent text-accent" />{offer.rating}</span>
           <span className="flex items-center gap-1"><TrendingUp className="h-3.5 w-3.5" />{offer.successRate}%</span>
           {offer.serviceRadius && <span className="text-[10px] text-muted-foreground/60">• {offer.serviceRadius}</span>}
+          <OfferScoreBadge score={offerScore} />
         </div>
 
         {/* CTAs */}
