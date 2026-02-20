@@ -1,18 +1,12 @@
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, MapPin, Star, TrendingUp, Users, DollarSign, CheckCircle2, Clock, Shield, Upload, Briefcase, BadgeCheck, AlertTriangle, Scale, FileCheck } from "lucide-react";
+import { ArrowLeft, MapPin, Star, TrendingUp, Users, DollarSign, CheckCircle2, Clock, Shield, Briefcase, BadgeCheck, AlertTriangle, Scale, FileCheck } from "lucide-react";
 import { mockOffers } from "@/data/mockOffers";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
 import { useCountry } from "@/contexts/CountryContext";
-import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import ShareOfferLink from "@/components/ShareOfferLink";
+import ReferralWizard from "@/components/ReferralWizard";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -25,14 +19,7 @@ const fadeUp = {
 const OfferDetail = () => {
   const { id } = useParams();
   const offer = mockOffers.find((o) => o.id === id);
-  const { toast } = useToast();
-  const { user } = useAuth();
   const { formatPayout } = useCountry();
-  const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [referralId, setReferralId] = useState<string | null>(null);
-  const [consent, setConsent] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "", notes: "" });
 
   if (!offer) {
     return (
@@ -45,82 +32,8 @@ const OfferDetail = () => {
     );
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!consent) {
-      toast({ title: "Consent required", description: "Please confirm the customer has consented to being contacted.", variant: "destructive" });
-      return;
-    }
-
-    if (!user) {
-      toast({ title: "Sign in required", description: "Please sign in to submit a referral.", variant: "destructive" });
-      return;
-    }
-
-    setSubmitting(true);
-
-    try {
-      // Look up a real DB offer matching this mock offer's title, or find any active offer
-      let dbOfferId: string | null = null;
-      let dbBusinessId: string | null = null;
-
-      const { data: dbOffer } = await supabase
-        .from("offers")
-        .select("id, business_id")
-        .eq("title", offer.title)
-        .eq("status", "active")
-        .limit(1)
-        .maybeSingle();
-
-      if (dbOffer) {
-        dbOfferId = dbOffer.id;
-        dbBusinessId = dbOffer.business_id;
-      } else {
-        // Fallback: use the first active offer in the DB so we have valid FK references
-        const { data: anyOffer } = await supabase
-          .from("offers")
-          .select("id, business_id")
-          .eq("status", "active")
-          .limit(1)
-          .maybeSingle();
-
-        if (anyOffer) {
-          dbOfferId = anyOffer.id;
-          dbBusinessId = anyOffer.business_id;
-        }
-      }
-
-      if (!dbOfferId || !dbBusinessId) {
-        toast({ title: "No active offers", description: "There are no active offers in the database yet. Ask a business to publish one first.", variant: "destructive" });
-        setSubmitting(false);
-        return;
-      }
-
-      const { data: inserted, error } = await supabase
-        .from("referrals")
-        .insert({
-          referrer_id: user.id,
-          offer_id: dbOfferId,
-          business_id: dbBusinessId,
-          customer_name: formData.name,
-          customer_email: formData.email || null,
-          customer_phone: formData.phone || null,
-          notes: formData.notes || null,
-          payout_amount: offer.payoutType === "flat" ? Math.round(offer.payout * 0.9) : null,
-        })
-        .select("id")
-        .single();
-
-      if (error) throw error;
-
-      setReferralId(inserted.id);
-      setSubmitted(true);
-      toast({ title: "Referral Submitted!", description: "Track this referral inside your dashboard." });
-    } catch (err: any) {
-      toast({ title: "Submission failed", description: err.message || "Something went wrong.", variant: "destructive" });
-    } finally {
-      setSubmitting(false);
-    }
+  const handleFeedback = () => {
+    // placeholder feedback action
   };
 
   const referrerEarns = offer.payoutType === "flat"
@@ -351,131 +264,16 @@ const OfferDetail = () => {
               <Button
                 variant="ghost"
                 className="text-sm text-muted-foreground hover:text-primary"
-                onClick={() => toast({ title: "Feedback submitted", description: "We'll relay your suggestion to improve this offer." })}
+                onClick={() => handleFeedback()}
               >
                 <Scale className="h-4 w-4 mr-1.5" /> Invite this business to improve their offer
               </Button>
             </motion.div>
           </motion.div>
 
-          {/* Referral Form Sidebar */}
+          {/* Referral Wizard Sidebar */}
           <div className="lg:col-span-2">
-            <div className="sticky top-24 rounded-2xl border border-border bg-card p-6 shadow-lg">
-              <div className="mb-5 text-center">
-                <div className="earnings-badge mx-auto mb-3 inline-block rounded-full px-5 py-2.5 text-lg font-bold shadow-md">
-                  Earn {offer.payoutType === "flat" ? formatPayout(referrerEarns, offer.currency) : `${offer.payout}%`}
-                </div>
-                <p className="text-sm text-muted-foreground">per successful referral</p>
-              </div>
-
-              {submitted ? (
-                <div className="py-8 text-center">
-                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-earnings/10">
-                    <CheckCircle2 className="h-8 w-8 text-earnings" />
-                  </div>
-                  <h3 className="font-display text-xl font-bold">Referral Submitted!</h3>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                    Track this referral inside your dashboard.
-                  </p>
-                  {referralId && (
-                    <p className="mt-2 text-xs text-muted-foreground font-mono bg-muted/50 rounded px-2 py-1 inline-block">
-                      Ref ID: {referralId.slice(0, 8)}...
-                    </p>
-                  )}
-
-                  {/* Tracking Preview */}
-                  <div className="mt-6 rounded-xl border border-border bg-muted/50 p-4 text-left">
-                    <p className="text-xs font-medium text-muted-foreground mb-3">Referral Tracking</p>
-                    <div className="space-y-2">
-                      {["Submitted", "Under Review", "Deal In Progress", "Payout"].map((step, i) => (
-                        <div key={step} className="flex items-center gap-2">
-                          <div className={`h-2.5 w-2.5 rounded-full ${i === 0 ? "bg-earnings" : "bg-border"}`} />
-                          <span className={`text-xs ${i === 0 ? "font-medium text-foreground" : "text-muted-foreground"}`}>{step}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex gap-2">
-                    <Button variant="outline" className="flex-1" onClick={() => { setSubmitted(false); setConsent(false); }}>
-                      Submit Another
-                    </Button>
-                    <Button className="flex-1" asChild>
-                      <Link to="/dashboard">Track in Dashboard</Link>
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium">Customer's Full Name *</label>
-                    <Input
-                      placeholder="John Doe"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData(f => ({ ...f, name: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium">Customer's Email *</label>
-                    <Input
-                      type="email"
-                      placeholder="john@example.com"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData(f => ({ ...f, email: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium">Customer's Phone</label>
-                    <Input
-                      type="tel"
-                      placeholder="(555) 123-4567"
-                      value={formData.phone}
-                      onChange={(e) => setFormData(f => ({ ...f, phone: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium">Notes & Context</label>
-                    <Textarea
-                      placeholder="Why is this person a good fit? Any context that helps..."
-                      rows={3}
-                      value={formData.notes}
-                      onChange={(e) => setFormData(f => ({ ...f, notes: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium">Attach Files (optional)</label>
-                    <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-border p-4 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                      <div>
-                        <Upload className="mx-auto h-5 w-5 text-muted-foreground mb-1" />
-                        <p className="text-xs text-muted-foreground">Click to upload supporting documents</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Consent */}
-                  <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-3">
-                    <Checkbox
-                      id="consent"
-                      checked={consent}
-                      onCheckedChange={(v) => setConsent(v === true)}
-                      className="mt-0.5"
-                    />
-                    <label htmlFor="consent" className="text-xs text-muted-foreground cursor-pointer leading-relaxed">
-                      I confirm the customer has consented to being contacted about this service. I acknowledge the referral terms.
-                    </label>
-                  </div>
-
-                  <Button type="submit" className="w-full h-11 font-semibold" size="lg" disabled={submitting}>
-                    {submitting ? "Submitting..." : "Submit Referral"}
-                  </Button>
-                  <p className="text-center text-xs text-muted-foreground">
-                    By submitting, you agree to our referral terms and conditions.
-                  </p>
-                </form>
-              )}
-            </div>
+            <ReferralWizard offer={offer} />
           </div>
         </div>
       </div>

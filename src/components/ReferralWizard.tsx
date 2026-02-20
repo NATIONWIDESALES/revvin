@@ -1,0 +1,407 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import {
+  CheckCircle2, Upload, Shield, ArrowRight, ArrowLeft, FileText, User, MessageSquare, Scale, Sparkles,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCountry } from "@/contexts/CountryContext";
+import { supabase } from "@/integrations/supabase/client";
+import { motion, AnimatePresence } from "framer-motion";
+import type { Offer } from "@/types/offer";
+
+interface ReferralWizardProps {
+  offer: Offer;
+}
+
+const STEPS = [
+  { label: "Offer", icon: Sparkles },
+  { label: "Customer", icon: User },
+  { label: "Notes", icon: MessageSquare },
+  { label: "Consent", icon: Scale },
+  { label: "Confirm", icon: CheckCircle2 },
+];
+
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({ x: dir > 0 ? -60 : 60, opacity: 0 }),
+};
+
+const ReferralWizard = ({ offer }: ReferralWizardProps) => {
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const { formatPayout } = useCountry();
+
+  const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
+  const [referralId, setReferralId] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    city: "",
+    notes: "",
+  });
+  const [consent, setConsent] = useState(false);
+  const [termsAck, setTermsAck] = useState(false);
+
+  const referrerEarns =
+    offer.payoutType === "flat" ? Math.round(offer.payout * 0.9) : offer.payout;
+
+  const goNext = () => {
+    setDirection(1);
+    setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  };
+  const goBack = () => {
+    setDirection(-1);
+    setStep((s) => Math.max(s - 1, 0));
+  };
+
+  const canProceed = () => {
+    if (step === 0) return true;
+    if (step === 1) return formData.name.trim().length > 0 && formData.email.trim().length > 0;
+    if (step === 2) return true;
+    if (step === 3) return consent && termsAck;
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    if (!user) {
+      toast({ title: "Sign in required", description: "Please sign in to submit a referral.", variant: "destructive" });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      let dbOfferId: string | null = null;
+      let dbBusinessId: string | null = null;
+
+      const { data: dbOffer } = await supabase
+        .from("offers")
+        .select("id, business_id")
+        .eq("title", offer.title)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+
+      if (dbOffer) {
+        dbOfferId = dbOffer.id;
+        dbBusinessId = dbOffer.business_id;
+      } else {
+        const { data: anyOffer } = await supabase
+          .from("offers")
+          .select("id, business_id")
+          .eq("status", "active")
+          .limit(1)
+          .maybeSingle();
+        if (anyOffer) {
+          dbOfferId = anyOffer.id;
+          dbBusinessId = anyOffer.business_id;
+        }
+      }
+
+      if (!dbOfferId || !dbBusinessId) {
+        toast({ title: "No active offers", description: "No active offers in the database yet.", variant: "destructive" });
+        setSubmitting(false);
+        return;
+      }
+
+      const { data: inserted, error } = await supabase
+        .from("referrals")
+        .insert({
+          referrer_id: user.id,
+          offer_id: dbOfferId,
+          business_id: dbBusinessId,
+          customer_name: formData.name,
+          customer_email: formData.email || null,
+          customer_phone: formData.phone || null,
+          notes: formData.notes || null,
+          payout_amount: offer.payoutType === "flat" ? Math.round(offer.payout * 0.9) : null,
+        })
+        .select("id")
+        .single();
+
+      if (error) throw error;
+
+      setReferralId(inserted.id);
+      setDirection(1);
+      setStep(4); // confirmation step
+      toast({ title: "Referral Submitted!", description: "Track this referral in your dashboard." });
+    } catch (err: any) {
+      toast({ title: "Submission failed", description: err.message || "Something went wrong.", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const progress = ((step + 1) / STEPS.length) * 100;
+
+  return (
+    <div className="sticky top-24 rounded-2xl border border-border bg-card shadow-lg overflow-hidden">
+      {/* Header with payout */}
+      <div className="bg-gradient-to-br from-primary/10 to-earnings/10 p-5 text-center border-b border-border">
+        <div className="earnings-badge mx-auto mb-2 inline-block rounded-full px-5 py-2.5 text-lg font-bold shadow-md">
+          Earn {offer.payoutType === "flat" ? formatPayout(referrerEarns, offer.currency) : `${offer.payout}%`}
+        </div>
+        <p className="text-xs text-muted-foreground">per successful referral</p>
+      </div>
+
+      {/* Step indicators */}
+      <div className="px-5 pt-4 pb-2">
+        <div className="flex items-center justify-between mb-2">
+          {STEPS.map((s, i) => {
+            const Icon = s.icon;
+            const isActive = i === step;
+            const isDone = i < step || (step === 4 && i === 4);
+            return (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-colors ${
+                    isDone
+                      ? "bg-earnings text-earnings-foreground"
+                      : isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {isDone && i < step ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                </div>
+                <span className={`text-[10px] font-medium ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
+                  {s.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <Progress value={progress} className="h-1.5" />
+      </div>
+
+      {/* Step content */}
+      <div className="p-5 min-h-[280px] relative">
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={step}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+          >
+            {/* Step 0: Confirm Offer */}
+            {step === 0 && (
+              <div className="space-y-4">
+                <h3 className="font-display font-semibold text-sm">Step 1: Confirm Offer</h3>
+                <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-xl">
+                      {offer.businessLogo}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm">{offer.title}</p>
+                      <p className="text-xs text-muted-foreground">{offer.business} • {offer.country === "CA" ? "🇨🇦" : "🇺🇸"} {offer.city}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded-lg bg-card border border-border p-2 text-center">
+                      <p className="text-muted-foreground">Payout</p>
+                      <p className="font-bold text-foreground">
+                        {offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-card border border-border p-2 text-center">
+                      <p className="text-muted-foreground">You Earn</p>
+                      <p className="font-bold text-earnings">
+                        {offer.payoutType === "flat" ? formatPayout(referrerEarns, offer.currency) : `${offer.payout}% (minus fee)`}
+                      </p>
+                    </div>
+                  </div>
+                  {offer.fundSecured && (
+                    <div className="flex items-center gap-2 text-xs text-earnings bg-earnings/5 border border-earnings/20 rounded-lg p-2">
+                      <Shield className="h-3.5 w-3.5 shrink-0" />
+                      <span>Funds Secured — payout backed by pre-funded wallet</span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">Review the offer details above, then proceed to enter the customer's information.</p>
+              </div>
+            )}
+
+            {/* Step 1: Customer Info */}
+            {step === 1 && (
+              <div className="space-y-4">
+                <h3 className="font-display font-semibold text-sm">Step 2: Customer Information</h3>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium">Full Name *</label>
+                  <Input
+                    placeholder="Jane Smith"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium">Email *</label>
+                  <Input
+                    type="email"
+                    placeholder="jane@example.com"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData((f) => ({ ...f, email: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium">Phone</label>
+                  <Input
+                    type="tel"
+                    placeholder="(555) 123-4567"
+                    value={formData.phone}
+                    onChange={(e) => setFormData((f) => ({ ...f, phone: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium">Customer City</label>
+                  <Input
+                    placeholder="e.g. Vancouver"
+                    value={formData.city}
+                    onChange={(e) => setFormData((f) => ({ ...f, city: e.target.value }))}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Notes & Attachments */}
+            {step === 2 && (
+              <div className="space-y-4">
+                <h3 className="font-display font-semibold text-sm">Step 3: Notes & Attachments</h3>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium">Context & Notes</label>
+                  <Textarea
+                    placeholder="Why is this a good fit? Any context that helps the business..."
+                    rows={4}
+                    value={formData.notes}
+                    onChange={(e) => setFormData((f) => ({ ...f, notes: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium">Attachments (optional)</label>
+                  <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-border p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
+                    <div>
+                      <Upload className="mx-auto h-6 w-6 text-muted-foreground mb-2" />
+                      <p className="text-xs text-muted-foreground">Click to upload supporting documents</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">PDF, images, or documents up to 10 MB</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Consent */}
+            {step === 3 && (
+              <div className="space-y-4">
+                <h3 className="font-display font-semibold text-sm">Step 4: Consent & Terms</h3>
+                <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-4">
+                  <div className="flex items-start gap-2.5">
+                    <Checkbox
+                      id="consent-wizard"
+                      checked={consent}
+                      onCheckedChange={(v) => setConsent(v === true)}
+                      className="mt-0.5"
+                    />
+                    <label htmlFor="consent-wizard" className="text-xs text-muted-foreground cursor-pointer leading-relaxed">
+                      I confirm the customer has <strong>consented to being contacted</strong> about this service and that I have permission to share their contact information.
+                    </label>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <Checkbox
+                      id="terms-wizard"
+                      checked={termsAck}
+                      onCheckedChange={(v) => setTermsAck(v === true)}
+                      className="mt-0.5"
+                    />
+                    <label htmlFor="terms-wizard" className="text-xs text-muted-foreground cursor-pointer leading-relaxed">
+                      I acknowledge the <strong>referral terms</strong>, including the duplicate lead policy (first accepted submission wins) and that payouts are subject to deal verification.
+                    </label>
+                  </div>
+                </div>
+                <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-xs text-muted-foreground space-y-1.5">
+                  <p className="font-medium text-foreground flex items-center gap-1.5"><FileText className="h-3.5 w-3.5" /> Summary</p>
+                  <p>• Customer: <strong>{formData.name}</strong> ({formData.email})</p>
+                  <p>• Offer: <strong>{offer.title}</strong> by {offer.business}</p>
+                  <p>• Your earnings: <strong>{offer.payoutType === "flat" ? formatPayout(referrerEarns, offer.currency) : `${offer.payout}%`}</strong> upon close</p>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Confirmation */}
+            {step === 4 && referralId && (
+              <div className="py-4 text-center space-y-4">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-earnings/10">
+                  <CheckCircle2 className="h-8 w-8 text-earnings" />
+                </div>
+                <div>
+                  <h3 className="font-display text-lg font-bold">Referral Submitted!</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">Your referral has been sent to {offer.business}.</p>
+                </div>
+                <div className="inline-block rounded-lg bg-muted/50 border border-border px-3 py-1.5">
+                  <p className="text-[10px] text-muted-foreground">Referral ID</p>
+                  <p className="font-mono text-xs font-bold">{referralId.slice(0, 8).toUpperCase()}</p>
+                </div>
+                {/* Tracking preview */}
+                <div className="rounded-xl border border-border bg-muted/30 p-4 text-left">
+                  <p className="text-xs font-medium text-muted-foreground mb-3">Referral Tracking</p>
+                  <div className="space-y-2">
+                    {["Submitted", "Under Review", "Deal In Progress", "Payout"].map((s, i) => (
+                      <div key={s} className="flex items-center gap-2">
+                        <div className={`h-2.5 w-2.5 rounded-full ${i === 0 ? "bg-earnings" : "bg-border"}`} />
+                        <span className={`text-xs ${i === 0 ? "font-medium text-foreground" : "text-muted-foreground"}`}>{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <Button variant="outline" className="flex-1" onClick={() => { setStep(0); setDirection(-1); setReferralId(null); setConsent(false); setTermsAck(false); setFormData({ name: "", email: "", phone: "", city: "", notes: "" }); }}>
+                    Submit Another
+                  </Button>
+                  <Button className="flex-1" asChild>
+                    <Link to="/dashboard">Track in Dashboard</Link>
+                  </Button>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Navigation buttons */}
+      {step < 4 && (
+        <div className="px-5 pb-5 flex gap-2">
+          {step > 0 && (
+            <Button variant="outline" onClick={goBack} className="gap-1.5">
+              <ArrowLeft className="h-3.5 w-3.5" /> Back
+            </Button>
+          )}
+          {step < 3 ? (
+            <Button className="flex-1 gap-1.5" onClick={goNext} disabled={!canProceed()}>
+              Continue <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          ) : (
+            <Button className="flex-1 gap-1.5 font-semibold" onClick={handleSubmit} disabled={!canProceed() || submitting}>
+              {submitting ? "Submitting..." : "Submit Referral"} {!submitting && <CheckCircle2 className="h-3.5 w-3.5" />}
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ReferralWizard;
