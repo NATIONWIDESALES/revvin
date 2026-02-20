@@ -90,15 +90,15 @@ const Index = () => {
             variants={stagger}
             className="mx-auto max-w-5xl rounded-2xl border border-border bg-card p-6 shadow-xl"
           >
-            <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-4 text-center">Marketplace Momentum</p>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-4 text-center">Marketplace Momentum — 🇨🇦 Canada + 🇺🇸 USA</p>
             <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-6">
               {[
                 { value: "$2.4M+", label: "Payouts Available", icon: DollarSign },
                 { value: "850+", label: "Active Businesses", icon: Building2 },
                 { value: "12,000+", label: "Referrers", icon: Users },
                 { value: "$285", label: "Avg. Payout", icon: TrendingUp },
-                { value: "15", label: "Top Categories", icon: BarChart3 },
-                { value: "42", label: "Active Cities", icon: MapPin },
+                { value: "2", label: "Countries", icon: MapPin },
+                { value: "42", label: "Active Cities", icon: BarChart3 },
               ].map((stat, i) => (
                 <motion.div key={stat.label} variants={fadeUp} custom={i} className="text-center">
                   <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
