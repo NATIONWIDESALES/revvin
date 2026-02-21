@@ -90,8 +90,12 @@ const BusinessDashboard = () => {
     await supabase.from("referrals").update({ status: "accepted" }).eq("id", ref.id);
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "accepted" } : r)));
     toast({ title: "Referral accepted", description: `$${payoutAmt} reserved in escrow.` });
-    // Notify referrer
-    supabase.functions.invoke("send-notification", { body: { type: "referral_accepted", recipientEmail: "", recipientName: "Referrer", data: { referrerName: "Referrer", customerName: ref.customer_name, offerTitle: ref.offers?.title ?? "Offer" } } });
+    // Notify referrer — look up their email
+    const { data: referrerProfile } = await supabase.from("profiles").select("full_name, user_id").eq("user_id", ref.referrer_id).maybeSingle();
+    const { data: referrerAuth } = await supabase.auth.admin?.getUserById?.(ref.referrer_id) ?? { data: null };
+    const referrerEmail = referrerAuth?.user?.email ?? "";
+    const referrerName = referrerProfile?.full_name ?? "Referrer";
+    supabase.functions.invoke("send-notification", { body: { type: "referral_accepted", recipientEmail: referrerEmail, recipientName: referrerName, data: { referrerName, customerName: ref.customer_name, offerTitle: ref.offers?.title ?? "Offer" } } });
   };
 
   const handleDecline = async (ref: any) => {
@@ -108,7 +112,8 @@ const BusinessDashboard = () => {
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "won", payout_amount: referrerPayout, payout_status: "approved" } : r)));
     toast({ title: "Deal closed!", description: `$${referrerPayout} released to referrer. $${payoutAmt - referrerPayout} platform fee.` });
     // Notify referrer
-    supabase.functions.invoke("send-notification", { body: { type: "deal_closed", recipientEmail: "", recipientName: "Referrer", data: { referrerName: "Referrer", customerName: ref.customer_name, offerTitle: ref.offers?.title ?? "Offer", payoutAmount: String(referrerPayout) } } });
+    const { data: wonProfile } = await supabase.from("profiles").select("full_name").eq("user_id", ref.referrer_id).maybeSingle();
+    supabase.functions.invoke("send-notification", { body: { type: "deal_closed", recipientEmail: "", recipientName: wonProfile?.full_name ?? "Referrer", data: { referrerName: wonProfile?.full_name ?? "Referrer", customerName: ref.customer_name, offerTitle: ref.offers?.title ?? "Offer", payoutAmount: String(referrerPayout) } } });
   };
 
   const handleLost = async (ref: any) => {

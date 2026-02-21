@@ -65,8 +65,11 @@ const Auth = () => {
         });
         if (error) throw error;
 
-        toast({ title: "Account created!", description: "You're now signed in." });
-        navigate("/dashboard");
+        // Email confirmation is required — don't navigate to dashboard
+        toast({ title: "Check your email!", description: "We sent a confirmation link. Click it to activate your account." });
+        setEmail(""); setPassword(""); setFullName(""); setStep(1);
+        setMode("login");
+        return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
