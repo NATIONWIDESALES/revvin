@@ -15,6 +15,7 @@ import HowItWorks from "./pages/HowItWorks";
 import TrustCenter from "./pages/TrustCenter";
 import ForBusinesses from "./pages/ForBusinesses";
 import ForReferrers from "./pages/ForReferrers";
+import ReferrerProfile from "./pages/ReferrerProfile";
 import Auth from "./pages/Auth";
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import CreateOffer from "./pages/dashboard/CreateOffer";
@@ -46,6 +47,7 @@ const App = () => (
                   <Route path="/trust" element={<TrustCenter />} />
                   <Route path="/for-businesses" element={<ForBusinesses />} />
                   <Route path="/for-referrers" element={<ForReferrers />} />
+                  <Route path="/referrer/:userId" element={<ReferrerProfile />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/referral-agreement" element={<ReferralAgreement />} />

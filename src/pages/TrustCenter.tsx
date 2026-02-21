@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Shield, BadgeCheck, Clock, Scale, AlertTriangle, DollarSign, Users, Briefcase, CheckCircle2, ArrowRight, Lock, FileCheck, Eye, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
+import SEOHead from "@/components/SEOHead";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -12,6 +13,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } }
 const TrustCenter = () => {
   return (
     <div>
+      <SEOHead title="Trust & Payouts" description="How Revvin protects both businesses and referrers with escrow, verification, dispute resolution, and transparent payout economics." path="/trust" />
       {/* Hero */}
       <section className="hero-gradient py-20">
         <div className="container text-center">

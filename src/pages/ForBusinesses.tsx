@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Building2, CheckCircle2, ArrowRight, DollarSign, Shield, Users, Wallet, BarChart3, Globe } from "lucide-react";
 import CitySlots from "@/components/CitySlots";
 import { motion } from "framer-motion";
+import SEOHead from "@/components/SEOHead";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -12,6 +13,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } }
 
 const ForBusinesses = () => (
   <div>
+    <SEOHead title="For Businesses — Pay-Per-Close Customer Acquisition" description="Acquire customers through paid referrals. Set your own payout, get qualified leads, and pay only when deals close. Zero upfront risk." path="/for-businesses" />
     <section className="hero-gradient py-20">
       <div className="container text-center">
         <motion.div initial="hidden" animate="visible">

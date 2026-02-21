@@ -11,12 +11,12 @@ export interface PlatformStats {
 }
 
 const FALLBACK: PlatformStats = {
-  totalPayoutsAvailable: 2_400_000,
-  activeBusinesses: 850,
-  totalReferrers: 12_000,
-  avgPayout: 285,
-  totalReferrals: 4_200,
-  activeCities: 42,
+  totalPayoutsAvailable: 0,
+  activeBusinesses: 0,
+  totalReferrers: 0,
+  avgPayout: 0,
+  totalReferrals: 0,
+  activeCities: 0,
 };
 
 export function usePlatformStats() {
