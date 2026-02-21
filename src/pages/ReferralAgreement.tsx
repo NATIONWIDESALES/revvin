@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SEOHead from "@/components/SEOHead";
 
 const ReferralAgreement = () => {
   return (
     <div className="py-12">
+      <SEOHead title="Referral Agreement" description="Understand the referral terms between businesses and referrers on Revvin, including payout rules, exclusivity, and disputes." path="/referral-agreement" />
       <div className="container max-w-3xl">
         <Button variant="ghost" size="sm" className="gap-1 mb-6" asChild>
           <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>

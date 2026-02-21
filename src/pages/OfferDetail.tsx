@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import ShareOfferLink from "@/components/ShareOfferLink";
 import ReferralWizard from "@/components/ReferralWizard";
 import OfferScoreBadge from "@/components/OfferScoreBadge";
+import SEOHead from "@/components/SEOHead";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -55,6 +56,7 @@ const OfferDetail = () => {
   const offerScore = calculateOfferScore(offer);
   return (
     <div className="py-8">
+      <SEOHead title={`${offer.title} — Earn ${offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`} per Referral`} description={`Refer customers to ${offer.business} and earn ${offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}. ${offer.description?.substring(0, 100) ?? ""}`} path={`/offer/${offer.id}`} />
       <div className="container max-w-5xl">
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" size="sm" className="gap-1" asChild>

@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SEOHead from "@/components/SEOHead";
 
 const Terms = () => {
   return (
     <div className="py-12">
+      <SEOHead title="Terms of Service" description="Read Revvin's Terms of Service covering platform usage, payout structure, escrow rules, and dispute resolution." path="/terms" />
       <div className="container max-w-3xl">
         <Button variant="ghost" size="sm" className="gap-1 mb-6" asChild>
           <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>
