@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, SlidersHorizontal, Map, List, Building2, ArrowRight, PlusCircle, Globe } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import MapView from "@/components/MapView";
+import SEOHead from "@/components/SEOHead";
 import { categories, calculateOfferScore } from "@/data/mockOffers";
 import { useDbOffers } from "@/hooks/useDbOffers";
 import { Slider } from "@/components/ui/slider";
@@ -92,6 +93,7 @@ const Browse = () => {
 
   return (
     <div className="py-8">
+      <SEOHead title="Browse Referral Opportunities" description="Find high-paying referral programs from verified businesses across Canada and the USA. Filter by category, city, payout, and more." path="/browse" />
       <div className="container">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

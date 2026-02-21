@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, DollarSign, Users, Building2, TrendingUp, Search, Shield, Briefcase, MapPin, CheckCircle2, Zap, BarChart3, Lock, FileCheck, BadgeCheck, Ban, Target, Gauge, AlertTriangle, Scale, Star, Quote } from "lucide-react";
 import { motion } from "framer-motion";
 import OfferCard from "@/components/OfferCard";
+import SEOHead from "@/components/SEOHead";
 import CitySlots from "@/components/CitySlots";
 import { mockOffers, cityJumpsCA, cityJumpsUS } from "@/data/mockOffers";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
@@ -22,42 +23,39 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
-const testimonials = [
+// These are illustrative scenarios, not real user testimonials (yet!)
+const scenarios = [
   {
-    name: "Sarah Mitchell",
-    role: "Real Estate Referrer",
-    city: "Austin, TX",
-    avatar: "SM",
-    quote: "I referred a friend to a roofing company on Revvin and earned $800 when the job closed. It took me 5 minutes to submit — the rest was automatic.",
-    earned: "$12,450",
-    referrals: 18,
+    persona: "Real Estate Agent",
+    scenario: "Referrer Scenario",
+    city: "Example",
+    avatar: "RE",
+    quote: "Imagine referring a friend to a roofing company and earning $800 when the job closes. Submit in 5 minutes — Revvin handles the rest.",
+    highlight: "Potential: $500–$1,500 per referral",
   },
   {
-    name: "James Thornton",
-    role: "Owner, Thornton HVAC",
-    city: "Dallas, TX",
-    avatar: "JT",
-    quote: "We've acquired 23 new customers through Revvin at a fraction of our Google Ads cost. The pay-per-close model means zero wasted spend.",
-    earned: "23 customers",
-    referrals: null,
+    persona: "HVAC Business Owner",
+    scenario: "Business Scenario",
+    city: "Example",
+    avatar: "HV",
+    quote: "Instead of paying for clicks that don't convert, set a fixed referral fee and pay only when a new customer signs. Zero upfront risk.",
+    highlight: "Pay-per-close acquisition",
   },
   {
-    name: "Maria Lopez",
-    role: "Insurance Agent & Referrer",
-    city: "Toronto, ON",
-    avatar: "ML",
-    quote: "I already talk to homeowners daily. Now I refer them to contractors on Revvin and earn side income. Last month alone I made $3,200.",
-    earned: "$9,800",
-    referrals: 14,
+    persona: "Insurance Professional",
+    scenario: "Referrer Scenario",
+    city: "Example",
+    avatar: "IP",
+    quote: "If you already talk to homeowners daily, Revvin lets you monetize those conversations. Refer to contractors and earn commissions.",
+    highlight: "Turn conversations into income",
   },
   {
-    name: "David Kim",
-    role: "Owner, Kim Legal Services",
-    city: "Vancouver, BC",
-    avatar: "DK",
-    quote: "The escrow system gives me confidence. I fund my wallet, set a payout, and only pay when a referred client actually signs. It's how acquisition should work.",
-    earned: "31 clients",
-    referrals: null,
+    persona: "Service Business Owner",
+    scenario: "Business Scenario",
+    city: "Example",
+    avatar: "SB",
+    quote: "The escrow system means you fund your wallet, set a payout, and only pay when a referred client actually signs. Controlled acquisition costs.",
+    highlight: "Escrowed, transparent payouts",
   },
 ];
 
@@ -76,17 +74,20 @@ const Index = () => {
   const featured = mockOffers.filter((o) => o.featured).slice(0, 4);
   const { data: stats } = usePlatformStats();
 
-  const statItems = [
-    { value: stats ? formatCurrency(stats.totalPayoutsAvailable) : "$2.4M+", label: "Payouts Available", icon: DollarSign },
-    { value: stats ? `${formatNumber(stats.activeBusinesses)}` : "850+", label: "Active Businesses", icon: Building2 },
-    { value: stats ? `${formatNumber(stats.totalReferrers)}` : "12K+", label: "Referrers", icon: Users },
-    { value: stats ? `$${stats.avgPayout}` : "$285", label: "Avg. Payout", icon: TrendingUp },
+  // Show real stats only — no fake inflated numbers
+  const hasRealData = stats && (stats.activeBusinesses > 0 || stats.totalReferrals > 0);
+  const statItems = hasRealData ? [
+    { value: formatCurrency(stats.totalPayoutsAvailable), label: "Payouts Available", icon: DollarSign },
+    { value: `${stats.activeBusinesses}`, label: "Businesses", icon: Building2 },
+    { value: `$${stats.avgPayout}`, label: "Avg. Payout", icon: TrendingUp },
     { value: "2", label: "Countries", icon: MapPin },
-    { value: stats ? `${stats.activeCities}` : "42", label: "Active Cities", icon: BarChart3 },
-  ];
+    { value: `${stats.activeCities}`, label: "Cities", icon: BarChart3 },
+    { value: `${stats.totalReferrals}`, label: "Referrals", icon: Users },
+  ] : null;
 
   return (
     <div>
+      <SEOHead title="Revvin — Pay-Per-Close Referral Marketplace" description="Businesses pay only for closed deals. Referrers earn 90% commissions. Active across Canada and the United States." path="/" />
       {/* Positioning Strip */}
       <div className="bg-foreground text-background py-2.5 text-center">
         <p className="text-sm font-medium tracking-wide">
@@ -142,31 +143,50 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Marketplace Momentum Stats */}
-      <section className="relative -mt-8 z-20">
-        <div className="container">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={stagger}
-            className="mx-auto max-w-5xl rounded-2xl border border-border bg-card p-6 shadow-xl"
-          >
-            <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-4 text-center">Marketplace Momentum — 🇨🇦 Canada + 🇺🇸 USA</p>
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-6">
-              {statItems.map((stat, i) => (
-                <motion.div key={stat.label} variants={fadeUp} custom={i} className="text-center">
-                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                    <stat.icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="font-display text-2xl font-bold text-foreground">{stat.value}</div>
-                  <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
-                </motion.div>
-              ))}
+      {/* Marketplace Stats — only shown when real data exists */}
+      {statItems && (
+        <section className="relative -mt-8 z-20">
+          <div className="container">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={stagger}
+              className="mx-auto max-w-5xl rounded-2xl border border-border bg-card p-6 shadow-xl"
+            >
+              <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-4 text-center">Live Marketplace — 🇨🇦 Canada + 🇺🇸 USA</p>
+              <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6">
+                {statItems.map((stat, i) => (
+                  <motion.div key={stat.label} variants={fadeUp} custom={i} className="text-center">
+                    <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                      <stat.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="font-display text-2xl font-bold text-foreground">{stat.value}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
+
+      {/* Early Stage CTA — shown when no real data */}
+      {!statItems && (
+        <section className="relative -mt-8 z-20">
+          <div className="container">
+            <div className="mx-auto max-w-3xl rounded-2xl border border-primary/20 bg-card p-8 shadow-xl text-center">
+              <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">🚀 Early Access</p>
+              <h3 className="font-display text-xl font-bold mb-2">Be among the first businesses and referrers on the platform</h3>
+              <p className="text-muted-foreground text-sm mb-4">We're onboarding businesses across Canada and the USA. Join now to claim your market.</p>
+              <div className="flex justify-center gap-3">
+                <Button size="sm" asChild><Link to="/auth?mode=signup&role=business">List Your Business</Link></Button>
+                <Button size="sm" variant="outline" asChild><Link to="/auth?mode=signup&role=referrer">Start Earning</Link></Button>
+              </div>
             </div>
-          </motion.div>
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* Trust Badges Strip */}
       <section className="py-10">
@@ -222,49 +242,35 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
       <section className="border-y border-border bg-muted/30 py-24">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
-              <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">Real Results</p>
-              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">What Our Users Say</h2>
-              <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Businesses and referrers across Canada and the USA are closing real deals on Revvin.</p>
+              <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">How It Could Work For You</p>
+              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Real-World Scenarios</h2>
+              <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Here's how businesses and referrers can use Revvin to drive results.</p>
             </motion.div>
             <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
-              {testimonials.map((t, i) => (
-                <motion.div key={t.name} variants={fadeUp} custom={i + 1} className="rounded-2xl border border-border bg-card p-6 relative">
+              {scenarios.map((t, i) => (
+                <motion.div key={t.persona} variants={fadeUp} custom={i + 1} className="rounded-2xl border border-border bg-card p-6 relative">
                   <Quote className="absolute top-5 right-5 h-8 w-8 text-primary/10" />
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                       {t.avatar}
                     </div>
                     <div>
-                      <p className="font-display text-sm font-bold">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">{t.role} · {t.city}</p>
+                      <p className="font-display text-sm font-bold">{t.persona}</p>
+                      <p className="text-xs text-muted-foreground">{t.scenario}</p>
                     </div>
                   </div>
                   <p className="text-sm text-foreground/80 leading-relaxed mb-4">"{t.quote}"</p>
-                  <div className="flex items-center gap-4 pt-3 border-t border-border">
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: 5 }).map((_, si) => (
-                        <Star key={si} className="h-3.5 w-3.5 fill-accent text-accent" />
-                      ))}
-                    </div>
-                    {t.referrals !== null && (
-                      <span className="text-xs text-muted-foreground">
-                        {t.referrals} referrals · <span className="font-semibold text-earnings">{t.earned}</span> earned
-                      </span>
-                    )}
-                    {t.referrals === null && (
-                      <span className="text-xs text-muted-foreground">
-                        <span className="font-semibold text-foreground">{t.earned}</span> acquired
-                      </span>
-                    )}
+                  <div className="pt-3 border-t border-border">
+                    <span className="text-xs font-semibold text-primary">{t.highlight}</span>
                   </div>
                 </motion.div>
               ))}
             </div>
+            <p className="text-center text-xs text-muted-foreground mt-6 italic">These are illustrative scenarios — not user testimonials. We're building real success stories with our first users.</p>
           </motion.div>
         </div>
       </section>

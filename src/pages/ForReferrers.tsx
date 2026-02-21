@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Users, CheckCircle2, ArrowRight, DollarSign, Shield, MapPin, Trophy, Globe, Wallet, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import SEOHead from "@/components/SEOHead";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -11,6 +12,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } }
 
 const ForReferrers = () => (
   <div>
+    <SEOHead title="For Referrers — Earn Commissions" description="Browse paid referral opportunities across Canada and the USA. Earn 90% commissions when deals close. Free to join." path="/for-referrers" />
     <section className="hero-gradient py-20">
       <div className="container text-center">
         <motion.div initial="hidden" animate="visible">

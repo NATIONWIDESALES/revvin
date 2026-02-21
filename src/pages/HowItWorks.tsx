@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import SEOHead from "@/components/SEOHead";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -20,6 +21,7 @@ const stagger = {
 const HowItWorks = () => {
   return (
     <div>
+      <SEOHead title="How Revvin Works" description="Learn how businesses and referrers use Revvin for pay-per-close customer acquisition. Three simple steps to real outcomes." path="/how-it-works" />
       {/* Hero */}
       <section className="hero-gradient py-24">
         <div className="container text-center">

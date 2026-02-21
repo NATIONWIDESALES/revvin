@@ -90,6 +90,8 @@ const BusinessDashboard = () => {
     await supabase.from("referrals").update({ status: "accepted" }).eq("id", ref.id);
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "accepted" } : r)));
     toast({ title: "Referral accepted", description: `$${payoutAmt} reserved in escrow.` });
+    // Notify referrer
+    supabase.functions.invoke("send-notification", { body: { type: "referral_accepted", recipientEmail: "", recipientName: "Referrer", data: { referrerName: "Referrer", customerName: ref.customer_name, offerTitle: ref.offers?.title ?? "Offer" } } });
   };
 
   const handleDecline = async (ref: any) => {
@@ -105,6 +107,8 @@ const BusinessDashboard = () => {
     await supabase.from("referrals").update({ status: "won", payout_amount: referrerPayout, payout_status: "approved" }).eq("id", ref.id);
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "won", payout_amount: referrerPayout, payout_status: "approved" } : r)));
     toast({ title: "Deal closed!", description: `$${referrerPayout} released to referrer. $${payoutAmt - referrerPayout} platform fee.` });
+    // Notify referrer
+    supabase.functions.invoke("send-notification", { body: { type: "deal_closed", recipientEmail: "", recipientName: "Referrer", data: { referrerName: "Referrer", customerName: ref.customer_name, offerTitle: ref.offers?.title ?? "Offer", payoutAmount: String(referrerPayout) } } });
   };
 
   const handleLost = async (ref: any) => {

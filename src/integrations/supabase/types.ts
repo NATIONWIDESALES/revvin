@@ -92,6 +92,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications_log: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          recipient_email: string
+          recipient_name: string | null
+          status: string
+          subject: string
+          type: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          recipient_email: string
+          recipient_name?: string | null
+          status?: string
+          subject: string
+          type: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          recipient_email?: string
+          recipient_name?: string | null
+          status?: string
+          subject?: string
+          type?: string
+        }
+        Relationships: []
+      }
       offers: {
         Row: {
           business_id: string
