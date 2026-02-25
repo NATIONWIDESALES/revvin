@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Zap, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import revvinLogo from "@/assets/revvin-logo.png";
 import { Button } from "@/components/ui/button";
 
 const Footer = () => {
@@ -20,9 +21,7 @@ const Footer = () => {
         <div className="grid gap-10 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Zap className="h-3.5 w-3.5 text-primary-foreground" />
-              </div>
+              <img src={revvinLogo} alt="Revvin" className="h-8 w-8 rounded-lg object-contain" />
               <span className="font-display text-lg font-bold">Revvin</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
