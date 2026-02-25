@@ -8,7 +8,7 @@ import CitySlots from "@/components/CitySlots";
 import { cityJumpsCA, cityJumpsUS } from "@/lib/offerUtils";
 import { useDbOffers } from "@/hooks/useDbOffers";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
-import heroBg from "@/assets/hero-bg.jpg";
+import heroBg from "@/assets/hero-bg.png";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -100,7 +100,7 @@ const Index = () => {
       {/* Hero */}
       <section className="relative overflow-hidden hero-gradient py-28 lg:py-40">
         <div
-          className="absolute inset-0 opacity-10"
+          className="absolute inset-0 opacity-30"
           style={{ backgroundImage: `url(${heroBg})`, backgroundSize: "cover", backgroundPosition: "center" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/20" />
