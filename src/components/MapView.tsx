@@ -80,9 +80,9 @@ const MapView = ({ offers }: MapViewProps) => {
         const offer = cluster.offers[0];
         const payoutLabel = offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`;
         const radius = Math.max(10, Math.min(22, offer.payout / 25));
-        const isSecured = !!offer.fundSecured;
-        const fillColor = isSecured ? "hsl(160, 84%, 22%)" : "hsl(220, 10%, 55%)";
-        const borderColor = isSecured ? "hsl(160, 84%, 30%)" : "hsl(220, 10%, 65%)";
+        const isVerified = !!offer.verified;
+        const fillColor = isVerified ? "hsl(160, 84%, 22%)" : "hsl(220, 10%, 55%)";
+        const borderColor = isVerified ? "hsl(160, 84%, 30%)" : "hsl(220, 10%, 65%)";
         const countryFlag = offer.country === "CA" ? "🇨🇦" : "🇺🇸";
 
         const marker = L.circleMarker([offer.latitude!, offer.longitude!], {

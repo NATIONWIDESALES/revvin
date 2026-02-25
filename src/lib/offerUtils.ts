@@ -6,6 +6,8 @@ export const categories = [
   "SaaS", "Services", "Technology",
 ];
 
+export const RESTRICTED_CATEGORIES = ["Finance", "Insurance", "Legal", "Mortgage"];
+
 export const canadaProvinces = ["BC", "AB", "ON", "QC", "MB", "SK"];
 export const usStates = ["CA", "TX", "WA", "AZ", "NY", "FL", "IL", "CO", "GA", "MA"];
 
@@ -30,7 +32,6 @@ export const cityJumpsUS = [
 // ===== OFFER SCORING =====
 export interface OfferScore {
   total: number;
-  fundSecuredScore: number;
   verificationScore: number;
   payoutCompetitiveness: number;
   payoutSpeed: number;
@@ -41,15 +42,14 @@ export function calculateOfferScore(offer: Offer, allOffers?: Offer[]): OfferSco
   const peers = (allOffers ?? [offer]).filter(o => o.city === offer.city || o.category === offer.category);
   const avgPayout = peers.length > 0 ? peers.reduce((s, o) => s + o.payout, 0) / peers.length : offer.payout;
 
-  const fundSecuredScore = offer.fundSecured ? 30 : 0;
-  const verificationScore = offer.verified ? 20 : 0;
-  const payoutCompetitiveness = Math.min(25, Math.round((offer.payout / Math.max(1, avgPayout)) * 15));
-  const payoutSpeed = offer.payoutTimeline === "net7" ? 15 : offer.payoutTimeline === "net14" ? 10 : 5;
-  const closeTimeScore = (offer.closeTimeDays ?? 30) <= 7 ? 10 : (offer.closeTimeDays ?? 30) <= 14 ? 7 : (offer.closeTimeDays ?? 30) <= 30 ? 4 : 2;
+  const verificationScore = offer.verified ? 30 : 0;
+  const payoutCompetitiveness = Math.min(30, Math.round((offer.payout / Math.max(1, avgPayout)) * 20));
+  const payoutSpeed = offer.payoutTimeline === "net7" ? 25 : offer.payoutTimeline === "net14" ? 17 : 8;
+  const closeTimeScore = (offer.closeTimeDays ?? 30) <= 7 ? 15 : (offer.closeTimeDays ?? 30) <= 14 ? 10 : (offer.closeTimeDays ?? 30) <= 30 ? 6 : 3;
 
-  const total = Math.min(100, fundSecuredScore + verificationScore + payoutCompetitiveness + payoutSpeed + closeTimeScore);
+  const total = Math.min(100, verificationScore + payoutCompetitiveness + payoutSpeed + closeTimeScore);
 
-  return { total, fundSecuredScore, verificationScore, payoutCompetitiveness, payoutSpeed, closeTimeScore };
+  return { total, verificationScore, payoutCompetitiveness, payoutSpeed, closeTimeScore };
 }
 
 // ===== CITY SLOTS (scarcity concept) =====

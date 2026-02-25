@@ -1,6 +1,6 @@
 import { Offer } from "@/types/offer";
 import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Star, TrendingUp, Clock, DollarSign, Wifi, BadgeCheck, ArrowRight, ShieldCheck } from "lucide-react";
+import { MapPin, Star, TrendingUp, Clock, DollarSign, Wifi, BadgeCheck, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import QualificationTooltip from "@/components/QualificationTooltip";
@@ -70,14 +70,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
         <div className="mb-4 rounded-xl bg-earnings/5 border border-earnings/20 p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-earnings uppercase tracking-wide">Earn per referral</span>
-            <div className="flex items-center gap-1.5">
-              {offer.fundSecured && (
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 gap-0.5 border-primary/30 text-primary">
-                  <ShieldCheck className="h-3 w-3" /> Secured
-                </Badge>
-              )}
-              <QualificationTooltip rules={offer.qualificationRules} />
-            </div>
+            <QualificationTooltip rules={offer.qualificationRules} />
           </div>
           <div className="text-center mb-2">
             <span className="earnings-badge rounded-full px-6 py-2 text-lg font-bold shadow-sm inline-block">
