@@ -61,7 +61,7 @@ const Browse = () => {
       const matchesType = payoutTypeFilter === "all" || o.payoutType === payoutTypeFilter;
       const matchesRemote = !remoteOnly || o.remoteEligible;
       const matchesVerified = !verifiedOnly || o.verified !== false;
-      const matchesFundSecured = !fundSecuredOnly || o.fundSecured === true;
+      const matchesFundSecured = !fundSecuredOnly || o.verified === true;
       const matchesState = !stateFilter || o.state === stateFilter;
       const matchesCity = !cityFilter || o.city === cityFilter;
       const matchesCloseTime = closeTimeFilter === "all" || (() => {
@@ -295,8 +295,8 @@ const Browse = () => {
                 <p className="text-[10px] text-muted-foreground">Cities</p>
               </div>
               <div className="rounded-xl bg-earnings/5 border border-earnings/20 p-3 text-center">
-                <p className="font-display text-2xl font-bold text-earnings">{filtered.filter(o => o.fundSecured).length}</p>
-                <p className="text-[10px] text-muted-foreground">Funds Secured</p>
+                <p className="font-display text-2xl font-bold text-earnings">{filtered.filter(o => o.verified).length}</p>
+                <p className="text-[10px] text-muted-foreground">Verified</p>
               </div>
               <div className="rounded-xl bg-muted/30 p-3 text-center">
                 <p className="font-display text-2xl font-bold text-foreground">{[...new Set(filtered.map(o => o.category))].length}</p>

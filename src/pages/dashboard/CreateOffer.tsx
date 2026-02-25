@@ -8,57 +8,40 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, Wallet, CheckCircle2 } from "lucide-react";
-import { categories } from "@/lib/offerUtils";
+import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info } from "lucide-react";
+import { categories, RESTRICTED_CATEGORIES } from "@/lib/offerUtils";
 import { motion } from "framer-motion";
-import { useWallet } from "@/contexts/WalletContext";
 
 const CreateOffer = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { wallet, addFunds, canCoverPayout } = useWallet();
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [businessName, setBusinessName] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
-  const [fundedThisSession, setFundedThisSession] = useState(false);
 
   const [form, setForm] = useState({
-    title: "",
-    description: "",
-    category: "Services",
-    payout: "",
-    payoutType: "flat" as "flat" | "percentage",
-    location: "",
-    dealSizeMin: "",
-    dealSizeMax: "",
-    closeTimeDays: "",
-    remoteEligible: false,
-    qualificationCriteria: "",
+    title: "", description: "", category: "Services",
+    payout: "", payoutType: "flat" as "flat" | "percentage",
+    location: "", dealSizeMin: "", dealSizeMax: "", closeTimeDays: "",
+    remoteEligible: false, qualificationCriteria: "",
     payoutTimeline: "net14" as "net7" | "net14" | "net30",
-    monthlyCapacity: "",
-    leadFreshness: "",
-    minProjectSize: "",
-    eligibleLocations: "",
+    monthlyCapacity: "", leadFreshness: "", minProjectSize: "", eligibleLocations: "",
   });
 
   useEffect(() => {
     if (!user) return;
     supabase.from("businesses").select("id, name").eq("user_id", user.id).maybeSingle().then(({ data }) => {
-      if (data) {
-        setBusinessId(data.id);
-        setBusinessName(data.name);
-      }
+      if (data) { setBusinessId(data.id); setBusinessName(data.name); }
     });
   }, [user]);
 
+  const isRestricted = RESTRICTED_CATEGORIES.includes(form.category);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (step < 5) {
-      setStep(step + 1);
-      return;
-    }
+    if (step < 4) { setStep(step + 1); return; }
     if (!businessId) return;
     setLoading(true);
 
@@ -70,41 +53,33 @@ const CreateOffer = () => {
     ].filter(Boolean).join("\n");
 
     const { error } = await supabase.from("offers").insert({
-      business_id: businessId,
-      title: form.title,
-      description: form.description,
-      category: form.category,
-      payout: parseFloat(form.payout),
-      payout_type: form.payoutType,
+      business_id: businessId, title: form.title, description: form.description,
+      category: form.category, payout: parseFloat(form.payout), payout_type: form.payoutType,
       location: form.location,
       deal_size_min: form.dealSizeMin ? parseFloat(form.dealSizeMin) : null,
       deal_size_max: form.dealSizeMax ? parseFloat(form.dealSizeMax) : null,
       close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
-      remote_eligible: form.remoteEligible,
-      qualification_criteria: qualRules || null,
+      remote_eligible: form.remoteEligible, qualification_criteria: qualRules || null,
+      approval_status: isRestricted ? "pending_approval" : "approved",
     });
 
     setLoading(false);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Offer created!", description: "Your referral offer is now live." });
+      if (isRestricted) {
+        toast({ title: "Offer submitted for review", description: "This category requires approval before going live. Our team will review within 1-2 business days." });
+      } else {
+        toast({ title: "Offer created!", description: "Your referral offer is now live." });
+      }
       navigate("/dashboard");
     }
   };
 
   const update = (key: string, value: any) => setForm((f) => ({ ...f, [key]: value }));
-
   const payoutNum = parseFloat(form.payout) || 0;
   const referrerEarns = form.payoutType === "flat" ? Math.round(payoutNum * 0.9) : payoutNum;
   const platformFee = form.payoutType === "flat" ? Math.round(payoutNum * 0.1) : null;
-  const fundSecured = payoutNum > 0 && canCoverPayout(payoutNum);
-
-  const handleAddFunds = (amount: number) => {
-    addFunds(amount);
-    setFundedThisSession(true);
-    toast({ title: `$${amount} added`, description: "Funds added to your Revvin Wallet." });
-  };
 
   return (
     <div className="py-8">
@@ -116,17 +91,12 @@ const CreateOffer = () => {
         <h1 className="font-display text-2xl font-bold text-foreground mb-2">Create Referral Offer</h1>
         <p className="text-muted-foreground mb-6">Define what you're willing to pay for successful referrals</p>
 
-        {/* Step indicator */}
         <div className="flex items-center gap-2 mb-8">
-          {["Offer Details", "Payout & Timing", "Qualification Rules", "Fund Wallet", "Preview & Publish"].map((label, i) => (
+          {["Offer Details", "Payout & Timing", "Qualification Rules", "Preview & Publish"].map((label, i) => (
             <div key={label} className="flex items-center gap-2 flex-1">
-              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 ${
-                i + 1 <= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-              }`}>
-                {i + 1}
-              </div>
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 ${i + 1 <= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{i + 1}</div>
               <span className={`text-sm font-medium hidden sm:block ${i + 1 <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
-              {i < 4 && <div className={`h-0.5 flex-1 rounded ${i + 1 < step ? "bg-primary" : "bg-border"}`} />}
+              {i < 3 && <div className={`h-0.5 flex-1 rounded ${i + 1 < step ? "bg-primary" : "bg-border"}`} />}
             </div>
           ))}
         </div>
@@ -134,35 +104,24 @@ const CreateOffer = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-              <div>
-                <Label>Offer Title</Label>
-                <Input value={form.title} onChange={(e) => update("title", e.target.value)} placeholder="e.g. Home Solar Installation" required className="mt-1" />
-              </div>
-              <div>
-                <Label>Description</Label>
-                <Textarea value={form.description} onChange={(e) => update("description", e.target.value)} placeholder="Describe the service and what kind of leads you're looking for..." rows={4} className="mt-1" />
-              </div>
+              <div><Label>Offer Title</Label><Input value={form.title} onChange={(e) => update("title", e.target.value)} placeholder="e.g. Home Solar Installation" required className="mt-1" /></div>
+              <div><Label>Description</Label><Textarea value={form.description} onChange={(e) => update("description", e.target.value)} placeholder="Describe the service and what kind of leads you're looking for..." rows={4} className="mt-1" /></div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label>Category</Label>
                   <select value={form.category} onChange={(e) => update("category", e.target.value)} className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
-                    {categories.filter((c) => c !== "All").map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
+                    {categories.filter((c) => c !== "All").map((c) => (<option key={c} value={c}>{c}</option>))}
                   </select>
+                  {isRestricted && (
+                    <p className="text-xs text-accent-foreground mt-1 flex items-center gap-1"><Info className="h-3 w-3" /> This category requires admin approval before going live.</p>
+                  )}
                 </div>
-                <div>
-                  <Label>Service Location</Label>
-                  <Input value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="e.g. Los Angeles, CA" className="mt-1" />
-                </div>
+                <div><Label>Service Location</Label><Input value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="e.g. Los Angeles, CA" className="mt-1" /></div>
               </div>
-              <div>
-                <Label>Qualification Criteria (optional)</Label>
-                <Textarea value={form.qualificationCriteria} onChange={(e) => update("qualificationCriteria", e.target.value)} placeholder="What makes a qualified lead?" rows={3} className="mt-1" />
-              </div>
+              <div><Label>Qualification Criteria (optional)</Label><Textarea value={form.qualificationCriteria} onChange={(e) => update("qualificationCriteria", e.target.value)} placeholder="What makes a qualified lead?" rows={3} className="mt-1" /></div>
               <div className="flex items-center gap-2">
                 <input type="checkbox" id="remote" checked={form.remoteEligible} onChange={(e) => update("remoteEligible", e.target.checked)} className="rounded" />
-                <Label htmlFor="remote" className="cursor-pointer">Remote eligible (referrers from anywhere can participate)</Label>
+                <Label htmlFor="remote" className="cursor-pointer">Remote eligible</Label>
               </div>
             </motion.div>
           )}
@@ -170,57 +129,37 @@ const CreateOffer = () => {
           {step === 2 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
               <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label>Payout Amount</Label>
-                  <Input type="number" value={form.payout} onChange={(e) => update("payout", e.target.value)} placeholder="500" required className="mt-1" />
-                </div>
+                <div><Label>Payout Amount</Label><Input type="number" value={form.payout} onChange={(e) => update("payout", e.target.value)} placeholder="500" required className="mt-1" /></div>
                 <div>
                   <Label>Payout Type</Label>
                   <div className="mt-1 flex gap-2">
-                    <Button type="button" variant={form.payoutType === "flat" ? "default" : "outline"} size="sm" onClick={() => update("payoutType", "flat")} className="flex-1">
-                      $ Fixed
-                    </Button>
-                    <Button type="button" variant={form.payoutType === "percentage" ? "default" : "outline"} size="sm" onClick={() => update("payoutType", "percentage")} className="flex-1">
-                      % Percentage
-                    </Button>
+                    <Button type="button" variant={form.payoutType === "flat" ? "default" : "outline"} size="sm" onClick={() => update("payoutType", "flat")} className="flex-1">$ Fixed</Button>
+                    <Button type="button" variant={form.payoutType === "percentage" ? "default" : "outline"} size="sm" onClick={() => update("payoutType", "percentage")} className="flex-1">% Percentage</Button>
                   </div>
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
-                <div>
-                  <Label>Deal Size Min ($)</Label>
-                  <Input type="number" value={form.dealSizeMin} onChange={(e) => update("dealSizeMin", e.target.value)} placeholder="5000" className="mt-1" />
-                </div>
-                <div>
-                  <Label>Deal Size Max ($)</Label>
-                  <Input type="number" value={form.dealSizeMax} onChange={(e) => update("dealSizeMax", e.target.value)} placeholder="50000" className="mt-1" />
-                </div>
-                <div>
-                  <Label>Est. Close Time (days)</Label>
-                  <Input type="number" value={form.closeTimeDays} onChange={(e) => update("closeTimeDays", e.target.value)} placeholder="30" className="mt-1" />
-                </div>
+                <div><Label>Deal Size Min ($)</Label><Input type="number" value={form.dealSizeMin} onChange={(e) => update("dealSizeMin", e.target.value)} placeholder="5000" className="mt-1" /></div>
+                <div><Label>Deal Size Max ($)</Label><Input type="number" value={form.dealSizeMax} onChange={(e) => update("dealSizeMax", e.target.value)} placeholder="50000" className="mt-1" /></div>
+                <div><Label>Est. Close Time (days)</Label><Input type="number" value={form.closeTimeDays} onChange={(e) => update("closeTimeDays", e.target.value)} placeholder="30" className="mt-1" /></div>
               </div>
-
-              {/* Live payout breakdown */}
               {payoutNum > 0 && form.payoutType === "flat" && (
                 <div className="rounded-2xl border border-border bg-muted/30 p-5">
                   <p className="text-sm font-medium mb-3">Payout Breakdown Preview</p>
                   <div className="grid grid-cols-3 gap-3 text-center">
-                    <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground">Referral Fee</p>
-                      <p className="font-display text-lg font-bold">${payoutNum}</p>
-                    </div>
-                    <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-3">
-                      <p className="text-xs text-muted-foreground">Referrer Earns</p>
-                      <p className="font-display text-lg font-bold text-earnings">${referrerEarns}</p>
-                    </div>
-                    <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground">Platform Fee</p>
-                      <p className="font-display text-lg font-bold">${platformFee}</p>
-                    </div>
+                    <div className="rounded-xl bg-card border border-border p-3"><p className="text-xs text-muted-foreground">Referral Fee</p><p className="font-display text-lg font-bold">${payoutNum}</p></div>
+                    <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-3"><p className="text-xs text-muted-foreground">Referrer Earns</p><p className="font-display text-lg font-bold text-earnings">${referrerEarns}</p></div>
+                    <div className="rounded-xl bg-card border border-border p-3"><p className="text-xs text-muted-foreground">Platform Fee</p><p className="font-display text-lg font-bold">${platformFee}</p></div>
                   </div>
                 </div>
               )}
+              <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
+                <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">How payouts work</p>
+                  <p className="text-xs text-muted-foreground mt-1">You set the payout amount. When a deal closes, Revvin verifies and handles payout to the referrer.</p>
+                </div>
+              </div>
             </motion.div>
           )}
 
@@ -228,19 +167,9 @@ const CreateOffer = () => {
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
               <h2 className="font-display text-lg font-semibold">Qualification Rules</h2>
               <p className="text-sm text-muted-foreground">Define what makes a qualified lead so referrers send you the right customers.</p>
-
-              <div>
-                <Label>Lead Freshness Requirement</Label>
-                <Input value={form.leadFreshness} onChange={(e) => update("leadFreshness", e.target.value)} placeholder="e.g. Lead must not be an existing customer" className="mt-1" />
-              </div>
-              <div>
-                <Label>Minimum Project Size ($)</Label>
-                <Input type="number" value={form.minProjectSize} onChange={(e) => update("minProjectSize", e.target.value)} placeholder="e.g. 5000" className="mt-1" />
-              </div>
-              <div>
-                <Label>Eligible Locations</Label>
-                <Input value={form.eligibleLocations} onChange={(e) => update("eligibleLocations", e.target.value)} placeholder="e.g. Metro Vancouver, Fraser Valley" className="mt-1" />
-              </div>
+              <div><Label>Lead Freshness Requirement</Label><Input value={form.leadFreshness} onChange={(e) => update("leadFreshness", e.target.value)} placeholder="e.g. Lead must not be an existing customer" className="mt-1" /></div>
+              <div><Label>Minimum Project Size ($)</Label><Input type="number" value={form.minProjectSize} onChange={(e) => update("minProjectSize", e.target.value)} placeholder="e.g. 5000" className="mt-1" /></div>
+              <div><Label>Eligible Locations</Label><Input value={form.eligibleLocations} onChange={(e) => update("eligibleLocations", e.target.value)} placeholder="e.g. Metro Vancouver, Fraser Valley" className="mt-1" /></div>
               <div>
                 <Label>Payout Timeline</Label>
                 <div className="mt-1 flex gap-2">
@@ -251,108 +180,47 @@ const CreateOffer = () => {
                   ))}
                 </div>
               </div>
-              <div>
-                <Label>Monthly Referral Capacity</Label>
-                <Input type="number" value={form.monthlyCapacity} onChange={(e) => update("monthlyCapacity", e.target.value)} placeholder="e.g. 15" className="mt-1" />
-                <p className="text-xs text-muted-foreground mt-1">How many referrals can you handle per month?</p>
-              </div>
-              <div>
-                <Label>Additional Criteria (optional)</Label>
-                <Textarea value={form.qualificationCriteria} onChange={(e) => update("qualificationCriteria", e.target.value)} placeholder="Any other requirements for qualified leads..." rows={3} className="mt-1" />
-              </div>
-
+              <div><Label>Monthly Referral Capacity</Label><Input type="number" value={form.monthlyCapacity} onChange={(e) => update("monthlyCapacity", e.target.value)} placeholder="e.g. 15" className="mt-1" /><p className="text-xs text-muted-foreground mt-1">How many referrals can you handle per month?</p></div>
               <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded-xl p-3">
                 <Shield className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                <span><strong>Duplicate Protection:</strong> First accepted submission wins, timestamped. Referrers are informed of this policy during submission.</span>
+                <span><strong>Duplicate Protection:</strong> First accepted submission wins, timestamped.</span>
               </div>
             </motion.div>
           )}
 
           {step === 4 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-              <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                    <Wallet className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-base font-bold">Wallet Funding</h3>
-                    <p className="text-sm text-muted-foreground">Wallet funding is optional at launch. You can add funds later to display the "Funds Secured" badge.</p>
-                  </div>
-                </div>
-
-                <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-foreground">
-                    <Shield className="h-4 w-4 text-primary shrink-0" />
-                    <span><strong>How it works:</strong> When you fund your wallet, referrers see a "Funds Secured" trust badge on your offer — increasing submissions.</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <CheckCircle2 className="h-4 w-4 text-earnings shrink-0" />
-                    <span>Your offer will go live without funding. You can add funds from your dashboard at any time.</span>
-                  </div>
-                </div>
-
-                <p className="text-xs text-muted-foreground mt-3">Wallet funding will be available from your dashboard after publishing.</p>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 5 && (
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-              <p className="text-sm text-muted-foreground">Here's how your offer will appear to referrers in the marketplace:</p>
-              
+              <p className="text-sm text-muted-foreground">Here's how your offer will appear to referrers:</p>
               <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
                 <div className="flex items-start gap-3 mb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-xl">
-                    <Building2 className="h-6 w-6 text-muted-foreground" />
-                  </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-xl"><Building2 className="h-6 w-6 text-muted-foreground" /></div>
                   <div>
                     <h3 className="font-display text-base font-bold">{form.title || "Offer Title"}</h3>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      {businessName || "Your Business"} <BadgeCheck className="h-3.5 w-3.5 text-primary" />
-                    </p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1">{businessName || "Your Business"} <BadgeCheck className="h-3.5 w-3.5 text-primary" /></p>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{form.description || "Offer description will appear here..."}</p>
+                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{form.description || "Offer description..."}</p>
                 <div className="rounded-xl bg-earnings/5 border border-earnings/20 p-4 mb-4">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-semibold text-earnings uppercase tracking-wide">Earn per referral</span>
-                    <span className="earnings-badge rounded-full px-4 py-1.5 text-sm font-bold shadow-sm">
-                      {form.payoutType === "flat" ? `$${payoutNum || "—"}` : `${payoutNum || "—"}%`}
-                    </span>
+                    <span className="earnings-badge rounded-full px-4 py-1.5 text-sm font-bold shadow-sm">{form.payoutType === "flat" ? `$${payoutNum || "—"}` : `${payoutNum || "—"}%`}</span>
                   </div>
-                  {form.dealSizeMin && form.dealSizeMax && (
-                    <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" /> Avg deal size</span>
-                      <span className="font-medium">${Number(form.dealSizeMin).toLocaleString()} – ${Number(form.dealSizeMax).toLocaleString()}</span>
-                    </div>
-                  )}
-                  {form.closeTimeDays && (
-                    <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Payout timeline</span>
-                      <span className="font-medium">{form.payoutTimeline === "net7" ? "Net 7" : form.payoutTimeline === "net30" ? "Net 30" : "Net 14"} (~{form.closeTimeDays} days)</span>
-                    </div>
-                  )}
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   {form.location && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {form.location}</span>}
                   <span className="flex items-center gap-1"><BadgeCheck className="h-3.5 w-3.5 text-primary" /> Verified</span>
-                  {fundSecured && <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-earnings" /> Funds Secured</span>}
                   <Badge variant="outline" className="text-xs">{form.category}</Badge>
                 </div>
               </div>
-
-              {(form.leadFreshness || form.minProjectSize || form.eligibleLocations) && (
-                <div className="rounded-xl border border-border bg-muted/30 p-4">
-                  <p className="text-xs font-medium mb-2">Qualification Rules</p>
-                  <ul className="space-y-1 text-xs text-muted-foreground">
-                    {form.leadFreshness && <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3 text-primary" /> {form.leadFreshness}</li>}
-                    {form.minProjectSize && <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3 text-primary" /> Min project: ${Number(form.minProjectSize).toLocaleString()}</li>}
-                    {form.eligibleLocations && <li className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3 text-primary" /> {form.eligibleLocations}</li>}
-                  </ul>
+              {isRestricted && (
+                <div className="rounded-xl bg-accent/10 border border-accent/20 p-4 flex items-start gap-3">
+                  <Info className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-accent-foreground">Category requires approval</p>
+                    <p className="text-xs text-muted-foreground mt-1">This category ({form.category}) requires admin review before going live. Our team will review within 1-2 business days.</p>
+                  </div>
                 </div>
               )}
-
               <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-xl p-3">
                 <Shield className="h-4 w-4 text-primary shrink-0" />
                 <span>Your offer will be visible to all referrers on the marketplace once published.</span>
@@ -361,13 +229,9 @@ const CreateOffer = () => {
           )}
 
           <div className="flex gap-3 pt-2">
-            {step > 1 && (
-              <Button type="button" variant="outline" onClick={() => setStep(step - 1)} className="flex-1">
-                Back
-              </Button>
-            )}
+            {step > 1 && <Button type="button" variant="outline" onClick={() => setStep(step - 1)} className="flex-1">Back</Button>}
             <Button type="submit" size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
-              {loading ? "Publishing..." : step < 5 ? <>Next <ArrowRight className="h-4 w-4" /></> : "Publish Offer"}
+              {loading ? "Publishing..." : step < 4 ? <>Next <ArrowRight className="h-4 w-4" /></> : isRestricted ? "Submit for Review" : "Publish Offer"}
             </Button>
           </div>
         </form>

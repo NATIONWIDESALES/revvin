@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useWallet } from "@/contexts/WalletContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,36 +9,26 @@ import { Input } from "@/components/ui/input";
 import {
   DollarSign, Users, TrendingUp, PlusCircle, ArrowRight,
   CheckCircle2, XCircle, Clock, Eye, BarChart3, Building2, Shield,
-  Pause, Play, Edit, Target, Link2, Check, AlertTriangle,
-  Wallet, ShieldCheck, ArrowUpRight, ArrowDownLeft, RefreshCw, CreditCard
+  Pause, Play, Edit, Target, Link2, Check, AlertTriangle
 } from "lucide-react";
 import { motion } from "framer-motion";
 import OfferCompetitiveness from "@/components/OfferCompetitiveness";
 import DashboardChecklist from "@/components/DashboardChecklist";
-import AddFundsModal from "@/components/AddFundsModal";
 import BoostOfferPanel from "@/components/BoostOfferPanel";
 import { useToast } from "@/hooks/use-toast";
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
   submitted: { bg: "bg-muted", text: "text-muted-foreground", label: "Submitted" },
-  accepted: { bg: "bg-primary/10", text: "text-primary", label: "Accepted (Reserved)" },
+  accepted: { bg: "bg-primary/10", text: "text-primary", label: "Accepted" },
   contacted: { bg: "bg-blue-50", text: "text-blue-700", label: "Contacted" },
   in_progress: { bg: "bg-accent/10", text: "text-accent-foreground", label: "In Progress" },
   qualified: { bg: "bg-primary/10", text: "text-primary", label: "Qualified" },
-  won: { bg: "bg-earnings/10", text: "text-earnings", label: "Closed/Won (Paid)" },
+  won: { bg: "bg-earnings/10", text: "text-earnings", label: "Closed / Won" },
   lost: { bg: "bg-destructive/10", text: "text-destructive", label: "Lost" },
   declined: { bg: "bg-muted", text: "text-muted-foreground", label: "Declined" },
+  void: { bg: "bg-muted", text: "text-muted-foreground", label: "Void" },
   paid: { bg: "bg-earnings/10", text: "text-earnings", label: "Paid" },
   duplicate: { bg: "bg-muted", text: "text-muted-foreground", label: "Duplicate" },
-};
-
-const txTypeConfig: Record<string, { icon: any; color: string; sign: string }> = {
-  topup: { icon: ArrowDownLeft, color: "text-earnings", sign: "+" },
-  reserve: { icon: ShieldCheck, color: "text-primary", sign: "-" },
-  payout: { icon: ArrowUpRight, color: "text-destructive", sign: "-" },
-  refund: { icon: RefreshCw, color: "text-earnings", sign: "+" },
-  release: { icon: RefreshCw, color: "text-earnings", sign: "+" },
-  fee: { icon: CreditCard, color: "text-muted-foreground", sign: "-" },
 };
 
 const fadeUp = {
@@ -50,7 +39,6 @@ const fadeUp = {
 const BusinessDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { wallet, addFunds, reserveFunds, releasePayout, refundReserve, canCoverPayout } = useWallet();
   const { displayCurrency, currencySymbol } = useCountry();
   const { toast } = useToast();
   const [business, setBusiness] = useState<any>(null);
@@ -60,7 +48,6 @@ const BusinessDashboard = () => {
   const [editingPayout, setEditingPayout] = useState<string | null>(null);
   const [newPayout, setNewPayout] = useState("");
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
-  const [showAddFunds, setShowAddFunds] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -82,48 +69,61 @@ const BusinessDashboard = () => {
 
   const handleAccept = async (ref: any) => {
     const payoutAmt = ref.offers?.payout_type === "flat" ? Number(ref.offers.payout) : 0;
-    if (payoutAmt > 0 && !canCoverPayout(payoutAmt)) {
-      toast({ title: "Insufficient funds", description: `You need $${payoutAmt} available. Add funds to your wallet.`, variant: "destructive" });
-      return;
-    }
-    if (payoutAmt > 0) reserveFunds(payoutAmt, ref.id, `Reserved $${payoutAmt} for ${ref.customer_name}`);
-    await supabase.from("referrals").update({ status: "accepted" }).eq("id", ref.id);
+    // Snapshot payout terms on acceptance
+    await supabase.from("referrals").update({
+      status: "accepted",
+      payout_snapshot: payoutAmt,
+      payout_type_snapshot: ref.offers?.payout_type ?? "flat",
+    }).eq("id", ref.id);
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "accepted" } : r)));
-    toast({ title: "Referral accepted", description: `$${payoutAmt} reserved in escrow.` });
-    // Notify referrer — look up their email
-    const { data: referrerProfile } = await supabase.from("profiles").select("full_name, user_id").eq("user_id", ref.referrer_id).maybeSingle();
-    const { data: referrerAuth } = await supabase.auth.admin?.getUserById?.(ref.referrer_id) ?? { data: null };
-    const referrerEmail = referrerAuth?.user?.email ?? "";
-    const referrerName = referrerProfile?.full_name ?? "Referrer";
-    supabase.functions.invoke("send-notification", { body: { type: "referral_accepted", recipientEmail: referrerEmail, recipientName: referrerName, data: { referrerName, customerName: ref.customer_name, offerTitle: ref.offers?.title ?? "Offer" } } });
+    toast({ title: "Referral accepted", description: `Payout of $${payoutAmt} locked for this referral.` });
+    // Audit + notification
+    if (user) {
+      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_actor_id: user.id, p_event_type: "referral_accepted", p_payload: { payout: payoutAmt } });
+      supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Referral accepted!", p_body: `Your referral for "${ref.offers?.title}" has been accepted.`, p_type: "referral_accepted", p_referral_id: ref.id });
+    }
   };
 
   const handleDecline = async (ref: any) => {
     await supabase.from("referrals").update({ status: "declined" }).eq("id", ref.id);
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "declined" } : r)));
     toast({ title: "Referral declined" });
+    if (user) {
+      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_actor_id: user.id, p_event_type: "referral_declined" });
+      supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Referral declined", p_body: `Your referral for "${ref.offers?.title}" was declined.`, p_type: "referral_declined", p_referral_id: ref.id });
+    }
   };
 
   const handleWon = async (ref: any) => {
-    const payoutAmt = ref.offers?.payout_type === "flat" ? Number(ref.offers.payout) : 0;
+    const payoutAmt = ref.payout_snapshot ?? (ref.offers?.payout_type === "flat" ? Number(ref.offers.payout) : 0);
     const referrerPayout = Math.round(payoutAmt * 0.9);
-    if (payoutAmt > 0) releasePayout(payoutAmt, ref.id, `Payout released: $${referrerPayout} to referrer`);
+    const platformFee = payoutAmt - referrerPayout;
     await supabase.from("referrals").update({ status: "won", payout_amount: referrerPayout, payout_status: "approved" }).eq("id", ref.id);
+    // Create payout record for admin
+    await supabase.from("payouts").insert({
+      referral_id: ref.id,
+      business_id: ref.business_id,
+      referrer_id: ref.referrer_id,
+      amount: referrerPayout,
+      platform_fee: platformFee,
+      status: "ready",
+    });
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "won", payout_amount: referrerPayout, payout_status: "approved" } : r)));
-    toast({ title: "Deal closed!", description: `$${referrerPayout} released to referrer. $${payoutAmt - referrerPayout} platform fee.` });
-    // Notify referrer
-    const { data: wonProfile } = await supabase.from("profiles").select("full_name").eq("user_id", ref.referrer_id).maybeSingle();
-    supabase.functions.invoke("send-notification", { body: { type: "deal_closed", recipientEmail: "", recipientName: wonProfile?.full_name ?? "Referrer", data: { referrerName: wonProfile?.full_name ?? "Referrer", customerName: ref.customer_name, offerTitle: ref.offers?.title ?? "Offer", payoutAmount: String(referrerPayout) } } });
+    toast({ title: "Deal closed!", description: `$${referrerPayout} payout created for referrer.` });
+    if (user) {
+      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_actor_id: user.id, p_event_type: "referral_won", p_payload: { payout: referrerPayout, fee: platformFee } });
+      supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Deal closed — payout coming!", p_body: `Your referral for "${ref.offers?.title}" closed. $${referrerPayout} payout is being processed.`, p_type: "referral_won", p_referral_id: ref.id });
+    }
   };
 
   const handleLost = async (ref: any) => {
-    const payoutAmt = ref.offers?.payout_type === "flat" ? Number(ref.offers.payout) : 0;
-    if (["accepted", "contacted", "qualified"].includes(ref.status) && payoutAmt > 0) {
-      refundReserve(payoutAmt, ref.id, `Reserve released: ${ref.customer_name} (deal lost)`);
-    }
     await supabase.from("referrals").update({ status: "lost" }).eq("id", ref.id);
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "lost" } : r)));
-    toast({ title: "Marked as lost", description: ["accepted", "contacted", "qualified"].includes(ref.status) ? "Escrowed funds returned." : undefined });
+    toast({ title: "Marked as lost" });
+    if (user) {
+      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_actor_id: user.id, p_event_type: "referral_lost" });
+      supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Referral lost", p_body: `Your referral for "${ref.offers?.title}" was marked as lost.`, p_type: "referral_lost", p_referral_id: ref.id });
+    }
   };
 
   const updateReferralStatus = async (id: string, status: string) => {
@@ -159,13 +159,12 @@ const BusinessDashboard = () => {
   const newRefs7d = referrals.filter(r => new Date(r.created_at) > new Date(Date.now() - 7 * 86400000)).length;
   const sym = currencySymbol(displayCurrency);
 
-  // Checklist items
   const checklistItems = [
     { label: "Upload business logo", done: !!business?.logo_url, action: () => navigate("/dashboard/profile"), actionLabel: "Upload" },
     { label: "Create an offer", done: offers.length > 0, action: () => navigate("/dashboard/create-offer"), actionLabel: "Create" },
     { label: "Publish an offer", done: offers.some(o => o.status === "active"), action: undefined },
     { label: "Accept a referral", done: referrals.some(r => ["accepted", "contacted", "qualified", "won"].includes(r.status)), action: undefined },
-    { label: "Mark closed & release payout", done: referrals.some(r => r.status === "won"), action: undefined },
+    { label: "Close a deal", done: referrals.some(r => r.status === "won"), action: undefined },
   ];
 
   if (loading) {
@@ -195,60 +194,7 @@ const BusinessDashboard = () => {
             </div>
           </motion.div>
 
-          {/* Checklist */}
           <DashboardChecklist title="Start Here — Business Setup" items={checklistItems} />
-
-          {/* WALLET */}
-          <motion.div variants={fadeUp} custom={0.5} className="mb-8 rounded-2xl border-2 border-primary/20 bg-card p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-display text-lg font-bold flex items-center gap-2">
-                <Wallet className="h-5 w-5 text-primary" /> Revvin Wallet — {displayCurrency}
-              </h2>
-              <Button size="sm" onClick={() => setShowAddFunds(true)} className="gap-1">
-                <PlusCircle className="h-3.5 w-3.5" /> Add Funds
-              </Button>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-5">
-              <div className="rounded-xl border border-earnings/20 bg-earnings/5 p-4 text-center">
-                <p className="text-[10px] text-muted-foreground font-medium mb-1">Available</p>
-                <p className="font-display text-2xl font-bold text-earnings">{sym}{wallet.available.toLocaleString()}</p>
-              </div>
-              <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
-                <p className="text-[10px] text-muted-foreground font-medium mb-1">Reserved (Escrow)</p>
-                <p className="font-display text-2xl font-bold text-primary">{sym}{wallet.reserved.toLocaleString()}</p>
-              </div>
-              <div className="rounded-xl border border-border bg-muted/30 p-4 text-center">
-                <p className="text-[10px] text-muted-foreground font-medium mb-1">Paid Out</p>
-                <p className="font-display text-2xl font-bold text-foreground">{sym}{wallet.paidOut.toLocaleString()}</p>
-              </div>
-              <div className="rounded-xl border border-border bg-muted/30 p-4 text-center">
-                <p className="text-[10px] text-muted-foreground font-medium mb-1">Platform Fees</p>
-                <p className="font-display text-2xl font-bold text-muted-foreground">{sym}{wallet.platformFees.toLocaleString()}</p>
-              </div>
-            </div>
-            {/* Transaction Log */}
-            <div>
-              <p className="text-xs font-medium text-muted-foreground mb-2">Transaction Ledger</p>
-              <div className="max-h-48 overflow-y-auto space-y-1.5">
-                {wallet.transactions.slice(0, 12).map((tx) => {
-                  const cfg = txTypeConfig[tx.type] ?? txTypeConfig.topup;
-                  const Icon = cfg.icon;
-                  return (
-                    <div key={tx.id} className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2 text-xs">
-                      <div className="flex items-center gap-2">
-                        <Icon className={`h-3.5 w-3.5 ${cfg.color}`} />
-                        <span className="text-muted-foreground">{tx.description}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-muted-foreground">{new Date(tx.date).toLocaleDateString()}</span>
-                        <span className={`font-mono font-medium ${cfg.color}`}>{cfg.sign}{sym}{tx.amount}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </motion.div>
 
           {/* Stats */}
           <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -259,8 +205,8 @@ const BusinessDashboard = () => {
               { label: "Conversion Rate", value: `${conversionRate}%`, icon: TrendingUp, color: "text-accent-foreground", bgColor: "bg-accent/10" },
               { label: "Cost per Close", value: wonCount > 0 ? `${sym}${avgAcquisitionCost}` : "—", icon: Target, color: "text-primary", bgColor: "bg-primary/10" },
               { label: "Total Paid Out", value: `${sym}${totalPaid.toLocaleString()}`, icon: DollarSign, color: "text-earnings", bgColor: "bg-earnings/10" },
-              { label: "Revenue Influenced", value: wonCount > 0 ? `${sym}${(wonCount * 15000).toLocaleString()}` : "—", icon: BarChart3, color: "text-earnings", bgColor: "bg-earnings/10" },
-              { label: "Avg Time-to-Close", value: "~18 days", icon: Clock, color: "text-muted-foreground", bgColor: "bg-muted" },
+              { label: "Total Referrals", value: referrals.length.toString(), icon: BarChart3, color: "text-earnings", bgColor: "bg-earnings/10" },
+              { label: "Avg Time-to-Close", value: wonCount > 0 ? "~18 days" : "—", icon: Clock, color: "text-muted-foreground", bgColor: "bg-muted" },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
                 <div className="flex items-center gap-3">
@@ -298,15 +244,11 @@ const BusinessDashboard = () => {
                 {offers.map((offer: any) => {
                   const offerRefs = referrals.filter(r => r.offer_id === offer.id);
                   const offerWon = offerRefs.filter(r => r.status === "won").length;
-                  const canFund = offer.payout_type === "flat" && canCoverPayout(Number(offer.payout));
                   return (
                     <div key={offer.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                       <div className="flex items-start justify-between mb-3">
                         <h3 className="font-display font-bold text-foreground">{offer.title}</h3>
-                        <div className="flex items-center gap-1.5">
-                          {canFund && offer.status === "active" && <Badge variant="outline" className="text-[10px] gap-0.5 border-primary/30 text-primary"><ShieldCheck className="h-3 w-3" /> Funds Secured</Badge>}
-                          <Badge variant={offer.status === "active" ? "default" : "secondary"}>{offer.status}</Badge>
-                        </div>
+                        <Badge variant={offer.status === "active" ? "default" : "secondary"}>{offer.status}</Badge>
                       </div>
                       <div className="flex items-center justify-between mb-3">
                         {editingPayout === offer.id ? (
@@ -366,7 +308,7 @@ const BusinessDashboard = () => {
                           <Badge className={`${sc.bg} ${sc.text} border-0`}>{sc.label}</Badge>
                           {ref.status === "submitted" && (
                             <>
-                              <Button size="sm" onClick={() => handleAccept(ref)} className="gap-1"><ShieldCheck className="h-3 w-3" /> Accept & Reserve</Button>
+                              <Button size="sm" onClick={() => handleAccept(ref)} className="gap-1"><CheckCircle2 className="h-3 w-3" /> Accept</Button>
                               <Button size="sm" variant="destructive" onClick={() => handleDecline(ref)} className="gap-1"><XCircle className="h-3 w-3" /> Decline</Button>
                             </>
                           )}
@@ -400,7 +342,6 @@ const BusinessDashboard = () => {
           </motion.div>
         </motion.div>
       </div>
-      <AddFundsModal open={showAddFunds} onClose={() => setShowAddFunds(false)} />
     </div>
   );
 };

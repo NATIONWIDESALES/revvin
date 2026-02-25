@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          actor_id: string
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json | null
+          referral_id: string | null
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json | null
+          referral_id?: string | null
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          referral_id?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           badge_type: string
@@ -92,6 +119,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          read: boolean
+          referral_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          read?: boolean
+          referral_id?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          read?: boolean
+          referral_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications_log: {
         Row: {
           body: string
@@ -127,6 +187,7 @@ export type Database = {
       }
       offers: {
         Row: {
+          approval_status: string | null
           business_id: string
           category: string
           close_time_days: number | null
@@ -141,11 +202,13 @@ export type Database = {
           payout_type: string
           qualification_criteria: string | null
           remote_eligible: boolean | null
+          restricted: boolean | null
           status: string
           title: string
           updated_at: string
         }
         Insert: {
+          approval_status?: string | null
           business_id: string
           category: string
           close_time_days?: number | null
@@ -160,11 +223,13 @@ export type Database = {
           payout_type?: string
           qualification_criteria?: string | null
           remote_eligible?: boolean | null
+          restricted?: boolean | null
           status?: string
           title: string
           updated_at?: string
         }
         Update: {
+          approval_status?: string | null
           business_id?: string
           category?: string
           close_time_days?: number | null
@@ -179,6 +244,7 @@ export type Database = {
           payout_type?: string
           qualification_criteria?: string | null
           remote_eligible?: boolean | null
+          restricted?: boolean | null
           status?: string
           title?: string
           updated_at?: string
@@ -189,6 +255,75 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payouts: {
+        Row: {
+          amount: number
+          business_id: string
+          created_at: string
+          currency: string
+          id: string
+          method: string | null
+          notes: string | null
+          paid_at: string | null
+          platform_fee: number
+          processed_by: string | null
+          provider_reference: string | null
+          referral_id: string
+          referrer_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          business_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          method?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          platform_fee?: number
+          processed_by?: string | null
+          provider_reference?: string | null
+          referral_id: string
+          referrer_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          business_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          method?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          platform_fee?: number
+          processed_by?: string | null
+          provider_reference?: string | null
+          referral_id?: string
+          referrer_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payouts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
             referencedColumns: ["id"]
           },
         ]
@@ -244,10 +379,13 @@ export type Database = {
           notes: string | null
           offer_id: string
           payout_amount: number | null
+          payout_snapshot: number | null
           payout_status: string
+          payout_type_snapshot: string | null
           referrer_id: string
           status: string
           updated_at: string
+          void_reason: string | null
         }
         Insert: {
           business_id: string
@@ -260,10 +398,13 @@ export type Database = {
           notes?: string | null
           offer_id: string
           payout_amount?: number | null
+          payout_snapshot?: number | null
           payout_status?: string
+          payout_type_snapshot?: string | null
           referrer_id: string
           status?: string
           updated_at?: string
+          void_reason?: string | null
         }
         Update: {
           business_id?: string
@@ -276,10 +417,13 @@ export type Database = {
           notes?: string | null
           offer_id?: string
           payout_amount?: number | null
+          payout_snapshot?: number | null
           payout_status?: string
+          payout_type_snapshot?: string | null
           referrer_id?: string
           status?: string
           updated_at?: string
+          void_reason?: string | null
         }
         Relationships: [
           {
@@ -297,6 +441,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      referrer_payout_preferences: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          method: string | null
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          method?: string | null
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          method?: string | null
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_badges: {
         Row: {
@@ -427,6 +601,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      fn_check_duplicate_referral: {
+        Args: {
+          p_business_id: string
+          p_email: string
+          p_offer_id: string
+          p_phone?: string
+          p_window_days?: number
+        }
+        Returns: boolean
+      }
+      fn_create_audit_entry: {
+        Args: {
+          p_actor_id: string
+          p_event_type: string
+          p_payload?: Json
+          p_referral_id: string
+        }
+        Returns: undefined
+      }
+      fn_create_notification: {
+        Args: {
+          p_body: string
+          p_referral_id?: string
+          p_title: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

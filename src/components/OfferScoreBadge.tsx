@@ -1,6 +1,6 @@
 import { Gauge } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import type { OfferScore } from "@/data/mockOffers";
+import type { OfferScore } from "@/lib/offerUtils";
 
 interface OfferScoreBadgeProps {
   score: OfferScore;
@@ -24,11 +24,10 @@ const OfferScoreBadge = ({ score, compact = true }: OfferScoreBadgeProps) => {
         <TooltipContent side="top" className="max-w-[200px] p-3">
           <p className="text-xs font-semibold mb-2">Offer Score: {score.total}/100 — {label}</p>
           <div className="space-y-1 text-[10px]">
-            <div className="flex justify-between"><span>Funds Secured</span><span className="font-bold">{score.fundSecuredScore}/30</span></div>
-            <div className="flex justify-between"><span>Verified</span><span className="font-bold">{score.verificationScore}/20</span></div>
-            <div className="flex justify-between"><span>Payout Rank</span><span className="font-bold">{score.payoutCompetitiveness}/25</span></div>
-            <div className="flex justify-between"><span>Pay Speed</span><span className="font-bold">{score.payoutSpeed}/15</span></div>
-            <div className="flex justify-between"><span>Close Time</span><span className="font-bold">{score.closeTimeScore}/10</span></div>
+            <div className="flex justify-between"><span>Verified</span><span className="font-bold">{score.verificationScore}/30</span></div>
+            <div className="flex justify-between"><span>Payout Rank</span><span className="font-bold">{score.payoutCompetitiveness}/30</span></div>
+            <div className="flex justify-between"><span>Pay Speed</span><span className="font-bold">{score.payoutSpeed}/25</span></div>
+            <div className="flex justify-between"><span>Close Time</span><span className="font-bold">{score.closeTimeScore}/15</span></div>
           </div>
         </TooltipContent>
       </Tooltip>

@@ -4,6 +4,7 @@ import type { Offer } from "@/types/offer";
 
 /**
  * Fetches real offers from DB. Returns empty array when no offers exist.
+ * Only shows offers with approval_status = 'approved'.
  */
 export function useDbOffers() {
   return useQuery({
@@ -46,7 +47,6 @@ export function useDbOffers() {
         longitude: o.businesses?.longitude ?? undefined,
         qualificationRules: o.qualification_criteria ? [o.qualification_criteria] : undefined,
         verified: o.businesses?.verified ?? false,
-        fundSecured: false,
       }));
     },
     staleTime: 30_000,

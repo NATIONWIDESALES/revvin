@@ -29,26 +29,7 @@ export interface Offer {
   payoutTimeline?: "net7" | "net14" | "net30";
   monthlyCapacity?: number;
   verified?: boolean;
-  fundSecured?: boolean;
   serviceRadius?: string;
-}
-
-export interface WalletTransaction {
-  id: string;
-  type: "topup" | "reserve" | "release" | "payout" | "refund" | "fee";
-  amount: number;
-  description: string;
-  date: string;
-  referralId?: string;
-}
-
-export interface WalletState {
-  available: number;
-  reserved: number;
-  paidOut: number;
-  platformFees: number;
-  totalFunded: number;
-  transactions: WalletTransaction[];
 }
 
 export type DisputeStatus = "submitted" | "under_review" | "resolved_paid" | "resolved_not_paid";
