@@ -193,6 +193,28 @@ const Auth = () => {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+            {mode === "login" && (
+              <button
+                type="button"
+                className="mt-2 text-xs text-primary hover:underline"
+                onClick={async () => {
+                  if (!email) {
+                    toast({ title: "Enter your email first", description: "We need your email to send a reset link.", variant: "destructive" });
+                    return;
+                  }
+                  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + "/reset-password",
+                  });
+                  if (error) {
+                    toast({ title: "Error", description: error.message, variant: "destructive" });
+                  } else {
+                    toast({ title: "Check your email", description: "We sent a password reset link." });
+                  }
+                }}
+              >
+                Forgot password?
+              </button>
+            )}
           </div>
         </>
       );

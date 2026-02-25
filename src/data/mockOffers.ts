@@ -9,7 +9,7 @@ export const mockOffers: Offer[] = [
     rating: 4.7, totalReferrals: 142, successRate: 64, featured: true,
     dealSizeMin: 12000, dealSizeMax: 35000, closeTimeDays: 14, remoteEligible: false, latitude: 49.2827, longitude: -123.1207,
     qualificationRules: ["Homeowner with roof 15+ years old or storm damage", "Property in Metro Vancouver", "Available for inspection"],
-    payoutTimeline: "net14", monthlyCapacity: 15, verified: true, fundSecured: true, serviceRadius: "50 km",
+    payoutTimeline: "net14", monthlyCapacity: 15, verified: true, serviceRadius: "50 km",
   },
   {
     id: "ca2", title: "Plumbing & Drain Services", business: "AquaFlow Plumbing", businessLogo: "🔧", category: "Plumbing",
@@ -18,7 +18,7 @@ export const mockOffers: Offer[] = [
     rating: 4.5, totalReferrals: 98, successRate: 71, featured: false,
     dealSizeMin: 800, dealSizeMax: 10000, closeTimeDays: 5, remoteEligible: false, latitude: 49.1913, longitude: -122.849,
     qualificationRules: ["Active plumbing issue or planned renovation", "Property in Surrey/Langley area", "Customer reachable by phone"],
-    payoutTimeline: "net7", monthlyCapacity: 20, verified: true, fundSecured: true, serviceRadius: "30 km",
+    payoutTimeline: "net7", monthlyCapacity: 20, verified: true, serviceRadius: "30 km",
   },
   {
     id: "ca3", title: "HVAC Installation & Repair", business: "ComfortAir Systems", businessLogo: "❄️", category: "HVAC",
@@ -27,7 +27,7 @@ export const mockOffers: Offer[] = [
     rating: 4.6, totalReferrals: 76, successRate: 58, featured: true,
     dealSizeMin: 6000, dealSizeMax: 22000, closeTimeDays: 10, remoteEligible: false, latitude: 49.2488, longitude: -122.9805,
     qualificationRules: ["Homeowner with HVAC system 10+ years old", "Property in Burnaby/Coquitlam/New West", "Available for site visit"],
-    payoutTimeline: "net14", monthlyCapacity: 12, verified: true, fundSecured: true, serviceRadius: "25 km",
+    payoutTimeline: "net14", monthlyCapacity: 12, verified: true, serviceRadius: "25 km",
   },
   {
     id: "ca4", title: "Landscaping & Hardscaping", business: "PacificGreen Landscapes", businessLogo: "🌿", category: "Landscaping",
@@ -36,7 +36,7 @@ export const mockOffers: Offer[] = [
     rating: 4.4, totalReferrals: 113, successRate: 52, featured: false,
     dealSizeMin: 3000, dealSizeMax: 18000, closeTimeDays: 12, remoteEligible: false, latitude: 49.1666, longitude: -123.1336,
     qualificationRules: ["Residential property with outdoor space", "Project budget $3k+", "Greater Vancouver area"],
-    payoutTimeline: "net14", monthlyCapacity: 18, verified: true, fundSecured: true, serviceRadius: "40 km",
+    payoutTimeline: "net14", monthlyCapacity: 18, verified: true, serviceRadius: "40 km",
   },
   {
     id: "ca5", title: "Asphalt Driveway Paving", business: "Blacktop Pro", businessLogo: "🛣️", category: "Paving",
@@ -45,7 +45,7 @@ export const mockOffers: Offer[] = [
     rating: 4.5, totalReferrals: 67, successRate: 60, featured: false,
     dealSizeMin: 5000, dealSizeMax: 15000, closeTimeDays: 10, remoteEligible: false, latitude: 49.1044, longitude: -122.6609,
     qualificationRules: ["Property owner with paving needs", "Fraser Valley / Langley / Abbotsford area", "Project budget $5k+"],
-    payoutTimeline: "net14", monthlyCapacity: 8, verified: true, fundSecured: false, serviceRadius: "60 km",
+    payoutTimeline: "net14", monthlyCapacity: 8, verified: true, serviceRadius: "60 km",
   },
   {
     id: "ca6", title: "Home Inspection Services", business: "TrueView Inspections", businessLogo: "🔍", category: "Home Inspection",
@@ -54,7 +54,7 @@ export const mockOffers: Offer[] = [
     rating: 4.8, totalReferrals: 210, successRate: 82, featured: false,
     dealSizeMin: 400, dealSizeMax: 800, closeTimeDays: 3, remoteEligible: false, latitude: 49.0504, longitude: -122.3045,
     qualificationRules: ["Active real estate transaction", "Property in Fraser Valley", "Inspection needed within 14 days"],
-    payoutTimeline: "net7", monthlyCapacity: 30, verified: true, fundSecured: true, serviceRadius: "50 km",
+    payoutTimeline: "net7", monthlyCapacity: 30, verified: true, serviceRadius: "50 km",
   },
   {
     id: "ca7", title: "Mortgage Broker Referrals", business: "Maple Mortgage Group", businessLogo: "🏦", category: "Mortgage",
@@ -63,7 +63,7 @@ export const mockOffers: Offer[] = [
     rating: 4.7, totalReferrals: 289, successRate: 38, featured: true,
     dealSizeMin: 300000, dealSizeMax: 900000, closeTimeDays: 45, remoteEligible: true, latitude: 43.6532, longitude: -79.3832,
     qualificationRules: ["Pre-qualified buyer or homeowner seeking refinance", "Credit score 650+", "Consent to credit check required"],
-    payoutTimeline: "net30", monthlyCapacity: 40, verified: true, fundSecured: true, serviceRadius: "Province-wide",
+    payoutTimeline: "net30", monthlyCapacity: 40, verified: true, serviceRadius: "Province-wide",
   },
   {
     id: "ca8", title: "Insurance Broker — Home & Auto", business: "ShieldNorth Insurance", businessLogo: "🛡️", category: "Insurance",
@@ -72,7 +72,7 @@ export const mockOffers: Offer[] = [
     rating: 4.5, totalReferrals: 345, successRate: 44, featured: false,
     dealSizeMin: 1500, dealSizeMax: 8000, closeTimeDays: 14, remoteEligible: true, latitude: 43.6532, longitude: -79.3832,
     qualificationRules: ["Individual or family seeking insurance", "Ontario resident", "No existing policy with ShieldNorth"],
-    payoutTimeline: "net7", monthlyCapacity: 50, verified: true, fundSecured: true, serviceRadius: "Province-wide",
+    payoutTimeline: "net7", monthlyCapacity: 50, verified: true, serviceRadius: "Province-wide",
   },
   {
     id: "ca9", title: "Commercial Roofing & Maintenance", business: "Prairie Roofing Co.", businessLogo: "🏗️", category: "Roofing",
@@ -81,7 +81,7 @@ export const mockOffers: Offer[] = [
     rating: 4.6, totalReferrals: 54, successRate: 55, featured: true,
     dealSizeMin: 15000, dealSizeMax: 50000, closeTimeDays: 21, remoteEligible: false, latitude: 51.0447, longitude: -114.0719,
     qualificationRules: ["Commercial property owner or manager", "Property in Calgary metro", "Flat or low-slope roof"],
-    payoutTimeline: "net14", monthlyCapacity: 6, verified: true, fundSecured: true, serviceRadius: "80 km",
+    payoutTimeline: "net14", monthlyCapacity: 6, verified: true, serviceRadius: "80 km",
   },
   {
     id: "ca10", title: "Residential HVAC — Furnace & AC", business: "FlameGuard Heating", businessLogo: "🔥", category: "HVAC",
@@ -90,7 +90,7 @@ export const mockOffers: Offer[] = [
     rating: 4.4, totalReferrals: 89, successRate: 62, featured: false,
     dealSizeMin: 4000, dealSizeMax: 16000, closeTimeDays: 7, remoteEligible: false, latitude: 51.0447, longitude: -114.0719,
     qualificationRules: ["Homeowner with heating/cooling needs", "Calgary metro area", "System 8+ years old preferred"],
-    payoutTimeline: "net7", monthlyCapacity: 15, verified: true, fundSecured: true, serviceRadius: "50 km",
+    payoutTimeline: "net7", monthlyCapacity: 15, verified: true, serviceRadius: "50 km",
   },
   {
     id: "ca11", title: "Real Estate Photography & Staging", business: "ShowReady Media", businessLogo: "📸", category: "Real Estate",
@@ -99,9 +99,8 @@ export const mockOffers: Offer[] = [
     rating: 4.7, totalReferrals: 178, successRate: 68, featured: false,
     dealSizeMin: 500, dealSizeMax: 2500, closeTimeDays: 3, remoteEligible: false, latitude: 49.2838, longitude: -122.7932,
     qualificationRules: ["Licensed real estate agent", "Active listing in Tri-Cities", "Booking within 7 days"],
-    payoutTimeline: "net7", monthlyCapacity: 25, verified: true, fundSecured: true, serviceRadius: "30 km",
+    payoutTimeline: "net7", monthlyCapacity: 25, verified: true, serviceRadius: "30 km",
   },
-  // New Canada offers
   {
     id: "ca12", title: "Residential Electrician Services", business: "VoltWorks Electrical", businessLogo: "⚡", category: "Services",
     description: "Refer homeowners needing panel upgrades, EV charger installation, or rewiring in Toronto & GTA.",
@@ -109,7 +108,7 @@ export const mockOffers: Offer[] = [
     rating: 4.6, totalReferrals: 112, successRate: 59, featured: false,
     dealSizeMin: 2000, dealSizeMax: 12000, closeTimeDays: 7, remoteEligible: false, latitude: 43.6532, longitude: -79.3832,
     qualificationRules: ["Homeowner needing electrical work", "Property in GTA", "Budget $2k+"],
-    payoutTimeline: "net7", monthlyCapacity: 20, verified: true, fundSecured: true, serviceRadius: "60 km",
+    payoutTimeline: "net7", monthlyCapacity: 20, verified: true, serviceRadius: "60 km",
   },
   {
     id: "ca13", title: "Window & Door Replacement", business: "ClearView Windows", businessLogo: "🪟", category: "Services",
@@ -118,7 +117,7 @@ export const mockOffers: Offer[] = [
     rating: 4.5, totalReferrals: 65, successRate: 54, featured: false,
     dealSizeMin: 5000, dealSizeMax: 25000, closeTimeDays: 14, remoteEligible: false, latitude: 51.0447, longitude: -114.0719,
     qualificationRules: ["Homeowner with windows 15+ years old", "Property in Calgary or Edmonton", "Available for quote visit"],
-    payoutTimeline: "net14", monthlyCapacity: 10, verified: true, fundSecured: true, serviceRadius: "100 km",
+    payoutTimeline: "net14", monthlyCapacity: 10, verified: true, serviceRadius: "100 km",
   },
   {
     id: "ca14", title: "Property Management Leads", business: "UrbanNest Property Mgmt", businessLogo: "🏢", category: "Real Estate",
@@ -127,7 +126,7 @@ export const mockOffers: Offer[] = [
     rating: 4.3, totalReferrals: 47, successRate: 41, featured: false,
     dealSizeMin: 2000, dealSizeMax: 5000, closeTimeDays: 21, remoteEligible: true, latitude: 49.2827, longitude: -123.1207,
     qualificationRules: ["Property owner with rental unit(s)", "Property in Metro Vancouver", "Minimum 1 rental unit"],
-    payoutTimeline: "net30", monthlyCapacity: 12, verified: true, fundSecured: false, serviceRadius: "40 km",
+    payoutTimeline: "net30", monthlyCapacity: 12, verified: true, serviceRadius: "40 km",
   },
   {
     id: "ca15", title: "Commercial Cleaning — Offices", business: "SparkleNorth Cleaning", businessLogo: "✨", category: "Services",
@@ -136,7 +135,7 @@ export const mockOffers: Offer[] = [
     rating: 4.4, totalReferrals: 88, successRate: 63, featured: false,
     dealSizeMin: 1000, dealSizeMax: 4000, closeTimeDays: 5, remoteEligible: false, latitude: 43.6532, longitude: -79.3832,
     qualificationRules: ["Commercial property or office space", "Minimum 1,000 sq ft", "Located in GTA"],
-    payoutTimeline: "net7", monthlyCapacity: 15, verified: true, fundSecured: true, serviceRadius: "50 km",
+    payoutTimeline: "net7", monthlyCapacity: 15, verified: true, serviceRadius: "50 km",
   },
   {
     id: "ca16", title: "Pest Control Services", business: "BugShield Canada", businessLogo: "🐛", category: "Services",
@@ -145,7 +144,7 @@ export const mockOffers: Offer[] = [
     rating: 4.6, totalReferrals: 134, successRate: 75, featured: false,
     dealSizeMin: 300, dealSizeMax: 2000, closeTimeDays: 3, remoteEligible: false, latitude: 49.2827, longitude: -123.1207,
     qualificationRules: ["Active pest issue or prevention need", "Property in Metro Vancouver", "Available for inspection"],
-    payoutTimeline: "net7", monthlyCapacity: 30, verified: true, fundSecured: true, serviceRadius: "40 km",
+    payoutTimeline: "net7", monthlyCapacity: 30, verified: true, serviceRadius: "40 km",
   },
 
   // ===== UNITED STATES =====
@@ -156,7 +155,7 @@ export const mockOffers: Offer[] = [
     rating: 4.8, totalReferrals: 234, successRate: 72, featured: true,
     dealSizeMin: 15000, dealSizeMax: 35000, closeTimeDays: 45, remoteEligible: false, latitude: 34.0522, longitude: -118.2437,
     qualificationRules: ["Homeowner with suitable roof", "No existing solar installation", "Property in service area"],
-    payoutTimeline: "net14", monthlyCapacity: 20, verified: true, fundSecured: true, serviceRadius: "100 mi",
+    payoutTimeline: "net14", monthlyCapacity: 20, verified: true, serviceRadius: "100 mi",
   },
   {
     id: "us2", title: "Roof Replacement & Repair", business: "TopShield Roofing", businessLogo: "🏠", category: "Roofing",
@@ -165,7 +164,7 @@ export const mockOffers: Offer[] = [
     rating: 4.6, totalReferrals: 189, successRate: 61, featured: true,
     dealSizeMin: 8000, dealSizeMax: 25000, closeTimeDays: 14, remoteEligible: false, latitude: 32.7767, longitude: -96.797,
     qualificationRules: ["Homeowner with roof damage or 15+ year old roof", "Property in DFW metro", "Available for inspection"],
-    payoutTimeline: "net14", monthlyCapacity: 12, verified: true, fundSecured: true, serviceRadius: "75 mi",
+    payoutTimeline: "net14", monthlyCapacity: 12, verified: true, serviceRadius: "75 mi",
   },
   {
     id: "us3", title: "Emergency Plumbing Services", business: "FlowFix Plumbing", businessLogo: "🔧", category: "Plumbing",
@@ -174,7 +173,7 @@ export const mockOffers: Offer[] = [
     rating: 4.4, totalReferrals: 167, successRate: 70, featured: false,
     dealSizeMin: 500, dealSizeMax: 8000, closeTimeDays: 5, remoteEligible: false, latitude: 47.6062, longitude: -122.3321,
     qualificationRules: ["Active plumbing issue or planned renovation", "Property in Seattle metro", "Customer reachable by phone"],
-    payoutTimeline: "net7", monthlyCapacity: 25, verified: true, fundSecured: true, serviceRadius: "40 mi",
+    payoutTimeline: "net7", monthlyCapacity: 25, verified: true, serviceRadius: "40 mi",
   },
   {
     id: "us4", title: "HVAC Installation & Repair", business: "CoolBreeze HVAC", businessLogo: "❄️", category: "HVAC",
@@ -183,7 +182,7 @@ export const mockOffers: Offer[] = [
     rating: 4.5, totalReferrals: 210, successRate: 59, featured: false,
     dealSizeMin: 4000, dealSizeMax: 18000, closeTimeDays: 10, remoteEligible: false, latitude: 33.4484, longitude: -112.074,
     qualificationRules: ["Homeowner with HVAC issue or system 10+ years old", "Property in Phoenix metro", "Available for site visit"],
-    payoutTimeline: "net7", monthlyCapacity: 15, verified: true, fundSecured: true, serviceRadius: "60 mi",
+    payoutTimeline: "net7", monthlyCapacity: 15, verified: true, serviceRadius: "60 mi",
   },
   {
     id: "us5", title: "Landscaping & Lawn Care", business: "GreenScape Design", businessLogo: "🌿", category: "Landscaping",
@@ -192,7 +191,7 @@ export const mockOffers: Offer[] = [
     rating: 4.3, totalReferrals: 156, successRate: 55, featured: false,
     dealSizeMin: 2000, dealSizeMax: 12000, closeTimeDays: 10, remoteEligible: false, latitude: 34.0522, longitude: -118.2437,
     qualificationRules: ["Residential or commercial property", "Project budget $2k+", "Greater LA area"],
-    payoutTimeline: "net14", monthlyCapacity: 20, verified: true, fundSecured: true, serviceRadius: "50 mi",
+    payoutTimeline: "net14", monthlyCapacity: 20, verified: true, serviceRadius: "50 mi",
   },
   {
     id: "us6", title: "Driveway & Patio Paving", business: "StonePath Paving", businessLogo: "🧱", category: "Paving",
@@ -201,7 +200,7 @@ export const mockOffers: Offer[] = [
     rating: 4.6, totalReferrals: 89, successRate: 52, featured: false,
     dealSizeMin: 5000, dealSizeMax: 20000, closeTimeDays: 14, remoteEligible: false, latitude: 47.6062, longitude: -122.3321,
     qualificationRules: ["Property owner with paving needs", "Project budget $5k+", "Pacific Northwest area"],
-    payoutTimeline: "net14", monthlyCapacity: 10, verified: true, fundSecured: false, serviceRadius: "60 mi",
+    payoutTimeline: "net14", monthlyCapacity: 10, verified: true, serviceRadius: "60 mi",
   },
   {
     id: "us7", title: "Business Insurance Quote", business: "ShieldCorp Insurance", businessLogo: "🛡️", category: "Insurance",
@@ -210,7 +209,7 @@ export const mockOffers: Offer[] = [
     rating: 4.6, totalReferrals: 567, successRate: 45, featured: true,
     dealSizeMin: 2000, dealSizeMax: 10000, closeTimeDays: 14, remoteEligible: true, latitude: 40.7128, longitude: -74.006,
     qualificationRules: ["Active business with 2+ employees", "No existing policy with ShieldCorp", "Must be reachable by phone"],
-    payoutTimeline: "net7", monthlyCapacity: 50, verified: true, fundSecured: true, serviceRadius: "Nationwide",
+    payoutTimeline: "net7", monthlyCapacity: 50, verified: true, serviceRadius: "Nationwide",
   },
   {
     id: "us8", title: "Mortgage Refinance Leads", business: "PrimeLend Mortgage", businessLogo: "🏦", category: "Mortgage",
@@ -219,7 +218,7 @@ export const mockOffers: Offer[] = [
     rating: 4.7, totalReferrals: 312, successRate: 35, featured: true,
     dealSizeMin: 200000, dealSizeMax: 750000, closeTimeDays: 45, remoteEligible: true, latitude: 32.7767, longitude: -96.797,
     qualificationRules: ["Homeowner with existing mortgage or pre-qualified buyer", "Credit score 620+", "Consent to credit check required"],
-    payoutTimeline: "net30", monthlyCapacity: 40, verified: true, fundSecured: true, serviceRadius: "Statewide",
+    payoutTimeline: "net30", monthlyCapacity: 40, verified: true, serviceRadius: "Statewide",
   },
   {
     id: "us9", title: "Home Inspection Services", business: "ClearView Inspections", businessLogo: "🔍", category: "Home Inspection",
@@ -228,7 +227,7 @@ export const mockOffers: Offer[] = [
     rating: 4.8, totalReferrals: 198, successRate: 80, featured: false,
     dealSizeMin: 350, dealSizeMax: 700, closeTimeDays: 3, remoteEligible: false, latitude: 33.4484, longitude: -112.074,
     qualificationRules: ["Active real estate transaction", "Property in Phoenix metro", "Inspection needed within 14 days"],
-    payoutTimeline: "net7", monthlyCapacity: 35, verified: true, fundSecured: true, serviceRadius: "50 mi",
+    payoutTimeline: "net7", monthlyCapacity: 35, verified: true, serviceRadius: "50 mi",
   },
   {
     id: "us10", title: "Personal Injury Consultation", business: "JusticeFirst Legal", businessLogo: "⚖️", category: "Legal",
@@ -237,7 +236,7 @@ export const mockOffers: Offer[] = [
     rating: 4.8, totalReferrals: 145, successRate: 40, featured: false,
     dealSizeMin: 10000, dealSizeMax: 500000, closeTimeDays: 60, remoteEligible: true, latitude: 40.7128, longitude: -74.006,
     qualificationRules: ["Injury occurred within last 2 years", "No existing legal representation", "Willing to provide case details"],
-    payoutTimeline: "net30", monthlyCapacity: 15, verified: true, fundSecured: true, serviceRadius: "Statewide",
+    payoutTimeline: "net30", monthlyCapacity: 15, verified: true, serviceRadius: "Statewide",
   },
   {
     id: "us11", title: "Premium CRM Software", business: "CloudFlow CRM", businessLogo: "☁️", category: "SaaS",
@@ -246,7 +245,7 @@ export const mockOffers: Offer[] = [
     rating: 4.9, totalReferrals: 891, successRate: 38, featured: false,
     dealSizeMin: 5000, dealSizeMax: 50000, closeTimeDays: 30, remoteEligible: true, latitude: 37.7749, longitude: -122.4194,
     qualificationRules: ["Company with 10+ employees", "Currently using a CRM or spreadsheet", "Decision maker contact required"],
-    payoutTimeline: "net14", monthlyCapacity: 30, verified: true, fundSecured: true, serviceRadius: "Nationwide",
+    payoutTimeline: "net14", monthlyCapacity: 30, verified: true, serviceRadius: "Nationwide",
   },
   {
     id: "us12", title: "Commercial Cleaning Services", business: "SparkleClean Pro", businessLogo: "✨", category: "Services",
@@ -255,7 +254,7 @@ export const mockOffers: Offer[] = [
     rating: 4.5, totalReferrals: 123, successRate: 65, featured: false,
     dealSizeMin: 1000, dealSizeMax: 5000, closeTimeDays: 7, remoteEligible: false, latitude: 32.7767, longitude: -96.797,
     qualificationRules: ["Commercial property or office space", "Minimum 1,000 sq ft", "Located in DFW metro"],
-    payoutTimeline: "net7", monthlyCapacity: 15, verified: true, fundSecured: true, serviceRadius: "40 mi",
+    payoutTimeline: "net7", monthlyCapacity: 15, verified: true, serviceRadius: "40 mi",
   },
   {
     id: "us13", title: "Financial Planning Consultation", business: "WealthBridge Advisors", businessLogo: "💰", category: "Finance",
@@ -264,7 +263,7 @@ export const mockOffers: Offer[] = [
     rating: 4.8, totalReferrals: 92, successRate: 48, featured: false,
     dealSizeMin: 10000, dealSizeMax: 100000, closeTimeDays: 30, remoteEligible: true, latitude: 40.7128, longitude: -74.006,
     qualificationRules: ["Individual with $100k+ investable assets", "No existing financial advisor", "Interested in comprehensive planning"],
-    payoutTimeline: "net30", monthlyCapacity: 8, verified: true, fundSecured: true, serviceRadius: "Tri-State area",
+    payoutTimeline: "net30", monthlyCapacity: 8, verified: true, serviceRadius: "Tri-State area",
   },
   {
     id: "us14", title: "IT Managed Services", business: "TechVault Systems", businessLogo: "💻", category: "Technology",
@@ -273,9 +272,8 @@ export const mockOffers: Offer[] = [
     rating: 4.4, totalReferrals: 78, successRate: 42, featured: false,
     dealSizeMin: 3000, dealSizeMax: 15000, closeTimeDays: 21, remoteEligible: true, latitude: 47.6062, longitude: -122.3321,
     qualificationRules: ["Business with 5+ workstations", "No current MSP contract", "Must be reachable"],
-    payoutTimeline: "net14", monthlyCapacity: 10, verified: false, fundSecured: false, serviceRadius: "Pacific NW",
+    payoutTimeline: "net14", monthlyCapacity: 10, verified: false, serviceRadius: "Pacific NW",
   },
-  // New US offers
   {
     id: "us15", title: "Garage Door Installation & Repair", business: "LiftMaster Doors", businessLogo: "🚪", category: "Services",
     description: "Refer homeowners needing new garage doors, opener installations, or spring repairs in the Dallas-Fort Worth area.",
@@ -283,7 +281,7 @@ export const mockOffers: Offer[] = [
     rating: 4.5, totalReferrals: 93, successRate: 67, featured: false,
     dealSizeMin: 800, dealSizeMax: 5000, closeTimeDays: 5, remoteEligible: false, latitude: 32.7767, longitude: -96.797,
     qualificationRules: ["Homeowner with garage door issue", "Property in DFW metro", "Available for same-week service"],
-    payoutTimeline: "net7", monthlyCapacity: 20, verified: true, fundSecured: true, serviceRadius: "50 mi",
+    payoutTimeline: "net7", monthlyCapacity: 20, verified: true, serviceRadius: "50 mi",
   },
   {
     id: "us16", title: "Bathroom & Kitchen Remodel", business: "DesignBuild Renovations", businessLogo: "🛁", category: "Services",
@@ -292,7 +290,7 @@ export const mockOffers: Offer[] = [
     rating: 4.7, totalReferrals: 68, successRate: 50, featured: false,
     dealSizeMin: 15000, dealSizeMax: 60000, closeTimeDays: 30, remoteEligible: false, latitude: 34.0522, longitude: -118.2437,
     qualificationRules: ["Homeowner planning renovation", "Budget $15k+", "Property in LA County"],
-    payoutTimeline: "net14", monthlyCapacity: 8, verified: true, fundSecured: true, serviceRadius: "40 mi",
+    payoutTimeline: "net14", monthlyCapacity: 8, verified: true, serviceRadius: "40 mi",
   },
   {
     id: "us17", title: "Pool Installation & Maintenance", business: "AquaBuild Pools", businessLogo: "🏊", category: "Services",
@@ -301,7 +299,7 @@ export const mockOffers: Offer[] = [
     rating: 4.6, totalReferrals: 45, successRate: 58, featured: true,
     dealSizeMin: 20000, dealSizeMax: 80000, closeTimeDays: 45, remoteEligible: false, latitude: 33.4484, longitude: -112.074,
     qualificationRules: ["Homeowner with yard space", "Budget $20k+ for new builds", "Maricopa County"],
-    payoutTimeline: "net14", monthlyCapacity: 5, verified: true, fundSecured: true, serviceRadius: "50 mi",
+    payoutTimeline: "net14", monthlyCapacity: 5, verified: true, serviceRadius: "50 mi",
   },
   {
     id: "us18", title: "Moving & Relocation Services", business: "SwiftMove Logistics", businessLogo: "📦", category: "Services",
@@ -310,7 +308,7 @@ export const mockOffers: Offer[] = [
     rating: 4.3, totalReferrals: 201, successRate: 72, featured: false,
     dealSizeMin: 1000, dealSizeMax: 8000, closeTimeDays: 7, remoteEligible: false, latitude: 47.6062, longitude: -122.3321,
     qualificationRules: ["Confirmed moving date", "Local or long-distance", "Seattle metro area"],
-    payoutTimeline: "net7", monthlyCapacity: 25, verified: true, fundSecured: true, serviceRadius: "80 mi",
+    payoutTimeline: "net7", monthlyCapacity: 25, verified: true, serviceRadius: "80 mi",
   },
   {
     id: "us19", title: "Auto Body & Collision Repair", business: "PrecisionBody Works", businessLogo: "🚗", category: "Services",
@@ -319,7 +317,7 @@ export const mockOffers: Offer[] = [
     rating: 4.4, totalReferrals: 110, successRate: 60, featured: false,
     dealSizeMin: 2000, dealSizeMax: 15000, closeTimeDays: 10, remoteEligible: false, latitude: 40.7128, longitude: -74.006,
     qualificationRules: ["Vehicle with body damage", "Insurance claim or out-of-pocket", "NYC metro area"],
-    payoutTimeline: "net7", monthlyCapacity: 15, verified: true, fundSecured: true, serviceRadius: "30 mi",
+    payoutTimeline: "net7", monthlyCapacity: 15, verified: true, serviceRadius: "30 mi",
   },
   {
     id: "us20", title: "Tax Preparation & Advisory", business: "TrueBooks Accounting", businessLogo: "📊", category: "Finance",
@@ -328,82 +326,6 @@ export const mockOffers: Offer[] = [
     rating: 4.7, totalReferrals: 156, successRate: 55, featured: false,
     dealSizeMin: 1500, dealSizeMax: 10000, closeTimeDays: 14, remoteEligible: true, latitude: 37.7749, longitude: -122.4194,
     qualificationRules: ["Business owner or HNW individual", "No existing CPA relationship", "US tax filing required"],
-    payoutTimeline: "net14", monthlyCapacity: 20, verified: true, fundSecured: true, serviceRadius: "Nationwide",
+    payoutTimeline: "net14", monthlyCapacity: 20, verified: true, serviceRadius: "Nationwide",
   },
 ];
-
-export const categories = [
-  "All", "Roofing", "Plumbing", "HVAC", "Landscaping", "Paving", "Home Inspection",
-  "Insurance", "Mortgage", "Real Estate", "Energy", "Legal", "Finance",
-  "SaaS", "Services", "Technology",
-];
-
-export const canadaProvinces = ["BC", "AB", "ON", "QC", "MB", "SK"];
-export const usStates = ["CA", "TX", "WA", "AZ", "NY", "FL", "IL", "CO", "GA", "MA"];
-
-export const cityJumpsCA = [
-  { label: "Vancouver", lat: 49.2827, lng: -123.1207 },
-  { label: "Surrey", lat: 49.1913, lng: -122.849 },
-  { label: "Burnaby", lat: 49.2488, lng: -122.9805 },
-  { label: "Toronto", lat: 43.6532, lng: -79.3832 },
-  { label: "Calgary", lat: 51.0447, lng: -114.0719 },
-  { label: "Coquitlam", lat: 49.2838, lng: -122.7932 },
-];
-
-export const cityJumpsUS = [
-  { label: "Seattle", lat: 47.6062, lng: -122.3321 },
-  { label: "LA", lat: 34.0522, lng: -118.2437 },
-  { label: "Dallas", lat: 32.7767, lng: -96.797 },
-  { label: "Phoenix", lat: 33.4484, lng: -112.074 },
-  { label: "NYC", lat: 40.7128, lng: -74.006 },
-  { label: "SF", lat: 37.7749, lng: -122.4194 },
-];
-
-// ===== OFFER SCORING =====
-export interface OfferScore {
-  total: number;
-  fundSecuredScore: number;
-  verificationScore: number;
-  payoutCompetitiveness: number;
-  payoutSpeed: number;
-  closeTimeScore: number;
-}
-
-export function calculateOfferScore(offer: typeof mockOffers[0], allOffers?: typeof mockOffers): OfferScore {
-  const peers = (allOffers ?? mockOffers).filter(o => o.city === offer.city || o.category === offer.category);
-  const avgPayout = peers.length > 0 ? peers.reduce((s, o) => s + o.payout, 0) / peers.length : offer.payout;
-
-  const fundSecuredScore = offer.fundSecured ? 30 : 0;
-  const verificationScore = offer.verified ? 20 : 0;
-  const payoutCompetitiveness = Math.min(25, Math.round((offer.payout / Math.max(1, avgPayout)) * 15));
-  const payoutSpeed = offer.payoutTimeline === "net7" ? 15 : offer.payoutTimeline === "net14" ? 10 : 5;
-  const closeTimeScore = (offer.closeTimeDays ?? 30) <= 7 ? 10 : (offer.closeTimeDays ?? 30) <= 14 ? 7 : (offer.closeTimeDays ?? 30) <= 30 ? 4 : 2;
-
-  const total = Math.min(100, fundSecuredScore + verificationScore + payoutCompetitiveness + payoutSpeed + closeTimeScore);
-
-  return { total, fundSecuredScore, verificationScore, payoutCompetitiveness, payoutSpeed, closeTimeScore };
-}
-
-// ===== CITY SLOTS (scarcity concept) =====
-export interface CitySlot {
-  city: string;
-  country: "CA" | "US";
-  category: string;
-  maxSlots: 5;
-  filledSlots: number;
-  offers: string[];
-}
-
-export function getCitySlots(): CitySlot[] {
-  const slotMap: Record<string, CitySlot> = {};
-  mockOffers.forEach(offer => {
-    if (!offer.verified) return;
-    const key = `${offer.city}-${offer.category}`;
-    if (!slotMap[key]) {
-      slotMap[key] = { city: offer.city, country: offer.country, category: offer.category, maxSlots: 5, filledSlots: 0, offers: [] };
-    }
-    slotMap[key].filledSlots++;
-    slotMap[key].offers.push(offer.id);
-  });
-  return Object.values(slotMap).sort((a, b) => b.filledSlots - a.filledSlots);
-}

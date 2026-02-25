@@ -6,7 +6,7 @@ import SEOHead from "@/components/SEOHead";
 const Terms = () => {
   return (
     <div className="py-12">
-      <SEOHead title="Terms of Service" description="Read Revvin's Terms of Service covering platform usage, payout structure, escrow rules, and dispute resolution." path="/terms" />
+      <SEOHead title="Terms of Service" description="Read Revvin's Terms of Service covering platform usage, payout structure, and dispute resolution." path="/terms" />
       <div className="container max-w-3xl">
         <Button variant="ghost" size="sm" className="gap-1 mb-6" asChild>
           <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>
@@ -23,7 +23,7 @@ const Terms = () => {
 
           <section>
             <h2 className="font-display text-lg font-bold text-foreground">2. Platform Overview</h2>
-            <p>Revvin is a pay-per-close referral marketplace that connects businesses seeking customer acquisition ("Businesses") with individuals who provide qualified introductions ("Referrers"). The platform facilitates referral submissions, tracks deal outcomes, manages escrow-based payouts, and provides administrative oversight.</p>
+            <p>Revvin is a pay-per-close referral marketplace that connects businesses seeking customer acquisition ("Businesses") with individuals who provide qualified introductions ("Referrers"). The platform facilitates referral submissions, tracks deal outcomes, coordinates payouts, and provides administrative oversight.</p>
           </section>
 
           <section>
@@ -34,8 +34,8 @@ const Terms = () => {
           <section>
             <h2 className="font-display text-lg font-bold text-foreground">4. Business Obligations</h2>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Businesses must pre-fund their Revvin Wallet before accepting referrals.</li>
-              <li>When a referral is accepted, the advertised payout amount is reserved in escrow.</li>
+              <li>Businesses are responsible for the payout amount advertised in their offers.</li>
+              <li>When a referral is accepted, the payout terms are locked for that referral.</li>
               <li>Businesses must act on submitted referrals within 14 days of acceptance.</li>
               <li>Deal outcomes (won, lost, declined) must be reported honestly and promptly.</li>
               <li>Businesses may not contact referrers' leads outside the Revvin platform for deals submitted through the platform.</li>
@@ -58,8 +58,8 @@ const Terms = () => {
           </section>
 
           <section>
-            <h2 className="font-display text-lg font-bold text-foreground">7. Escrow & Wallet</h2>
-            <p>Business funds are held in a platform-managed escrow wallet. When a referral is accepted, the payout amount is reserved. Upon deal closure, funds are released to the referrer. If a deal is lost or declined, reserved funds are returned to the business's available balance. Revvin is not a bank and does not pay interest on escrowed funds.</p>
+            <h2 className="font-display text-lg font-bold text-foreground">7. Payouts</h2>
+            <p>When a referral is accepted, payout terms are snapshotted. Upon a verified deal closure, Revvin processes the payout to the referrer. If a deal is lost or declined, no payout is created. During early access, payouts are processed manually by the Revvin team after verification.</p>
           </section>
 
           <section>

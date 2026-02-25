@@ -21,11 +21,11 @@ const iconMap: Record<string, any> = { trophy: Trophy, star: Star, zap: Zap, "do
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
   submitted: { bg: "bg-muted", text: "text-muted-foreground", label: "Submitted" },
-  accepted: { bg: "bg-primary/10", text: "text-primary", label: "Funds Reserved" },
+  accepted: { bg: "bg-primary/10", text: "text-primary", label: "Accepted" },
   contacted: { bg: "bg-blue-100/60", text: "text-blue-700", label: "Contacted" },
   qualified: { bg: "bg-primary/10", text: "text-primary", label: "Qualified" },
   in_progress: { bg: "bg-accent/10", text: "text-accent-foreground", label: "In Progress" },
-  won: { bg: "bg-earnings/10", text: "text-earnings", label: "Closed — Paid" },
+  won: { bg: "bg-earnings/10", text: "text-earnings", label: "Won" },
   lost: { bg: "bg-destructive/10", text: "text-destructive", label: "Lost" },
   declined: { bg: "bg-muted", text: "text-muted-foreground", label: "Declined" },
   disputed: { bg: "bg-accent/10", text: "text-accent-foreground", label: "Disputed" },
@@ -79,7 +79,7 @@ const ReferrerDashboard = () => {
 
   const stats = [
     { label: "Pending", value: `${sym}${pendingEarnings.toLocaleString()}`, icon: Clock, color: "text-accent-foreground", bgColor: "bg-accent/10" },
-    { label: "Reserved (Escrowed)", value: `${sym}${reservedEarnings.toLocaleString()}`, icon: ShieldCheck, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "Accepted", value: `${sym}${reservedEarnings.toLocaleString()}`, icon: ShieldCheck, color: "text-primary", bgColor: "bg-primary/10" },
     { label: "Confirmed", value: `${sym}${confirmedEarnings.toLocaleString()}`, icon: CheckCircle2, color: "text-primary", bgColor: "bg-primary/10" },
     { label: "Paid", value: `${sym}${paidEarnings.toLocaleString()}`, icon: Wallet, color: "text-earnings", bgColor: "bg-earnings/10" },
     { label: "Lifetime", value: `${sym}${lifetimeEarnings.toLocaleString()}`, icon: DollarSign, color: "text-earnings", bgColor: "bg-earnings/10" },
