@@ -30,7 +30,7 @@ const BoostOfferPanel = () => {
           </div>
         ))}
       </div>
-      <p className="text-[10px] text-muted-foreground mt-3 text-center">Boost features available in Pro tier — Stripe-ready</p>
+      <p className="text-[10px] text-muted-foreground mt-3 text-center">Boost features available in Pro tier</p>
     </div>
   );
 };

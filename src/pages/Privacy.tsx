@@ -25,7 +25,7 @@ const Privacy = () => {
             <h2 className="font-display text-lg font-bold text-foreground">2. How We Use Your Information</h2>
             <ul className="list-disc pl-5 space-y-1">
               <li>To operate and improve the Revvin marketplace.</li>
-              <li>To process referral submissions and manage escrow payouts.</li>
+              <li>To process referral submissions and manage payouts.</li>
               <li>To verify business identities and referrer eligibility.</li>
               <li>To communicate platform updates, referral status changes, and payout notifications.</li>
               <li>To detect and prevent fraudulent activity.</li>
@@ -39,7 +39,7 @@ const Privacy = () => {
             <ul className="list-disc pl-5 space-y-1">
               <li><strong>With Businesses:</strong> Customer name, contact information, and referral notes submitted by the referrer.</li>
               <li><strong>With Referrers:</strong> Referral status updates and payout amounts. Business contact details are never shared with referrers.</li>
-              <li><strong>With Service Providers:</strong> Payment processors (Stripe), hosting providers, and analytics tools that help us operate the platform.</li>
+              <li><strong>With Service Providers:</strong> Payment processors, hosting providers, and analytics tools that help us operate the platform.</li>
               <li><strong>With Legal Authorities:</strong> When required by law, court order, or to protect the safety of our users.</li>
             </ul>
           </section>

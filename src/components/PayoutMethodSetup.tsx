@@ -89,7 +89,7 @@ const PayoutMethodSetup = () => {
             Save Payout Method
           </Button>
           <p className="text-[10px] text-muted-foreground mt-2 text-center">
-            Powered by Stripe — prototype only
+            Payout preferences saved for processing
           </p>
         </>
       )}

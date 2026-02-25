@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Users, CheckCircle2, ArrowRight, DollarSign, Shield, MapPin, Trophy, Globe, Wallet, Zap } from "lucide-react";
+import { Users, CheckCircle2, ArrowRight, DollarSign, Shield, MapPin, Trophy, Globe, BadgeCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 
@@ -84,9 +84,6 @@ const ForReferrers = () => (
               </ul>
             </motion.div>
           </div>
-          <p className="text-center text-xs text-muted-foreground mt-6 flex items-center justify-center gap-1">
-            <Shield className="h-3.5 w-3.5 text-primary" /> Powered by Stripe — secure payout rails (prototype)
-          </p>
         </motion.div>
       </div>
     </section>
@@ -97,9 +94,9 @@ const ForReferrers = () => (
           <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold mb-10 text-center">Why Referrers Love Revvin</motion.h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {[
-              { icon: Shield, title: "Funds Secured", desc: "Look for the badge — it means the payout is backed by escrowed funds." },
+              { icon: BadgeCheck, title: "Verified Businesses", desc: "Every business is reviewed before offers go live. Look for the verified badge." },
               { icon: Trophy, title: "Badges & Leaderboards", desc: "Earn badges, climb city and country leaderboards, build your reputation." },
-              { icon: Wallet, title: "Transparent Economics", desc: "You keep 90% of every referral fee. 10% platform fee, no hidden costs." },
+              { icon: DollarSign, title: "Transparent Economics", desc: "You keep 90% of every referral fee. 10% platform fee, no hidden costs." },
               { icon: Globe, title: "Cross-Border Opportunities", desc: "Browse offers in Canada and the USA. Filter by country, province/state, or city." },
             ].map((item, i) => (
               <motion.div key={item.title} variants={fadeUp} custom={i + 1} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5">

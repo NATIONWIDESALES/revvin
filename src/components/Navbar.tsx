@@ -5,6 +5,7 @@ import revvinLogo from "@/assets/revvin-logo.png";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCountry } from "@/contexts/CountryContext";
+import NotificationBell from "@/components/NotificationBell";
 
 import type { Country } from "@/types/offer";
 
@@ -72,6 +73,7 @@ const Navbar = () => {
 
           {user ? (
             <>
+              <NotificationBell />
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/dashboard">Dashboard</Link>
               </Button>

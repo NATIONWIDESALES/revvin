@@ -169,7 +169,7 @@ const HowItWorks = () => {
         <div className="container text-center">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold text-foreground md:text-4xl">Ready to Get Started?</motion.h2>
-            <motion.p variants={fadeUp} custom={1} className="mt-3 text-muted-foreground text-lg">Join thousands already earning and growing on Revvin</motion.p>
+            <motion.p variants={fadeUp} custom={1} className="mt-3 text-muted-foreground text-lg">Join businesses and referrers growing on Revvin</motion.p>
             <motion.div variants={fadeUp} custom={2} className="mt-8 flex justify-center gap-4">
               <Button size="lg" className="gap-2 h-12 px-8" asChild>
                 <Link to="/auth?mode=signup&role=referrer">Start Earning <ArrowRight className="h-4 w-4" /></Link>

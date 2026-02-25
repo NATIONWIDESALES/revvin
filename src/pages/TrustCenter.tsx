@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, BadgeCheck, Clock, Scale, AlertTriangle, DollarSign, Users, Briefcase, CheckCircle2, ArrowRight, Lock, FileCheck, Eye, Wallet } from "lucide-react";
+import { Shield, BadgeCheck, Clock, Scale, AlertTriangle, DollarSign, Users, Briefcase, CheckCircle2, ArrowRight, FileCheck, Eye } from "lucide-react";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 
@@ -13,7 +13,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } }
 const TrustCenter = () => {
   return (
     <div>
-      <SEOHead title="Trust & Payouts" description="How Revvin protects both businesses and referrers with escrow, verification, dispute resolution, and transparent payout economics." path="/trust" />
+      <SEOHead title="Trust & Payouts" description="How Revvin protects both businesses and referrers with verification, dispute resolution, and transparent payout economics." path="/trust" />
       {/* Hero */}
       <section className="hero-gradient py-20">
         <div className="container text-center">
@@ -25,27 +25,27 @@ const TrustCenter = () => {
               Trust & Payouts
             </motion.h1>
             <motion.p variants={fadeUp} custom={2} className="mt-4 text-lg text-primary-foreground/70 max-w-2xl mx-auto">
-              Revvin's pre-funded wallet and escrow reserve system ensures every referral payout is backed by real money — in both 🇨🇦 Canada (CAD) and 🇺🇸 United States (USD).
+              Revvin's verification and payout system ensures every referral commission is tracked transparently — in both 🇨🇦 Canada (CAD) and 🇺🇸 United States (USD).
             </motion.p>
           </motion.div>
         </div>
       </section>
 
-      {/* Wallet & Escrow Model */}
+      {/* How Payouts Work */}
       <section className="py-20">
         <div className="container max-w-5xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-            <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold mb-3">How "Funds Secured" Works</motion.h2>
+            <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold mb-3">How Payouts Work</motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-muted-foreground mb-10 max-w-xl">
-              Every dollar of referral payout on Revvin is backed by a pre-funded business wallet. Here's the flow:
+              Revvin coordinates every payout from submission to close to payment. Here's the flow:
             </motion.p>
             <div className="space-y-4">
               {[
-                { step: "1", title: "Business Funds Wallet", desc: "Before publishing an offer, the business adds funds to their Revvin Wallet. This is real money held on the platform.", icon: Wallet, color: "text-primary" },
-                { step: "2", title: "Offer Goes Live with \"Funds Secured\" Badge", desc: "If the wallet balance covers at least one payout, the offer earns the \"Funds Secured\" badge — visible on cards, detail pages, and map pins.", icon: Shield, color: "text-earnings" },
-                { step: "3", title: "Referral Accepted → Funds Reserved (Escrow)", desc: "When a business accepts a referral, the payout amount moves from Available balance to Reserved (escrow). The money is locked and dedicated to that referral.", icon: Lock, color: "text-primary" },
-                { step: "4", title: "Deal Closes → Payout Released", desc: "When the deal is marked Closed/Won, the reserved funds are released: 90% goes to the referrer, 10% is the Revvin platform fee.", icon: DollarSign, color: "text-earnings" },
-                { step: "↩", title: "Deal Lost → Funds Returned", desc: "If the referral is declined or the deal is lost, reserved funds are released back to the business's available balance. No money is lost.", icon: ArrowRight, color: "text-muted-foreground" },
+                { step: "1", title: "Business Posts Offer", desc: "The business sets a payout amount (flat fee or percentage) and publishes their referral offer to the marketplace.", icon: Briefcase, color: "text-primary" },
+                { step: "2", title: "Referrer Submits a Lead", desc: "A referrer submits a qualified lead with contact details and notes. First submission wins — timestamped for fairness.", icon: Users, color: "text-earnings" },
+                { step: "3", title: "Business Accepts & Works the Deal", desc: "The business reviews the referral, accepts it, and works toward closing the deal. Payout terms are locked at acceptance.", icon: CheckCircle2, color: "text-primary" },
+                { step: "4", title: "Deal Closes → Payout Processed", desc: "When the deal is marked as won, Revvin verifies the outcome and processes the payout. 90% goes to the referrer, 10% is the platform fee.", icon: DollarSign, color: "text-earnings" },
+                { step: "↩", title: "Deal Lost → No Charge", desc: "If the referral is declined or the deal is lost, no payout is created. The business pays nothing.", icon: ArrowRight, color: "text-muted-foreground" },
               ].map((item, i) => (
                 <motion.div key={item.step} variants={fadeUp} custom={i + 2} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shrink-0">{item.step}</div>
@@ -58,8 +58,18 @@ const TrustCenter = () => {
               ))}
             </div>
 
+            {/* Early Access Note */}
+            <motion.div variants={fadeUp} custom={7} className="mt-8 rounded-2xl border border-primary/20 bg-primary/5 p-5 text-center">
+              <p className="text-sm text-foreground font-medium">
+                During early access, payouts are processed by Revvin after a verified close.
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                We're building automated payout rails — for now, our team manually verifies and processes every payout.
+              </p>
+            </motion.div>
+
             {/* Payout Example */}
-            <motion.div variants={fadeUp} custom={7} className="mt-10 rounded-2xl border border-border bg-muted/30 p-6">
+            <motion.div variants={fadeUp} custom={8} className="mt-10 rounded-2xl border border-border bg-muted/30 p-6">
               <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
                 <Briefcase className="h-5 w-5 text-primary" /> Payout Examples — CAD & USD
               </h3>
@@ -99,7 +109,7 @@ const TrustCenter = () => {
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-4 text-center">Same 90/10 split in both countries. Funds move from Available → Reserved → Paid.</p>
+              <p className="text-xs text-muted-foreground mt-4 text-center">Same 90/10 split in both countries. Business pays on close only.</p>
             </motion.div>
           </motion.div>
         </div>
@@ -143,9 +153,9 @@ const TrustCenter = () => {
             <div className="space-y-4">
               {[
                 { step: "1", title: "Referral Submitted", desc: "Referrer submits lead details with timestamp. First submission wins for duplicate protection.", icon: Users },
-                { step: "2", title: "Business Accepts → Funds Reserved", desc: "Business reviews the lead and accepts it. The payout amount is immediately moved from their available balance to escrow.", icon: Lock },
-                { step: "3", title: "Deal Outcome Recorded", desc: "Business marks the referral as won or lost. Revenue and deal details are logged.", icon: CheckCircle2 },
-                { step: "4", title: "Payout Released from Escrow", desc: "Revvin verifies the outcome, releases reserved funds: referrer receives 90%, Revvin keeps 10%.", icon: DollarSign },
+                { step: "2", title: "Business Accepts → Terms Locked", desc: "Business reviews the lead and accepts it. The payout amount and type are snapshotted at this point.", icon: CheckCircle2 },
+                { step: "3", title: "Deal Outcome Recorded", desc: "Business marks the referral as won or lost. Revenue and deal details are logged.", icon: FileCheck },
+                { step: "4", title: "Verified Close → Payout Processed", desc: "Revvin verifies the outcome and processes the payout. Referrer receives 90%, Revvin keeps 10%.", icon: DollarSign },
               ].map((item, i) => (
                 <motion.div key={item.step} variants={fadeUp} custom={i + 2} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shrink-0">{item.step}</div>
@@ -165,15 +175,15 @@ const TrustCenter = () => {
       <section className="py-20">
         <div className="container max-w-5xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-            <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold mb-3">How Payouts Work</motion.h2>
+            <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold mb-3">Payout Timelines</motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-muted-foreground mb-10 max-w-xl">
               Businesses choose their payout timeline when creating an offer. Referrers always know when to expect payment.
             </motion.p>
             <motion.div variants={fadeUp} custom={2} className="grid gap-4 sm:grid-cols-3">
               {[
-                { label: "Net 7", desc: "Payout 7 days after deal closes", speed: "Fastest" },
-                { label: "Net 14", desc: "Payout 14 days after deal closes", speed: "Standard" },
-                { label: "Net 30", desc: "Payout 30 days after deal closes", speed: "Extended" },
+                { label: "Net 7", desc: "Payout 7 days after verified close", speed: "Fastest" },
+                { label: "Net 14", desc: "Payout 14 days after verified close", speed: "Standard" },
+                { label: "Net 30", desc: "Payout 30 days after verified close", speed: "Extended" },
               ].map((t) => (
                 <div key={t.label} className="rounded-2xl border border-border bg-card p-6 text-center">
                   <Clock className="mx-auto mb-3 h-8 w-8 text-primary" />

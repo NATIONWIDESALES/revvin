@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Building2, CheckCircle2, ArrowRight, DollarSign, Shield, Users, Wallet, BarChart3, Globe } from "lucide-react";
+import { Building2, CheckCircle2, ArrowRight, DollarSign, Shield, Users, BarChart3, Globe, Briefcase } from "lucide-react";
 import CitySlots from "@/components/CitySlots";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
@@ -43,9 +43,9 @@ const ForBusinesses = () => (
           <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold mb-10 text-center">How It Works for Businesses</motion.h2>
           <div className="grid gap-6 md:grid-cols-3">
             {[
-              { step: "01", icon: Wallet, title: "Fund Your Wallet", desc: "Add funds in CAD or USD. Your wallet backs every referral payout with real money." },
-              { step: "02", icon: Building2, title: "Publish Offers", desc: "Set fixed or percentage payouts, qualification rules, payout timelines, and service radius." },
-              { step: "03", icon: DollarSign, title: "Pay on Close", desc: "Accept referrals → funds reserved in escrow → deal closes → payout released. Zero upfront risk." },
+              { step: "01", icon: Briefcase, title: "Set Your Payout", desc: "Define a flat fee or percentage payout for each referral. You control the cost per acquisition." },
+              { step: "02", icon: Building2, title: "Publish Offers", desc: "Set qualification rules, payout timelines, and service radius. Your offers appear in the marketplace." },
+              { step: "03", icon: DollarSign, title: "Pay on Close", desc: "Accept referrals → work the deal → close → Revvin handles payout. Zero upfront risk." },
             ].map((item, i) => (
               <motion.div key={item.step} variants={fadeUp} custom={i + 1} className="rounded-2xl border border-border bg-card p-8 text-center">
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
@@ -68,8 +68,7 @@ const ForBusinesses = () => (
             <motion.div variants={fadeUp} custom={1} className="rounded-2xl border border-border bg-card p-6">
               <h3 className="font-display font-bold mb-3 flex items-center gap-2">🇨🇦 Canada</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Fund wallet in CAD</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Accept payments via credit card, Interac e-Transfer, or EFT</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Payouts in CAD</li>
                 <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Referrer payouts via Interac e-Transfer or direct deposit</li>
                 <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Metro Vancouver, Toronto, Calgary coverage</li>
               </ul>
@@ -77,16 +76,12 @@ const ForBusinesses = () => (
             <motion.div variants={fadeUp} custom={2} className="rounded-2xl border border-border bg-card p-6">
               <h3 className="font-display font-bold mb-3 flex items-center gap-2">🇺🇸 United States</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Fund wallet in USD</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Accept payments via credit card or ACH bank transfer</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Payouts in USD</li>
                 <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Referrer payouts via ACH / direct deposit</li>
                 <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Seattle, LA, Dallas, Phoenix, NYC coverage</li>
               </ul>
             </motion.div>
           </div>
-          <p className="text-center text-xs text-muted-foreground mt-6 flex items-center justify-center gap-1">
-            <Shield className="h-3.5 w-3.5 text-primary" /> Powered by Stripe — card, bank, and payout rails (prototype)
-          </p>
         </motion.div>
       </div>
     </section>
@@ -98,7 +93,7 @@ const ForBusinesses = () => (
           <div className="grid gap-4 sm:grid-cols-2">
             {[
               { icon: BarChart3, title: "Acquisition Metrics", desc: "Track cost per close, conversion rates, and referrer performance." },
-              { icon: Shield, title: "Funds Secured Badge", desc: "Pre-fund your wallet to earn trust badges on your offers." },
+              { icon: Shield, title: "Verified Business Badge", desc: "Get verified to earn trust and priority placement in the marketplace." },
               { icon: Users, title: "Referrer Network", desc: "Access motivated referrers across both countries." },
               { icon: Globe, title: "Cross-Border Discovery", desc: "Your offers appear on the North America map and filtered search." },
             ].map((item, i) => (

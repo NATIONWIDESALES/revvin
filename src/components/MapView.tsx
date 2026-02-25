@@ -89,15 +89,15 @@ const MapView = ({ offers }: MapViewProps) => {
           radius,
           fillColor,
           color: borderColor,
-          weight: isSecured ? 3 : 2,
+          weight: isVerified ? 3 : 2,
           opacity: 0.9,
           fillOpacity: 0.7,
         }).addTo(map);
 
-        const securedBadge = isSecured
+        const verifiedBadge = isVerified
           ? `<div style="display:flex;align-items:center;gap:4px;font-size:11px;color:hsl(160,84%,22%);font-weight:600;margin-bottom:6px;">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              Funds Secured
+              Verified Business
             </div>`
           : "";
 
@@ -105,7 +105,7 @@ const MapView = ({ offers }: MapViewProps) => {
           <div style="font-family: 'DM Sans', sans-serif; min-width: 220px; padding: 4px;">
             <div style="font-size: 15px; font-weight: 700; margin-bottom: 2px;">${offer.title}</div>
             <div style="font-size: 12px; color: #666; margin-bottom: 6px;">${countryFlag} ${offer.business} • ${offer.category}</div>
-            ${securedBadge}
+            ${verifiedBadge}
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
               <span style="background: linear-gradient(135deg, ${fillColor}, ${borderColor}); color: white; padding: 4px 14px; border-radius: 999px; font-weight: 700; font-size: 14px;">
                 ${payoutLabel} <span style="font-size:10px;opacity:0.8">${offer.currency}</span>
