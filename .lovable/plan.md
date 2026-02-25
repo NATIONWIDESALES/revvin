@@ -1,214 +1,119 @@
 
 
-# Revvin: Category-Defining Referral Acquisition Marketplace
+# Plan: Production-Ready Cleanup & Business Onboarding
 
-## Overview
+## Summary
 
-Transform Revvin from its current prototype state into a demo-ready, two-sided marketplace with coherent end-to-end flows. The core thesis: "Pay-per-close customer acquisition powered by human introductions."
-
-This plan covers 10 major workstreams across new pages, upgraded existing pages, new components, enhanced flows, and growth mechanics. No database schema changes are required -- the existing tables (offers, referrals, businesses, profiles, user_roles, badges, user_badges) support all planned features.
-
----
-
-## What Already Works Well
-
-- Auth with role-based signup (business/referrer)
-- Database trigger for auto-provisioning profiles, roles, and business records
-- Business dashboard with offer management, referral inbox, and status updates
-- Referrer dashboard with earnings tracking, charts, milestones, and badges
-- Browse page with search, filters, category pills, list/map toggle
-- Offer detail page with payout breakdown and referral submission form
-- Map view with Leaflet pins and popups
-- Create Offer wizard (3-step)
-
-## What Needs to Change
-
-### 1. Homepage Overhaul (Index.tsx)
-
-**Current state:** Good foundation with hero, stats bar, split-entry gate, 3-step explainer, payout economics, featured offers, and trust strip.
-
-**Changes:**
-- Update hero headline to: "Businesses pay for closed deals. You earn for introductions."
-- Add subheadline: "Businesses publish referral payouts. Referrers submit real opportunities. Revvin verifies outcomes and coordinates payouts."
-- Swap CTA order: "Create Business Offer" first (primary), "Start Referring & Earning" second
-- Add small "See Offers" secondary link below CTAs
-- Add "Revvin vs Ads" comparison section (two side-by-side cards comparing traditional ads vs Revvin on cost model, risk, intent quality, and ROI predictability)
-- Rename stats section to "Marketplace Momentum" and add "Top Categories" and "Active Cities" data points
-- Enhance trust strip with "Dispute Process" and "Clear Qualification Rules" items
-
-### 2. Browse Page Enhancement (Browse.tsx)
-
-**Current state:** Search, category pills, payout/type/remote filters, sort by payout/rating/success, list/map toggle.
-
-**Changes:**
-- Add more categories to the filter list: Plumbing, Paving, HVAC, Legal, Mortgage, plus the existing ones
-- Add close time filter: Fast (0-14d), Medium (15-45d), Long (45+d)
-- Add sort options: "Fastest Close" and "Newest"
-- Add "Verified Only" sort/filter toggle
-- Update offer cards to include a "Submit Referral" CTA button and a "View Offer" secondary link directly on the card
-- Add qualification rules tooltip (3 bullet preview) on hover/click of a small info icon on the card
-- Update the mock data to include more diverse categories (add HVAC, Plumbing, Paving, Mortgage, Legal offers)
-
-### 3. Offer Card Upgrade (OfferCard.tsx)
-
-**Current state:** Shows payout, deal size, close time, location, rating, success rate, verification badge.
-
-**Changes:**
-- Make payout amount visually larger/bolder as the primary data point
-- Add "Paid Net X after close" text based on closeTimeDays
-- Add "Submit Referral" primary CTA button and "View Offer" secondary link
-- Add a small qualification rules tooltip icon that shows 3 placeholder bullets on hover
-- Prevent card link navigation when clicking the CTA buttons (use stopPropagation)
-
-### 4. Map View Enhancement (MapView.tsx)
-
-**Current state:** Circle markers with popups showing payout, business, category, deal size, close time.
-
-**Changes:**
-- Implement Leaflet marker clustering (using custom logic, not an external dependency) for when many pins overlap -- show cluster count and average payout in the cluster circle
-- Improve popup with "Submit Referral" button linking to offer detail page
-- Add city/region quick-jump buttons above the map (LA, NYC, Chicago, Dallas, Miami, Denver, Boston, SF)
-
-### 5. Offer Detail Page Upgrade (OfferDetail.tsx)
-
-**Current state:** Stats grid, description, deal details, payout breakdown, how-it-works steps, and referral form sidebar.
-
-**Changes:**
-- Add explicit "Qualification Rules" section with checklist-style items (pulled from offer data or placeholder)
-- Add "Duplicate Lead Policy" note: "First submission wins, timestamped"
-- Add "How Verification Works" mini-section explaining the process
-- Add "Business Credibility" block with verification level, license/insurance placeholders, and reviews placeholder
-- Add secondary CTA: "Invite this business to improve their offer" (shows a toast/message for now)
-- Add consent checkbox to the referral form: "Customer has consented to being contacted"
-- Make the referral submission write to the database (insert into referrals table) instead of just showing a toast
-- Show referral ID placeholder on confirmation screen
-
-### 6. Business Onboarding Upgrade (CreateOffer.tsx)
-
-**Current state:** 3-step wizard with offer details, payout/timing, and preview.
-
-**Changes:**
-- Add Step 3 (shift current preview to Step 4): "Qualification Rules"
-  - Checklist-style inputs: lead freshness requirement, reachability, minimum project size, eligible locations
-  - Duplicate protection policy note
-- Add "Payout Timeline" selector: Net 7 / Net 14 / Net 30
-- Add "Monthly Referral Capacity" field (how many referrals they can handle)
-- Add "Offer Competitiveness Score" placeholder on preview step (visual meter based on payout amount relative to category)
-- Store qualification criteria as structured text
-
-### 7. Business Dashboard Upgrade (BusinessDashboard.tsx)
-
-**Current state:** 6 stat tiles, offers list with pause/activate, referrals inbox with status update buttons.
-
-**Changes:**
-- Add "Revenue Influenced" placeholder stat and "Avg Time-to-Close" placeholder stat
-- Add offer edit capability: button to edit payout amount (inline or modal)
-- Add "Expand Service Areas" placeholder action on each offer
-- Add "Offer Competitiveness" widget showing how they rank vs similar category (placeholder bar/meter)
-- Suggestions panel: "Increase payout", "Shorten payout timeline", "Verify business"
-- Enhance referral inbox with more granular statuses: New, Contacted, Qualified, Closed, Paid
-- Add "Mark as duplicate/invalid" action with reason input
-- Add "Invite Referrers" button that generates a shareable offer link (copy to clipboard)
-
-### 8. Referrer Dashboard Upgrade (ReferrerDashboard.tsx)
-
-**Current state:** 6 stat tiles, earnings chart, milestones, badges, referral history.
-
-**Changes:**
-- Add "Current Leaderboard Rank" stat tile (placeholder: "Top 15 in Austin")
-- Add "Nudge Business" action on pending referrals (sends a toast notification for now)
-- Add earnings breakdown by category (small table or list)
-- Add leaderboard preview section: "Top Earners in Your City" with 5 placeholder entries
-- Add streak tracker: "Referrals submitted this week" with visual indicator
-- Add "Invite a Business" button with flow: enter business name + email, show success message
-- Add "Recommended Offers" section based on placeholder matching
-
-### 9. New Page: Trust Center (/trust)
-
-Create a dedicated Trust & Protection page explaining:
-- Business verification levels (Unverified, Verified Email, Verified Business)
-- How outcomes are verified (simulated flow diagram)
-- How payouts work (timeline visualization)
-- Dispute resolution process (step-by-step)
-- Fraud prevention messaging
-- Platform fee transparency (the 90/10 split explained)
-
-### 10. Growth Loop Mechanics
-
-**Invite Flows:**
-- Referrer Dashboard: "Invite a Business" button opens a modal with business name + email fields, generates a simulated invite with a landing page message
-- Business Dashboard: "Invite Referrers" button copies a shareable offer link with social preview text
-- Add shareable offer link functionality on Offer Detail page (copy link button with social preview metadata)
-
-**Liquidity CTAs:**
-- Add "Create an Offer" CTA strip on Browse page (for non-business users seeing the marketplace)
-- Add "Submit a Referral" floating CTA on relevant pages
-- Add "Add Your Business" callout in the footer
+Remove mock data from functional app flows (Browse, OfferDetail, ReferralWizard), keep landing page illustrative examples, add business logo upload during onboarding, and polish key areas for real customer use.
 
 ---
 
 ## Technical Details
 
-### Files to Create
-1. `src/pages/TrustCenter.tsx` -- Trust & Protection page
-2. `src/components/InviteBusinessModal.tsx` -- Modal for referrer-to-business invite flow
-3. `src/components/ShareOfferLink.tsx` -- Shareable link component with copy functionality
-4. `src/components/OfferCompetitiveness.tsx` -- Competitiveness score meter component
-5. `src/components/LeaderboardPreview.tsx` -- Placeholder leaderboard widget
-6. `src/components/QualificationTooltip.tsx` -- Qualification rules tooltip for offer cards
+### 1. Remove Mock Data from App Flows
 
-### Files to Modify
-1. `src/App.tsx` -- Add /trust route and any new dashboard sub-routes
-2. `src/pages/Index.tsx` -- Hero headline, Revvin vs Ads section, enhanced trust strip
-3. `src/pages/Browse.tsx` -- Close time filter, new sort options, verified toggle, updated categories, CTA on cards
-4. `src/components/OfferCard.tsx` -- Larger payout, CTA buttons, qualification tooltip, payout timeline text
-5. `src/pages/OfferDetail.tsx` -- Qualification rules, verification section, consent checkbox, database write for referral submission, credibility block
-6. `src/pages/dashboard/CreateOffer.tsx` -- Step 4 qualification rules, payout timeline, capacity, competitiveness preview
-7. `src/pages/dashboard/BusinessDashboard.tsx` -- Edit payout, competitiveness widget, invite referrers, enhanced referral statuses, duplicate/invalid marking
-8. `src/pages/dashboard/ReferrerDashboard.tsx` -- Leaderboard, nudge action, category breakdown, invite business, streak tracker
-9. `src/components/MapView.tsx` -- Cluster grouping, city quick-jump, enhanced popups
-10. `src/components/Navbar.tsx` -- Add Trust Center link
-11. `src/components/Footer.tsx` -- Add Trust Center link, "Add Your Business" callout
-12. `src/data/mockOffers.ts` -- Add more offers across HVAC, Plumbing, Paving, Mortgage, Legal categories with qualification rules
-13. `src/types/offer.ts` -- Add qualificationRules, payoutTimeline, monthlyCapacity fields
+**Files affected:** `useDbOffers.ts`, `OfferDetail.tsx`, `ReferralWizard.tsx`, `OfferCard.tsx`, `Browse.tsx`
 
-### Database Interactions (No Schema Changes Needed)
-- Offer Detail referral submission: INSERT into `referrals` table using authenticated user's ID
-- All existing CRUD operations remain unchanged
-- Qualification criteria stored in existing `qualification_criteria` text column on offers table
+- **`useDbOffers.ts`**: Remove `mockOffers` import. When DB returns zero offers, return empty array instead of mock fallback. Remove the `[...realOffers, ...mockOffers]` merge — return only `realOffers`.
+- **`OfferDetail.tsx`**: Replace `mockOffers.find(id)` with a Supabase query: `supabase.from("offers").select("*, businesses(*)").eq("id", id).single()`. Add loading/error states. Transform DB result to `Offer` type using the same mapping logic from `useDbOffers.ts`.
+- **`ReferralWizard.tsx`**: Currently does a fragile title-match lookup (lines 87-109). Since OfferDetail will now pass a real DB offer with a real UUID `id`, update the wizard to use `offer.id` directly as `offer_id` and look up `business_id` from the offer record, eliminating the title-match fallback.
+- **`OfferCard.tsx`**: Move `calculateOfferScore` out of `mockOffers.ts` into a standalone utility (e.g., `src/lib/offerScore.ts`) so it doesn't import from mock data.
+- **`Browse.tsx`**: Import `categories` and `calculateOfferScore` from the new utility instead of `mockOffers.ts`. Show an empty state when no DB offers exist.
 
-### No New Dependencies Required
-- Leaflet clustering can be implemented with custom grouping logic
-- All UI components use existing shadcn/ui primitives
-- Charts use existing recharts dependency
+### 2. Extract Utilities from mockOffers.ts
+
+**New file:** `src/lib/offerUtils.ts`
+
+Move these exports out of `mockOffers.ts` into a standalone utility:
+- `categories` array
+- `calculateOfferScore()` function
+- `getCitySlots()` — refactor to accept offers as a parameter instead of reading from `mockOffers`
+- `cityJumpsCA`, `cityJumpsUS` arrays
+
+Update all imports across: `Browse.tsx`, `OfferCard.tsx`, `CitySlots.tsx`, `MapView.tsx`, `CreateOffer.tsx`.
+
+### 3. Keep Landing Page Mock Examples
+
+**`Index.tsx`**: Keep the `scenarios` array (illustrative examples) and the "Featured Cities" section. However:
+- Replace `mockOffers.filter(o => o.featured)` for the "Featured Offers" section with a DB query using `useDbOffers` — show real featured offers, or hide the section if none exist.
+- For city counts in the "Featured Cities" section, use DB offer counts instead of mock counts (query from `useDbOffers` data).
+
+**`LeaderboardPreview.tsx`**: Keep placeholder entries but add a note label "Example leaderboard — coming soon" to be transparent.
+
+### 4. Business Logo Upload on Onboarding
+
+**Database migration:**
+```sql
+INSERT INTO storage.buckets (id, name, public) VALUES ('business-logos', 'business-logos', true);
+
+CREATE POLICY "Anyone can view logos" ON storage.objects FOR SELECT USING (bucket_id = 'business-logos');
+CREATE POLICY "Business owners upload logos" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'business-logos' AND auth.uid()::text = (storage.fspath(name))[1]);
+CREATE POLICY "Business owners update logos" ON storage.objects FOR UPDATE USING (bucket_id = 'business-logos' AND auth.uid()::text = (storage.fspath(name))[1]);
+CREATE POLICY "Business owners delete logos" ON storage.objects FOR DELETE USING (bucket_id = 'business-logos' AND auth.uid()::text = (storage.fspath(name))[1]);
+```
+
+**New component:** `src/components/BusinessLogoUpload.tsx`
+- File input with drag-and-drop zone
+- Upload to `business-logos/{user_id}/logo.{ext}` using Supabase Storage
+- Update `businesses.logo_url` with the public URL on successful upload
+- Show preview of uploaded logo
+
+**Onboarding prompt flow:**
+- After a business user signs up and lands on `BusinessDashboard.tsx` for the first time, check if `business.logo_url` is null
+- If no logo, show a prominent card/modal: "Welcome! Upload your business logo — it'll appear on your marketplace listing"
+- Include the `BusinessLogoUpload` component
+- Allow skipping, but nudge via the existing `DashboardChecklist`
+
+**Update `DashboardChecklist`** in `BusinessDashboard.tsx`:
+- Add a new checklist item: "Upload business logo" with `done: !!business?.logo_url`
+
+### 5. Update Offer Display to Use Real Logos
+
+- In `useDbOffers.ts` offer mapping, use `businesses.logo_url` for the `businessLogo` field. If it's a URL (starts with `http`), render as `<img>` in `OfferCard.tsx` and `OfferDetail.tsx` instead of emoji.
+- Update `OfferCard.tsx`: Check if `businessLogo` is a URL — if so, render `<img>` with rounded styling; otherwise render the emoji as before.
+- Same update in `OfferDetail.tsx` header section.
+
+### 6. Remove Wallet Funding Requirement from CreateOffer
+
+Since customers won't fund accounts initially:
+- In `CreateOffer.tsx` step 4 (Fund Wallet), change to an informational step: "Wallet funding is optional at launch. You can add funds later to display the 'Funds Secured' badge."
+- Keep the step visible but make it non-blocking — the "Next" button always enabled on step 4.
+- Remove the `addFunds` quick-add buttons that simulate funding (or keep them but label clearly as "Coming soon").
+
+### 7. Polish Areas
+
+**`ProfileEdit.tsx` for businesses:**
+- Add business-specific fields when the user role is `business`: Business Name, Website, Description, Industry, Service Area
+- Load from `businesses` table, save back to `businesses` table
+- Include the `BusinessLogoUpload` component here as well
+
+**`Auth.tsx` business signup step 2:**
+- The business name, industry, and service area collected in step 2 are currently NOT persisted to the `businesses` table (they're captured in local state but never saved). Fix: after successful signup, the `handle_new_user` trigger creates the business record with a default name. Update the trigger or add a post-signup update to store industry and service area (via the auth metadata → trigger reads it).
+
+**`LeaderboardPreview.tsx`:**
+- Add "Example data" label to be transparent about placeholder nature.
 
 ---
 
-## Implementation Sequence
+## File Change Summary
 
-Due to the scope, this should be implemented in logical batches:
-
-**Batch 1 -- Core Data & Types**
-- Update mock data with new offers and categories
-- Update Offer type with new fields
-- Create shared small components (QualificationTooltip, OfferCompetitiveness, ShareOfferLink)
-
-**Batch 2 -- Homepage + Browse + Cards**
-- Homepage overhaul with new hero, Revvin vs Ads, enhanced trust
-- Browse page with new filters and sort options
-- OfferCard with CTAs and larger payout display
-
-**Batch 3 -- Offer Detail + Submission Flow**
-- Offer Detail with qualification rules, credibility block, consent
-- Wire referral submission to database
-- Map view enhancement
-
-**Batch 4 -- Dashboard Upgrades**
-- Business Dashboard with edit, competitiveness, invite referrers
-- Referrer Dashboard with leaderboard, nudge, invite business, streaks
-
-**Batch 5 -- Trust Center + Growth Loops + Nav Updates**
-- Trust Center page
-- Invite modals and shareable links
-- Nav and footer updates
+| Action | File |
+|--------|------|
+| Create | `src/lib/offerUtils.ts` |
+| Create | `src/components/BusinessLogoUpload.tsx` |
+| Migration | Storage bucket + policies |
+| Migration | Update `handle_new_user` trigger to read industry metadata |
+| Edit | `src/hooks/useDbOffers.ts` — remove mock merge |
+| Edit | `src/pages/OfferDetail.tsx` — DB query instead of mock lookup |
+| Edit | `src/components/ReferralWizard.tsx` — use offer.id directly |
+| Edit | `src/components/OfferCard.tsx` — logo rendering, import fix |
+| Edit | `src/pages/Browse.tsx` — import fix, empty state |
+| Edit | `src/pages/Index.tsx` — DB featured offers, fix city counts |
+| Edit | `src/components/CitySlots.tsx` — import fix |
+| Edit | `src/components/MapView.tsx` — import fix |
+| Edit | `src/pages/dashboard/CreateOffer.tsx` — import fix, soften wallet step |
+| Edit | `src/pages/dashboard/BusinessDashboard.tsx` — logo checklist, onboarding prompt |
+| Edit | `src/pages/dashboard/ProfileEdit.tsx` — business fields + logo upload |
+| Edit | `src/components/LeaderboardPreview.tsx` — transparency label |
+| Edit | `src/pages/Auth.tsx` — persist business metadata |
 
