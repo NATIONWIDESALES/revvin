@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, Wallet, CheckCircle2 } from "lucide-react";
-import { categories } from "@/data/mockOffers";
+import { categories } from "@/lib/offerUtils";
 import { motion } from "framer-motion";
 import { useWallet } from "@/contexts/WalletContext";
 
@@ -276,51 +276,23 @@ const CreateOffer = () => {
                     <Wallet className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-display text-base font-bold">Fund Your Revvin Wallet</h3>
-                    <p className="text-sm text-muted-foreground">Pre-fund your wallet so referrers see the "Funds Secured" badge on your offer.</p>
+                    <h3 className="font-display text-base font-bold">Wallet Funding</h3>
+                    <p className="text-sm text-muted-foreground">Wallet funding is optional at launch. You can add funds later to display the "Funds Secured" badge.</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mb-5">
-                  <div className="rounded-xl bg-muted/50 border border-border p-4 text-center">
-                    <p className="text-xs text-muted-foreground mb-1">Available Balance</p>
-                    <p className="font-display text-2xl font-bold text-foreground">${wallet.available.toLocaleString()}</p>
+                <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-foreground">
+                    <Shield className="h-4 w-4 text-primary shrink-0" />
+                    <span><strong>How it works:</strong> When you fund your wallet, referrers see a "Funds Secured" trust badge on your offer — increasing submissions.</span>
                   </div>
-                  <div className="rounded-xl bg-earnings/5 border border-earnings/20 p-4 text-center">
-                    <p className="text-xs text-muted-foreground mb-1">Covers Payouts</p>
-                    <p className="font-display text-2xl font-bold text-earnings">
-                      {payoutNum > 0 ? Math.floor(wallet.available / payoutNum) : "—"}
-                    </p>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-earnings shrink-0" />
+                    <span>Your offer will go live without funding. You can add funds from your dashboard at any time.</span>
                   </div>
                 </div>
 
-                <p className="text-sm font-medium text-foreground mb-3">Quick Add Funds</p>
-                <div className="grid grid-cols-4 gap-2 mb-4">
-                  {[250, 500, 1000, 2500].map((amt) => (
-                    <Button key={amt} type="button" variant="outline" className="font-bold" onClick={() => handleAddFunds(amt)}>
-                      +${amt.toLocaleString()}
-                    </Button>
-                  ))}
-                </div>
-
-                {fundSecured ? (
-                  <div className="flex items-center gap-2 text-sm text-earnings bg-earnings/5 border border-earnings/20 rounded-xl p-3">
-                    <CheckCircle2 className="h-4 w-4 shrink-0" />
-                    <span><strong>Funds Secured</strong> — your offer will display the trust badge to referrers.</span>
-                  </div>
-                ) : payoutNum > 0 ? (
-                  <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/5 border border-destructive/20 rounded-xl p-3">
-                    <Shield className="h-4 w-4 shrink-0" />
-                    <span>Add at least <strong>${payoutNum.toLocaleString()}</strong> to enable the "Funds Secured" badge.</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-xl p-3">
-                    <Shield className="h-4 w-4 shrink-0" />
-                    <span>Set a payout amount in a previous step to calculate required funding.</span>
-                  </div>
-                )}
-
-                <p className="text-xs text-muted-foreground mt-3">Processing fees may apply. Funds are held securely and only reserved when you accept a referral.</p>
+                <p className="text-xs text-muted-foreground mt-3">Wallet funding will be available from your dashboard after publishing.</p>
               </div>
             </motion.div>
           )}

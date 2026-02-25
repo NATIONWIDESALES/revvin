@@ -3,7 +3,7 @@ import { Offer } from "@/types/offer";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useCountry } from "@/contexts/CountryContext";
-import { cityJumpsCA, cityJumpsUS } from "@/data/mockOffers";
+import { cityJumpsCA, cityJumpsUS } from "@/lib/offerUtils";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 

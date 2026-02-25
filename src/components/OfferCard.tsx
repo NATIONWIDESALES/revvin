@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import QualificationTooltip from "@/components/QualificationTooltip";
 import OfferScoreBadge from "@/components/OfferScoreBadge";
 import { useCountry } from "@/contexts/CountryContext";
-import { calculateOfferScore } from "@/data/mockOffers";
+import { calculateOfferScore } from "@/lib/offerUtils";
 
 interface OfferCardProps {
   offer: Offer;
@@ -24,6 +24,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
   const { formatPayout } = useCountry();
   const countryFlag = offer.country === "CA" ? "🇨🇦" : "🇺🇸";
   const offerScore = calculateOfferScore(offer);
+  const isLogoUrl = offer.businessLogo.startsWith("http");
 
   return (
     <Link to={`/offer/${offer.id}`} className="group block">
@@ -31,8 +32,12 @@ const OfferCard = ({ offer }: OfferCardProps) => {
         {/* Header */}
         <div className="mb-4 flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-2xl shadow-sm">
-              {offer.businessLogo}
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-2xl shadow-sm overflow-hidden">
+              {isLogoUrl ? (
+                <img src={offer.businessLogo} alt={offer.business} className="h-full w-full object-cover" />
+              ) : (
+                offer.businessLogo
+              )}
             </div>
             <div>
               <h3 className="font-display text-base font-bold text-card-foreground group-hover:text-primary transition-colors">
