@@ -21,7 +21,7 @@ const Footer = () => {
         <div className="grid gap-10 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <img src={revvinLogo} alt="Revvin" className="h-8 w-8 rounded-lg object-contain" />
+              <img src={revvinLogo} alt="Revvin" className="h-10 w-10 object-contain" />
               <span className="font-display text-lg font-bold">Revvin</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
