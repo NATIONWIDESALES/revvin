@@ -7,7 +7,7 @@ import { Search, SlidersHorizontal, Map, List, Building2, ArrowRight, PlusCircle
 import OfferCard from "@/components/OfferCard";
 import MapView from "@/components/MapView";
 import SEOHead from "@/components/SEOHead";
-import { categories, calculateOfferScore } from "@/data/mockOffers";
+import { categories, calculateOfferScore } from "@/lib/offerUtils";
 import { useDbOffers } from "@/hooks/useDbOffers";
 import { Slider } from "@/components/ui/slider";
 import { motion } from "framer-motion";
@@ -264,11 +264,19 @@ const Browse = () => {
         ) : (
           <div className="rounded-2xl border border-border bg-card py-20 text-center">
             <Building2 className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
-            <p className="font-display text-lg font-semibold text-foreground">No offers match your filters</p>
-            <p className="mt-2 text-sm text-muted-foreground">Try adjusting your search, category, or filter criteria</p>
-            <Button variant="outline" className="mt-4" onClick={() => { setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]); setPayoutTypeFilter("all"); setRemoteOnly(false); setVerifiedOnly(false); setFundSecuredOnly(false); setCloseTimeFilter("all"); setStateFilter(""); setCityFilter(""); }}>
-              Clear All Filters
-            </Button>
+            <p className="font-display text-lg font-semibold text-foreground">
+              {allOffers.length === 0 ? "No offers yet — check back soon" : "No offers match your filters"}
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {allOffers.length === 0
+                ? "Businesses are being onboarded. New referral programs will appear here."
+                : "Try adjusting your search, category, or filter criteria"}
+            </p>
+            {allOffers.length > 0 && (
+              <Button variant="outline" className="mt-4" onClick={() => { setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]); setPayoutTypeFilter("all"); setRemoteOnly(false); setVerifiedOnly(false); setFundSecuredOnly(false); setCloseTimeFilter("all"); setStateFilter(""); setCityFilter(""); }}>
+                Clear All Filters
+              </Button>
+            )}
           </div>
         )}
 

@@ -55,11 +55,17 @@ const Auth = () => {
 
     try {
       if (mode === "signup") {
+        const metadata: Record<string, string> = { full_name: fullName, role };
+        if (role === "business") {
+          if (businessName) metadata.business_name = businessName;
+          if (industry) metadata.industry = industry;
+          if (serviceArea) metadata.service_area = serviceArea;
+        }
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { full_name: fullName, role },
+            data: metadata,
             emailRedirectTo: window.location.origin,
           },
         });

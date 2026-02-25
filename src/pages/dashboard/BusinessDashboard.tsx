@@ -161,10 +161,10 @@ const BusinessDashboard = () => {
 
   // Checklist items
   const checklistItems = [
-    { label: "Fund your wallet", done: wallet.totalFunded > 0, action: () => setShowAddFunds(true), actionLabel: "Add funds" },
+    { label: "Upload business logo", done: !!business?.logo_url, action: () => navigate("/dashboard/profile"), actionLabel: "Upload" },
     { label: "Create an offer", done: offers.length > 0, action: () => navigate("/dashboard/create-offer"), actionLabel: "Create" },
     { label: "Publish an offer", done: offers.some(o => o.status === "active"), action: undefined },
-    { label: "Accept a referral (reserve funds)", done: referrals.some(r => ["accepted", "contacted", "qualified", "won"].includes(r.status)), action: undefined },
+    { label: "Accept a referral", done: referrals.some(r => ["accepted", "contacted", "qualified", "won"].includes(r.status)), action: undefined },
     { label: "Mark closed & release payout", done: referrals.some(r => r.status === "won"), action: undefined },
   ];
 

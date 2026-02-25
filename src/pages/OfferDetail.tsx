@@ -1,15 +1,17 @@
 import { useParams, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Star, TrendingUp, Users, DollarSign, CheckCircle2, Clock, Shield, Briefcase, BadgeCheck, AlertTriangle, Scale, FileCheck } from "lucide-react";
-import { mockOffers } from "@/data/mockOffers";
-import { calculateOfferScore } from "@/data/mockOffers";
+import { ArrowLeft, MapPin, Star, TrendingUp, Users, DollarSign, CheckCircle2, Clock, Shield, Briefcase, BadgeCheck, AlertTriangle, Scale, FileCheck, Loader2 } from "lucide-react";
+import { calculateOfferScore } from "@/lib/offerUtils";
+import { supabase } from "@/integrations/supabase/client";
 import { useCountry } from "@/contexts/CountryContext";
 import { motion } from "framer-motion";
 import ShareOfferLink from "@/components/ShareOfferLink";
 import ReferralWizard from "@/components/ReferralWizard";
 import OfferScoreBadge from "@/components/OfferScoreBadge";
 import SEOHead from "@/components/SEOHead";
+import type { Offer } from "@/types/offer";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -21,8 +23,60 @@ const fadeUp = {
 
 const OfferDetail = () => {
   const { id } = useParams();
-  const offer = mockOffers.find((o) => o.id === id);
   const { formatPayout } = useCountry();
+
+  const { data: offer, isLoading, error } = useQuery({
+    queryKey: ["offer-detail", id],
+    queryFn: async (): Promise<Offer | null> => {
+      if (!id) return null;
+      const { data, error } = await supabase
+        .from("offers")
+        .select("*, businesses(name, logo_url, city, state, verified, latitude, longitude)")
+        .eq("id", id)
+        .single();
+
+      if (error || !data) return null;
+
+      const o: any = data;
+      return {
+        id: o.id,
+        title: o.title,
+        business: o.businesses?.name ?? "Business",
+        businessLogo: o.businesses?.logo_url ?? "🏢",
+        category: o.category,
+        description: o.description ?? "",
+        payout: Number(o.payout),
+        payoutType: o.payout_type as "flat" | "percentage",
+        currency: "USD" as const,
+        country: "US" as const,
+        location: o.location ?? `${o.businesses?.city ?? ""}, ${o.businesses?.state ?? ""}`,
+        state: o.businesses?.state ?? "",
+        city: o.businesses?.city ?? "",
+        rating: 4.5,
+        totalReferrals: 0,
+        successRate: 0,
+        featured: o.featured ?? false,
+        dealSizeMin: o.deal_size_min ? Number(o.deal_size_min) : undefined,
+        dealSizeMax: o.deal_size_max ? Number(o.deal_size_max) : undefined,
+        closeTimeDays: o.close_time_days ?? 30,
+        remoteEligible: o.remote_eligible ?? false,
+        latitude: o.businesses?.latitude ?? undefined,
+        longitude: o.businesses?.longitude ?? undefined,
+        qualificationRules: o.qualification_criteria ? [o.qualification_criteria] : undefined,
+        verified: o.businesses?.verified ?? false,
+        fundSecured: false,
+      };
+    },
+    enabled: !!id,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!offer) {
     return (
@@ -35,9 +89,7 @@ const OfferDetail = () => {
     );
   }
 
-  const handleFeedback = () => {
-    // placeholder feedback action
-  };
+  const isLogoUrl = offer.businessLogo.startsWith("http");
 
   const referrerEarns = offer.payoutType === "flat"
     ? Math.round(offer.payout * 0.9)
@@ -54,6 +106,7 @@ const OfferDetail = () => {
 
   const payoutTimelineLabel = offer.payoutTimeline === "net7" ? "Net 7" : offer.payoutTimeline === "net14" ? "Net 14" : offer.payoutTimeline === "net30" ? "Net 30" : `~${offer.closeTimeDays} days`;
   const offerScore = calculateOfferScore(offer);
+
   return (
     <div className="py-8">
       <SEOHead title={`${offer.title} — Earn ${offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`} per Referral`} description={`Refer customers to ${offer.business} and earn ${offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}. ${offer.description?.substring(0, 100) ?? ""}`} path={`/offer/${offer.id}`} />
@@ -72,8 +125,12 @@ const OfferDetail = () => {
           <motion.div initial="hidden" animate="visible" className="lg:col-span-3 space-y-8">
             {/* Header */}
             <motion.div variants={fadeUp} custom={0} className="flex items-start gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-3xl shadow-sm">
-                {offer.businessLogo}
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-3xl shadow-sm overflow-hidden">
+                {isLogoUrl ? (
+                  <img src={offer.businessLogo} alt={offer.business} className="h-full w-full object-cover" />
+                ) : (
+                  offer.businessLogo
+                )}
               </div>
               <div className="flex-1">
                 <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">{offer.title}</h1>
@@ -273,7 +330,6 @@ const OfferDetail = () => {
               <Button
                 variant="ghost"
                 className="text-sm text-muted-foreground hover:text-primary"
-                onClick={() => handleFeedback()}
               >
                 <Scale className="h-4 w-4 mr-1.5" /> Invite this business to improve their offer
               </Button>

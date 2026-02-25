@@ -57,6 +57,8 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
   const referrerEarns =
     offer.payoutType === "flat" ? Math.round(offer.payout * 0.9) : offer.payout;
 
+  const isLogoUrl = offer.businessLogo.startsWith("http");
+
   const goNext = () => {
     setDirection(1);
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
@@ -81,35 +83,15 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
     }
     setSubmitting(true);
     try {
-      let dbOfferId: string | null = null;
-      let dbBusinessId: string | null = null;
-
+      // Use the offer's real DB id directly — look up business_id from the offer
       const { data: dbOffer } = await supabase
         .from("offers")
         .select("id, business_id")
-        .eq("title", offer.title)
-        .eq("status", "active")
-        .limit(1)
+        .eq("id", offer.id)
         .maybeSingle();
 
-      if (dbOffer) {
-        dbOfferId = dbOffer.id;
-        dbBusinessId = dbOffer.business_id;
-      } else {
-        const { data: anyOffer } = await supabase
-          .from("offers")
-          .select("id, business_id")
-          .eq("status", "active")
-          .limit(1)
-          .maybeSingle();
-        if (anyOffer) {
-          dbOfferId = anyOffer.id;
-          dbBusinessId = anyOffer.business_id;
-        }
-      }
-
-      if (!dbOfferId || !dbBusinessId) {
-        toast({ title: "No active offers", description: "No active offers in the database yet.", variant: "destructive" });
+      if (!dbOffer) {
+        toast({ title: "Offer not found", description: "This offer is no longer available.", variant: "destructive" });
         setSubmitting(false);
         return;
       }
@@ -118,8 +100,8 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
         .from("referrals")
         .insert({
           referrer_id: user.id,
-          offer_id: dbOfferId,
-          business_id: dbBusinessId,
+          offer_id: dbOffer.id,
+          business_id: dbOffer.business_id,
           customer_name: formData.name,
           customer_email: formData.email || null,
           customer_phone: formData.phone || null,
@@ -133,7 +115,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
 
       setReferralId(inserted.id);
       setDirection(1);
-      setStep(4); // confirmation step
+      setStep(4);
       toast({ title: "Referral Submitted!", description: "Track this referral in your dashboard." });
     } catch (err: any) {
       toast({ title: "Submission failed", description: err.message || "Something went wrong.", variant: "destructive" });
@@ -202,8 +184,12 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
                 <h3 className="font-display font-semibold text-sm">Step 1: Confirm Offer</h3>
                 <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-xl">
-                      {offer.businessLogo}
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-xl overflow-hidden">
+                      {isLogoUrl ? (
+                        <img src={offer.businessLogo} alt={offer.business} className="h-full w-full object-cover" />
+                      ) : (
+                        offer.businessLogo
+                      )}
                     </div>
                     <div>
                       <p className="font-semibold text-sm">{offer.title}</p>
@@ -241,39 +227,19 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
                 <h3 className="font-display font-semibold text-sm">Step 2: Customer Information</h3>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium">Full Name *</label>
-                  <Input
-                    placeholder="Jane Smith"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
-                  />
+                  <Input placeholder="Jane Smith" required value={formData.name} onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))} />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium">Email *</label>
-                  <Input
-                    type="email"
-                    placeholder="jane@example.com"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData((f) => ({ ...f, email: e.target.value }))}
-                  />
+                  <Input type="email" placeholder="jane@example.com" required value={formData.email} onChange={(e) => setFormData((f) => ({ ...f, email: e.target.value }))} />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium">Phone</label>
-                  <Input
-                    type="tel"
-                    placeholder="(555) 123-4567"
-                    value={formData.phone}
-                    onChange={(e) => setFormData((f) => ({ ...f, phone: e.target.value }))}
-                  />
+                  <Input type="tel" placeholder="(555) 123-4567" value={formData.phone} onChange={(e) => setFormData((f) => ({ ...f, phone: e.target.value }))} />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium">Customer City</label>
-                  <Input
-                    placeholder="e.g. Vancouver"
-                    value={formData.city}
-                    onChange={(e) => setFormData((f) => ({ ...f, city: e.target.value }))}
-                  />
+                  <Input placeholder="e.g. Vancouver" value={formData.city} onChange={(e) => setFormData((f) => ({ ...f, city: e.target.value }))} />
                 </div>
               </div>
             )}
@@ -284,12 +250,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
                 <h3 className="font-display font-semibold text-sm">Step 3: Notes & Attachments</h3>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium">Context & Notes</label>
-                  <Textarea
-                    placeholder="Why is this a good fit? Any context that helps the business..."
-                    rows={4}
-                    value={formData.notes}
-                    onChange={(e) => setFormData((f) => ({ ...f, notes: e.target.value }))}
-                  />
+                  <Textarea placeholder="Why is this a good fit? Any context that helps the business..." rows={4} value={formData.notes} onChange={(e) => setFormData((f) => ({ ...f, notes: e.target.value }))} />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium">Attachments (optional)</label>
@@ -310,23 +271,13 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
                 <h3 className="font-display font-semibold text-sm">Step 4: Consent & Terms</h3>
                 <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-4">
                   <div className="flex items-start gap-2.5">
-                    <Checkbox
-                      id="consent-wizard"
-                      checked={consent}
-                      onCheckedChange={(v) => setConsent(v === true)}
-                      className="mt-0.5"
-                    />
+                    <Checkbox id="consent-wizard" checked={consent} onCheckedChange={(v) => setConsent(v === true)} className="mt-0.5" />
                     <label htmlFor="consent-wizard" className="text-xs text-muted-foreground cursor-pointer leading-relaxed">
                       I confirm the customer has <strong>consented to being contacted</strong> about this service and that I have permission to share their contact information.
                     </label>
                   </div>
                   <div className="flex items-start gap-2.5">
-                    <Checkbox
-                      id="terms-wizard"
-                      checked={termsAck}
-                      onCheckedChange={(v) => setTermsAck(v === true)}
-                      className="mt-0.5"
-                    />
+                    <Checkbox id="terms-wizard" checked={termsAck} onCheckedChange={(v) => setTermsAck(v === true)} className="mt-0.5" />
                     <label htmlFor="terms-wizard" className="text-xs text-muted-foreground cursor-pointer leading-relaxed">
                       I acknowledge the <strong>referral terms</strong>, including the duplicate lead policy (first accepted submission wins) and that payouts are subject to deal verification.
                     </label>
@@ -355,7 +306,6 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
                   <p className="text-[10px] text-muted-foreground">Referral ID</p>
                   <p className="font-mono text-xs font-bold">{referralId.slice(0, 8).toUpperCase()}</p>
                 </div>
-                {/* Tracking preview */}
                 <div className="rounded-xl border border-border bg-muted/30 p-4 text-left">
                   <p className="text-xs font-medium text-muted-foreground mb-3">Referral Tracking</p>
                   <div className="space-y-2">
@@ -400,6 +350,13 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           )}
         </div>
       )}
+
+      {/* Legal link */}
+      <div className="px-5 pb-4 text-center">
+        <Link to="/referral-agreement" className="text-[10px] text-muted-foreground underline hover:text-foreground">
+          View Referral Agreement & Terms
+        </Link>
+      </div>
     </div>
   );
 };

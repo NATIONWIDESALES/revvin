@@ -6,12 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, User, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, User, Save, Loader2, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import BusinessLogoUpload from "@/components/BusinessLogoUpload";
 
 const ProfileEdit = () => {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -23,6 +24,16 @@ const ProfileEdit = () => {
     bio: "",
     avatar_url: "",
   });
+  const [bizForm, setBizForm] = useState({
+    name: "",
+    website: "",
+    description: "",
+    industry: "",
+    city: "",
+  });
+  const [business, setBusiness] = useState<any>(null);
+
+  const isBusiness = userRole === "business";
 
   useEffect(() => {
     if (!user) return;
@@ -42,10 +53,29 @@ const ProfileEdit = () => {
           avatar_url: data.avatar_url ?? "",
         });
       }
+
+      if (isBusiness) {
+        const { data: biz } = await supabase
+          .from("businesses")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (biz) {
+          setBusiness(biz);
+          setBizForm({
+            name: biz.name ?? "",
+            website: biz.website ?? "",
+            description: biz.description ?? "",
+            industry: biz.industry ?? "",
+            city: biz.city ?? "",
+          });
+        }
+      }
+
       setLoading(false);
     };
     load();
-  }, [user]);
+  }, [user, isBusiness]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +94,19 @@ const ProfileEdit = () => {
       })
       .eq("user_id", user.id);
 
+    if (isBusiness && business) {
+      await supabase
+        .from("businesses")
+        .update({
+          name: bizForm.name || business.name,
+          website: bizForm.website || null,
+          description: bizForm.description || null,
+          industry: bizForm.industry || null,
+          city: bizForm.city || null,
+        })
+        .eq("id", business.id);
+    }
+
     setSaving(false);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -73,6 +116,7 @@ const ProfileEdit = () => {
   };
 
   const update = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }));
+  const updateBiz = (key: string, value: string) => setBizForm((f) => ({ ...f, [key]: value }));
 
   if (loading) {
     return (
@@ -136,6 +180,57 @@ const ProfileEdit = () => {
                 <Textarea value={form.bio} onChange={(e) => update("bio", e.target.value)} placeholder="Tell us about yourself..." rows={3} className="mt-1" />
               </div>
             </div>
+
+            {/* Business-specific fields */}
+            {isBusiness && business && (
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  <h2 className="font-display text-lg font-bold">Business Information</h2>
+                </div>
+
+                <div>
+                  <Label>Business Logo</Label>
+                  <div className="mt-2">
+                    <BusinessLogoUpload
+                      currentLogoUrl={business.logo_url}
+                      businessId={business.id}
+                      onUploaded={(url) => setBusiness((b: any) => ({ ...b, logo_url: url }))}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Business Name</Label>
+                  <Input value={bizForm.name} onChange={(e) => updateBiz("name", e.target.value)} placeholder="Acme Corp" className="mt-1" />
+                </div>
+
+                <div>
+                  <Label>Website</Label>
+                  <Input value={bizForm.website} onChange={(e) => updateBiz("website", e.target.value)} placeholder="https://..." className="mt-1" />
+                </div>
+
+                <div>
+                  <Label>Industry</Label>
+                  <select value={bizForm.industry} onChange={(e) => updateBiz("industry", e.target.value)} className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+                    <option value="">Select industry...</option>
+                    {["Energy", "Insurance", "SaaS", "Services", "Real Estate", "Technology", "Roofing", "Landscaping", "Finance", "Plumbing", "Legal", "HVAC", "Paving", "Other"].map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <Label>Service Area</Label>
+                  <Input value={bizForm.city} onChange={(e) => updateBiz("city", e.target.value)} placeholder="e.g. Metro Vancouver, BC" className="mt-1" />
+                </div>
+
+                <div>
+                  <Label>Description</Label>
+                  <Textarea value={bizForm.description} onChange={(e) => updateBiz("description", e.target.value)} placeholder="Tell potential referrers about your business..." rows={3} className="mt-1" />
+                </div>
+              </div>
+            )}
 
             <Button type="submit" size="lg" className="w-full gap-2" disabled={saving}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}

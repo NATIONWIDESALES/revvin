@@ -1,4 +1,4 @@
-import { Trophy, TrendingUp } from "lucide-react";
+import { Trophy, TrendingUp, Info } from "lucide-react";
 
 const placeholderEntries = [
   { rank: 1, name: "Sarah M.", earnings: "$12,450", city: "Austin" },
@@ -15,9 +15,13 @@ interface LeaderboardPreviewProps {
 const LeaderboardPreview = ({ city = "Your City" }: LeaderboardPreviewProps) => {
   return (
     <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-      <h2 className="font-display text-lg font-bold mb-4 flex items-center gap-2">
+      <h2 className="font-display text-lg font-bold mb-1 flex items-center gap-2">
         <Trophy className="h-5 w-5 text-accent" /> Top Earners in {city}
       </h2>
+      <div className="flex items-center gap-1.5 mb-4">
+        <Info className="h-3 w-3 text-muted-foreground" />
+        <span className="text-[10px] text-muted-foreground font-medium">Example leaderboard — coming soon</span>
+      </div>
       <div className="space-y-3">
         {placeholderEntries.map((entry) => (
           <div key={entry.rank} className="flex items-center gap-3">

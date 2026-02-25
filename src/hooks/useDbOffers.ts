@@ -1,11 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { mockOffers } from "@/data/mockOffers";
 import type { Offer } from "@/types/offer";
 
 /**
- * Fetches real offers from DB and merges with mock data as fallback.
- * DB offers take precedence (shown first), then mock data fills in.
+ * Fetches real offers from DB. Returns empty array when no offers exist.
  */
 export function useDbOffers() {
   return useQuery({
@@ -18,13 +16,11 @@ export function useDbOffers() {
         .order("featured", { ascending: false })
         .order("created_at", { ascending: false });
 
-      if (error || !dbOffers || dbOffers.length === 0) {
-        // Fall back to mock data when no real offers exist
-        return mockOffers;
+      if (error || !dbOffers) {
+        return [];
       }
 
-      // Transform DB offers to the Offer shape
-      const realOffers: Offer[] = dbOffers.map((o: any) => ({
+      return dbOffers.map((o: any) => ({
         id: o.id,
         title: o.title,
         business: o.businesses?.name ?? "Business",
@@ -52,9 +48,6 @@ export function useDbOffers() {
         verified: o.businesses?.verified ?? false,
         fundSecured: false,
       }));
-
-      // Merge: real offers first, then mock data
-      return [...realOffers, ...mockOffers];
     },
     staleTime: 30_000,
   });

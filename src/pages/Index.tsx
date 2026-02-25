@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import OfferCard from "@/components/OfferCard";
 import SEOHead from "@/components/SEOHead";
 import CitySlots from "@/components/CitySlots";
-import { mockOffers, cityJumpsCA, cityJumpsUS } from "@/data/mockOffers";
+import { cityJumpsCA, cityJumpsUS } from "@/lib/offerUtils";
+import { useDbOffers } from "@/hooks/useDbOffers";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import heroBg from "@/assets/hero-bg.jpg";
 
@@ -71,7 +72,8 @@ const formatNumber = (n: number) => {
 };
 
 const Index = () => {
-  const featured = mockOffers.filter((o) => o.featured).slice(0, 4);
+  const { data: allOffers = [] } = useDbOffers();
+  const featured = allOffers.filter((o) => o.featured).slice(0, 4);
   const { data: stats } = usePlatformStats();
 
   // Show real stats only — no fake inflated numbers
@@ -202,7 +204,7 @@ const Index = () => {
                 { icon: BadgeCheck, label: "Verified Businesses" },
                 { icon: Scale, label: "Dispute Resolution" },
                 { icon: FileCheck, label: "PIPEDA & CCPA Compliant" },
-              ].map((badge, i) => (
+              ].map((badge) => (
                 <div key={badge.label} className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground shadow-sm">
                   <badge.icon className="h-3.5 w-3.5 text-primary" />
                   {badge.label}
@@ -289,7 +291,7 @@ const Index = () => {
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">🇨🇦 Canada</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {cityJumpsCA.map((city) => {
-                    const count = mockOffers.filter(o => o.city === city.label || o.location.includes(city.label)).length;
+                    const count = allOffers.filter(o => o.city === city.label || o.location.includes(city.label)).length;
                     return (
                       <Link key={city.label} to={`/browse`} className="group rounded-xl border border-border bg-card p-4 text-center transition-all hover:shadow-md hover:-translate-y-0.5">
                         <p className="font-display text-sm font-bold group-hover:text-primary transition-colors">{city.label}</p>
@@ -303,7 +305,7 @@ const Index = () => {
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">🇺🇸 United States</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {cityJumpsUS.map((city) => {
-                    const count = mockOffers.filter(o => o.city === city.label || o.location.includes(city.label)).length;
+                    const count = allOffers.filter(o => o.city === city.label || o.location.includes(city.label)).length;
                     return (
                       <Link key={city.label} to={`/browse`} className="group rounded-xl border border-border bg-card p-4 text-center transition-all hover:shadow-md hover:-translate-y-0.5">
                         <p className="font-display text-sm font-bold group-hover:text-primary transition-colors">{city.label}</p>
@@ -495,33 +497,35 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Offers */}
-      <section className="border-y border-border bg-muted/30 py-24">
-        <div className="container">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-            <motion.div variants={fadeUp} custom={0} className="mb-12 flex items-end justify-between">
-              <div>
-                <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">Live Opportunities</p>
-                <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Featured Referral Programs</h2>
-                <p className="mt-2 text-muted-foreground">High-paying programs from verified businesses</p>
+      {/* Featured Offers — only shown if real offers exist */}
+      {featured.length > 0 && (
+        <section className="border-y border-border bg-muted/30 py-24">
+          <div className="container">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+              <motion.div variants={fadeUp} custom={0} className="mb-12 flex items-end justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">Live Opportunities</p>
+                  <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Featured Referral Programs</h2>
+                  <p className="mt-2 text-muted-foreground">High-paying programs from verified businesses</p>
+                </div>
+                <Button variant="outline" className="hidden gap-2 md:flex" asChild>
+                  <Link to="/browse">View All Opportunities <ArrowRight className="h-4 w-4" /></Link>
+                </Button>
+              </motion.div>
+              <motion.div variants={fadeUp} custom={1} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                {featured.map((offer) => (
+                  <OfferCard key={offer.id} offer={offer} />
+                ))}
+              </motion.div>
+              <div className="mt-8 text-center md:hidden">
+                <Button variant="outline" className="gap-2" asChild>
+                  <Link to="/browse">View All Opportunities <ArrowRight className="h-4 w-4" /></Link>
+                </Button>
               </div>
-              <Button variant="outline" className="hidden gap-2 md:flex" asChild>
-                <Link to="/browse">View All Opportunities <ArrowRight className="h-4 w-4" /></Link>
-              </Button>
             </motion.div>
-            <motion.div variants={fadeUp} custom={1} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {featured.map((offer) => (
-                <OfferCard key={offer.id} offer={offer} />
-              ))}
-            </motion.div>
-            <div className="mt-8 text-center md:hidden">
-              <Button variant="outline" className="gap-2" asChild>
-                <Link to="/browse">View All Opportunities <ArrowRight className="h-4 w-4" /></Link>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* Trust & Credibility Layer */}
       <section className="py-24">

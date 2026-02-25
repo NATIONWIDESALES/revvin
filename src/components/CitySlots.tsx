@@ -1,6 +1,7 @@
 import { MapPin, BadgeCheck, ArrowRight } from "lucide-react";
-import { getCitySlots } from "@/data/mockOffers";
+import { getCitySlots } from "@/lib/offerUtils";
 import { useCountry } from "@/contexts/CountryContext";
+import { useDbOffers } from "@/hooks/useDbOffers";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -11,9 +12,12 @@ interface CitySlotsProps {
 
 const CitySlots = ({ maxDisplay = 6, showApplyButton = false }: CitySlotsProps) => {
   const { country } = useCountry();
-  const allSlots = getCitySlots();
+  const { data: offers = [] } = useDbOffers();
+  const allSlots = getCitySlots(offers);
   const filtered = country === "ALL" ? allSlots : allSlots.filter(s => s.country === country);
   const display = filtered.slice(0, maxDisplay);
+
+  if (display.length === 0) return null;
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
