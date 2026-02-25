@@ -1,97 +1,249 @@
 
 
-# Plan: Production-Ready Cleanup & Business Onboarding
+# Plan: Production-Ready Revvin -- No Stripe, Manual Payouts, Multi-Tenant, Full RBAC
 
 ## Summary
 
-Remove mock data from functional app flows (Browse, OfferDetail, ReferralWizard), keep landing page illustrative examples, add business logo upload during onboarding, and polish key areas for real customer use.
+This plan transforms Revvin from a prototype with wallet/escrow/Stripe dependencies into a production-ready, multi-tenant referral marketplace with manual payout operations, server-enforced access control, audit logging, duplicate prevention, in-app notifications, and regulated category gating. Every change below serves one of the 10 goals in the user's specification.
 
 ---
 
 ## Technical Details
 
-### 1. Remove Mock Data from App Flows
+### Phase 1: Database Migrations
 
-**Files affected:** `useDbOffers.ts`, `OfferDetail.tsx`, `ReferralWizard.tsx`, `OfferCard.tsx`, `Browse.tsx`
+A single migration covering all new tables + schema changes:
 
-- **`useDbOffers.ts`**: Remove `mockOffers` import. When DB returns zero offers, return empty array instead of mock fallback. Remove the `[...realOffers, ...mockOffers]` merge — return only `realOffers`.
-- **`OfferDetail.tsx`**: Replace `mockOffers.find(id)` with a Supabase query: `supabase.from("offers").select("*, businesses(*)").eq("id", id).single()`. Add loading/error states. Transform DB result to `Offer` type using the same mapping logic from `useDbOffers.ts`.
-- **`ReferralWizard.tsx`**: Currently does a fragile title-match lookup (lines 87-109). Since OfferDetail will now pass a real DB offer with a real UUID `id`, update the wizard to use `offer.id` directly as `offer_id` and look up `business_id` from the offer record, eliminating the title-match fallback.
-- **`OfferCard.tsx`**: Move `calculateOfferScore` out of `mockOffers.ts` into a standalone utility (e.g., `src/lib/offerScore.ts`) so it doesn't import from mock data.
-- **`Browse.tsx`**: Import `categories` and `calculateOfferScore` from the new utility instead of `mockOffers.ts`. Show an empty state when no DB offers exist.
+**New tables:**
 
-### 2. Extract Utilities from mockOffers.ts
+1. **`organizations`** -- Multi-tenant anchor entity
+   - `id uuid PK`, `name text NOT NULL`, `logo_url text`, `website text`, `industry text`, `description text`, `city text`, `state text`, `country text DEFAULT 'US'`, `verified boolean DEFAULT false`, `created_at timestamptz DEFAULT now()`, `updated_at timestamptz DEFAULT now()`
+   - This replaces the current `businesses` table's role as the tenancy anchor. We keep `businesses` as-is but add an `organization_id` FK to it, OR we rename businesses to organizations. **Decision: rename `businesses` to avoid breaking too much. Instead, add `organization_id uuid REFERENCES organizations(id)` to `businesses`, `offers`, and `referrals`.** Actually -- to minimize migration complexity and maximize alignment, the simplest approach: **treat `businesses` as the Organization**. Each business IS the org. No new table needed. The existing `businesses` table already has `user_id`, `name`, `logo_url`, `industry`, `city`, `state`, etc. RLS already scopes by `user_id`. We just need to ensure `offers.business_id` and `referrals.business_id` FK properly, and add the new columns/tables below.
 
-**New file:** `src/lib/offerUtils.ts`
+   **Final decision: `businesses` IS the org. No separate `organizations` table.** The `businesses` table already enforces tenant isolation via RLS (`user_id = auth.uid()`). Offers and referrals are scoped by `business_id`.
 
-Move these exports out of `mockOffers.ts` into a standalone utility:
-- `categories` array
-- `calculateOfferScore()` function
-- `getCitySlots()` — refactor to accept offers as a parameter instead of reading from `mockOffers`
-- `cityJumpsCA`, `cityJumpsUS` arrays
+2. **`payouts`** -- Manual payout tracking for admin
+   - `id uuid PK DEFAULT gen_random_uuid()`
+   - `referral_id uuid NOT NULL` (FK to referrals)
+   - `business_id uuid NOT NULL` (FK to businesses -- the org)
+   - `referrer_id uuid NOT NULL`
+   - `amount numeric NOT NULL`
+   - `platform_fee numeric NOT NULL DEFAULT 0`
+   - `currency text NOT NULL DEFAULT 'USD'`
+   - `status text NOT NULL DEFAULT 'ready'` -- ready, processing, paid, failed, canceled
+   - `method text` -- 'tremendous', 'manual', 'interac', 'ach', etc.
+   - `provider_reference text` -- external ID from Tremendous or other
+   - `paid_at timestamptz`
+   - `processed_by uuid` -- admin user who processed
+   - `notes text`
+   - `created_at timestamptz DEFAULT now()`
+   - `updated_at timestamptz DEFAULT now()`
+   - RLS: admin can SELECT/UPDATE all; referrers can SELECT own (`referrer_id = auth.uid()`); business owners can SELECT for their business
 
-Update all imports across: `Browse.tsx`, `OfferCard.tsx`, `CitySlots.tsx`, `MapView.tsx`, `CreateOffer.tsx`.
+3. **`audit_log`** -- Immutable event log
+   - `id uuid PK DEFAULT gen_random_uuid()`
+   - `referral_id uuid` -- nullable, for non-referral events
+   - `actor_id uuid NOT NULL`
+   - `event_type text NOT NULL` -- 'referral_submitted', 'referral_accepted', 'referral_declined', 'referral_won', 'referral_lost', 'referral_voided', 'payout_created', 'payout_processing', 'payout_paid', 'payout_failed', 'business_verified', 'offer_published', 'offer_paused', etc.
+   - `payload jsonb` -- optional metadata (notes, old/new status, etc.)
+   - `created_at timestamptz DEFAULT now()`
+   - RLS: admin can SELECT all; business can SELECT where referral belongs to them; referrer can SELECT where referral belongs to them. INSERT via security definer function only.
 
-### 3. Keep Landing Page Mock Examples
+4. **`notifications`** -- In-app notification system
+   - `id uuid PK DEFAULT gen_random_uuid()`
+   - `user_id uuid NOT NULL`
+   - `title text NOT NULL`
+   - `body text`
+   - `type text NOT NULL` -- 'referral_submitted', 'referral_accepted', 'referral_declined', 'referral_won', 'referral_lost', 'payout_ready', etc.
+   - `read boolean DEFAULT false`
+   - `referral_id uuid` -- optional link
+   - `created_at timestamptz DEFAULT now()`
+   - RLS: users can SELECT/UPDATE own (`user_id = auth.uid()`). INSERT via security definer function.
 
-**`Index.tsx`**: Keep the `scenarios` array (illustrative examples) and the "Featured Cities" section. However:
-- Replace `mockOffers.filter(o => o.featured)` for the "Featured Offers" section with a DB query using `useDbOffers` — show real featured offers, or hide the section if none exist.
-- For city counts in the "Featured Cities" section, use DB offer counts instead of mock counts (query from `useDbOffers` data).
+5. **`referrer_payout_preferences`** -- Store-only payout info
+   - `id uuid PK DEFAULT gen_random_uuid()`
+   - `user_id uuid NOT NULL UNIQUE`
+   - `method text` -- 'interac', 'ach', 'eft'
+   - `email text` -- payout email
+   - `notes text`
+   - `created_at timestamptz DEFAULT now()`
+   - `updated_at timestamptz DEFAULT now()`
+   - RLS: users can CRUD own
 
-**`LeaderboardPreview.tsx`**: Keep placeholder entries but add a note label "Example leaderboard — coming soon" to be transparent.
+**Schema changes to existing tables:**
 
-### 4. Business Logo Upload on Onboarding
+- **`referrals`**: Add columns:
+  - `payout_snapshot numeric` -- frozen payout at time of acceptance
+  - `payout_type_snapshot text` -- frozen payout type
+  - `void_reason text` -- if voided
+  - Add `void` to valid status values (currently no enum constraint, just text)
+  
+- **`offers`**: Add column:
+  - `restricted boolean DEFAULT false` -- admin-set flag for regulated categories
+  - `approval_status text DEFAULT 'approved'` -- 'pending_approval', 'approved', 'rejected'
 
-**Database migration:**
-```sql
-INSERT INTO storage.buckets (id, name, public) VALUES ('business-logos', 'business-logos', true);
+**Database functions:**
 
-CREATE POLICY "Anyone can view logos" ON storage.objects FOR SELECT USING (bucket_id = 'business-logos');
-CREATE POLICY "Business owners upload logos" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'business-logos' AND auth.uid()::text = (storage.fspath(name))[1]);
-CREATE POLICY "Business owners update logos" ON storage.objects FOR UPDATE USING (bucket_id = 'business-logos' AND auth.uid()::text = (storage.fspath(name))[1]);
-CREATE POLICY "Business owners delete logos" ON storage.objects FOR DELETE USING (bucket_id = 'business-logos' AND auth.uid()::text = (storage.fspath(name))[1]);
-```
+- `fn_create_audit_entry(referral_id uuid, actor_id uuid, event_type text, payload jsonb)` -- SECURITY DEFINER, inserts into audit_log
+- `fn_create_notification(user_id uuid, title text, body text, type text, referral_id uuid)` -- SECURITY DEFINER, inserts into notifications
+- `fn_check_duplicate_referral(p_offer_id uuid, p_business_id uuid, p_email text, p_phone text, p_window_days int DEFAULT 90)` -- returns boolean, checks for existing referral within window
 
-**New component:** `src/components/BusinessLogoUpload.tsx`
-- File input with drag-and-drop zone
-- Upload to `business-logos/{user_id}/logo.{ext}` using Supabase Storage
-- Update `businesses.logo_url` with the public URL on successful upload
-- Show preview of uploaded logo
+**Restricted categories list** stored as a simple check in the offer creation flow. Categories like 'Finance', 'Insurance', 'Legal', 'Medical' will trigger `approval_status = 'pending_approval'` instead of going live immediately.
 
-**Onboarding prompt flow:**
-- After a business user signs up and lands on `BusinessDashboard.tsx` for the first time, check if `business.logo_url` is null
-- If no logo, show a prominent card/modal: "Welcome! Upload your business logo — it'll appear on your marketplace listing"
-- Include the `BusinessLogoUpload` component
-- Allow skipping, but nudge via the existing `DashboardChecklist`
+### Phase 2: Remove Stripe + Wallet Completely
 
-**Update `DashboardChecklist`** in `BusinessDashboard.tsx`:
-- Add a new checklist item: "Upload business logo" with `done: !!business?.logo_url`
+**Delete files:**
+- `supabase/functions/create-wallet-checkout/index.ts`
+- `src/contexts/WalletContext.tsx`
+- `src/components/AddFundsModal.tsx`
+- `src/pages/PaymentSuccess.tsx`
 
-### 5. Update Offer Display to Use Real Logos
+**Edit files to remove wallet/Stripe references:**
 
-- In `useDbOffers.ts` offer mapping, use `businesses.logo_url` for the `businessLogo` field. If it's a URL (starts with `http`), render as `<img>` in `OfferCard.tsx` and `OfferDetail.tsx` instead of emoji.
-- Update `OfferCard.tsx`: Check if `businessLogo` is a URL — if so, render `<img>` with rounded styling; otherwise render the emoji as before.
-- Same update in `OfferDetail.tsx` header section.
+- **`src/App.tsx`**: Remove `WalletProvider` wrapper, remove `PaymentSuccess` route import/route
+- **`src/pages/dashboard/BusinessDashboard.tsx`**: Remove `useWallet` import, remove entire wallet section (lines ~201-251), remove `AddFundsModal`, remove `canCoverPayout`/`reserveFunds`/`releasePayout`/`refundReserve` calls from accept/won/lost handlers. Replace with: accept just updates status + creates audit entry + creates notification; won creates payout record; lost just updates status
+- **`src/pages/dashboard/CreateOffer.tsx`**: Remove `useWallet` import, remove step 4 wallet content, replace with informational step: "You set the payout amount. When a deal closes, Revvin verifies and handles payout to the referrer." Change step labels from 5 to 4 steps (merge/remove wallet step). Remove `fundSecured` variable and `handleAddFunds`.
+- **`src/components/BoostOfferPanel.tsx`**: Remove "Stripe-ready" text
+- **`src/components/PayoutMethodSetup.tsx`**: Remove "Powered by Stripe" text, update to save to `referrer_payout_preferences` table
+- **`src/pages/ForBusinesses.tsx`**: Remove "Powered by Stripe" line, replace "Fund Your Wallet" step with "Set Your Payout", replace escrow language
+- **`src/pages/ForReferrers.tsx`**: Remove "Powered by Stripe" line, remove "Funds Secured" trust item, replace escrow language
+- **`src/types/offer.ts`**: Remove `WalletTransaction`, `WalletState` interfaces, remove `fundSecured` from `Offer`
 
-### 6. Remove Wallet Funding Requirement from CreateOffer
+### Phase 3: Truthful Product Language
 
-Since customers won't fund accounts initially:
-- In `CreateOffer.tsx` step 4 (Fund Wallet), change to an informational step: "Wallet funding is optional at launch. You can add funds later to display the 'Funds Secured' badge."
-- Keep the step visible but make it non-blocking — the "Next" button always enabled on step 4.
-- Remove the `addFunds` quick-add buttons that simulate funding (or keep them but label clearly as "Coming soon").
+Global find-and-replace across all files:
 
-### 7. Polish Areas
+| Old language | New language |
+|---|---|
+| "escrow", "escrowed", "escrow protected" | "verified close" or remove |
+| "funds reserved", "Funds Secured" | "Verified Business" or remove badge |
+| "pre-funded wallet", "wallet" (as product feature) | remove or "payout amount" |
+| "locked funds" | remove |
+| "Reserved (Escrow)" | "Accepted" |
+| "Closed — Paid" | "Closed / Won" |
 
-**`ProfileEdit.tsx` for businesses:**
-- Add business-specific fields when the user role is `business`: Business Name, Website, Description, Industry, Service Area
-- Load from `businesses` table, save back to `businesses` table
-- Include the `BusinessLogoUpload` component here as well
+**Specific file changes:**
 
-**`Auth.tsx` business signup step 2:**
-- The business name, industry, and service area collected in step 2 are currently NOT persisted to the `businesses` table (they're captured in local state but never saved). Fix: after successful signup, the `handle_new_user` trigger creates the business record with a default name. Update the trigger or add a post-signup update to store industry and service area (via the auth metadata → trigger reads it).
+- **`src/pages/TrustCenter.tsx`**: Complete rewrite of the "How Funds Secured Works" section. Replace wallet/escrow flow with:
+  1. Business publishes offer with payout amount
+  2. Referrer submits lead
+  3. Business accepts, reviews, works the deal
+  4. Deal closes → Revvin verifies → payout processed
+  
+  Add early access statement: "During early access, payouts are processed by Revvin after a verified close."
 
-**`LeaderboardPreview.tsx`:**
-- Add "Example data" label to be transparent about placeholder nature.
+- **`src/pages/Index.tsx`**: 
+  - Update scenario #4 (escrow language) to truthful payout language
+  - Remove "Escrow Protected" from trust badges, replace with "Verified Payouts"
+  - Update 3-step explainer step 1 from "Business Funds Wallet" to "Business Posts Offer"
+  - Update step 3 from "Funds Reserved → Close → Payout" to "Accept → Work Deal → Close → Payout"
+
+- **`src/pages/HowItWorks.tsx`**: Update any escrow/wallet references in step descriptions
+
+- **`src/components/ReferralWizard.tsx`**: Remove `fundSecured` badge display (line 213-218)
+
+- **`src/pages/OfferDetail.tsx`**: Remove `fundSecured` badge, remove "Funds Secured — this payout is backed by the business's pre-funded Revvin Wallet" text (line 256-260), update `fundSecured: false` removal since the field won't exist
+
+- **`src/components/OfferCard.tsx`**: Remove `fundSecured` badge rendering
+
+- **`src/hooks/useDbOffers.ts`**: Remove `fundSecured` field from offer mapping
+
+- **`src/lib/offerUtils.ts`**: Remove `fundSecuredScore` from `calculateOfferScore` (was 30 points). Redistribute: verification 30, payout 30, speed 25, close time 15.
+
+- **`src/components/OfferScoreBadge.tsx`**: Update import from `@/data/mockOffers` to `@/lib/offerUtils`, remove "Funds Secured" row from tooltip
+
+- **`src/pages/dashboard/ReferrerDashboard.tsx`**: Change "Funds Reserved" status label to "Accepted", remove "Reserved (Escrowed)" stat, simplify earnings display
+
+### Phase 4: Business Dashboard Refactor (No Wallet, Payout Records)
+
+**`src/pages/dashboard/BusinessDashboard.tsx`**:
+
+- Remove wallet section entirely
+- `handleAccept`: just update status to "accepted", snapshot payout terms onto referral (`payout_snapshot`, `payout_type_snapshot`), create audit log entry, create notification for referrer
+- `handleWon`: update status to "won", INSERT into `payouts` table with status "ready", create audit log entry, create notification for referrer + admin
+- `handleLost`: update status to "lost", create audit log entry, create notification for referrer
+- Remove `canCoverPayout` checks
+- Update status labels: "Accepted (Reserved)" → "Accepted"
+- Update toast messages to remove escrow language
+- Add "void" capability with reason
+
+### Phase 5: Admin Dashboard Refactor (Real Data, Payout Queue, Audit Log)
+
+**`src/pages/dashboard/AdminDashboard.tsx`**:
+
+- Remove `mockDisputes` and `mockAuditLog` -- replace with real DB queries
+- **Payout Queue tab**: Query `payouts` table, show status pipeline (ready → processing → paid/failed/canceled). For each payout:
+  - Show referral details, amount, referrer name
+  - Actions: "Start Processing" (→ processing), "Mark Paid" (prompt for method + provider reference + timestamp), "Mark Failed", "Cancel"
+  - Each action inserts audit log entry
+- **Audit Log tab**: Query `audit_log` table, show real events with actor, event type, timestamp, payload
+- **Disputes tab**: Keep the UI structure but wire to real data when disputes table is added (for now, show empty state "No disputes" instead of mock data)
+- **Verification tab**: Actually persist `verified` status to DB when admin clicks Verify (currently only updates local state)
+- **Offer Management**: Actually persist status changes, check for restricted categories needing approval
+
+### Phase 6: Referrer Dashboard Updates
+
+**`src/pages/dashboard/ReferrerDashboard.tsx`**:
+
+- Remove "Reserved (Escrowed)" stat, replace with "Accepted" stat
+- Show payout status from `payouts` table: pending → processing → paid
+- Remove wallet-related imports
+- Update `PayoutMethodSetup` to save to `referrer_payout_preferences` table
+
+### Phase 7: Duplicate Prevention (Server-Side)
+
+- Create `fn_check_duplicate_referral` database function
+- **`src/components/ReferralWizard.tsx`**: Before inserting referral, call the duplicate check function via RPC. If duplicate found, show error: "This person has already been referred for this offer."
+- The function checks: within same `business_id` + `offer_id`, matching `customer_email` OR `customer_phone`, within 90 days, where status is NOT 'declined' or 'void'
+
+### Phase 8: Audit Logging
+
+- Create `fn_create_audit_entry` security definer function
+- Call it from every status change in BusinessDashboard, AdminDashboard
+- ReferralWizard calls it on submission
+- Admin payout actions call it
+
+### Phase 9: In-App Notifications
+
+**New component: `src/components/NotificationBell.tsx`**
+- Bell icon in Navbar with unread count badge
+- Dropdown showing recent notifications
+- Click marks as read
+- Query `notifications` table for current user
+
+**`src/components/Navbar.tsx`**: Add NotificationBell for authenticated users
+
+**Notification triggers** (called via `fn_create_notification`):
+- Business: "New referral submitted for [offer title]"
+- Referrer: "Your referral to [business] was accepted/declined/won/lost"
+- Admin: "Payout ready for review: $X for [referrer name]"
+
+### Phase 10: Regulated Categories Gating
+
+- Define restricted categories: `['Finance', 'Insurance', 'Legal', 'Medical', 'Mortgage']`
+- **`src/pages/dashboard/CreateOffer.tsx`**: When category is restricted, on submit set `approval_status = 'pending_approval'` instead of going live. Show message: "This category requires approval before going live. Our team will review within 1-2 business days."
+- **Admin Dashboard**: Show pending approval offers in Verification tab with approve/reject actions
+- **`src/hooks/useDbOffers.ts`**: Only show offers where `approval_status = 'approved'` (or add this to the existing `status = 'active'` RLS)
+
+### Phase 11: Password Reset Flow
+
+**New page: `src/pages/ResetPassword.tsx`**
+- Shows form to set new password
+- Checks for `type=recovery` in URL hash
+- Calls `supabase.auth.updateUser({ password })`
+
+**`src/pages/Auth.tsx`**: Add "Forgot password?" link that calls `supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/reset-password' })`
+
+**`src/App.tsx`**: Add route `/reset-password`
+
+### Phase 12: Polish & Hardening
+
+- **`src/pages/Auth.tsx`**: Already has email verification. Add forgot password link.
+- **`src/components/ProtectedRoute.tsx`**: Already handles auth + role checks. Good.
+- **`src/pages/NotFound.tsx`**: Already exists. Good.
+- **Remove fake stats**: `usePlatformStats` already returns zeroes when no data. Update `Index.tsx` "Revenue Influenced" and "Avg Time-to-Close" hardcoded stats in BusinessDashboard to only show when real data exists.
+- **Loading/error states**: Already present in most views. Ensure consistency.
+- **Mobile responsive**: Audit key pages (done as part of each component edit).
 
 ---
 
@@ -99,21 +251,36 @@ Since customers won't fund accounts initially:
 
 | Action | File |
 |--------|------|
-| Create | `src/lib/offerUtils.ts` |
-| Create | `src/components/BusinessLogoUpload.tsx` |
-| Migration | Storage bucket + policies |
-| Migration | Update `handle_new_user` trigger to read industry metadata |
-| Edit | `src/hooks/useDbOffers.ts` — remove mock merge |
-| Edit | `src/pages/OfferDetail.tsx` — DB query instead of mock lookup |
-| Edit | `src/components/ReferralWizard.tsx` — use offer.id directly |
-| Edit | `src/components/OfferCard.tsx` — logo rendering, import fix |
-| Edit | `src/pages/Browse.tsx` — import fix, empty state |
-| Edit | `src/pages/Index.tsx` — DB featured offers, fix city counts |
-| Edit | `src/components/CitySlots.tsx` — import fix |
-| Edit | `src/components/MapView.tsx` — import fix |
-| Edit | `src/pages/dashboard/CreateOffer.tsx` — import fix, soften wallet step |
-| Edit | `src/pages/dashboard/BusinessDashboard.tsx` — logo checklist, onboarding prompt |
-| Edit | `src/pages/dashboard/ProfileEdit.tsx` — business fields + logo upload |
-| Edit | `src/components/LeaderboardPreview.tsx` — transparency label |
-| Edit | `src/pages/Auth.tsx` — persist business metadata |
+| **Migration** | New tables: `payouts`, `audit_log`, `notifications`, `referrer_payout_preferences`. New columns on `referrals` and `offers`. New DB functions. RLS policies. |
+| **Delete** | `supabase/functions/create-wallet-checkout/index.ts` |
+| **Delete** | `src/contexts/WalletContext.tsx` |
+| **Delete** | `src/components/AddFundsModal.tsx` |
+| **Delete** | `src/pages/PaymentSuccess.tsx` |
+| **Create** | `src/pages/ResetPassword.tsx` |
+| **Create** | `src/components/NotificationBell.tsx` |
+| **Edit** | `src/App.tsx` -- remove WalletProvider, PaymentSuccess route, add ResetPassword route |
+| **Edit** | `src/types/offer.ts` -- remove WalletState, WalletTransaction, fundSecured |
+| **Edit** | `src/pages/dashboard/BusinessDashboard.tsx` -- remove wallet, add payout record creation, audit logging, notifications, truthful language |
+| **Edit** | `src/pages/dashboard/AdminDashboard.tsx` -- real payout queue, real audit log, real verification persistence, remove mock data |
+| **Edit** | `src/pages/dashboard/ReferrerDashboard.tsx` -- remove escrow language, show payout status from payouts table |
+| **Edit** | `src/pages/dashboard/CreateOffer.tsx` -- remove wallet step, add restricted category check, informational payout step |
+| **Edit** | `src/pages/TrustCenter.tsx` -- complete rewrite removing escrow claims, add early access statement |
+| **Edit** | `src/pages/Index.tsx` -- update scenarios, trust badges, 3-step explainer language |
+| **Edit** | `src/pages/HowItWorks.tsx` -- remove escrow/wallet language |
+| **Edit** | `src/pages/ForBusinesses.tsx` -- remove Stripe/wallet/escrow language |
+| **Edit** | `src/pages/ForReferrers.tsx` -- remove Stripe/escrow language |
+| **Edit** | `src/pages/OfferDetail.tsx` -- remove fundSecured, update language |
+| **Edit** | `src/pages/Auth.tsx` -- add forgot password link |
+| **Edit** | `src/components/Navbar.tsx` -- add NotificationBell |
+| **Edit** | `src/components/ReferralWizard.tsx` -- remove fundSecured, add duplicate check |
+| **Edit** | `src/components/OfferCard.tsx` -- remove fundSecured badge |
+| **Edit** | `src/components/OfferScoreBadge.tsx` -- fix import, remove fundSecured score |
+| **Edit** | `src/components/PayoutMethodSetup.tsx` -- persist to DB, remove Stripe reference |
+| **Edit** | `src/components/BoostOfferPanel.tsx` -- remove Stripe reference |
+| **Edit** | `src/hooks/useDbOffers.ts` -- remove fundSecured field |
+| **Edit** | `src/lib/offerUtils.ts` -- update score calculation without fundSecured |
+| **Edit** | `src/pages/Privacy.tsx` -- update Stripe reference |
+| **Edit** | `src/pages/Terms.tsx` -- update escrow references if any |
+
+**Estimated scope**: ~30 file edits, 1 large migration, 2 new components, 4 file deletions. This is a large change set but each piece is well-defined.
 
