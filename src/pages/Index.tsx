@@ -89,7 +89,7 @@ const Index = () => {
 
   return (
     <div>
-      <SEOHead title="Revvin — Pay-Per-Close Referral Marketplace" description="Businesses pay only for closed deals. Referrers earn 90% commissions. Active across Canada and the United States." path="/" />
+      <SEOHead title="Revvin — Pay-Per-Close Referral Marketplace" description="Businesses pay only for closed deals. Referrers earn commissions. Active across Canada and the United States." path="/" />
       {/* Positioning Strip */}
       <div className="bg-foreground text-background py-2.5 text-center">
         <p className="text-sm font-medium tracking-wide">
@@ -227,7 +227,7 @@ const Index = () => {
             {[
               { step: "01", icon: Building2, title: "Business Posts Offer", desc: "Set a fixed dollar or percentage payout. Define qualification rules. Publish to the marketplace.", color: "bg-primary/10 text-primary" },
               { step: "02", icon: Users, title: "Referrer Submits Customer", desc: "Know someone who needs the service? Submit their details. First submission wins — timestamped.", color: "bg-earnings/10 text-earnings" },
-              { step: "03", icon: DollarSign, title: "Accept → Work Deal → Close → Payout", desc: "Business accepts referral. Deal closes → Revvin verifies → payout processed. 90% to referrer, 10% platform fee.", color: "bg-accent/10 text-accent-foreground" },
+              { step: "03", icon: DollarSign, title: "Accept → Work Deal → Close → Payout", desc: "Business accepts referral. Deal closes → Revvin verifies → payout processed.", color: "bg-accent/10 text-accent-foreground" },
             ].map((item, i) => (
               <motion.div key={item.step} variants={fadeUp} custom={i} className="group relative rounded-2xl border border-border bg-card p-8 text-center transition-all hover:shadow-lg hover:-translate-y-1">
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-md">
@@ -445,7 +445,7 @@ const Index = () => {
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-earnings shrink-0" /> Browse by map, category, or payout</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-earnings shrink-0" /> Track referrals and earnings in real time</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-earnings shrink-0" /> Earn badges and climb leaderboards</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-earnings shrink-0" /> 90% of every referral fee goes to you</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-earnings shrink-0" /> Competitive referral payouts</li>
                 </ul>
                 <Button variant="outline" className="w-full gap-2 h-12 text-base border-2 border-earnings/30 text-earnings hover:bg-earnings/5" asChild>
                   <Link to="/auth?mode=signup&role=referrer">Start Referring & Earning <ArrowRight className="h-4 w-4" /></Link>
@@ -456,46 +456,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Payout Economics */}
-      <section className="py-24">
-        <div className="container">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto max-w-4xl">
-            <motion.div variants={fadeUp} custom={0} className="text-center mb-12">
-              <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">Transparent Economics</p>
-              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">See Exactly What You Earn</h2>
-              <p className="mt-3 text-muted-foreground">Revvin takes a small platform fee. You keep the lion's share.</p>
-            </motion.div>
-
-            <motion.div variants={fadeUp} custom={1} className="rounded-2xl border border-border bg-card p-8 shadow-sm">
-              <div className="text-center mb-8">
-                <p className="text-sm text-muted-foreground mb-1">Example: Business sets a</p>
-                <p className="font-display text-5xl font-bold text-foreground">$1,500</p>
-                <p className="text-sm text-muted-foreground mt-1">Referral Fee</p>
-              </div>
-              
-              <div className="grid gap-4 sm:grid-cols-2 mb-6">
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-earnings/10 to-earnings/5 border border-earnings/20 p-6 text-center">
-                  <Users className="mx-auto mb-2 h-7 w-7 text-earnings" />
-                  <p className="text-sm font-medium text-muted-foreground">Referrer Earns</p>
-                  <p className="font-display text-4xl font-bold text-earnings mt-1">$1,350</p>
-                  <p className="text-xs text-muted-foreground mt-2 font-medium">90% of the fee</p>
-                </div>
-                <div className="rounded-xl bg-muted/50 border border-border p-6 text-center">
-                  <Briefcase className="mx-auto mb-2 h-7 w-7 text-muted-foreground" />
-                  <p className="text-sm font-medium text-muted-foreground">Revvin Platform Fee</p>
-                  <p className="font-display text-4xl font-bold text-foreground mt-1">$150</p>
-                  <p className="text-xs text-muted-foreground mt-2 font-medium">10% management fee</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                <Shield className="h-4 w-4 text-primary" />
-                <span>Business pays only when the deal closes. Zero upfront costs.</span>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+      {/* Spacer between sections */}
+      <div className="py-4" />
 
       {/* Featured Offers — only shown if real offers exist */}
       {featured.length > 0 && (
@@ -542,7 +504,7 @@ const Index = () => {
                 { icon: Lock, title: "Payout Protection", desc: "Commissions tracked transparently, paid on close." },
                 { icon: FileCheck, title: "Qualification Rules", desc: "Clear criteria for what makes a valid referral." },
                 { icon: Scale, title: "Dispute Resolution", desc: "Fair process to handle disagreements." },
-                { icon: Briefcase, title: "10% Platform Fee", desc: "No hidden costs. Transparent and aligned." },
+                { icon: Briefcase, title: "Transparent Pricing", desc: "No hidden costs. Clear, aligned incentives." },
                 { icon: Shield, title: "Fraud Prevention", desc: "Duplicate detection and timestamp verification." },
               ].map((item, i) => (
                 <motion.div key={item.title} variants={fadeUp} custom={i + 1} className="rounded-2xl border border-border bg-card p-6 text-center">
