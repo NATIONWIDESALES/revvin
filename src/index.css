@@ -127,15 +127,15 @@
   }
 
   .card-hover {
-    @apply transition-all duration-300;
+    @apply transition-all duration-200;
   }
 
   .card-hover:hover {
-    @apply shadow-lg -translate-y-1;
+    @apply shadow-md;
   }
 
   .earnings-badge {
-    background: linear-gradient(135deg, hsl(var(--earnings)), hsl(160 84% 30%));
+    background: hsl(var(--earnings));
     color: hsl(var(--earnings-foreground));
   }
 }

@@ -8,14 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  DollarSign, Users, TrendingUp, PlusCircle, ArrowRight,
-  CheckCircle2, XCircle, Clock, Eye, BarChart3, Building2, Shield,
-  Pause, Play, Edit, Target, Link2, Check, AlertTriangle
+  DollarSign, Users, PlusCircle,
+  CheckCircle2, XCircle, Clock, Eye, Building2,
+  Pause, Play, Edit, Target, Link2, Check
 } from "lucide-react";
 import { motion } from "framer-motion";
-import OfferCompetitiveness from "@/components/OfferCompetitiveness";
 import DashboardChecklist from "@/components/DashboardChecklist";
-import BoostOfferPanel from "@/components/BoostOfferPanel";
 import { useToast } from "@/hooks/use-toast";
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
@@ -40,7 +38,7 @@ const fadeUp = {
 const BusinessDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { displayCurrency, currencySymbol } = useCountry();
+  const { currencySymbol, displayCurrency } = useCountry();
   const { toast } = useToast();
   const [business, setBusiness] = useState<any>(null);
   const [offers, setOffers] = useState<any[]>([]);
@@ -70,15 +68,9 @@ const BusinessDashboard = () => {
 
   const handleAccept = async (ref: any) => {
     const payoutAmt = ref.offers?.payout_type === "flat" ? Number(ref.offers.payout) : 0;
-    // Snapshot payout terms on acceptance
-    await supabase.from("referrals").update({
-      status: "accepted",
-      payout_snapshot: payoutAmt,
-      payout_type_snapshot: ref.offers?.payout_type ?? "flat",
-    }).eq("id", ref.id);
+    await supabase.from("referrals").update({ status: "accepted", payout_snapshot: payoutAmt, payout_type_snapshot: ref.offers?.payout_type ?? "flat" }).eq("id", ref.id);
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "accepted" } : r)));
     toast({ title: "Referral accepted", description: `Payout of $${payoutAmt} locked for this referral.` });
-    // Audit + notification
     if (user) {
       supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_actor_id: user.id, p_event_type: "referral_accepted", p_payload: { payout: payoutAmt } });
       supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Referral accepted!", p_body: `Your referral for "${ref.offers?.title}" has been accepted.`, p_type: "referral_accepted", p_referral_id: ref.id });
@@ -100,20 +92,12 @@ const BusinessDashboard = () => {
     const referrerPayout = Math.round(payoutAmt * 0.9);
     const platformFee = payoutAmt - referrerPayout;
     await supabase.from("referrals").update({ status: "won", payout_amount: referrerPayout, payout_status: "approved" }).eq("id", ref.id);
-    // Create payout record for admin
-    await supabase.from("payouts").insert({
-      referral_id: ref.id,
-      business_id: ref.business_id,
-      referrer_id: ref.referrer_id,
-      amount: referrerPayout,
-      platform_fee: platformFee,
-      status: "ready",
-    });
+    await supabase.from("payouts").insert({ referral_id: ref.id, business_id: ref.business_id, referrer_id: ref.referrer_id, amount: referrerPayout, platform_fee: platformFee, status: "ready" });
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "won", payout_amount: referrerPayout, payout_status: "approved" } : r)));
-    toast({ title: "Deal closed!", description: `$${referrerPayout} payout created for referrer.` });
+    toast({ title: "Deal closed!", description: `Payout created for referrer.` });
     if (user) {
       supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_actor_id: user.id, p_event_type: "referral_won", p_payload: { payout: referrerPayout, fee: platformFee } });
-      supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Deal closed — payout coming!", p_body: `Your referral for "${ref.offers?.title}" closed. $${referrerPayout} payout is being processed.`, p_type: "referral_won", p_referral_id: ref.id });
+      supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Deal closed — payout coming!", p_body: `Your referral for "${ref.offers?.title}" closed. Payout is being processed.`, p_type: "referral_won", p_referral_id: ref.id });
     }
   };
 
@@ -148,9 +132,7 @@ const BusinessDashboard = () => {
 
   const inviteReferrers = (offerId: string) => {
     const slug = business?.name ? toSlug(business.name) : null;
-    const url = slug
-      ? `${window.location.origin}/offer/${slug}/${offerId}`
-      : `${window.location.origin}/offer/${offerId}`;
+    const url = slug ? `${window.location.origin}/offer/${slug}/${offerId}` : `${window.location.origin}/offer/${offerId}`;
     navigator.clipboard.writeText(url);
     setCopiedLink(offerId);
     setTimeout(() => setCopiedLink(null), 2000);
@@ -158,9 +140,7 @@ const BusinessDashboard = () => {
 
   const totalPaid = referrals.filter(r => r.payout_status === "paid" || r.payout_status === "approved").reduce((s, r) => s + (r.payout_amount ?? 0), 0);
   const wonCount = referrals.filter(r => r.status === "won").length;
-  const conversionRate = referrals.length > 0 ? Math.round((wonCount / referrals.length) * 100) : 0;
   const activeOffers = offers.filter(o => o.status === "active").length;
-  const avgAcquisitionCost = wonCount > 0 ? Math.round(totalPaid / wonCount) : 0;
   const newRefs7d = referrals.filter(r => new Date(r.created_at) > new Date(Date.now() - 7 * 86400000)).length;
   const sym = currencySymbol(displayCurrency);
 
@@ -183,11 +163,8 @@ const BusinessDashboard = () => {
           {/* Header */}
           <motion.div variants={fadeUp} custom={0} className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="flex items-center gap-3 mb-1">
-                <h1 className="font-display text-3xl font-bold text-foreground">Acquisition Dashboard</h1>
-                <Badge variant="secondary" className="gap-1"><Shield className="h-3 w-3" /> Verified</Badge>
-              </div>
-              <p className="text-muted-foreground">{business?.name ?? "Your Business"} • {activeOffers} active offer{activeOffers !== 1 ? "s" : ""} • {displayCurrency}</p>
+              <h1 className="font-display text-3xl font-bold text-foreground">{business?.name ?? "Your Business"}</h1>
+              <p className="text-muted-foreground mt-1">{activeOffers} active offer{activeOffers !== 1 ? "s" : ""} • {referrals.length} referrals</p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" asChild className="gap-2 h-11">
@@ -199,19 +176,15 @@ const BusinessDashboard = () => {
             </div>
           </motion.div>
 
-          <DashboardChecklist title="Start Here — Business Setup" items={checklistItems} />
+          <DashboardChecklist title="Getting Started" items={checklistItems} />
 
-          {/* Stats */}
+          {/* Stats — 4 key metrics */}
           <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { label: "Active Offers", value: activeOffers.toString(), icon: Building2, color: "text-primary", bgColor: "bg-primary/10" },
               { label: "New Referrals (7d)", value: newRefs7d.toString(), icon: Users, color: "text-primary", bgColor: "bg-primary/10" },
               { label: "Deals Closed", value: wonCount.toString(), icon: CheckCircle2, color: "text-earnings", bgColor: "bg-earnings/10" },
-              { label: "Conversion Rate", value: `${conversionRate}%`, icon: TrendingUp, color: "text-accent-foreground", bgColor: "bg-accent/10" },
-              { label: "Cost per Close", value: wonCount > 0 ? `${sym}${avgAcquisitionCost}` : "—", icon: Target, color: "text-primary", bgColor: "bg-primary/10" },
               { label: "Total Paid Out", value: `${sym}${totalPaid.toLocaleString()}`, icon: DollarSign, color: "text-earnings", bgColor: "bg-earnings/10" },
-              { label: "Total Referrals", value: referrals.length.toString(), icon: BarChart3, color: "text-earnings", bgColor: "bg-earnings/10" },
-              { label: "Avg Time-to-Close", value: wonCount > 0 ? "~18 days" : "—", icon: Clock, color: "text-muted-foreground", bgColor: "bg-muted" },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
                 <div className="flex items-center gap-3">
@@ -223,12 +196,6 @@ const BusinessDashboard = () => {
                 </div>
               </div>
             ))}
-          </motion.div>
-
-          {/* Competitiveness + Boost */}
-          <motion.div variants={fadeUp} custom={1.5} className="mb-8 grid gap-4 md:grid-cols-2">
-            <OfferCompetitiveness score={conversionRate > 50 ? 78 : 55} label={conversionRate > 50 ? "Strong" : "Competitive"} />
-            <BoostOfferPanel />
           </motion.div>
 
           {/* Offers */}
@@ -263,7 +230,7 @@ const BusinessDashboard = () => {
                             <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => setEditingPayout(null)}>✕</Button>
                           </div>
                         ) : (
-                          <span className="earnings-badge rounded-full px-3 py-0.5 text-xs font-bold">{offer.payout_type === "flat" ? `${sym}${offer.payout}` : `${offer.payout}%`}</span>
+                          <span className="rounded-full bg-primary/10 text-primary px-3 py-0.5 text-xs font-bold">{offer.payout_type === "flat" ? `${sym}${offer.payout}` : `${offer.payout}%`}</span>
                         )}
                         <span className="text-xs text-muted-foreground">{offer.category}</span>
                       </div>

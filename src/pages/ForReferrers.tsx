@@ -12,7 +12,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } }
 
 const ForReferrers = () => (
   <div>
-    <SEOHead title="For Referrers — Earn Commissions" description="Browse paid referral opportunities across Canada and the USA. Earn 90% commissions when deals close. Free to join." path="/for-referrers" />
+    <SEOHead title="For Referrers — Earn Commissions" description="Browse paid referral opportunities across Canada and the USA. Earn commissions when deals close. Free to join." path="/for-referrers" />
     <section className="hero-gradient py-20">
       <div className="container text-center">
         <motion.div initial="hidden" animate="visible">
@@ -47,7 +47,7 @@ const ForReferrers = () => (
             {[
               { step: "01", icon: MapPin, title: "Find Opportunities", desc: "Browse by map, category, city, or payout. Filter by Canada, USA, or both." },
               { step: "02", icon: Users, title: "Submit Referrals", desc: "Know someone who needs a service? Submit their details. First submission wins." },
-              { step: "03", icon: DollarSign, title: "Earn on Close", desc: "When the deal closes, you earn 90% of the referral fee. Paid via e-Transfer (CA) or ACH (US)." },
+              { step: "03", icon: DollarSign, title: "Earn on Close", desc: "When the deal closes, you earn your referral payout. Paid via e-Transfer (CA) or ACH (US)." },
             ].map((item, i) => (
               <motion.div key={item.step} variants={fadeUp} custom={i + 1} className="rounded-2xl border border-border bg-card p-8 text-center">
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-earnings/10">
@@ -96,7 +96,7 @@ const ForReferrers = () => (
             {[
               { icon: BadgeCheck, title: "Verified Businesses", desc: "Every business is reviewed before offers go live. Look for the verified badge." },
               { icon: Trophy, title: "Badges & Leaderboards", desc: "Earn badges, climb city and country leaderboards, build your reputation." },
-              { icon: DollarSign, title: "Transparent Economics", desc: "You keep 90% of every referral fee. 10% platform fee, no hidden costs." },
+              { icon: DollarSign, title: "Competitive Payouts", desc: "Earn real commissions on every closed deal. No hidden fees." },
               { icon: Globe, title: "Cross-Border Opportunities", desc: "Browse offers in Canada and the USA. Filter by country, province/state, or city." },
             ].map((item, i) => (
               <motion.div key={item.title} variants={fadeUp} custom={i + 1} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5">
