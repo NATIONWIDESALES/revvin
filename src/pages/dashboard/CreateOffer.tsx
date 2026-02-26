@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,9 +8,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info } from "lucide-react";
+import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info, CreditCard, Loader2 } from "lucide-react";
 import { categories, RESTRICTED_CATEGORIES } from "@/lib/offerUtils";
 import { motion } from "framer-motion";
+
+const TOTAL_STEPS = 5;
+
+const STEP_LABELS = ["Offer Details", "Payout & Timing", "Qualification Rules", "Preview", "Deposit & Publish"];
 
 const CreateOffer = () => {
   const { user } = useAuth();
@@ -20,6 +24,9 @@ const CreateOffer = () => {
   const [businessName, setBusinessName] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
+  const [savedOfferId, setSavedOfferId] = useState<string | null>(null);
+  const [depositStatus, setDepositStatus] = useState<string | null>(null);
+  const [depositLoading, setDepositLoading] = useState(false);
 
   const [form, setForm] = useState({
     title: "", description: "", category: "Services",
@@ -28,6 +35,7 @@ const CreateOffer = () => {
     remoteEligible: false, qualificationCriteria: "",
     payoutTimeline: "net14" as "net7" | "net14" | "net30",
     monthlyCapacity: "", leadFreshness: "", minProjectSize: "", eligibleLocations: "",
+    maxPayoutCap: "",
   });
 
   useEffect(() => {
@@ -37,11 +45,26 @@ const CreateOffer = () => {
     });
   }, [user]);
 
+  // Poll deposit status when on step 5
+  useEffect(() => {
+    if (step !== 5 || !savedOfferId) return;
+    const interval = setInterval(async () => {
+      const { data } = await supabase
+        .from("offers")
+        .select("deposit_status")
+        .eq("id", savedOfferId)
+        .single();
+      if (data?.deposit_status) {
+        setDepositStatus(data.deposit_status);
+        if (data.deposit_status === "paid") clearInterval(interval);
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [step, savedOfferId]);
+
   const isRestricted = RESTRICTED_CATEGORIES.includes(form.category);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (step < 4) { setStep(step + 1); return; }
+  const handleSaveOffer = async () => {
     if (!businessId) return;
     setLoading(true);
 
@@ -52,7 +75,7 @@ const CreateOffer = () => {
       form.qualificationCriteria,
     ].filter(Boolean).join("\n");
 
-    const { error } = await supabase.from("offers").insert({
+    const insertData: any = {
       business_id: businessId, title: form.title, description: form.description,
       category: form.category, payout: parseFloat(form.payout), payout_type: form.payoutType,
       location: form.location,
@@ -61,16 +84,64 @@ const CreateOffer = () => {
       close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
       remote_eligible: form.remoteEligible, qualification_criteria: qualRules || null,
       approval_status: isRestricted ? "pending_approval" : "approved",
-    });
+      status: "draft",
+      deposit_status: "required",
+    };
 
+    if (form.payoutType === "percentage" && form.maxPayoutCap) {
+      insertData.max_payout_cap = parseFloat(form.maxPayoutCap);
+    }
+
+    const { data, error } = await supabase.from("offers").insert(insertData).select("id, deposit_status").single();
+
+    setLoading(false);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else if (data) {
+      setSavedOfferId(data.id);
+      setDepositStatus(data.deposit_status);
+      setStep(5);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (step < 4) { setStep(step + 1); return; }
+    if (step === 4) { await handleSaveOffer(); return; }
+  };
+
+  const handlePayDeposit = async () => {
+    if (!savedOfferId) return;
+    setDepositLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-deposit-session", {
+        body: { offer_id: savedOfferId },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to create payment session", variant: "destructive" });
+    } finally {
+      setDepositLoading(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!savedOfferId) return;
+    setLoading(true);
+    const { error } = await supabase.from("offers").update({ status: "active" }).eq("id", savedOfferId);
     setLoading(false);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       if (isRestricted) {
-        toast({ title: "Offer submitted for review", description: "This category requires approval before going live. Our team will review within 1-2 business days." });
+        toast({ title: "Offer submitted for review", description: "This category requires approval before going live." });
       } else {
-        toast({ title: "Offer created!", description: "Your referral offer is now live." });
+        toast({ title: "Offer published!", description: "Your referral offer is now live." });
       }
       navigate("/dashboard");
     }
@@ -80,6 +151,7 @@ const CreateOffer = () => {
   const payoutNum = parseFloat(form.payout) || 0;
   const referrerEarns = form.payoutType === "flat" ? Math.round(payoutNum * 0.9) : payoutNum;
   const platformFee = form.payoutType === "flat" ? Math.round(payoutNum * 0.1) : null;
+  const depositAmount = form.payoutType === "percentage" ? (parseFloat(form.maxPayoutCap) || 0) : payoutNum;
 
   return (
     <div className="py-8">
@@ -92,11 +164,11 @@ const CreateOffer = () => {
         <p className="text-muted-foreground mb-6">Define what you're willing to pay for successful referrals</p>
 
         <div className="flex items-center gap-2 mb-8">
-          {["Offer Details", "Payout & Timing", "Qualification Rules", "Preview & Publish"].map((label, i) => (
+          {STEP_LABELS.map((label, i) => (
             <div key={label} className="flex items-center gap-2 flex-1">
               <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 ${i + 1 <= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{i + 1}</div>
               <span className={`text-sm font-medium hidden sm:block ${i + 1 <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
-              {i < 3 && <div className={`h-0.5 flex-1 rounded ${i + 1 < step ? "bg-primary" : "bg-border"}`} />}
+              {i < TOTAL_STEPS - 1 && <div className={`h-0.5 flex-1 rounded ${i + 1 < step ? "bg-primary" : "bg-border"}`} />}
             </div>
           ))}
         </div>
@@ -138,6 +210,13 @@ const CreateOffer = () => {
                   </div>
                 </div>
               </div>
+              {form.payoutType === "percentage" && (
+                <div>
+                  <Label>Maximum Payout Cap ($)</Label>
+                  <Input type="number" value={form.maxPayoutCap} onChange={(e) => update("maxPayoutCap", e.target.value)} placeholder="e.g. 2000" required className="mt-1" />
+                  <p className="text-xs text-muted-foreground mt-1">This cap determines your deposit amount and the maximum a referrer can earn per deal.</p>
+                </div>
+              )}
               <div className="grid gap-4 sm:grid-cols-3">
                 <div><Label>Deal Size Min ($)</Label><Input type="number" value={form.dealSizeMin} onChange={(e) => update("dealSizeMin", e.target.value)} placeholder="5000" className="mt-1" /></div>
                 <div><Label>Deal Size Max ($)</Label><Input type="number" value={form.dealSizeMax} onChange={(e) => update("dealSizeMax", e.target.value)} placeholder="50000" className="mt-1" /></div>
@@ -150,6 +229,15 @@ const CreateOffer = () => {
                     <div className="rounded-xl bg-card border border-border p-3"><p className="text-xs text-muted-foreground">Referral Fee</p><p className="font-display text-lg font-bold">${payoutNum}</p></div>
                     <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-3"><p className="text-xs text-muted-foreground">Referrer Earns</p><p className="font-display text-lg font-bold text-earnings">${referrerEarns}</p></div>
                     <div className="rounded-xl bg-card border border-border p-3"><p className="text-xs text-muted-foreground">Platform Fee</p><p className="font-display text-lg font-bold">${platformFee}</p></div>
+                  </div>
+                </div>
+              )}
+              {depositAmount > 0 && (
+                <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
+                  <CreditCard className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium">Deposit Required: ${depositAmount}</p>
+                    <p className="text-xs text-muted-foreground mt-1">A one-time deposit of 1× {form.payoutType === "percentage" ? "your max payout cap" : "the referral fee"} is required before publishing. This acts as a credit toward future payouts.</p>
                   </div>
                 </div>
               )}
@@ -217,22 +305,85 @@ const CreateOffer = () => {
                   <Info className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-accent-foreground">Category requires approval</p>
-                    <p className="text-xs text-muted-foreground mt-1">This category ({form.category}) requires admin review before going live. Our team will review within 1-2 business days.</p>
+                    <p className="text-xs text-muted-foreground mt-1">This category ({form.category}) requires admin review before going live.</p>
                   </div>
                 </div>
               )}
+              <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
+                <CreditCard className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Deposit: ${depositAmount}</p>
+                  <p className="text-xs text-muted-foreground mt-1">After saving, you'll be asked to pay a one-time deposit before your offer goes live.</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 5 && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+              <h2 className="font-display text-lg font-semibold">Deposit & Publish</h2>
+              <p className="text-sm text-muted-foreground">Your offer has been saved as a draft. Pay the deposit to publish it.</p>
+
+              <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${depositStatus === "paid" ? "bg-earnings/10" : "bg-primary/10"}`}>
+                    {depositStatus === "paid" ? <CheckCircle2 className="h-6 w-6 text-earnings" /> : <CreditCard className="h-6 w-6 text-primary" />}
+                  </div>
+                  <div>
+                    <p className="font-display text-lg font-bold">${depositAmount}</p>
+                    <p className="text-sm text-muted-foreground">One-time publishing deposit</p>
+                  </div>
+                </div>
+
+                {depositStatus === "paid" ? (
+                  <div className="rounded-xl bg-earnings/5 border border-earnings/20 p-4 text-center">
+                    <CheckCircle2 className="h-8 w-8 text-earnings mx-auto mb-2" />
+                    <p className="font-display font-bold text-earnings">Deposit Paid!</p>
+                    <p className="text-sm text-muted-foreground mt-1">Your deposit has been received. You can now publish your offer.</p>
+                  </div>
+                ) : depositStatus === "pending" ? (
+                  <div className="rounded-xl bg-accent/5 border border-accent/20 p-4 text-center">
+                    <Loader2 className="h-8 w-8 text-accent-foreground mx-auto mb-2 animate-spin" />
+                    <p className="font-display font-bold text-accent-foreground">Payment Processing...</p>
+                    <p className="text-sm text-muted-foreground mt-1">Waiting for payment confirmation. This page will update automatically.</p>
+                    <Button variant="outline" size="sm" className="mt-3" onClick={handlePayDeposit} disabled={depositLoading}>
+                      Retry Payment
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">This deposit acts as a credit toward future referral payouts and ensures payout readiness.</p>
+                    <Button onClick={handlePayDeposit} disabled={depositLoading} className="w-full gap-2" size="lg">
+                      {depositLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating checkout...</> : <><CreditCard className="h-4 w-4" /> Pay ${depositAmount} Deposit</>}
+                    </Button>
+                  </div>
+                )}
+              </div>
+
               <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-xl p-3">
                 <Shield className="h-4 w-4 text-primary shrink-0" />
-                <span>Your offer will be visible to all referrers on the marketplace once published.</span>
+                <span>Payments are processed securely via Stripe. Your deposit is credited toward future payouts.</span>
               </div>
             </motion.div>
           )}
 
           <div className="flex gap-3 pt-2">
-            {step > 1 && <Button type="button" variant="outline" onClick={() => setStep(step - 1)} className="flex-1">Back</Button>}
-            <Button type="submit" size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
-              {loading ? "Publishing..." : step < 4 ? <>Next <ArrowRight className="h-4 w-4" /></> : isRestricted ? "Submit for Review" : "Publish Offer"}
-            </Button>
+            {step > 1 && step < 5 && <Button type="button" variant="outline" onClick={() => setStep(step - 1)} className="flex-1">Back</Button>}
+            {step < 4 && (
+              <Button type="submit" size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
+                Next <ArrowRight className="h-4 w-4" />
+              </Button>
+            )}
+            {step === 4 && (
+              <Button type="submit" size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
+                {loading ? "Saving..." : "Save & Continue to Deposit"}
+              </Button>
+            )}
+            {step === 5 && depositStatus === "paid" && (
+              <Button onClick={handlePublish} size="lg" className="w-full gap-2" disabled={loading}>
+                {loading ? "Publishing..." : isRestricted ? "Submit for Review" : "Publish Offer"}
+              </Button>
+            )}
           </div>
         </form>
       </div>
