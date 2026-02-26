@@ -7,6 +7,7 @@ import QualificationTooltip from "@/components/QualificationTooltip";
 import OfferScoreBadge from "@/components/OfferScoreBadge";
 import { useCountry } from "@/contexts/CountryContext";
 import { calculateOfferScore } from "@/lib/offerUtils";
+import { toSlug } from "@/lib/utils";
 
 interface OfferCardProps {
   offer: Offer;
@@ -27,7 +28,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
   const isLogoUrl = offer.businessLogo.startsWith("http");
 
   return (
-    <Link to={`/offer/${offer.id}`} className="group block">
+    <Link to={`/offer/${toSlug(offer.business)}/${offer.id}`} className="group block">
       <div className="card-hover rounded-2xl border border-border bg-card p-6 shadow-sm h-full flex flex-col">
         {/* Header */}
         <div className="mb-4 flex items-start justify-between">
@@ -103,10 +104,10 @@ const OfferCard = ({ offer }: OfferCardProps) => {
 
         {/* CTAs */}
         <div className="flex gap-2 pt-2 border-t border-border">
-          <Button size="sm" className="flex-1 gap-1 text-xs" onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/offer/${offer.id}`); }}>
+          <Button size="sm" className="flex-1 gap-1 text-xs" onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/offer/${toSlug(offer.business)}/${offer.id}`); }}>
             Submit Referral <ArrowRight className="h-3 w-3" />
           </Button>
-          <Button size="sm" variant="ghost" className="text-xs" onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/offer/${offer.id}`); }}>
+          <Button size="sm" variant="ghost" className="text-xs" onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/offer/${toSlug(offer.business)}/${offer.id}`); }}>
             View Offer
           </Button>
         </div>
