@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,15 +6,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
-  CheckCircle2, Upload, Shield, ArrowRight, ArrowLeft, FileText, User, MessageSquare, Scale, Sparkles,
+  CheckCircle2, Upload, Shield, ArrowRight, ArrowLeft, FileText, User, MessageSquare, Scale, Sparkles, LogIn, UserPlus,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Offer } from "@/types/offer";
+
+const STORAGE_KEY = "revvin_referral_draft";
 
 interface ReferralWizardProps {
   offer: Offer;
@@ -38,6 +40,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { formatPayout } = useCountry();
+  const navigate = useNavigate();
 
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -53,6 +56,33 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
   });
   const [consent, setConsent] = useState(false);
   const [termsAck, setTermsAck] = useState(false);
+
+  // Restore form data from sessionStorage after auth redirect
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.offerId === offer.id) {
+          setFormData(parsed.formData);
+          setConsent(parsed.consent ?? false);
+          setTermsAck(parsed.termsAck ?? false);
+          setStep(parsed.step ?? 3);
+          sessionStorage.removeItem(STORAGE_KEY);
+        }
+      }
+    } catch {}
+  }, [offer.id]);
+
+  const saveFormToSession = () => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      offerId: offer.id,
+      formData,
+      consent,
+      termsAck,
+      step: 3,
+    }));
+  };
 
   const referrerEarns =
     offer.payoutType === "flat" ? Math.round(offer.payout * 0.9) : offer.payout;
@@ -343,6 +373,28 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
             <Button className="flex-1 gap-1.5" onClick={goNext} disabled={!canProceed()}>
               Continue <ArrowRight className="h-3.5 w-3.5" />
             </Button>
+          ) : !user ? (
+            <div className="flex-1 space-y-3">
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-center">
+                <p className="text-sm font-medium text-foreground mb-1">Create a free account to submit</p>
+                <p className="text-xs text-muted-foreground">Your referral info will be saved and ready to submit after sign-up.</p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  className="flex-1 gap-1.5"
+                  onClick={() => { saveFormToSession(); navigate(`/auth?mode=signup&role=referrer&redirect=/offer/${offer.id}`); }}
+                >
+                  <UserPlus className="h-3.5 w-3.5" /> Sign Up
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 gap-1.5"
+                  onClick={() => { saveFormToSession(); navigate(`/auth?mode=login&redirect=/offer/${offer.id}`); }}
+                >
+                  <LogIn className="h-3.5 w-3.5" /> Sign In
+                </Button>
+              </div>
+            </div>
           ) : (
             <Button className="flex-1 gap-1.5 font-semibold" onClick={handleSubmit} disabled={!canProceed() || submitting}>
               {submitting ? "Submitting..." : "Submit Referral"} {!submitting && <CheckCircle2 className="h-3.5 w-3.5" />}
