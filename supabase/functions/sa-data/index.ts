@@ -26,15 +26,13 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } =
-      await anonClient.auth.getClaims(token);
+    const { data: { user }, error: userError } = await anonClient.auth.getUser();
 
-    if (claimsError || !claimsData?.claims) {
+    if (userError || !user) {
       return new Response(null, { status: 404, headers: corsHeaders });
     }
 
-    const email = (claimsData.claims as any).email;
+    const email = user.email;
     if (!email || email.toLowerCase() !== SUPER_ADMIN_EMAIL) {
       return new Response(null, { status: 404, headers: corsHeaders });
     }
