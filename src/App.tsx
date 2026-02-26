@@ -24,6 +24,9 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import ReferralAgreement from "./pages/ReferralAgreement";
 import NotFound from "./pages/NotFound";
+import { lazy, Suspense } from "react";
+
+const SuperAdminCRM = lazy(() => import("./pages/SuperAdminCRM"));
 
 const queryClient = new QueryClient();
 
@@ -38,6 +41,7 @@ const App = () => (
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/__sa" element={<Suspense fallback={null}><SuperAdminCRM /></Suspense>} />
               <Route element={<Layout />}>
                 <Route path="/" element={<Index />} />
                 <Route path="/browse" element={<Browse />} />
