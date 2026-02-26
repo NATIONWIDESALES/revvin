@@ -1,68 +1,36 @@
 
 
-# Plan: Fix Public Offer Links + Business Name in URL
-
-## Root Cause
-
-The migration `20260225222323` recreated the "Public offers viewable" RLS policy with `TO authenticated`, meaning unauthenticated visitors get zero rows back from the offers table. This is why incognito shows "Offer not found."
+# Plan: Auth-Gate Referral Wizard + Hide Platform Fee Publicly
 
 ## Changes
 
-### 1. Database Migration: Fix RLS Policy
+### 1. `src/components/ReferralWizard.tsx` — Auth-gate at Step 0
 
-Drop and recreate the offers SELECT policy to allow both `anon` and `authenticated` roles:
+When an unauthenticated user clicks "Continue" on Step 0, instead of proceeding to Step 1, show an inline auth prompt replacing the navigation buttons. The wizard stays on Step 0 but the Continue button triggers a sign-in/sign-up prompt.
 
-```sql
-DROP POLICY IF EXISTS "Public offers viewable" ON public.offers;
-CREATE POLICY "Public offers viewable" ON public.offers
-  FOR SELECT
-  USING (
-    (status = 'active' AND approval_status = 'approved')
-    OR EXISTS (
-      SELECT 1 FROM public.businesses
-      WHERE businesses.id = offers.business_id
-      AND businesses.user_id = auth.uid()
-    )
-  );
-```
+Specific changes:
+- **Header**: Show the full payout amount (`$500`) instead of the net amount (`$450`). Remove "You Earn" vs "Payout" split from the grid in Step 0 — show a single "Referral Payout" value
+- **Continue button logic**: When `!user` and `step === 0`, clicking Continue shows auth prompt instead of advancing. Add a `showAuthPrompt` state that flips to true on click
+- **Auth prompt**: Replaces step content with a clean card: "Sign in or create a free account to refer someone" with Sign Up (primary) and Sign In (outline) buttons, both linking to `/auth?redirect=/offer/{slug}/{id}` with appropriate mode params
+- **Steps 1-3**: Only reachable when authenticated — no changes needed there since the gate is at Step 0
+- **Step 3 summary & submission**: Show the full payout amount, not the 90% net. The `payout_amount` stored in the DB can still be the net amount (backend concern, not shown to user)
+- Remove `referrerEarns` from all user-facing text in the wizard
 
-By omitting `TO authenticated`, it applies to all roles (anon + authenticated), which is the correct behavior for a public marketplace.
+### 2. `src/pages/OfferDetail.tsx` — Remove public fee breakdown
 
-### 2. Slug-Based URLs with Business Name
+- **Remove the entire "Payout Breakdown" section** (lines 244-269) that shows "Referral Fee / You Earn / Platform Fee" split with the "Revvin takes 10%" text
+- **Stats grid**: Keep showing the full payout amount (already correct at `offer.payout`)
+- **"How Verification Works" section**: Change step 4 text from `your commission (${formatPayout(referrerEarns, offer.currency)})` to just `your payout is approved and paid` — no specific dollar amount with the fee deducted
+- Remove the `referrerEarns` and `platformFee` variable calculations (lines 102-107) since they're no longer displayed
 
-**Route change in `src/App.tsx`:**
-- Add route: `/offer/:businessSlug/:id` alongside existing `/offer/:id` (keep old route for backward compat, redirect to new)
+### 3. `src/components/OfferCard.tsx` — Verify no fee shown
 
-**`src/pages/OfferDetail.tsx`:**
-- Read both `businessSlug` and `id` from params
-- Query remains the same (by UUID `id`)
-- If URL is missing businessSlug, redirect to the correct slug URL after loading
-
-**`src/components/ShareOfferLink.tsx`:**
-- Accept `businessName` prop, generate slug from it: `business-name` (lowercase, hyphenated)
-- URL becomes `/offer/acme-corp/abc123-uuid`
-
-**`src/pages/dashboard/BusinessDashboard.tsx`:**
-- `inviteReferrers`: include business name slug in the copied URL
-
-**`src/components/OfferCard.tsx`:**
-- Update Link `to` prop to include business slug
-
-**Slug generation:** Simple utility -- `name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')`
-
-### 3. No Other Changes Needed
-
-The `ReferralWizard` already handles the unauthenticated flow correctly (shows Sign Up / Sign In buttons at the consent step). The `OfferDetail` page already renders full offer details without auth checks. Once the RLS is fixed, the entire public flow will work.
+Quick check — the offer cards in Browse should only show the headline payout, not the net amount. Will verify and fix if needed.
 
 ## File Changes
 
-| Action | File | Change |
-|--------|------|--------|
-| Migration | New SQL | Fix offers RLS to allow anon SELECT |
-| Edit | `src/App.tsx` | Add `/offer/:businessSlug/:id` route |
-| Edit | `src/pages/OfferDetail.tsx` | Read businessSlug param, redirect if missing |
-| Edit | `src/components/ShareOfferLink.tsx` | Accept businessName, include slug in URL |
-| Edit | `src/pages/dashboard/BusinessDashboard.tsx` | Include business slug in invite link |
-| Edit | `src/components/OfferCard.tsx` | Include business slug in card link |
-| Edit | `src/lib/utils.ts` | Add `toSlug()` utility |
+| File | Change |
+|------|--------|
+| `src/components/ReferralWizard.tsx` | Auth-gate at step 0 with inline prompt; remove all "You Earn" / net payout display; show full payout only |
+| `src/pages/OfferDetail.tsx` | Remove "Payout Breakdown" section; remove referrerEarns/platformFee from UI; simplify verification steps text |
 
