@@ -1,37 +1,44 @@
 
 
-# Fix: Super Admin CRM Not Working
+# Fix: Business Logo Upload — Bucket Not Found
 
-## Root Cause
-
-The edge function `sa-data` uses `anonClient.auth.getClaims(token)` which **does not exist** in the Supabase JS client. This causes the function to throw an error and return 404 for every request, even for the correct email.
+The error is straightforward: the `business-logos` storage bucket does not exist. The code in `BusinessLogoUpload.tsx` references `supabase.storage.from("business-logos")`, but no storage buckets have been created in the backend.
 
 ## Fix
 
-### 1. `supabase/functions/sa-data/index.ts` — Fix auth validation
+Create the `business-logos` storage bucket via a database migration, with public read access and RLS policies so only authenticated business owners can upload/update their own logos.
 
-Replace the `getClaims` call with `getUser()`, which is the correct Supabase auth method:
+### SQL Migration
 
-```typescript
-// BEFORE (broken):
-const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
-const email = (claimsData.claims as any).email;
+```sql
+-- Create the public bucket
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('business-logos', 'business-logos', true);
 
-// AFTER (correct):
-const { data: { user }, error: userError } = await anonClient.auth.getUser(token);
-if (userError || !user) return 404;
-const email = user.email;
+-- Allow authenticated users to upload to their own folder
+CREATE POLICY "Users can upload their own logo"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (
+  bucket_id = 'business-logos'
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- Allow authenticated users to update/replace their own logo
+CREATE POLICY "Users can update their own logo"
+ON storage.objects FOR UPDATE
+TO authenticated
+USING (
+  bucket_id = 'business-logos'
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- Allow public read access
+CREATE POLICY "Public read access for business logos"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'business-logos');
 ```
 
-This is the only code change needed. The rest of the edge function logic and the `SuperAdminCRM.tsx` component are correct.
-
-### 2. Login Requirement
-
-The user (`sales@nationwidesales.ca`) must be logged in on the same domain they're accessing `/__sa` from. The auth logs show signup happened via `revvin.co`. If you're testing on the preview URL, you need to log in there too at `/auth`.
-
-## File Changes
-
-| File | Change |
-|------|--------|
-| `supabase/functions/sa-data/index.ts` | Replace `getClaims(token)` with `getUser(token)` |
+No code changes needed — `BusinessLogoUpload.tsx` already uses the correct bucket name and uploads to `{user.id}/logo.{ext}`, which matches the RLS folder-based policies above.
 
