@@ -32,7 +32,7 @@ const Navbar = () => {
       <div className="container flex h-16 items-center justify-between">
         {/* Left: Logo */}
         <Link to="/" className="flex items-center">
-          <img src={revvinLogo} alt="Revvin" className="h-10 object-contain" />
+          <img src={revvinLogo} alt="Revvin" className="h-20 object-contain" />
         </Link>
 
         {/* Center: Search link */}
