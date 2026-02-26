@@ -38,7 +38,7 @@ const Navbar = () => {
         {/* Center: Search link */}
         <Link
           to="/browse"
-          className="hidden md:flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2 text-sm text-muted-foreground shadow-sm transition-all hover:shadow-md hover:border-primary/30"
+          className="hidden md:flex items-center gap-2 rounded-full border border-border bg-card px-8 py-2 text-sm text-muted-foreground shadow-sm transition-all hover:shadow-md hover:border-primary/30 min-w-[400px] justify-center"
         >
           <Search className="h-4 w-4" />
           <span>Search opportunities</span>
