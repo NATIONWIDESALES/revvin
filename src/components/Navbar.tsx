@@ -31,9 +31,8 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
       <div className="container flex h-16 items-center justify-between">
         {/* Left: Logo */}
-        <Link to="/" className="flex items-center gap-2.5">
-          <img src={revvinLogo} alt="Revvin" className="h-28 w-28 object-contain" />
-          <span className="font-display text-xl font-bold text-foreground">Revvin</span>
+        <Link to="/" className="flex items-center">
+          <img src={revvinLogo} alt="Revvin" className="h-10 object-contain" />
         </Link>
 
         {/* Center: Search link */}
