@@ -1,107 +1,100 @@
 
 
-# Plan: Airbnb-Style Platform Experience Overhaul
+# Plan: Super Admin CRM Dashboard
 
-## Design Philosophy
+## Overview
 
-Adopt Airbnb's core UX principles: generous whitespace, simplified navigation, image-forward cards, clean role separation (Business = Host, Referrer = Guest), and reduced information density. The homepage stays largely the same since there are no active listings yet.
+Build a completely separate, hard-coded-email-gated Super Admin CRM at a hidden route (`/__sa`). This is entirely independent from the existing `AdminDashboard` and `DashboardRouter`. Access is restricted to `sales@nationwidesales.ca` only, enforced both client-side (route gate) and server-side (edge function gate).
 
-## Changes
+## Architecture
 
-### 1. Navbar (`src/components/Navbar.tsx`) -- Simplify to Airbnb-style
+```text
+Client Route: /__sa
+   │
+   ├─ Check: user authenticated + email === SUPER_ADMIN_EMAIL
+   │   ├─ NO  → render generic <NotFound /> (404)
+   │   └─ YES → render <SuperAdminCRM />
+   │
+   └─ Data fetched via Edge Function: /sa-data
+       ├─ Validates JWT + email === SUPER_ADMIN_EMAIL
+       │   ├─ FAIL → 404 empty response
+       │   └─ PASS → queries all businesses, referrals, offers, payouts, profiles, audit_log
+       └─ Returns full dataset using service_role key (bypasses RLS)
+```
 
-Current state: 6 navigation links, country selector, multiple buttons. Feels cluttered.
+## Security Model
 
-Changes:
-- Remove inline nav links. Replace with a minimal set: just the logo on the left, a subtle centered search link (routes to /browse), and right-side user controls
-- Logged out: "List Your Business" text link + "Sign Up" / "Log In" buttons
-- Logged in: avatar/initials circle with a dropdown (Dashboard, Profile, Sign Out) instead of separate buttons
-- Move country selector into the browse page filters instead of the global navbar
-- Mobile: hamburger with clean slide-out sheet
+- **Hard-coded constant**: `SUPER_ADMIN_EMAIL = "sales@nationwidesales.ca"` in both the React component AND the edge function
+- **No database role check** — purely email-based
+- **Route gate**: If user email doesn't match, render `<NotFound />` — identical to a real 404, no "unauthorized" leak
+- **Data gate**: Edge function validates JWT, extracts email via `getClaims()`, compares against constant. Returns 404 on mismatch
+- **SEO**: `<meta name="robots" content="noindex,nofollow">` on the page. Route excluded from any nav/footer/sitemap. Added to `robots.txt` as `Disallow: /__sa`
 
-### 2. OfferCard (`src/components/OfferCard.tsx`) -- Airbnb listing card style
+## File Changes
 
-Current state: Dense card with many badges, meta rows, earnings breakdown, dual CTAs.
+### 1. New: `supabase/functions/sa-data/index.ts` — Server-side data endpoint
 
-Changes:
-- Simplify to: business logo/image at top (larger, in a rounded container), business name, offer title, location with pin icon, category badge, and payout amount at the bottom right
-- Remove: OfferScoreBadge, success rate, rating stars, remote badge, deal size range, close time, payout timeline, dual CTA buttons from the card
-- Single click action: entire card is a link (already is)
-- Smaller, cleaner typography. More whitespace between elements
-- Heart/save icon in top-right corner (visual only for now)
+- Validates `Authorization` header via `getClaims()`
+- Extracts `email` from claims, compares to `SUPER_ADMIN_EMAIL`
+- On mismatch: returns `{ status: 404 }` with empty body
+- On match: uses `SUPABASE_SERVICE_ROLE_KEY` to query all data:
+  - `businesses` (all columns)
+  - `referrals` with joined `offers(title, payout, payout_type)` and `businesses(name)`
+  - `profiles` (all)
+  - `payouts` with joined `businesses(name)`
+  - `audit_log` (last 200 entries)
+  - `user_roles` (all)
+- Returns JSON payload with all data
+- Supports pagination param `?biz_id=X` for on-demand referral loading per business (lazy load)
 
-### 3. Browse Page (`src/pages/Browse.tsx`) -- Airbnb search experience
+### 2. New: `src/pages/SuperAdminCRM.tsx` — The CRM page
 
-Current state: Heavy filter panel, dense layout, marketplace stats sidebar.
+**Gate logic (top of component)**:
+- Uses `useAuth()` to get `user`
+- If `!user` or `user.email?.toLowerCase() !== "sales@nationwidesales.ca"` → render `<NotFound />`
+- Sets `<meta name="robots" content="noindex,nofollow">` via effect
 
-Changes:
-- Replace category badges with horizontal scrollable icon pills at the top (like Airbnb's category bar with icons)
-- Move advanced filters into a modal/drawer triggered by a "Filters" button, not an inline expanding panel
-- Remove the bottom "Marketplace Stats" and "City Slots" section from browse -- keep it focused on results
-- Remove currency toggle from browse (it's an edge feature)
-- Cleaner empty state
-- Keep search bar and sort options but simplify sort to a dropdown instead of multiple buttons
+**Global filter bar**:
+- Search input (filters businesses by name)
+- Stage filter dropdown (All, Submitted, Accepted, In Progress, Won, Lost, Void/Declined)
+- Quick stat chips: Total Referrals, Pending, Won, Payouts Ready
 
-### 4. OfferDetail (`src/pages/OfferDetail.tsx`) -- Cleaner listing page
+**Business cards (collapsible, one per business)**:
+- Default: all collapsed
+- Card header shows: business name, verified badge, active offers count, total referrals, won count, payouts ready count
+- On expand: fetches referrals for that business (or uses cached data)
+- Inside: referrals grouped by stage in collapsible accordion sections
+- Each referral row: customer name, email/phone, referrer name (mapped from profiles), offer title, submitted date, last updated, payout amount, "View Details" button
 
-Current state: Many sections (stats grid, offer score, deal details, qualification rules, verification steps, business credibility). Data-heavy.
+**Referral detail drawer (Sheet component)**:
+- Full referral info (all fields)
+- Audit log timeline (filtered to that referral_id)
+- Payout status and admin notes
+- Inline notes editing (saves via edge function)
 
-Changes:
-- Remove OfferScoreBadge section entirely
-- Combine stats grid into a simpler inline row (payout, location, timeline)
-- Remove "Business Credibility" card (verified badge on the header is sufficient)
-- Keep: header, description, deal details, qualification rules, and the referral wizard sidebar
-- Cleaner section spacing, less border-heavy cards
-- Add a subtle divider between sections instead of bordered cards for everything
+### 3. Update: `src/App.tsx` — Add hidden route
 
-### 5. Dashboards -- Cleaner terminology and layout
+- Add `/__sa` route **outside** the `<Layout>` wrapper (no nav/footer shown)
+- No `<ProtectedRoute>` wrapper — the component handles its own gate
+- Import `SuperAdminCRM` lazily
 
-**BusinessDashboard (`src/pages/dashboard/BusinessDashboard.tsx`)**:
-- Rename "Acquisition Dashboard" to just the business name as header
-- Reduce stat cards from 8 to 4 key metrics (Active Offers, New Referrals, Deals Closed, Total Paid)
-- Remove OfferCompetitiveness and BoostOfferPanel (premature features)
-- Cleaner offer cards and referral inbox
+### 4. Update: `public/robots.txt` — Disallow `/__sa`
 
-**ReferrerDashboard (`src/pages/dashboard/ReferrerDashboard.tsx`)**:
-- Rename "Earnings Dashboard" to just "Your Referrals" or user's name
-- Reduce stat cards from 6 to 4 (Pending, Confirmed, Paid, Lifetime)
-- Remove weekly streak banner (premature gamification)
-- Keep chart, pipeline, milestones. Remove badges section for now (empty state noise)
+- Add `Disallow: /__sa` under the wildcard user-agent
 
-### 6. Footer (`src/components/Footer.tsx`) -- Simplify
+### 5. Update: `supabase/config.toml` — Register edge function
 
-- Remove the CTA banner at top of footer
-- Simpler 3-column layout: Platform links, Support links, Legal links
-- Smaller, more understated
+- Add `[functions.sa-data]` with `verify_jwt = false`
 
-### 7. CSS / Design Tokens (`src/index.css`)
+## No Database Changes
 
-- No color scheme changes (keep the green primary -- it works)
-- Remove the `.earnings-badge` gradient class -- replace with a simple solid rounded pill
-- Soften `.card-hover` effect (less aggressive translate)
+All required tables exist. The edge function uses the service role key to bypass RLS entirely, so no new policies needed.
 
-### 8. Landing Pages -- Light touch
+## UI Details
 
-**Index.tsx**: Keep as-is per user request (no active listings yet). One small change:
-- Remove explicit "90% to referrer, 10% platform fee" from the 3-step explainer (step 03 desc) and the "Payout Economics" section -- align with the Airbnb approach of not showing fees publicly. The How It Works page can keep this info.
-- Remove the "10% Platform Fee" trust badge from the trust section
-
-**ForBusinesses.tsx / ForReferrers.tsx**: Light cleanup
-- Remove explicit "90%" / "10% fee" references from copy (keep it on How It Works page only)
-
-### File Change Summary
-
-| File | Change |
-|------|--------|
-| `src/components/Navbar.tsx` | Simplify to Airbnb-style: logo, search link, profile dropdown |
-| `src/components/OfferCard.tsx` | Minimal card: logo, title, business, location, payout |
-| `src/pages/Browse.tsx` | Scrollable category icons, filter modal, cleaner layout |
-| `src/pages/OfferDetail.tsx` | Remove score badge, credibility card; simplify stats |
-| `src/pages/dashboard/BusinessDashboard.tsx` | Rename header, reduce stats to 4, remove competitiveness/boost |
-| `src/pages/dashboard/ReferrerDashboard.tsx` | Rename header, reduce stats to 4, remove streak/badges |
-| `src/components/Footer.tsx` | Remove CTA banner, simpler columns |
-| `src/index.css` | Soften card-hover, simplify earnings-badge |
-| `src/pages/Index.tsx` | Remove fee percentages from step 03 and payout economics section |
-| `src/pages/ForBusinesses.tsx` | Remove explicit fee percentages from copy |
-| `src/pages/ForReferrers.tsx` | Remove explicit fee percentages from copy |
+- Uses existing shadcn components: `Collapsible`, `Accordion`, `Sheet`, `Badge`, `Input`, `Select`, `Button`
+- Framer motion for card expand/collapse animations
+- Business cards sorted by referral count (most active first)
+- Stage colors reuse the existing `statusConfig` pattern from AdminDashboard
+- Mobile-responsive: cards stack vertically, referral rows scroll horizontally
 
