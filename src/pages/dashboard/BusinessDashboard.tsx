@@ -117,9 +117,33 @@ const BusinessDashboard = () => {
   };
 
   const toggleOfferStatus = async (offerId: string, currentStatus: string) => {
+    const offer = offers.find(o => o.id === offerId);
+    // Block activation if deposit not paid
+    if (currentStatus !== "active" && offer?.deposit_status === "required") {
+      toast({ title: "Deposit required", description: "You must pay the deposit before activating this offer.", variant: "destructive" });
+      return;
+    }
+    if (currentStatus !== "active" && offer?.deposit_status === "pending") {
+      toast({ title: "Deposit pending", description: "Your deposit payment is still processing.", variant: "destructive" });
+      return;
+    }
     const newStatus = currentStatus === "active" ? "paused" : "active";
     await supabase.from("offers").update({ status: newStatus }).eq("id", offerId);
     setOffers((prev) => prev.map((o) => (o.id === offerId ? { ...o, status: newStatus } : o)));
+  };
+
+  const handlePayDeposit = async (offerId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("create-deposit-session", {
+        body: { offer_id: offerId },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to create payment session", variant: "destructive" });
+    }
   };
 
   const saveEditPayout = async (offerId: string) => {
@@ -235,13 +259,38 @@ const BusinessDashboard = () => {
                         <span className="text-xs text-muted-foreground">{offer.category}</span>
                       </div>
                       <div className="text-xs text-muted-foreground mb-3">{offerRefs.length} refs • {offerWon} won</div>
+                      {/* Deposit status badge */}
+                      {offer.deposit_status && offer.deposit_status !== "not_required" && offer.deposit_status !== "paid" && (
+                        <div className="mb-3">
+                          <Badge variant="outline" className={`text-xs ${offer.deposit_status === "pending" ? "border-accent text-accent-foreground" : "border-destructive text-destructive"}`}>
+                            {offer.deposit_status === "pending" ? "Deposit Pending" : "Deposit Required"}
+                          </Badge>
+                        </div>
+                      )}
+                      {offer.deposit_status === "paid" && (
+                        <div className="mb-3">
+                          <Badge variant="outline" className="text-xs border-earnings text-earnings">Deposit Paid</Badge>
+                        </div>
+                      )}
                       <div className="flex items-center gap-2 pt-3 border-t border-border flex-wrap">
-                        <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => toggleOfferStatus(offer.id, offer.status)}>
-                          {offer.status === "active" ? <><Pause className="h-3 w-3" /> Pause</> : <><Play className="h-3 w-3" /> Activate</>}
-                        </Button>
-                        <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => { setEditingPayout(offer.id); setNewPayout(String(offer.payout)); }}>
-                          <Edit className="h-3 w-3" /> Edit Payout
-                        </Button>
+                        {offer.deposit_status === "required" ? (
+                          <Button size="sm" className="gap-1 text-xs" onClick={() => handlePayDeposit(offer.id)}>
+                            <DollarSign className="h-3 w-3" /> Pay Deposit
+                          </Button>
+                        ) : offer.deposit_status === "pending" ? (
+                          <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handlePayDeposit(offer.id)}>
+                            <Clock className="h-3 w-3" /> Retry Deposit
+                          </Button>
+                        ) : (
+                          <>
+                            <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => toggleOfferStatus(offer.id, offer.status)}>
+                              {offer.status === "active" ? <><Pause className="h-3 w-3" /> Pause</> : <><Play className="h-3 w-3" /> Activate</>}
+                            </Button>
+                            <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => { setEditingPayout(offer.id); setNewPayout(String(offer.payout)); }}>
+                              <Edit className="h-3 w-3" /> Edit Payout
+                            </Button>
+                          </>
+                        )}
                         <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => inviteReferrers(offer.id)}>
                           {copiedLink === offer.id ? <><Check className="h-3 w-3" /> Copied!</> : <><Link2 className="h-3 w-3" /> Invite Referrers</>}
                         </Button>

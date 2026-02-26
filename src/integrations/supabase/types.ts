@@ -194,16 +194,23 @@ export type Database = {
           created_at: string
           deal_size_max: number | null
           deal_size_min: number | null
+          deposit_amount: number | null
+          deposit_currency: string | null
+          deposit_paid_at: string | null
+          deposit_status: string
           description: string | null
           featured: boolean | null
           id: string
           location: string | null
+          max_payout_cap: number | null
           payout: number
           payout_type: string
           qualification_criteria: string | null
           remote_eligible: boolean | null
           restricted: boolean | null
           status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
           title: string
           updated_at: string
         }
@@ -215,16 +222,23 @@ export type Database = {
           created_at?: string
           deal_size_max?: number | null
           deal_size_min?: number | null
+          deposit_amount?: number | null
+          deposit_currency?: string | null
+          deposit_paid_at?: string | null
+          deposit_status?: string
           description?: string | null
           featured?: boolean | null
           id?: string
           location?: string | null
+          max_payout_cap?: number | null
           payout?: number
           payout_type?: string
           qualification_criteria?: string | null
           remote_eligible?: boolean | null
           restricted?: boolean | null
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
           title: string
           updated_at?: string
         }
@@ -236,16 +250,23 @@ export type Database = {
           created_at?: string
           deal_size_max?: number | null
           deal_size_min?: number | null
+          deposit_amount?: number | null
+          deposit_currency?: string | null
+          deposit_paid_at?: string | null
+          deposit_status?: string
           description?: string | null
           featured?: boolean | null
           id?: string
           location?: string | null
+          max_payout_cap?: number | null
           payout?: number
           payout_type?: string
           qualification_criteria?: string | null
           remote_eligible?: boolean | null
           restricted?: boolean | null
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
           title?: string
           updated_at?: string
         }
