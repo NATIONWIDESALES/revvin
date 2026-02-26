@@ -40,8 +40,16 @@ const CreateOffer = () => {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("businesses").select("id, name").eq("user_id", user.id).maybeSingle().then(({ data }) => {
-      if (data) { setBusinessId(data.id); setBusinessName(data.name); }
+    supabase.from("businesses").select("id, name, account_status").eq("user_id", user.id).maybeSingle().then(({ data }) => {
+      if (data) {
+        if (data.account_status !== "approved") {
+          toast({ title: "Account not approved", description: "Your business account must be approved before creating offers.", variant: "destructive" });
+          navigate("/dashboard");
+          return;
+        }
+        setBusinessId(data.id);
+        setBusinessName(data.name);
+      }
     });
   }, [user]);
 

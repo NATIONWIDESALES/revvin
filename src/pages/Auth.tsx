@@ -24,6 +24,7 @@ const Auth = () => {
 
   // Business-specific fields
   const [businessName, setBusinessName] = useState("");
+  const [businessPhone, setBusinessPhone] = useState("");
   const [industry, setIndustry] = useState("");
   const [serviceArea, setServiceArea] = useState("");
 
@@ -58,6 +59,7 @@ const Auth = () => {
         const metadata: Record<string, string> = { full_name: fullName, role };
         if (role === "business") {
           if (businessName) metadata.business_name = businessName;
+          if (businessPhone) metadata.phone = businessPhone;
           if (industry) metadata.industry = industry;
           if (serviceArea) metadata.service_area = serviceArea;
         }
@@ -224,10 +226,14 @@ const Auth = () => {
     // Step 2 — role-specific fields
     if (role === "business") {
       return (
-        <>
+      <>
           <div>
             <Label>Business Name</Label>
             <Input value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Acme Corp" className="mt-1" />
+          </div>
+          <div>
+            <Label>Phone Number</Label>
+            <Input type="tel" value={businessPhone} onChange={(e) => setBusinessPhone(e.target.value)} placeholder="(555) 123-4567" required className="mt-1" />
           </div>
           <div>
             <Label>Industry Category</Label>

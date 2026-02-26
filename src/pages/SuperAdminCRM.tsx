@@ -290,6 +290,12 @@ const SuperAdminCRM = () => {
                                 <Building2 className="h-4 w-4 shrink-0 text-primary" />
                                 <span className="font-semibold truncate">{biz.name}</span>
                                 {biz.verified && <Badge variant="secondary" className="text-xs">Verified</Badge>}
+                                {(biz as any).account_status && (biz as any).account_status !== "approved" && (
+                                  <Badge variant={(biz as any).account_status === "rejected" ? "destructive" : "secondary"} className="text-xs">
+                                    {(biz as any).account_status === "pending_approval" ? "Pending Approval" : "Rejected"}
+                                  </Badge>
+                                )}
+                                {(biz as any).account_status === "approved" && <Badge className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Approved</Badge>}
                               </div>
                               <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
                                 <Badge variant="outline">{bs.active_offers} offers</Badge>

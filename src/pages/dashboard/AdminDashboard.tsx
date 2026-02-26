@@ -104,6 +104,20 @@ const AdminDashboard = () => {
     toast({ title: "Business verified" });
   };
 
+  const approveAccount = async (bizId: string) => {
+    const { error } = await supabase.from("businesses").update({ account_status: "approved" } as any).eq("id", bizId);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, account_status: "approved" } : b));
+    toast({ title: "Account approved", description: "Business can now create offers." });
+  };
+
+  const rejectAccount = async (bizId: string) => {
+    const { error } = await supabase.from("businesses").update({ account_status: "rejected" } as any).eq("id", bizId);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, account_status: "rejected" } : b));
+    toast({ title: "Account rejected" });
+  };
+
   const freezeOffer = async (offerId: string) => {
     const offer = offers.find(o => o.id === offerId);
     const newStatus = offer?.status === "active" ? "paused" : "active";
@@ -170,7 +184,10 @@ const AdminDashboard = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="mb-6 bg-muted/50 p-1">
               <TabsTrigger value="overview" className="gap-1"><BarChart3 className="h-3.5 w-3.5" /> Overview</TabsTrigger>
-              <TabsTrigger value="verification" className="gap-1"><BadgeCheck className="h-3.5 w-3.5" /> Verification</TabsTrigger>
+              <TabsTrigger value="verification" className="gap-1 relative">
+                <BadgeCheck className="h-3.5 w-3.5" /> Verification
+                {businesses.filter(b => (b as any).account_status === "pending_approval").length > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-bold">{businesses.filter(b => (b as any).account_status === "pending_approval").length}</span>}
+              </TabsTrigger>
               <TabsTrigger value="payouts" className="gap-1 relative">
                 <DollarSign className="h-3.5 w-3.5" /> Payouts
                 {pendingPayouts > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-bold">{pendingPayouts}</span>}
@@ -253,23 +270,38 @@ const AdminDashboard = () => {
               <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                 <h2 className="font-display text-base font-bold mb-4 flex items-center gap-2"><BadgeCheck className="h-4 w-4 text-primary" /> Business Verification Queue</h2>
                 <div className="space-y-3">
-                  {businesses.map((biz) => (
+                  {businesses.map((biz) => {
+                    const accountStatus = (biz as any).account_status || "approved";
+                    return (
                     <div key={biz.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-4">
                       <div className="flex-1">
                         <p className="font-medium">{biz.name}</p>
-                        <p className="text-xs text-muted-foreground">{biz.industry ?? "—"} • {biz.city ?? "No location"} • Joined {new Date(biz.created_at).toLocaleDateString()}</p>
+                        <p className="text-xs text-muted-foreground">{biz.industry ?? "—"} • {biz.city ?? "No location"} • {(biz as any).phone ? `📞 ${(biz as any).phone} • ` : ""}Joined {new Date(biz.created_at).toLocaleDateString()}</p>
                         <div className="flex items-center gap-2 mt-2">
                           <Badge variant={biz.verified ? "default" : "secondary"}>{biz.verified ? "Verified" : "Unverified"}</Badge>
+                          <Badge variant={accountStatus === "approved" ? "default" : accountStatus === "rejected" ? "destructive" : "secondary"}>
+                            {accountStatus === "approved" ? "Account Approved" : accountStatus === "rejected" ? "Account Rejected" : "Pending Approval"}
+                          </Badge>
                           {biz.website && <span className="text-xs text-muted-foreground">{biz.website}</span>}
                         </div>
                       </div>
                       <div className="flex gap-2">
+                        {accountStatus === "pending_approval" && (
+                          <>
+                            <Button size="sm" onClick={() => approveAccount(biz.id)} className="gap-1"><CheckCircle2 className="h-3 w-3" /> Approve</Button>
+                            <Button size="sm" variant="destructive" onClick={() => rejectAccount(biz.id)} className="gap-1"><XCircle className="h-3 w-3" /> Reject</Button>
+                          </>
+                        )}
+                        {accountStatus === "rejected" && (
+                          <Button size="sm" onClick={() => approveAccount(biz.id)} className="gap-1"><CheckCircle2 className="h-3 w-3" /> Approve</Button>
+                        )}
                         {!biz.verified && (
-                          <Button size="sm" onClick={() => verifyBusiness(biz.id)} className="gap-1"><BadgeCheck className="h-3 w-3" /> Verify</Button>
+                          <Button size="sm" variant="outline" onClick={() => verifyBusiness(biz.id)} className="gap-1"><BadgeCheck className="h-3 w-3" /> Verify</Button>
                         )}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                   {businesses.length === 0 && <p className="text-sm text-muted-foreground py-8 text-center">No businesses to verify</p>}
                 </div>
               </div>

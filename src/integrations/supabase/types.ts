@@ -70,6 +70,7 @@ export type Database = {
       }
       businesses: {
         Row: {
+          account_status: string
           city: string | null
           created_at: string
           description: string | null
@@ -79,6 +80,7 @@ export type Database = {
           logo_url: string | null
           longitude: number | null
           name: string
+          phone: string | null
           state: string | null
           updated_at: string
           user_id: string
@@ -86,6 +88,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          account_status?: string
           city?: string | null
           created_at?: string
           description?: string | null
@@ -95,6 +98,7 @@ export type Database = {
           logo_url?: string | null
           longitude?: number | null
           name: string
+          phone?: string | null
           state?: string | null
           updated_at?: string
           user_id: string
@@ -102,6 +106,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          account_status?: string
           city?: string | null
           created_at?: string
           description?: string | null
@@ -111,6 +116,7 @@ export type Database = {
           logo_url?: string | null
           longitude?: number | null
           name?: string
+          phone?: string | null
           state?: string | null
           updated_at?: string
           user_id?: string
