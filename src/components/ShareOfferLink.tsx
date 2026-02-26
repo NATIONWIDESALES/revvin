@@ -1,20 +1,25 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link2, Check } from "lucide-react";
+import { toSlug } from "@/lib/utils";
 
 interface ShareOfferLinkProps {
   offerId?: string;
   offerTitle?: string;
+  businessName?: string;
   variant?: "button" | "icon";
 }
 
-const ShareOfferLink = ({ offerId, offerTitle, variant = "button" }: ShareOfferLinkProps) => {
+const ShareOfferLink = ({ offerId, offerTitle, businessName, variant = "button" }: ShareOfferLinkProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const url = `${window.location.origin}/offer/${offerId}`;
+    const slug = businessName ? toSlug(businessName) : null;
+    const url = slug
+      ? `${window.location.origin}/offer/${slug}/${offerId}`
+      : `${window.location.origin}/offer/${offerId}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

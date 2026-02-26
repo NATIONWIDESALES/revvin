@@ -1,9 +1,10 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, MapPin, Star, TrendingUp, Users, DollarSign, CheckCircle2, Clock, Shield, Briefcase, BadgeCheck, AlertTriangle, Scale, FileCheck, Loader2 } from "lucide-react";
 import { calculateOfferScore } from "@/lib/offerUtils";
+import { toSlug } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useCountry } from "@/contexts/CountryContext";
 import { motion } from "framer-motion";
@@ -22,7 +23,8 @@ const fadeUp = {
 };
 
 const OfferDetail = () => {
-  const { id } = useParams();
+  const { id, businessSlug } = useParams();
+  const navigate = useNavigate();
   const { formatPayout } = useCountry();
 
   const { data: offer, isLoading, error } = useQuery({
@@ -69,6 +71,12 @@ const OfferDetail = () => {
     },
     enabled: !!id,
   });
+
+  // Redirect to slug URL if businessSlug is missing
+  if (offer && !businessSlug) {
+    const slug = toSlug(offer.business);
+    navigate(`/offer/${slug}/${offer.id}`, { replace: true });
+  }
 
   if (isLoading) {
     return (
@@ -117,7 +125,7 @@ const OfferDetail = () => {
               <ArrowLeft className="h-4 w-4" /> Back to Marketplace
             </Link>
           </Button>
-          <ShareOfferLink offerId={offer.id} offerTitle={offer.title} />
+          <ShareOfferLink offerId={offer.id} offerTitle={offer.title} businessName={offer.business} />
         </div>
 
         <div className="grid gap-8 lg:grid-cols-5">

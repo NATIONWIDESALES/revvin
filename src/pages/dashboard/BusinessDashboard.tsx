@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toSlug } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCountry } from "@/contexts/CountryContext";
@@ -146,7 +147,11 @@ const BusinessDashboard = () => {
   };
 
   const inviteReferrers = (offerId: string) => {
-    navigator.clipboard.writeText(`${window.location.origin}/offer/${offerId}`);
+    const slug = business?.name ? toSlug(business.name) : null;
+    const url = slug
+      ? `${window.location.origin}/offer/${slug}/${offerId}`
+      : `${window.location.origin}/offer/${offerId}`;
+    navigator.clipboard.writeText(url);
     setCopiedLink(offerId);
     setTimeout(() => setCopiedLink(null), 2000);
   };

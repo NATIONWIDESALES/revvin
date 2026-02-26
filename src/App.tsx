@@ -41,6 +41,7 @@ const App = () => (
               <Route element={<Layout />}>
                 <Route path="/" element={<Index />} />
                 <Route path="/browse" element={<Browse />} />
+                <Route path="/offer/:businessSlug/:id" element={<OfferDetail />} />
                 <Route path="/offer/:id" element={<OfferDetail />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/trust" element={<TrustCenter />} />
