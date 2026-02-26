@@ -1,76 +1,68 @@
 
 
-# Plan: Public Referral Link Flow (No Login Required to View + Submit)
+# Plan: Fix Public Offer Links + Business Name in URL
 
-## Summary
+## Root Cause
 
-Make the shared offer links fully functional for unauthenticated visitors. Visitors can browse the offer AND complete the referral submission form. At the point of submission, they're prompted to create an account (or sign in) so the referral is properly attributed. This keeps the link useful as a growth tool while maintaining data integrity.
+The migration `20260225222323` recreated the "Public offers viewable" RLS policy with `TO authenticated`, meaning unauthenticated visitors get zero rows back from the offers table. This is why incognito shows "Offer not found."
 
-## Technical Details
+## Changes
 
-### Current State
-- Route `/offer/:id` is public (no ProtectedRoute) -- offer detail page loads fine
-- RLS on `offers` allows public SELECT for active+approved offers -- data loads fine
-- `ReferralWizard` blocks submission at line 80 with a toast "Sign in required" if `!user`
-- No inline sign-up prompt -- just a dead-end error
+### 1. Database Migration: Fix RLS Policy
 
-### Changes
+Drop and recreate the offers SELECT policy to allow both `anon` and `authenticated` roles:
 
-**1. `src/components/ReferralWizard.tsx`**
-
-Instead of blocking at submit time with a toast, restructure the flow:
-
-- Allow unauthenticated users to fill out Steps 0-3 (Offer confirmation, Customer info, Notes, Consent) normally
-- At Step 3 (Consent), if `!user`, show an inline auth prompt instead of the Submit button:
-  - "To submit this referral, create a free account or sign in."
-  - Two buttons: "Create Account" and "Sign In" -- both link to `/auth?redirect=/offer/{offerId}` so they return after auth
-- Store form data in `sessionStorage` before redirecting, so it persists across the auth flow
-- On return (user now authenticated), auto-populate the form from `sessionStorage` and let them submit
-
-**2. `src/pages/Auth.tsx`**
-
-- Read `redirect` query parameter
-- After successful sign-in/sign-up + verification, redirect to the stored URL instead of `/dashboard`
-- This enables the "complete your referral" return flow
-
-**3. `src/pages/OfferDetail.tsx`**
-
-- No changes needed -- the page is already public and loads offer data correctly
-
-**4. `src/pages/dashboard/BusinessDashboard.tsx`**
-
-- No changes to `inviteReferrers` -- the clipboard copy of `/offer/{id}` is correct
-- Optionally: improve the button UX to show a share sheet or social links (enhancement, not required)
-
-### User Experience Flow
-
-```text
-Business copies link → shares via email/text/social
-         ↓
-Visitor opens /offer/abc123 (no login needed)
-         ↓
-Sees full offer details + referral wizard
-         ↓
-Fills out customer info, notes, consent
-         ↓
-At submit: "Create a free account to submit"
-         ↓
-Redirects to /auth?redirect=/offer/abc123
-         ↓
-Signs up → verifies email → redirected back
-         ↓
-Form auto-fills from sessionStorage → submits
+```sql
+DROP POLICY IF EXISTS "Public offers viewable" ON public.offers;
+CREATE POLICY "Public offers viewable" ON public.offers
+  FOR SELECT
+  USING (
+    (status = 'active' AND approval_status = 'approved')
+    OR EXISTS (
+      SELECT 1 FROM public.businesses
+      WHERE businesses.id = offers.business_id
+      AND businesses.user_id = auth.uid()
+    )
+  );
 ```
 
-### What stays the same
-- Referrals still require an authenticated `referrer_id` (data integrity maintained)
-- RLS policies unchanged -- submission still requires `auth.uid() = referrer_id`
-- No anonymous referral records in the database
+By omitting `TO authenticated`, it applies to all roles (anon + authenticated), which is the correct behavior for a public marketplace.
 
-### File Changes
+### 2. Slug-Based URLs with Business Name
+
+**Route change in `src/App.tsx`:**
+- Add route: `/offer/:businessSlug/:id` alongside existing `/offer/:id` (keep old route for backward compat, redirect to new)
+
+**`src/pages/OfferDetail.tsx`:**
+- Read both `businessSlug` and `id` from params
+- Query remains the same (by UUID `id`)
+- If URL is missing businessSlug, redirect to the correct slug URL after loading
+
+**`src/components/ShareOfferLink.tsx`:**
+- Accept `businessName` prop, generate slug from it: `business-name` (lowercase, hyphenated)
+- URL becomes `/offer/acme-corp/abc123-uuid`
+
+**`src/pages/dashboard/BusinessDashboard.tsx`:**
+- `inviteReferrers`: include business name slug in the copied URL
+
+**`src/components/OfferCard.tsx`:**
+- Update Link `to` prop to include business slug
+
+**Slug generation:** Simple utility -- `name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')`
+
+### 3. No Other Changes Needed
+
+The `ReferralWizard` already handles the unauthenticated flow correctly (shows Sign Up / Sign In buttons at the consent step). The `OfferDetail` page already renders full offer details without auth checks. Once the RLS is fixed, the entire public flow will work.
+
+## File Changes
 
 | Action | File | Change |
 |--------|------|--------|
-| Edit | `src/components/ReferralWizard.tsx` | Add inline auth prompt at consent step for unauthenticated users; save/restore form data via sessionStorage |
-| Edit | `src/pages/Auth.tsx` | Read `redirect` query param; redirect there after auth instead of `/dashboard` |
+| Migration | New SQL | Fix offers RLS to allow anon SELECT |
+| Edit | `src/App.tsx` | Add `/offer/:businessSlug/:id` route |
+| Edit | `src/pages/OfferDetail.tsx` | Read businessSlug param, redirect if missing |
+| Edit | `src/components/ShareOfferLink.tsx` | Accept businessName, include slug in URL |
+| Edit | `src/pages/dashboard/BusinessDashboard.tsx` | Include business slug in invite link |
+| Edit | `src/components/OfferCard.tsx` | Include business slug in card link |
+| Edit | `src/lib/utils.ts` | Add `toSlug()` utility |
 
