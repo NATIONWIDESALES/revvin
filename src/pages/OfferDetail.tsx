@@ -99,12 +99,6 @@ const OfferDetail = () => {
 
   const isLogoUrl = offer.businessLogo.startsWith("http");
 
-  const referrerEarns = offer.payoutType === "flat"
-    ? Math.round(offer.payout * 0.9)
-    : offer.payout;
-  const platformFee = offer.payoutType === "flat"
-    ? Math.round(offer.payout * 0.1)
-    : null;
 
   const qualificationRules = offer.qualificationRules ?? [
     "Lead must be new (not existing customer)",
@@ -241,32 +235,6 @@ const OfferDetail = () => {
             </motion.div>
 
             {/* Payout Breakdown */}
-            {offer.payoutType === "flat" && (
-              <motion.div variants={fadeUp} custom={4} className="rounded-2xl border border-border bg-muted/30 p-6">
-                <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
-                  <Briefcase className="h-5 w-5 text-primary" /> Payout Breakdown
-                </h3>
-                <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="rounded-xl bg-card border border-border p-4">
-                    <p className="text-xs text-muted-foreground mb-1">Referral Fee</p>
-                    <p className="font-display text-xl font-bold">{formatPayout(offer.payout, offer.currency)}</p>
-                  </div>
-                  <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-4">
-                    <p className="text-xs text-muted-foreground mb-1">You Earn</p>
-                    <p className="font-display text-xl font-bold text-earnings">{formatPayout(referrerEarns, offer.currency)}</p>
-                  </div>
-                  <div className="rounded-xl bg-card border border-border p-4">
-                    <p className="text-xs text-muted-foreground mb-1">Platform Fee</p>
-                    <p className="font-display text-xl font-bold">{formatPayout(platformFee ?? 0, offer.currency)}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-3 text-center">Revvin takes a 10% management fee. You keep 90%.</p>
-                <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 border border-border rounded-xl p-3">
-                  <Shield className="h-4 w-4 shrink-0 text-primary" />
-                  <span>Revvin verifies deal outcomes and processes payouts after close.</span>
-                </div>
-              </motion.div>
-            )}
 
             {/* Qualification Rules */}
             <motion.div variants={fadeUp} custom={5} className="rounded-2xl border border-border bg-card p-6">
@@ -295,7 +263,7 @@ const OfferDetail = () => {
                   "You submit the referral with contact details and context",
                   `${offer.business} reviews and reaches out to your lead`,
                   "Revvin tracks the deal status and verifies the outcome",
-                  `Deal closes → your commission (${formatPayout(referrerEarns, offer.currency)}) is approved and paid`,
+                  "Deal closes → your payout is approved and paid",
                 ].map((step, i) => (
                   <div key={i} className="flex items-start gap-3 rounded-lg bg-card border border-border p-3">
                     <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
