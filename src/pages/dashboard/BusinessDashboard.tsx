@@ -180,10 +180,23 @@ const BusinessDashboard = () => {
     return <div className="flex min-h-[60vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>;
   }
 
+  const isApproved = business?.account_status === "approved";
+
   return (
     <div className="py-8">
       <div className="container max-w-6xl">
         <motion.div initial="hidden" animate="visible">
+          {/* Pending Approval Banner */}
+          {!isApproved && business && (
+            <motion.div variants={fadeUp} custom={0} className="mb-6 rounded-2xl border border-accent/30 bg-accent/5 p-5 flex items-start gap-3">
+              <Clock className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-display font-bold text-foreground">Account Pending Approval</h3>
+                <p className="text-sm text-muted-foreground mt-1">Your business account is under review. You'll be able to create offers once an admin approves your account.</p>
+              </div>
+            </motion.div>
+          )}
+
           {/* Header */}
           <motion.div variants={fadeUp} custom={0} className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -194,9 +207,11 @@ const BusinessDashboard = () => {
               <Button variant="outline" asChild className="gap-2 h-11">
                 <Link to="/dashboard/profile"><Edit className="h-4 w-4" /> Edit Profile</Link>
               </Button>
-              <Button asChild className="gap-2 h-11">
-                <Link to="/dashboard/create-offer"><PlusCircle className="h-4 w-4" /> Create Offer</Link>
-              </Button>
+              {isApproved && (
+                <Button asChild className="gap-2 h-11">
+                  <Link to="/dashboard/create-offer"><PlusCircle className="h-4 w-4" /> Create Offer</Link>
+                </Button>
+              )}
             </div>
           </motion.div>
 
@@ -226,7 +241,7 @@ const BusinessDashboard = () => {
           <motion.div variants={fadeUp} custom={2} className="mb-8">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-display text-lg font-bold">Your Offers</h2>
-              <Button variant="ghost" size="sm" className="gap-1" asChild><Link to="/dashboard/create-offer">Add Offer <PlusCircle className="h-4 w-4" /></Link></Button>
+              {isApproved && <Button variant="ghost" size="sm" className="gap-1" asChild><Link to="/dashboard/create-offer">Add Offer <PlusCircle className="h-4 w-4" /></Link></Button>}
             </div>
             {offers.length === 0 ? (
               <div className="rounded-2xl border border-border bg-card py-14 text-center shadow-sm">
