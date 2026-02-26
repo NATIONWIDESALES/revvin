@@ -9,6 +9,7 @@ import {
   CheckCircle2, Upload, Shield, ArrowRight, ArrowLeft, FileText, User, MessageSquare, Scale, Sparkles, LogIn, UserPlus,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { toSlug } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCountry } from "@/contexts/CountryContext";
@@ -84,12 +85,18 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
     }));
   };
 
-  const referrerEarns =
-    offer.payoutType === "flat" ? Math.round(offer.payout * 0.9) : offer.payout;
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   const isLogoUrl = offer.businessLogo.startsWith("http");
 
+  const redirectPath = `/offer/${toSlug(offer.business)}/${offer.id}`;
+
   const goNext = () => {
+    if (step === 0 && !user) {
+      setShowAuthPrompt(true);
+      return;
+    }
+    setShowAuthPrompt(false);
     setDirection(1);
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
   };
@@ -161,7 +168,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
       {/* Header with payout */}
       <div className="bg-gradient-to-br from-primary/10 to-earnings/10 p-5 text-center border-b border-border">
         <div className="earnings-badge mx-auto mb-2 inline-block rounded-full px-5 py-2.5 text-lg font-bold shadow-md">
-          Earn {offer.payoutType === "flat" ? formatPayout(referrerEarns, offer.currency) : `${offer.payout}%`}
+          Earn {offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}
         </div>
         <p className="text-xs text-muted-foreground">per successful referral</p>
       </div>
@@ -226,20 +233,12 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
                       <p className="text-xs text-muted-foreground">{offer.business} • {offer.country === "CA" ? "🇨🇦" : "🇺🇸"} {offer.city}</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="rounded-lg bg-card border border-border p-2 text-center">
-                      <p className="text-muted-foreground">Payout</p>
-                      <p className="font-bold text-foreground">
+                  <div className="rounded-lg bg-earnings/5 border border-earnings/20 p-2 text-center">
+                      <p className="text-muted-foreground">Referral Payout</p>
+                      <p className="font-bold text-earnings">
                         {offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}
                       </p>
                     </div>
-                    <div className="rounded-lg bg-card border border-border p-2 text-center">
-                      <p className="text-muted-foreground">You Earn</p>
-                      <p className="font-bold text-earnings">
-                        {offer.payoutType === "flat" ? formatPayout(referrerEarns, offer.currency) : `${offer.payout}% (minus fee)`}
-                      </p>
-                    </div>
-                  </div>
                   {offer.verified && (
                     <div className="flex items-center gap-2 text-xs text-primary bg-primary/5 border border-primary/20 rounded-lg p-2">
                       <Shield className="h-3.5 w-3.5 shrink-0" />
@@ -317,7 +316,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
                   <p className="font-medium text-foreground flex items-center gap-1.5"><FileText className="h-3.5 w-3.5" /> Summary</p>
                   <p>• Customer: <strong>{formData.name}</strong> ({formData.email})</p>
                   <p>• Offer: <strong>{offer.title}</strong> by {offer.business}</p>
-                  <p>• Your earnings: <strong>{offer.payoutType === "flat" ? formatPayout(referrerEarns, offer.currency) : `${offer.payout}%`}</strong> upon close</p>
+                  <p>• Payout: <strong>{offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}</strong> upon close</p>
                 </div>
               </div>
             )}
@@ -361,8 +360,34 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
         </AnimatePresence>
       </div>
 
+      {/* Auth prompt (shown when unauthenticated user clicks Continue on step 0) */}
+      {showAuthPrompt && step === 0 && !user && (
+        <div className="px-5 pb-5 space-y-3">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
+            <Shield className="mx-auto h-6 w-6 text-primary mb-2" />
+            <p className="text-sm font-semibold text-foreground mb-1">Sign in to refer someone</p>
+            <p className="text-xs text-muted-foreground">Create a free account or sign in to submit referrals and track your earnings.</p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              className="flex-1 gap-1.5"
+              onClick={() => navigate(`/auth?mode=signup&role=referrer&redirect=${encodeURIComponent(redirectPath)}`)}
+            >
+              <UserPlus className="h-3.5 w-3.5" /> Sign Up Free
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 gap-1.5"
+              onClick={() => navigate(`/auth?mode=login&redirect=${encodeURIComponent(redirectPath)}`)}
+            >
+              <LogIn className="h-3.5 w-3.5" /> Sign In
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Navigation buttons */}
-      {step < 4 && (
+      {step < 4 && !showAuthPrompt && (
         <div className="px-5 pb-5 flex gap-2">
           {step > 0 && (
             <Button variant="outline" onClick={goBack} className="gap-1.5">
@@ -373,28 +398,6 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
             <Button className="flex-1 gap-1.5" onClick={goNext} disabled={!canProceed()}>
               Continue <ArrowRight className="h-3.5 w-3.5" />
             </Button>
-          ) : !user ? (
-            <div className="flex-1 space-y-3">
-              <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-center">
-                <p className="text-sm font-medium text-foreground mb-1">Create a free account to submit</p>
-                <p className="text-xs text-muted-foreground">Your referral info will be saved and ready to submit after sign-up.</p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  className="flex-1 gap-1.5"
-                  onClick={() => { saveFormToSession(); navigate(`/auth?mode=signup&role=referrer&redirect=/offer/${offer.id}`); }}
-                >
-                  <UserPlus className="h-3.5 w-3.5" /> Sign Up
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1 gap-1.5"
-                  onClick={() => { saveFormToSession(); navigate(`/auth?mode=login&redirect=/offer/${offer.id}`); }}
-                >
-                  <LogIn className="h-3.5 w-3.5" /> Sign In
-                </Button>
-              </div>
-            </div>
           ) : (
             <Button className="flex-1 gap-1.5 font-semibold" onClick={handleSubmit} disabled={!canProceed() || submitting}>
               {submitting ? "Submitting..." : "Submit Referral"} {!submitting && <CheckCircle2 className="h-3.5 w-3.5" />}
