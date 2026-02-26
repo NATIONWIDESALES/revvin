@@ -1,44 +1,30 @@
 
 
-# Fix: Business Logo Upload — Bucket Not Found
+# Update Logo Everywhere with New Wordmark
 
-The error is straightforward: the `business-logos` storage bucket does not exist. The code in `BusinessLogoUpload.tsx` references `supabase.storage.from("business-logos")`, but no storage buckets have been created in the backend.
+The new image is a green "Revvin" wordmark — it contains the brand name as part of the logo itself, so the separate text label ("Revvin") should be removed wherever it appears next to the logo.
 
-## Fix
+## Changes
 
-Create the `business-logos` storage bucket via a database migration, with public read access and RLS policies so only authenticated business owners can upload/update their own logos.
+### 1. Copy new logo to project
+Copy `user-uploads://ChatGPT_Image_Feb_25_2026_05_55_17_PM.png` to `src/assets/revvin-logo.png` (overwrite existing).
 
-### SQL Migration
+### 2. `src/components/Navbar.tsx`
+- Remove the `<span>Revvin</span>` text next to the logo
+- Size the wordmark to `h-10` (40px tall) which fits the 64px navbar height well — a wordmark needs less height than an icon logo since it's wide
+- Keep `object-contain` for aspect ratio
 
-```sql
--- Create the public bucket
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('business-logos', 'business-logos', true);
+### 3. `src/components/Footer.tsx`
+- Remove the `<span>Revvin</span>` text next to the logo
+- Size the wordmark to `h-7` (28px tall) — appropriate for footer context
 
--- Allow authenticated users to upload to their own folder
-CREATE POLICY "Users can upload their own logo"
-ON storage.objects FOR INSERT
-TO authenticated
-WITH CHECK (
-  bucket_id = 'business-logos'
-  AND (storage.foldername(name))[1] = auth.uid()::text
-);
+### 4. `public/favicon.png`
+- Copy the same image as favicon (browsers will resize it). Since the wordmark is wide text, it may not look great at 16x16. This is the best we can do with the provided asset — a separate square icon would be ideal for favicon but is not available.
 
--- Allow authenticated users to update/replace their own logo
-CREATE POLICY "Users can update their own logo"
-ON storage.objects FOR UPDATE
-TO authenticated
-USING (
-  bucket_id = 'business-logos'
-  AND (storage.foldername(name))[1] = auth.uid()::text
-);
-
--- Allow public read access
-CREATE POLICY "Public read access for business logos"
-ON storage.objects FOR SELECT
-TO public
-USING (bucket_id = 'business-logos');
-```
-
-No code changes needed — `BusinessLogoUpload.tsx` already uses the correct bucket name and uploads to `{user.id}/logo.{ext}`, which matches the RLS folder-based policies above.
+| File | Change |
+|------|--------|
+| `src/assets/revvin-logo.png` | Replace with new wordmark image |
+| `src/components/Navbar.tsx` | Remove "Revvin" text span, resize logo to `h-10` |
+| `src/components/Footer.tsx` | Remove "Revvin" text span, resize logo to `h-7` |
+| `public/favicon.png` | Replace with new wordmark |
 
