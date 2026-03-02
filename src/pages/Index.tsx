@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, DollarSign, Users, Building2, TrendingUp, Search, Shield, Briefcase, MapPin, CheckCircle2, Zap, BarChart3, Lock, FileCheck, BadgeCheck, Ban, Target, Gauge, AlertTriangle, Scale, Star, Quote } from "lucide-react";
+import { ArrowRight, DollarSign, Users, Building2, TrendingUp, Shield, Briefcase, MapPin, CheckCircle2, Zap, BarChart3, Lock, FileCheck, BadgeCheck, Ban, Target, Gauge, AlertTriangle, Scale, Quote } from "lucide-react";
 import { motion } from "framer-motion";
 import OfferCard from "@/components/OfferCard";
 import SEOHead from "@/components/SEOHead";
@@ -8,7 +8,6 @@ import CitySlots from "@/components/CitySlots";
 import { cityJumpsCA, cityJumpsUS } from "@/lib/offerUtils";
 import { useDbOffers } from "@/hooks/useDbOffers";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
-import heroBg from "@/assets/hero-bg.png";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -90,58 +89,54 @@ const Index = () => {
   return (
     <div>
       <SEOHead title="Revvin — Pay-Per-Close Referral Marketplace" description="Businesses pay only for closed deals. Referrers earn commissions. Active across Canada and the United States." path="/" />
-      {/* Positioning Strip */}
-      <div className="bg-foreground text-background py-2.5 text-center">
-        <p className="text-sm font-medium tracking-wide">
-          Pay-per-close customer acquisition — powered by referrals. <span className="opacity-60">This is not ads.</span>
-        </p>
-      </div>
 
       {/* Hero */}
-      <section className="relative overflow-hidden hero-gradient py-28 lg:py-40">
-        <div
-          className="absolute inset-0 opacity-30"
-          style={{ backgroundImage: `url(${heroBg})`, backgroundSize: "cover", backgroundPosition: "center" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/20" />
-        <div className="container relative z-10">
+      <section className="bg-muted py-32 lg:py-44">
+        <div className="container">
           <motion.div initial="hidden" animate="visible" className="mx-auto max-w-4xl text-center">
-            <motion.div variants={fadeUp} custom={0}>
-              <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-5 py-2 text-sm font-medium text-primary-foreground backdrop-blur-sm">
-                <Zap className="h-4 w-4" />
-                The referral acquisition marketplace
-              </span>
-            </motion.div>
             <motion.h1
               variants={fadeUp}
-              custom={1}
-              className="mb-6 font-display text-5xl font-bold leading-[1.1] text-primary-foreground md:text-6xl lg:text-7xl"
+              custom={0}
+              className="mb-6 font-display text-5xl font-bold leading-[1.08] tracking-tight text-foreground md:text-6xl lg:text-7xl"
             >
               Businesses pay for closed deals.
               <br />
               <span className="text-accent">You earn for introductions.</span>
             </motion.h1>
-            <motion.p variants={fadeUp} custom={2} className="mb-10 text-lg text-primary-foreground/70 max-w-2xl mx-auto leading-relaxed">
-              Businesses publish referral payouts. Referrers submit real opportunities. Revvin verifies outcomes and coordinates payouts.
+            <motion.p variants={fadeUp} custom={1} className="mb-10 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Pay-per-close customer acquisition — powered by referrals, not ads. Businesses publish referral payouts. Referrers submit real opportunities. Revvin verifies outcomes and coordinates payouts.
             </motion.p>
-            <motion.div variants={fadeUp} custom={3} className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button size="lg" variant="secondary" className="gap-2 font-semibold text-base px-8 h-12 shadow-lg" asChild>
+            <motion.div variants={fadeUp} custom={2} className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Button size="lg" className="rounded-full font-semibold text-base px-10 h-13 shadow-md bg-accent text-accent-foreground hover:bg-accent/90" asChild>
                 <Link to="/auth?mode=signup&role=business">
-                  <Building2 className="h-5 w-5" /> Create Business Offer
+                  Create Business Offer
                 </Link>
               </Button>
-              <Button size="lg" variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10 gap-2 text-base px-8 h-12 border border-primary-foreground/20" asChild>
+              <Button size="lg" variant="outline" className="rounded-full text-base px-10 h-13 border-border text-foreground hover:bg-card" asChild>
                 <Link to="/auth?mode=signup&role=referrer">
-                  <DollarSign className="h-5 w-5" /> Start Referring & Earning
+                  Start Referring &amp; Earning
                 </Link>
               </Button>
             </motion.div>
-            <motion.div variants={fadeUp} custom={4} className="mt-4">
-              <Link to="/browse" className="text-sm text-primary-foreground/50 hover:text-primary-foreground/80 underline underline-offset-4 transition-colors">
+            <motion.div variants={fadeUp} custom={3} className="mt-5">
+              <Link to="/browse" className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors">
                 See all offers →
               </Link>
             </motion.div>
           </motion.div>
+
+          {/* Hero Visual — sample offer cards */}
+          {featured.length > 0 && (
+            <motion.div variants={fadeUp} custom={4} initial="hidden" animate="visible" className="mx-auto mt-16 max-w-5xl">
+              <div className="rounded-3xl border border-border bg-card p-6 shadow-lg">
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {featured.slice(0, 3).map((offer) => (
+                    <OfferCard key={offer.id} offer={offer} />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
         </div>
       </section>
 
