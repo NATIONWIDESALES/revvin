@@ -37,7 +37,7 @@ const Navbar = () => {
       <div className="container flex h-14 items-center justify-between">
         {/* Left: Logo */}
         <Link to="/" className="flex items-center shrink-0">
-          <img src={revvinLogo} alt="Revvin" className="h-8 object-contain" />
+          <img src={revvinLogo} alt="Revvin" className="h-[34px] md:h-9 w-auto object-contain" />
         </Link>
 
         {/* Center: Nav links */}
