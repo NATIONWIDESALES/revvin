@@ -17,7 +17,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
 
   return (
     <Link to={`/offer/${toSlug(offer.business)}/${offer.id}`} className="group block">
-      <div className="rounded-2xl border border-border bg-card overflow-hidden transition-all duration-200 hover:shadow-md h-full flex flex-col">
+      <div className="rounded-xl border border-border bg-card overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 h-full flex flex-col">
         {/* Image / Logo area */}
         <div className="relative aspect-[4/3] bg-secondary flex items-center justify-center overflow-hidden">
           {isLogoUrl ? (
@@ -33,7 +33,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
             <Heart className={`h-4 w-4 ${saved ? "fill-destructive text-destructive" : "text-foreground"}`} />
           </button>
           {offer.featured && (
-            <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground text-xs shadow-sm">
+            <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs shadow-sm">
               Featured
             </Badge>
           )}
@@ -58,7 +58,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
             <Badge variant="outline" className="text-xs font-normal">
               {offer.category}
             </Badge>
-            <p className="font-display text-base font-bold text-foreground">
+            <p className="text-base font-bold text-foreground">
               {offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}
               <span className="text-xs font-normal text-muted-foreground ml-1">/ referral</span>
             </p>
