@@ -11,7 +11,7 @@ const Footer = () => {
               <img src={revvinLogo} alt="Revvin" className="h-[30px] w-auto object-contain" />
             </div>
             <p className="text-[13px] text-muted-foreground leading-relaxed">
-              Pay-per-close customer acquisition powered by human introductions.
+              Customer acquisition powered by the people who already trust you.
             </p>
           </div>
 
