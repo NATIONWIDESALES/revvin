@@ -28,16 +28,16 @@ const Navbar = () => {
 
   const navLinks = [
     { to: "/how-it-works", label: "How It Works" },
-    { to: "/for-businesses", label: "List Your Business" },
+    { to: "/for-businesses", label: "For Businesses" },
     { to: "/browse", label: "Browse Offers" },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-border bg-card">
-      <div className="container flex h-16 items-center justify-between">
+    <nav className="sticky top-0 z-50 border-b border-border bg-background">
+      <div className="container flex h-14 items-center justify-between">
         {/* Left: Logo */}
         <Link to="/" className="flex items-center shrink-0">
-          <img src={revvinLogo} alt="Revvin" className="h-20 object-contain" />
+          <img src={revvinLogo} alt="Revvin" className="h-8 object-contain" />
         </Link>
 
         {/* Center: Nav links */}
@@ -63,18 +63,18 @@ const Navbar = () => {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-1 rounded-full border border-border p-1 pl-2 shadow-sm transition-all hover:shadow-md"
+                  className="flex items-center gap-1.5 rounded-lg border border-border p-1 pl-2 transition-all hover:shadow-sm"
                 >
                   <Menu className="h-4 w-4 text-muted-foreground" />
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+                  <Avatar className="h-7 w-7">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
                 </button>
 
                 {dropdownOpen && (
-                  <div className="absolute right-0 top-12 w-52 rounded-xl border border-border bg-card p-1.5 shadow-xl z-50">
+                  <div className="absolute right-0 top-11 w-52 rounded-xl border border-border bg-card p-1.5 shadow-lg z-50">
                     <Link
                       to="/dashboard"
                       onClick={() => setDropdownOpen(false)}
@@ -108,8 +108,8 @@ const Navbar = () => {
               >
                 Log In
               </Link>
-              <Button size="sm" className="rounded-full shadow-sm px-6 bg-accent text-accent-foreground hover:bg-accent/90" asChild>
-                <Link to="/auth?mode=signup">Sign Up</Link>
+              <Button size="sm" asChild>
+                <Link to="/auth?mode=signup">Get Started</Link>
               </Button>
             </>
           )}
@@ -117,19 +117,19 @@ const Navbar = () => {
 
         {/* Mobile toggle */}
         <button className="md:hidden" onClick={() => setOpen(!open)}>
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {/* Mobile menu */}
       {open && (
-        <div className="border-t border-border bg-card px-4 pb-4 md:hidden">
+        <div className="border-t border-border bg-background px-4 pb-4 md:hidden">
           {navLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
               onClick={() => setOpen(false)}
-              className="block py-3 text-sm font-medium text-muted-foreground hover:text-primary"
+              className="block py-3 text-sm font-medium text-muted-foreground hover:text-foreground"
             >
               {link.label}
             </Link>
@@ -147,8 +147,8 @@ const Navbar = () => {
                 <Button variant="outline" size="sm" className="flex-1" asChild>
                   <Link to="/auth" onClick={() => setOpen(false)}>Log In</Link>
                 </Button>
-                <Button size="sm" className="flex-1 rounded-full bg-accent text-accent-foreground hover:bg-accent/90" asChild>
-                  <Link to="/auth?mode=signup" onClick={() => setOpen(false)}>Sign Up</Link>
+                <Button size="sm" className="flex-1" asChild>
+                  <Link to="/auth?mode=signup" onClick={() => setOpen(false)}>Get Started</Link>
                 </Button>
               </>
             )}
