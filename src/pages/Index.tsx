@@ -87,16 +87,17 @@ const Index = () => {
             <motion.h1
               variants={fadeUp}
               custom={0}
-              className="mb-6 text-[clamp(2.5rem,5vw,4rem)] font-bold leading-[1.1] tracking-[-0.02em] text-foreground"
+              className="mb-4 text-[clamp(2.5rem,5vw,4rem)] font-bold leading-[1.1] tracking-[-0.02em] text-foreground"
             >
               Turn your customers into your best salespeople.
-              <br />
-              <span className="text-accent">They already love what you do. Now they get paid to tell people about it.</span>
             </motion.h1>
-            <motion.p variants={fadeUp} custom={1} className="mb-10 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <motion.p variants={fadeUp} custom={1} className="mb-3 text-[18px] font-normal text-[#6B7280] leading-relaxed">
+              They already love what you do. Now they <span className="text-primary font-normal">get paid to spread the word.</span>
+            </motion.p>
+            <motion.p variants={fadeUp} custom={2} className="mb-8 text-[15px] font-normal text-[#9CA3AF] leading-relaxed">
               Pay-per-close customer acquisition. Powered by referrals, not ads.
             </motion.p>
-            <motion.div variants={fadeUp} custom={2} className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <motion.div variants={fadeUp} custom={3} className="flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button size="lg" className="h-12 px-8 text-[15px]" asChild>
                 <Link to="/auth?mode=signup&role=business">Create Business Offer</Link>
               </Button>
@@ -104,12 +105,12 @@ const Index = () => {
                 <Link to="/auth?mode=signup&role=referrer">Start Referring &amp; Earning</Link>
               </Button>
             </motion.div>
-            <motion.div variants={fadeUp} custom={3} className="mt-5">
+            <motion.div variants={fadeUp} custom={4} className="mt-5">
               <Link to="/browse" className="text-sm text-muted-foreground hover:text-foreground hover:underline underline-offset-4 transition-colors">
                 See all offers
               </Link>
             </motion.div>
-            <motion.p variants={fadeUp} custom={4} className="mt-6 text-[13px] text-muted-foreground/70 flex items-center justify-center gap-1.5">
+            <motion.p variants={fadeUp} custom={5} className="mt-6 text-[13px] text-muted-foreground/70 flex items-center justify-center gap-1.5">
               <CheckCircle2 className="h-3.5 w-3.5" /> Trusted by businesses across Canada and the US
             </motion.p>
           </motion.div>
