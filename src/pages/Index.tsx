@@ -1,175 +1,393 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, DollarSign, Users, Building2, TrendingUp, Shield, Briefcase, MapPin, CheckCircle2, Zap, BarChart3, Lock, FileCheck, BadgeCheck, Ban, Target, Gauge, AlertTriangle, Scale } from "lucide-react";
+import { ArrowRight, DollarSign, Users, Building2, TrendingUp, Shield, Briefcase, MapPin, CheckCircle2, Zap, BarChart3, Lock, FileCheck, BadgeCheck, Ban, Target, Gauge, AlertTriangle, Scale, Quote } from "lucide-react";
 import { motion } from "framer-motion";
+import OfferCard from "@/components/OfferCard";
 import SEOHead from "@/components/SEOHead";
-import HeroConstellation from "@/components/HeroConstellation";
+import CitySlots from "@/components/CitySlots";
+import { cityJumpsCA, cityJumpsUS } from "@/lib/offerUtils";
+import { useDbOffers } from "@/hooks/useDbOffers";
+import { usePlatformStats } from "@/hooks/usePlatformStats";
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
-  }),
+    transition: { delay: i * 0.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }
+  })
 };
 
 const stagger = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
+  visible: { transition: { staggerChildren: 0.1 } }
 };
 
+// These are illustrative scenarios, not real user testimonials (yet!)
 const scenarios = [
-  {
-    persona: "Roofing Company",
-    scenario: "Business Example",
-    quote: "We set a $400 reward for every new customer. We sent our Revvin link to past clients and a few contractor friends. When they send someone our way and we close the job, they get paid. We only spend money when we actually land the work.",
-    highlight: "You choose what a customer is worth",
-  },
-  {
-    persona: "Real Estate Agent",
-    scenario: "Referrer Example",
-    quote: "My clients always ask me for contractor recommendations. Now when I refer them through Revvin and the job gets done, I get a payout. Same conversations I was already having - except now I earn from them.",
-    highlight: "Earn from the introductions you already make",
-  },
-  {
-    persona: "Insurance Professional",
-    scenario: "Referrer Example",
-    quote: "I talk to homeowners every single day. When someone mentions needing a roofer, a fence, or a kitchen renovation, I refer them to a business on Revvin. Takes me two minutes. I get paid when the job closes.",
-    highlight: "Your conversations are worth more than you think",
-  },
-  {
-    persona: "Mortgage Broker",
-    scenario: "Business Example",
-    quote: "Realtors on Revvin see my listing and send their buyers directly to me. I'm getting introduced to people by professionals who already have the relationship built. And I only pay when the loan actually funds.",
-    highlight: "Other businesses' networks become yours",
-  },
-];
+{
+  persona: "Real Estate Agent",
+  scenario: "Referrer Scenario",
+  city: "Example",
+  avatar: "RE",
+  quote: "Imagine referring a friend to a roofing company and earning $800 when the job closes. Submit in 5 minutes — Revvin handles the rest.",
+  highlight: "Potential: $500–$1,500 per referral"
+},
+{
+  persona: "HVAC Business Owner",
+  scenario: "Business Scenario",
+  city: "Example",
+  avatar: "HV",
+  quote: "Instead of paying for clicks that don't convert, set a fixed referral fee and pay only when a new customer signs. Zero upfront risk.",
+  highlight: "Pay-per-close acquisition"
+},
+{
+  persona: "Insurance Professional",
+  scenario: "Referrer Scenario",
+  city: "Example",
+  avatar: "IP",
+  quote: "If you already talk to homeowners daily, Revvin lets you monetize those conversations. Refer to contractors and earn commissions.",
+  highlight: "Turn conversations into income"
+},
+{
+  persona: "Service Business Owner",
+  scenario: "Business Scenario",
+  city: "Example",
+  avatar: "SB",
+  quote: "Set a payout amount, publish your offer, and only pay when a referred client actually signs. Controlled acquisition costs with zero upfront risk.",
+  highlight: "Pay-per-close, transparent payouts"
+}];
+
+
+const formatCurrency = (n: number) => {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M+`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K+`;
+  return `$${n}`;
+};
+
+const formatNumber = (n: number) => {
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n >= 10_000 ? 0 : 1)}K+`;
+  return `${n}+`;
+};
 
 const Index = () => {
+  const { data: allOffers = [] } = useDbOffers();
+  const featured = allOffers.filter((o) => o.featured).slice(0, 4);
+  const { data: stats } = usePlatformStats();
+
+  // Show real stats only — no fake inflated numbers
+  const hasRealData = stats && (stats.activeBusinesses > 0 || stats.totalReferrals > 0);
+  const statItems = hasRealData ? [
+  { value: formatCurrency(stats.totalPayoutsAvailable), label: "Payouts Available", icon: DollarSign },
+  { value: `${stats.activeBusinesses}`, label: "Businesses", icon: Building2 },
+  { value: `$${stats.avgPayout}`, label: "Avg. Payout", icon: TrendingUp },
+  { value: "2", label: "Countries", icon: MapPin },
+  { value: `${stats.activeCities}`, label: "Cities", icon: BarChart3 },
+  { value: `${stats.totalReferrals}`, label: "Referrals", icon: Users }] :
+  null;
+
   return (
     <div>
-      <SEOHead title="Revvin - Pay-Per-Close Referral Marketplace" description="Businesses pay only for closed deals. Referrers earn commissions. Active across Canada and the United States." path="/" />
+      <SEOHead title="Revvin — Pay-Per-Close Referral Marketplace" description="Businesses pay only for closed deals. Referrers earn commissions. Active across Canada and the United States." path="/" />
 
       {/* Hero */}
-      <section className="relative overflow-hidden pt-20 pb-[60px] lg:pt-[80px]">
-        <HeroConstellation />
-        <div className="container relative z-10">
-          <motion.div initial="hidden" animate="visible" className="mx-auto max-w-3xl text-center">
+      <section className="bg-muted py-32 lg:py-44">
+        <div className="container">
+          <motion.div initial="hidden" animate="visible" className="mx-auto max-w-4xl text-center">
             <motion.h1
               variants={fadeUp}
               custom={0}
-              className="mb-4 text-[clamp(2.5rem,5vw,4rem)] font-bold leading-[1.1] tracking-[-0.02em] text-foreground"
-            >
-              Turn your customers into your best salespeople.
+              className="mb-6 font-display text-5xl font-bold leading-[1.08] tracking-tight text-foreground md:text-6xl lg:text-7xl">
+
+              Businesses pay for closed deals.
+              <br />
+              <span className="text-accent">You earn for introductions.</span>
             </motion.h1>
-            <motion.p variants={fadeUp} custom={1} className="mb-3 text-[18px] font-normal text-[#6B7280] leading-relaxed">
-              They already love what you do. Now they <span className="text-primary font-normal">get paid to spread the word.</span>
+            <motion.p variants={fadeUp} custom={1} className="mb-10 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Pay-per-close customer acquisition — powered by referrals, not ads. Businesses publish referral payouts. Referrers submit real opportunities. Revvin verifies outcomes and coordinates payouts.
             </motion.p>
-            <motion.p variants={fadeUp} custom={2} className="mb-8 text-[15px] font-normal text-[#9CA3AF] leading-relaxed">
-              Set a reward for new customers. Share your link. Only pay when the deal actually closes.
+            <motion.div variants={fadeUp} custom={2} className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Button size="lg" className="rounded-full font-semibold text-base px-10 h-13 shadow-md bg-accent text-accent-foreground hover:bg-accent/90" asChild>
+                <Link to="/auth?mode=signup&role=business">
+                  Create Business Offer
+                </Link>
+              </Button>
+              
+
+
+
+
+            </motion.div>
+            <motion.div variants={fadeUp} custom={3} className="mt-5">
+              <Link to="/browse" className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors">
+                See all offers →
+              </Link>
+            </motion.div>
+          </motion.div>
+
+          {/* Hero Visual — sample offer cards */}
+          {featured.length > 0 &&
+          <motion.div variants={fadeUp} custom={4} initial="hidden" animate="visible" className="mx-auto mt-16 max-w-5xl">
+              <div className="rounded-3xl border border-border bg-card p-6 shadow-lg">
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {featured.slice(0, 3).map((offer) =>
+                <OfferCard key={offer.id} offer={offer} />
+                )}
+                </div>
+              </div>
+            </motion.div>
+          }
+        </div>
+      </section>
+
+      {/* Marketplace Stats — only shown when real data exists */}
+      {statItems &&
+      <section className="relative -mt-8 z-20">
+          <div className="container">
+            <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={stagger}
+            className="mx-auto max-w-5xl rounded-2xl border border-border bg-card p-6 shadow-xl">
+
+              <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-4 text-center">Live Marketplace — 🇨🇦 Canada + 🇺🇸 USA</p>
+              <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6">
+                {statItems.map((stat, i) =>
+              <motion.div key={stat.label} variants={fadeUp} custom={i} className="text-center">
+                    <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                      <stat.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="font-display text-2xl font-bold text-foreground">{stat.value}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
+                  </motion.div>
+              )}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      }
+
+      {/* Early Stage CTA — shown when no real data */}
+      {!statItems &&
+      <section className="relative -mt-8 z-20">
+          <div className="container">
+            <div className="mx-auto max-w-3xl rounded-2xl border border-primary/20 bg-card p-8 shadow-xl text-center">
+              <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">🚀 Early Access</p>
+              <h3 className="font-display text-xl font-bold mb-2">Be among the first businesses and referrers on the platform</h3>
+              <p className="text-muted-foreground text-sm mb-4">We're onboarding businesses across Canada and the USA. Join now to claim your market.</p>
+              <div className="flex justify-center gap-3">
+                <Button size="sm" asChild><Link to="/auth?mode=signup&role=business">List Your Business</Link></Button>
+                <Button size="sm" variant="outline" asChild><Link to="/auth?mode=signup&role=referrer">Start Earning</Link></Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+
+      {/* Trust Badges Strip */}
+      <section className="py-10">
+        <div className="container">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto max-w-4xl">
+            <motion.p variants={fadeUp} custom={0} className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider mb-5">
+              Trusted by businesses and referrers across North America
             </motion.p>
-            <motion.div variants={fadeUp} custom={3} className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button size="lg" className="h-12 px-8 text-[15px]" asChild>
-                <Link to="/auth?mode=signup&role=business">Create Business Offer</Link>
-              </Button>
-              <Button size="lg" variant="outline" className="h-12 px-8 text-[15px]" asChild>
-                <Link to="/auth?mode=signup&role=referrer">Start Earning</Link>
-              </Button>
+            <motion.div variants={fadeUp} custom={1} className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+              {[
+              { icon: Shield, label: "256-bit Encrypted" },
+              { icon: BadgeCheck, label: "Verified Payouts" },
+              { icon: BadgeCheck, label: "Verified Businesses" },
+              { icon: Scale, label: "Dispute Resolution" },
+              { icon: FileCheck, label: "PIPEDA & CCPA Compliant" }].
+              map((badge) =>
+              <div key={badge.label} className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground shadow-sm">
+                  <badge.icon className="h-3.5 w-3.5 text-primary" />
+                  {badge.label}
+                </div>
+              )}
             </motion.div>
           </motion.div>
         </div>
       </section>
 
       {/* 3-Step Explainer */}
-      <section className="py-20 lg:py-28">
+      <section className="py-24">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mb-14 text-center">
-            <motion.p variants={fadeUp} custom={0} className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-3">How It Works</motion.p>
-            <motion.h2 variants={fadeUp} custom={1} className="text-3xl font-bold text-foreground md:text-[40px] md:leading-[1.15] tracking-tight">Simple as it sounds</motion.h2>
+            <motion.p variants={fadeUp} custom={0} className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">How Revvin Works</motion.p>
+            <motion.h2 variants={fadeUp} custom={1} className="font-display text-3xl font-bold text-foreground md:text-4xl">Three Steps. Real Outcomes.</motion.h2>
           </motion.div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto grid max-w-5xl gap-8 md:grid-cols-3">
             {[
-              { num: "1", title: "Set your reward", desc: "Pick how much you want to pay someone for bringing you a new customer. You choose the amount and you set the rules for what counts." },
-              { num: "2", title: "Spread the word", desc: "Share your link with anyone - happy customers, friends, family, business contacts. When they know someone who needs what you offer, they send them your way through Revvin." },
-              { num: "3", title: "Pay only when it works", desc: "You get the introduction. You close the deal. If it turns into a real paying customer, the person who referred them gets rewarded. If it doesn't, you owe nothing." },
-            ].map((item, i) => (
-              <motion.div key={item.num} variants={fadeUp} custom={i} className="rounded-xl border border-border bg-card p-8 text-center transition-shadow hover:shadow-md">
-                <div className="mx-auto mb-5 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
-                  {item.num}
+            { step: "01", icon: Building2, title: "Business Posts Offer", desc: "Set a fixed dollar or percentage payout. Define qualification rules. Publish to the marketplace.", color: "bg-primary/10 text-primary" },
+            { step: "02", icon: Users, title: "Referrer Submits Customer", desc: "Know someone who needs the service? Submit their details. First submission wins — timestamped.", color: "bg-earnings/10 text-earnings" },
+            { step: "03", icon: DollarSign, title: "Accept → Work Deal → Close → Payout", desc: "Business accepts referral. Deal closes → Revvin verifies → payout processed.", color: "bg-accent/10 text-accent-foreground" }].
+            map((item, i) =>
+            <motion.div key={item.step} variants={fadeUp} custom={i} className="group relative rounded-2xl border border-border bg-card p-8 text-center transition-all hover:shadow-lg hover:-translate-y-1">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-md">
+                  Step {item.step}
                 </div>
-                <h3 className="mb-3 text-lg font-bold text-foreground">{item.title}</h3>
+                <div className={`mx-auto mb-5 mt-4 flex h-14 w-14 items-center justify-center rounded-2xl ${item.color}`}>
+                  <item.icon className="h-7 w-7" />
+                </div>
+                <h3 className="mb-3 font-display text-lg font-bold">{item.title}</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
               </motion.div>
-            ))}
+            )}
+          </motion.div>
+        </div>
+      </section>
+
+      <section className="border-y border-border bg-muted/30 py-24">
+        <div className="container">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+            <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
+              <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">How It Could Work For You</p>
+              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Real-World Scenarios</h2>
+              <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Here's how businesses and referrers can use Revvin to drive results.</p>
+            </motion.div>
+            <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
+              {scenarios.map((t, i) =>
+              <motion.div key={t.persona} variants={fadeUp} custom={i + 1} className="rounded-2xl border border-border bg-card p-6 relative">
+                  <Quote className="absolute top-5 right-5 h-8 w-8 text-primary/10" />
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                      {t.avatar}
+                    </div>
+                    <div>
+                      <p className="font-display text-sm font-bold">{t.persona}</p>
+                      <p className="text-xs text-muted-foreground">{t.scenario}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-foreground/80 leading-relaxed mb-4">"{t.quote}"</p>
+                  <div className="pt-3 border-t border-border">
+                    <span className="text-xs font-semibold text-primary">{t.highlight}</span>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+            <p className="text-center text-xs text-muted-foreground mt-6 italic">These are illustrative scenarios — not user testimonials. We're building real success stories with our first users.</p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Featured Cities */}
+      <section className="py-24">
+        <div className="container">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+            <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
+              <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">Active Markets</p>
+              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Featured Cities</h2>
+              <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Referral programs are live across these metro areas in Canada and the United States.</p>
+            </motion.div>
+            <motion.div variants={fadeUp} custom={1} className="mx-auto max-w-5xl grid gap-6 md:grid-cols-2">
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">🇨🇦 Canada</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {cityJumpsCA.map((city) => {
+                    const count = allOffers.filter((o) => o.city === city.label || o.location.includes(city.label)).length;
+                    return (
+                      <Link key={city.label} to={`/browse`} className="group rounded-xl border border-border bg-card p-4 text-center transition-all hover:shadow-md hover:-translate-y-0.5">
+                        <p className="font-display text-sm font-bold group-hover:text-primary transition-colors">{city.label}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{count} offer{count !== 1 ? "s" : ""}</p>
+                      </Link>);
+
+                  })}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">🇺🇸 United States</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {cityJumpsUS.map((city) => {
+                    const count = allOffers.filter((o) => o.city === city.label || o.location.includes(city.label)).length;
+                    return (
+                      <Link key={city.label} to={`/browse`} className="group rounded-xl border border-border bg-card p-4 text-center transition-all hover:shadow-md hover:-translate-y-0.5">
+                        <p className="font-display text-sm font-bold group-hover:text-primary transition-colors">{city.label}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{count} offer{count !== 1 ? "s" : ""}</p>
+                      </Link>);
+
+                  })}
+                </div>
+              </div>
+            </motion.div>
+            <motion.div variants={fadeUp} custom={2} className="mt-8 text-center">
+              <Button variant="outline" className="gap-2" asChild>
+                <Link to="/browse">Explore All Markets <ArrowRight className="h-4 w-4" /></Link>
+              </Button>
+            </motion.div>
           </motion.div>
         </div>
       </section>
 
       {/* Revvin vs Ads */}
-      <section className="py-20 lg:py-28 border-y border-border bg-muted">
+      <section className="py-24">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-3">Why Revvin</p>
-              <h2 className="text-3xl font-bold text-foreground md:text-[40px] md:leading-[1.15] tracking-tight">Why pay for attention when you can pay for results?</h2>
+              <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">Why Revvin</p>
+              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Revvin vs. Traditional Advertising</h2>
+              <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Stop paying for clicks. Start paying for customers.</p>
             </motion.div>
             <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
               {/* Traditional Ads */}
-              <motion.div variants={fadeUp} custom={1} className="rounded-xl border border-border bg-card p-8">
+              <motion.div variants={fadeUp} custom={1} className="rounded-2xl border border-destructive/20 bg-card p-8">
                 <div className="flex items-center gap-3 mb-6">
-                  <Ban className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-destructive/10">
+                    <Ban className="h-6 w-6 text-destructive" />
+                  </div>
                   <div>
-                    <h3 className="text-lg font-bold text-foreground">Traditional Ads</h3>
+                    <h3 className="font-display text-lg font-bold">Traditional Ads</h3>
                     <p className="text-xs text-muted-foreground">Pay upfront, hope for results</p>
                   </div>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {[
-                    { label: "Cost Model", value: "You pay every time someone clicks or sees your ad", icon: DollarSign },
-                    { label: "Risk", value: "You spend money before you know if it works", icon: AlertTriangle },
-                    { label: "Lead Quality", value: "Strangers who may not need what you offer", icon: Target },
-                    { label: "ROI Predictability", value: "Hard to predict - costs keep changing", icon: Gauge },
-                  ].map((item) => (
-                    <div key={item.label} className="flex items-center gap-3 rounded-lg bg-muted p-3">
-                      <item.icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                  { label: "Cost Model", value: "Pay per click / impression", icon: DollarSign },
+                  { label: "Risk", value: "High — spend before results", icon: AlertTriangle },
+                  { label: "Intent Quality", value: "Low — cold audiences", icon: Target },
+                  { label: "ROI Predictability", value: "Uncertain — rising CPMs", icon: Gauge }].
+                  map((item) =>
+                  <div key={item.label} className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+                      <item.icon className="h-4 w-4 text-destructive/60 shrink-0" />
                       <div>
                         <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
                         <p className="text-sm text-foreground">{item.value}</p>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </motion.div>
 
               {/* Revvin */}
-              <motion.div variants={fadeUp} custom={2} className="rounded-xl border border-border bg-card p-8 relative border-l-4 border-l-primary">
+              <motion.div variants={fadeUp} custom={2} className="rounded-2xl border-2 border-primary/30 bg-card p-8 relative">
                 <div className="absolute -top-3 right-6">
-                  <span className="rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground">Recommended</span>
+                  <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground shadow-md">Recommended</span>
                 </div>
                 <div className="flex items-center gap-3 mb-6">
-                  <Zap className="h-5 w-5 text-primary" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+                    <Zap className="h-6 w-6 text-primary" />
+                  </div>
                   <div>
-                    <h3 className="text-lg font-bold text-foreground">Revvin</h3>
+                    <h3 className="font-display text-lg font-bold">Revvin</h3>
                     <p className="text-xs text-muted-foreground">Pay only on closed deals</p>
                   </div>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {[
-                    { label: "Cost Model", value: "You pay only when you get a real customer", icon: DollarSign },
-                    { label: "Risk", value: "No customer, no cost", icon: Shield },
-                    { label: "Lead Quality", value: "Warm introductions from people who already trust you", icon: Target },
-                    { label: "ROI Predictability", value: "You set the price. It never changes unless you want it to.", icon: Gauge },
-                  ].map((item) => (
-                    <div key={item.label} className="flex items-center gap-3 rounded-lg bg-primary/5 p-3">
+                  { label: "Cost Model", value: "Pay per closed deal", icon: DollarSign },
+                  { label: "Risk", value: "Zero — no deal, no cost", icon: Shield },
+                  { label: "Intent Quality", value: "High — warm introductions", icon: Target },
+                  { label: "ROI Predictability", value: "Controlled CPA, fixed payouts", icon: Gauge }].
+                  map((item) =>
+                  <div key={item.label} className="flex items-center gap-3 rounded-lg bg-primary/5 border border-primary/10 p-3">
                       <item.icon className="h-4 w-4 text-primary shrink-0" />
                       <div>
                         <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
                         <p className="text-sm font-medium text-foreground">{item.value}</p>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </motion.div>
             </div>
@@ -177,76 +395,55 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Real-World Scenarios */}
-      <section className="py-20 lg:py-28">
+      {/* Split-Entry Onboarding Gate */}
+      <section className="border-y border-border bg-muted/30 py-24">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-3">How It Could Work For You</p>
-              <h2 className="text-3xl font-bold text-foreground md:text-[40px] md:leading-[1.15] tracking-tight">Picture this</h2>
-              <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Here's how real businesses and everyday people can use Revvin.</p>
-            </motion.div>
-            <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
-              {scenarios.map((t, i) => (
-                <motion.div key={t.persona} variants={fadeUp} custom={i + 1} className="rounded-xl border border-border bg-card p-7">
-                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-1">{t.scenario}</p>
-                  <p className="text-base font-bold text-foreground mb-3">{t.persona}</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">{t.quote}</p>
-                  <div className="pt-3 border-t border-border">
-                    <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">{t.highlight}</span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-            <p className="text-center text-xs text-muted-foreground/60 mt-6 italic">These are illustrative examples showing how Revvin is designed to work.</p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Choose Your Path */}
-      <section className="py-20 lg:py-28 border-y border-border bg-muted">
-        <div className="container">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-            <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-3">Get Started</p>
-              <h2 className="text-3xl font-bold text-foreground md:text-[40px] md:leading-[1.15] tracking-tight">Which side are you on?</h2>
+              <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">Get Started</p>
+              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Choose Your Path</h2>
+              <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Two sides of the marketplace. One platform that makes referrals profitable for everyone.</p>
             </motion.div>
             <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-2">
               {/* For Businesses */}
-              <motion.div variants={fadeUp} custom={1} className="rounded-xl border border-border bg-card p-8 transition-shadow hover:shadow-md">
-                <Building2 className="h-5 w-5 text-muted-foreground mb-4" />
-                <p className="text-[11px] font-semibold text-primary uppercase tracking-[0.05em] mb-2">For Businesses</p>
-                <h3 className="text-xl font-bold text-foreground mb-3">Get customers without gambling on ads</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-5">
-                  Set a reward for new customers. Share your link with the people who already know and trust your work. You only pay when someone actually becomes a paying customer. As the Revvin marketplace grows, new people can discover your business and refer customers to you too.
+              <motion.div variants={fadeUp} custom={1} className="rounded-2xl border-2 border-border bg-card p-8 transition-all hover:shadow-lg hover:border-primary/30">
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+                  <Building2 className="h-7 w-7 text-primary" />
+                </div>
+                <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">For Businesses</p>
+                <h3 className="font-display text-2xl font-bold text-foreground mb-3">Acquire Customers Through Referral Payouts</h3>
+                <p className="text-muted-foreground leading-relaxed mb-5">
+                  Set your own referral fees. Get qualified leads from motivated referrers. Pay only when deals close — zero upfront risk.
                 </p>
-                <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> You decide exactly what you'll pay per customer</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> Share one link with anyone who might send you business</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> Other referrers across Revvin can find and refer to you too</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> Free to list - you only pay on results</li>
+                <ul className="space-y-3 text-sm text-muted-foreground mb-6">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Define custom payout structures</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Set qualification rules for leads</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Track acquisition cost per customer</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> $0 to list — pay only on results</li>
                 </ul>
-                <Button className="w-full h-12" asChild>
-                  <Link to="/auth?mode=signup&role=business">Create Business Offer</Link>
+                <Button className="w-full gap-2 h-12 text-base" asChild>
+                  <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
                 </Button>
               </motion.div>
 
               {/* For Referrers */}
-              <motion.div variants={fadeUp} custom={2} className="rounded-xl border border-border bg-card p-8 transition-shadow hover:shadow-md">
-                <Users className="h-5 w-5 text-muted-foreground mb-4" />
-                <p className="text-[11px] font-semibold text-earnings uppercase tracking-[0.05em] mb-2">For Referrers</p>
-                <h3 className="text-xl font-bold text-foreground mb-3">Get paid for recommending businesses you believe in</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-5">
-                  You already tell friends, family, and colleagues about businesses you trust. Revvin lets you earn real money when those recommendations turn into paying customers.
+              <motion.div variants={fadeUp} custom={2} className="rounded-2xl border-2 border-border bg-card p-8 transition-all hover:shadow-lg hover:border-earnings/30">
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-earnings/10">
+                  <Users className="h-7 w-7 text-earnings" />
+                </div>
+                <p className="text-xs font-semibold text-earnings uppercase tracking-wider mb-2">For Referrers</p>
+                <h3 className="font-display text-2xl font-bold text-foreground mb-3">Earn Income Referring Trusted Businesses</h3>
+                <p className="text-muted-foreground leading-relaxed mb-5">
+                  Browse high-paying referral programs. Submit qualified leads. Earn real commissions when deals close.
                 </p>
-                <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> Browse businesses offering referral rewards</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> Refer someone you know who needs their service</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> Track your referrals and earnings in one place</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> Earn $200-$1,500+ when deals close</li>
+                <ul className="space-y-3 text-sm text-muted-foreground mb-6">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-earnings shrink-0" /> Browse by map, category, or payout</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-earnings shrink-0" /> Track referrals and earnings in real time</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-earnings shrink-0" /> Earn badges and climb leaderboards</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-earnings shrink-0" /> Competitive referral payouts</li>
                 </ul>
-                <Button variant="outline" className="w-full h-12" asChild>
-                  <Link to="/auth?mode=signup&role=referrer">Start Earning</Link>
+                <Button variant="outline" className="w-full gap-2 h-12 text-base border-2 border-earnings/30 text-earnings hover:bg-earnings/5" asChild>
+                  <Link to="/auth?mode=signup&role=referrer">Start Referring & Earning <ArrowRight className="h-4 w-4" /></Link>
                 </Button>
               </motion.div>
             </div>
@@ -254,54 +451,69 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Trust & Protection */}
-      <section className="py-20 lg:py-28">
-        <div className="container">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-            <motion.div variants={fadeUp} custom={0} className="text-center mb-10">
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-3">Trust & Protection</p>
-              <h2 className="text-3xl font-bold text-foreground md:text-[40px] md:leading-[1.15] tracking-tight">Built so both sides can trust the process</h2>
-              <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Clear rules, verified outcomes, and no surprises - for businesses and referrers.</p>
-            </motion.div>
+      {/* Spacer between sections */}
+      <div className="py-4" />
 
-            {/* Trust Badges */}
-            <motion.div variants={fadeUp} custom={1} className="mx-auto max-w-4xl mb-10">
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                {[
-                  { icon: Shield, label: "256-bit Encrypted" },
-                  { icon: BadgeCheck, label: "Verified Payouts" },
-                  { icon: BadgeCheck, label: "Verified Businesses" },
-                  { icon: Scale, label: "Dispute Resolution" },
-                  { icon: FileCheck, label: "PIPEDA & CCPA Compliant" },
-                ].map((badge) => (
-                  <div key={badge.label} className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground">
-                    <badge.icon className="h-3 w-3 text-muted-foreground/50" />
-                    {badge.label}
-                  </div>
-                ))}
+      {/* Featured Offers — only shown if real offers exist */}
+      {featured.length > 0 &&
+      <section className="border-y border-border bg-muted/30 py-24">
+          <div className="container">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+              <motion.div variants={fadeUp} custom={0} className="mb-12 flex items-end justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">Live Opportunities</p>
+                  <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Featured Referral Programs</h2>
+                  <p className="mt-2 text-muted-foreground">High-paying programs from verified businesses</p>
+                </div>
+                <Button variant="outline" className="hidden gap-2 md:flex" asChild>
+                  <Link to="/browse">View All Opportunities <ArrowRight className="h-4 w-4" /></Link>
+                </Button>
+              </motion.div>
+              <motion.div variants={fadeUp} custom={1} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                {featured.map((offer) =>
+              <OfferCard key={offer.id} offer={offer} />
+              )}
+              </motion.div>
+              <div className="mt-8 text-center md:hidden">
+                <Button variant="outline" className="gap-2" asChild>
+                  <Link to="/browse">View All Opportunities <ArrowRight className="h-4 w-4" /></Link>
+                </Button>
               </div>
             </motion.div>
+          </div>
+        </section>
+      }
 
-            {/* Trust Feature Cards */}
-            <div className="mx-auto grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Trust & Credibility Layer */}
+      <section className="py-24">
+        <div className="container">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+            <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
+              <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">Trust & Protection</p>
+              <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Built for Credibility</h2>
+              <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Both sides of the marketplace are protected by verification, transparent economics, and structured processes.</p>
+            </motion.div>
+            <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               {[
-                { icon: BadgeCheck, title: "Verified Businesses", desc: "Every business is reviewed before their offer goes live. No one gets listed without a check." },
-                { icon: Lock, title: "Protected Payouts", desc: "Referral rewards are tracked from start to finish and only paid out when the deal is confirmed closed." },
-                { icon: FileCheck, title: "Clear Rules", desc: "Businesses set exactly what counts as a valid referral upfront. No confusion, no grey areas." },
-                { icon: Scale, title: "Fair Dispute Process", desc: "If something doesn't seem right, there's a structured process to sort it out. Both sides get heard." },
-                { icon: Briefcase, title: "No Hidden Costs", desc: "Businesses set their reward. Referrers see exactly what they'll earn. No surprise fees on either side." },
-                { icon: Shield, title: "Fraud Prevention", desc: "Duplicate submissions are caught automatically. Every referral is timestamped and reviewed." },
-              ].map((item, i) => (
-                <motion.div key={item.title} variants={fadeUp} custom={i + 2} className="rounded-xl border border-border bg-card p-6">
-                  <item.icon className="h-5 w-5 text-muted-foreground mb-3" />
-                  <h3 className="text-base font-bold text-foreground mb-1.5">{item.title}</h3>
+              { icon: BadgeCheck, title: "Business Verification", desc: "Every business is reviewed before offers go live." },
+              { icon: Lock, title: "Payout Protection", desc: "Commissions tracked transparently, paid on close." },
+              { icon: FileCheck, title: "Qualification Rules", desc: "Clear criteria for what makes a valid referral." },
+              { icon: Scale, title: "Dispute Resolution", desc: "Fair process to handle disagreements." },
+              { icon: Briefcase, title: "Transparent Pricing", desc: "No hidden costs. Clear, aligned incentives." },
+              { icon: Shield, title: "Fraud Prevention", desc: "Duplicate detection and timestamp verification." }].
+              map((item, i) =>
+              <motion.div key={item.title} variants={fadeUp} custom={i + 1} className="rounded-2xl border border-border bg-card p-6 text-center">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+                    <item.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-display text-base font-bold mb-2">{item.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
                 </motion.div>
-              ))}
+              )}
             </div>
             <div className="mt-8 text-center">
-              <Button variant="outline" asChild>
-                <Link to="/trust">Learn More About Trust & Protection</Link>
+              <Button variant="outline" className="gap-2" asChild>
+                <Link to="/trust">Learn More About Trust & Protection <ArrowRight className="h-4 w-4" /></Link>
               </Button>
             </div>
           </motion.div>
@@ -309,28 +521,28 @@ const Index = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="border-t border-border bg-muted py-20 lg:py-28">
+      <section className="border-t border-border bg-muted/30 py-24">
         <div className="container">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto max-w-2xl text-center">
-            <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold text-foreground md:text-[40px] md:leading-[1.15] tracking-tight">
-              Ready to put your network to work?
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto max-w-3xl text-center">
+            <motion.h2 variants={fadeUp} custom={0} className="font-display text-3xl font-bold text-foreground md:text-4xl">
+              Ready to Join the Referral Economy?
             </motion.h2>
             <motion.p variants={fadeUp} custom={1} className="mt-4 text-muted-foreground leading-relaxed text-lg">
-              Whether you're a business looking for customers or someone who knows the right people - every good introduction should be worth something.
+              Whether you're a business looking for customers or someone who knows the right people — Revvin makes referrals profitable.
             </motion.p>
-            <motion.div variants={fadeUp} custom={2} className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
-              <Button size="lg" className="h-12 px-8" asChild>
-                <Link to="/auth?mode=signup&role=business">Create Business Offer</Link>
+            <motion.div variants={fadeUp} custom={2} className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+              <Button size="lg" className="gap-2 h-12 px-8" asChild>
+                <Link to="/auth?mode=signup&role=business">Create Business Offer <ArrowRight className="h-4 w-4" /></Link>
               </Button>
-              <Button size="lg" variant="outline" className="h-12 px-8" asChild>
-                <Link to="/auth?mode=signup&role=referrer">Start Earning</Link>
+              <Button size="lg" variant="outline" className="gap-2 h-12 px-8" asChild>
+                <Link to="/auth?mode=signup&role=referrer">Start Referring & Earning</Link>
               </Button>
             </motion.div>
           </motion.div>
         </div>
       </section>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Index;
