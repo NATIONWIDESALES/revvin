@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, DollarSign, Users, Building2, TrendingUp, Shield, Briefcase, MapPin, CheckCircle2, Zap, BarChart3, Lock, FileCheck, BadgeCheck, Ban, Target, Gauge, AlertTriangle, Scale } from "lucide-react";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
+import HeroConstellation from "@/components/HeroConstellation";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -51,8 +52,9 @@ const Index = () => {
       <SEOHead title="Revvin - Pay-Per-Close Referral Marketplace" description="Businesses pay only for closed deals. Referrers earn commissions. Active across Canada and the United States." path="/" />
 
       {/* Hero */}
-      <section className="pt-20 pb-[60px] lg:pt-[80px]">
-        <div className="container">
+      <section className="relative overflow-hidden pt-20 pb-[60px] lg:pt-[80px]">
+        <HeroConstellation />
+        <div className="container relative z-10">
           <motion.div initial="hidden" animate="visible" className="mx-auto max-w-3xl text-center">
             <motion.h1
               variants={fadeUp}
