@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="grid gap-10 md:grid-cols-4">
           <div>
             <div className="flex items-center mb-3">
-              <img src={revvinLogo} alt="Revvin" className="h-7 object-contain" />
+              <img src={revvinLogo} alt="Revvin" className="h-[30px] w-auto object-contain" />
             </div>
             <p className="text-[13px] text-muted-foreground leading-relaxed">
               Pay-per-close customer acquisition powered by human introductions.
