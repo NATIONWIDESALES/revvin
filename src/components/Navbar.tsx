@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Search, User, LogOut, LayoutDashboard, UserCircle } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, UserCircle } from "lucide-react";
 import revvinLogo from "@/assets/revvin-logo.png";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,7 +14,6 @@ const Navbar = () => {
   const location = useLocation();
   const { user, userRole, signOut } = useAuth();
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -27,32 +26,37 @@ const Navbar = () => {
 
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? "U";
 
+  const navLinks = [
+    { to: "/how-it-works", label: "How It Works" },
+    { to: "/for-businesses", label: "List Your Business" },
+    { to: "/browse", label: "Browse Offers" },
+  ];
+
   return (
-    <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
+    <nav className="sticky top-0 z-50 border-b border-border bg-card">
       <div className="container flex h-16 items-center justify-between">
         {/* Left: Logo */}
-        <Link to="/" className="flex items-center">
+        <Link to="/" className="flex items-center shrink-0">
           <img src={revvinLogo} alt="Revvin" className="h-20 object-contain" />
         </Link>
 
-        {/* Center: Search link */}
-        <Link
-          to="/browse"
-          className="hidden md:flex items-center gap-2 rounded-full border border-border bg-card px-8 py-2 text-sm text-muted-foreground shadow-sm transition-all hover:shadow-md hover:border-primary/30 min-w-[400px] justify-center"
-        >
-          <Search className="h-4 w-4" />
-          <span>Search opportunities</span>
-        </Link>
+        {/* Center: Nav links */}
+        <div className="hidden md:flex items-center gap-8">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`text-sm font-medium transition-colors hover:text-foreground ${
+                location.pathname === link.to ? "text-foreground" : "text-muted-foreground"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
 
         {/* Right: Controls */}
-        <div className="hidden items-center gap-3 md:flex">
-          <Link
-            to="/for-businesses"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            List Your Business
-          </Link>
-
+        <div className="hidden items-center gap-3 md:flex shrink-0">
           {user ? (
             <>
               <NotificationBell />
@@ -98,10 +102,13 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/auth">Log In</Link>
-              </Button>
-              <Button size="sm" className="rounded-full shadow-sm px-5" asChild>
+              <Link
+                to="/auth"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Log In
+              </Link>
+              <Button size="sm" className="rounded-full shadow-sm px-6 bg-accent text-accent-foreground hover:bg-accent/90" asChild>
                 <Link to="/auth?mode=signup">Sign Up</Link>
               </Button>
             </>
@@ -116,20 +123,17 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {open && (
-        <div className="border-t border-border bg-background px-4 pb-4 md:hidden">
-          <Link
-            to="/browse"
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-2 py-3 text-sm font-medium text-muted-foreground hover:text-primary"
-          >
-            <Search className="h-4 w-4" /> Search Opportunities
-          </Link>
-          <Link to="/for-businesses" onClick={() => setOpen(false)} className="block py-3 text-sm font-medium text-muted-foreground hover:text-primary">
-            List Your Business
-          </Link>
-          <Link to="/how-it-works" onClick={() => setOpen(false)} className="block py-3 text-sm font-medium text-muted-foreground hover:text-primary">
-            How It Works
-          </Link>
+        <div className="border-t border-border bg-card px-4 pb-4 md:hidden">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              onClick={() => setOpen(false)}
+              className="block py-3 text-sm font-medium text-muted-foreground hover:text-primary"
+            >
+              {link.label}
+            </Link>
+          ))}
           <div className="mt-3 flex gap-2">
             {user ? (
               <>
@@ -143,7 +147,7 @@ const Navbar = () => {
                 <Button variant="outline" size="sm" className="flex-1" asChild>
                   <Link to="/auth" onClick={() => setOpen(false)}>Log In</Link>
                 </Button>
-                <Button size="sm" className="flex-1 rounded-full" asChild>
+                <Button size="sm" className="flex-1 rounded-full bg-accent text-accent-foreground hover:bg-accent/90" asChild>
                   <Link to="/auth?mode=signup" onClick={() => setOpen(false)}>Sign Up</Link>
                 </Button>
               </>
