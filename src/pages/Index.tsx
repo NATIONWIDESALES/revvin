@@ -27,8 +27,8 @@ const scenarios = [
   {
     persona: "Real Estate Agent",
     scenario: "Referrer Scenario",
-    quote: "Imagine referring a friend to a roofing company and earning $800 when the job closes. Submit in 5 minutes — Revvin handles the rest.",
-    highlight: "Potential: $500–$1,500 per referral",
+    quote: "Imagine referring a friend to a roofing company and earning $800 when the job closes. Submit in 5 minutes. Revvin handles the rest.",
+    highlight: "Potential: $500-$1,500 per referral",
   },
   {
     persona: "HVAC Business Owner",
@@ -78,7 +78,7 @@ const Index = () => {
 
   return (
     <div>
-      <SEOHead title="Revvin — Pay-Per-Close Referral Marketplace" description="Businesses pay only for closed deals. Referrers earn commissions. Active across Canada and the United States." path="/" />
+      <SEOHead title="Revvin - Pay-Per-Close Referral Marketplace" description="Businesses pay only for closed deals. Referrers earn commissions. Active across Canada and the United States." path="/" />
 
       {/* Hero */}
       <section className="py-24 lg:py-32">
@@ -89,12 +89,12 @@ const Index = () => {
               custom={0}
               className="mb-6 text-[clamp(2.5rem,5vw,4rem)] font-bold leading-[1.1] tracking-[-0.02em] text-foreground"
             >
-              Businesses pay for closed deals.
+              Turn your customers into your best salespeople.
               <br />
-              <span className="text-accent">You earn for introductions.</span>
+              <span className="text-accent">They already love what you do. Now they get paid to tell people about it.</span>
             </motion.h1>
             <motion.p variants={fadeUp} custom={1} className="mb-10 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Pay-per-close customer acquisition — powered by referrals, not ads.
+              Pay-per-close customer acquisition. Powered by referrals, not ads.
             </motion.p>
             <motion.div variants={fadeUp} custom={2} className="flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button size="lg" className="h-12 px-8 text-[15px]" asChild>
@@ -114,7 +114,7 @@ const Index = () => {
             </motion.p>
           </motion.div>
 
-          {/* Hero Visual — sample offer cards */}
+          {/* Hero Visual - sample offer cards */}
           {featured.length > 0 && (
             <motion.div variants={fadeUp} custom={5} initial="hidden" animate="visible" className="mx-auto mt-16 max-w-5xl">
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -132,7 +132,7 @@ const Index = () => {
         <section className="py-16 border-y border-border">
           <div className="container">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-8 text-center">
-              Live Marketplace — Canada + United States
+              Live Marketplace. Canada + United States
             </p>
             <div className="mx-auto max-w-4xl grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
               {statItems.map((stat, i) => (
@@ -206,7 +206,7 @@ const Index = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto grid max-w-5xl gap-8 md:grid-cols-3">
             {[
               { num: "1", title: "Business Posts Offer", desc: "Set a fixed dollar or percentage payout. Define qualification rules. Publish to the marketplace." },
-              { num: "2", title: "Referrer Submits Customer", desc: "Know someone who needs the service? Submit their details. First submission wins — timestamped." },
+              { num: "2", title: "Referrer Submits Customer", desc: "Know someone who needs the service? Submit their details. First submission wins. Timestamped." },
               { num: "3", title: "Deal Closes → Payout", desc: "Business accepts referral. Deal closes → Revvin verifies → payout processed." },
             ].map((item, i) => (
               <motion.div key={item.num} variants={fadeUp} custom={i} className="rounded-xl border border-border bg-card p-8 text-center transition-shadow hover:shadow-md">
@@ -242,7 +242,7 @@ const Index = () => {
                 </motion.div>
               ))}
             </div>
-            <p className="text-center text-xs text-muted-foreground/60 mt-6 italic">These are illustrative scenarios — not user testimonials. We're building real success stories with our first users.</p>
+            <p className="text-center text-xs text-muted-foreground/60 mt-6 italic">These are illustrative scenarios, not user testimonials. We're building real success stories with our first users.</p>
           </motion.div>
         </div>
       </section>
@@ -325,9 +325,9 @@ const Index = () => {
                 <div className="space-y-3">
                   {[
                     { label: "Cost Model", value: "Pay per click / impression", icon: DollarSign },
-                    { label: "Risk", value: "High — spend before results", icon: AlertTriangle },
-                    { label: "Intent Quality", value: "Low — cold audiences", icon: Target },
-                    { label: "ROI Predictability", value: "Uncertain — rising CPMs", icon: Gauge },
+                    { label: "Risk", value: "High. Spend before results", icon: AlertTriangle },
+                    { label: "Intent Quality", value: "Low. Cold audiences", icon: Target },
+                    { label: "ROI Predictability", value: "Uncertain. Rising CPMs", icon: Gauge },
                   ].map((item) => (
                     <div key={item.label} className="flex items-center gap-3 rounded-lg bg-muted p-3">
                       <item.icon className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -355,8 +355,8 @@ const Index = () => {
                 <div className="space-y-3">
                   {[
                     { label: "Cost Model", value: "Pay per closed deal", icon: DollarSign },
-                    { label: "Risk", value: "Zero — no deal, no cost", icon: Shield },
-                    { label: "Intent Quality", value: "High — warm introductions", icon: Target },
+                    { label: "Risk", value: "Zero. No deal, no cost", icon: Shield },
+                    { label: "Intent Quality", value: "High. Warm introductions", icon: Target },
                     { label: "ROI Predictability", value: "Controlled CPA, fixed payouts", icon: Gauge },
                   ].map((item) => (
                     <div key={item.label} className="flex items-center gap-3 rounded-lg bg-primary/5 p-3">
@@ -498,7 +498,7 @@ const Index = () => {
               Ready to Join the Referral Economy?
             </motion.h2>
             <motion.p variants={fadeUp} custom={1} className="mt-4 text-muted-foreground leading-relaxed text-lg">
-              Whether you're a business looking for customers or someone who knows the right people — Revvin makes referrals profitable.
+              Whether you're a business looking for customers or someone who knows the right people, Revvin makes referrals profitable.
             </motion.p>
             <motion.div variants={fadeUp} custom={2} className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
               <Button size="lg" className="h-12 px-8" asChild>

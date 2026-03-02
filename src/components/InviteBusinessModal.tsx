@@ -50,7 +50,7 @@ const InviteBusinessModal = ({ trigger }: InviteBusinessModalProps) => {
               We'll reach out to <strong>{businessName}</strong> and let them know about Revvin.
             </p>
             <p className="mt-1 text-xs text-muted-foreground italic">
-              "Your customers are being referred anyway — pay only for closed deals."
+              "Your customers are being referred anyway. Pay only for closed deals."
             </p>
             <Button className="mt-6" onClick={handleClose}>Done</Button>
           </div>

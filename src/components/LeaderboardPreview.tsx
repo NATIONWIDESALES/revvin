@@ -20,7 +20,7 @@ const LeaderboardPreview = ({ city = "Your City" }: LeaderboardPreviewProps) => 
       </h2>
       <div className="flex items-center gap-1.5 mb-4">
         <Info className="h-3 w-3 text-muted-foreground" />
-        <span className="text-[10px] text-muted-foreground font-medium">Example leaderboard — coming soon</span>
+        <span className="text-[10px] text-muted-foreground font-medium">Example leaderboard. Coming soon</span>
       </div>
       <div className="space-y-3">
         {placeholderEntries.map((entry) => (
