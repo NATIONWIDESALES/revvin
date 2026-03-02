@@ -1,77 +1,159 @@
-import { motion } from "framer-motion";
+import { useEffect, useRef, useCallback } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-const dots = [
-  { x: 85, y: 60, r: 4 }, { x: 190, y: 35, r: 3 }, { x: 310, y: 80, r: 5 },
-  { x: 420, y: 45, r: 3.5 }, { x: 530, y: 90, r: 4.5 }, { x: 145, y: 150, r: 3 },
-  { x: 260, y: 180, r: 5.5 }, { x: 380, y: 140, r: 4 }, { x: 500, y: 170, r: 3 },
-  { x: 70, y: 250, r: 5 }, { x: 200, y: 280, r: 3.5 }, { x: 340, y: 260, r: 4.5 },
-  { x: 460, y: 240, r: 3 }, { x: 560, y: 270, r: 5 }, { x: 120, y: 340, r: 4 },
-  { x: 250, y: 360, r: 3 }, { x: 400, y: 330, r: 5 }, { x: 520, y: 350, r: 4 },
-  { x: 170, y: 110, r: 3.5 }, { x: 440, y: 310, r: 4.5 },
-];
-
-const PROXIMITY = 160;
-
-const lines: { x1: number; y1: number; x2: number; y2: number }[] = [];
-for (let i = 0; i < dots.length; i++) {
-  for (let j = i + 1; j < dots.length; j++) {
-    const dx = dots[i].x - dots[j].x;
-    const dy = dots[i].y - dots[j].y;
-    if (Math.sqrt(dx * dx + dy * dy) < PROXIMITY) {
-      lines.push({ x1: dots[i].x, y1: dots[i].y, x2: dots[j].x, y2: dots[j].y });
-    }
-  }
+interface Dot {
+  x: number;
+  y: number;
+  r: number;
+  ox: number;
+  oy: number;
+  dx: number;
+  dy: number;
+  dur: number;
+  phase: number;
+  color: string;
+  opacity: number;
 }
 
-// Seeded drift offsets for each dot
-const drifts = [
-  { dx: 3, dy: -2 }, { dx: -2, dy: 3 }, { dx: 4, dy: 2 }, { dx: -3, dy: -3 },
-  { dx: 2, dy: 4 }, { dx: -4, dy: 2 }, { dx: 3, dy: -3 }, { dx: -2, dy: -4 },
-  { dx: 4, dy: 3 }, { dx: -3, dy: 2 }, { dx: 2, dy: -3 }, { dx: -4, dy: -2 },
-  { dx: 3, dy: 4 }, { dx: -2, dy: -3 }, { dx: 4, dy: -2 }, { dx: -3, dy: 3 },
-  { dx: 2, dy: -4 }, { dx: -4, dy: 3 }, { dx: 3, dy: 2 }, { dx: -2, dy: -2 },
-];
+// Seeded dots — 50 dots with organic spread across a 1000x500 canvas
+const makeDots = (): Dot[] => {
+  const raw: { x: number; y: number; r: number; anchor?: boolean; green?: boolean }[] = [
+    // Anchor dots (large, focal)
+    { x: 620, y: 120, r: 11, anchor: true, green: true },
+    { x: 820, y: 280, r: 10, anchor: true },
+    { x: 380, y: 350, r: 12, anchor: true, green: true },
+    { x: 750, y: 420, r: 10, anchor: true },
+    { x: 500, y: 60, r: 11, anchor: true, green: true },
+    // Regular dots — spread across canvas
+    { x: 50, y: 80, r: 4 }, { x: 120, y: 200, r: 3 }, { x: 180, y: 320, r: 5 },
+    { x: 90, y: 420, r: 3 }, { x: 220, y: 100, r: 6 }, { x: 280, y: 250, r: 4 },
+    { x: 200, y: 440, r: 3 }, { x: 330, y: 150, r: 5 }, { x: 350, y: 40, r: 3 },
+    { x: 400, y: 200, r: 7 }, { x: 420, y: 460, r: 4 }, { x: 460, y: 130, r: 3 },
+    { x: 480, y: 300, r: 5 }, { x: 510, y: 400, r: 4 }, { x: 540, y: 180, r: 6 },
+    { x: 560, y: 350, r: 3 }, { x: 580, y: 250, r: 5 }, { x: 600, y: 440, r: 4 },
+    { x: 630, y: 310, r: 7 }, { x: 650, y: 50, r: 3 }, { x: 670, y: 200, r: 5 },
+    { x: 690, y: 380, r: 4 }, { x: 710, y: 100, r: 6 }, { x: 730, y: 460, r: 3 },
+    { x: 760, y: 160, r: 5 }, { x: 780, y: 340, r: 4 }, { x: 800, y: 60, r: 7 },
+    { x: 830, y: 200, r: 3 }, { x: 850, y: 400, r: 5 }, { x: 870, y: 130, r: 4 },
+    { x: 890, y: 320, r: 6 }, { x: 910, y: 450, r: 3 }, { x: 930, y: 80, r: 5 },
+    { x: 950, y: 250, r: 4 }, { x: 970, y: 370, r: 7 }, { x: 440, y: 350, r: 3 },
+    { x: 300, y: 400, r: 5 }, { x: 160, y: 150, r: 4 }, { x: 550, y: 470, r: 6 },
+    { x: 700, y: 440, r: 3 }, { x: 850, y: 480, r: 4 }, { x: 250, y: 50, r: 5 },
+    { x: 770, y: 240, r: 3 }, { x: 640, y: 400, r: 5 }, { x: 480, y: 480, r: 4 },
+  ];
 
-const HeroConstellation = () => (
-  <div className="absolute inset-0 pointer-events-none hidden md:flex items-center justify-center z-0">
-    <svg
-      width="600"
-      height="400"
-      viewBox="0 0 600 400"
-      className="translate-x-[10%]"
+  // Pseudo-random drift values seeded by index
+  return raw.map((d, i) => {
+    const angle = ((i * 137.5) % 360) * (Math.PI / 180);
+    const dist = 5 + (i % 6);
+    return {
+      x: d.x,
+      y: d.y,
+      r: d.r,
+      ox: d.x,
+      oy: d.y,
+      dx: Math.cos(angle) * dist,
+      dy: Math.sin(angle) * dist,
+      dur: 6 + (i % 5),
+      phase: (i * 0.7) % (2 * Math.PI),
+      color: d.green ? "#15803D" : "#94A3B8",
+      opacity: d.anchor ? 0.45 : 0.35,
+    };
+  });
+};
+
+const DOTS = makeDots();
+const CONNECTION_DIST = 180;
+
+const HeroConstellation = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animRef = useRef<number>(0);
+  const isMobile = useIsMobile();
+
+  const draw = useCallback((time: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+
+    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    ctx.clearRect(0, 0, w, h);
+
+    const mobile = w < 768;
+    const scaleX = w / 1000;
+    const scaleY = h / 500;
+    const driftScale = mobile ? 0.5 : 1;
+    const opacityScale = mobile ? 0.65 : 1;
+
+    const t = time / 1000;
+
+    // Compute current positions
+    const positions = DOTS.map((dot) => {
+      const progress = Math.sin(t / dot.dur * Math.PI * 2 + dot.phase);
+      return {
+        x: (dot.ox + dot.dx * progress * driftScale) * scaleX,
+        y: (dot.oy + dot.dy * progress * driftScale) * scaleY,
+        r: dot.r * Math.min(scaleX, scaleY),
+        color: dot.color,
+        opacity: dot.opacity * opacityScale,
+      };
+    });
+
+    // Draw lines
+    for (let i = 0; i < positions.length; i++) {
+      for (let j = i + 1; j < positions.length; j++) {
+        const dx = positions[i].x - positions[j].x;
+        const dy = positions[i].y - positions[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const threshold = CONNECTION_DIST * Math.min(scaleX, scaleY);
+        if (dist < threshold) {
+          const fade = 1 - dist / threshold;
+          ctx.beginPath();
+          ctx.moveTo(positions[i].x, positions[i].y);
+          ctx.lineTo(positions[j].x, positions[j].y);
+          ctx.strokeStyle = `rgba(148, 163, 184, ${0.25 * fade * opacityScale})`;
+          ctx.lineWidth = 0.75;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw dots
+    for (const p of positions) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color === "#15803D"
+        ? `rgba(21, 128, 61, ${p.opacity})`
+        : `rgba(148, 163, 184, ${p.opacity})`;
+      ctx.fill();
+    }
+
+    animRef.current = requestAnimationFrame(draw);
+  }, []);
+
+  useEffect(() => {
+    animRef.current = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(animRef.current);
+  }, [draw]);
+
+  return (
+    <canvas
+      ref={canvasRef}
       aria-hidden="true"
-    >
-      {lines.map((l, i) => (
-        <line
-          key={i}
-          x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
-          stroke="#D1D5DB"
-          strokeWidth={0.75}
-          opacity={0.15}
-        />
-      ))}
-      {dots.map((dot, i) => (
-        <motion.circle
-          key={i}
-          cx={dot.x}
-          cy={dot.y}
-          r={dot.r}
-          fill="#D1D5DB"
-          opacity={0.3}
-          animate={{
-            cx: [dot.x, dot.x + drifts[i].dx, dot.x],
-            cy: [dot.y, dot.y + drifts[i].dy, dot.y],
-          }}
-          transition={{
-            duration: 10 + (i % 3),
-            repeat: Infinity,
-            repeatType: "mirror",
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </svg>
-  </div>
-);
+      className="absolute inset-0 w-full h-full pointer-events-none z-0"
+      style={{ left: isMobile ? "0%" : "15%" }}
+    />
+  );
+};
 
 export default HeroConstellation;
