@@ -242,7 +242,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
                   {offer.verified && (
                     <div className="flex items-center gap-2 text-xs text-primary bg-primary/5 border border-primary/20 rounded-lg p-2">
                       <Shield className="h-3.5 w-3.5 shrink-0" />
-                      <span>Verified Business — payout processed by Revvin after close</span>
+                      <span>Verified Business. Payout processed by Revvin after close</span>
                     </div>
                   )}
                 </div>
