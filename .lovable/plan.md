@@ -1,71 +1,45 @@
 
 
-# Plan: Business Approval Gate + Phone Number Requirement
+# Redesign: Airbnb-Inspired Layout with Revvin Colors
 
-## Overview
+## Navigation (Navbar.tsx)
 
-Add a mandatory admin approval step for business accounts before they can create offers, and require a phone number during business signup.
+**Layout restructure** — keep Revvin brand colors throughout:
+- **Left**: Revvin logo (unchanged)
+- **Center**: Clean text links — "How It Works", "List Your Business", "Browse Offers" — plain `text-muted-foreground` with hover to `text-foreground`
+- **Right (logged out)**: "Log In" as plain text link, "Sign Up" as `rounded-full` pill button in existing `bg-accent text-accent-foreground`
+- **Right (logged in)**: Keep existing notification bell + avatar dropdown
+- **Remove**: The large centered search pill (`min-w-[400px]`)
+- **Styling**: `bg-white` background, subtle `border-b border-border`, no `backdrop-blur`
+- **Mobile**: Keep existing mobile menu, just remove search link from it
 
-## Database Changes
+## Hero Section (Index.tsx)
 
-### 1. Add `phone` column to `businesses` table
-- `phone text` — stores the business contact phone number
+**Remove**:
+- Dark announcement banner (lines 94-98) — fold its messaging into hero subtext
+- `hero-gradient` dark background + `heroBg` image overlay (lines 101-106)
+- "The referral acquisition marketplace" pill badge (lines 109-114)
 
-### 2. Add `account_status` column to `businesses` table
-- `account_status text NOT NULL DEFAULT 'pending_approval'`
-- Valid values: `'pending_approval'`, `'approved'`, `'rejected'`
-- Existing businesses get `'approved'` so they remain unaffected
+**Replace with**:
+- Light warm background: `bg-[hsl(var(--muted))]` or similar off-white from existing palette
+- Generous vertical padding (`py-32 lg:py-44`)
+- Headline in `text-foreground` (dark), accent line "You earn for introductions." stays `text-accent` (existing gold/yellow)
+- Subtext updated to include banner messaging: "Pay-per-close customer acquisition — powered by referrals, not ads. Businesses publish referral payouts. Referrers submit real opportunities. Revvin verifies outcomes and coordinates payouts." in `text-muted-foreground`
+- **CTA buttons**: Remove icons, make `rounded-full` pills with generous padding
+  - Primary: `bg-accent text-accent-foreground` (existing gold/yellow), filled
+  - Secondary: `border border-border text-foreground` ghost/outlined pill
+- "See all offers →" stays as subtle muted underlined link
+- **Hero visual**: Add a large rounded container (`rounded-3xl`) below CTAs showing a grid of 3 sample offer cards (reuse `OfferCard` or styled placeholder cards) to give an aspirational product preview
 
-## Frontend Changes
+## CSS Adjustments (index.css)
 
-### 3. Auth.tsx — Require phone for business signup (Step 2)
-- Add a `businessPhone` state variable
-- Add a required phone input field on the business signup step (step 2), between Business Name and Industry
-- Pass `phone` in the signup metadata so the `handle_new_user` trigger can persist it
-
-### 4. Update `handle_new_user` trigger
-- Extract `phone` from metadata and store it on the `businesses` row during auto-creation
-
-### 5. BusinessDashboard.tsx — Gate offer creation behind approval
-- Fetch `business.account_status` (already loaded via `businesses` select)
-- If `account_status !== 'approved'`, show a prominent banner: "Your account is pending approval. You'll be able to create offers once approved."
-- Hide/disable the "Create Offer" button and links
-- Show the pending status clearly in the header area
-
-### 6. CreateOffer.tsx — Block unapproved businesses
-- Fetch the business record on load and check `account_status`
-- If not approved, redirect back to dashboard with a toast message
-
-### 7. AdminDashboard.tsx — Add approval controls
-- In the Verification tab, show `account_status` badge alongside the existing verified badge
-- Add "Approve Account" and "Reject Account" buttons for businesses with `pending_approval` status
-- Approved businesses get `account_status = 'approved'`
-- Show a count of pending approvals in the tab badge
-
-### 8. SuperAdminCRM.tsx — Show account status
-- Display the `account_status` badge on each business card for visibility
+- No color changes — keep all existing Revvin variables
+- No new color tokens needed since we're reusing existing accent/primary
 
 ## Files Changed
 
-| File | Action |
+| File | Change |
 |------|--------|
-| Migration SQL | Add `phone` and `account_status` columns to `businesses` |
-| Migration SQL | Update `handle_new_user` trigger to extract phone |
-| `src/pages/Auth.tsx` | Add required phone field for business signup step 2 |
-| `src/pages/dashboard/BusinessDashboard.tsx` | Gate offer creation behind `account_status === 'approved'` |
-| `src/pages/dashboard/CreateOffer.tsx` | Block unapproved businesses from accessing the page |
-| `src/pages/dashboard/AdminDashboard.tsx` | Add account approval/rejection controls in Verification tab |
-| `src/pages/SuperAdminCRM.tsx` | Display `account_status` on business cards |
-
-## User Flow
-
-```text
-Business signs up (with phone) → account_status = 'pending_approval'
-    ↓
-Business Dashboard shows "Pending Approval" banner, no Create Offer
-    ↓
-Admin sees pending business in Verification tab → clicks "Approve Account"
-    ↓
-account_status = 'approved' → Business can now create offers
-```
+| `src/components/Navbar.tsx` | Remove search pill, add centered text links, restyle auth buttons as pills |
+| `src/pages/Index.tsx` | Light hero bg, remove banner/badge, pill buttons without icons, add hero visual container |
 
