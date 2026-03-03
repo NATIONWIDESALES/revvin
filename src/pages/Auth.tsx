@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, Users, ArrowLeft, Eye, EyeOff, ArrowRight, MapPin } from "lucide-react";
+import revvinLogo from "@/assets/revvin-logo.png";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -273,11 +274,8 @@ const Auth = () => {
     <div className="flex min-h-screen">
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 hero-gradient flex-col justify-between p-12">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-foreground/20">
-            <span className="text-lg font-bold text-primary-foreground">R</span>
-          </div>
-          <span className="font-display text-xl font-bold text-primary-foreground">Revvin</span>
+        <Link to="/" className="flex items-center">
+          <img src={revvinLogo} alt="Revvin" className="h-9 w-auto object-contain brightness-0 invert" />
         </Link>
         <div>
           {renderLeftPanel()}
