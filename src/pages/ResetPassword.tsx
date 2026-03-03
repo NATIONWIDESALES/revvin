@@ -17,13 +17,11 @@ const ResetPassword = () => {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Listen for the PASSWORD_RECOVERY event
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
         setReady(true);
       }
     });
-    // Also check hash for type=recovery
     const hash = window.location.hash;
     if (hash.includes("type=recovery")) {
       setReady(true);
@@ -57,7 +55,7 @@ const ResetPassword = () => {
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center max-w-md px-6">
           <KeyRound className="mx-auto mb-4 h-12 w-12 text-primary" />
-          <h1 className="font-display text-2xl font-bold mb-2">Reset Password</h1>
+          <h1 className="text-2xl font-bold mb-2">Reset Password</h1>
           <p className="text-muted-foreground">Click the link in your email to reset your password. If you've already clicked it, this page will update automatically.</p>
         </div>
       </div>
@@ -69,7 +67,7 @@ const ResetPassword = () => {
       <div className="w-full max-w-md px-6">
         <div className="text-center mb-8">
           <KeyRound className="mx-auto mb-4 h-12 w-12 text-primary" />
-          <h1 className="font-display text-2xl font-bold">Set New Password</h1>
+          <h1 className="text-2xl font-bold">Set New Password</h1>
           <p className="text-muted-foreground mt-2">Enter your new password below.</p>
         </div>
         <form onSubmit={handleReset} className="space-y-4">

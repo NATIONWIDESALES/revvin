@@ -104,11 +104,11 @@ const OfferDetail = () => {
           <motion.div initial="hidden" animate="visible" className="lg:col-span-3 space-y-8">
             {/* Header */}
             <motion.div variants={fadeUp} custom={0} className="flex items-start gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-3xl shadow-sm overflow-hidden shrink-0">
+              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-secondary text-3xl shadow-sm overflow-hidden shrink-0">
                 {isLogoUrl ? <img src={offer.businessLogo} alt={offer.business} className="h-full w-full object-cover" /> : offer.businessLogo}
               </div>
               <div className="flex-1">
-                <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">{offer.title}</h1>
+                <h1 className="text-2xl font-bold text-foreground md:text-3xl">{offer.title}</h1>
                 <p className="text-muted-foreground mt-1 flex items-center gap-1">
                   {offer.country === "CA" ? "🇨🇦" : "🇺🇸"} {offer.business}
                   {offer.verified !== false && <BadgeCheck className="h-4 w-4 text-primary" />}
@@ -125,21 +125,21 @@ const OfferDetail = () => {
               <div className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5 text-earnings" />
                 <div>
-                  <p className="font-display text-lg font-bold">{offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}</p>
+                  <p className="text-lg font-bold">{offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}</p>
                   <p className="text-xs text-muted-foreground">Per Referral</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-muted-foreground" />
                 <div>
-                  <p className="font-display text-lg font-bold">{offer.location}</p>
+                  <p className="text-lg font-bold">{offer.location}</p>
                   <p className="text-xs text-muted-foreground">Location</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-muted-foreground" />
                 <div>
-                  <p className="font-display text-lg font-bold">{payoutTimelineLabel}</p>
+                  <p className="text-lg font-bold">{payoutTimelineLabel}</p>
                   <p className="text-xs text-muted-foreground">Payout Timeline</p>
                 </div>
               </div>
@@ -147,7 +147,7 @@ const OfferDetail = () => {
 
             {/* Description */}
             <motion.div variants={fadeUp} custom={2}>
-              <h2 className="font-display text-lg font-semibold mb-3">About This Opportunity</h2>
+              <h2 className="text-lg font-semibold mb-3">About This Opportunity</h2>
               <p className="text-muted-foreground leading-relaxed">{offer.description}</p>
             </motion.div>
 
@@ -157,14 +157,14 @@ const OfferDetail = () => {
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">Estimated Deal Size:</span>
-                  <span className="font-display font-bold">{offer.currency === "CAD" ? "CA" : ""}${offer.dealSizeMin.toLocaleString()} – ${offer.dealSizeMax.toLocaleString()} {offer.currency}</span>
+                  <span className="font-bold">{offer.currency === "CAD" ? "CA" : ""}${offer.dealSizeMin.toLocaleString()} – ${offer.dealSizeMax.toLocaleString()} {offer.currency}</span>
                 </div>
               </motion.div>
             )}
 
             {/* Qualification Rules */}
             <motion.div variants={fadeUp} custom={4}>
-              <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <FileCheck className="h-5 w-5 text-primary" /> Qualification Rules
               </h3>
               <ul className="space-y-2.5">
@@ -183,7 +183,7 @@ const OfferDetail = () => {
 
             {/* How Verification Works */}
             <motion.div variants={fadeUp} custom={5}>
-              <h2 className="font-display text-lg font-semibold mb-4">How It Works</h2>
+              <h2 className="text-lg font-semibold mb-4">How It Works</h2>
               <div className="space-y-3">
                 {[
                   "You submit the referral with contact details and context",

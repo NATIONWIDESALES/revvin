@@ -159,7 +159,7 @@ const Browse = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-6 rounded-2xl border border-border bg-card p-6 shadow-sm overflow-hidden"
+              className="mb-6 rounded-xl border border-border bg-card p-6 shadow-sm overflow-hidden"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base font-bold">Filters</h3>
@@ -243,7 +243,7 @@ const Browse = () => {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-border bg-card py-20 text-center">
+          <div className="rounded-xl border border-border bg-card py-20 text-center">
             <Building2 className="mx-auto mb-4 h-10 w-10 text-muted-foreground/40" />
             <p className="text-lg font-semibold text-foreground">
               {allOffers.length === 0 ? "No offers yet — check back soon" : "No offers match your filters"}
@@ -262,7 +262,7 @@ const Browse = () => {
         )}
 
         {/* Business CTA */}
-        <div className="mt-10 rounded-2xl border border-primary/20 bg-primary/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-10 rounded-xl border border-primary/20 bg-primary/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <h3 className="text-lg font-bold">Are you a business?</h3>
             <p className="text-sm text-muted-foreground">List your referral program and start receiving qualified leads.</p>

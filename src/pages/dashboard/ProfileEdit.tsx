@@ -10,6 +10,13 @@ import { ArrowLeft, User, Save, Loader2, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import BusinessLogoUpload from "@/components/BusinessLogoUpload";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const ProfileEdit = () => {
   const { user, userRole } = useAuth();
@@ -135,17 +142,17 @@ const ProfileEdit = () => {
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center gap-3 mb-6">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
               <User className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h1 className="font-display text-2xl font-bold text-foreground">Edit Profile</h1>
+              <h1 className="text-2xl font-bold text-foreground">Edit Profile</h1>
               <p className="text-sm text-muted-foreground">Update your personal information</p>
             </div>
           </div>
 
           <form onSubmit={handleSave} className="space-y-5">
-            <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+            <div className="rounded-xl border border-border bg-card p-6 space-y-5">
               <div>
                 <Label>Full Name</Label>
                 <Input value={form.full_name} onChange={(e) => update("full_name", e.target.value)} placeholder="Your name" className="mt-1" />
@@ -183,10 +190,10 @@ const ProfileEdit = () => {
 
             {/* Business-specific fields */}
             {isBusiness && business && (
-              <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+              <div className="rounded-xl border border-border bg-card p-6 space-y-5">
                 <div className="flex items-center gap-2 mb-2">
                   <Building2 className="h-5 w-5 text-primary" />
-                  <h2 className="font-display text-lg font-bold">Business Information</h2>
+                  <h2 className="text-lg font-bold">Business Information</h2>
                 </div>
 
                 <div>
@@ -212,12 +219,16 @@ const ProfileEdit = () => {
 
                 <div>
                   <Label>Industry</Label>
-                  <select value={bizForm.industry} onChange={(e) => updateBiz("industry", e.target.value)} className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
-                    <option value="">Select industry...</option>
-                    {["Energy", "Insurance", "SaaS", "Services", "Real Estate", "Technology", "Roofing", "Landscaping", "Finance", "Plumbing", "Legal", "HVAC", "Paving", "Other"].map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
+                  <Select value={bizForm.industry} onValueChange={(v) => updateBiz("industry", v)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select industry..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["Energy", "Insurance", "SaaS", "Services", "Real Estate", "Technology", "Roofing", "Landscaping", "Finance", "Plumbing", "Legal", "HVAC", "Paving", "Other"].map(c => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>

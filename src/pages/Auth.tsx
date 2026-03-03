@@ -7,6 +7,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, Users, ArrowLeft, Eye, EyeOff, ArrowRight, MapPin } from "lucide-react";
 import revvinLogo from "@/assets/revvin-logo.png";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -74,7 +81,6 @@ const Auth = () => {
         });
         if (error) throw error;
 
-        // Email confirmation is required — don't navigate to dashboard
         toast({ title: "Check your email!", description: "We sent a confirmation link. Click it to activate your account." });
         setEmail(""); setPassword(""); setFullName(""); setStep(1);
         setMode("login");
@@ -96,7 +102,7 @@ const Auth = () => {
     if (mode === "login") {
       return (
         <>
-          <h2 className="font-display text-4xl font-bold text-primary-foreground leading-tight">
+          <h2 className="text-4xl font-bold text-primary-foreground leading-tight">
             Welcome back to Revvin
           </h2>
           <p className="mt-4 text-primary-foreground/60 text-lg">
@@ -108,7 +114,7 @@ const Auth = () => {
     if (role === "business") {
       return (
         <>
-          <h2 className="font-display text-4xl font-bold text-primary-foreground leading-tight">
+          <h2 className="text-4xl font-bold text-primary-foreground leading-tight">
             Acquire Customers Through Referral Payouts
           </h2>
           <p className="mt-4 text-primary-foreground/60 text-lg">
@@ -129,7 +135,7 @@ const Auth = () => {
     }
     return (
       <>
-        <h2 className="font-display text-4xl font-bold text-primary-foreground leading-tight">
+        <h2 className="text-4xl font-bold text-primary-foreground leading-tight">
           Earn Income Referring Trusted Businesses
         </h2>
         <p className="mt-4 text-primary-foreground/60 text-lg">
@@ -238,12 +244,16 @@ const Auth = () => {
           </div>
           <div>
             <Label>Industry Category</Label>
-            <select value={industry} onChange={(e) => setIndustry(e.target.value)} className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
-              <option value="">Select industry...</option>
-              {["Energy", "Insurance", "SaaS", "Services", "Real Estate", "Technology", "Roofing", "Landscaping", "Finance", "Plumbing", "Legal", "Other"].map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+            <Select value={industry} onValueChange={setIndustry}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select industry..." />
+              </SelectTrigger>
+              <SelectContent>
+                {["Energy", "Insurance", "SaaS", "Services", "Real Estate", "Technology", "Roofing", "Landscaping", "Finance", "Plumbing", "Legal", "Other"].map(c => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label>Service Areas</Label>
@@ -290,7 +300,7 @@ const Auth = () => {
             <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to home</Link>
           </Button>
 
-          <h1 className="font-display text-2xl font-bold text-foreground">
+          <h1 className="text-2xl font-bold text-foreground">
             {mode === "login" ? "Sign in to your account" : step === 1 ? "Create your account" : role === "business" ? "Tell us about your business" : "Complete your profile"}
           </h1>
           <p className="mt-2 text-muted-foreground">

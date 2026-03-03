@@ -100,7 +100,7 @@ const BusinessLogoUpload = ({ currentLogoUrl, businessId, onUploaded }: Business
             <p className="text-sm font-medium text-muted-foreground">
               {uploading ? "Uploading..." : "Drop your logo here or click to browse"}
             </p>
-            <p className="text-[10px] text-muted-foreground mt-1">PNG, JPG, or SVG — max 5 MB</p>
+            <p className="text-xs text-muted-foreground mt-1">PNG, JPG, or SVG — max 5 MB</p>
           </div>
         </div>
       )}
