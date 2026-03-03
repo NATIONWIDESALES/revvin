@@ -47,6 +47,31 @@ Deno.serve(async (req) => {
     const bizId = url.searchParams.get("biz_id");
     const action = url.searchParams.get("action");
 
+    // Handle business approval/rejection
+    if (req.method === "POST" && action === "update_business_status") {
+      const body = await req.json();
+      const { business_id, account_status } = body;
+      if (!business_id || !["approved", "rejected", "pending_approval"].includes(account_status)) {
+        return new Response(JSON.stringify({ error: "Invalid params" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { error } = await admin
+        .from("businesses")
+        .update({ account_status })
+        .eq("id", business_id);
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Handle note update
     if (req.method === "POST" && action === "update_notes") {
       const body = await req.json();

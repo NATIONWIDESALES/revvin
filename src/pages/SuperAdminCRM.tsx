@@ -30,7 +30,7 @@ const stageConfig: Record<string, { label: string; color: string; icon: React.Re
 };
 
 interface Business {
-  id: string; name: string; verified: boolean | null; created_at: string; city: string | null; state: string | null; industry: string | null;
+  id: string; name: string; verified: boolean | null; created_at: string; city: string | null; state: string | null; industry: string | null; account_status?: string;
 }
 interface Profile {
   user_id: string; full_name: string | null;
@@ -72,6 +72,7 @@ const SuperAdminCRM = () => {
   const [selectedReferral, setSelectedReferral] = useState<Referral | null>(null);
   const [editingNotes, setEditingNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
+  const [approvingBiz, setApprovingBiz] = useState<string | null>(null);
 
   // SEO: noindex
   useEffect(() => {
@@ -211,6 +212,31 @@ const SuperAdminCRM = () => {
     setSavingNotes(false);
   };
 
+  const updateBusinessStatus = async (bizId: string, newStatus: string) => {
+    setApprovingBiz(bizId);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setApprovingBiz(null); return; }
+    const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sa-data?action=update_business_status`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ business_id: bizId, account_status: newStatus }),
+    });
+    if (response.ok && overview) {
+      setOverview({
+        ...overview,
+        businesses: overview.businesses.map((b) =>
+          b.id === bizId ? { ...b, account_status: newStatus } : b
+        ),
+      });
+    }
+    setApprovingBiz(null);
+  };
+
   const groupByStage = (referrals: Referral[]) => {
     const groups: Record<string, Referral[]> = {};
     STAGES.forEach((s) => { groups[s] = []; });
@@ -307,7 +333,47 @@ const SuperAdminCRM = () => {
                           </CardHeader>
                         </button>
                         {isOpen && (
-                          <CardContent className="pt-0 pb-4">
+                          <CardContent className="pt-0 pb-4 space-y-4">
+                            {/* Approval actions */}
+                            {biz.account_status && biz.account_status !== "approved" && (
+                              <div className="flex items-center gap-3 p-3 rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30">
+                                <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
+                                <span className="text-sm text-muted-foreground flex-1">
+                                  This business is <strong>{biz.account_status === "pending_approval" ? "pending approval" : "rejected"}</strong>.
+                                </span>
+                                <Button
+                                  size="sm"
+                                  onClick={(e) => { e.stopPropagation(); updateBusinessStatus(biz.id, "approved"); }}
+                                  disabled={approvingBiz === biz.id}
+                                >
+                                  {approvingBiz === biz.id ? "Saving..." : "Approve"}
+                                </Button>
+                                {biz.account_status !== "rejected" && (
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={(e) => { e.stopPropagation(); updateBusinessStatus(biz.id, "rejected"); }}
+                                    disabled={approvingBiz === biz.id}
+                                  >
+                                    Reject
+                                  </Button>
+                                )}
+                              </div>
+                            )}
+                            {biz.account_status === "approved" && (
+                              <div className="flex items-center gap-3 p-3 rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30">
+                                <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                                <span className="text-sm text-muted-foreground flex-1">Business is <strong>approved</strong>.</span>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={(e) => { e.stopPropagation(); updateBusinessStatus(biz.id, "rejected"); }}
+                                  disabled={approvingBiz === biz.id}
+                                >
+                                  Revoke
+                                </Button>
+                              </div>
+                            )}
                             {bizLoading[biz.id] ? (
                               <div className="space-y-2">{[1, 2].map((i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
                             ) : (
