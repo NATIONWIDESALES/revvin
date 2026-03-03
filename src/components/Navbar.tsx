@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import NotificationBell from "@/components/NotificationBell";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -63,6 +64,7 @@ const Navbar = () => {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
+                  aria-label="User menu"
                   className="flex items-center gap-1.5 rounded-lg border border-border p-1 pl-2 transition-all hover:shadow-sm"
                 >
                   <Menu className="h-4 w-4 text-muted-foreground" />
@@ -73,31 +75,39 @@ const Navbar = () => {
                   </Avatar>
                 </button>
 
-                {dropdownOpen && (
-                  <div className="absolute right-0 top-11 w-52 rounded-xl border border-border bg-card p-1.5 shadow-lg z-50">
-                    <Link
-                      to="/dashboard"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                <AnimatePresence>
+                  {dropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                      transition={{ duration: 0.15, ease: "easeOut" }}
+                      className="absolute right-0 top-11 w-52 rounded-xl border border-border bg-card p-1.5 shadow-lg z-50"
                     >
-                      <LayoutDashboard className="h-4 w-4" /> Dashboard
-                    </Link>
-                    <Link
-                      to="/dashboard/profile"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-                    >
-                      <UserCircle className="h-4 w-4" /> Profile
-                    </Link>
-                    <div className="my-1 border-t border-border" />
-                    <button
-                      onClick={() => { signOut(); setDropdownOpen(false); }}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                    >
-                      <LogOut className="h-4 w-4" /> Sign Out
-                    </button>
-                  </div>
-                )}
+                      <Link
+                        to="/dashboard"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                      >
+                        <LayoutDashboard className="h-4 w-4" /> Dashboard
+                      </Link>
+                      <Link
+                        to="/dashboard/profile"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                      >
+                        <UserCircle className="h-4 w-4" /> Profile
+                      </Link>
+                      <div className="my-1 border-t border-border" />
+                      <button
+                        onClick={() => { signOut(); setDropdownOpen(false); }}
+                        className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      >
+                        <LogOut className="h-4 w-4" /> Sign Out
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </>
           ) : (
@@ -116,45 +126,53 @@ const Navbar = () => {
         </div>
 
         {/* Mobile toggle */}
-        <button className="md:hidden" onClick={() => setOpen(!open)}>
+        <button className="md:hidden" aria-label="Toggle menu" onClick={() => setOpen(!open)}>
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {/* Mobile menu */}
-      {open && (
-        <div className="border-t border-border bg-background px-4 pb-4 md:hidden">
-          {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              onClick={() => setOpen(false)}
-              className="block py-3 text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              {link.label}
-            </Link>
-          ))}
-          <div className="mt-3 flex gap-2">
-            {user ? (
-              <>
-                <Button variant="outline" size="sm" className="flex-1" asChild>
-                  <Link to="/dashboard" onClick={() => setOpen(false)}>Dashboard</Link>
-                </Button>
-                <Button size="sm" className="flex-1" onClick={() => { signOut(); setOpen(false); }}>Sign Out</Button>
-              </>
-            ) : (
-              <>
-                <Button variant="outline" size="sm" className="flex-1" asChild>
-                  <Link to="/auth" onClick={() => setOpen(false)}>Log In</Link>
-                </Button>
-                <Button size="sm" className="flex-1" asChild>
-                  <Link to="/auth?mode=signup" onClick={() => setOpen(false)}>Get Started</Link>
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="border-t border-border bg-background px-4 pb-4 md:hidden overflow-hidden"
+          >
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setOpen(false)}
+                className="block py-3 text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className="mt-3 flex gap-2">
+              {user ? (
+                <>
+                  <Button variant="outline" size="sm" className="flex-1" asChild>
+                    <Link to="/dashboard" onClick={() => setOpen(false)}>Dashboard</Link>
+                  </Button>
+                  <Button size="sm" className="flex-1" onClick={() => { signOut(); setOpen(false); }}>Sign Out</Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" className="flex-1" asChild>
+                    <Link to="/auth" onClick={() => setOpen(false)}>Log In</Link>
+                  </Button>
+                  <Button size="sm" className="flex-1" asChild>
+                    <Link to="/auth?mode=signup" onClick={() => setOpen(false)}>Get Started</Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

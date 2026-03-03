@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import {
   DollarSign, Users, PlusCircle,
   CheckCircle2, XCircle, Clock, Eye, Building2,
-  Pause, Play, Edit, Target, Link2, Check
+  Pause, Play, Edit, Target, Link2, Check, X
 } from "lucide-react";
 import { motion } from "framer-motion";
 import DashboardChecklist from "@/components/DashboardChecklist";
@@ -225,12 +225,12 @@ const BusinessDashboard = () => {
               { label: "Deals Closed", value: wonCount.toString(), icon: CheckCircle2, color: "text-earnings", bgColor: "bg-earnings/10" },
               { label: "Total Paid Out", value: `${sym}${totalPaid.toLocaleString()}`, icon: DollarSign, color: "text-earnings", bgColor: "bg-earnings/10" },
             ].map((s) => (
-              <div key={s.label} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+              <div key={s.label} className="rounded-xl border border-border bg-card p-4 shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className={`rounded-xl p-2 ${s.bgColor}`}><s.icon className={`h-4 w-4 ${s.color}`} /></div>
                   <div>
-                    <p className="text-[11px] text-muted-foreground font-medium">{s.label}</p>
-                    <p className="font-display text-xl font-bold text-foreground">{s.value}</p>
+                    <p className="text-xs text-muted-foreground font-medium">{s.label}</p>
+                    <p className="text-xl font-bold text-foreground">{s.value}</p>
                   </div>
                 </div>
               </div>
@@ -266,7 +266,7 @@ const BusinessDashboard = () => {
                           <div className="flex items-center gap-1">
                             <Input type="number" value={newPayout} onChange={(e) => setNewPayout(e.target.value)} className="h-7 w-20 text-xs" placeholder={String(offer.payout)} />
                             <Button size="sm" className="h-7 text-xs px-2" onClick={() => saveEditPayout(offer.id)}>Save</Button>
-                            <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => setEditingPayout(null)}>✕</Button>
+                            <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => setEditingPayout(null)}><X className="h-3 w-3" /></Button>
                           </div>
                         ) : (
                           <span className="rounded-full bg-primary/10 text-primary px-3 py-0.5 text-xs font-bold">{offer.payout_type === "flat" ? `${sym}${offer.payout}` : `${offer.payout}%`}</span>

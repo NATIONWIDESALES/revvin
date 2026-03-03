@@ -123,12 +123,12 @@ const ReferrerDashboard = () => {
           {/* Stats — 4 key metrics */}
           <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((s) => (
-              <div key={s.label} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+              <div key={s.label} className="rounded-xl border border-border bg-card p-4 shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className={`rounded-xl p-2 ${s.bgColor}`}><s.icon className={`h-4 w-4 ${s.color}`} /></div>
                   <div>
-                    <p className="text-[11px] text-muted-foreground font-medium">{s.label}</p>
-                    <p className="font-display text-xl font-bold text-foreground">{s.value}</p>
+                    <p className="text-xs text-muted-foreground font-medium">{s.label}</p>
+                    <p className="text-xl font-bold text-foreground">{s.value}</p>
                   </div>
                 </div>
               </div>
