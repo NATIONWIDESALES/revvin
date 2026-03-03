@@ -9,12 +9,12 @@ const boosts = [
 
 const BoostOfferPanel = () => {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-display text-sm font-bold flex items-center gap-2">
+        <h3 className="text-sm font-bold flex items-center gap-2">
           <Zap className="h-4 w-4 text-accent-foreground" /> Boost Your Offer
         </h3>
-        <Badge variant="secondary" className="text-[10px] gap-1"><Lock className="h-2.5 w-2.5" /> Pro</Badge>
+        <Badge variant="secondary" className="text-xs gap-1"><Lock className="h-2.5 w-2.5" /> Pro</Badge>
       </div>
       <div className="space-y-2.5">
         {boosts.map((b) => (
@@ -24,13 +24,13 @@ const BoostOfferPanel = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium">{b.label}</p>
-              <p className="text-[10px] text-muted-foreground">{b.desc}</p>
+              <p className="text-xs text-muted-foreground">{b.desc}</p>
             </div>
-            <Badge variant="outline" className="text-[9px] shrink-0">{b.badge}</Badge>
+            <Badge variant="outline" className="text-xs shrink-0">{b.badge}</Badge>
           </div>
         ))}
       </div>
-      <p className="text-[10px] text-muted-foreground mt-3 text-center">Boost features available in Pro tier</p>
+      <p className="text-xs text-muted-foreground mt-3 text-center">Boost features available in Pro tier</p>
     </div>
   );
 };

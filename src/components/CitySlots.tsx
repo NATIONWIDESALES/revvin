@@ -20,12 +20,12 @@ const CitySlots = ({ maxDisplay = 6, showApplyButton = false }: CitySlotsProps) 
   if (display.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-display text-sm font-bold flex items-center gap-2">
+        <h3 className="text-sm font-bold flex items-center gap-2">
           <MapPin className="h-4 w-4 text-primary" /> Verified City Slots
         </h3>
-        <span className="text-[10px] text-muted-foreground">5 slots per category/city</span>
+        <span className="text-xs text-muted-foreground">5 slots per category/city</span>
       </div>
       <div className="space-y-2">
         {display.map((slot, i) => {
@@ -38,7 +38,7 @@ const CitySlots = ({ maxDisplay = 6, showApplyButton = false }: CitySlotsProps) 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-medium truncate">{slot.city} — {slot.category}</span>
-                  <span className={`text-[10px] font-bold ${isFull ? "text-destructive" : pct >= 60 ? "text-accent-foreground" : "text-earnings"}`}>
+                  <span className={`text-xs font-bold ${isFull ? "text-destructive" : pct >= 60 ? "text-accent-foreground" : "text-earnings"}`}>
                     {slot.filledSlots}/{slot.maxSlots}
                   </span>
                 </div>

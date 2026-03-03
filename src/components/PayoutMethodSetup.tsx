@@ -27,9 +27,9 @@ const PayoutMethodSetup = () => {
   ];
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-display text-base font-bold flex items-center gap-2">
+        <h3 className="text-base font-bold flex items-center gap-2">
           <Wallet className="h-4 w-4 text-primary" /> Payout Method
         </h3>
         {saved && (
@@ -88,7 +88,7 @@ const PayoutMethodSetup = () => {
           >
             Save Payout Method
           </Button>
-          <p className="text-[10px] text-muted-foreground mt-2 text-center">
+          <p className="text-xs text-muted-foreground mt-2 text-center">
             Payout preferences saved for processing
           </p>
         </>

@@ -118,7 +118,6 @@ const BusinessDashboard = () => {
 
   const toggleOfferStatus = async (offerId: string, currentStatus: string) => {
     const offer = offers.find(o => o.id === offerId);
-    // Block activation if deposit not paid
     if (currentStatus !== "active" && offer?.deposit_status === "required") {
       toast({ title: "Deposit required", description: "You must pay the deposit before activating this offer.", variant: "destructive" });
       return;
@@ -188,10 +187,10 @@ const BusinessDashboard = () => {
         <motion.div initial="hidden" animate="visible">
           {/* Pending Approval Banner */}
           {!isApproved && business && (
-            <motion.div variants={fadeUp} custom={0} className="mb-6 rounded-2xl border border-accent/30 bg-accent/5 p-5 flex items-start gap-3">
+            <motion.div variants={fadeUp} custom={0} className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-5 flex items-start gap-3">
               <Clock className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-display font-bold text-foreground">Account Pending Approval</h3>
+                <h3 className="font-bold text-foreground">Account Pending Approval</h3>
                 <p className="text-sm text-muted-foreground mt-1">Your business account is under review. You'll be able to create offers once an admin approves your account.</p>
               </div>
             </motion.div>
@@ -200,7 +199,7 @@ const BusinessDashboard = () => {
           {/* Header */}
           <motion.div variants={fadeUp} custom={0} className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="font-display text-3xl font-bold text-foreground">{business?.name ?? "Your Business"}</h1>
+              <h1 className="text-3xl font-bold text-foreground">{business?.name ?? "Your Business"}</h1>
               <p className="text-muted-foreground mt-1">{activeOffers} active offer{activeOffers !== 1 ? "s" : ""} • {referrals.length} referrals</p>
             </div>
             <div className="flex gap-2">
@@ -217,7 +216,7 @@ const BusinessDashboard = () => {
 
           <DashboardChecklist title="Getting Started" items={checklistItems} />
 
-          {/* Stats — 4 key metrics */}
+          {/* Stats */}
           <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { label: "Active Offers", value: activeOffers.toString(), icon: Building2, color: "text-primary", bgColor: "bg-primary/10" },
@@ -240,13 +239,13 @@ const BusinessDashboard = () => {
           {/* Offers */}
           <motion.div variants={fadeUp} custom={2} className="mb-8">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-lg font-bold">Your Offers</h2>
+              <h2 className="text-lg font-bold">Your Offers</h2>
               {isApproved && <Button variant="ghost" size="sm" className="gap-1" asChild><Link to="/dashboard/create-offer">Add Offer <PlusCircle className="h-4 w-4" /></Link></Button>}
             </div>
             {offers.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-card py-14 text-center shadow-sm">
+              <div className="rounded-xl border border-border bg-card py-14 text-center shadow-sm">
                 <Building2 className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
-                <p className="font-display text-lg font-semibold">No offers yet</p>
+                <p className="text-lg font-semibold">No offers yet</p>
                 <p className="mt-1 text-sm text-muted-foreground">Create your first referral offer to start receiving leads</p>
                 <Button asChild className="mt-5"><Link to="/dashboard/create-offer">Create Offer</Link></Button>
               </div>
@@ -256,9 +255,9 @@ const BusinessDashboard = () => {
                   const offerRefs = referrals.filter(r => r.offer_id === offer.id);
                   const offerWon = offerRefs.filter(r => r.status === "won").length;
                   return (
-                    <div key={offer.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                    <div key={offer.id} className="rounded-xl border border-border bg-card p-5 shadow-sm">
                       <div className="flex items-start justify-between mb-3">
-                        <h3 className="font-display font-bold text-foreground">{offer.title}</h3>
+                        <h3 className="font-bold text-foreground">{offer.title}</h3>
                         <Badge variant={offer.status === "active" ? "default" : "secondary"}>{offer.status}</Badge>
                       </div>
                       <div className="flex items-center justify-between mb-3">
@@ -319,11 +318,11 @@ const BusinessDashboard = () => {
 
           {/* Referrals Inbox */}
           <motion.div variants={fadeUp} custom={3}>
-            <h2 className="font-display text-lg font-bold mb-4">Referrals Inbox</h2>
+            <h2 className="text-lg font-bold mb-4">Referrals Inbox</h2>
             {referrals.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-card py-14 text-center shadow-sm">
+              <div className="rounded-xl border border-border bg-card py-14 text-center shadow-sm">
                 <Users className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
-                <p className="font-display text-lg font-semibold">No referrals yet</p>
+                <p className="text-lg font-semibold">No referrals yet</p>
                 <p className="mt-1 text-sm text-muted-foreground">Referrals will appear here once referrers submit leads</p>
               </div>
             ) : (
@@ -331,10 +330,10 @@ const BusinessDashboard = () => {
                 {referrals.map((ref: any) => {
                   const sc = statusConfig[ref.status] ?? statusConfig.submitted;
                   return (
-                    <div key={ref.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                    <div key={ref.id} className="rounded-xl border border-border bg-card p-5 shadow-sm">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex-1">
-                          <p className="font-display font-semibold text-foreground">{ref.customer_name}</p>
+                          <p className="font-semibold text-foreground">{ref.customer_name}</p>
                           <p className="text-sm text-muted-foreground">
                             {ref.customer_email && <span>{ref.customer_email} • </span>}{ref.offers?.title}
                           </p>

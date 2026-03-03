@@ -108,7 +108,7 @@ const ReferrerDashboard = () => {
         <motion.div initial="hidden" animate="visible">
           <motion.div variants={fadeUp} custom={0} className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="font-display text-3xl font-bold text-foreground">Your Referrals</h1>
+              <h1 className="text-3xl font-bold text-foreground">Your Referrals</h1>
               <p className="mt-1 text-muted-foreground">Track referrals and earnings</p>
             </div>
             <div className="flex gap-2">
@@ -120,7 +120,7 @@ const ReferrerDashboard = () => {
 
           <DashboardChecklist title="Getting Started" items={checklistItems} />
 
-          {/* Stats — 4 key metrics */}
+          {/* Stats */}
           <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((s) => (
               <div key={s.label} className="rounded-xl border border-border bg-card p-4 shadow-sm">
@@ -137,8 +137,8 @@ const ReferrerDashboard = () => {
 
           {/* Chart + Payout Method */}
           <motion.div variants={fadeUp} custom={2} className="mb-8 grid gap-6 md:grid-cols-3">
-            <div className="md:col-span-2 rounded-2xl border border-border bg-card p-6 shadow-sm">
-              <h2 className="font-display text-base font-bold mb-4 flex items-center gap-2"><BarChart3 className="h-4 w-4 text-earnings" /> Earnings Over Time</h2>
+            <div className="md:col-span-2 rounded-xl border border-border bg-card p-6 shadow-sm">
+              <h2 className="text-base font-bold mb-4 flex items-center gap-2"><BarChart3 className="h-4 w-4 text-earnings" /> Earnings Over Time</h2>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={displayChartData}>
@@ -156,11 +156,11 @@ const ReferrerDashboard = () => {
 
           {/* Referral Pipeline */}
           <motion.div variants={fadeUp} custom={3}>
-            <h2 className="font-display text-lg font-bold mb-4">Referral Pipeline</h2>
+            <h2 className="text-lg font-bold mb-4">Referral Pipeline</h2>
             {referrals.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-card py-16 text-center shadow-sm">
+              <div className="rounded-xl border border-border bg-card py-16 text-center shadow-sm">
                 <Send className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
-                <p className="font-display text-lg font-semibold text-foreground">No referrals yet</p>
+                <p className="text-lg font-semibold text-foreground">No referrals yet</p>
                 <p className="mt-2 text-sm text-muted-foreground">Browse opportunities and submit your first referral</p>
                 <Button asChild className="mt-5" variant="outline"><Link to="/browse">Browse Offers</Link></Button>
               </div>
@@ -171,7 +171,7 @@ const ReferrerDashboard = () => {
                   const expectedPay = getExpectedPayDate(ref);
                   const canDispute = ref.status === "lost" || ref.status === "declined";
                   return (
-                    <div key={ref.id} className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
+                    <div key={ref.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-4 shadow-sm">
                       <div className="flex-1">
                         <p className="font-medium text-foreground">{ref.customer_name}</p>
                         <p className="text-sm text-muted-foreground">{ref.offers?.title ?? "Offer"} • {ref.businesses?.name ?? "Business"}</p>
@@ -189,7 +189,7 @@ const ReferrerDashboard = () => {
                           </Button>
                         )}
                         <Badge className={`${sc.bg} ${sc.text} border-0`}>{sc.label}</Badge>
-                        {ref.payout_amount && <span className="font-display font-bold text-earnings">{sym}{ref.payout_amount}</span>}
+                        {ref.payout_amount && <span className="font-bold text-earnings">{sym}{ref.payout_amount}</span>}
                       </div>
                     </div>
                   );

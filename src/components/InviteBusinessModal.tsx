@@ -40,12 +40,12 @@ const InviteBusinessModal = ({ trigger }: InviteBusinessModalProps) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-display">Invite a Business to Revvin</DialogTitle>
+          <DialogTitle>Invite a Business to Revvin</DialogTitle>
         </DialogHeader>
         {sent ? (
           <div className="py-8 text-center">
             <CheckCircle2 className="mx-auto mb-3 h-12 w-12 text-earnings" />
-            <h3 className="font-display text-lg font-bold">Invite Sent!</h3>
+            <h3 className="text-lg font-bold">Invite Sent!</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               We'll reach out to <strong>{businessName}</strong> and let them know about Revvin.
             </p>

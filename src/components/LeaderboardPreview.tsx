@@ -14,13 +14,13 @@ interface LeaderboardPreviewProps {
 
 const LeaderboardPreview = ({ city = "Your City" }: LeaderboardPreviewProps) => {
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-      <h2 className="font-display text-lg font-bold mb-1 flex items-center gap-2">
+    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <h2 className="text-lg font-bold mb-1 flex items-center gap-2">
         <Trophy className="h-5 w-5 text-accent" /> Top Earners in {city}
       </h2>
       <div className="flex items-center gap-1.5 mb-4">
         <Info className="h-3 w-3 text-muted-foreground" />
-        <span className="text-[10px] text-muted-foreground font-medium">Example leaderboard. Coming soon</span>
+        <span className="text-xs text-muted-foreground font-medium">Example leaderboard. Coming soon</span>
       </div>
       <div className="space-y-3">
         {placeholderEntries.map((entry) => (
@@ -34,7 +34,7 @@ const LeaderboardPreview = ({ city = "Your City" }: LeaderboardPreviewProps) => 
               <p className="text-sm font-medium">{entry.name}</p>
               <p className="text-xs text-muted-foreground">{entry.city}</p>
             </div>
-            <span className="font-display text-sm font-bold text-earnings">{entry.earnings}</span>
+            <span className="text-sm font-bold text-earnings">{entry.earnings}</span>
           </div>
         ))}
       </div>
