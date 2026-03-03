@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Search, CheckCircle2, Clock, AlertTriangle, XCircle, Shield, Building2, Users, DollarSign, Activity, BadgeCheck, History, FileText, Pause, Play } from "lucide-react";
+import { ChevronDown, ChevronRight, Search, CheckCircle2, Clock, AlertTriangle, XCircle, Shield, Building2, Users, DollarSign, Activity, BadgeCheck, History, FileText, Pause, Play, TrendingUp, BarChart3 } from "lucide-react";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
