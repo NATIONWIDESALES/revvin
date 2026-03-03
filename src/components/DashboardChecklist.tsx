@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, Circle, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ const DashboardChecklist = ({ title, items }: DashboardChecklistProps) => {
     <motion.div
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`mb-6 rounded-2xl border-2 p-5 shadow-sm ${
+      className={`mb-6 rounded-xl border-2 p-5 shadow-sm ${
         allDone
           ? "border-earnings/30 bg-earnings/5"
           : "border-primary/20 bg-primary/5"
@@ -34,7 +34,7 @@ const DashboardChecklist = ({ title, items }: DashboardChecklistProps) => {
     >
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h3 className="font-display text-sm font-bold flex items-center gap-2">
+          <h3 className="text-sm font-bold flex items-center gap-2">
             {allDone ? (
               <CheckCircle2 className="h-4 w-4 text-earnings" />
             ) : (
@@ -50,10 +50,11 @@ const DashboardChecklist = ({ title, items }: DashboardChecklistProps) => {
           <Button
             variant="ghost"
             size="sm"
-            className="text-xs h-7 px-2"
+            className="text-xs h-7 w-7 p-0"
+            aria-label="Dismiss checklist"
             onClick={() => setDismissed(true)}
           >
-            ✕
+            <X className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
@@ -90,7 +91,7 @@ const DashboardChecklist = ({ title, items }: DashboardChecklistProps) => {
                 className="h-6 text-xs px-2 text-primary"
                 onClick={item.action}
               >
-                {item.actionLabel ?? "Do it →"}
+                {item.actionLabel ?? "Do it"}
               </Button>
             )}
           </div>

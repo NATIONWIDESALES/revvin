@@ -162,7 +162,7 @@ const Browse = () => {
               className="mb-6 rounded-2xl border border-border bg-card p-6 shadow-sm overflow-hidden"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-display text-base font-bold">Filters</h3>
+                <h3 className="text-base font-bold">Filters</h3>
                 <Button variant="ghost" size="sm" onClick={() => setShowFilters(false)}><X className="h-4 w-4" /></Button>
               </div>
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -180,26 +180,24 @@ const Browse = () => {
                 {/* State */}
                 <div>
                   <label className="text-sm font-medium mb-2 block">State / Province</label>
-                  <select
-                    value={stateFilter}
-                    onChange={(e) => { setStateFilter(e.target.value); setCityFilter(""); }}
-                    className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                  >
-                    <option value="">All</option>
-                    {availableStates.map((s) => <option key={s} value={s}>{s}</option>)}
-                  </select>
+                  <Select value={stateFilter || "all"} onValueChange={(v) => { setStateFilter(v === "all" ? "" : v); setCityFilter(""); }}>
+                    <SelectTrigger className="h-10"><SelectValue placeholder="All" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      {availableStates.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
                 {/* City */}
                 <div>
                   <label className="text-sm font-medium mb-2 block">City</label>
-                  <select
-                    value={cityFilter}
-                    onChange={(e) => setCityFilter(e.target.value)}
-                    className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                  >
-                    <option value="">All Cities</option>
-                    {availableCities.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                  <Select value={cityFilter || "all"} onValueChange={(v) => setCityFilter(v === "all" ? "" : v)}>
+                    <SelectTrigger className="h-10"><SelectValue placeholder="All Cities" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Cities</SelectItem>
+                      {availableCities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
                 {/* Payout range */}
                 <div>
@@ -247,7 +245,7 @@ const Browse = () => {
         ) : (
           <div className="rounded-2xl border border-border bg-card py-20 text-center">
             <Building2 className="mx-auto mb-4 h-10 w-10 text-muted-foreground/40" />
-            <p className="font-display text-lg font-semibold text-foreground">
+            <p className="text-lg font-semibold text-foreground">
               {allOffers.length === 0 ? "No offers yet — check back soon" : "No offers match your filters"}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -266,7 +264,7 @@ const Browse = () => {
         {/* Business CTA */}
         <div className="mt-10 rounded-2xl border border-primary/20 bg-primary/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <h3 className="font-display text-lg font-bold">Are you a business?</h3>
+            <h3 className="text-lg font-bold">Are you a business?</h3>
             <p className="text-sm text-muted-foreground">List your referral program and start receiving qualified leads.</p>
           </div>
           <Button asChild className="gap-2 shrink-0 rounded-full">

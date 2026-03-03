@@ -15,16 +15,13 @@ interface Dot {
   opacity: number;
 }
 
-// Seeded dots — 50 dots with organic spread across a 1000x500 canvas
 const makeDots = (): Dot[] => {
   const raw: { x: number; y: number; r: number; anchor?: boolean; green?: boolean }[] = [
-    // Anchor dots (large, focal)
     { x: 620, y: 120, r: 11, anchor: true, green: true },
     { x: 820, y: 280, r: 10, anchor: true },
     { x: 380, y: 350, r: 12, anchor: true, green: true },
     { x: 750, y: 420, r: 10, anchor: true },
     { x: 500, y: 60, r: 11, anchor: true, green: true },
-    // Regular dots — spread across canvas
     { x: 50, y: 80, r: 4 }, { x: 120, y: 200, r: 3 }, { x: 180, y: 320, r: 5 },
     { x: 90, y: 420, r: 3 }, { x: 220, y: 100, r: 6 }, { x: 280, y: 250, r: 4 },
     { x: 200, y: 440, r: 3 }, { x: 330, y: 150, r: 5 }, { x: 350, y: 40, r: 3 },
@@ -42,22 +39,18 @@ const makeDots = (): Dot[] => {
     { x: 770, y: 240, r: 3 }, { x: 640, y: 400, r: 5 }, { x: 480, y: 480, r: 4 },
   ];
 
-  // Pseudo-random drift values seeded by index
   return raw.map((d, i) => {
     const angle = ((i * 137.5) % 360) * (Math.PI / 180);
     const dist = 5 + (i % 6);
     return {
-      x: d.x,
-      y: d.y,
-      r: d.r,
-      ox: d.x,
-      oy: d.y,
+      x: d.x, y: d.y, r: d.r,
+      ox: d.x, oy: d.y,
       dx: Math.cos(angle) * dist,
       dy: Math.sin(angle) * dist,
       dur: 6 + (i % 5),
       phase: (i * 0.7) % (2 * Math.PI),
       color: d.green ? "#15803D" : "#94A3B8",
-      opacity: d.anchor ? 0.45 : 0.35,
+      opacity: d.anchor ? 0.3 : 0.2,
     };
   });
 };
@@ -93,11 +86,10 @@ const HeroConstellation = () => {
     const scaleX = w / 1000;
     const scaleY = h / 500;
     const driftScale = mobile ? 0.5 : 1;
-    const opacityScale = mobile ? 0.65 : 1;
+    const opacityScale = mobile ? 0.5 : 0.7;
 
     const t = time / 1000;
 
-    // Compute current positions
     const positions = DOTS.map((dot) => {
       const progress = Math.sin(t / dot.dur * Math.PI * 2 + dot.phase);
       return {
@@ -109,7 +101,6 @@ const HeroConstellation = () => {
       };
     });
 
-    // Draw lines
     for (let i = 0; i < positions.length; i++) {
       for (let j = i + 1; j < positions.length; j++) {
         const dx = positions[i].x - positions[j].x;
@@ -121,14 +112,13 @@ const HeroConstellation = () => {
           ctx.beginPath();
           ctx.moveTo(positions[i].x, positions[i].y);
           ctx.lineTo(positions[j].x, positions[j].y);
-          ctx.strokeStyle = `rgba(148, 163, 184, ${0.25 * fade * opacityScale})`;
+          ctx.strokeStyle = `rgba(148, 163, 184, ${0.15 * fade * opacityScale})`;
           ctx.lineWidth = 0.75;
           ctx.stroke();
         }
       }
     }
 
-    // Draw dots
     for (const p of positions) {
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
