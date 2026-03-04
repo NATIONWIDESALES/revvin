@@ -22,13 +22,13 @@ const HeroConstellation = () => {
       resize();
       const w = canvas.offsetWidth;
       const h = canvas.offsetHeight;
-      const count = Math.floor((w * h) / 12000);
+      const count = Math.floor((w * h) / 22000);
       dots = Array.from({ length: count }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        r: Math.random() * 1.2 + 0.6,
+        vx: (Math.random() - 0.5) * 0.12,
+        vy: (Math.random() - 0.5) * 0.12,
+        r: Math.random() * 0.9 + 0.4,
       }));
     };
 
@@ -48,7 +48,7 @@ const HeroConstellation = () => {
 
         ctx.beginPath();
         ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
-        ctx.fillStyle = "hsl(var(--primary) / 0.15)";
+        ctx.fillStyle = "hsl(var(--primary) / 0.1)";
         ctx.fill();
 
         for (let j = i + 1; j < dots.length; j++) {
@@ -56,11 +56,11 @@ const HeroConstellation = () => {
           const dx = a.x - b.x;
           const dy = a.y - b.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < connectDist) {
+          if (dist < 160) {
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
-            ctx.strokeStyle = `hsl(var(--primary) / ${0.06 * (1 - dist / connectDist)})`;
+            ctx.strokeStyle = `hsl(var(--primary) / ${0.04 * (1 - dist / 160)})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
