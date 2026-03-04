@@ -317,7 +317,7 @@ const SuperAdminCRM = () => {
     const { error } = await supabase.from("businesses").update({ verified: true }).eq("id", bizId);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, verified: true } : b));
-    if (user) await supabase.rpc("fn_create_audit_entry", { p_actor_id: user.id, p_event_type: "business_verified", p_referral_id: bizId });
+    if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: "business_verified", p_referral_id: bizId });
     toast({ title: "Business verified" });
   };
 
@@ -360,7 +360,7 @@ const SuperAdminCRM = () => {
     const { error } = await supabase.from("payouts").update(updates).eq("id", payoutId);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     setPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, ...updates } : p));
-    if (user) await supabase.rpc("fn_create_audit_entry", { p_actor_id: user.id, p_event_type: `payout_${status}`, p_referral_id: payouts.find(p => p.id === payoutId)?.referral_id });
+    if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: `payout_${status}`, p_referral_id: payouts.find(p => p.id === payoutId)?.referral_id });
     toast({ title: `Payout marked as ${status}` });
     setPayoutMethod("");
     setPayoutRef("");

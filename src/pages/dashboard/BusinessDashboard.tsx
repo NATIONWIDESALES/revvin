@@ -76,7 +76,7 @@ const BusinessDashboard = () => {
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "accepted" } : r)));
     toast({ title: "Referral accepted", description: `Payout of $${payoutAmt} locked for this referral.` });
     if (user) {
-      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_actor_id: user.id, p_event_type: "referral_accepted", p_payload: { payout: payoutAmt } });
+      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_event_type: "referral_accepted", p_payload: { payout: payoutAmt } });
       supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Referral accepted!", p_body: `Your referral for "${ref.offers?.title}" has been accepted.`, p_type: "referral_accepted", p_referral_id: ref.id });
     }
   };
@@ -86,7 +86,7 @@ const BusinessDashboard = () => {
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "declined" } : r)));
     toast({ title: "Referral declined" });
     if (user) {
-      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_actor_id: user.id, p_event_type: "referral_declined" });
+      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_event_type: "referral_declined" });
       supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Referral declined", p_body: `Your referral for "${ref.offers?.title}" was declined.`, p_type: "referral_declined", p_referral_id: ref.id });
     }
   };
@@ -100,7 +100,7 @@ const BusinessDashboard = () => {
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "won", payout_amount: referrerPayout, payout_status: "approved" } : r)));
     toast({ title: "Deal closed!", description: `Payout created for referrer.` });
     if (user) {
-      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_actor_id: user.id, p_event_type: "referral_won", p_payload: { payout: referrerPayout, fee: platformFee } });
+      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_event_type: "referral_won", p_payload: { payout: referrerPayout, fee: platformFee } });
       supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Deal closed — payout coming!", p_body: `Your referral for "${ref.offers?.title}" closed. Payout is being processed.`, p_type: "referral_won", p_referral_id: ref.id });
     }
   };
@@ -110,7 +110,7 @@ const BusinessDashboard = () => {
     setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "lost" } : r)));
     toast({ title: "Marked as lost" });
     if (user) {
-      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_actor_id: user.id, p_event_type: "referral_lost" });
+      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_event_type: "referral_lost" });
       supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Referral lost", p_body: `Your referral for "${ref.offers?.title}" was marked as lost.`, p_type: "referral_lost", p_referral_id: ref.id });
     }
   };
