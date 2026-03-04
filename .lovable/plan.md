@@ -1,88 +1,40 @@
 
 
-## Plan: Comprehensive SEO, Structured Data, and Crawler Optimization
+## Plan: QR Code Feature for Offer Sharing
 
-No visible UI changes. All work is in document head, JSON-LD scripts, public files, and HTML attributes.
+### New files to create
 
-### 1. Upgrade SEOHead Component
+**1. `src/components/OfferQRCode.tsx`** — The main QR code card component.
 
-**File: `src/components/SEOHead.tsx`**
+Props: `offerId`, `businessName`, `offerTitle`, `payoutAmount`, `payoutCurrency`
 
-Rewrite to support all meta tags, OG/Twitter cards, JSON-LD structured data, and canonical URLs. Instead of adding `react-helmet-async` (adds a dependency + provider wrapping), keep the current `useEffect`-based approach but expand it to:
+- Builds the offer URL using `toSlug(businessName)` + the existing `/offer/:businessSlug/:id` pattern
+- Creates a `QRCodeStyling` instance (from `qr-code-styling`) with the specified styling (rounded dots in `#0F172A`, green corners `#15803D`, white bg, error correction H, 280x280)
+- Uses a `useRef` div container and `useEffect` to append/update the QR code, cleaning up on unmount
+- Renders a card with:
+  - "Share this with your customers, partners, and network" header text
+  - Centered QR code
+  - "Scan to view this offer and start referring" caption
+  - URL display with Copy button (2s "Copied!" feedback)
+  - Download PNG (re-renders at 1024x1024), Download SVG, and Print buttons
+  - Print opens a new window with minimal HTML containing only the QR, business name, tagline, and URL
+- Styled to match existing design system (white bg, border, rounded-xl, shadow-sm, consistent button styles)
 
-- Set `document.title` (without " | Revvin" suffix — use exact titles from spec)
-- Set/create meta tags: `description`, `og:title`, `og:description`, `og:url`, `og:type`, `og:site_name`, `og:image`, `og:locale`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`, `theme-color`
-- Set/create canonical `<link>` tag
-- Inject/update a `<script type="application/ld+json">` tag for structured data
-- Accept new props: `canonicalUrl`, `jsonLd` (object or array of objects), `ogImage`
-- Clean up injected elements on unmount
-- Base URL: `https://revvin.co`
+### Existing files to modify (minimal additions only)
 
-### 2. Update Every Page's SEOHead Call
+**2. `src/pages/dashboard/BusinessDashboard.tsx`**
+- Import `OfferQRCode`
+- Inside the offers grid, for each offer card: after the existing action buttons, add the `OfferQRCode` component if `offer.status === "active"`. If not active, show a small muted message: "Publish your offer to get your shareable QR code."
+- Implementation: Add a collapsible/expandable section within each offer card (a "QR Code" toggle button) to avoid cluttering the card by default. Click reveals the full QR card inline below the offer actions.
 
-Apply the exact titles, descriptions, canonical URLs, and JSON-LD from the spec:
+**3. `src/components/ShareOfferLink.tsx`**
+- Add a small QR icon button next to the existing share button that opens a popover/dialog showing a mini version of the QR code with download options. Uses the same `QRCodeStyling` setup.
+- This is the public offer page's share component — referrers can also access the QR.
 
-**`Index.tsx`**: Title, description, canonical `/`. JSON-LD: Organization + WebSite (with SearchAction) + FAQPage schemas.
-
-**`HowItWorks.tsx`**: Title, description, canonical `/how-it-works`.
-
-**`ForBusinesses.tsx`**: Title, description, canonical `/for-businesses`. JSON-LD: Service schema.
-
-**`ForReferrers.tsx`**: Appropriate title/desc, canonical `/for-referrers`.
-
-**`Browse.tsx`**: Title, description, canonical `/browse`. JSON-LD: dynamic `ItemList` schema built from loaded offers data.
-
-**`OfferDetail.tsx`**: Dynamic title from offer data. JSON-LD: `LocalBusiness` + `Offer` schema for the specific business.
-
-**`Auth.tsx`**: Sign up/log in title and description, canonical `/auth`.
-
-**`TrustCenter.tsx`**: Title, description, canonical `/trust`.
-
-**`Terms.tsx`**: Title, description, canonical `/terms`.
-
-**`Privacy.tsx`**: Title, description, canonical `/privacy`.
-
-**`ReferralAgreement.tsx`**: Title, description, canonical `/referral-agreement`.
-
-**`NotFound.tsx`**: "Page Not Found" title, noindex meta.
-
-### 3. index.html Updates
-
-- Update default canonical to `https://revvin.co`
-- Update all `og:url` references from `revvin.lovable.app` to `revvin.co`
-- Add `<meta name="theme-color" content="#15803D">`
-- Add `<meta property="og:locale" content="en_CA">`
-- Expand keywords meta with full keyword list from spec
-- Add `<noscript>` block with site description and category keywords
-- Keep existing OG image URL (user will replace later)
-
-### 4. Static Files
-
-**`public/robots.txt`** — Replace with full spec: Allow `/`, Disallow dashboard/admin/api/auth, explicit rules for GPTBot, Google-Extended, ChatGPT-User, Claude-Web, Anthropic-AI, Bingbot, Applebot. Sitemap reference.
-
-**`public/sitemap.xml`** — Create with all public routes: `/`, `/how-it-works`, `/for-businesses`, `/for-referrers`, `/browse`, `/auth`, `/trust`, `/terms`, `/privacy`, `/referral-agreement`. Proper priorities and changefreqs.
-
-### 5. Files Changed
-
-- `src/components/SEOHead.tsx` — rewrite with expanded capabilities
-- `index.html` — meta updates, noscript block, theme-color
-- `public/robots.txt` — replace
-- `public/sitemap.xml` — create
-- `src/pages/Index.tsx` — SEOHead props + JSON-LD
-- `src/pages/HowItWorks.tsx` — SEOHead props
-- `src/pages/ForBusinesses.tsx` — SEOHead props + JSON-LD
-- `src/pages/ForReferrers.tsx` — SEOHead props
-- `src/pages/Browse.tsx` — SEOHead props + dynamic JSON-LD
-- `src/pages/OfferDetail.tsx` — SEOHead props + dynamic JSON-LD
-- `src/pages/Auth.tsx` — SEOHead props
-- `src/pages/TrustCenter.tsx` — SEOHead props
-- `src/pages/Terms.tsx` — SEOHead props
-- `src/pages/Privacy.tsx` — SEOHead props
-- `src/pages/ReferralAgreement.tsx` — SEOHead props
-- `src/pages/NotFound.tsx` — SEOHead props
+### Dependencies
+- Install `qr-code-styling` npm package
 
 ### What stays untouched
-- No UI, styling, routing, auth, Stripe, or database changes
-- No new npm dependencies
-- All visible page content identical
+- No routing, auth, Stripe, database, or page layout changes
+- No modifications to existing component logic — only additive imports and JSX insertions
 
