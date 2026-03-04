@@ -81,51 +81,81 @@ const CreateOffer = () => {
       return;
     }
 
-    const qualRules = [
-      form.leadFreshness && `Lead freshness: ${form.leadFreshness}`,
-      form.minProjectSize && `Minimum project size: $${form.minProjectSize}`,
-      form.eligibleLocations && `Eligible locations: ${form.eligibleLocations}`,
-      form.qualificationCriteria,
-    ].filter(Boolean).join("\n");
-
-    const insertData: any = {
-      business_id: businessId, title: form.title, description: form.description,
-      category: form.category, payout: parseFloat(form.payout), payout_type: form.payoutType,
-      location: form.location,
-      deal_size_min: form.dealSizeMin ? parseFloat(form.dealSizeMin) : null,
-      deal_size_max: form.dealSizeMax ? parseFloat(form.dealSizeMax) : null,
-      close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
-      remote_eligible: form.remoteEligible, qualification_criteria: qualRules || null,
-      approval_status: isRestricted ? "pending_approval" : "approved",
-      status: isSuperAdmin ? "active" : "draft",
-      deposit_status: isSuperAdmin ? "waived" : "required",
-    };
-
-    if (form.payoutType === "percentage" && form.maxPayoutCap) {
-      insertData.max_payout_cap = parseFloat(form.maxPayoutCap);
+    const payoutValue = parseFloat(form.payout);
+    if (!Number.isFinite(payoutValue) || payoutValue <= 0) {
+      toast({ title: "Invalid payout", description: "Please enter a valid payout amount.", variant: "destructive" });
+      setStep(2);
+      return;
     }
 
-    const { data, error } = await supabase.from("offers").insert(insertData).select("id, deposit_status").single();
-
-    setLoading(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else if (data) {
-      setSavedOfferId(data.id);
-      setDepositStatus(data.deposit_status);
-      if (isSuperAdmin) {
-        toast({ title: "Offer published!", description: "Your offer is now live (deposit waived)." });
-        navigate("/dashboard");
-      } else {
-        setStep(5);
+    if (form.payoutType === "percentage") {
+      const cap = parseFloat(form.maxPayoutCap);
+      if (!Number.isFinite(cap) || cap <= 0) {
+        toast({ title: "Missing max payout cap", description: "Please enter a valid maximum payout cap for percentage offers.", variant: "destructive" });
+        setStep(2);
+        return;
       }
+    }
+
+    setLoading(true);
+    try {
+      const qualRules = [
+        form.leadFreshness && `Lead freshness: ${form.leadFreshness}`,
+        form.minProjectSize && `Minimum project size: $${form.minProjectSize}`,
+        form.eligibleLocations && `Eligible locations: ${form.eligibleLocations}`,
+        form.qualificationCriteria,
+      ].filter(Boolean).join("\n");
+
+      const insertData: any = {
+        business_id: businessId,
+        title: form.title,
+        description: form.description,
+        category: form.category,
+        payout: payoutValue,
+        payout_type: form.payoutType,
+        location: form.location,
+        deal_size_min: form.dealSizeMin ? parseFloat(form.dealSizeMin) : null,
+        deal_size_max: form.dealSizeMax ? parseFloat(form.dealSizeMax) : null,
+        close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
+        remote_eligible: form.remoteEligible,
+        qualification_criteria: qualRules || null,
+        approval_status: isRestricted ? "pending_approval" : "approved",
+        status: isSuperAdmin ? "active" : "draft",
+        deposit_status: isSuperAdmin ? "waived" : "required",
+      };
+
+      if (form.payoutType === "percentage" && form.maxPayoutCap) {
+        insertData.max_payout_cap = parseFloat(form.maxPayoutCap);
+      }
+
+      const { data, error } = await supabase.from("offers").insert(insertData).select("id, deposit_status").single();
+      if (error) throw error;
+
+      if (data) {
+        setSavedOfferId(data.id);
+        setDepositStatus(data.deposit_status);
+        if (isSuperAdmin) {
+          toast({ title: "Offer published!", description: "Your offer is now live (deposit waived)." });
+          navigate("/dashboard");
+        } else {
+          setStep(5);
+        }
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err?.message || "Failed to save offer", variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (step < 4) { setStep(step + 1); return; }
-    if (step === 4) { await handleSaveOffer(); return; }
+  const handleNextStep = async () => {
+    if (step < 4) {
+      setStep(step + 1);
+      return;
+    }
+    if (step === 4) {
+      await handleSaveOffer();
+    }
   };
 
   const handlePayDeposit = async () => {
@@ -191,7 +221,7 @@ const CreateOffer = () => {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
               <div><Label>Offer Title</Label><Input value={form.title} onChange={(e) => update("title", e.target.value)} placeholder="e.g. Home Solar Installation" required className="mt-1" /></div>
@@ -388,12 +418,12 @@ const CreateOffer = () => {
           <div className="flex gap-3 pt-2">
             {step > 1 && step < 5 && <Button type="button" variant="outline" onClick={() => setStep(step - 1)} className="flex-1">Back</Button>}
             {step < 4 && (
-              <Button type="submit" size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
+              <Button type="button" onClick={handleNextStep} size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
                 Next <ArrowRight className="h-4 w-4" />
               </Button>
             )}
             {step === 4 && (
-              <Button type="submit" size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
+              <Button type="button" onClick={handleNextStep} size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
                 {loading ? "Saving..." : "Save & Continue to Deposit"}
               </Button>
             )}
