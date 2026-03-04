@@ -150,6 +150,11 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
 
       if (error) throw error;
 
+      // Fire-and-forget — don't await, don't block UI
+      supabase.functions.invoke("notify-new-referral", {
+        body: { referral_id: inserted.id },
+      }).catch((err) => console.error("Notification trigger failed:", err));
+
       setReferralId(inserted.id);
       setDirection(1);
       setStep(4);
