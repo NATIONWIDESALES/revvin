@@ -53,7 +53,7 @@ const Index = () => {
       <SEOHead title="Revvin - Pay-Per-Close Referral Marketplace" description="Businesses pay only for closed deals. Referrers earn commissions. Active across Canada and the United States." path="/" />
 
       {/* Hero */}
-      <section className="relative overflow-hidden pt-20 pb-[60px] lg:pt-[80px] bg-muted/30 border-b border-border">
+      <section className="relative overflow-hidden pt-28 pb-20 lg:pt-32 lg:pb-24 bg-muted/30 border-b border-border">
         <HeroConstellation />
         <div className="container relative z-10">
           <motion.div initial="hidden" animate="visible" className="mx-auto max-w-3xl text-center">
@@ -83,7 +83,7 @@ const Index = () => {
       </section>
 
       {/* 3-Step Explainer */}
-      <section className="py-20 lg:py-24">
+      <section className="py-24 lg:py-32">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mb-14 text-center">
             <motion.p variants={fadeUp} custom={0} className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-3">How It Works</motion.p>
@@ -109,7 +109,7 @@ const Index = () => {
       </section>
 
       {/* Revvin vs Ads */}
-      <section className="py-20 lg:py-24 border-y border-border bg-muted">
+      <section className="py-24 lg:py-32 border-y border-border bg-muted">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
@@ -179,7 +179,7 @@ const Index = () => {
       </section>
 
       {/* Real-World Scenarios */}
-      <section className="py-20 lg:py-24">
+      <section className="py-24 lg:py-32">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
@@ -205,7 +205,7 @@ const Index = () => {
       </section>
 
       {/* Choose Your Path */}
-      <section className="py-20 lg:py-24 border-y border-border bg-muted">
+      <section className="py-24 lg:py-32 border-y border-border bg-muted">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
@@ -256,7 +256,7 @@ const Index = () => {
       </section>
 
       {/* Trust & Protection */}
-      <section className="py-20 lg:py-24">
+      <section className="py-24 lg:py-32">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-10">
@@ -310,7 +310,7 @@ const Index = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="border-t border-border bg-muted py-20 lg:py-24">
+      <section className="border-t border-border bg-muted py-24 lg:py-32">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto max-w-2xl text-center">
             <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold text-foreground md:text-4xl tracking-tight">
