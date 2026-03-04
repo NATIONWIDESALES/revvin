@@ -1,30 +1,55 @@
 
 
-## Plan: Replace HeroConstellation with ConstellationBackground
+## Plan: Automated Email to Business on New Referral
 
-### What changes
+### Approach
 
-1. **Create `src/components/ConstellationBackground.tsx`** — new canvas component with:
-   - Sparse nodes (~1 per 18,000px², max 80), slow drift (±0.15 px/frame), edge wrapping
-   - Node-to-node connections within 140px at max 0.08 alpha
-   - Mouse-interactive connections within 180px at max 0.12 alpha
-   - Warm gold/amber color `rgba(200, 180, 100, alpha)` for all dots and lines
-   - Subtle pulse animation (sine wave on opacity/size) + soft outer glow per node
-   - Canvas element at 0.6 opacity, retina-aware, `pointer-events-auto` for mouse tracking
-   - Clean requestAnimationFrame loop with proper cleanup
+Create a dedicated edge function `notify-new-referral` that receives a referral ID, looks up all related data (business owner email, referrer name, customer details), builds a branded HTML email, and sends it via Resend. The ReferralWizard calls this function fire-and-forget after a successful insert — no UI changes, no blocking.
 
-2. **Update `src/pages/Index.tsx`** (hero section only):
-   - Replace `HeroConstellation` import with `ConstellationBackground`
-   - Swap `<HeroConstellation />` for `<ConstellationBackground />`
-   - The hero section already has `relative overflow-hidden` and content already has `relative z-10`, so just ensure the canvas sits at z-0
+### Changes
 
-3. **Delete `src/components/HeroConstellation.tsx`** — replaced by the new component
+**1. Create `supabase/functions/notify-new-referral/index.ts`**
 
-### Key differences from current HeroConstellation
-- Mouse interactivity (current has none)
-- Warm gold color instead of `hsl(var(--primary))` (green)
-- Edge wrapping instead of bouncing
-- Outer glow on nodes
-- Canvas-level 0.6 opacity
-- Sparser, slower, more deliberate feel
+A new edge function that:
+- Accepts `{ referral_id: string }` as POST body
+- Uses `SUPABASE_SERVICE_ROLE_KEY` to look up:
+  - The referral row (customer_name, customer_email, customer_phone, notes)
+  - The business (name, user_id) → then the business owner's email from `auth.users` via admin API
+  - The referrer's profile (full_name)
+- Skips gracefully if business owner email is missing (logs warning, returns 200)
+- Builds a fully inline-styled HTML email matching the spec:
+  - From: `Revvin <updates@updates.revvin.co>`
+  - Reply-To: `support@revvin.co`
+  - Subject: `New referral: [first name of referred person]`
+  - Body: branded HTML with the card layout, conditional phone/email/notes fields, CTA button linking to `/dashboard`
+- Sends via Resend API using `RESEND_API_KEY`
+- Logs to `notifications_log` table for audit
+- Returns 200 regardless of email outcome
+
+**2. Update `supabase/config.toml`**
+
+Add:
+```toml
+[functions.notify-new-referral]
+verify_jwt = false
+```
+
+**3. Update `src/components/ReferralWizard.tsx`** (minimal change — only inside `handleSubmit`)
+
+After the successful `.insert()` and before showing the success step, add a fire-and-forget call:
+
+```typescript
+// Fire-and-forget — don't await, don't block UI
+supabase.functions.invoke("notify-new-referral", {
+  body: { referral_id: inserted.id },
+}).catch((err) => console.error("Notification trigger failed:", err));
+```
+
+This is ~3 lines added inside the existing try block. No UI, layout, or routing changes.
+
+### What stays untouched
+- No UI component changes beyond the 3-line fire-and-forget call
+- No changes to existing `send-notification` edge function
+- No database schema changes (reuses existing `notifications_log` table)
+- No new routes, dashboards, or pages
 
