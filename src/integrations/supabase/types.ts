@@ -638,15 +638,24 @@ export type Database = {
         }
         Returns: boolean
       }
-      fn_create_audit_entry: {
-        Args: {
-          p_actor_id: string
-          p_event_type: string
-          p_payload?: Json
-          p_referral_id: string
-        }
-        Returns: undefined
-      }
+      fn_create_audit_entry:
+        | {
+            Args: {
+              p_actor_id: string
+              p_event_type: string
+              p_payload?: Json
+              p_referral_id: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_event_type: string
+              p_payload?: Json
+              p_referral_id: string
+            }
+            Returns: undefined
+          }
       fn_create_notification: {
         Args: {
           p_body: string
