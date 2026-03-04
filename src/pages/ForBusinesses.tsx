@@ -13,7 +13,28 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } }
 
 const ForBusinesses = () => (
   <div>
-    <SEOHead title="For Businesses — Pay-Per-Close Customer Acquisition" description="Acquire customers through paid referrals. Set your own payout, get qualified leads, and pay only when deals close. Zero upfront risk." path="/for-businesses" />
+    <SEOHead
+      title="Revvin for Businesses — Acquire Customers Through Referral Payouts"
+      description="Stop paying for clicks that don't convert. Set your own referral fee, share your link with customers and partners, and only pay when a deal closes. Zero upfront cost. Available across Canada and the United States."
+      path="/for-businesses"
+      jsonLd={{
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Revvin Referral Marketing for Businesses",
+        "description": "Pay-per-close customer acquisition. Set a referral reward, share your link, and only pay when deals close.",
+        "provider": { "@type": "Organization", "name": "Revvin" },
+        "areaServed": [
+          { "@type": "Country", "name": "Canada" },
+          { "@type": "Country", "name": "United States" }
+        ],
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "CAD",
+          "description": "Free to list. Pay only on closed deals."
+        }
+      }}
+    />
     {/* Hero */}
     <section className="py-20 lg:py-24 bg-surface">
       <div className="container text-center">

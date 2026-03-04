@@ -21,7 +21,7 @@ const stagger = {
 const HowItWorks = () => {
   return (
     <div>
-      <SEOHead title="How Revvin Works" description="Learn how businesses and referrers use Revvin for pay-per-close customer acquisition. Three simple steps to real outcomes." path="/how-it-works" />
+      <SEOHead title="How Revvin Works — Referral Marketplace for Businesses and Referrers" description="Businesses set referral rewards and publish offers. Referrers submit warm introductions. Deals close, payouts are processed. Learn how Revvin's pay-per-close referral marketplace works step by step." path="/how-it-works" />
       {/* Hero */}
       <section className="py-20 lg:py-24 bg-surface">
         <div className="container text-center">

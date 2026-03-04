@@ -12,7 +12,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } }
 
 const ForReferrers = () => (
   <div>
-    <SEOHead title="For Referrers — Earn Commissions" description="Browse paid referral opportunities across Canada and the USA. Earn commissions when deals close. Free to join." path="/for-referrers" />
+    <SEOHead title="Revvin for Referrers — Earn Money Referring Customers You Trust" description="Browse paid referral opportunities across Canada and the USA. Earn $150 to $1,500+ per closed referral. Free to join, no experience needed." path="/for-referrers" />
     {/* Hero */}
     <section className="py-20 lg:py-24 bg-surface">
       <div className="container text-center">

@@ -84,7 +84,49 @@ const ScenarioCard = ({ scenario }: { scenario: typeof scenarios[0] }) => {
 const Index = () => {
   return (
     <div>
-      <SEOHead title="Revvin - Pay-Per-Close Referral Marketplace" description="Businesses pay only for closed deals. Referrers earn commissions. Active across Canada and the United States." path="/" />
+      <SEOHead
+        title="Revvin — Pay-Per-Close Referral Marketplace for Businesses | Get Customers Through Referrals"
+        description="Turn your customers into your best salespeople. Set a reward, share your link, and only pay when the deal closes. Revvin connects businesses with referrers who bring real, paying customers. Free to list. Available in Canada and the USA."
+        path="/"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Revvin",
+            "url": "https://revvin.co",
+            "description": "Pay-per-close referral marketplace connecting businesses with referrers who bring real customers.",
+            "foundingDate": "2025",
+            "areaServed": [
+              { "@type": "Country", "name": "Canada" },
+              { "@type": "Country", "name": "United States" }
+            ],
+            "sameAs": []
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Revvin",
+            "url": "https://revvin.co",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://revvin.co/browse?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              { "@type": "Question", "name": "How much does it cost to list my business?", "acceptedAnswer": { "@type": "Answer", "text": "Nothing. It's free to create an account and set up your offer. You only pay when a referred customer actually closes." } },
+              { "@type": "Question", "name": "How do referrers get paid?", "acceptedAnswer": { "@type": "Answer", "text": "When a deal is marked as won and verified, Revvin processes the payout to the referrer. The business sets the reward amount upfront." } },
+              { "@type": "Question", "name": "What if a referral doesn't work out?", "acceptedAnswer": { "@type": "Answer", "text": "You owe nothing. If the deal doesn't close, no payout is created. You only pay for real results." } },
+              { "@type": "Question", "name": "Can I refer people I already know?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. Most referrers start by connecting people they already know to businesses they trust." } },
+              { "@type": "Question", "name": "How does Revvin make money?", "acceptedAnswer": { "@type": "Answer", "text": "Revvin takes a small platform fee (10%) from successful payouts. We only earn when everyone else does." } },
+              { "@type": "Question", "name": "Is this available in my city?", "acceptedAnswer": { "@type": "Answer", "text": "Revvin is live across Canada and the United States. If you don't see offers in your area yet, you can still sign up and be notified when businesses near you join." } }
+            ]
+          }
+        ]}
+      />
 
       {/* Hero */}
       <section className="relative overflow-hidden pt-28 pb-20 lg:pt-32 lg:pb-24" style={{ background: "radial-gradient(circle at 50% 30%, rgba(21,128,61,0.03), transparent 70%)" }}>

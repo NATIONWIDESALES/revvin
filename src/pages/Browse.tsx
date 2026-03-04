@@ -89,7 +89,39 @@ const Browse = () => {
 
   return (
     <div className="py-6">
-      <SEOHead title="Browse Referral Opportunities" description="Find high-paying referral programs from verified businesses across Canada and the USA." path="/browse" />
+      <SEOHead
+        title="Browse Referral Offers — Earn Money Referring Customers on Revvin"
+        description="Explore referral opportunities from verified businesses. Earn $150 to $1,500+ per closed referral. Browse by category, city, or payout amount. Solar, real estate, mortgage, fitness, childcare, and more."
+        path="/browse"
+        jsonLd={filtered.length > 0 ? {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": "Referral Offers on Revvin",
+          "description": "Browse active referral opportunities from verified businesses",
+          "itemListElement": filtered.slice(0, 20).map((offer, i) => ({
+            "@type": "ListItem",
+            "position": i + 1,
+            "item": {
+              "@type": "Offer",
+              "name": `${offer.business} — ${offer.title}`,
+              "description": offer.description,
+              "price": String(offer.payout),
+              "priceCurrency": offer.currency,
+              "areaServed": offer.location,
+              "offeredBy": {
+                "@type": "LocalBusiness",
+                "name": offer.business,
+                "address": {
+                  "@type": "PostalAddress",
+                  "addressLocality": offer.city,
+                  "addressRegion": offer.state,
+                  "addressCountry": offer.country
+                }
+              }
+            }
+          }))
+        } : undefined}
+      />
       <div className="container">
         {/* Search bar */}
         <div className="mb-5 flex gap-2">
