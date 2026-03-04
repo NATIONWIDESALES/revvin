@@ -1,85 +1,88 @@
 
 
-## Plan: Design Polish Pass
+## Plan: Comprehensive SEO, Structured Data, and Crawler Optimization
 
-This is a visual-only pass — no logic, routing, auth, Stripe, or database changes. Prioritized in the order requested.
+No visible UI changes. All work is in document head, JSON-LD scripts, public files, and HTML attributes.
 
-### Batch 1: Global Card / Typography / Button Polish
+### 1. Upgrade SEOHead Component
 
-**Files: `src/index.css`, `tailwind.config.ts`, `src/components/ui/button.tsx`**
+**File: `src/components/SEOHead.tsx`**
 
-- **Typography**: Add utility classes for section labels (`text-[11px] font-medium tracking-[0.08em] text-[#9CA3AF]`), tighten heading `letter-spacing` to `-0.02em`/`-0.03em`, standardize body text to `text-base leading-relaxed text-[#4B5563]`. Reduce label-to-heading gap to `mb-2` (8px).
-- **Buttons**: Update `buttonVariants` — primary gets `rounded-[10px]`, consistent `h-12 px-7 text-[15px] font-medium`. Secondary outline: `border-[#D1D5DB] text-[#374151] hover:bg-[#F9FAFB]`. Nav "Get Started" stays `sm` size but with `px-5 text-sm`.
-- **Cards**: Apply globally across all pages — white bg, `border border-[#E5E7EB] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)]`, hover: `hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] transition-all duration-200`. Padding `p-7`. Left-align content (remove `text-center` from card interiors).
-- **Icon treatments**: Replace solid green circle icons with subtle square treatment: `rounded-lg bg-[#F0FDF4]` with `text-[#15803D]` icon, or plain gray icons at 20px.
+Rewrite to support all meta tags, OG/Twitter cards, JSON-LD structured data, and canonical URLs. Instead of adding `react-helmet-async` (adds a dependency + provider wrapping), keep the current `useEffect`-based approach but expand it to:
 
-**Applied across**: `Index.tsx`, `HowItWorks.tsx`, `ForBusinesses.tsx`, `ForReferrers.tsx`, `OfferCard.tsx`, `CitySlots.tsx`
+- Set `document.title` (without " | Revvin" suffix — use exact titles from spec)
+- Set/create meta tags: `description`, `og:title`, `og:description`, `og:url`, `og:type`, `og:site_name`, `og:image`, `og:locale`, `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`, `theme-color`
+- Set/create canonical `<link>` tag
+- Inject/update a `<script type="application/ld+json">` tag for structured data
+- Accept new props: `canonicalUrl`, `jsonLd` (object or array of objects), `ogImage`
+- Clean up injected elements on unmount
+- Base URL: `https://revvin.co`
 
-### Batch 2: Section Backgrounds & Transitions
+### 2. Update Every Page's SEOHead Call
 
-**Files: `src/pages/Index.tsx`, `src/pages/HowItWorks.tsx`, `src/pages/ForBusinesses.tsx`, `src/pages/ForReferrers.tsx`**
+Apply the exact titles, descriptions, canonical URLs, and JSON-LD from the spec:
 
-- Remove all `border-y border-border` and `border-t border-border` dividers between sections.
-- Alternate section backgrounds: odd sections `bg-white`, even sections `bg-[#F9FAFB]`. Remove `bg-muted`, `bg-muted/30` patterns.
-- Framer Motion `whileInView` already exists on most sections — ensure `viewport={{ once: true }}` and stagger timing of `80ms` is consistent. No additional IntersectionObserver needed since framer-motion handles it.
+**`Index.tsx`**: Title, description, canonical `/`. JSON-LD: Organization + WebSite (with SearchAction) + FAQPage schemas.
 
-### Batch 3: Browse Offers Card Redesign
+**`HowItWorks.tsx`**: Title, description, canonical `/how-it-works`.
 
-**File: `src/components/OfferCard.tsx`, `src/pages/Browse.tsx`**
+**`ForBusinesses.tsx`**: Title, description, canonical `/for-businesses`. JSON-LD: Service schema.
 
-- **Initial circles**: Replace the building emoji fallback with a colored circle showing the first letter of the business name. Color palette: `['#6366F1','#0D9488','#D97706','#E11D48','#15803D','#7C3AED']`, assigned by hash of business name. Circle 64px, letter 28px bold white.
-- **Top accent**: Add a 3px colored top border on each card matching the business's assigned color.
-- **Category filter bar**: Replace icon+text buttons with text-only pill filters. Active: `bg-primary text-white`. Inactive: `bg-[#F3F4F6] text-[#374151]`.
-- **Search bar**: Height 48px, `rounded-xl`, inner shadow `shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]`, placeholder `text-[#9CA3AF]`.
-- **Heart animation**: Add `transition-all duration-200` on the heart fill.
-- **Business CTA banner**: Add green left border accent `border-l-4 border-l-primary`.
+**`ForReferrers.tsx`**: Appropriate title/desc, canonical `/for-referrers`.
 
-### Batch 4: Dark Hero Replacements
+**`Browse.tsx`**: Title, description, canonical `/browse`. JSON-LD: dynamic `ItemList` schema built from loaded offers data.
 
-**Files: `src/pages/HowItWorks.tsx`, `src/pages/ForBusinesses.tsx`, `src/pages/ForReferrers.tsx`**
+**`OfferDetail.tsx`**: Dynamic title from offer data. JSON-LD: `LocalBusiness` + `Offer` schema for the specific business.
 
-- Replace `hero-gradient` (dark green) sections with white/off-white background, dark text.
-- Keep same heading/subtitle structure but use `text-foreground` for headings, `text-muted-foreground` for subtitles.
-- Badge pills become subtle bordered pills instead of green-on-dark.
+**`Auth.tsx`**: Sign up/log in title and description, canonical `/auth`.
 
-### Batch 5: FAQ Accordion (Landing Page)
+**`TrustCenter.tsx`**: Title, description, canonical `/trust`.
 
-**File: `src/pages/Index.tsx`**
+**`Terms.tsx`**: Title, description, canonical `/terms`.
 
-- Add new section between Trust & Protection and Final CTA.
-- Section label "COMMON QUESTIONS", heading "Got questions?"
-- Use existing `Accordion` component from `src/components/ui/accordion.tsx`.
-- 6 Q&A items as specified. Single-item-open mode (`type="single" collapsible`).
-- Plus icon rotating to × on open (replace default chevron).
+**`Privacy.tsx`**: Title, description, canonical `/privacy`.
 
-### Batch 6: Interaction Details
+**`ReferralAgreement.tsx`**: Title, description, canonical `/referral-agreement`.
 
-**Landing page (`Index.tsx`):**
-- **Hero**: Add faint radial gradient `radial-gradient(circle at 50% 30%, rgba(21,128,61,0.03), transparent 70%)`.
-- **Comparison section**: Add CSS `@keyframes shimmer-border` animation on Revvin card's green border. Smaller "Recommended" badge (10px font, more refined pill).
-- **Scenario cards**: Clamp quote text to 2 lines with "Read more" expand toggle. Highlight text becomes `text-[13px] font-semibold text-[#15803D]` instead of pill.
-- **Choose Your Path**: Business card hover border shifts to green. Full-width CTAs (already done).
-- **Trust section**: Remove trust badge pills row. Make trust cards more compact (`p-5`).
-- **Final CTA**: Subtle `bg-[#F9FAFB]` background. Add "Free to list. No credit card required to browse." below buttons.
+**`NotFound.tsx`**: "Page Not Found" title, noindex meta.
 
-**How It Works (`HowItWorks.tsx`):**
-- Step cards as expandable accordion instead of static cards.
-- Platform Economics: lighter number weights, more whitespace.
+### 3. index.html Updates
 
-**For Businesses (`ForBusinesses.tsx`):**
-- "What You Get" grid → single column list with icon-left, text-right.
-- CitySlots progress bars: animate fill on scroll (CSS transition triggered by framer-motion).
-- "Apply for Verified Placement" CTA made more prominent (full-width, primary variant).
+- Update default canonical to `https://revvin.co`
+- Update all `og:url` references from `revvin.lovable.app` to `revvin.co`
+- Add `<meta name="theme-color" content="#15803D">`
+- Add `<meta property="og:locale" content="en_CA">`
+- Expand keywords meta with full keyword list from spec
+- Add `<noscript>` block with site description and category keywords
+- Keep existing OG image URL (user will replace later)
 
-**Navbar (`Navbar.tsx`):**
-- Already has `backdrop-blur-md` and `bg-background/80` — adjust to `rgba(255,255,255,0.85)` and `backdrop-blur-[12px]`. Already close, minor tweak.
+### 4. Static Files
 
-### File count
+**`public/robots.txt`** — Replace with full spec: Allow `/`, Disallow dashboard/admin/api/auth, explicit rules for GPTBot, Google-Extended, ChatGPT-User, Claude-Web, Anthropic-AI, Bingbot, Applebot. Sitemap reference.
 
-~10 files modified. No new pages, routes, or components except possibly a small `ScenarioCard` sub-component for the expand/collapse behavior.
+**`public/sitemap.xml`** — Create with all public routes: `/`, `/how-it-works`, `/for-businesses`, `/for-referrers`, `/browse`, `/auth`, `/trust`, `/terms`, `/privacy`, `/referral-agreement`. Proper priorities and changefreqs.
+
+### 5. Files Changed
+
+- `src/components/SEOHead.tsx` — rewrite with expanded capabilities
+- `index.html` — meta updates, noscript block, theme-color
+- `public/robots.txt` — replace
+- `public/sitemap.xml` — create
+- `src/pages/Index.tsx` — SEOHead props + JSON-LD
+- `src/pages/HowItWorks.tsx` — SEOHead props
+- `src/pages/ForBusinesses.tsx` — SEOHead props + JSON-LD
+- `src/pages/ForReferrers.tsx` — SEOHead props
+- `src/pages/Browse.tsx` — SEOHead props + dynamic JSON-LD
+- `src/pages/OfferDetail.tsx` — SEOHead props + dynamic JSON-LD
+- `src/pages/Auth.tsx` — SEOHead props
+- `src/pages/TrustCenter.tsx` — SEOHead props
+- `src/pages/Terms.tsx` — SEOHead props
+- `src/pages/Privacy.tsx` — SEOHead props
+- `src/pages/ReferralAgreement.tsx` — SEOHead props
+- `src/pages/NotFound.tsx` — SEOHead props
 
 ### What stays untouched
-- All dashboard pages, auth, Stripe, database queries, edge functions, routing, `supabase/` directory
-- No text content changes except the new FAQ section content
-- `OfferCard` link behavior, data flow, and state management unchanged
+- No UI, styling, routing, auth, Stripe, or database changes
+- No new npm dependencies
+- All visible page content identical
 
