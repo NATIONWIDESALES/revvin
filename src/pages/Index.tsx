@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, DollarSign, Users, Building2, TrendingUp, Shield, Briefcase, MapPin, CheckCircle2, Zap, BarChart3, Lock, FileCheck, BadgeCheck, Ban, Target, Gauge, AlertTriangle, Scale } from "lucide-react";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
+import HeroConstellation from "@/components/HeroConstellation";
 
 
 const fadeUp = {
@@ -53,7 +54,7 @@ const Index = () => {
 
       {/* Hero */}
       <section className="relative overflow-hidden pt-20 pb-[60px] lg:pt-[80px] bg-muted/30 border-b border-border">
-        
+        <HeroConstellation />
         <div className="container relative z-10">
           <motion.div initial="hidden" animate="visible" className="mx-auto max-w-3xl text-center">
             <motion.h1
