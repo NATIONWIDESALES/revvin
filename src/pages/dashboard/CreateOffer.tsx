@@ -76,8 +76,10 @@ const CreateOffer = () => {
   const isRestricted = RESTRICTED_CATEGORIES.includes(form.category);
 
   const handleSaveOffer = async () => {
-    if (!businessId) return;
-    setLoading(true);
+    if (!businessId) {
+      toast({ title: "Error", description: "Business profile not found. Please refresh and try again.", variant: "destructive" });
+      return;
+    }
 
     const qualRules = [
       form.leadFreshness && `Lead freshness: ${form.leadFreshness}`,
