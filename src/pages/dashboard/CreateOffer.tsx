@@ -248,7 +248,7 @@ const CreateOffer = () => {
                   </div>
                 </div>
               )}
-              {depositAmount > 0 && (
+              {depositAmount > 0 && !isSuperAdmin && (
                 <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
                   <CreditCard className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                   <div>
