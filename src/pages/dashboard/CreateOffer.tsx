@@ -45,11 +45,12 @@ const CreateOffer = () => {
     if (!user) return;
 
     const ensureBusinessProfile = async () => {
-      const { data: existing, error: fetchError } = await supabase
+      const { data: rows, error: fetchError } = await supabase
         .from("businesses")
         .select("id, name, account_status")
         .eq("user_id", user.id)
-        .maybeSingle();
+        .order("created_at", { ascending: true })
+        .limit(1);
 
       if (fetchError) {
         toast({ title: "Error", description: fetchError.message, variant: "destructive" });
@@ -57,7 +58,7 @@ const CreateOffer = () => {
         return;
       }
 
-      let business = existing;
+      let business = rows && rows.length > 0 ? rows[0] : null;
 
       if (!business) {
         const fallbackName =
