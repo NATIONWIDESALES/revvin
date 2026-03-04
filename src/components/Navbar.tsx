@@ -34,7 +34,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 border-b border-border" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
       <div className="container flex h-14 items-center justify-between">
         {/* Left: Logo */}
         <Link to="/" className="flex items-center shrink-0">
@@ -118,7 +118,7 @@ const Navbar = () => {
               >
                 Log In
               </Link>
-              <Button size="sm" asChild>
+              <Button size="sm" className="px-5" asChild>
                 <Link to="/auth?mode=signup">Get Started</Link>
               </Button>
             </>

@@ -4,6 +4,8 @@ import { ArrowRight, DollarSign, Users, Building2, TrendingUp, Shield, Briefcase
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 import ConstellationBackground from "@/components/ConstellationBackground";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useState } from "react";
 
 
 const fadeUp = {
@@ -11,7 +13,7 @@ const fadeUp = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { delay: i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
   }),
 };
 
@@ -47,20 +49,52 @@ const scenarios = [
   },
 ];
 
+const faqItems = [
+  { q: "How much does it cost to list my business?", a: "Nothing. It's free to create an account and set up your offer. You only pay when a referred customer actually closes." },
+  { q: "How do referrers get paid?", a: "When a deal is marked as won and verified, Revvin processes the payout to the referrer. The business sets the reward amount upfront." },
+  { q: "What if a referral doesn't work out?", a: "You owe nothing. If the deal doesn't close, no payout is created. You only pay for real results." },
+  { q: "Can I refer people I already know?", a: "Absolutely. Most referrers start by connecting people they already know to businesses they trust. You don't need to find strangers." },
+  { q: "How does Revvin make money?", a: "Revvin takes a small platform fee (10%) from successful payouts. We only earn when everyone else does." },
+  { q: "Is this available in my city?", a: "Revvin is live across Canada and the United States. If you don't see offers in your area yet, you can still sign up and be notified when businesses near you join." },
+];
+
+const ScenarioCard = ({ scenario }: { scenario: typeof scenarios[0] }) => {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="polished-card">
+      <p className="section-label mb-1">{scenario.scenario}</p>
+      <p className="text-base font-bold text-foreground mb-3">{scenario.persona}</p>
+      <div className="relative">
+        <p className={`text-sm text-muted-foreground leading-relaxed mb-4 ${!expanded ? "line-clamp-2" : ""}`}>
+          {scenario.quote}
+        </p>
+        {!expanded && (
+          <button onClick={(e) => { e.preventDefault(); setExpanded(true); }} className="text-xs font-medium text-primary hover:underline">
+            Read more
+          </button>
+        )}
+      </div>
+      <div className="pt-3 border-t border-border">
+        <span className="text-[13px] font-semibold text-primary">{scenario.highlight}</span>
+      </div>
+    </div>
+  );
+};
+
 const Index = () => {
   return (
     <div>
       <SEOHead title="Revvin - Pay-Per-Close Referral Marketplace" description="Businesses pay only for closed deals. Referrers earn commissions. Active across Canada and the United States." path="/" />
 
       {/* Hero */}
-      <section className="relative overflow-hidden pt-28 pb-20 lg:pt-32 lg:pb-24 bg-muted/30 border-b border-border">
+      <section className="relative overflow-hidden pt-28 pb-20 lg:pt-32 lg:pb-24" style={{ background: "radial-gradient(circle at 50% 30%, rgba(21,128,61,0.03), transparent 70%)" }}>
         <ConstellationBackground />
         <div className="container relative z-10">
           <motion.div initial="hidden" animate="visible" className="mx-auto max-w-3xl text-center">
             <motion.h1
               variants={fadeUp}
               custom={0}
-              className="mb-4 text-4xl md:text-5xl font-bold leading-[1.1] tracking-[-0.02em] text-foreground"
+              className="mb-4 text-4xl md:text-5xl font-bold leading-[1.1] text-foreground"
             >
               Turn your customers into your best salespeople.
             </motion.h1>
@@ -71,10 +105,10 @@ const Index = () => {
               Set a reward for new customers. Share your link. Only pay when the deal actually closes.
             </motion.p>
             <motion.div variants={fadeUp} custom={3} className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button size="lg" className="h-12 px-8" asChild>
+              <Button size="lg" asChild>
                 <Link to="/auth?mode=signup&role=business">Create Business Offer</Link>
               </Button>
-              <Button size="lg" variant="outline" className="h-12 px-8" asChild>
+              <Button size="lg" variant="outline" asChild>
                 <Link to="/auth?mode=signup&role=referrer">Start Earning</Link>
               </Button>
             </motion.div>
@@ -83,11 +117,11 @@ const Index = () => {
       </section>
 
       {/* 3-Step Explainer */}
-      <section className="py-24 lg:py-32">
+      <section className="py-24 lg:py-32 bg-surface">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mb-14 text-center">
-            <motion.p variants={fadeUp} custom={0} className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-3">How It Works</motion.p>
-            <motion.h2 variants={fadeUp} custom={1} className="text-3xl font-bold text-foreground md:text-4xl tracking-tight">Simple as it sounds</motion.h2>
+            <motion.p variants={fadeUp} custom={0} className="section-label mb-2">How It Works</motion.p>
+            <motion.h2 variants={fadeUp} custom={1} className="text-3xl font-bold text-foreground md:text-4xl">Simple as it sounds</motion.h2>
           </motion.div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto grid max-w-5xl gap-8 md:grid-cols-3">
@@ -96,8 +130,8 @@ const Index = () => {
               { num: "2", title: "Spread the word", desc: "Share your link with anyone - happy customers, friends, family, business contacts. When they know someone who needs what you offer, they send them your way through Revvin." },
               { num: "3", title: "Pay only when it works", desc: "You get the introduction. You close the deal. If it turns into a real paying customer, the person who referred them gets rewarded. If it doesn't, you owe nothing." },
             ].map((item, i) => (
-              <motion.div key={item.num} variants={fadeUp} custom={i} className="rounded-xl border border-border bg-card p-8 text-center shadow-sm transition-shadow hover:shadow-md">
-                <div className="mx-auto mb-5 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
+              <motion.div key={item.num} variants={fadeUp} custom={i} className="polished-card text-left">
+                <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
                   {item.num}
                 </div>
                 <h3 className="mb-3 text-lg font-bold text-foreground">{item.title}</h3>
@@ -109,16 +143,16 @@ const Index = () => {
       </section>
 
       {/* Revvin vs Ads */}
-      <section className="py-24 lg:py-32 border-y border-border bg-muted">
+      <section className="py-24 lg:py-32">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-3">Why Revvin</p>
-              <h2 className="text-3xl font-bold text-foreground md:text-4xl tracking-tight">Why pay for attention when you can pay for results?</h2>
+              <p className="section-label mb-2">Why Revvin</p>
+              <h2 className="text-3xl font-bold text-foreground md:text-4xl">Why pay for attention when you can pay for results?</h2>
             </motion.div>
             <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
               {/* Traditional Ads */}
-              <motion.div variants={fadeUp} custom={1} className="rounded-xl border border-border bg-card p-8 shadow-sm">
+              <motion.div variants={fadeUp} custom={1} className="polished-card">
                 <div className="flex items-center gap-3 mb-6">
                   <Ban className="h-5 w-5 text-muted-foreground" />
                   <div>
@@ -133,7 +167,7 @@ const Index = () => {
                     { label: "Lead Quality", value: "Strangers who may not need what you offer", icon: Target },
                     { label: "ROI Predictability", value: "Hard to predict - costs keep changing", icon: Gauge },
                   ].map((item) => (
-                    <div key={item.label} className="flex items-center gap-3 rounded-lg bg-muted p-3">
+                    <div key={item.label} className="flex items-center gap-3 rounded-lg bg-surface p-3">
                       <item.icon className="h-4 w-4 text-muted-foreground shrink-0" />
                       <div>
                         <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
@@ -145,9 +179,10 @@ const Index = () => {
               </motion.div>
 
               {/* Revvin */}
-              <motion.div variants={fadeUp} custom={2} className="rounded-xl border border-border bg-card p-8 shadow-sm relative border-l-4 border-l-primary">
+              <motion.div variants={fadeUp} custom={2} className="polished-card relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-[3px] shimmer-border" />
                 <div className="absolute -top-3 right-6">
-                  <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Recommended</span>
+                  <span className="rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold text-primary-foreground">Recommended</span>
                 </div>
                 <div className="flex items-center gap-3 mb-6">
                   <Zap className="h-5 w-5 text-primary" />
@@ -179,23 +214,18 @@ const Index = () => {
       </section>
 
       {/* Real-World Scenarios */}
-      <section className="py-24 lg:py-32">
+      <section className="py-24 lg:py-32 bg-surface">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-3">How It Could Work For You</p>
-              <h2 className="text-3xl font-bold text-foreground md:text-4xl tracking-tight">Picture this</h2>
+              <p className="section-label mb-2">How It Could Work For You</p>
+              <h2 className="text-3xl font-bold text-foreground md:text-4xl">Picture this</h2>
               <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Here's how real businesses and everyday people can use Revvin.</p>
             </motion.div>
             <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
               {scenarios.map((t, i) => (
-                <motion.div key={t.persona} variants={fadeUp} custom={i + 1} className="rounded-xl border border-border bg-card p-7 shadow-sm">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-1">{t.scenario}</p>
-                  <p className="text-base font-bold text-foreground mb-3">{t.persona}</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">{t.quote}</p>
-                  <div className="pt-3 border-t border-border">
-                    <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">{t.highlight}</span>
-                  </div>
+                <motion.div key={t.persona} variants={fadeUp} custom={i + 1}>
+                  <ScenarioCard scenario={t} />
                 </motion.div>
               ))}
             </div>
@@ -205,21 +235,23 @@ const Index = () => {
       </section>
 
       {/* Choose Your Path */}
-      <section className="py-24 lg:py-32 border-y border-border bg-muted">
+      <section className="py-24 lg:py-32">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-14">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-3">Get Started</p>
-              <h2 className="text-3xl font-bold text-foreground md:text-4xl tracking-tight">Which side are you on?</h2>
+              <p className="section-label mb-2">Get Started</p>
+              <h2 className="text-3xl font-bold text-foreground md:text-4xl">Which side are you on?</h2>
             </motion.div>
             <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-2">
               {/* For Businesses */}
-              <motion.div variants={fadeUp} custom={1} className="rounded-xl border border-border bg-card p-8 shadow-sm transition-shadow hover:shadow-md">
-                <Building2 className="h-5 w-5 text-muted-foreground mb-4" />
-                <p className="text-xs font-semibold text-primary uppercase tracking-[0.05em] mb-2">For Businesses</p>
+              <motion.div variants={fadeUp} custom={1} className="polished-card hover:border-primary/40">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/5">
+                  <Building2 className="h-5 w-5 text-primary" />
+                </div>
+                <p className="section-label text-primary mb-2">For Businesses</p>
                 <h3 className="text-xl font-bold text-foreground mb-3">Get customers without gambling on ads</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-5">
-                  Set a reward for new customers. Share your link with the people who already know and trust your work. You only pay when someone actually becomes a paying customer. As the Revvin marketplace grows, new people can discover your business and refer customers to you too.
+                  Set a reward for new customers. Share your link with the people who already know and trust your work. You only pay when someone actually becomes a paying customer.
                 </p>
                 <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> You decide exactly what you'll pay per customer</li>
@@ -227,15 +259,17 @@ const Index = () => {
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> Other referrers across Revvin can find and refer to you too</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> Free to list - you only pay on results</li>
                 </ul>
-                <Button className="w-full h-12" asChild>
+                <Button className="w-full" asChild>
                   <Link to="/auth?mode=signup&role=business">Create Business Offer</Link>
                 </Button>
               </motion.div>
 
               {/* For Referrers */}
-              <motion.div variants={fadeUp} custom={2} className="rounded-xl border border-border bg-card p-8 shadow-sm transition-shadow hover:shadow-md">
-                <Users className="h-5 w-5 text-muted-foreground mb-4" />
-                <p className="text-xs font-semibold text-earnings uppercase tracking-[0.05em] mb-2">For Referrers</p>
+              <motion.div variants={fadeUp} custom={2} className="polished-card">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-earnings/5">
+                  <Users className="h-5 w-5 text-earnings" />
+                </div>
+                <p className="section-label text-earnings mb-2">For Referrers</p>
                 <h3 className="text-xl font-bold text-foreground mb-3">Get paid for recommending businesses you believe in</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-5">
                   You already tell friends, family, and colleagues about businesses you trust. Revvin lets you earn real money when those recommendations turn into paying customers.
@@ -246,7 +280,7 @@ const Index = () => {
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> Track your referrals and earnings in one place</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-muted-foreground/50 shrink-0" /> Earn $200-$1,500+ when deals close</li>
                 </ul>
-                <Button variant="outline" className="w-full h-12" asChild>
+                <Button variant="outline" className="w-full" asChild>
                   <Link to="/auth?mode=signup&role=referrer">Start Earning</Link>
                 </Button>
               </motion.div>
@@ -256,31 +290,13 @@ const Index = () => {
       </section>
 
       {/* Trust & Protection */}
-      <section className="py-24 lg:py-32">
+      <section className="py-24 lg:py-32 bg-surface">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.div variants={fadeUp} custom={0} className="text-center mb-10">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.05em] mb-3">Trust & Protection</p>
-              <h2 className="text-3xl font-bold text-foreground md:text-4xl tracking-tight">Built so both sides can trust the process</h2>
+              <p className="section-label mb-2">Trust & Protection</p>
+              <h2 className="text-3xl font-bold text-foreground md:text-4xl">Built so both sides can trust the process</h2>
               <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Clear rules, verified outcomes, and no surprises - for businesses and referrers.</p>
-            </motion.div>
-
-            {/* Trust Badges */}
-            <motion.div variants={fadeUp} custom={1} className="mx-auto max-w-4xl mb-10">
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                {[
-                  { icon: Shield, label: "256-bit Encrypted" },
-                  { icon: BadgeCheck, label: "Verified Payouts" },
-                  { icon: BadgeCheck, label: "Verified Businesses" },
-                  { icon: Scale, label: "Dispute Resolution" },
-                  { icon: FileCheck, label: "PIPEDA & CCPA Compliant" },
-                ].map((badge) => (
-                  <div key={badge.label} className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground">
-                    <badge.icon className="h-3 w-3 text-muted-foreground/50" />
-                    {badge.label}
-                  </div>
-                ))}
-              </div>
             </motion.div>
 
             {/* Trust Feature Cards */}
@@ -293,7 +309,7 @@ const Index = () => {
                 { icon: Briefcase, title: "No Hidden Costs", desc: "Businesses set their reward. Referrers see exactly what they'll earn. No surprise fees on either side." },
                 { icon: Shield, title: "Fraud Prevention", desc: "Duplicate submissions are caught automatically. Every referral is timestamped and reviewed." },
               ].map((item, i) => (
-                <motion.div key={item.title} variants={fadeUp} custom={i + 2} className="rounded-xl border border-border bg-card p-6 shadow-sm">
+                <motion.div key={item.title} variants={fadeUp} custom={i + 1} className="rounded-xl border border-border bg-card p-5 shadow-card">
                   <item.icon className="h-5 w-5 text-muted-foreground mb-3" />
                   <h3 className="text-base font-bold text-foreground mb-1.5">{item.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
@@ -309,24 +325,53 @@ const Index = () => {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section className="py-24 lg:py-32">
+        <div className="container">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto max-w-3xl">
+            <motion.div variants={fadeUp} custom={0} className="text-center mb-10">
+              <p className="section-label mb-2">Common Questions</p>
+              <h2 className="text-3xl font-bold text-foreground md:text-4xl">Got questions?</h2>
+            </motion.div>
+            <motion.div variants={fadeUp} custom={1}>
+              <Accordion type="single" collapsible className="w-full">
+                {faqItems.map((item, i) => (
+                  <AccordionItem key={i} value={`faq-${i}`} className="border-b border-border">
+                    <AccordionTrigger className="text-left text-base font-medium text-foreground hover:no-underline py-5">
+                      {item.q}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground leading-relaxed pb-5">
+                      {item.a}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Final CTA */}
-      <section className="border-t border-border bg-muted py-24 lg:py-32">
+      <section className="py-24 lg:py-32 bg-surface">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mx-auto max-w-2xl text-center">
-            <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold text-foreground md:text-4xl tracking-tight">
+            <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold text-foreground md:text-4xl">
               Ready to put your network to work?
             </motion.h2>
             <motion.p variants={fadeUp} custom={1} className="mt-4 text-muted-foreground leading-relaxed text-lg">
               Whether you're a business looking for customers or someone who knows the right people - every good introduction should be worth something.
             </motion.p>
             <motion.div variants={fadeUp} custom={2} className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
-              <Button size="lg" className="h-12 px-8" asChild>
+              <Button size="lg" asChild>
                 <Link to="/auth?mode=signup&role=business">Create Business Offer</Link>
               </Button>
-              <Button size="lg" variant="outline" className="h-12 px-8" asChild>
+              <Button size="lg" variant="outline" asChild>
                 <Link to="/auth?mode=signup&role=referrer">Start Earning</Link>
               </Button>
             </motion.div>
+            <motion.p variants={fadeUp} custom={3} className="mt-4 text-xs text-muted-foreground">
+              Free to list. No credit card required to browse.
+            </motion.p>
           </motion.div>
         </div>
       </section>

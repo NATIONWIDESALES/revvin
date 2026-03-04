@@ -64,6 +64,7 @@ export default {
           DEFAULT: "hsl(var(--earnings))",
           foreground: "hsl(var(--earnings-foreground))",
         },
+        surface: "hsl(var(--surface))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -72,6 +73,7 @@ export default {
       },
       boxShadow: {
         card: "0 1px 3px rgba(0,0,0,0.04)",
+        "card-hover": "0 4px 12px rgba(0,0,0,0.06)",
       },
       keyframes: {
         "accordion-down": {
