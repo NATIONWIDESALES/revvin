@@ -16,6 +16,8 @@ const TOTAL_STEPS = 5;
 
 const STEP_LABELS = ["Offer Details", "Payout & Timing", "Qualification Rules", "Preview", "Deposit & Publish"];
 
+const SUPER_ADMIN_EMAIL = "sales@nationwidesales.ca";
+
 const CreateOffer = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +29,7 @@ const CreateOffer = () => {
   const [savedOfferId, setSavedOfferId] = useState<string | null>(null);
   const [depositStatus, setDepositStatus] = useState<string | null>(null);
   const [depositLoading, setDepositLoading] = useState(false);
+  const isSuperAdmin = user?.email?.toLowerCase() === SUPER_ADMIN_EMAIL;
 
   const [form, setForm] = useState({
     title: "", description: "", category: "Services",
@@ -92,8 +95,8 @@ const CreateOffer = () => {
       close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
       remote_eligible: form.remoteEligible, qualification_criteria: qualRules || null,
       approval_status: isRestricted ? "pending_approval" : "approved",
-      status: "draft",
-      deposit_status: "required",
+      status: isSuperAdmin ? "active" : "draft",
+      deposit_status: isSuperAdmin ? "waived" : "required",
     };
 
     if (form.payoutType === "percentage" && form.maxPayoutCap) {
@@ -108,7 +111,12 @@ const CreateOffer = () => {
     } else if (data) {
       setSavedOfferId(data.id);
       setDepositStatus(data.deposit_status);
-      setStep(5);
+      if (isSuperAdmin) {
+        toast({ title: "Offer published!", description: "Your offer is now live (deposit waived)." });
+        navigate("/dashboard");
+      } else {
+        setStep(5);
+      }
     }
   };
 
