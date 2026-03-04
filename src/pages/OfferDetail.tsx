@@ -90,7 +90,33 @@ const OfferDetail = () => {
 
   return (
     <div className="py-8">
-      <SEOHead title={`${offer.title} — Earn ${offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`} per Referral`} description={`Refer customers to ${offer.business} and earn ${offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}. ${offer.description?.substring(0, 100) ?? ""}`} path={`/offer/${offer.id}`} />
+      <SEOHead
+        title={`${offer.title} — Earn ${offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`} per Referral | Revvin`}
+        description={`Refer customers to ${offer.business} and earn ${offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}. ${offer.description?.substring(0, 100) ?? ""}`}
+        path={`/offer/${toSlug(offer.business)}/${offer.id}`}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            "name": offer.business,
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": offer.city,
+              "addressRegion": offer.state,
+              "addressCountry": offer.country
+            }
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Offer",
+            "name": offer.title,
+            "description": offer.description,
+            "price": String(offer.payout),
+            "priceCurrency": offer.currency,
+            "offeredBy": { "@type": "LocalBusiness", "name": offer.business }
+          }
+        ]}
+      />
       <div className="container max-w-5xl">
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" size="sm" className="gap-1" asChild>

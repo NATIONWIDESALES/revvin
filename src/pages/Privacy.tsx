@@ -6,7 +6,7 @@ import SEOHead from "@/components/SEOHead";
 const Privacy = () => {
   return (
     <div className="py-12">
-      <SEOHead title="Privacy Policy" description="Learn how Revvin collects, uses, and protects your personal information across Canada and the United States." path="/privacy" />
+      <SEOHead title="Privacy Policy — Revvin" description="Learn how Revvin collects, uses, and protects your personal information across Canada and the United States. PIPEDA and CCPA compliant." path="/privacy" />
       <div className="container max-w-3xl">
         <Button variant="ghost" size="sm" className="gap-1 mb-6" asChild>
           <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>

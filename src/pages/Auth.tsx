@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, Users, ArrowLeft, Eye, EyeOff, ArrowRight, MapPin } from "lucide-react";
 import revvinLogo from "@/assets/revvin-logo.png";
+import SEOHead from "@/components/SEOHead";
 import {
   Select,
   SelectContent,
@@ -282,6 +283,11 @@ const Auth = () => {
 
   return (
     <div className="flex min-h-screen">
+      <SEOHead
+        title={mode === "login" ? "Log In — Revvin" : "Sign Up — Revvin Referral Marketplace"}
+        description={mode === "login" ? "Log in to your Revvin account to manage referrals, track payouts, and view your dashboard." : "Create your free Revvin account. List your business and start receiving referrals, or sign up as a referrer and earn money for introductions that close."}
+        path="/auth"
+      />
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 hero-gradient flex-col justify-between p-12">
         <Link to="/" className="flex items-center">
