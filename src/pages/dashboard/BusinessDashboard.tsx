@@ -14,7 +14,10 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import DashboardChecklist from "@/components/DashboardChecklist";
+import OfferQRCode from "@/components/OfferQRCode";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
+import { QrCode } from "lucide-react";
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
   submitted: { bg: "bg-muted", text: "text-muted-foreground", label: "Submitted" },
@@ -309,6 +312,27 @@ const BusinessDashboard = () => {
                           {copiedLink === offer.id ? <><Check className="h-3 w-3" /> Copied!</> : <><Link2 className="h-3 w-3" /> Invite Referrers</>}
                         </Button>
                       </div>
+                      {/* QR Code Section */}
+                      {offer.status === "active" ? (
+                        <Collapsible>
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm" className="gap-1 text-xs mt-3 w-full justify-center">
+                              <QrCode className="h-3 w-3" /> QR Code
+                            </Button>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="mt-3">
+                            <OfferQRCode
+                              offerId={offer.id}
+                              businessName={business?.name ?? "Business"}
+                              offerTitle={offer.title}
+                              payoutAmount={offer.payout}
+                              payoutCurrency={displayCurrency}
+                            />
+                          </CollapsibleContent>
+                        </Collapsible>
+                      ) : (
+                        <p className="text-xs text-muted-foreground mt-3 text-center">Publish your offer to get your shareable QR code and referral link.</p>
+                      )}
                     </div>
                   );
                 })}
