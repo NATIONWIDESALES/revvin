@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Search, SlidersHorizontal, Map, List, Building2, PlusCircle,
-  Home, Wrench, Flame, Leaf, HardHat, Shield, Landmark, Briefcase, Cpu, Zap, Scale, X
+  Search, SlidersHorizontal, Map, List, Building2, PlusCircle, X
 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import MapView from "@/components/MapView";
@@ -24,14 +23,6 @@ import {
 import type { Country } from "@/types/offer";
 
 type SortOption = "payout" | "newest" | "fastest";
-
-const categoryIcons: Record<string, any> = {
-  "All": Search, "Roofing": Home, "Plumbing": Wrench, "HVAC": Flame,
-  "Landscaping": Leaf, "Paving": HardHat, "Home Inspection": Shield,
-  "Insurance": Shield, "Mortgage": Landmark, "Real Estate": Building2,
-  "Energy": Zap, "Legal": Scale, "Finance": Landmark,
-  "SaaS": Cpu, "Services": Briefcase, "Technology": Cpu,
-};
 
 const Browse = () => {
   const { data: allOffers = [], isLoading } = useDbOffers();
@@ -108,44 +99,42 @@ const Browse = () => {
               placeholder="Search by category, city, or business..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 h-12 rounded-full border-border"
+              className="pl-10 h-12 rounded-xl shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]"
             />
           </div>
           <Button
             variant={showFilters ? "default" : "outline"}
             onClick={() => setShowFilters(!showFilters)}
-            className="gap-1.5 h-12 px-5 rounded-full"
+            className="gap-1.5 h-12 px-5"
           >
             <SlidersHorizontal className="h-4 w-4" /> Filters
           </Button>
           <div className="hidden sm:flex gap-1 items-center">
-            <Button variant={viewMode === "list" ? "default" : "ghost"} size="icon" className="h-12 w-12 rounded-full" onClick={() => setViewMode("list")}>
+            <Button variant={viewMode === "list" ? "default" : "ghost"} size="icon" className="h-12 w-12" onClick={() => setViewMode("list")}>
               <List className="h-4 w-4" />
             </Button>
-            <Button variant={viewMode === "map" ? "default" : "ghost"} size="icon" className="h-12 w-12 rounded-full" onClick={() => setViewMode("map")}>
+            <Button variant={viewMode === "map" ? "default" : "ghost"} size="icon" className="h-12 w-12" onClick={() => setViewMode("map")}>
               <Map className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
-        {/* Category icons bar */}
+        {/* Category pill filters */}
         <div className="mb-5 -mx-4 px-4 overflow-x-auto">
-          <div className="flex gap-3 pb-2 min-w-max">
+          <div className="flex gap-2 pb-2 min-w-max">
             {categories.map((cat) => {
-              const Icon = categoryIcons[cat] ?? Briefcase;
               const isActive = activeCategory === cat;
               return (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
                     isActive
-                      ? "text-foreground border-b-2 border-foreground"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-surface text-foreground hover:bg-muted"
                   }`}
                 >
-                  <Icon className="h-5 w-5" />
-                  <span>{cat}</span>
+                  {cat}
                 </button>
               );
             })}
@@ -159,7 +148,7 @@ const Browse = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-6 rounded-xl border border-border bg-card p-6 shadow-sm overflow-hidden"
+              className="mb-6 polished-card overflow-hidden"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base font-bold">Filters</h3>
@@ -222,7 +211,7 @@ const Browse = () => {
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-muted-foreground">{filtered.length} opportunities</p>
           <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-            <SelectTrigger className="w-44 h-9 rounded-full text-sm">
+            <SelectTrigger className="w-44 h-9 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -243,7 +232,7 @@ const Browse = () => {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-border bg-card py-20 text-center">
+          <div className="polished-card py-20 text-center">
             <Building2 className="mx-auto mb-4 h-10 w-10 text-muted-foreground/40" />
             <p className="text-lg font-semibold text-foreground">
               {allOffers.length === 0 ? "No offers yet — check back soon" : "No offers match your filters"}
@@ -254,7 +243,7 @@ const Browse = () => {
                 : "Try adjusting your search or filter criteria"}
             </p>
             {allOffers.length > 0 && (
-              <Button variant="outline" className="mt-4 rounded-full" onClick={clearFilters}>
+              <Button variant="outline" className="mt-4" onClick={clearFilters}>
                 Clear All Filters
               </Button>
             )}
@@ -262,12 +251,12 @@ const Browse = () => {
         )}
 
         {/* Business CTA */}
-        <div className="mt-10 rounded-xl border border-primary/20 bg-primary/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-10 rounded-xl border border-border bg-card p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-l-4 border-l-primary">
           <div>
             <h3 className="text-lg font-bold">Are you a business?</h3>
             <p className="text-sm text-muted-foreground">List your referral program and start receiving qualified leads.</p>
           </div>
-          <Button asChild className="gap-2 shrink-0 rounded-full">
+          <Button asChild className="gap-2 shrink-0">
             <Link to="/auth?mode=signup&role=business"><PlusCircle className="h-4 w-4" /> Create an Offer</Link>
           </Button>
         </div>

@@ -10,27 +10,44 @@ interface OfferCardProps {
   offer: Offer;
 }
 
+const INITIAL_COLORS = ['#6366F1', '#0D9488', '#D97706', '#E11D48', '#15803D', '#7C3AED'];
+
+function getBusinessColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return INITIAL_COLORS[Math.abs(hash) % INITIAL_COLORS.length];
+}
+
 const OfferCard = ({ offer }: OfferCardProps) => {
   const { formatPayout } = useCountry();
   const [saved, setSaved] = useState(false);
   const isLogoUrl = offer.businessLogo.startsWith("http");
+  const color = getBusinessColor(offer.business);
+  const initial = offer.business.charAt(0).toUpperCase();
 
   return (
     <Link to={`/offer/${toSlug(offer.business)}/${offer.id}`} className="group block">
-      <div className="rounded-xl border border-border bg-card overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 h-full flex flex-col">
+      <div className="rounded-xl border border-border bg-card overflow-hidden transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5 h-full flex flex-col" style={{ borderTopColor: color, borderTopWidth: '3px' }}>
         {/* Image / Logo area */}
-        <div className="relative aspect-[4/3] bg-secondary flex items-center justify-center overflow-hidden">
+        <div className="relative aspect-[4/3] bg-surface flex items-center justify-center overflow-hidden">
           {isLogoUrl ? (
             <img src={offer.businessLogo} alt={offer.business} className="h-full w-full object-cover" />
           ) : (
-            <span className="text-6xl">{offer.businessLogo}</span>
+            <div
+              className="flex h-16 w-16 items-center justify-center rounded-full"
+              style={{ backgroundColor: color }}
+            >
+              <span className="text-[28px] font-bold text-white leading-none">{initial}</span>
+            </div>
           )}
           {/* Heart icon */}
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSaved(!saved); }}
-            className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm transition-all hover:scale-110"
+            className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:scale-110"
           >
-            <Heart className={`h-4 w-4 ${saved ? "fill-destructive text-destructive" : "text-foreground"}`} />
+            <Heart className={`h-4 w-4 transition-all duration-200 ${saved ? "fill-destructive text-destructive" : "text-foreground"}`} />
           </button>
           {offer.featured && (
             <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs shadow-sm">
