@@ -43,18 +43,70 @@ const CreateOffer = () => {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("businesses").select("id, name, account_status").eq("user_id", user.id).maybeSingle().then(({ data }) => {
-      if (data) {
-        if (data.account_status !== "approved") {
-          toast({ title: "Account not approved", description: "Your business account must be approved before creating offers.", variant: "destructive" });
+
+    const ensureBusinessProfile = async () => {
+      const { data: existing, error: fetchError } = await supabase
+        .from("businesses")
+        .select("id, name, account_status")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (fetchError) {
+        toast({ title: "Error", description: fetchError.message, variant: "destructive" });
+        navigate("/dashboard");
+        return;
+      }
+
+      let business = existing;
+
+      if (!business) {
+        const fallbackName =
+          (user.user_metadata?.business_name as string | undefined) ||
+          (user.user_metadata?.full_name as string | undefined)
+            ? `${user.user_metadata?.full_name ?? user.user_metadata?.business_name}'s Business`
+            : "My Business";
+
+        const { data: created, error: createError } = await supabase
+          .from("businesses")
+          .insert({
+            user_id: user.id,
+            name: fallbackName,
+            account_status: isSuperAdmin ? "approved" : "pending_approval",
+          })
+          .select("id, name, account_status")
+          .maybeSingle();
+
+        if (createError) {
+          toast({ title: "Error", description: createError.message, variant: "destructive" });
           navigate("/dashboard");
           return;
         }
-        setBusinessId(data.id);
-        setBusinessName(data.name);
+
+        business = created;
       }
-    });
-  }, [user]);
+
+      if (!business) {
+        toast({ title: "Error", description: "Unable to load your business profile.", variant: "destructive" });
+        navigate("/dashboard");
+        return;
+      }
+
+      if (business.account_status !== "approved") {
+        toast({
+          title: "Account not approved",
+          description: "Your business account must be approved before creating offers.",
+          variant: "destructive",
+        });
+        navigate("/dashboard");
+        return;
+      }
+
+      setBusinessId(business.id);
+      setBusinessName(business.name);
+    };
+
+    ensureBusinessProfile();
+  }, [user, isSuperAdmin, navigate, toast]);
 
   // Poll deposit status when on step 5
   useEffect(() => {
@@ -423,7 +475,7 @@ const CreateOffer = () => {
               </Button>
             )}
             {step === 4 && (
-              <Button type="button" onClick={handleNextStep} size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
+              <Button type="button" onClick={handleNextStep} size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading || !businessId}>
                 {loading ? "Saving..." : "Save & Continue to Deposit"}
               </Button>
             )}
