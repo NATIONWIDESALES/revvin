@@ -54,7 +54,8 @@ const BusinessDashboard = () => {
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
-      const { data: biz } = await supabase.from("businesses").select("*").eq("user_id", user.id).maybeSingle();
+      const { data: bizRows } = await supabase.from("businesses").select("*").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1);
+      const biz = bizRows && bizRows.length > 0 ? bizRows[0] : null;
       setBusiness(biz);
       if (biz) {
         const [offRes, refRes] = await Promise.all([
