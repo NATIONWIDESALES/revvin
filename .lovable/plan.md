@@ -1,55 +1,31 @@
 
 
-## Plan: Automated Email to Business on New Referral
+## Plan: Seed 6 Demo Offers
 
 ### Approach
 
-Create a dedicated edge function `notify-new-referral` that receives a referral ID, looks up all related data (business owner email, referrer name, customer details), builds a branded HTML email, and sends it via Resend. The ReferralWizard calls this function fire-and-forget after a successful insert — no UI changes, no blocking.
+Use the database insert tool to add 6 business records and 6 corresponding offer records directly. No schema changes needed — all required fields exist.
 
-### Changes
+### Key decisions
 
-**1. Create `supabase/functions/notify-new-referral/index.ts`**
+- **`user_id` on businesses**: These need a UUID. I'll use deterministic fake UUIDs (not tied to real auth accounts). The Browse page only reads `businesses.name`, `logo_url`, `city`, `state`, `verified`, `latitude`, `longitude` via the join — it never checks if the user exists in `auth.users`. So fake UUIDs are safe.
+- **`deposit_status`**: Set to `"waived"` to bypass Stripe requirement.
+- **`status`**: Set to `"active"` and `approval_status` to `"approved"` so they appear in the marketplace.
+- **`created_at`**: Stagger over past 2-3 weeks.
+- **`logo_url`**: Leave null — the hook already falls back to `"🏢"` emoji.
+- **Business `description`**: Store the "drop description" here.
+- **`location` on offers**: Store the service area string.
+- **Country**: The `useDbOffers` hook hardcodes `country: "US"` — offers will display but the country field won't be "CA". This is a display-only issue in the existing code; no schema change needed since you said no UI modifications.
 
-A new edge function that:
-- Accepts `{ referral_id: string }` as POST body
-- Uses `SUPABASE_SERVICE_ROLE_KEY` to look up:
-  - The referral row (customer_name, customer_email, customer_phone, notes)
-  - The business (name, user_id) → then the business owner's email from `auth.users` via admin API
-  - The referrer's profile (full_name)
-- Skips gracefully if business owner email is missing (logs warning, returns 200)
-- Builds a fully inline-styled HTML email matching the spec:
-  - From: `Revvin <updates@updates.revvin.co>`
-  - Reply-To: `support@revvin.co`
-  - Subject: `New referral: [first name of referred person]`
-  - Body: branded HTML with the card layout, conditional phone/email/notes fields, CTA button linking to `/dashboard`
-- Sends via Resend API using `RESEND_API_KEY`
-- Logs to `notifications_log` table for audit
-- Returns 200 regardless of email outcome
+### Data inserts (via insert tool)
 
-**2. Update `supabase/config.toml`**
+**Insert 1**: 6 rows into `businesses` table with fields: `id`, `user_id` (fake UUID), `name`, `city`, `state`, `industry`, `description` (drop description), `verified` (true), `account_status` ("approved"), `created_at` (staggered).
 
-Add:
-```toml
-[functions.notify-new-referral]
-verify_jwt = false
-```
-
-**3. Update `src/components/ReferralWizard.tsx`** (minimal change — only inside `handleSubmit`)
-
-After the successful `.insert()` and before showing the success step, add a fire-and-forget call:
-
-```typescript
-// Fire-and-forget — don't await, don't block UI
-supabase.functions.invoke("notify-new-referral", {
-  body: { referral_id: inserted.id },
-}).catch((err) => console.error("Notification trigger failed:", err));
-```
-
-This is ~3 lines added inside the existing try block. No UI, layout, or routing changes.
+**Insert 2**: 6 rows into `offers` table with fields: `id`, `business_id` (matching above), `title`, `description`, `category`, `payout`, `payout_type` ("flat"), `status` ("active"), `deposit_status` ("waived"), `approval_status` ("approved"), `qualification_criteria`, `location` (service area), `created_at` (staggered), `featured` (false).
 
 ### What stays untouched
-- No UI component changes beyond the 3-line fire-and-forget call
-- No changes to existing `send-notification` edge function
-- No database schema changes (reuses existing `notifications_log` table)
-- No new routes, dashboards, or pages
+- No UI, routing, or component changes
+- No existing data modified
+- No Stripe sessions created
+- No referrals, payouts, or pipeline data
 
