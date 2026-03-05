@@ -1,40 +1,34 @@
 
 
-## Plan: QR Code Feature for Offer Sharing
+## Plan: Auto-notify admin when a business signs up
 
-### New files to create
+### Approach
 
-**1. `src/components/OfferQRCode.tsx`** — The main QR code card component.
+Create a new edge function `notify-business-signup` that is triggered by a Supabase database webhook on INSERT to the `businesses` table. When a new business row is created, the function sends an HTML email via Resend to `info@revvin.co` with the business details and a direct link to the Super Admin CRM (`/__sa`).
 
-Props: `offerId`, `businessName`, `offerTitle`, `payoutAmount`, `payoutCurrency`
+### Changes
 
-- Builds the offer URL using `toSlug(businessName)` + the existing `/offer/:businessSlug/:id` pattern
-- Creates a `QRCodeStyling` instance (from `qr-code-styling`) with the specified styling (rounded dots in `#0F172A`, green corners `#15803D`, white bg, error correction H, 280x280)
-- Uses a `useRef` div container and `useEffect` to append/update the QR code, cleaning up on unmount
-- Renders a card with:
-  - "Share this with your customers, partners, and network" header text
-  - Centered QR code
-  - "Scan to view this offer and start referring" caption
-  - URL display with Copy button (2s "Copied!" feedback)
-  - Download PNG (re-renders at 1024x1024), Download SVG, and Print buttons
-  - Print opens a new window with minimal HTML containing only the QR, business name, tagline, and URL
-- Styled to match existing design system (white bg, border, rounded-xl, shadow-sm, consistent button styles)
+**1. New edge function: `supabase/functions/notify-business-signup/index.ts`**
+- Triggered by a database webhook (no JWT required)
+- Receives the webhook payload containing the new `businesses` row
+- Uses `SUPABASE_SERVICE_ROLE_KEY` to look up the business owner's email and profile name from auth
+- Sends a styled HTML email via Resend from `Revvin <updates@updates.revvin.co>` to `info@revvin.co`
+- Email includes: business name, owner name/email, industry, service area, phone, signup timestamp
+- CTA button links to `https://revvin.lovable.app/__sa` (Super Admin CRM)
+- Logs the notification to `notifications_log` table for audit
 
-### Existing files to modify (minimal additions only)
+**2. Database webhook migration**
+- Create a Supabase database webhook on `INSERT` to `businesses` table that calls the `notify-business-signup` function
+- This ensures the notification fires automatically from the `handle_new_user` trigger's insert into `businesses`
 
-**2. `src/pages/dashboard/BusinessDashboard.tsx`**
-- Import `OfferQRCode`
-- Inside the offers grid, for each offer card: after the existing action buttons, add the `OfferQRCode` component if `offer.status === "active"`. If not active, show a small muted message: "Publish your offer to get your shareable QR code."
-- Implementation: Add a collapsible/expandable section within each offer card (a "QR Code" toggle button) to avoid cluttering the card by default. Click reveals the full QR card inline below the offer actions.
+**3. Update `supabase/config.toml`** (if needed)
+- Add `[functions.notify-business-signup]` with `verify_jwt = false` since it's called by a database webhook
 
-**3. `src/components/ShareOfferLink.tsx`**
-- Add a small QR icon button next to the existing share button that opens a popover/dialog showing a mini version of the QR code with download options. Uses the same `QRCodeStyling` setup.
-- This is the public offer page's share component — referrers can also access the QR.
+### Email content outline
+- Subject: "New Business Signup: {business_name}"
+- Body: greeting, business details table (name, owner email, industry, city, phone), approve CTA linking to `/__sa`
+- Footer note about pending approval
 
-### Dependencies
-- Install `qr-code-styling` npm package
-
-### What stays untouched
-- No routing, auth, Stripe, database, or page layout changes
-- No modifications to existing component logic — only additive imports and JSX insertions
+### No frontend changes required
+The automation is entirely backend. The existing Super Admin CRM already has the approval workflow.
 
