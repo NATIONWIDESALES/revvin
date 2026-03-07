@@ -30,7 +30,7 @@ const ConstellationBackground = () => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       const area = rect.width * rect.height;
-      const count = Math.min(80, Math.floor(area / 18000));
+      const count = Math.min(120, Math.floor(area / 12000));
 
       // Keep existing nodes that are still in bounds, add new ones if needed
       const existing = nodesRef.current.filter(
