@@ -158,7 +158,7 @@ const ConstellationBackground = () => {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full"
-      style={{ opacity: 0.6, zIndex: 0 }}
+      style={{ opacity: 0.85, zIndex: 0 }}
     />
   );
 };
