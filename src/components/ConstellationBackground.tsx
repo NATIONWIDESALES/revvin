@@ -91,8 +91,8 @@ const ConstellationBackground = () => {
           const dx = nodes[i].x - nodes[j].x;
           const dy = nodes[i].y - nodes[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 140) {
-            const alpha = 0.08 * (1 - dist / 140);
+          if (dist < 170) {
+            const alpha = 0.15 * (1 - dist / 170);
             ctx.beginPath();
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
