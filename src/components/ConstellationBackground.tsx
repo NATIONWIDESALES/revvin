@@ -30,7 +30,7 @@ const ConstellationBackground = () => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       const area = rect.width * rect.height;
-      const count = Math.min(80, Math.floor(area / 18000));
+      const count = Math.min(120, Math.floor(area / 12000));
 
       // Keep existing nodes that are still in bounds, add new ones if needed
       const existing = nodesRef.current.filter(
@@ -40,9 +40,9 @@ const ConstellationBackground = () => {
         existing.push({
           x: Math.random() * rect.width,
           y: Math.random() * rect.height,
-          vx: (Math.random() - 0.5) * 0.3,
-          vy: (Math.random() - 0.5) * 0.3,
-          radius: 0.5 + Math.random() * 1.5,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
+          radius: 0.8 + Math.random() * 2,
           phase: Math.random() * Math.PI * 2,
           speed: 0.3 + Math.random() * 0.7,
         });
@@ -91,8 +91,8 @@ const ConstellationBackground = () => {
           const dx = nodes[i].x - nodes[j].x;
           const dy = nodes[i].y - nodes[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 140) {
-            const alpha = 0.08 * (1 - dist / 140);
+          if (dist < 170) {
+            const alpha = 0.15 * (1 - dist / 170);
             ctx.beginPath();
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
@@ -110,8 +110,8 @@ const ConstellationBackground = () => {
           const dx = node.x - mouse.x;
           const dy = node.y - mouse.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 180) {
-            const alpha = 0.12 * (1 - dist / 180);
+          if (dist < 220) {
+            const alpha = 0.2 * (1 - dist / 220);
             ctx.beginPath();
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(mouse.x, mouse.y);
@@ -126,18 +126,18 @@ const ConstellationBackground = () => {
       for (const node of nodes) {
         const pulse = Math.sin(time * node.speed + node.phase);
         const r = node.radius * (0.85 + pulse * 0.15);
-        const alpha = 0.3 + pulse * 0.15;
+        const alpha = 0.45 + pulse * 0.2;
 
         // Outer glow
         ctx.beginPath();
-        ctx.arc(node.x, node.y, r * 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(200, 180, 100, ${alpha * 0.12})`;
+        ctx.arc(node.x, node.y, r * 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200, 180, 100, ${alpha * 0.18})`;
         ctx.fill();
 
         // Core dot
         ctx.beginPath();
         ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(200, 180, 100, ${alpha})`;
+        ctx.fillStyle = `rgba(210, 190, 110, ${alpha})`;
         ctx.fill();
       }
 
@@ -158,7 +158,7 @@ const ConstellationBackground = () => {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full"
-      style={{ opacity: 0.6, zIndex: 0 }}
+      style={{ opacity: 0.85, zIndex: 0 }}
     />
   );
 };
