@@ -40,9 +40,9 @@ const ConstellationBackground = () => {
         existing.push({
           x: Math.random() * rect.width,
           y: Math.random() * rect.height,
-          vx: (Math.random() - 0.5) * 0.3,
-          vy: (Math.random() - 0.5) * 0.3,
-          radius: 0.5 + Math.random() * 1.5,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
+          radius: 0.8 + Math.random() * 2,
           phase: Math.random() * Math.PI * 2,
           speed: 0.3 + Math.random() * 0.7,
         });
