@@ -126,18 +126,18 @@ const ConstellationBackground = () => {
       for (const node of nodes) {
         const pulse = Math.sin(time * node.speed + node.phase);
         const r = node.radius * (0.85 + pulse * 0.15);
-        const alpha = 0.3 + pulse * 0.15;
+        const alpha = 0.45 + pulse * 0.2;
 
         // Outer glow
         ctx.beginPath();
-        ctx.arc(node.x, node.y, r * 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(200, 180, 100, ${alpha * 0.12})`;
+        ctx.arc(node.x, node.y, r * 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200, 180, 100, ${alpha * 0.18})`;
         ctx.fill();
 
         // Core dot
         ctx.beginPath();
         ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(200, 180, 100, ${alpha})`;
+        ctx.fillStyle = `rgba(210, 190, 110, ${alpha})`;
         ctx.fill();
       }
 
