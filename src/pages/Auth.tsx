@@ -72,6 +72,10 @@ const Auth = () => {
           if (industry) metadata.industry = industry;
           if (serviceArea) metadata.service_area = serviceArea;
         }
+        if (role === "referrer") {
+          if (location) metadata.location = location;
+          if (industryFamiliarity) metadata.industry_familiarity = industryFamiliarity;
+        }
         const { data, error } = await supabase.auth.signUp({
           email,
           password,

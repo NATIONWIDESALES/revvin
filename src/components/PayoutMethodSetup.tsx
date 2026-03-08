@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCountry } from "@/contexts/CountryContext";
-import { CheckCircle2, Wallet, Building2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { CheckCircle2, Wallet, Building2, Loader2 } from "lucide-react";
 
 const PayoutMethodSetup = () => {
   const { country } = useCountry();
+  const { user } = useAuth();
   const [selected, setSelected] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const isCA = country === "CA" || country === "ALL";
   const isUS = country === "US" || country === "ALL";
@@ -25,6 +30,41 @@ const PayoutMethodSetup = () => {
         ]
       : []),
   ];
+
+  // Load existing preference from DB
+  useEffect(() => {
+    if (!user) { setLoading(false); return; }
+    supabase
+      .from("referrer_payout_preferences")
+      .select("method")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.method) {
+          setSelected(data.method);
+          setSaved(true);
+        }
+        setLoading(false);
+      });
+  }, [user]);
+
+  const handleSave = async () => {
+    if (!user || !selected) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("referrer_payout_preferences")
+      .upsert({ user_id: user.id, method: selected }, { onConflict: "user_id" });
+    setSaving(false);
+    if (!error) setSaved(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="rounded-xl border border-border bg-card p-5 shadow-sm flex items-center justify-center min-h-[120px]">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
@@ -44,7 +84,7 @@ const PayoutMethodSetup = () => {
           <Building2 className="h-5 w-5 text-earnings" />
           <div>
             <p className="text-sm font-medium">
-              {methods.find((m) => m.id === selected)?.label}
+              {methods.find((m) => m.id === selected)?.label ?? selected}
             </p>
             <p className="text-xs text-muted-foreground">
               {methods.find((m) => m.id === selected)?.country} •{" "}
@@ -83,10 +123,10 @@ const PayoutMethodSetup = () => {
           </div>
           <Button
             className="w-full"
-            disabled={!selected}
-            onClick={() => setSaved(true)}
+            disabled={!selected || saving}
+            onClick={handleSave}
           >
-            Save Payout Method
+            {saving ? "Saving..." : "Save Payout Method"}
           </Button>
           <p className="text-xs text-muted-foreground mt-2 text-center">
             Payout preferences saved for processing

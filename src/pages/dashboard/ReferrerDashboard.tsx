@@ -83,7 +83,21 @@ const ReferrerDashboard = () => {
     { label: "Get paid", done: paidEarnings > 0 || confirmedEarnings > 0 },
   ];
 
-  const handleDispute = (refId: string) => {
+  const handleDispute = async (refId: string) => {
+    const ref = referrals.find(r => r.id === refId);
+    if (!ref || !user) return;
+    // Persist dispute status to DB
+    const { error } = await supabase.from("referrals").update({ status: "disputed" }).eq("id", refId);
+    if (error) {
+      toast({ title: "Error", description: "Failed to submit dispute.", variant: "destructive" });
+      return;
+    }
+    // Create audit log entry (fire-and-forget)
+    supabase.rpc("fn_create_audit_entry", {
+      p_referral_id: refId,
+      p_event_type: "dispute_submitted",
+      p_payload: { previous_status: ref.status } as any,
+    }).then(() => {});
     setReferrals(prev => prev.map(r => r.id === refId ? { ...r, status: "disputed" } : r));
     toast({ title: "Dispute submitted", description: "Your dispute has been sent for review." });
   };
@@ -179,7 +193,20 @@ const ReferrerDashboard = () => {
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         {["submitted", "contacted", "in_progress", "qualified"].includes(ref.status) && (
-                          <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => toast({ title: "Nudge sent", description: `Reminder sent to ${ref.businesses?.name ?? "the business"}.` })}>
+                          <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={async () => {
+                            // Send in-app notification to business owner
+                            const { data: biz } = await supabase.from("businesses").select("user_id, name").eq("id", ref.business_id).maybeSingle();
+                            if (biz?.user_id) {
+                              await supabase.rpc("fn_create_notification", {
+                                p_user_id: biz.user_id,
+                                p_title: "Referral Nudge",
+                                p_body: `A referrer is following up on their referral for "${ref.offers?.title ?? "an offer"}".`,
+                                p_type: "nudge",
+                                p_referral_id: ref.id,
+                              });
+                            }
+                            toast({ title: "Nudge sent", description: `Reminder sent to ${ref.businesses?.name ?? "the business"}.` });
+                          }}>
                             <Bell className="h-3 w-3" /> Nudge
                           </Button>
                         )}
