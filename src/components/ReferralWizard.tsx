@@ -47,6 +47,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
   const [direction, setDirection] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [referralId, setReferralId] = useState<string | null>(null);
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
