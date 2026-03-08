@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Building2, Send, CheckCircle2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface InviteBusinessModalProps {
   trigger?: React.ReactNode;
@@ -12,11 +13,22 @@ interface InviteBusinessModalProps {
 const InviteBusinessModal = ({ trigger }: InviteBusinessModalProps) => {
   const [open, setOpen] = useState(false);
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
   const [businessName, setBusinessName] = useState("");
   const [businessEmail, setBusinessEmail] = useState("");
 
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSending(true);
+    // Log the invite via the send-notification edge function (Resend)
+    await supabase.functions.invoke("send-notification", {
+      body: {
+        to: businessEmail,
+        subject: `You've been invited to Revvin — ${businessName}`,
+        html: `<p>Hi there,</p><p>Someone thinks <strong>${businessName}</strong> should be on Revvin — a referral marketplace where you only pay for closed deals.</p><p><a href="https://revvin.lovable.app/auth?mode=signup&role=business">Create your free account →</a></p><p>— The Revvin Team</p>`,
+      },
+    }).catch(() => {});
+    setSending(false);
     setSent(true);
   };
 
@@ -67,8 +79,8 @@ const InviteBusinessModal = ({ trigger }: InviteBusinessModalProps) => {
             <p className="text-xs text-muted-foreground">
               We'll send them an invitation explaining how Revvin works and why they should list their referral program.
             </p>
-            <Button type="submit" className="w-full gap-2">
-              <Send className="h-4 w-4" /> Send Invitation
+            <Button type="submit" className="w-full gap-2" disabled={sending}>
+              <Send className="h-4 w-4" /> {sending ? "Sending..." : "Send Invitation"}
             </Button>
           </form>
         )}

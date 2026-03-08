@@ -133,6 +133,20 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
         return;
       }
 
+      // Check for duplicate referral before inserting
+      const { data: isDuplicate } = await supabase.rpc("fn_check_duplicate_referral", {
+        p_offer_id: dbOffer.id,
+        p_business_id: dbOffer.business_id,
+        p_email: formData.email || "",
+        p_phone: formData.phone || undefined,
+      });
+
+      if (isDuplicate) {
+        toast({ title: "Duplicate referral", description: "This customer has already been referred for this offer.", variant: "destructive" });
+        setSubmitting(false);
+        return;
+      }
+
       const { data: inserted, error } = await supabase
         .from("referrals")
         .insert({

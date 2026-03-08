@@ -193,7 +193,20 @@ const ReferrerDashboard = () => {
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         {["submitted", "contacted", "in_progress", "qualified"].includes(ref.status) && (
-                          <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => toast({ title: "Nudge sent", description: `Reminder sent to ${ref.businesses?.name ?? "the business"}.` })}>
+                          <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={async () => {
+                            // Send in-app notification to business owner
+                            const { data: biz } = await supabase.from("businesses").select("user_id, name").eq("id", ref.business_id).maybeSingle();
+                            if (biz?.user_id) {
+                              await supabase.rpc("fn_create_notification", {
+                                p_user_id: biz.user_id,
+                                p_title: "Referral Nudge",
+                                p_body: `A referrer is following up on their referral for "${ref.offers?.title ?? "an offer"}".`,
+                                p_type: "nudge",
+                                p_referral_id: ref.id,
+                              }).catch(() => {});
+                            }
+                            toast({ title: "Nudge sent", description: `Reminder sent to ${ref.businesses?.name ?? "the business"}.` });
+                          }}>
                             <Bell className="h-3 w-3" /> Nudge
                           </Button>
                         )}
