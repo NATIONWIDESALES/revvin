@@ -203,7 +203,7 @@ const ReferrerDashboard = () => {
                                 p_body: `A referrer is following up on their referral for "${ref.offers?.title ?? "an offer"}".`,
                                 p_type: "nudge",
                                 p_referral_id: ref.id,
-                              }).catch(() => {});
+                              });
                             }
                             toast({ title: "Nudge sent", description: `Reminder sent to ${ref.businesses?.name ?? "the business"}.` });
                           }}>
