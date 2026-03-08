@@ -197,7 +197,9 @@ export type Database = {
           business_id: string
           category: string
           close_time_days: number | null
+          country: string
           created_at: string
+          currency: string
           deal_size_max: number | null
           deal_size_min: number | null
           deposit_amount: number | null
@@ -225,7 +227,9 @@ export type Database = {
           business_id: string
           category: string
           close_time_days?: number | null
+          country?: string
           created_at?: string
+          currency?: string
           deal_size_max?: number | null
           deal_size_min?: number | null
           deposit_amount?: number | null
@@ -253,7 +257,9 @@ export type Database = {
           business_id?: string
           category?: string
           close_time_days?: number | null
+          country?: string
           created_at?: string
+          currency?: string
           deal_size_max?: number | null
           deal_size_min?: number | null
           deposit_amount?: number | null

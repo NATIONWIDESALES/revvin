@@ -39,6 +39,7 @@ const CreateOffer = () => {
     payoutTimeline: "net14" as "net7" | "net14" | "net30",
     monthlyCapacity: "", leadFreshness: "", minProjectSize: "", eligibleLocations: "",
     maxPayoutCap: "",
+    country: "US" as "US" | "CA",
   });
 
   useEffect(() => {
@@ -167,6 +168,8 @@ const CreateOffer = () => {
         payout: payoutValue,
         payout_type: form.payoutType,
         location: form.location,
+        country: form.country,
+        currency: form.country === "CA" ? "CAD" : "USD",
         deal_size_min: form.dealSizeMin ? parseFloat(form.dealSizeMin) : null,
         deal_size_max: form.dealSizeMax ? parseFloat(form.dealSizeMax) : null,
         close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
@@ -290,6 +293,15 @@ const CreateOffer = () => {
                   )}
                 </div>
                 <div><Label>Service Location</Label><Input value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="e.g. Los Angeles, CA" className="mt-1" /></div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label>Country</Label>
+                  <div className="mt-1 flex gap-2">
+                    <Button type="button" variant={form.country === "US" ? "default" : "outline"} size="sm" onClick={() => update("country", "US")} className="flex-1">🇺🇸 USA</Button>
+                    <Button type="button" variant={form.country === "CA" ? "default" : "outline"} size="sm" onClick={() => update("country", "CA")} className="flex-1">🇨🇦 Canada</Button>
+                  </div>
+                </div>
               </div>
               <div><Label>Qualification Criteria (optional)</Label><Textarea value={form.qualificationCriteria} onChange={(e) => update("qualificationCriteria", e.target.value)} placeholder="What makes a qualified lead?" rows={3} className="mt-1" /></div>
               <div className="flex items-center gap-2">
