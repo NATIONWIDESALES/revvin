@@ -59,45 +59,53 @@ const HeroNotificationStream: React.FC = () => {
   return (
     <>
       <style>{`
-        @keyframes scrollDown {
+        @keyframes marqueeDown {
           0%   { transform: translateY(0); }
-          100% { transform: translateY(${TOTAL_HEIGHT / 2}px); }
+          100% { transform: translateY(-50%); }
         }
-        @keyframes scrollUp {
-          0%   { transform: translateY(0); }
-          100% { transform: translateY(-${TOTAL_HEIGHT / 2}px); }
+        @keyframes marqueeUp {
+          0%   { transform: translateY(-50%); }
+          100% { transform: translateY(0); }
         }
         .hero-stream-col {
           position: absolute;
-          top: 0;
-          bottom: 0;
+          height: 400px;
           width: 210px;
+          top: 50%;
+          transform: translateY(-50%);
           overflow: hidden;
           pointer-events: none;
           mask-image: linear-gradient(
             to bottom,
             transparent 0%,
-            black 28%,
-            black 72%,
+            black 20%,
+            black 80%,
             transparent 100%
           );
           -webkit-mask-image: linear-gradient(
             to bottom,
             transparent 0%,
-            black 28%,
-            black 72%,
+            black 20%,
+            black 80%,
             transparent 100%
           );
         }
-        .hero-stream-col.left  { left: 3%; }
-        .hero-stream-col.right { right: 3%; }
+        .hero-stream-col.left  { left: max(2%, calc(50% - 620px)); }
+        .hero-stream-col.right { right: max(2%, calc(50% - 620px)); }
         .stream-inner {
           display: flex;
           flex-direction: column;
           gap: ${GAP}px;
-          position: absolute;
-          top: -${TOTAL_HEIGHT / 2}px;
-          width: 100%;
+          padding-bottom: ${GAP}px;
+          animation-duration: ${DURATION}s;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+        }
+        .stream-inner.down {
+          animation-name: marqueeDown;
+        }
+        .stream-inner.up {
+          animation-name: marqueeUp;
         }
         .notification-card {
           display: flex;
@@ -132,18 +140,18 @@ const HeroNotificationStream: React.FC = () => {
 
       {/* Left column — leads, scrolling down */}
       <div className="hero-stream-col left hidden md:block">
-        <div className="stream-inner">
+        <div className="stream-inner down">
           {leadCards.map((text, i) => (
-            <NotificationCard key={`lead-${i}`} text={text} type="lead" index={i} direction="down" />
+            <NotificationCard key={`lead-${i}`} text={text} type="lead" />
           ))}
         </div>
       </div>
 
       {/* Right column — payouts, scrolling up */}
       <div className="hero-stream-col right hidden md:block">
-        <div className="stream-inner">
+        <div className="stream-inner up">
           {payoutCards.map((text, i) => (
-            <NotificationCard key={`payout-${i}`} text={text} type="payout" index={i} direction="up" />
+            <NotificationCard key={`payout-${i}`} text={text} type="payout" />
           ))}
         </div>
       </div>
