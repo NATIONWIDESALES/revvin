@@ -1,40 +1,34 @@
 
-## Plan: Add Animated Notification Cards to Hero
 
-Create a new component and integrate it into the hero section to display two columns of animated notification cards — leads on the left (moving down), payouts on the right (moving up).
+## Plan: Auto-notify admin when a business signs up
 
-### New Component: `HeroNotificationStream.tsx`
+### Approach
 
-**Data:**
-- Left column (leads): "New lead — Roofing", "New lead — Solar Installation", "New lead — Mortgage", etc. (10 items)
-- Right column (payouts): "$750 payout — Solar Installation", "$400 payout — Roofing", etc. (10 items)
+Create a new edge function `notify-business-signup` that is triggered by a Supabase database webhook on INSERT to the `businesses` table. When a new business row is created, the function sends an HTML email via Resend to `info@revvin.co` with the business details and a direct link to the Super Admin CRM (`/__sa`).
 
-**Card styling:**
-- Width: ~200px, auto height
-- White background, 1px border (#E5E7EB), 10px border-radius, subtle shadow
-- 12-13px text, medium weight
-- Small colored dot: blue for leads, green for payouts
+### Changes
 
-**Animation approach:**
-- CSS `@keyframes` with `translateY` for smooth GPU-accelerated movement
-- Left column: `0% { translateY(-100%) } → 100% { translateY(100%) }` (downward)
-- Right column: inverse direction (upward)
-- Duration: ~20s per full loop, staggered start per card
-- CSS `mask-image: linear-gradient(...)` on each column container for top/bottom fade zones (30% fade, 40% solid middle)
+**1. New edge function: `supabase/functions/notify-business-signup/index.ts`**
+- Triggered by a database webhook (no JWT required)
+- Receives the webhook payload containing the new `businesses` row
+- Uses `SUPABASE_SERVICE_ROLE_KEY` to look up the business owner's email and profile name from auth
+- Sends a styled HTML email via Resend from `Revvin <updates@updates.revvin.co>` to `info@revvin.co`
+- Email includes: business name, owner name/email, industry, service area, phone, signup timestamp
+- CTA button links to `https://revvin.lovable.app/__sa` (Super Admin CRM)
+- Logs the notification to `notifications_log` table for audit
 
-**Layout:**
-- Absolutely positioned within the hero section
-- Left column: `left: 2-5%`, right column: `right: 2-5%`
-- Both columns span full hero height, `overflow: hidden`
-- z-index: 0 (below hero text container which has z-10)
+**2. Database webhook migration**
+- Create a Supabase database webhook on `INSERT` to `businesses` table that calls the `notify-business-signup` function
+- This ensures the notification fires automatically from the `handle_new_user` trigger's insert into `businesses`
 
-**Responsive:**
-- Hidden below 768px (`hidden md:block`)
+**3. Update `supabase/config.toml`** (if needed)
+- Add `[functions.notify-business-signup]` with `verify_jwt = false` since it's called by a database webhook
 
-### Changes to `Index.tsx`
+### Email content outline
+- Subject: "New Business Signup: {business_name}"
+- Body: greeting, business details table (name, owner email, industry, city, phone), approve CTA linking to `/__sa`
+- Footer note about pending approval
 
-Import and add `<HeroNotificationStream />` inside the hero section, positioned before the container div so it renders behind the text.
+### No frontend changes required
+The automation is entirely backend. The existing Super Admin CRM already has the approval workflow.
 
-### Files Modified
-- `src/components/HeroNotificationStream.tsx` — New
-- `src/pages/Index.tsx` — Add import and component (no changes to existing text/buttons/logic)
