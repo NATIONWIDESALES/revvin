@@ -83,7 +83,21 @@ const ReferrerDashboard = () => {
     { label: "Get paid", done: paidEarnings > 0 || confirmedEarnings > 0 },
   ];
 
-  const handleDispute = (refId: string) => {
+  const handleDispute = async (refId: string) => {
+    const ref = referrals.find(r => r.id === refId);
+    if (!ref || !user) return;
+    // Persist dispute status to DB
+    const { error } = await supabase.from("referrals").update({ status: "disputed" }).eq("id", refId);
+    if (error) {
+      toast({ title: "Error", description: "Failed to submit dispute.", variant: "destructive" });
+      return;
+    }
+    // Create audit log entry
+    await supabase.rpc("fn_create_audit_entry", {
+      p_referral_id: refId,
+      p_event_type: "dispute_submitted",
+      p_payload: { previous_status: ref.status } as any,
+    }).catch(() => {});
     setReferrals(prev => prev.map(r => r.id === refId ? { ...r, status: "disputed" } : r));
     toast({ title: "Dispute submitted", description: "Your dispute has been sent for review." });
   };
