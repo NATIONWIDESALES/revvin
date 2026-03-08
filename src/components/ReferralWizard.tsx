@@ -148,6 +148,19 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
         return;
       }
 
+      // Upload attachment if present
+      let fileUrl: string | null = null;
+      if (attachedFile && user) {
+        const filePath = `${user.id}/${Date.now()}-${attachedFile.name}`;
+        const { error: uploadErr } = await supabase.storage
+          .from("referral-attachments")
+          .upload(filePath, attachedFile);
+        if (!uploadErr) {
+          const { data: urlData } = supabase.storage.from("referral-attachments").getPublicUrl(filePath);
+          fileUrl = urlData.publicUrl;
+        }
+      }
+
       const { data: inserted, error } = await supabase
         .from("referrals")
         .insert({
@@ -158,6 +171,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           customer_email: formData.email || null,
           customer_phone: formData.phone || null,
           notes: formData.notes || null,
+          file_url: fileUrl,
           payout_amount: offer.payoutType === "flat" ? Math.round(offer.payout * 0.9) : null,
         })
         .select("id")
