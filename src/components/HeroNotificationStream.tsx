@@ -30,35 +30,18 @@ const payouts = [
 const leadCards = [...leads, ...leads];
 const payoutCards = [...payouts, ...payouts];
 
-const CARD_HEIGHT = 52; // px per card including gap
-const GAP = 12;
-const TOTAL_CARDS = leadCards.length;
-const TOTAL_HEIGHT = TOTAL_CARDS * (CARD_HEIGHT + GAP);
-const DURATION = 22; // seconds for full loop
+const CARD_HEIGHT = 52; // px per card
+const GAP = 16;
+const DURATION = 40; // seconds for full loop
 
 interface CardProps {
   text: string;
   type: "lead" | "payout";
-  index: number;
-  direction: "down" | "up";
 }
 
-const NotificationCard: React.FC<CardProps> = ({ text, type, index, direction }) => {
-  const delay = -(index * (DURATION / TOTAL_CARDS));
-
+const NotificationCard: React.FC<CardProps> = ({ text, type }) => {
   return (
-    <div
-      className="notification-card"
-      style={{
-        animationDelay: `${delay}s`,
-        animationDuration: `${DURATION}s`,
-        animationName: direction === "down" ? "scrollDown" : "scrollUp",
-        animationTimingFunction: "linear",
-        animationIterationCount: "infinite",
-        animationFillMode: "none",
-        willChange: "transform",
-      }}
-    >
+    <div className="notification-card">
       <span
         className="dot"
         style={{
