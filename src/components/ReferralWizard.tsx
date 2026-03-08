@@ -303,13 +303,28 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium">Attachments (optional)</label>
-                  <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-border p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
+                  <label className="flex items-center justify-center rounded-xl border-2 border-dashed border-border p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file && file.size <= 10 * 1024 * 1024) setAttachedFile(file);
+                      }}
+                    />
                     <div>
                       <Upload className="mx-auto h-6 w-6 text-muted-foreground mb-2" />
-                      <p className="text-xs text-muted-foreground">Click to upload supporting documents</p>
-                      <p className="text-[10px] text-muted-foreground mt-1">PDF, images, or documents up to 10 MB</p>
+                      {attachedFile ? (
+                        <p className="text-xs text-foreground font-medium">{attachedFile.name}</p>
+                      ) : (
+                        <>
+                          <p className="text-xs text-muted-foreground">Click to upload supporting documents</p>
+                          <p className="text-[10px] text-muted-foreground mt-1">PDF, images, or documents up to 10 MB</p>
+                        </>
+                      )}
                     </div>
-                  </div>
+                  </label>
                 </div>
               </div>
             )}
