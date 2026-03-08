@@ -63,7 +63,8 @@ const Index = () => {
       />
 
       {/* Hero */}
-      <section className="relative pt-32 pb-28 lg:pt-40 lg:pb-36 dot-grid">
+      <section className="relative pt-32 pb-28 lg:pt-40 lg:pb-36 dot-grid overflow-hidden">
+        <HeroNotificationStream />
         <div className="container relative z-10">
           <motion.div initial="hidden" animate="visible" className="mx-auto max-w-3xl text-center">
             <motion.div variants={fadeUp} custom={0}>
