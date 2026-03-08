@@ -122,17 +122,51 @@ serve(async (req) => {
     }
     // --- END AUTH CHECK ---
 
-    const payload: NotificationPayload = await req.json();
+    const rawPayload = await req.json();
+
+    // Support simple {to, subject, html} payloads (e.g. invite emails)
+    if (rawPayload.to && rawPayload.subject && rawPayload.html) {
+      const resendApiKey = Deno.env.get("RESEND_API_KEY");
+      let emailStatus = "logged";
+      let resendId: string | undefined;
+
+      if (resendApiKey) {
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ from: FROM_ADDRESS, to: [rawPayload.to], subject: rawPayload.subject, html: rawPayload.html }),
+        });
+        const data = await res.json();
+        if (res.ok) { emailStatus = "sent"; resendId = data.id; }
+        else { emailStatus = "failed"; }
+      }
+
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supa = createClient(supabaseUrl, supabaseKey);
+      await supa.from("notifications_log").insert({
+        type: "invite_business",
+        recipient_email: rawPayload.to,
+        recipient_name: null,
+        subject: rawPayload.subject,
+        body: rawPayload.html,
+        status: emailStatus,
+      });
+
+      return new Response(JSON.stringify({ success: emailStatus === "sent", status: emailStatus }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Template-based flow
+    const payload: NotificationPayload = rawPayload;
     const { type, recipientEmail, recipientName, data = {} } = payload;
 
     const template = templates[type];
     if (!template) {
       return new Response(
         JSON.stringify({ error: "Unknown notification type" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
