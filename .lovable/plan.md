@@ -1,23 +1,34 @@
 
-## Plan: Refine Hero Notification Stream
 
-We will update the `HeroNotificationStream` to solve the spacing, bounds, and animation issues requested:
+## Plan: Auto-notify admin when a business signs up
 
-1. **Perfect Even Spacing & Seamless Loop**
-   - **Current Issue**: Individual cards have `animationDelay` but exist inside a normal flex column, causing them to physically overlap each other as they translate independently.
-   - **Solution**: Switch to a seamless marquee technique. Instead of animating each card, we'll animate the entire container (`.stream-inner`). By duplicating the arrays (10 items → 20 items) and translating the container exactly `-50%`, we get a mathematically perfect, infinite loop with flawless flexbox spacing (`gap: 16px`). There will never be an empty gap on the page.
+### Approach
 
-2. **Height Restriction (Red Boxes)**
-   - **Current Issue**: The streams span the entire vertical height of the hero (`top: 0; bottom: 0`).
-   - **Solution**: We will set a fixed `height: 400px` for the columns and vertically center them alongside the main text (`top: 50%; transform: translateY(-50%)`). This perfectly matches the top and bottom bounds of your red boxes. The 20% fade mask will be applied within these new, tighter bounds.
+Create a new edge function `notify-business-signup` that is triggered by a Supabase database webhook on INSERT to the `businesses` table. When a new business row is created, the function sends an HTML email via Resend to `info@revvin.co` with the business details and a direct link to the Super Admin CRM (`/__sa`).
 
-3. **Animation Speed**
-   - **Current Issue**: Moving too fast.
-   - **Solution**: Increase the animation duration from `22s` to `40s` for a much smoother, slower, ASMR-like background crawl.
+### Changes
 
-### Changes to `src/components/HeroNotificationStream.tsx`
-- Remove the independent card-level animations and delays.
-- Apply `@keyframes` to `.stream-inner`.
-- Add `padding-bottom` matching the `gap` to ensure the `-50%` height calculation perfectly loops the arrays.
-- Adjust `.hero-stream-col` to center vertically and restrict height to `400px`.
-- Use a dynamic placement trick (`max(2%, calc(50% - 620px))`) to keep the columns framed nicely around the text, even on ultra-wide monitors.
+**1. New edge function: `supabase/functions/notify-business-signup/index.ts`**
+- Triggered by a database webhook (no JWT required)
+- Receives the webhook payload containing the new `businesses` row
+- Uses `SUPABASE_SERVICE_ROLE_KEY` to look up the business owner's email and profile name from auth
+- Sends a styled HTML email via Resend from `Revvin <updates@updates.revvin.co>` to `info@revvin.co`
+- Email includes: business name, owner name/email, industry, service area, phone, signup timestamp
+- CTA button links to `https://revvin.lovable.app/__sa` (Super Admin CRM)
+- Logs the notification to `notifications_log` table for audit
+
+**2. Database webhook migration**
+- Create a Supabase database webhook on `INSERT` to `businesses` table that calls the `notify-business-signup` function
+- This ensures the notification fires automatically from the `handle_new_user` trigger's insert into `businesses`
+
+**3. Update `supabase/config.toml`** (if needed)
+- Add `[functions.notify-business-signup]` with `verify_jwt = false` since it's called by a database webhook
+
+### Email content outline
+- Subject: "New Business Signup: {business_name}"
+- Body: greeting, business details table (name, owner email, industry, city, phone), approve CTA linking to `/__sa`
+- Footer note about pending approval
+
+### No frontend changes required
+The automation is entirely backend. The existing Super Admin CRM already has the approval workflow.
+
