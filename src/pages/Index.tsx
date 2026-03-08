@@ -75,9 +75,9 @@ const Index = () => {
               custom={1}
               className="text-5xl md:text-6xl font-bold leading-[1.05] tracking-tight text-foreground"
             >
-              Your customers are your
+              Turn your customers into
               <br />
-              <span className="text-primary">best salespeople.</span>
+              <span className="text-primary">your best salespeople.</span>
             </motion.h1>
             <motion.p variants={fadeUp} custom={2} className="mt-6 text-lg text-muted-foreground max-w-lg mx-auto leading-relaxed">
               Set a reward. Share your link. Only pay when the deal closes.
