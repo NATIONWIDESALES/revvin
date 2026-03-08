@@ -39,6 +39,7 @@ const CreateOffer = () => {
     payoutTimeline: "net14" as "net7" | "net14" | "net30",
     monthlyCapacity: "", leadFreshness: "", minProjectSize: "", eligibleLocations: "",
     maxPayoutCap: "",
+    country: "US" as "US" | "CA",
   });
 
   useEffect(() => {
