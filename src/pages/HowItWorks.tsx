@@ -1,191 +1,130 @@
-import { Search, Users, DollarSign, Building2, ArrowRight, CheckCircle2, TrendingUp, Shield, Briefcase, Zap, MapPin, BarChart3 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import PhoneNotification from "@/components/PhoneNotification";
+
+const ease = [0.16, 1, 0.3, 1] as const;
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
-    opacity: 1, y: 0,
-    transition: { delay: i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.7, ease },
   }),
 };
 
 const stagger = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
+  visible: { transition: { staggerChildren: 0.1 } },
 };
 
-const HowItWorks = () => {
-  return (
-    <div>
-      <SEOHead title="How Revvin Works — Referral Marketplace for Businesses and Referrers" description="Businesses set referral rewards and publish offers. Referrers submit warm introductions. Deals close, payouts are processed. Learn how Revvin's pay-per-close referral marketplace works step by step." path="/how-it-works" />
-      {/* Hero */}
-      <section className="py-20 lg:py-24 bg-surface">
-        <div className="container text-center">
-          <motion.div initial="hidden" animate="visible">
-            <motion.p variants={fadeUp} custom={0} className="section-label mb-2">Understanding Revvin</motion.p>
-            <motion.h1 variants={fadeUp} custom={1} className="text-4xl font-bold text-foreground md:text-5xl">
-              How Revvin Works
-            </motion.h1>
-            <motion.p variants={fadeUp} custom={2} className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              A transparent, performance-based marketplace that connects businesses seeking customers with individuals who can make trusted introductions.
-            </motion.p>
-          </motion.div>
-        </div>
-      </section>
+const steps = [
+  { num: "01", title: "Business sets a reward", desc: "A roofing company offers $500 for every new customer that closes." },
+  { num: "02", title: "Referrer spots an opportunity", desc: "A realtor's client mentions they need a new roof." },
+  { num: "03", title: "Referral is submitted", desc: "The realtor submits the client's details through Revvin. First submission wins." },
+  { num: "04", title: "Business closes the deal", desc: "The roofing company contacts the lead, does the work, and marks it closed." },
+  { num: "05", title: "Everyone gets paid", desc: "The realtor receives $500. The business got a customer at a known cost. Revvin takes 10%." },
+];
 
-      {/* For Referrers */}
-      <section className="py-20 lg:py-24">
-        <div className="container max-w-5xl">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-            <motion.div variants={fadeUp} custom={0} className="mb-2">
-              <span className="inline-flex items-center rounded-full border border-earnings/20 bg-earnings/5 px-3 py-1 text-xs font-medium text-earnings">For Referrers</span>
-            </motion.div>
-            <motion.h2 variants={fadeUp} custom={1} className="text-3xl font-bold text-foreground mb-3 md:text-4xl">Earn Money From Your Network</motion.h2>
-            <motion.p variants={fadeUp} custom={2} className="text-muted-foreground mb-10 max-w-2xl">Students, consultants, realtors, sales pros - anyone with connections can earn commissions for successful introductions.</motion.p>
-            <div className="grid gap-6 md:grid-cols-3">
-              {[
-                { icon: Search, title: "Browse the Marketplace", desc: "Explore referral offers by industry, location, payout, or use the interactive map. Filter by commission type and remote eligibility.", features: ["Map & list views", "Advanced filters", "Save favorites"] },
-                { icon: Users, title: "Submit Referrals", desc: "Know someone who needs the service? Submit their details with notes and context. Track every step from your dashboard.", features: ["Secure submission", "File attachments", "Real-time tracking"] },
-                { icon: DollarSign, title: "Get Paid", desc: "When your referral converts into a closed deal, your commission is approved and paid. Track pending and lifetime earnings.", features: ["Transparent payouts", "Earnings dashboard", "Achievement badges"] },
-              ].map((item, i) => (
-                <motion.div key={i} variants={fadeUp} custom={i + 3} className="polished-card">
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-earnings/5">
-                    <item.icon className="h-5 w-5 text-earnings" />
-                  </div>
-                  <h3 className="text-lg font-bold mb-2">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">{item.desc}</p>
-                  <ul className="space-y-2">
-                    {item.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-earnings shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
+const HowItWorks = () => (
+  <div>
+    <SEOHead title="How Revvin Works — Pay-Per-Close Referral Marketplace" description="Businesses set referral rewards. Referrers submit warm introductions. Deals close, payouts are processed. Learn how it works." path="/how-it-works" />
 
-      {/* For Businesses */}
-      <section className="bg-surface py-20 lg:py-24">
-        <div className="container max-w-5xl">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-            <motion.div variants={fadeUp} custom={0} className="mb-2">
-              <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">For Businesses</span>
-            </motion.div>
-            <motion.h2 variants={fadeUp} custom={1} className="text-3xl font-bold text-foreground mb-3 md:text-4xl">Acquire Customers on Performance</motion.h2>
-            <motion.p variants={fadeUp} custom={2} className="text-muted-foreground mb-10 max-w-2xl">Set your own referral fees. Get qualified leads from real people. Only pay when deals close - zero upfront costs.</motion.p>
-            <div className="grid gap-6 md:grid-cols-3">
-              {[
-                { icon: Building2, title: "Create Offers", desc: "Set up your business profile, define services, and publish referral offers with custom payout structures.", features: ["Custom payouts", "Category targeting", "Logo & branding"] },
-                { icon: CheckCircle2, title: "Manage Referrals", desc: "Receive lead submissions in your dashboard. Review details, update statuses, and approve payouts when deals close.", features: ["Lead management", "Status tracking", "Team notifications"] },
-                { icon: BarChart3, title: "Track ROI", desc: "See conversion rates, cost per acquisition, and total ROI. Make data-driven decisions about your referral programs.", features: ["Analytics dashboard", "Conversion metrics", "Spend tracking"] },
-              ].map((item, i) => (
-                <motion.div key={i} variants={fadeUp} custom={i + 3} className="polished-card">
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/5">
-                    <item.icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-bold mb-2">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">{item.desc}</p>
-                  <ul className="space-y-2">
-                    {item.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
+    {/* Hero */}
+    <section className="relative pt-32 pb-28 lg:pt-40 lg:pb-36 dot-grid">
+      <div className="container relative z-10 text-center">
+        <motion.div initial="hidden" animate="visible">
+          <motion.h1 variants={fadeUp} custom={0} className="text-5xl md:text-6xl font-bold leading-[1.05] tracking-tight text-foreground">
+            How it works
+          </motion.h1>
+          <motion.p variants={fadeUp} custom={1} className="mt-6 text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
+            One referral. Five steps. Everyone wins.
+          </motion.p>
+        </motion.div>
+      </div>
+    </section>
 
-      {/* Platform Economics */}
-      <section className="py-20 lg:py-24">
-        <div className="container max-w-4xl">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="text-center">
-            <motion.div variants={fadeUp} custom={0}>
-              <Briefcase className="mx-auto mb-4 h-8 w-8 text-muted-foreground" />
-            </motion.div>
-            <motion.h2 variants={fadeUp} custom={1} className="text-3xl font-bold text-foreground md:text-4xl">Platform Economics</motion.h2>
-            <motion.p variants={fadeUp} custom={2} className="mt-3 text-muted-foreground leading-relaxed mb-12 max-w-xl mx-auto">
-              Revvin charges a small management fee only on successful referral payouts. Transparent, fair, and aligned with everyone's success.
-            </motion.p>
-
-            <motion.div variants={fadeUp} custom={3} className="polished-card mb-8">
-              <p className="text-sm text-muted-foreground mb-2">Example: $2,000 Referral Fee</p>
-              <div className="grid grid-cols-3 gap-4 mt-6">
-                <div className="rounded-xl bg-surface border border-border p-6">
-                  <Building2 className="mx-auto mb-2 h-5 w-5 text-muted-foreground" />
-                  <div className="text-2xl font-semibold text-foreground">$2,000</div>
-                  <p className="text-xs text-muted-foreground mt-1">Business pays</p>
-                </div>
-                <div className="rounded-xl bg-earnings/5 border border-earnings/20 p-6">
-                  <Users className="mx-auto mb-2 h-5 w-5 text-earnings" />
-                  <div className="text-2xl font-semibold text-earnings">$1,800</div>
-                  <p className="text-xs text-muted-foreground mt-1">Referrer earns (90%)</p>
-                </div>
-                <div className="rounded-xl bg-surface border border-border p-6">
-                  <Briefcase className="mx-auto mb-2 h-5 w-5 text-muted-foreground" />
-                  <div className="text-2xl font-semibold text-foreground">$200</div>
-                  <p className="text-xs text-muted-foreground mt-1">Platform fee (10%)</p>
-                </div>
+    {/* Timeline */}
+    <section className="py-28 lg:py-36 bg-surface">
+      <div className="container">
+        <div className="max-w-2xl mx-auto">
+          {steps.map((step, i) => (
+            <motion.div
+              key={step.num}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.7, ease, delay: 0.05 }}
+              className="relative pl-16 pb-16 last:pb-0"
+            >
+              {/* Vertical line */}
+              {i < steps.length - 1 && (
+                <div className="absolute left-[22px] top-10 bottom-0 w-px bg-border" />
+              )}
+              {/* Number circle */}
+              <div className="absolute left-0 top-0 flex h-11 w-11 items-center justify-center rounded-full border-2 border-primary/20 bg-background text-sm font-bold text-primary">
+                {step.num}
               </div>
-              <div className="flex items-center justify-center gap-2 mt-6 text-sm text-muted-foreground">
-                <Shield className="h-4 w-4 text-primary" />
-                <span>Business pays nothing until the deal closes</span>
-              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-1">{step.title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
             </motion.div>
-
-            <motion.div variants={fadeUp} custom={4} className="grid grid-cols-3 gap-4">
-              <div className="polished-card text-center">
-                <div className="text-2xl font-semibold text-primary">$0</div>
-                <p className="text-sm text-muted-foreground mt-1">Upfront cost to list</p>
-              </div>
-              <div className="polished-card text-center">
-                <div className="text-2xl font-semibold text-earnings">90%</div>
-                <p className="text-sm text-muted-foreground mt-1">Goes to the referrer</p>
-              </div>
-              <div className="polished-card text-center">
-                <div className="text-2xl font-semibold text-foreground">10%</div>
-                <p className="text-sm text-muted-foreground mt-1">Platform fee</p>
-              </div>
-            </motion.div>
-          </motion.div>
+          ))}
         </div>
-      </section>
+      </div>
+    </section>
 
-      {/* CTA */}
-      <section className="bg-surface py-20 lg:py-24">
-        <div className="container text-center">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-            <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold text-foreground md:text-4xl">Ready to Get Started?</motion.h2>
-            <motion.p variants={fadeUp} custom={1} className="mt-3 text-muted-foreground text-lg">Join businesses and referrers growing on Revvin</motion.p>
-            <motion.div variants={fadeUp} custom={2} className="mt-8 flex justify-center gap-4">
-              <Button size="lg" className="gap-2" asChild>
-                <Link to="/auth?mode=signup&role=referrer">Start Earning <ArrowRight className="h-4 w-4" /></Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link to="/auth?mode=signup&role=business">List Your Business</Link>
-              </Button>
-            </motion.div>
-            <motion.p variants={fadeUp} custom={3} className="mt-4 text-xs text-muted-foreground">
-              Free to list. No credit card required to browse.
-            </motion.p>
-          </motion.div>
+    {/* Phone visual breather */}
+    <section className="py-28 lg:py-36">
+      <div className="container">
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7, ease }}
+          className="text-3xl md:text-4xl font-bold text-center mb-16 tracking-tight"
+        >
+          What it feels like
+        </motion.h2>
+        <div className="grid gap-12 md:grid-cols-2 max-w-3xl mx-auto">
+          <div className="text-center">
+            <PhoneNotification variant="business" />
+            <p className="mt-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">Business gets the lead</p>
+          </div>
+          <div className="text-center">
+            <PhoneNotification variant="referrer" />
+            <p className="mt-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">Referrer gets paid</p>
+          </div>
         </div>
-      </section>
-    </div>
-  );
-};
+      </div>
+    </section>
+
+    {/* CTA */}
+    <section className="py-28 lg:py-36 bg-surface">
+      <div className="container text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7, ease }}
+          className="max-w-xl mx-auto"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">Ready to get started?</h2>
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
+              <Link to="/auth?mode=signup&role=referrer">Start Earning <ArrowRight className="h-4 w-4" /></Link>
+            </Button>
+            <Button size="lg" variant="outline" className="h-12 px-8 text-sm" asChild>
+              <Link to="/auth?mode=signup&role=business">List Your Business</Link>
+            </Button>
+          </div>
+          <p className="mt-4 text-xs text-muted-foreground">Free to list. No credit card required.</p>
+        </motion.div>
+      </div>
+    </section>
+  </div>
+);
 
 export default HowItWorks;

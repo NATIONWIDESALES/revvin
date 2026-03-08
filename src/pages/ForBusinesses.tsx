@@ -1,27 +1,37 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Building2, CheckCircle2, ArrowRight, DollarSign, Shield, Users, BarChart3, Globe, Briefcase } from "lucide-react";
-import CitySlots from "@/components/CitySlots";
+import { Building2, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
+import PhoneNotification from "@/components/PhoneNotification";
+
+const ease = [0.16, 1, 0.3, 1] as const;
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] as const } }),
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.7, ease },
+  }),
 };
-const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
 
 const ForBusinesses = () => (
   <div>
     <SEOHead
       title="Revvin for Businesses — Acquire Customers Through Referral Payouts"
-      description="Stop paying for clicks that don't convert. Set your own referral fee, share your link with customers and partners, and only pay when a deal closes. Zero upfront cost. Available across Canada and the United States."
+      description="Stop paying for clicks. Set your own referral fee and only pay when a deal closes. Zero upfront cost. Available across Canada and the United States."
       path="/for-businesses"
       jsonLd={{
         "@context": "https://schema.org",
         "@type": "Service",
         "name": "Revvin Referral Marketing for Businesses",
-        "description": "Pay-per-close customer acquisition. Set a referral reward, share your link, and only pay when deals close.",
+        "description": "Pay-per-close customer acquisition.",
         "provider": { "@type": "Organization", "name": "Revvin" },
         "areaServed": [
           { "@type": "Country", "name": "Canada" },
@@ -35,23 +45,26 @@ const ForBusinesses = () => (
         }
       }}
     />
+
     {/* Hero */}
-    <section className="py-20 lg:py-24 bg-surface">
-      <div className="container text-center">
+    <section className="relative pt-32 pb-28 lg:pt-40 lg:pb-36 dot-grid">
+      <div className="container relative z-10 text-center">
         <motion.div initial="hidden" animate="visible">
           <motion.div variants={fadeUp} custom={0}>
-            <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary">
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary">
               <Building2 className="h-3.5 w-3.5" /> For Businesses
             </span>
           </motion.div>
-          <motion.h1 variants={fadeUp} custom={1} className="text-4xl font-bold text-foreground md:text-5xl">
-            Acquire Customers.<br />Pay Only When Deals Close.
+          <motion.h1 variants={fadeUp} custom={1} className="text-5xl md:text-6xl font-bold leading-[1.05] tracking-tight text-foreground">
+            Acquire customers.
+            <br />
+            <span className="text-primary">Pay when deals close.</span>
           </motion.h1>
-          <motion.p variants={fadeUp} custom={2} className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Revvin is pay-per-close acquisition infrastructure for service businesses across Canada and the United States.
+          <motion.p variants={fadeUp} custom={2} className="mt-6 text-lg text-muted-foreground max-w-lg mx-auto leading-relaxed">
+            Zero upfront cost. You set the reward. You control the rules.
           </motion.p>
-          <motion.div variants={fadeUp} custom={3} className="mt-8 flex justify-center gap-4">
-            <Button size="lg" className="gap-2" asChild>
+          <motion.div variants={fadeUp} custom={3} className="mt-10">
+            <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
               <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
             </Button>
           </motion.div>
@@ -59,23 +72,37 @@ const ForBusinesses = () => (
       </div>
     </section>
 
-    {/* How It Works */}
-    <section className="py-20 lg:py-24">
-      <div className="container max-w-5xl">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-          <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-10 text-center md:text-4xl">How It Works for Businesses</motion.h2>
-          <div className="grid gap-6 md:grid-cols-3">
+    {/* How it works — Phone mockup */}
+    <section className="py-28 lg:py-36 bg-surface">
+      <div className="container">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-4xl mx-auto">
+          <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold text-center mb-4 tracking-tight">
+            A lead arrives. You close. They get paid.
+          </motion.h2>
+          <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-center mb-16 text-sm">
+            That's the entire workflow.
+          </motion.p>
+          <div className="flex justify-center">
+            <PhoneNotification variant="business" />
+          </div>
+        </motion.div>
+      </div>
+    </section>
+
+    {/* 3 steps — minimal */}
+    <section className="py-28 lg:py-36">
+      <div className="container">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-4xl mx-auto">
+          <div className="grid gap-16 md:grid-cols-3 text-center">
             {[
-              { step: "01", icon: Briefcase, title: "Set Your Payout", desc: "Define a flat fee or percentage payout for each referral. You control the cost per acquisition." },
-              { step: "02", icon: Building2, title: "Publish Offers", desc: "Set qualification rules, payout timelines, and service radius. Your offers appear in the marketplace." },
-              { step: "03", icon: DollarSign, title: "Pay on Close", desc: "Accept referrals, work the deal, close, and Revvin handles payout. Zero upfront risk." },
+              { num: "01", title: "Set your payout", desc: "Define a flat fee or percentage for each closed referral." },
+              { num: "02", title: "Publish your offer", desc: "Set qualifications, payout timelines, and service area." },
+              { num: "03", title: "Pay on close", desc: "Accept referrals, close deals, and Revvin handles payout." },
             ].map((item, i) => (
-              <motion.div key={item.step} variants={fadeUp} custom={i + 1} className="polished-card">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/5">
-                  <item.icon className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="text-lg font-bold mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              <motion.div key={item.num} variants={fadeUp} custom={i + 1}>
+                <div className="mb-4 text-4xl font-bold text-primary/15">{item.num}</div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -83,82 +110,50 @@ const ForBusinesses = () => (
       </div>
     </section>
 
-    {/* Cross-Border */}
-    <section className="bg-surface py-20 lg:py-24">
-      <div className="container max-w-5xl">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-          <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-10 text-center md:text-4xl">Cross-Border Ready</motion.h2>
-          <div className="grid gap-6 md:grid-cols-2">
-            <motion.div variants={fadeUp} custom={1} className="polished-card">
-              <h3 className="font-bold mb-3 flex items-center gap-2">Canada</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Payouts in CAD</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Referrer payouts via Interac e-Transfer or direct deposit</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Metro Vancouver, Toronto, Calgary coverage</li>
-              </ul>
-            </motion.div>
-            <motion.div variants={fadeUp} custom={2} className="polished-card">
-              <h3 className="font-bold mb-3 flex items-center gap-2">United States</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Payouts in USD</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Referrer payouts via ACH / direct deposit</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> Seattle, LA, Dallas, Phoenix, NYC coverage</li>
-              </ul>
-            </motion.div>
+    {/* Cross-border */}
+    <section className="py-20 bg-surface">
+      <div className="container">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7, ease }}
+          className="max-w-2xl mx-auto text-center"
+        >
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-6">Available in two countries</h2>
+          <div className="flex items-center justify-center gap-10">
+            <div className="text-center">
+              <span className="text-3xl mb-2 block">🇨🇦</span>
+              <p className="text-sm font-medium text-foreground">Canada</p>
+              <p className="text-xs text-muted-foreground">Paid in CAD</p>
+            </div>
+            <div className="h-12 w-px bg-border" />
+            <div className="text-center">
+              <span className="text-3xl mb-2 block">🇺🇸</span>
+              <p className="text-sm font-medium text-foreground">United States</p>
+              <p className="text-xs text-muted-foreground">Paid in USD</p>
+            </div>
           </div>
-        </motion.div>
-      </div>
-    </section>
-
-    {/* What You Get */}
-    <section className="py-20 lg:py-24">
-      <div className="container max-w-3xl">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-          <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-10 text-center md:text-4xl">What You Get</motion.h2>
-          <div className="space-y-4">
-            {[
-              { icon: BarChart3, title: "Acquisition Metrics", desc: "Track cost per close, conversion rates, and referrer performance." },
-              { icon: Shield, title: "Verified Business Badge", desc: "Get verified to earn trust and priority placement in the marketplace." },
-              { icon: Users, title: "Referrer Network", desc: "Access motivated referrers across both countries." },
-              { icon: Globe, title: "Cross-Border Discovery", desc: "Your offers appear on the North America map and filtered search." },
-            ].map((item, i) => (
-              <motion.div key={item.title} variants={fadeUp} custom={i + 1} className="flex items-start gap-4 polished-card">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/5 shrink-0">
-                  <item.icon className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{item.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    </section>
-
-    {/* City Slots */}
-    <section className="py-20 lg:py-24 bg-surface">
-      <div className="container max-w-5xl">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-          <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-4 text-center md:text-4xl">Limited Verified Slots Per City</motion.h2>
-          <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-center mb-8 max-w-xl mx-auto">Only 5 verified businesses per category per city. Claim your slot before competitors do.</motion.p>
-          <motion.div variants={fadeUp} custom={2}>
-            <CitySlots maxDisplay={8} showApplyButton />
-          </motion.div>
         </motion.div>
       </div>
     </section>
 
     {/* CTA */}
-    <section className="py-20 lg:py-24">
+    <section className="py-28 lg:py-36">
       <div className="container text-center">
-        <h2 className="text-3xl font-bold mb-4 md:text-4xl">Start Acquiring Customers Today</h2>
-        <p className="text-muted-foreground mb-8 max-w-xl mx-auto">$0 to list. Pay only when deals close. Available in Canada and the United States.</p>
-        <Button size="lg" className="gap-2" asChild>
-          <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
-        </Button>
-        <p className="mt-4 text-xs text-muted-foreground">Free to list. No credit card required to browse.</p>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7, ease }}
+          className="max-w-xl mx-auto"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">Start acquiring customers today</h2>
+          <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
+            <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
+          </Button>
+          <p className="mt-4 text-xs text-muted-foreground">Free to list. No credit card required.</p>
+        </motion.div>
       </div>
     </section>
   </div>
