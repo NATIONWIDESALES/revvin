@@ -62,16 +62,17 @@ const iMessageThread = () => (
             <div
               className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed ${
                 msg.side === "right"
-                  ? "bg-primary text-primary-foreground rounded-br-md"
+                  ? "text-white rounded-br-md"
                   : "bg-muted text-foreground rounded-bl-md"
               }`}
+              style={msg.side === "right" ? { backgroundColor: '#007AFF' } : undefined}
             >
               {msg.text}
             </div>
             <span className="text-[9px] text-muted-foreground mt-1 px-1">
               {msg.time}
               {i === messages.length - 1 && msg.side === "right" && (
-                <span className="ml-1 text-primary">Delivered</span>
+                <span className="ml-1" style={{ color: '#007AFF' }}>Delivered</span>
               )}
             </span>
           </motion.div>
@@ -81,8 +82,8 @@ const iMessageThread = () => (
       <div className="mx-3 mb-3 flex items-center gap-3 rounded-full border border-border/50 bg-muted/50 px-4 py-2.5">
         <div className="h-3 w-3 rounded-full bg-primary/20" />
         <span className="text-[11px] text-muted-foreground flex-1">Message</span>
-        <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center">
-          <span className="text-[10px] text-primary-foreground">↑</span>
+        <div className="h-5 w-5 rounded-full flex items-center justify-center" style={{ backgroundColor: '#007AFF' }}>
+          <span className="text-[10px] text-white">↑</span>
         </div>
       </div>
     </div>
