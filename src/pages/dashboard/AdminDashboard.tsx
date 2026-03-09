@@ -86,6 +86,8 @@ const AdminDashboard = () => {
   const activeOffers = offers.filter(o => o.status === "active").length;
   const conversionRate = referrals.length > 0 ? Math.round((wonDeals / referrals.length) * 100) : 0;
   const pendingPayouts = payouts.filter(p => p.status === "ready" || p.status === "processing").length;
+  const pendingOfferApprovals = offers.filter(o => o.approval_status === "pending").length;
+  const disputedReferrals = referrals.filter(r => r.status === "disputed").length;
 
   const stats = [
     { label: "Businesses", value: totalBusinesses.toString(), icon: Building2, color: "text-primary", bgColor: "bg-primary/10" },
