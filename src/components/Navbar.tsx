@@ -7,6 +7,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import NotificationBell from "@/components/NotificationBell";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AnimatePresence, motion } from "framer-motion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
