@@ -30,8 +30,11 @@ const Navbar = () => {
   const navLinks = [
     { to: "/how-it-works", label: "How It Works" },
     { to: "/for-businesses", label: "For Businesses" },
+    { to: "/for-referrers", label: "For Referrers" },
     { to: "/browse", label: "Browse Offers" },
   ];
+
+  const roleLabel = userRole === "business" ? "Business" : userRole === "admin" ? "Admin" : "Referrer";
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
