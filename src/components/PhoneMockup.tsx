@@ -33,15 +33,15 @@ const BusinessScreen = () => (
     <StatusBar />
     
     {/* App Header */}
-    <div className="flex items-center justify-between px-4 py-3 mt-[46px]">
+    <div className="flex items-center justify-between px-4 py-2 mt-4">
       <div className="flex items-center gap-2">
         <RevvinLogo />
-        <span className="text-[17px] font-bold text-black">Revvin</span>
+        <span className="text-[15px] font-bold text-black">Revvin</span>
       </div>
       <div className="relative">
-        <Bell className="h-5 w-5 text-primary" />
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-          <span className="text-[10px] text-white font-bold">3</span>
+        <Bell className="h-4 w-4 text-primary" />
+        <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full flex items-center justify-center">
+          <span className="text-[9px] text-white font-bold">3</span>
         </div>
       </div>
     </div>
