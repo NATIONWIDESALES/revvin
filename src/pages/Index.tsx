@@ -296,7 +296,7 @@ const Index = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-28 lg:py-36 bg-surface">
+      <section className="py-28 lg:py-36 bg-surface dollar-grid">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
