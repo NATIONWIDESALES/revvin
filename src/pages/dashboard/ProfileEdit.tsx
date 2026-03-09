@@ -10,6 +10,7 @@ import { ArrowLeft, User, Save, Loader2, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import BusinessLogoUpload from "@/components/BusinessLogoUpload";
+import AvatarUpload from "@/components/AvatarUpload";
 import {
   Select,
   SelectContent,
