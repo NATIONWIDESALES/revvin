@@ -1,59 +1,34 @@
 
 
-# Complete Redesign: "See it in action" Phone Mockups
+## Plan: Auto-notify admin when a business signs up
 
-## Overview
+### Approach
 
-Replace the current `PhoneNotification.tsx` component entirely with a new implementation featuring precise iPhone 14 Pro specifications and full native-feeling app screens.
+Create a new edge function `notify-business-signup` that is triggered by a Supabase database webhook on INSERT to the `businesses` table. When a new business row is created, the function sends an HTML email via Resend to `info@revvin.co` with the business details and a direct link to the Super Admin CRM (`/__sa`).
 
-## New Component: `src/components/PhoneMockup.tsx`
+### Changes
 
-Create a brand new component from scratch with these specifications:
+**1. New edge function: `supabase/functions/notify-business-signup/index.ts`**
+- Triggered by a database webhook (no JWT required)
+- Receives the webhook payload containing the new `businesses` row
+- Uses `SUPABASE_SERVICE_ROLE_KEY` to look up the business owner's email and profile name from auth
+- Sends a styled HTML email via Resend from `Revvin <updates@updates.revvin.co>` to `info@revvin.co`
+- Email includes: business name, owner name/email, industry, service area, phone, signup timestamp
+- CTA button links to `https://revvin.lovable.app/__sa` (Super Admin CRM)
+- Logs the notification to `notifications_log` table for audit
 
-### Phone Frame (both phones)
-- **Dimensions**: 320px × 693px (exact 9:19.5 ratio)
-- **Outer shell**: `#1A1A1A`, border-radius `52px`
-- **Bezel thickness**: 10px (screen inset from shell)
-- **Chamfer highlight**: 1px `rgba(255,255,255,0.15)` on top-left edge
-- **Dynamic Island**: 126px × 34px, `#000000`, radius 20px, 12px from top of screen
-- **Side buttons**: Left side has 2 volume buttons, right side has power button, color `#2A2A2A`
-- **Drop shadow**: `0 32px 80px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.10)`
-- **Home indicator**: 134px × 5px, `#000000` at 20% opacity, 8px from bottom
+**2. Database webhook migration**
+- Create a Supabase database webhook on `INSERT` to `businesses` table that calls the `notify-business-signup` function
+- This ensures the notification fires automatically from the `handle_new_user` trigger's insert into `businesses`
 
-### Left Phone Screen (Business)
-Full app UI including:
-- Status bar with "9:41", signal/wifi/battery icons
-- App header: Revvin logo + name + notification bell with red "3" badge
-- Green banner: pulsing dot + "3 new leads today"
-- Section: "Incoming Leads" heading with subtitle
-- 3 lead cards with category icons, referrer info, payout amounts, action buttons
-- Cards have proper badges (NEW, PENDING), shadows, structure
+**3. Update `supabase/config.toml`** (if needed)
+- Add `[functions.notify-business-signup]` with `verify_jwt = false` since it's called by a database webhook
 
-### Right Phone Screen (Referrer)
-Full app UI including:
-- Status bar + app header with avatar "JK"
-- Hero block: "Total Earned" label + "$2,340" large text + green "+$500 this week" chip
-- Two action buttons: "Withdraw" (solid green) + "Share Link" (outlined)
-- "Recent Payouts" section with 3 transaction rows
-- Green card: "6 referrals closed this month" with progress bar
+### Email content outline
+- Subject: "New Business Signup: {business_name}"
+- Body: greeting, business details table (name, owner email, industry, city, phone), approve CTA linking to `/__sa`
+- Footer note about pending approval
 
-### Typography
-Font stack: `-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif`
-
-## Update `Index.tsx` (lines 123-155)
-
-Replace the "Phone Mockups" section:
-- Background: `#F5F6F7`
-- Center layout with 48px gap, overlapping by 24px in center
-- Left phone: `-4deg` rotation, higher z-index
-- Right phone: `+4deg` rotation
-- Labels below each: "BUSINESS RECEIVES A LEAD" / "REFERRER GETS PAID" in muted caps
-
-## Files Changed
-
-| File | Action |
-|------|--------|
-| `src/components/PhoneMockup.tsx` | Create new component |
-| `src/pages/Index.tsx` | Replace section with new component |
-| `src/components/PhoneNotification.tsx` | Can be kept for other pages or removed later |
+### No frontend changes required
+The automation is entirely backend. The existing Super Admin CRM already has the approval workflow.
 
