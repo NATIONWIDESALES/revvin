@@ -120,7 +120,6 @@ const BusinessScreen = () => (
         </div>
       </div>
     </div>
-    </div>
 
     <HomeIndicator />
   </div>
