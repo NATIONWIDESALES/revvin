@@ -158,10 +158,10 @@ const PhoneNotification = ({ variant }: PhoneNotificationProps) => (
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: "-100px" }}
     transition={{ duration: 0.8, ease }}
-    className="mx-auto w-full max-w-[300px]"
+    className="mx-auto w-[280px] max-w-[280px]"
   >
     {/* Outer device shell */}
-    <div className="relative rounded-[3rem] bg-[#1a1a1a] p-[3px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]">
+    <div className="relative h-[605px] rounded-[44px] bg-[#1a1a1a] p-[3px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]">
       {/* Side buttons — left */}
       <div className="absolute -left-[2.5px] top-[72px] h-5 w-[3px] rounded-l-sm bg-[#2a2a2a]" />
       <div className="absolute -left-[2.5px] top-[100px] h-8 w-[3px] rounded-l-sm bg-[#2a2a2a]" />
@@ -170,12 +170,12 @@ const PhoneNotification = ({ variant }: PhoneNotificationProps) => (
       <div className="absolute -right-[2.5px] top-[110px] h-12 w-[3px] rounded-r-sm bg-[#2a2a2a]" />
 
       {/* Specular highlight / gloss */}
-      <div className="pointer-events-none absolute inset-y-4 left-[1px] w-[6px] rounded-l-[3rem] bg-gradient-to-r from-white/[0.12] to-transparent" />
+      <div className="pointer-events-none absolute inset-y-4 left-[1px] w-[6px] rounded-l-[44px] bg-gradient-to-r from-white/[0.12] to-transparent" />
 
       {/* Screen area */}
-      <div className="relative overflow-hidden rounded-[2.7rem] bg-white">
+      <div className="relative flex h-full flex-col overflow-hidden rounded-[40px] bg-white">
         {/* Dynamic Island */}
-        <div className="absolute top-[10px] left-1/2 -translate-x-1/2 z-20 h-[22px] w-[90px] rounded-full bg-black" />
+        <div className="absolute top-[10px] left-1/2 -translate-x-1/2 z-20 h-[18px] w-[98px] rounded-full bg-black" />
 
         {/* Status bar */}
         <div className="relative z-10 flex items-center justify-between px-7 pt-[14px] pb-1">
@@ -188,7 +188,7 @@ const PhoneNotification = ({ variant }: PhoneNotificationProps) => (
         </div>
 
         {/* Content */}
-        <div className="px-3 pt-4 pb-8 min-h-[300px]">
+        <div className="flex-1 overflow-y-auto px-3 pt-4 pb-6">
           {variant === "business" ? <BusinessNotification /> : <ReferrerNotification />}
         </div>
       </div>
