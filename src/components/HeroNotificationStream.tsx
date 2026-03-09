@@ -32,7 +32,7 @@ const payoutCards = [...payouts, ...payouts];
 
 const CARD_HEIGHT = 52; // px per card
 const GAP = 80;
-const DURATION = 40; // seconds for full loop
+const DURATION = 60; // seconds for full loop
 
 interface CardProps {
   text: string;
