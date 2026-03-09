@@ -20,6 +20,7 @@ import ResetPassword from "./pages/ResetPassword";
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import CreateOffer from "./pages/dashboard/CreateOffer";
 import ProfileEdit from "./pages/dashboard/ProfileEdit";
+import AccountSettings from "./pages/dashboard/AccountSettings";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import ReferralAgreement from "./pages/ReferralAgreement";
