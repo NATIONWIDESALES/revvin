@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Signal, Wifi, Battery, Bell, Home, ChevronRight, DollarSign } from "lucide-react";
+import revvinLogo from "@/assets/revvin-logo.png";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
