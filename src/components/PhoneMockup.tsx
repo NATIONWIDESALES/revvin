@@ -89,10 +89,10 @@ const BusinessScreen = () => (
         <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-bold text-white bg-primary">NEW</div>
         <div className="flex items-start gap-2">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <Thermometer className="h-4 w-4 text-primary" />
+            <Home className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-semibold text-black">HVAC Installation</p>
+            <p className="text-[13px] font-semibold text-black">Roof Repair</p>
             <p className="text-[11px] text-gray-500">Mike T. — referred by Dana R.</p>
           </div>
         </div>
