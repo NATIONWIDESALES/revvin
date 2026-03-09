@@ -33,9 +33,8 @@ const BusinessScreen = () => (
     
     {/* App Header */}
     <div className="flex items-center justify-between px-4 py-2 mt-4">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center">
         <RevvinLogo />
-        <span className="text-[15px] font-bold text-black">Revvin</span>
       </div>
       <div className="relative">
         <Bell className="h-4 w-4 text-primary" />
