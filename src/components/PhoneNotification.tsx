@@ -87,14 +87,33 @@ const ReferrerNotification = () => (
       className="rounded-2xl bg-card border border-border p-4 shadow-lg"
     >
       <div className="flex items-center gap-3 mb-3">
-        <div className="h-8 w-8 rounded-lg bg-earnings/10 flex items-center justify-center text-xs font-bold text-earnings">R</div>
+        <div className="relative h-8 w-8 rounded-lg bg-earnings/10 flex items-center justify-center text-xs font-bold text-earnings">
+          R
+          <div className="absolute -top-1 -right-1 h-3 w-3 bg-earnings rounded-full flex items-center justify-center">
+            <span className="text-[8px] text-earnings-foreground font-bold">$</span>
+          </div>
+        </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-foreground">Revvin</p>
-          <p className="text-[10px] text-muted-foreground">Just now</p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs font-semibold text-foreground">Revvin</p>
+            <div className="h-2 w-2 bg-earnings rounded-full"></div>
+          </div>
+          <p className="text-[10px] text-muted-foreground">now</p>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-[9px] font-bold text-earnings">$500</span>
         </div>
       </div>
       <p className="text-sm font-medium text-foreground mb-1">You just got paid 💰</p>
       <p className="text-xs text-muted-foreground leading-relaxed">$500.00 deposited for your referral to Peak Roofing Co.</p>
+      <div className="flex gap-2 mt-3">
+        <button className="flex-1 bg-earnings/10 text-earnings text-xs py-1.5 px-3 rounded-lg font-medium">
+          View Wallet
+        </button>
+        <button className="bg-muted text-muted-foreground text-xs py-1.5 px-3 rounded-lg">
+          Share
+        </button>
+      </div>
     </motion.div>
     <motion.div
       initial={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -104,14 +123,31 @@ const ReferrerNotification = () => (
       className="rounded-2xl bg-card border border-border p-4 shadow-lg"
     >
       <div className="flex items-center gap-3 mb-3">
-        <div className="h-8 w-8 rounded-lg bg-earnings/10 flex items-center justify-center text-xs font-bold text-earnings">R</div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-foreground">Revvin</p>
-          <p className="text-[10px] text-muted-foreground">1 min ago</p>
+        <div className="h-8 w-8 rounded-lg bg-earnings/10 flex items-center justify-center text-xs font-bold text-earnings">
+          <div className="h-4 w-4 rounded-full bg-earnings/20 flex items-center justify-center">
+            <span className="text-[8px] font-bold">6</span>
+          </div>
         </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="text-xs font-semibold text-foreground">Revvin</p>
+            <div className="flex items-center gap-0.5">
+              <div className="h-1 w-1 bg-earnings rounded-full"></div>
+              <div className="h-1 w-1 bg-earnings rounded-full"></div>
+              <div className="h-1 w-1 bg-earnings rounded-full"></div>
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground">1m</p>
+        </div>
+        <span className="text-[10px] font-bold text-earnings">$2,340</span>
       </div>
       <p className="text-sm font-medium text-foreground mb-1">Lifetime earnings: $2,340</p>
       <p className="text-xs text-muted-foreground leading-relaxed">You've closed 6 referrals this month. Keep it up!</p>
+      <div className="flex gap-2 mt-3">
+        <button className="flex-1 bg-primary/10 text-primary text-xs py-1.5 px-3 rounded-lg font-medium">
+          View Stats
+        </button>
+      </div>
     </motion.div>
   </div>
 );
