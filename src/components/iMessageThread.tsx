@@ -72,7 +72,7 @@ const iMessageThread = () => (
             <span className="text-[9px] text-muted-foreground mt-1 px-1">
               {msg.time}
               {i === messages.length - 1 && msg.side === "right" && (
-                <span className="ml-1 text-primary">Delivered</span>
+                <span className="ml-1" style={{ color: '#007AFF' }}>Delivered</span>
               )}
             </span>
           </motion.div>
