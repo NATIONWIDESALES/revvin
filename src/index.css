@@ -120,8 +120,8 @@
   }
 
   .dot-grid {
-    background-image: radial-gradient(circle, hsl(var(--foreground) / 0.07) 1px, transparent 1px);
-    background-size: 22px 22px;
+    background-image: radial-gradient(circle, hsl(var(--foreground) / 0.12) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 
   .glass-card {
