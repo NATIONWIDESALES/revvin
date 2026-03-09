@@ -62,9 +62,10 @@ const iMessageThread = () => (
             <div
               className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed ${
                 msg.side === "right"
-                  ? "bg-primary text-primary-foreground rounded-br-md"
+                  ? "text-white rounded-br-md"
                   : "bg-muted text-foreground rounded-bl-md"
               }`}
+              style={msg.side === "right" ? { backgroundColor: '#007AFF' } : undefined}
             >
               {msg.text}
             </div>
