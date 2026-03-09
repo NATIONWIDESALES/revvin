@@ -21,14 +21,28 @@ const NotificationBell = () => {
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("notifications")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(20)
-      .then(({ data }) => setNotifications((data as Notification[]) ?? []));
-  }, [user, open]);
+    const fetchNotifications = () => {
+      supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20)
+        .then(({ data }) => setNotifications((data as Notification[]) ?? []));
+    };
+    fetchNotifications();
+
+    const channel = supabase
+      .channel(`notifications-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+        () => fetchNotifications()
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 

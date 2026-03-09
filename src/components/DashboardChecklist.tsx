@@ -1,7 +1,8 @@
 import { CheckCircle2, Circle, X } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ChecklistItem {
   label: string;
@@ -16,7 +17,17 @@ interface DashboardChecklistProps {
 }
 
 const DashboardChecklist = ({ title, items }: DashboardChecklistProps) => {
-  const [dismissed, setDismissed] = useState(false);
+  const { user } = useAuth();
+  const storageKey = user ? `checklist_dismissed_${user.id}` : null;
+  const [dismissed, setDismissed] = useState(() => {
+    if (!storageKey) return false;
+    return localStorage.getItem(storageKey) === "true";
+  });
+
+  const handleDismiss = () => {
+    setDismissed(true);
+    if (storageKey) localStorage.setItem(storageKey, "true");
+  };
   const completedCount = items.filter((i) => i.done).length;
   const allDone = completedCount === items.length;
 
@@ -52,7 +63,7 @@ const DashboardChecklist = ({ title, items }: DashboardChecklistProps) => {
             size="sm"
             className="text-xs h-7 w-7 p-0"
             aria-label="Dismiss checklist"
-            onClick={() => setDismissed(true)}
+            onClick={handleDismiss}
           >
             <X className="h-3.5 w-3.5" />
           </Button>
