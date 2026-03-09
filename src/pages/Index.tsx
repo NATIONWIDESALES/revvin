@@ -121,7 +121,7 @@ const Index = () => {
       </section>
 
       {/* Phone Mockups */}
-      <section className="py-28 lg:py-36" style={{ backgroundColor: '#F5F6F7' }}>
+      <section className="py-28 lg:py-36 dot-grid" style={{ backgroundColor: '#F5F6F7' }}>
         <div className="container">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
