@@ -4,7 +4,7 @@ import { ArrowRight, Building2, Users, Zap, Ban, DollarSign, Shield, Target, Gau
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import PhoneNotification from "@/components/PhoneNotification";
+import PhoneMockup from "@/components/PhoneMockup";
 import HeroNotificationStream from "@/components/HeroNotificationStream";
 
 const ease = [0.16, 1, 0.3, 1] as const;
