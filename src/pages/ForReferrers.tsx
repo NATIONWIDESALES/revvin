@@ -65,12 +65,12 @@ const ForReferrers = () => (
           <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-center mb-16 text-sm">
             Now you get paid for it.
           </motion.p>
-          <div className="grid gap-12 md:grid-cols-2 items-start max-w-3xl mx-auto">
-            <div className="text-center">
+          <div className="flex flex-col md:flex-row justify-center items-center md:items-start max-w-3xl mx-auto">
+            <div className="text-center md:rotate-[-3deg] md:z-10 md:-mr-6">
               <IMessageThread />
               <p className="mt-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">You make the introduction</p>
             </div>
-            <div className="text-center">
+            <div className="text-center md:rotate-[3deg] md:z-0 mt-12 md:mt-0">
               <PhoneNotification variant="referrer" />
               <p className="mt-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">You get paid when it closes</p>
             </div>
