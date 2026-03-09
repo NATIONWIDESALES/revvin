@@ -65,58 +65,58 @@ const BusinessScreen = () => (
     </div>
 
     {/* Lead Cards */}
-    <div className="flex-1 px-4 mt-4 space-y-3 overflow-hidden">
+    <div className="flex-1 px-4 mt-3 space-y-3 overflow-hidden">
       {/* Card 1 */}
-      <div className="bg-white rounded-xl p-3 relative" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-        <div className="absolute top-3 right-3 px-2 py-0.5 rounded text-[10px] font-bold text-white bg-primary">NEW</div>
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Home className="h-5 w-5 text-primary" />
+      <div className="bg-white rounded-lg p-2.5 relative" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+        <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-bold text-white bg-primary">NEW</div>
+        <div className="flex items-start gap-2">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Home className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[14px] font-semibold text-black">Residential Roofing</p>
-            <p className="text-[12px] text-gray-500 mt-0.5">Sarah M. — referred by James K.</p>
+            <p className="text-[13px] font-semibold text-black">Residential Roofing</p>
+            <p className="text-[11px] text-gray-500">Sarah M. — referred by James K.</p>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-          <span className="text-[14px] font-bold text-primary">$500 payout</span>
-          <button className="px-4 py-1.5 rounded-lg bg-primary text-white text-[12px] font-semibold">Review</button>
+        <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+          <span className="text-[13px] font-bold text-primary">$500 payout</span>
+          <button className="px-3 py-1 rounded-lg bg-primary text-white text-[11px] font-semibold">Review</button>
         </div>
       </div>
 
       {/* Card 2 */}
-      <div className="bg-white rounded-xl p-3 relative" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-        <div className="absolute top-3 right-3 px-2 py-0.5 rounded text-[10px] font-bold text-white bg-primary">NEW</div>
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Thermometer className="h-5 w-5 text-primary" />
+      <div className="bg-white rounded-lg p-2.5 relative" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+        <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-bold text-white bg-primary">NEW</div>
+        <div className="flex items-start gap-2">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Thermometer className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[14px] font-semibold text-black">HVAC Installation</p>
-            <p className="text-[12px] text-gray-500 mt-0.5">Mike T. — referred by Dana R.</p>
+            <p className="text-[13px] font-semibold text-black">HVAC Installation</p>
+            <p className="text-[11px] text-gray-500">Mike T. — referred by Dana R.</p>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-          <span className="text-[14px] font-bold text-primary">$350 payout</span>
-          <button className="px-4 py-1.5 rounded-lg bg-primary text-white text-[12px] font-semibold">Review</button>
+        <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+          <span className="text-[13px] font-bold text-primary">$350 payout</span>
+          <button className="px-3 py-1 rounded-lg bg-primary text-white text-[11px] font-semibold">Review</button>
         </div>
       </div>
 
       {/* Card 3 */}
-      <div className="bg-white rounded-xl p-3 relative" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-        <div className="absolute top-3 right-3 px-2 py-0.5 rounded text-[10px] font-bold text-gray-500 bg-gray-200">PENDING</div>
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-            <Car className="h-5 w-5 text-gray-400" />
+      <div className="bg-white rounded-lg p-2.5 relative" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+        <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-bold text-gray-500 bg-gray-200">PENDING</div>
+        <div className="flex items-start gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+            <Car className="h-4 w-4 text-gray-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[14px] font-semibold text-black">Auto Detailing</p>
-            <p className="text-[12px] text-gray-500 mt-0.5">Chris L. — referred by Alex P.</p>
+            <p className="text-[13px] font-semibold text-black">Auto Detailing</p>
+            <p className="text-[11px] text-gray-500">Chris L. — referred by Alex P.</p>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-          <span className="text-[14px] font-bold text-gray-400">$150 payout</span>
-          <button className="px-4 py-1.5 rounded-lg bg-gray-200 text-gray-500 text-[12px] font-semibold">Reviewing</button>
+        <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+          <span className="text-[13px] font-bold text-gray-400">$150 payout</span>
+          <button className="px-3 py-1 rounded-lg bg-gray-200 text-gray-500 text-[11px] font-semibold">Reviewing</button>
         </div>
       </div>
     </div>
