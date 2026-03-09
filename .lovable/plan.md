@@ -1,34 +1,40 @@
 
+## Plan: Simplify Phone Notification Examples
 
-## Plan: Auto-notify admin when a business signs up
+Looking at the uploaded image showing the phone mockups, the user wants to simplify the design while maintaining the core message. The current design has too many visual elements competing for attention.
 
-### Approach
+### Current Issues to Address
+1. **iPhone Dynamic Island**: Remove the notch/dynamic island from the phone frame
+2. **Message Bubble Sizing**: Resize bubbles to be more proportional and less cluttered
+3. **Visual Complexity**: Reduce the number of UI elements and details to focus on the core message
 
-Create a new edge function `notify-business-signup` that is triggered by a Supabase database webhook on INSERT to the `businesses` table. When a new business row is created, the function sends an HTML email via Resend to `info@revvin.co` with the business details and a direct link to the Super Admin CRM (`/__sa`).
+### Simplifications Needed
 
-### Changes
+**PhoneNotification Component**:
+- Remove the dynamic island/notch visual element
+- Simplify notification cards by reducing number of action buttons
+- Make avatar icons smaller and less prominent
+- Reduce padding and spacing for cleaner layout
+- Keep only essential text and remove secondary details
+- Simplify color scheme and reduce visual noise
 
-**1. New edge function: `supabase/functions/notify-business-signup/index.ts`**
-- Triggered by a database webhook (no JWT required)
-- Receives the webhook payload containing the new `businesses` row
-- Uses `SUPABASE_SERVICE_ROLE_KEY` to look up the business owner's email and profile name from auth
-- Sends a styled HTML email via Resend from `Revvin <updates@updates.revvin.co>` to `info@revvin.co`
-- Email includes: business name, owner name/email, industry, service area, phone, signup timestamp
-- CTA button links to `https://revvin.lovable.app/__sa` (Super Admin CRM)
-- Logs the notification to `notifications_log` table for audit
+**iMessageThread Component**: 
+- Remove the dynamic island/notch
+- Make message bubbles smaller and more proportional
+- Simplify the header - remove video/phone icons, keep just the contact info
+- Reduce message text length for cleaner appearance
+- Simplify the input bar design
+- Remove typing indicators and extra UI elements
 
-**2. Database webhook migration**
-- Create a Supabase database webhook on `INSERT` to `businesses` table that calls the `notify-business-signup` function
-- This ensures the notification fires automatically from the `handle_new_user` trigger's insert into `businesses`
+**General Phone Frame**:
+- Switch to a simpler phone frame without the dynamic island
+- Keep basic status bar but make it more minimal
+- Reduce shadows and 3D effects
+- Focus on the content rather than the device chrome
 
-**3. Update `supabase/config.toml`** (if needed)
-- Add `[functions.notify-business-signup]` with `verify_jwt = false` since it's called by a database webhook
+### Core Messages to Maintain
+- **Business Side**: "New referral received" → "Deal closed, payout sent"
+- **Referrer Side**: "You got paid" → "Lifetime earnings tracker"
+- **iMessage**: Simple friend-to-friend referral conversation
 
-### Email content outline
-- Subject: "New Business Signup: {business_name}"
-- Body: greeting, business details table (name, owner email, industry, city, phone), approve CTA linking to `/__sa`
-- Footer note about pending approval
-
-### No frontend changes required
-The automation is entirely backend. The existing Super Admin CRM already has the approval workflow.
-
+The goal is to make these examples immediately understandable without overwhelming users with too many UI details.
