@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
-import PhoneNotification from "@/components/PhoneNotification";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
