@@ -67,13 +67,27 @@ const HeroNotificationStream: React.FC = () => {
           0%   { transform: translateY(-50%); }
           100% { transform: translateY(0); }
         }
-        .hero-stream-col {
+         .hero-stream-col {
           position: absolute;
-          height: 400px;
+          top: 0;
+          bottom: 0;
           width: 210px;
-          top: 50%;
-          transform: translateY(-50%);
           overflow: hidden;
+          pointer-events: none;
+          mask-image: linear-gradient(
+            to bottom,
+            transparent 0%,
+            black 8%,
+            black 92%,
+            transparent 100%
+          );
+          -webkit-mask-image: linear-gradient(
+            to bottom,
+            transparent 0%,
+            black 8%,
+            black 92%,
+            transparent 100%
+          );
           pointer-events: none;
           mask-image: linear-gradient(
             to bottom,
