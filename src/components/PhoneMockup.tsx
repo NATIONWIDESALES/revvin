@@ -107,15 +107,15 @@ const BusinessScreen = () => (
         <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-bold text-gray-500 bg-gray-200">PENDING</div>
         <div className="flex items-start gap-2">
           <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-            <Car className="h-4 w-4 text-gray-400" />
+            <Home className="h-4 w-4 text-gray-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-semibold text-black">Auto Detailing</p>
+            <p className="text-[13px] font-semibold text-black">New Roof Quote</p>
             <p className="text-[11px] text-gray-500">Chris L. — referred by Alex P.</p>
           </div>
         </div>
         <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-          <span className="text-[13px] font-bold text-gray-400">$150 payout</span>
+          <span className="text-[13px] font-bold text-gray-400">$400 payout</span>
           <button className="px-3 py-1 rounded-lg bg-gray-200 text-gray-500 text-[11px] font-semibold">Reviewing</button>
         </div>
       </div>
