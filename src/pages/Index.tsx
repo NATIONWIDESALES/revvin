@@ -97,7 +97,7 @@ const Index = () => {
       </section>
 
       {/* Visual Explainer */}
-      <section className="py-28 lg:py-36 bg-surface">
+      <section className="py-28 lg:py-36 bg-surface dot-grid-fade-up">
         <div className="container">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="mx-auto max-w-5xl">
             <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold text-center mb-16 tracking-tight">
