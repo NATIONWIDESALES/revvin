@@ -82,8 +82,8 @@ const iMessageThread = () => (
       <div className="mx-3 mb-3 flex items-center gap-3 rounded-full border border-border/50 bg-muted/50 px-4 py-2.5">
         <div className="h-3 w-3 rounded-full bg-primary/20" />
         <span className="text-[11px] text-muted-foreground flex-1">Message</span>
-        <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center">
-          <span className="text-[10px] text-primary-foreground">↑</span>
+        <div className="h-5 w-5 rounded-full flex items-center justify-center" style={{ backgroundColor: '#007AFF' }}>
+          <span className="text-[10px] text-white">↑</span>
         </div>
       </div>
     </div>
