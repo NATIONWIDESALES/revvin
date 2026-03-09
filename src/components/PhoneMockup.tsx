@@ -23,9 +23,7 @@ const HomeIndicator = () => (
 );
 
 const RevvinLogo = () => (
-  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-white text-sm font-bold">
-    R
-  </div>
+  <img src={revvinLogo} alt="Revvin" className="h-5 w-auto object-contain" />
 );
 
 // Business Screen Content
