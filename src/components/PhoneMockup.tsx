@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Signal, Wifi, Battery, Bell, Home, Thermometer, Car, ChevronRight, DollarSign } from "lucide-react";
+import { Signal, Wifi, Battery, Bell, Home, ChevronRight, DollarSign } from "lucide-react";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
