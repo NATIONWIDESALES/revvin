@@ -1,41 +1,34 @@
 
-# Fix Phone Screen Content Spacing
 
-## Changes to `src/components/PhoneMockup.tsx`
+## Plan: Auto-notify admin when a business signs up
 
-### Font Size Reductions
-- StatusBar time: `15px` → `13px`
-- App header "Revvin": `17px` → `15px`
-- Green banner text: `14px` → `12px`
-- Section headings: `18px` → `16px` (Business), `16px` → `14px` (Referrer)
-- Lead card titles: `14px` → `13px`
-- Lead card sub-text: `12px` → `11px`
-- Payout amounts: `14px` → `13px`
-- Hero "$2,340": `42px` → `36px`
-- Transaction row names: `14px` → `13px`
-- Transaction row times: `12px` → `11px`
-- Action buttons: `14px` → `12px`
-- Progress card text: `14px` → `13px`, sub-text `12px` → `11px`
+### Approach
 
-### Padding & Spacing Fixes
-- StatusBar/Header horizontal padding: `px-6` / `px-4` → `px-4` (16px)
-- Lead cards container: `px-4` stays, add `space-y-3` to ensure 12px gap between cards
-- App header: remove `mt-[46px]` (pushing content down), change to `mt-4` (16px below Dynamic Island)
-- Green banner: `mx-4` stays (16px side padding)
-- Transaction rows: add `py-2` for 8px vertical gaps
-- Progress card: `mx-4` stays, reduce `p-4` to `p-3`
+Create a new edge function `notify-business-signup` that is triggered by a Supabase database webhook on INSERT to the `businesses` table. When a new business row is created, the function sends an HTML email via Resend to `info@revvin.co` with the business details and a direct link to the Super Admin CRM (`/__sa`).
 
-### Scroll Position Fix
-- The `mt-[46px]` on the app header was causing the content to start too far down
-- Change to `mt-4` (16px) so header appears right below Dynamic Island + status bar
-- Status bar `pt-[14px]` combined with Dynamic Island already provides top spacing
+### Changes
 
-### Content Fit Adjustments
-- Reduce icon sizes in lead cards: `w-10 h-10` → `w-9 h-9`, icons `h-5 w-5` → `h-4 w-4`
-- Reduce hero block vertical margins on referrer screen
-- Ensure progress card is at least 50% visible by tightening spacing above
+**1. New edge function: `supabase/functions/notify-business-signup/index.ts`**
+- Triggered by a database webhook (no JWT required)
+- Receives the webhook payload containing the new `businesses` row
+- Uses `SUPABASE_SERVICE_ROLE_KEY` to look up the business owner's email and profile name from auth
+- Sends a styled HTML email via Resend from `Revvin <updates@updates.revvin.co>` to `info@revvin.co`
+- Email includes: business name, owner name/email, industry, service area, phone, signup timestamp
+- CTA button links to `https://revvin.lovable.app/__sa` (Super Admin CRM)
+- Logs the notification to `notifications_log` table for audit
 
-## Files Modified
-| File | Change |
-|------|--------|
-| `src/components/PhoneMockup.tsx` | All spacing and font size adjustments |
+**2. Database webhook migration**
+- Create a Supabase database webhook on `INSERT` to `businesses` table that calls the `notify-business-signup` function
+- This ensures the notification fires automatically from the `handle_new_user` trigger's insert into `businesses`
+
+**3. Update `supabase/config.toml`** (if needed)
+- Add `[functions.notify-business-signup]` with `verify_jwt = false` since it's called by a database webhook
+
+### Email content outline
+- Subject: "New Business Signup: {business_name}"
+- Body: greeting, business details table (name, owner email, industry, city, phone), approve CTA linking to `/__sa`
+- Footer note about pending approval
+
+### No frontend changes required
+The automation is entirely backend. The existing Super Admin CRM already has the approval workflow.
+
