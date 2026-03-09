@@ -75,30 +75,6 @@ const HowItWorks = () => (
       </div>
     </section>
 
-    {/* Phone visual breather */}
-    <section className="py-28 lg:py-36">
-      <div className="container">
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7, ease }}
-          className="text-3xl md:text-4xl font-bold text-center mb-16 tracking-tight"
-        >
-          What it feels like
-        </motion.h2>
-        <div className="flex flex-col md:flex-row justify-center items-center md:items-start max-w-3xl mx-auto">
-          <div className="text-center md:rotate-[-3deg] md:z-10 md:-mr-6">
-            <PhoneNotification variant="business" />
-            <p className="mt-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">Business gets the lead</p>
-          </div>
-          <div className="text-center md:rotate-[3deg] md:z-0 mt-12 md:mt-0">
-            <PhoneNotification variant="referrer" />
-            <p className="mt-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">Referrer gets paid</p>
-          </div>
-        </div>
-      </div>
-    </section>
 
     {/* CTA */}
     <section className="py-28 lg:py-36 bg-surface">
