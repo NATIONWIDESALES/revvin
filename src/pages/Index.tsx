@@ -218,7 +218,33 @@ const Index = () => {
             <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold text-center mb-16 tracking-tight">
               Which side are you on?
             </motion.h2>
-            <div className="mx-auto grid max-w-3xl gap-8 md:grid-cols-2">
+            <div className="relative mx-auto grid max-w-3xl gap-8 md:grid-cols-2">
+              {/* Stylized arrows between cards - desktop only */}
+              <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <motion.svg
+                    width="48" height="20" viewBox="0 0 48 20" fill="none"
+                    animate={{ x: [0, 4, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <path d="M0 10h40m0 0l-8-7m8 7l-8 7" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.35" />
+                  </motion.svg>
+                  <motion.svg
+                    width="48" height="20" viewBox="0 0 48 20" fill="none"
+                    animate={{ x: [0, -4, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                  >
+                    <path d="M48 10H8m0 0l8-7M8 10l8 7" stroke="hsl(var(--accent))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.35" />
+                  </motion.svg>
+                </motion.div>
+              </div>
+
               <motion.div variants={fadeUp} custom={1} className="glass-card text-center">
                 <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/5">
                   <Building2 className="h-6 w-6 text-primary" />
