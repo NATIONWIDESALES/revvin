@@ -166,14 +166,15 @@ const PhoneNotification = ({ variant }: PhoneNotificationProps) => (
       <div className="flex items-center justify-between px-5 pt-2 pb-3">
         <span className="text-[10px] font-semibold text-foreground">9:41</span>
         <div className="flex items-center gap-1">
-          <div className="h-2.5 w-4 rounded-sm bg-foreground/20" />
-          <div className="h-2.5 w-2.5 rounded-full bg-foreground/20" />
+          <Signal className="h-3 w-3 text-foreground/60" />
+          <Wifi className="h-3 w-3 text-foreground/60" />
+          <Battery className="h-3 w-3 text-foreground/60" />
         </div>
       </div>
       {/* Notch */}
       <div className="mx-auto mb-4 h-6 w-28 rounded-full bg-foreground/5" />
       {/* Content */}
-      <div className="px-2 pb-6 min-h-[260px]">
+      <div className="px-2 pb-6 min-h-[280px]">
         {variant === "business" ? <BusinessNotification /> : <ReferrerNotification />}
       </div>
     </div>
