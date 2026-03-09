@@ -76,7 +76,7 @@ const HowItWorks = () => (
     </section>
 
     {/* From the Founders */}
-    <section className="w-full py-24" style={{ backgroundColor: '#F5F6F7' }}>
+    <section className="w-full py-28 lg:py-36 bg-surface">
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -90,78 +90,47 @@ const HowItWorks = () => (
 
           {/* Eyebrow with lines */}
           <div className="flex items-center gap-4 mt-3">
-            <div className="w-8 h-px" style={{ backgroundColor: 'rgba(0,0,0,0.12)' }} />
-            <span 
-              className="uppercase font-medium"
-              style={{ 
-                fontSize: '11px', 
-                letterSpacing: '0.2em', 
-                color: 'rgba(0,0,0,0.35)' 
-              }}
-            >
+            <div className="w-8 h-px bg-border" />
+            <span className="section-label">
               From the Founders
             </span>
-            <div className="w-8 h-px" style={{ backgroundColor: 'rgba(0,0,0,0.12)' }} />
+            <div className="w-8 h-px bg-border" />
           </div>
 
           {/* Decorative quote */}
-          <div 
-            className="mt-6 text-primary"
-            style={{ fontSize: '64px', lineHeight: 1, opacity: 0.5 }}
-          >
+          <div className="mt-8 text-primary/50 text-6xl leading-none font-serif">
             "
           </div>
 
           {/* Quote body */}
-          <div 
-            className="mt-0 text-center max-w-[680px] mx-auto"
-            style={{ 
-              fontFamily: "'Lora', serif",
-              fontSize: '18px',
-              lineHeight: 1.8,
-              color: '#374151'
-            }}
-          >
-            <p>
+          <div className="mt-2 text-center max-w-2xl mx-auto space-y-6">
+            <p className="text-lg leading-relaxed text-muted-foreground">
               We spent years running paid ads for small businesses and large enterprises. Millions on Facebook, Google, TikTok. Costs kept climbing, quality kept dropping. Every month was a balancing act between sustainability and unpredictability.
             </p>
-            <p className="mt-5">
+            <p className="text-lg leading-relaxed text-muted-foreground">
               The best customers always came from referrals. A neighbor recommending a roofer. A friend texting about their insurance guy. Word of mouth converted better, stayed longer, and cost nothing.
             </p>
-            <p className="mt-5">
+            <p className="text-lg leading-relaxed text-muted-foreground">
               So we built Revvin. Stop paying for unqualified clicks. Start rewarding the people already sending you your best customers. Let businesses decide what a closed deal is actually worth to them.
             </p>
           </div>
 
           {/* Divider */}
-          <div 
-            className="w-full max-w-[680px] mt-6"
-            style={{ height: '1px', backgroundColor: 'rgba(0,0,0,0.08)' }}
-          />
+          <div className="w-full max-w-2xl h-px bg-border mt-10" />
 
           {/* Attribution */}
-          <div className="flex items-center mt-4">
+          <div className="flex items-center mt-6">
             {/* Overlapping avatars */}
-            <div className="flex -space-x-2">
-              <div 
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: '#DCFCE7', color: '#166534', fontWeight: 600, fontSize: '14px' }}
-              >
-                JK
-              </div>
-              <div 
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: '#DCFCE7', color: '#166534', fontWeight: 600, fontSize: '14px' }}
-              >
-                RM
-              </div>
+            <div className="flex -space-x-3">
+              <div className="w-12 h-12 rounded-full bg-primary/10 border-2 border-background" />
+              <div className="w-12 h-12 rounded-full bg-primary/20 border-2 border-background" />
             </div>
             {/* Names */}
-            <div className="ml-3">
-              <div style={{ color: '#111827', fontWeight: 600, fontSize: '14px' }}>
+            <div className="ml-4">
+              <div className="text-foreground font-semibold text-base">
                 The Revvin Team
               </div>
-              <div style={{ color: 'rgba(0,0,0,0.4)', fontSize: '13px' }}>
+              <div className="text-muted-foreground text-sm">
                 Founders
               </div>
             </div>
