@@ -296,6 +296,109 @@ const AdminDashboard = () => {
               </div>
             </TabsContent>
 
+            {/* OFFERS TAB */}
+            <TabsContent value="offers">
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-display text-base font-bold flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> Offer Approval Queue</h2>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Input placeholder="Search offers..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 h-9 w-64" />
+                  </div>
+                </div>
+                
+                {pendingOfferApprovals === 0 && searchQuery === "" ? (
+                  <div className="py-10 text-center"><CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-50" /><p className="text-sm text-muted-foreground">No offers awaiting approval</p></div>
+                ) : (
+                  <div className="space-y-3">
+                    {offers
+                      .filter(o => searchQuery === "" ? o.approval_status === "pending" : o.title.toLowerCase().includes(searchQuery.toLowerCase()) || o.businesses?.name?.toLowerCase().includes(searchQuery.toLowerCase()))
+                      .map((offer) => {
+                        const isPending = offer.approval_status === "pending";
+                        return (
+                          <div key={offer.id} className={`rounded-xl border p-4 ${isPending ? "border-accent bg-accent/5" : "border-border bg-muted/30"}`}>
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <p className="font-medium">{offer.title}</p>
+                                  {isPending && <Badge variant="secondary" className="bg-accent/10 text-accent-foreground border-0">Pending Review</Badge>}
+                                  {offer.approval_status === "approved" && <Badge variant="default" className="bg-earnings/10 text-earnings border-0">Approved</Badge>}
+                                  {offer.approval_status === "rejected" && <Badge variant="destructive" className="border-0">Rejected</Badge>}
+                                </div>
+                                <p className="text-xs text-muted-foreground mb-2">{offer.businesses?.name ?? "Unknown Business"} • {offer.category} • Payout: ${offer.payout} {offer.payout_type}</p>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                  <Badge variant="outline" className={offer.status === "active" ? "border-earnings text-earnings" : "border-muted-foreground"}>{offer.status}</Badge>
+                                  <span>Created {new Date(offer.created_at).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+                              {isPending && (
+                                <div className="flex gap-2">
+                                  <Button size="sm" variant="default" onClick={() => approveOffer(offer.id)} className="gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Approve</Button>
+                                  <Button size="sm" variant="destructive" onClick={() => rejectOffer(offer.id)} className="gap-1"><XCircle className="h-3.5 w-3.5" /> Reject</Button>
+                                </div>
+                              )}
+                              {offer.approval_status !== "pending" && (
+                                <Button size="sm" variant="outline" onClick={() => freezeOffer(offer.id)} className="gap-1">
+                                  {offer.status === "active" ? <><Pause className="h-3.5 w-3.5" /> Pause</> : <><Play className="h-3.5 w-3.5" /> Activate</>}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            {/* DISPUTES TAB */}
+            <TabsContent value="disputes">
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <h2 className="font-display text-base font-bold mb-4 flex items-center gap-2"><Scale className="h-4 w-4 text-accent-foreground" /> Dispute Resolution Queue</h2>
+                {disputedReferrals === 0 ? (
+                  <div className="py-10 text-center"><CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-50" /><p className="text-sm text-muted-foreground">No disputed referrals</p></div>
+                ) : (
+                  <div className="space-y-4">
+                    {referrals.filter(r => r.status === "disputed").map((ref) => (
+                      <div key={ref.id} className="rounded-xl border border-accent bg-accent/5 p-4">
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <p className="font-medium">{ref.customer_name}</p>
+                            <p className="text-xs text-muted-foreground">{ref.offers?.title ?? "—"} • {ref.businesses?.name ?? "—"}</p>
+                            <Badge className="mt-2 bg-accent/10 text-accent-foreground border-0">Disputed</Badge>
+                          </div>
+                          <div className="text-right text-xs text-muted-foreground">
+                            <p>Payout: ${ref.payout_snapshot ?? ref.offers?.payout ?? 0}</p>
+                            <p>Submitted {new Date(ref.created_at).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                        {ref.notes && (
+                          <div className="mb-3 p-3 rounded-lg bg-muted/50 text-sm">
+                            <p className="text-xs text-muted-foreground mb-1 font-medium">Referrer Notes:</p>
+                            <p>{ref.notes}</p>
+                          </div>
+                        )}
+                        <div className="space-y-2">
+                          <Textarea
+                            placeholder="Resolution notes (optional)..."
+                            value={disputeNotes[ref.id] ?? ""}
+                            onChange={(e) => setDisputeNotes(prev => ({ ...prev, [ref.id]: e.target.value }))}
+                            className="text-sm"
+                            rows={2}
+                          />
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="default" onClick={() => resolveDispute(ref.id, "won", disputeNotes[ref.id] ?? "")} className="gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Resolve as Won</Button>
+                            <Button size="sm" variant="outline" onClick={() => resolveDispute(ref.id, "qualified", disputeNotes[ref.id] ?? "")} className="gap-1">Revert to Qualified</Button>
+                            <Button size="sm" variant="destructive" onClick={() => resolveDispute(ref.id, "declined", disputeNotes[ref.id] ?? "")} className="gap-1"><XCircle className="h-3.5 w-3.5" /> Decline</Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
             {/* VERIFICATION TAB */}
             <TabsContent value="verification">
               <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
