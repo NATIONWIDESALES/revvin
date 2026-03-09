@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, LayoutDashboard, UserCircle } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, UserCircle, Settings } from "lucide-react";
 import revvinLogo from "@/assets/revvin-logo.png";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";

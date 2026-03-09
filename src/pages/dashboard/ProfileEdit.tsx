@@ -160,11 +160,13 @@ const ProfileEdit = () => {
               </div>
 
               <div>
-                <Label>Avatar URL</Label>
-                <Input value={form.avatar_url} onChange={(e) => update("avatar_url", e.target.value)} placeholder="https://..." className="mt-1" />
-                {form.avatar_url && (
-                  <img src={form.avatar_url} alt="Avatar preview" className="mt-2 h-16 w-16 rounded-full object-cover border border-border" />
-                )}
+                <Label>Avatar</Label>
+                <div className="mt-2">
+                  <AvatarUpload
+                    currentUrl={form.avatar_url}
+                    onUploaded={(url) => update("avatar_url", url)}
+                  />
+                </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">

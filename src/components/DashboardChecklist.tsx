@@ -63,7 +63,7 @@ const DashboardChecklist = ({ title, items }: DashboardChecklistProps) => {
             size="sm"
             className="text-xs h-7 w-7 p-0"
             aria-label="Dismiss checklist"
-            onClick={() => setDismissed(true)}
+            onClick={handleDismiss}
           >
             <X className="h-3.5 w-3.5" />
           </Button>
