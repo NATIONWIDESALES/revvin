@@ -51,6 +51,8 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [payoutMethod, setPayoutMethod] = useState("");
   const [payoutRef, setPayoutRef] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [disputeNotes, setDisputeNotes] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!user) return;
