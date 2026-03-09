@@ -131,64 +131,64 @@ const ReferrerScreen = () => (
     <StatusBar />
     
     {/* App Header */}
-    <div className="flex items-center justify-between px-4 py-3 mt-[46px]">
+    <div className="flex items-center justify-between px-4 py-2 mt-4">
       <div className="flex items-center gap-2">
         <RevvinLogo />
-        <span className="text-[17px] font-bold text-black">Revvin</span>
+        <span className="text-[15px] font-bold text-black">Revvin</span>
       </div>
-      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-        <span className="text-[12px] text-white font-bold">JK</span>
+      <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
+        <span className="text-[11px] text-white font-bold">JK</span>
       </div>
     </div>
 
     {/* Hero Earnings Block */}
-    <div className="px-4 mt-6 text-center">
-      <p className="text-[13px] font-medium text-gray-500">Total Earned</p>
-      <p className="text-[42px] font-extrabold text-[#111111] mt-1">$2,340</p>
-      <div className="inline-flex items-center gap-1 mt-2 px-3 py-1 rounded-full text-[12px] font-semibold text-primary" style={{ backgroundColor: '#DCFCE7' }}>
+    <div className="px-4 mt-4 text-center">
+      <p className="text-[11px] font-medium text-gray-500">Total Earned</p>
+      <p className="text-[36px] font-extrabold text-[#111111] mt-0.5">$2,340</p>
+      <div className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[11px] font-semibold text-primary" style={{ backgroundColor: '#DCFCE7' }}>
         <span>↑</span>
         <span>$500 this week</span>
       </div>
     </div>
 
     {/* Action Buttons */}
-    <div className="flex gap-2 px-4 mt-6">
-      <button className="flex-1 py-3 rounded-xl bg-primary text-white text-[14px] font-semibold">Withdraw</button>
-      <button className="flex-1 py-3 rounded-xl border-2 border-primary text-primary text-[14px] font-semibold">Share Link</button>
+    <div className="flex gap-2 px-4 mt-4">
+      <button className="flex-1 py-2 rounded-lg bg-primary text-white text-[12px] font-semibold">Withdraw</button>
+      <button className="flex-1 py-2 rounded-lg border-2 border-primary text-primary text-[12px] font-semibold">Share Link</button>
     </div>
 
     {/* Recent Payouts Section */}
-    <div className="px-4 mt-6">
-      <h3 className="text-[16px] font-bold text-black">Recent Payouts</h3>
+    <div className="px-4 mt-4">
+      <h3 className="text-[14px] font-bold text-black">Recent Payouts</h3>
     </div>
 
     {/* Transaction Rows */}
-    <div className="px-4 mt-3 space-y-0">
+    <div className="px-4 mt-2 space-y-0">
       {[
         { name: "Peak Roofing Co.", time: "Closed · 2 min ago", amount: "+$500" },
         { name: "Metro Insurance", time: "Closed · 1 day ago", amount: "+$450" },
         { name: "Sunrise HVAC", time: "Closed · 3 days ago", amount: "+$350" },
       ].map((tx, i) => (
-        <div key={i} className="flex items-center gap-3 py-3 border-b border-gray-100 last:border-b-0">
-          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-            <DollarSign className="h-4 w-4 text-primary" />
+        <div key={i} className="flex items-center gap-2 py-2 border-b border-gray-100 last:border-b-0">
+          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <DollarSign className="h-3.5 w-3.5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[14px] font-semibold text-black">{tx.name}</p>
-            <p className="text-[12px] text-gray-500">{tx.time}</p>
+            <p className="text-[13px] font-semibold text-black">{tx.name}</p>
+            <p className="text-[11px] text-gray-500">{tx.time}</p>
           </div>
-          <span className="text-[14px] font-bold text-primary">{tx.amount}</span>
+          <span className="text-[13px] font-bold text-primary">{tx.amount}</span>
         </div>
       ))}
     </div>
 
     {/* Progress Card */}
-    <div className="mx-4 mt-4 p-4 rounded-xl" style={{ backgroundColor: '#F0FAF4' }}>
-      <p className="text-[14px] font-bold text-black">6 referrals closed this month</p>
-      <div className="mt-2 h-2 bg-primary/20 rounded-full overflow-hidden">
+    <div className="mx-4 mt-3 p-3 rounded-xl" style={{ backgroundColor: '#F0FAF4' }}>
+      <p className="text-[13px] font-bold text-black">6 referrals closed this month</p>
+      <div className="mt-1.5 h-1.5 bg-primary/20 rounded-full overflow-hidden">
         <div className="h-full w-[60%] bg-primary rounded-full" />
       </div>
-      <p className="text-[12px] text-gray-500 mt-2">4 more to hit your $500 bonus</p>
+      <p className="text-[11px] text-gray-500 mt-1.5">4 more to hit your $500 bonus</p>
     </div>
 
     <div className="flex-1" />
