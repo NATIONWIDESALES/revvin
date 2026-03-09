@@ -136,6 +136,24 @@ const AdminDashboard = () => {
     toast({ title: "Offer approved" });
   };
 
+  const rejectOffer = async (offerId: string) => {
+    const { error } = await supabase.from("offers").update({ approval_status: "rejected", status: "paused" }).eq("id", offerId);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    setOffers(prev => prev.map(o => o.id === offerId ? { ...o, approval_status: "rejected", status: "paused" } : o));
+    toast({ title: "Offer rejected and paused" });
+  };
+
+  const resolveDispute = async (referralId: string, newStatus: string, notes: string) => {
+    const updates: any = { status: newStatus };
+    if (notes) updates.notes = notes;
+    const { error } = await supabase.from("referrals").update(updates).eq("id", referralId);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    setReferrals(prev => prev.map(r => r.id === referralId ? { ...r, ...updates } : r));
+    if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: "dispute_resolved", p_referral_id: referralId, p_payload: { resolution: newStatus, notes } });
+    toast({ title: "Dispute resolved", description: `Referral status changed to ${newStatus}` });
+    setDisputeNotes(prev => ({ ...prev, [referralId]: "" }));
+  };
+
   const updatePayoutStatus = async (payoutId: string, status: string, method?: string, providerRef?: string) => {
     const updates: any = { status, updated_at: new Date().toISOString() };
     if (status === "paid") { updates.paid_at = new Date().toISOString(); updates.processed_by = user?.id; }
