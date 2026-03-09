@@ -53,7 +53,7 @@ const BusinessScreen = () => (
           <div className="w-1.5 h-1.5 rounded-full bg-primary" />
           <div className="absolute inset-0 w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
         </div>
-        <span className="text-[12px] font-semibold text-primary">3 new leads today</span>
+        <span className="text-[12px] font-semibold text-primary">3 new leads today · $24,700 pipeline</span>
       </div>
       <ChevronRight className="h-3 w-3 text-primary" />
     </div>
@@ -75,11 +75,11 @@ const BusinessScreen = () => (
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-semibold text-black">Residential Roofing</p>
-            <p className="text-[11px] text-gray-500">Sarah M. — referred by James K.</p>
+            <p className="text-[11px] text-gray-500 mt-0.5">Sarah M. — referred by James K.</p>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-          <span className="text-[13px] font-bold text-primary">$500 payout</span>
+        <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
+          <span className="text-[13px] font-bold text-black">$12,000 <span className="text-[11px] font-medium text-gray-400">est. deal</span></span>
           <button className="px-3 py-1 rounded-lg bg-primary text-white text-[11px] font-semibold">Review</button>
         </div>
       </div>
@@ -93,11 +93,11 @@ const BusinessScreen = () => (
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-semibold text-black">Roof Repair</p>
-            <p className="text-[11px] text-gray-500">Mike T. — referred by Dana R.</p>
+            <p className="text-[11px] text-gray-500 mt-0.5">Mike T. — referred by Dana R.</p>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-          <span className="text-[13px] font-bold text-primary">$350 payout</span>
+        <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
+          <span className="text-[13px] font-bold text-black">$4,500 <span className="text-[11px] font-medium text-gray-400">est. deal</span></span>
           <button className="px-3 py-1 rounded-lg bg-primary text-white text-[11px] font-semibold">Review</button>
         </div>
       </div>
@@ -111,11 +111,11 @@ const BusinessScreen = () => (
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-semibold text-black">New Roof Quote</p>
-            <p className="text-[11px] text-gray-500">Chris L. — referred by Alex P.</p>
+            <p className="text-[11px] text-gray-500 mt-0.5">Chris L. — referred by Alex P.</p>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-          <span className="text-[13px] font-bold text-gray-400">$400 payout</span>
+        <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
+          <span className="text-[13px] font-bold text-gray-400">$8,200 <span className="text-[11px] font-medium">est. deal</span></span>
           <button className="px-3 py-1 rounded-lg bg-gray-200 text-gray-500 text-[11px] font-semibold">Reviewing</button>
         </div>
       </div>
