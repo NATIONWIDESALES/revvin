@@ -121,7 +121,7 @@ const Index = () => {
       </section>
 
       {/* Phone Mockups */}
-      <section className="py-28 lg:py-36">
+      <section className="py-28 lg:py-36" style={{ backgroundColor: '#F5F6F7' }}>
         <div className="container">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
@@ -141,14 +141,14 @@ const Index = () => {
           >
             Real notifications. Real payouts.
           </motion.p>
-          <div className="flex flex-col md:flex-row justify-center items-center md:items-start max-w-3xl mx-auto">
-            <div className="text-center md:rotate-[-3deg] md:z-10 md:-mr-6">
-              <PhoneNotification variant="business" />
-              <p className="mt-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">Business receives a lead</p>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-12 md:gap-0">
+            <div className="text-center">
+              <PhoneMockup variant="business" />
+              <p className="mt-8 text-xs font-medium text-muted-foreground uppercase tracking-[0.15em]">Business receives a lead</p>
             </div>
-            <div className="text-center md:rotate-[3deg] md:z-0 mt-12 md:mt-0">
-              <PhoneNotification variant="referrer" />
-              <p className="mt-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">Referrer gets paid</p>
+            <div className="text-center md:-ml-6">
+              <PhoneMockup variant="referrer" />
+              <p className="mt-8 text-xs font-medium text-muted-foreground uppercase tracking-[0.15em]">Referrer gets paid</p>
             </div>
           </div>
         </div>
