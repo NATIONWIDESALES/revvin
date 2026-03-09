@@ -204,16 +204,25 @@ const AdminDashboard = () => {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6 bg-muted/50 p-1">
+            <TabsList className="mb-6 bg-muted/50 p-1 flex-wrap">
               <TabsTrigger value="overview" className="gap-1"><BarChart3 className="h-3.5 w-3.5" /> Overview</TabsTrigger>
               <TabsTrigger value="verification" className="gap-1 relative">
                 <BadgeCheck className="h-3.5 w-3.5" /> Verification
                 {businesses.filter(b => (b as any).account_status === "pending_approval").length > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-bold">{businesses.filter(b => (b as any).account_status === "pending_approval").length}</span>}
               </TabsTrigger>
+              <TabsTrigger value="offers" className="gap-1 relative">
+                <FileText className="h-3.5 w-3.5" /> Offers
+                {pendingOfferApprovals > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-bold">{pendingOfferApprovals}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="disputes" className="gap-1 relative">
+                <Scale className="h-3.5 w-3.5" /> Disputes
+                {disputedReferrals > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-bold">{disputedReferrals}</span>}
+              </TabsTrigger>
               <TabsTrigger value="payouts" className="gap-1 relative">
                 <DollarSign className="h-3.5 w-3.5" /> Payouts
                 {pendingPayouts > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-bold">{pendingPayouts}</span>}
               </TabsTrigger>
+              <TabsTrigger value="users" className="gap-1"><Users className="h-3.5 w-3.5" /> Users</TabsTrigger>
               <TabsTrigger value="audit" className="gap-1"><History className="h-3.5 w-3.5" /> Audit Log</TabsTrigger>
             </TabsList>
 
