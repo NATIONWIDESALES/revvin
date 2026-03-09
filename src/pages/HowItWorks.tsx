@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -75,6 +75,100 @@ const HowItWorks = () => (
       </div>
     </section>
 
+    {/* From the Founders */}
+    <section className="w-full py-24" style={{ backgroundColor: '#F5F6F7' }}>
+      <div className="container">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7, ease }}
+          className="flex flex-col items-center"
+        >
+          {/* Megaphone icon */}
+          <Megaphone className="h-5 w-5 text-primary" />
+
+          {/* Eyebrow with lines */}
+          <div className="flex items-center gap-4 mt-3">
+            <div className="w-8 h-px" style={{ backgroundColor: 'rgba(0,0,0,0.12)' }} />
+            <span 
+              className="uppercase font-medium"
+              style={{ 
+                fontSize: '11px', 
+                letterSpacing: '0.2em', 
+                color: 'rgba(0,0,0,0.35)' 
+              }}
+            >
+              From the Founders
+            </span>
+            <div className="w-8 h-px" style={{ backgroundColor: 'rgba(0,0,0,0.12)' }} />
+          </div>
+
+          {/* Decorative quote */}
+          <div 
+            className="mt-6 text-primary"
+            style={{ fontSize: '64px', lineHeight: 1, opacity: 0.5 }}
+          >
+            "
+          </div>
+
+          {/* Quote body */}
+          <div 
+            className="mt-0 text-center max-w-[680px] mx-auto"
+            style={{ 
+              fontFamily: "'Lora', serif",
+              fontSize: '18px',
+              lineHeight: 1.8,
+              color: '#374151'
+            }}
+          >
+            <p>
+              We spent years running paid ads for small businesses and large enterprises. Millions on Facebook, Google, TikTok. Costs kept climbing, quality kept dropping. Every month was a balancing act between sustainability and unpredictability.
+            </p>
+            <p className="mt-5">
+              The best customers always came from referrals. A neighbor recommending a roofer. A friend texting about their insurance guy. Word of mouth converted better, stayed longer, and cost nothing.
+            </p>
+            <p className="mt-5">
+              So we built Revvin. Stop paying for unqualified clicks. Start rewarding the people already sending you your best customers. Let businesses decide what a closed deal is actually worth to them.
+            </p>
+          </div>
+
+          {/* Divider */}
+          <div 
+            className="w-full max-w-[680px] mt-6"
+            style={{ height: '1px', backgroundColor: 'rgba(0,0,0,0.08)' }}
+          />
+
+          {/* Attribution */}
+          <div className="flex items-center mt-4">
+            {/* Overlapping avatars */}
+            <div className="flex -space-x-2">
+              <div 
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: '#DCFCE7', color: '#166534', fontWeight: 600, fontSize: '14px' }}
+              >
+                JK
+              </div>
+              <div 
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: '#DCFCE7', color: '#166534', fontWeight: 600, fontSize: '14px' }}
+              >
+                RM
+              </div>
+            </div>
+            {/* Names */}
+            <div className="ml-3">
+              <div style={{ color: '#111827', fontWeight: 600, fontSize: '14px' }}>
+                The Revvin Team
+              </div>
+              <div style={{ color: 'rgba(0,0,0,0.4)', fontSize: '13px' }}>
+                Founders
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
 
     {/* CTA */}
     <section className="py-28 lg:py-36 bg-surface">
