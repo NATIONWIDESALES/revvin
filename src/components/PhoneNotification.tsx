@@ -160,22 +160,37 @@ const PhoneNotification = ({ variant }: PhoneNotificationProps) => (
     transition={{ duration: 0.8, ease }}
     className="mx-auto w-full max-w-[300px]"
   >
-    {/* Phone frame */}
-    <div className="rounded-[2.5rem] border border-border bg-background p-3 shadow-2xl">
-      {/* Status bar */}
-      <div className="flex items-center justify-between px-5 pt-2 pb-3">
-        <span className="text-[10px] font-semibold text-foreground">9:41</span>
-        <div className="flex items-center gap-1">
-          <Signal className="h-3 w-3 text-foreground/60" />
-          <Wifi className="h-3 w-3 text-foreground/60" />
-          <Battery className="h-3 w-3 text-foreground/60" />
+    {/* Outer device shell */}
+    <div className="relative rounded-[3rem] bg-[#1a1a1a] p-[3px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]">
+      {/* Side buttons — left */}
+      <div className="absolute -left-[2.5px] top-[72px] h-5 w-[3px] rounded-l-sm bg-[#2a2a2a]" />
+      <div className="absolute -left-[2.5px] top-[100px] h-8 w-[3px] rounded-l-sm bg-[#2a2a2a]" />
+      <div className="absolute -left-[2.5px] top-[136px] h-8 w-[3px] rounded-l-sm bg-[#2a2a2a]" />
+      {/* Side button — right (power) */}
+      <div className="absolute -right-[2.5px] top-[110px] h-12 w-[3px] rounded-r-sm bg-[#2a2a2a]" />
+
+      {/* Specular highlight / gloss */}
+      <div className="pointer-events-none absolute inset-y-4 left-[1px] w-[6px] rounded-l-[3rem] bg-gradient-to-r from-white/[0.12] to-transparent" />
+
+      {/* Screen area */}
+      <div className="relative overflow-hidden rounded-[2.7rem] bg-white">
+        {/* Dynamic Island */}
+        <div className="absolute top-[10px] left-1/2 -translate-x-1/2 z-20 h-[22px] w-[90px] rounded-full bg-black" />
+
+        {/* Status bar */}
+        <div className="relative z-10 flex items-center justify-between px-7 pt-[14px] pb-1">
+          <span className="text-[11px] font-semibold text-black">9:41</span>
+          <div className="flex items-center gap-[3px]">
+            <Signal className="h-[11px] w-[11px] text-black" />
+            <Wifi className="h-[11px] w-[11px] text-black" />
+            <Battery className="h-[11px] w-[11px] text-black" />
+          </div>
         </div>
-      </div>
-      {/* Notch */}
-      <div className="mx-auto mb-4 h-6 w-28 rounded-full bg-foreground/5" />
-      {/* Content */}
-      <div className="px-2 pb-6 min-h-[280px]">
-        {variant === "business" ? <BusinessNotification /> : <ReferrerNotification />}
+
+        {/* Content */}
+        <div className="px-3 pt-4 pb-8 min-h-[300px]">
+          {variant === "business" ? <BusinessNotification /> : <ReferrerNotification />}
+        </div>
       </div>
     </div>
   </motion.div>

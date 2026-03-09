@@ -1,41 +1,34 @@
 
 
-# Redesign Phone Device Frames
+## Plan: Auto-notify admin when a business signs up
 
-## What Changes
+### Approach
 
-### 1. PhoneNotification.tsx — Replace device shell (lines 155-181)
+Create a new edge function `notify-business-signup` that is triggered by a Supabase database webhook on INSERT to the `businesses` table. When a new business row is created, the function sends an HTML email via Resend to `info@revvin.co` with the business details and a direct link to the Super Admin CRM (`/__sa`).
 
-Replace the current white rounded-rect frame with a realistic iPhone shell:
+### Changes
 
-- **Outer casing**: Dark charcoal (`bg-[#1a1a1a]`) with `rounded-[3rem]`, thick enough to show as a visible bezel (~`p-[3px]`)
-- **Side buttons**: Absolute-positioned thin rectangles on the left (volume up, volume down, silent switch) and right (power button) edges using dark gray with subtle highlights
-- **Screen area**: White `bg-white` inner rounded rect (`rounded-[2.7rem]`) containing all content
-- **Dynamic Island**: Black pill (`bg-black`, `h-[22px] w-[90px] rounded-full`) centered at top of screen, replacing the gray placeholder
-- **Status bar**: Time left, signal/wifi/battery right — rendered in black text on white, positioned below the Dynamic Island
-- **Specular highlight**: A pseudo-element or absolute-positioned div along the left edge — thin vertical gradient from `white/15` to `transparent` — creates a gloss/3D effect
-- **Drop shadow**: `shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]` for a soft, defined lift off the page
+**1. New edge function: `supabase/functions/notify-business-signup/index.ts`**
+- Triggered by a database webhook (no JWT required)
+- Receives the webhook payload containing the new `businesses` row
+- Uses `SUPABASE_SERVICE_ROLE_KEY` to look up the business owner's email and profile name from auth
+- Sends a styled HTML email via Resend from `Revvin <updates@updates.revvin.co>` to `info@revvin.co`
+- Email includes: business name, owner name/email, industry, service area, phone, signup timestamp
+- CTA button links to `https://revvin.lovable.app/__sa` (Super Admin CRM)
+- Logs the notification to `notifications_log` table for audit
 
-### 2. Parent layouts — Overlap & tilt
+**2. Database webhook migration**
+- Create a Supabase database webhook on `INSERT` to `businesses` table that calls the `notify-business-signup` function
+- This ensures the notification fires automatically from the `handle_new_user` trigger's insert into `businesses`
 
-Update the grid containers in **Index.tsx** (line 144), **HowItWorks.tsx** (line 91), **ForReferrers.tsx** (line ~72), and **ForBusinesses.tsx** (line ~86) where two phones appear side-by-side:
+**3. Update `supabase/config.toml`** (if needed)
+- Add `[functions.notify-business-signup]` with `verify_jwt = false` since it's called by a database webhook
 
-- Replace `grid gap-12 md:grid-cols-2` with a `flex justify-center items-center` layout
-- Left phone: `rotate-[-3deg]` with positive `z-10` and slight right margin (`-mr-6`) to create overlap
-- Right phone: `rotate-[3deg]` with `z-0`
-- Labels move below the shared container or remain under each phone with adjusted spacing
+### Email content outline
+- Subject: "New Business Signup: {business_name}"
+- Body: greeting, business details table (name, owner email, industry, city, phone), approve CTA linking to `/__sa`
+- Footer note about pending approval
 
-### 3. Notification content — Untouched
-
-`BusinessNotification` and `ReferrerNotification` components remain exactly as-is.
-
-## Files Modified
-
-| File | Change |
-|------|--------|
-| `src/components/PhoneNotification.tsx` | New device shell with Dynamic Island, side buttons, gloss, shadow |
-| `src/pages/Index.tsx` | Overlap/tilt layout for phone pair |
-| `src/pages/HowItWorks.tsx` | Same overlap/tilt layout |
-| `src/pages/ForReferrers.tsx` | Same overlap/tilt layout |
-| `src/pages/ForBusinesses.tsx` | Single phone — just benefits from new frame, no tilt needed |
+### No frontend changes required
+The automation is entirely backend. The existing Super Admin CRM already has the approval workflow.
 
