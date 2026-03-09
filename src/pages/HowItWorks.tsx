@@ -119,20 +119,12 @@ const HowItWorks = () => (
           <div className="w-full max-w-2xl h-px bg-border mt-10" />
 
           {/* Attribution */}
-          <div className="flex items-center mt-6">
-            {/* Overlapping avatars */}
-            <div className="flex -space-x-3">
-              <div className="w-12 h-12 rounded-full bg-primary/10 border-2 border-background" />
-              <div className="w-12 h-12 rounded-full bg-primary/20 border-2 border-background" />
+          <div className="mt-6 text-center">
+            <div className="text-foreground font-semibold text-base">
+              The Revvin Team
             </div>
-            {/* Names */}
-            <div className="ml-4">
-              <div className="text-foreground font-semibold text-base">
-                The Revvin Team
-              </div>
-              <div className="text-muted-foreground text-sm">
-                Founders
-              </div>
+            <div className="text-muted-foreground text-sm">
+              Founders
             </div>
           </div>
         </motion.div>
