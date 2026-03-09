@@ -1,27 +1,34 @@
 
 
-# Fix Phone Proportions
+## Plan: Auto-notify admin when a business signs up
 
-## Changes to `src/components/PhoneNotification.tsx`
+### Approach
 
-### Aspect ratio & dimensions
-- Set explicit width `w-[280px]` and height `h-[605px]` on the outer shell (280 × 2.16 ≈ 605) to enforce the correct iPhone 14/15 Pro ratio
-- Reduce `max-w` on the wrapper to `280px`
+Create a new edge function `notify-business-signup` that is triggered by a Supabase database webhook on INSERT to the `businesses` table. When a new business row is created, the function sends an HTML email via Resend to `info@revvin.co` with the business details and a direct link to the Super Admin CRM (`/__sa`).
 
-### Border radius
-- Outer shell: `rounded-[3rem]` → `rounded-[44px]`
-- Screen area: `rounded-[2.7rem]` → `rounded-[40px]`
-- Gloss highlight: update to match `rounded-l-[44px]`
+### Changes
 
-### Dynamic Island
-- Shrink from `w-[90px] h-[22px]` → `w-[98px] h-[18px]` (98px ≈ 35% of 280px, shorter vertically)
+**1. New edge function: `supabase/functions/notify-business-signup/index.ts`**
+- Triggered by a database webhook (no JWT required)
+- Receives the webhook payload containing the new `businesses` row
+- Uses `SUPABASE_SERVICE_ROLE_KEY` to look up the business owner's email and profile name from auth
+- Sends a styled HTML email via Resend from `Revvin <updates@updates.revvin.co>` to `info@revvin.co`
+- Email includes: business name, owner name/email, industry, service area, phone, signup timestamp
+- CTA button links to `https://revvin.lovable.app/__sa` (Super Admin CRM)
+- Logs the notification to `notifications_log` table for audit
 
-### Content clipping fix
-- Make the screen content area scrollable: add `overflow-y-auto` on the content div
-- Remove `min-h-[300px]`, let it fill remaining space with `flex-1`
-- Wrap screen area in `flex flex-col` so status bar stays fixed and content scrolls
-- Reduce bottom padding from `pb-8` → `pb-6`
+**2. Database webhook migration**
+- Create a Supabase database webhook on `INSERT` to `businesses` table that calls the `notify-business-signup` function
+- This ensures the notification fires automatically from the `handle_new_user` trigger's insert into `businesses`
 
-### Keep
-- Shadow, tilt angles, side buttons, specular highlight — all unchanged (just radius tweak on gloss)
+**3. Update `supabase/config.toml`** (if needed)
+- Add `[functions.notify-business-signup]` with `verify_jwt = false` since it's called by a database webhook
+
+### Email content outline
+- Subject: "New Business Signup: {business_name}"
+- Body: greeting, business details table (name, owner email, industry, city, phone), approve CTA linking to `/__sa`
+- Footer note about pending approval
+
+### No frontend changes required
+The automation is entirely backend. The existing Super Admin CRM already has the approval workflow.
 
