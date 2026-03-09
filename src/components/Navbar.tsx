@@ -121,6 +121,9 @@ const Navbar = () => {
               <Button size="sm" className="px-5" asChild>
                 <Link to="/auth?mode=signup">Get Started</Link>
               </Button>
+              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ backgroundColor: '#DBEAFE', color: '#2563EB' }}>
+                in beta
+              </span>
             </>
           )}
         </div>
