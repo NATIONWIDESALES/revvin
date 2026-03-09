@@ -7,12 +7,12 @@ const ease = [0.16, 1, 0.3, 1] as const;
 const iosFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif";
 
 const StatusBar = () => (
-  <div className="flex items-center justify-between px-6 pt-[14px]" style={{ fontFamily: iosFont }}>
-    <span className="text-[15px] font-semibold text-black">9:41</span>
+  <div className="flex items-center justify-between px-4 pt-[14px]" style={{ fontFamily: iosFont }}>
+    <span className="text-[13px] font-semibold text-black">9:41</span>
     <div className="flex items-center gap-1">
-      <Signal className="h-[14px] w-[14px] text-black" />
-      <Wifi className="h-[14px] w-[14px] text-black" />
-      <Battery className="h-[14px] w-[14px] text-black" />
+      <Signal className="h-[12px] w-[12px] text-black" />
+      <Wifi className="h-[12px] w-[12px] text-black" />
+      <Battery className="h-[12px] w-[12px] text-black" />
     </div>
   </div>
 );
