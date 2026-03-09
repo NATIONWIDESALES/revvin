@@ -563,6 +563,90 @@ const AdminDashboard = () => {
               </div>
             </TabsContent>
 
+            {/* USERS TAB */}
+            <TabsContent value="users">
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-display text-base font-bold flex items-center gap-2"><Users className="h-4 w-4 text-accent-foreground" /> User Management ({profiles.length})</h2>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Input placeholder="Search users..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 h-9 w-64" />
+                  </div>
+                </div>
+                
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {profiles.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-10 text-center">No users yet</p>
+                  ) : profiles
+                    .filter(p => searchQuery === "" || 
+                      p.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                      p.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      roles.find(r => r.user_id === p.user_id)?.role?.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map((profile) => {
+                      const userRole = roles.find(r => r.user_id === profile.user_id);
+                      const userBusiness = businesses.find(b => b.user_id === profile.user_id);
+                      const userReferrals = referrals.filter(r => r.referrer_id === profile.user_id);
+                      const userOffers = offers.filter(o => o.business_id === userBusiness?.id);
+                      
+                      return (
+                        <div key={profile.id} className="rounded-xl border border-border bg-muted/30 p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-medium">{profile.full_name ?? "Unnamed User"}</p>
+                                <Badge variant={userRole?.role === "business" ? "default" : userRole?.role === "admin" ? "secondary" : "outline"}>
+                                  {userRole?.role ?? "no role"}
+                                </Badge>
+                                {userRole?.role === "business" && userBusiness?.verified && (
+                                  <Badge variant="default" className="bg-earnings/10 text-earnings border-0 gap-1"><BadgeCheck className="h-3 w-3" /> Verified</Badge>
+                                )}
+                              </div>
+                              <div className="text-xs text-muted-foreground space-y-1">
+                                <p>User ID: {profile.user_id.slice(0, 20)}...</p>
+                                {profile.city && <p>Location: {profile.city}{profile.state ? `, ${profile.state}` : ""}</p>}
+                                {profile.phone && <p>Phone: {profile.phone}</p>}
+                                <p>Joined: {new Date(profile.created_at).toLocaleDateString()}</p>
+                                {userRole?.role === "business" && userBusiness && (
+                                  <p className="flex items-center gap-2 mt-2">
+                                    <Badge variant="outline" className="text-[10px]">{userOffers.length} offers</Badge>
+                                    {userBusiness.account_status && (
+                                      <Badge variant={userBusiness.account_status === "approved" ? "default" : "secondary"} className="text-[10px]">
+                                        {userBusiness.account_status}
+                                      </Badge>
+                                    )}
+                                  </p>
+                                )}
+                                {userRole?.role === "referrer" && (
+                                  <p className="mt-2"><Badge variant="outline" className="text-[10px]">{userReferrals.length} referrals</Badge></p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              {userRole?.role === "business" && userBusiness && !userBusiness.verified && (
+                                <Button size="sm" variant="outline" onClick={() => verifyBusiness(userBusiness.id)} className="gap-1 text-xs h-7">
+                                  <BadgeCheck className="h-3 w-3" /> Verify Business
+                                </Button>
+                              )}
+                              {userRole?.role === "business" && userBusiness && userBusiness.account_status === "pending_approval" && (
+                                <>
+                                  <Button size="sm" onClick={() => approveAccount(userBusiness.id)} className="gap-1 text-xs h-7">
+                                    <CheckCircle2 className="h-3 w-3" /> Approve Account
+                                  </Button>
+                                  <Button size="sm" variant="destructive" onClick={() => rejectAccount(userBusiness.id)} className="gap-1 text-xs h-7">
+                                    <XCircle className="h-3 w-3" /> Reject
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            </TabsContent>
+
             {/* AUDIT LOG TAB */}
             <TabsContent value="audit">
               <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
