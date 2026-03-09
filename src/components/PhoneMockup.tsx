@@ -47,21 +47,21 @@ const BusinessScreen = () => (
     </div>
 
     {/* Green Banner */}
-    <div className="mx-4 mt-2 p-4 rounded-xl flex items-center justify-between" style={{ backgroundColor: '#F0FAF4' }}>
+    <div className="mx-4 mt-2 p-3 rounded-xl flex items-center justify-between" style={{ backgroundColor: '#F0FAF4' }}>
       <div className="flex items-center gap-2">
         <div className="relative">
-          <div className="w-2 h-2 rounded-full bg-primary" />
-          <div className="absolute inset-0 w-2 h-2 rounded-full bg-primary animate-ping" />
+          <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+          <div className="absolute inset-0 w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
         </div>
-        <span className="text-[14px] font-semibold text-primary">3 new leads today</span>
+        <span className="text-[12px] font-semibold text-primary">3 new leads today</span>
       </div>
-      <ChevronRight className="h-4 w-4 text-primary" />
+      <ChevronRight className="h-3 w-3 text-primary" />
     </div>
 
     {/* Section Heading */}
-    <div className="px-4 mt-5">
-      <h2 className="text-[18px] font-bold text-black">Incoming Leads</h2>
-      <p className="text-[13px] text-gray-500 mt-0.5">Tap to review and claim</p>
+    <div className="px-4 mt-3">
+      <h2 className="text-[16px] font-bold text-black">Incoming Leads</h2>
+      <p className="text-[11px] text-gray-500 mt-0.5">Tap to review and claim</p>
     </div>
 
     {/* Lead Cards */}
