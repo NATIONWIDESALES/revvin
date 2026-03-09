@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -51,6 +52,8 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [payoutMethod, setPayoutMethod] = useState("");
   const [payoutRef, setPayoutRef] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [disputeNotes, setDisputeNotes] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!user) return;
@@ -84,6 +87,8 @@ const AdminDashboard = () => {
   const activeOffers = offers.filter(o => o.status === "active").length;
   const conversionRate = referrals.length > 0 ? Math.round((wonDeals / referrals.length) * 100) : 0;
   const pendingPayouts = payouts.filter(p => p.status === "ready" || p.status === "processing").length;
+  const pendingOfferApprovals = offers.filter(o => o.approval_status === "pending").length;
+  const disputedReferrals = referrals.filter(r => r.status === "disputed").length;
 
   const stats = [
     { label: "Businesses", value: totalBusinesses.toString(), icon: Building2, color: "text-primary", bgColor: "bg-primary/10" },
@@ -134,6 +139,24 @@ const AdminDashboard = () => {
     toast({ title: "Offer approved" });
   };
 
+  const rejectOffer = async (offerId: string) => {
+    const { error } = await supabase.from("offers").update({ approval_status: "rejected", status: "paused" }).eq("id", offerId);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    setOffers(prev => prev.map(o => o.id === offerId ? { ...o, approval_status: "rejected", status: "paused" } : o));
+    toast({ title: "Offer rejected and paused" });
+  };
+
+  const resolveDispute = async (referralId: string, newStatus: string, notes: string) => {
+    const updates: any = { status: newStatus };
+    if (notes) updates.notes = notes;
+    const { error } = await supabase.from("referrals").update(updates).eq("id", referralId);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    setReferrals(prev => prev.map(r => r.id === referralId ? { ...r, ...updates } : r));
+    if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: "dispute_resolved", p_referral_id: referralId, p_payload: { resolution: newStatus, notes } });
+    toast({ title: "Dispute resolved", description: `Referral status changed to ${newStatus}` });
+    setDisputeNotes(prev => ({ ...prev, [referralId]: "" }));
+  };
+
   const updatePayoutStatus = async (payoutId: string, status: string, method?: string, providerRef?: string) => {
     const updates: any = { status, updated_at: new Date().toISOString() };
     if (status === "paid") { updates.paid_at = new Date().toISOString(); updates.processed_by = user?.id; }
@@ -182,16 +205,25 @@ const AdminDashboard = () => {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6 bg-muted/50 p-1">
+            <TabsList className="mb-6 bg-muted/50 p-1 flex-wrap">
               <TabsTrigger value="overview" className="gap-1"><BarChart3 className="h-3.5 w-3.5" /> Overview</TabsTrigger>
               <TabsTrigger value="verification" className="gap-1 relative">
                 <BadgeCheck className="h-3.5 w-3.5" /> Verification
                 {businesses.filter(b => (b as any).account_status === "pending_approval").length > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-bold">{businesses.filter(b => (b as any).account_status === "pending_approval").length}</span>}
               </TabsTrigger>
+              <TabsTrigger value="offers" className="gap-1 relative">
+                <FileText className="h-3.5 w-3.5" /> Offers
+                {pendingOfferApprovals > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-bold">{pendingOfferApprovals}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="disputes" className="gap-1 relative">
+                <Scale className="h-3.5 w-3.5" /> Disputes
+                {disputedReferrals > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-bold">{disputedReferrals}</span>}
+              </TabsTrigger>
               <TabsTrigger value="payouts" className="gap-1 relative">
                 <DollarSign className="h-3.5 w-3.5" /> Payouts
                 {pendingPayouts > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-bold">{pendingPayouts}</span>}
               </TabsTrigger>
+              <TabsTrigger value="users" className="gap-1"><Users className="h-3.5 w-3.5" /> Users</TabsTrigger>
               <TabsTrigger value="audit" className="gap-1"><History className="h-3.5 w-3.5" /> Audit Log</TabsTrigger>
             </TabsList>
 
@@ -260,6 +292,109 @@ const AdminDashboard = () => {
                         );
                       })}</tbody>
                     </table>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            {/* OFFERS TAB */}
+            <TabsContent value="offers">
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-display text-base font-bold flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> Offer Approval Queue</h2>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Input placeholder="Search offers..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 h-9 w-64" />
+                  </div>
+                </div>
+                
+                {pendingOfferApprovals === 0 && searchQuery === "" ? (
+                  <div className="py-10 text-center"><CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-50" /><p className="text-sm text-muted-foreground">No offers awaiting approval</p></div>
+                ) : (
+                  <div className="space-y-3">
+                    {offers
+                      .filter(o => searchQuery === "" ? o.approval_status === "pending" : o.title.toLowerCase().includes(searchQuery.toLowerCase()) || o.businesses?.name?.toLowerCase().includes(searchQuery.toLowerCase()))
+                      .map((offer) => {
+                        const isPending = offer.approval_status === "pending";
+                        return (
+                          <div key={offer.id} className={`rounded-xl border p-4 ${isPending ? "border-accent bg-accent/5" : "border-border bg-muted/30"}`}>
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <p className="font-medium">{offer.title}</p>
+                                  {isPending && <Badge variant="secondary" className="bg-accent/10 text-accent-foreground border-0">Pending Review</Badge>}
+                                  {offer.approval_status === "approved" && <Badge variant="default" className="bg-earnings/10 text-earnings border-0">Approved</Badge>}
+                                  {offer.approval_status === "rejected" && <Badge variant="destructive" className="border-0">Rejected</Badge>}
+                                </div>
+                                <p className="text-xs text-muted-foreground mb-2">{offer.businesses?.name ?? "Unknown Business"} • {offer.category} • Payout: ${offer.payout} {offer.payout_type}</p>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                  <Badge variant="outline" className={offer.status === "active" ? "border-earnings text-earnings" : "border-muted-foreground"}>{offer.status}</Badge>
+                                  <span>Created {new Date(offer.created_at).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+                              {isPending && (
+                                <div className="flex gap-2">
+                                  <Button size="sm" variant="default" onClick={() => approveOffer(offer.id)} className="gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Approve</Button>
+                                  <Button size="sm" variant="destructive" onClick={() => rejectOffer(offer.id)} className="gap-1"><XCircle className="h-3.5 w-3.5" /> Reject</Button>
+                                </div>
+                              )}
+                              {offer.approval_status !== "pending" && (
+                                <Button size="sm" variant="outline" onClick={() => freezeOffer(offer.id)} className="gap-1">
+                                  {offer.status === "active" ? <><Pause className="h-3.5 w-3.5" /> Pause</> : <><Play className="h-3.5 w-3.5" /> Activate</>}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            {/* DISPUTES TAB */}
+            <TabsContent value="disputes">
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <h2 className="font-display text-base font-bold mb-4 flex items-center gap-2"><Scale className="h-4 w-4 text-accent-foreground" /> Dispute Resolution Queue</h2>
+                {disputedReferrals === 0 ? (
+                  <div className="py-10 text-center"><CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-50" /><p className="text-sm text-muted-foreground">No disputed referrals</p></div>
+                ) : (
+                  <div className="space-y-4">
+                    {referrals.filter(r => r.status === "disputed").map((ref) => (
+                      <div key={ref.id} className="rounded-xl border border-accent bg-accent/5 p-4">
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <p className="font-medium">{ref.customer_name}</p>
+                            <p className="text-xs text-muted-foreground">{ref.offers?.title ?? "—"} • {ref.businesses?.name ?? "—"}</p>
+                            <Badge className="mt-2 bg-accent/10 text-accent-foreground border-0">Disputed</Badge>
+                          </div>
+                          <div className="text-right text-xs text-muted-foreground">
+                            <p>Payout: ${ref.payout_snapshot ?? ref.offers?.payout ?? 0}</p>
+                            <p>Submitted {new Date(ref.created_at).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                        {ref.notes && (
+                          <div className="mb-3 p-3 rounded-lg bg-muted/50 text-sm">
+                            <p className="text-xs text-muted-foreground mb-1 font-medium">Referrer Notes:</p>
+                            <p>{ref.notes}</p>
+                          </div>
+                        )}
+                        <div className="space-y-2">
+                          <Textarea
+                            placeholder="Resolution notes (optional)..."
+                            value={disputeNotes[ref.id] ?? ""}
+                            onChange={(e) => setDisputeNotes(prev => ({ ...prev, [ref.id]: e.target.value }))}
+                            className="text-sm"
+                            rows={2}
+                          />
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="default" onClick={() => resolveDispute(ref.id, "won", disputeNotes[ref.id] ?? "")} className="gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Resolve as Won</Button>
+                            <Button size="sm" variant="outline" onClick={() => resolveDispute(ref.id, "qualified", disputeNotes[ref.id] ?? "")} className="gap-1">Revert to Qualified</Button>
+                            <Button size="sm" variant="destructive" onClick={() => resolveDispute(ref.id, "declined", disputeNotes[ref.id] ?? "")} className="gap-1"><XCircle className="h-3.5 w-3.5" /> Decline</Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -424,6 +559,90 @@ const AdminDashboard = () => {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* USERS TAB */}
+            <TabsContent value="users">
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-display text-base font-bold flex items-center gap-2"><Users className="h-4 w-4 text-accent-foreground" /> User Management ({profiles.length})</h2>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Input placeholder="Search users..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 h-9 w-64" />
+                  </div>
+                </div>
+                
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {profiles.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-10 text-center">No users yet</p>
+                  ) : profiles
+                    .filter(p => searchQuery === "" || 
+                      p.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                      p.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      roles.find(r => r.user_id === p.user_id)?.role?.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map((profile) => {
+                      const userRole = roles.find(r => r.user_id === profile.user_id);
+                      const userBusiness = businesses.find(b => b.user_id === profile.user_id);
+                      const userReferrals = referrals.filter(r => r.referrer_id === profile.user_id);
+                      const userOffers = offers.filter(o => o.business_id === userBusiness?.id);
+                      
+                      return (
+                        <div key={profile.id} className="rounded-xl border border-border bg-muted/30 p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-medium">{profile.full_name ?? "Unnamed User"}</p>
+                                <Badge variant={userRole?.role === "business" ? "default" : userRole?.role === "admin" ? "secondary" : "outline"}>
+                                  {userRole?.role ?? "no role"}
+                                </Badge>
+                                {userRole?.role === "business" && userBusiness?.verified && (
+                                  <Badge variant="default" className="bg-earnings/10 text-earnings border-0 gap-1"><BadgeCheck className="h-3 w-3" /> Verified</Badge>
+                                )}
+                              </div>
+                              <div className="text-xs text-muted-foreground space-y-1">
+                                <p>User ID: {profile.user_id.slice(0, 20)}...</p>
+                                {profile.city && <p>Location: {profile.city}{profile.state ? `, ${profile.state}` : ""}</p>}
+                                {profile.phone && <p>Phone: {profile.phone}</p>}
+                                <p>Joined: {new Date(profile.created_at).toLocaleDateString()}</p>
+                                {userRole?.role === "business" && userBusiness && (
+                                  <p className="flex items-center gap-2 mt-2">
+                                    <Badge variant="outline" className="text-[10px]">{userOffers.length} offers</Badge>
+                                    {userBusiness.account_status && (
+                                      <Badge variant={userBusiness.account_status === "approved" ? "default" : "secondary"} className="text-[10px]">
+                                        {userBusiness.account_status}
+                                      </Badge>
+                                    )}
+                                  </p>
+                                )}
+                                {userRole?.role === "referrer" && (
+                                  <p className="mt-2"><Badge variant="outline" className="text-[10px]">{userReferrals.length} referrals</Badge></p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              {userRole?.role === "business" && userBusiness && !userBusiness.verified && (
+                                <Button size="sm" variant="outline" onClick={() => verifyBusiness(userBusiness.id)} className="gap-1 text-xs h-7">
+                                  <BadgeCheck className="h-3 w-3" /> Verify Business
+                                </Button>
+                              )}
+                              {userRole?.role === "business" && userBusiness && userBusiness.account_status === "pending_approval" && (
+                                <>
+                                  <Button size="sm" onClick={() => approveAccount(userBusiness.id)} className="gap-1 text-xs h-7">
+                                    <CheckCircle2 className="h-3 w-3" /> Approve Account
+                                  </Button>
+                                  <Button size="sm" variant="destructive" onClick={() => rejectAccount(userBusiness.id)} className="gap-1 text-xs h-7">
+                                    <XCircle className="h-3 w-3" /> Reject
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             </TabsContent>

@@ -1,62 +1,34 @@
 
-# Missing App Flow Analysis
 
-After exploring the codebase, I've identified several missing pieces and placeholder content that break the complete user experience:
+## Plan: Auto-notify admin when a business signs up
 
-## Critical Missing Authentication Components
+### Approach
 
-**Sign-up Role Selection Flow**: The app has role-based dashboards (business, referrer, admin) but lacks a proper sign-up flow where users can choose their role. The Auth page exists but doesn't handle role assignment during registration.
+Create a new edge function `notify-business-signup` that is triggered by a Supabase database webhook on INSERT to the `businesses` table. When a new business row is created, the function sends an HTML email via Resend to `info@revvin.co` with the business details and a direct link to the Super Admin CRM (`/__sa`).
 
-**Email Verification**: Auth system is configured but email verification flow is not implemented - users can sign up but may not verify emails properly.
+### Changes
 
-## Missing Core Business Features
+**1. New edge function: `supabase/functions/notify-business-signup/index.ts`**
+- Triggered by a database webhook (no JWT required)
+- Receives the webhook payload containing the new `businesses` row
+- Uses `SUPABASE_SERVICE_ROLE_KEY` to look up the business owner's email and profile name from auth
+- Sends a styled HTML email via Resend from `Revvin <updates@updates.revvin.co>` to `info@revvin.co`
+- Email includes: business name, owner name/email, industry, service area, phone, signup timestamp
+- CTA button links to `https://revvin.lovable.app/__sa` (Super Admin CRM)
+- Logs the notification to `notifications_log` table for audit
 
-**Offer Creation Funding Gate**: Businesses must pay a deposit before creating offers (deposit_status = 'required' in schema) but the Stripe deposit flow in CreateOffer page is incomplete - missing actual payment processing.
+**2. Database webhook migration**
+- Create a Supabase database webhook on `INSERT` to `businesses` table that calls the `notify-business-signup` function
+- This ensures the notification fires automatically from the `handle_new_user` trigger's insert into `businesses`
 
-**Referral Submission Form**: Referrers can view offers but there's no way to actually submit referrals. The ReferrerDashboard shows stats but no "Submit Referral" functionality exists.
+**3. Update `supabase/config.toml`** (if needed)
+- Add `[functions.notify-business-signup]` with `verify_jwt = false` since it's called by a database webhook
 
-**File Upload for Referrals**: Database has file_url column for referrals but no file upload component is implemented.
+### Email content outline
+- Subject: "New Business Signup: {business_name}"
+- Body: greeting, business details table (name, owner email, industry, city, phone), approve CTA linking to `/__sa`
+- Footer note about pending approval
 
-## Placeholder Dashboard Content
+### No frontend changes required
+The automation is entirely backend. The existing Super Admin CRM already has the approval workflow.
 
-**Business Dashboard**: Shows mock metrics and charts with hardcoded data rather than real business analytics from the database.
-
-**Admin Dashboard**: Exists but with minimal functionality - missing user management, offer approval workflows, and system oversight tools.
-
-**Notification System**: Database has notifications table and NotificationBell component exists, but no notification creation or management system.
-
-## Missing User Profile Management
-
-**Profile Completion**: Users can sign up but there's no profile completion flow. The ProfileEdit page exists but profiles table isn't properly populated during registration.
-
-**Business Profile Setup**: Businesses need to complete profiles with location data for map functionality, but this onboarding flow is missing.
-
-## Missing Payment & Payout Systems
-
-**Referrer Payout System**: Database has payouts and wallet_balances tables but no UI for referrers to set up payment methods or track earnings.
-
-**Business Deposit Tracking**: Offers require deposits but no business wallet or deposit tracking interface exists.
-
-## Real-Time Features Not Connected
-
-**Live Notifications**: NotificationBell component exists but isn't connected to real-time updates or the notifications table.
-
-**Real-Time Referral Updates**: Referral status changes aren't reflected in real-time across business and referrer dashboards.
-
-## Geographic Features Incomplete
-
-**Map Integration**: MapView component exists but location-based offer discovery and business placement on map isn't fully functional.
-
-**Location-Based Filtering**: Browse page has basic filtering but doesn't use latitude/longitude data for proximity-based results.
-
-## Implementation Plan
-
-The app needs these core flows to be functional:
-1. **Complete Auth Flow**: Role selection during signup, email verification, profile completion
-2. **Offer Creation Flow**: Stripe deposit payment, offer approval workflow
-3. **Referral Submission Flow**: Form for submitting referrals with file uploads
-4. **Dashboard Data Integration**: Connect all dashboards to real database queries instead of mock data
-5. **Payment Processing**: Complete Stripe integration for deposits and payout management
-6. **Real-Time Updates**: WebSocket/Supabase realtime integration for live notifications
-
-The app has solid foundation architecture but lacks the connecting tissue between user actions and database operations that would make it a functional marketplace.
