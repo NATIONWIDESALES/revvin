@@ -109,6 +109,7 @@ const SuperAdminCRM = () => {
   const [approvingBiz, setApprovingBiz] = useState<string | null>(null);
   const [payoutMethod, setPayoutMethod] = useState("");
   const [payoutRef, setPayoutRef] = useState("");
+  const [tremendousSending, setTremendousSending] = useState<string | null>(null);
 
   // SEO: noindex
   useEffect(() => {
