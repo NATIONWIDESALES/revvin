@@ -646,9 +646,14 @@ const SuperAdminCRM = () => {
                             </div>
                             <div className="flex flex-col items-end gap-2">
                               {payout.status === "ready" && (
-                                <Button size="sm" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "processing")}>
-                                  <Clock className="h-3 w-3" /> Start Processing
-                                </Button>
+                                <div className="flex gap-1">
+                                  <Button size="sm" className="text-xs h-7 gap-1" onClick={() => sendViaTremendous(payout.id)} disabled={tremendousSending === payout.id}>
+                                    {tremendousSending === payout.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />} Send via Tremendous
+                                  </Button>
+                                  <Button size="sm" variant="outline" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "processing")}>
+                                    <Clock className="h-3 w-3" /> Manual
+                                  </Button>
+                                </div>
                               )}
                               {payout.status === "processing" && (
                                 <div className="flex flex-col gap-2">
