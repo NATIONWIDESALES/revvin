@@ -1,34 +1,53 @@
 
 
-## Plan: Auto-notify admin when a business signs up
+## Tremendous Payout Integration
 
-### Approach
+### Current State
+- Payouts table exists with statuses: `ready` → `processing` → `paid`/`failed`
+- Admin manually clicks "Start Processing" → enters method/reference → "Mark Paid"
+- No automated payout delivery — everything is manual
 
-Create a new edge function `notify-business-signup` that is triggered by a Supabase database webhook on INSERT to the `businesses` table. When a new business row is created, the function sends an HTML email via Resend to `info@revvin.co` with the business details and a direct link to the Super Admin CRM (`/__sa`).
+### What We'll Build
 
-### Changes
+**1. Store the Tremendous API key**
+- Use the secrets tool to prompt you for your Tremendous sandbox API key
+- Secret name: `TREMENDOUS_API_KEY`
 
-**1. New edge function: `supabase/functions/notify-business-signup/index.ts`**
-- Triggered by a database webhook (no JWT required)
-- Receives the webhook payload containing the new `businesses` row
-- Uses `SUPABASE_SERVICE_ROLE_KEY` to look up the business owner's email and profile name from auth
-- Sends a styled HTML email via Resend from `Revvin <updates@updates.revvin.co>` to `info@revvin.co`
-- Email includes: business name, owner name/email, industry, service area, phone, signup timestamp
-- CTA button links to `https://revvin.lovable.app/__sa` (Super Admin CRM)
-- Logs the notification to `notifications_log` table for audit
+**2. New edge function: `process-tremendous-payout`**
+- Called from admin UI when clicking "Send via Tremendous"
+- Accepts `payout_id`, validates admin role
+- Looks up payout details (amount, currency) and referrer's payout preference (method + email) from `referrer_payout_preferences`
+- Calls Tremendous API (`POST /api/v2/orders`) to create a reward order
+- Uses the referrer's email as the recipient
+- Supports funding sources from your Tremendous sandbox
+- Updates the `payouts` row: status → `processing`, method → `tremendous`, provider_reference → Tremendous order ID
+- Logs an audit entry
 
-**2. Database webhook migration**
-- Create a Supabase database webhook on `INSERT` to `businesses` table that calls the `notify-business-signup` function
-- This ensures the notification fires automatically from the `handle_new_user` trigger's insert into `businesses`
+**3. New edge function: `tremendous-webhook` (optional, phase 2)**
+- Receives Tremendous webhook callbacks when reward is delivered/claimed
+- Updates payout status to `paid` with delivery timestamp
+- For now, we can poll or manually confirm
 
-**3. Update `supabase/config.toml`** (if needed)
-- Add `[functions.notify-business-signup]` with `verify_jwt = false` since it's called by a database webhook
+**4. Update Admin UI (SuperAdminCRM + AdminDashboard)**
+- Replace the manual "Start Processing" flow with a "Send via Tremendous" button for `ready` payouts
+- Button calls the edge function, shows loading state
+- On success, payout moves to `processing` with the Tremendous reference auto-filled
+- Keep manual fallback option for non-Tremendous payouts
 
-### Email content outline
-- Subject: "New Business Signup: {business_name}"
-- Body: greeting, business details table (name, owner email, industry, city, phone), approve CTA linking to `/__sa`
-- Footer note about pending approval
+**5. Referrer payout preferences update**
+- The existing `referrer_payout_preferences` table stores `method` (interac, eft_ca, ach)
+- Add the referrer's payout email to preferences if not already set (the `email` column already exists)
+- Tremendous will deliver via the method matching the referrer's preference
 
-### No frontend changes required
-The automation is entirely backend. The existing Super Admin CRM already has the approval workflow.
+### Tremendous API Details
+- **Sandbox base URL**: `https://testflight.tremendous.com/api/v2`
+- **Production base URL**: `https://www.tremendous.com/api/v2`
+- **Auth**: `Bearer {API_KEY}`
+- **Create order**: `POST /orders` with products, recipient email, amount, currency
+
+### Implementation Order
+1. Add `TREMENDOUS_API_KEY` secret
+2. Create `process-tremendous-payout` edge function
+3. Update admin UI with "Send via Tremendous" button
+4. Test end-to-end with sandbox
 
