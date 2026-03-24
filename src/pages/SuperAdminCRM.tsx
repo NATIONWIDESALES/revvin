@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Search, CheckCircle2, Clock, AlertTriangle, XCircle, Shield, Building2, Users, DollarSign, Activity, BadgeCheck, History, FileText, Pause, Play, TrendingUp, BarChart3 } from "lucide-react";
+import { ChevronDown, ChevronRight, Search, CheckCircle2, Clock, AlertTriangle, XCircle, Shield, Building2, Users, DollarSign, Activity, BadgeCheck, History, FileText, Pause, Play, TrendingUp, BarChart3, Send, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -109,6 +109,7 @@ const SuperAdminCRM = () => {
   const [approvingBiz, setApprovingBiz] = useState<string | null>(null);
   const [payoutMethod, setPayoutMethod] = useState("");
   const [payoutRef, setPayoutRef] = useState("");
+  const [tremendousSending, setTremendousSending] = useState<string | null>(null);
 
   // SEO: noindex
   useEffect(() => {
@@ -364,6 +365,29 @@ const SuperAdminCRM = () => {
     toast({ title: `Payout marked as ${status}` });
     setPayoutMethod("");
     setPayoutRef("");
+  };
+
+  const sendViaTremendous = async (payoutId: string) => {
+    setTremendousSending(payoutId);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setTremendousSending(null); return; }
+    try {
+      const res = await supabase.functions.invoke("process-tremendous-payout", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { payout_id: payoutId },
+      });
+      if (res.error) {
+        toast({ title: "Tremendous Error", description: res.error.message || "Failed to send payout", variant: "destructive" });
+      } else if (res.data?.error) {
+        toast({ title: "Tremendous Error", description: res.data.error, variant: "destructive" });
+      } else {
+        setPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, status: "processing", method: "tremendous", provider_reference: res.data.order_id } : p));
+        toast({ title: "Payout sent via Tremendous", description: `Order: ${res.data.order_id} → ${res.data.recipient_email}` });
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+    setTremendousSending(null);
   };
 
   // Auth gate
@@ -622,9 +646,14 @@ const SuperAdminCRM = () => {
                             </div>
                             <div className="flex flex-col items-end gap-2">
                               {payout.status === "ready" && (
-                                <Button size="sm" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "processing")}>
-                                  <Clock className="h-3 w-3" /> Start Processing
-                                </Button>
+                                <div className="flex gap-1">
+                                  <Button size="sm" className="text-xs h-7 gap-1" onClick={() => sendViaTremendous(payout.id)} disabled={tremendousSending === payout.id}>
+                                    {tremendousSending === payout.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />} Send via Tremendous
+                                  </Button>
+                                  <Button size="sm" variant="outline" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "processing")}>
+                                    <Clock className="h-3 w-3" /> Manual
+                                  </Button>
+                                </div>
                               )}
                               {payout.status === "processing" && (
                                 <div className="flex flex-col gap-2">
