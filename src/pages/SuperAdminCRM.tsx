@@ -367,6 +367,29 @@ const SuperAdminCRM = () => {
     setPayoutRef("");
   };
 
+  const sendViaTremendous = async (payoutId: string) => {
+    setTremendousSending(payoutId);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setTremendousSending(null); return; }
+    try {
+      const res = await supabase.functions.invoke("process-tremendous-payout", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { payout_id: payoutId },
+      });
+      if (res.error) {
+        toast({ title: "Tremendous Error", description: res.error.message || "Failed to send payout", variant: "destructive" });
+      } else if (res.data?.error) {
+        toast({ title: "Tremendous Error", description: res.data.error, variant: "destructive" });
+      } else {
+        setPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, status: "processing", method: "tremendous", provider_reference: res.data.order_id } : p));
+        toast({ title: "Payout sent via Tremendous", description: `Order: ${res.data.order_id} → ${res.data.recipient_email}` });
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+    setTremendousSending(null);
+  };
+
   // Auth gate
   if (authLoading) return <div className="flex items-center justify-center min-h-screen"><Skeleton className="h-8 w-48" /></div>;
   if (!isAuthorized) return <NotFound />;
