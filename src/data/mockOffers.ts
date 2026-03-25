@@ -59,7 +59,7 @@ export const mockOffers: Offer[] = [
   {
     id: "ca7", title: "Mortgage Broker Referrals", business: "Maple Mortgage Group", businessLogo: "🏦", category: "Mortgage",
     description: "Refer first-time buyers or refinance clients to licensed mortgage brokers. Compliance note: FSRA-regulated.",
-    payout: 10, payoutType: "percentage", currency: "CAD", country: "CA", location: "Toronto, ON", state: "ON", city: "Toronto",
+    payout: 10, payoutType: "flat", currency: "CAD", country: "CA", location: "Toronto, ON", state: "ON", city: "Toronto",
     rating: 4.7, totalReferrals: 289, successRate: 38, featured: true,
     dealSizeMin: 300000, dealSizeMax: 900000, closeTimeDays: 45, remoteEligible: true, latitude: 43.6532, longitude: -79.3832,
     qualificationRules: ["Pre-qualified buyer or homeowner seeking refinance", "Credit score 650+", "Consent to credit check required"],
@@ -68,7 +68,7 @@ export const mockOffers: Offer[] = [
   {
     id: "ca8", title: "Insurance Broker — Home & Auto", business: "ShieldNorth Insurance", businessLogo: "🛡️", category: "Insurance",
     description: "Refer individuals or families looking for competitive home & auto insurance packages in Ontario.",
-    payout: 12, payoutType: "percentage", currency: "CAD", country: "CA", location: "Toronto, ON", state: "ON", city: "Toronto",
+    payout: 12, payoutType: "flat", currency: "CAD", country: "CA", location: "Toronto, ON", state: "ON", city: "Toronto",
     rating: 4.5, totalReferrals: 345, successRate: 44, featured: false,
     dealSizeMin: 1500, dealSizeMax: 8000, closeTimeDays: 14, remoteEligible: true, latitude: 43.6532, longitude: -79.3832,
     qualificationRules: ["Individual or family seeking insurance", "Ontario resident", "No existing policy with ShieldNorth"],
@@ -122,7 +122,7 @@ export const mockOffers: Offer[] = [
   {
     id: "ca14", title: "Property Management Leads", business: "UrbanNest Property Mgmt", businessLogo: "🏢", category: "Real Estate",
     description: "Refer landlords or property investors looking for professional property management in Vancouver.",
-    payout: 8, payoutType: "percentage", currency: "CAD", country: "CA", location: "Vancouver, BC", state: "BC", city: "Vancouver",
+    payout: 8, payoutType: "flat", currency: "CAD", country: "CA", location: "Vancouver, BC", state: "BC", city: "Vancouver",
     rating: 4.3, totalReferrals: 47, successRate: 41, featured: false,
     dealSizeMin: 2000, dealSizeMax: 5000, closeTimeDays: 21, remoteEligible: true, latitude: 49.2827, longitude: -123.1207,
     qualificationRules: ["Property owner with rental unit(s)", "Property in Metro Vancouver", "Minimum 1 rental unit"],
@@ -205,7 +205,7 @@ export const mockOffers: Offer[] = [
   {
     id: "us7", title: "Business Insurance Quote", business: "ShieldCorp Insurance", businessLogo: "🛡️", category: "Insurance",
     description: "Refer small businesses looking for comprehensive insurance packages. Quick approval process.",
-    payout: 15, payoutType: "percentage", currency: "USD", country: "US", location: "New York, NY", state: "NY", city: "New York",
+    payout: 15, payoutType: "flat", currency: "USD", country: "US", location: "New York, NY", state: "NY", city: "New York",
     rating: 4.6, totalReferrals: 567, successRate: 45, featured: true,
     dealSizeMin: 2000, dealSizeMax: 10000, closeTimeDays: 14, remoteEligible: true, latitude: 40.7128, longitude: -74.006,
     qualificationRules: ["Active business with 2+ employees", "No existing policy with ShieldCorp", "Must be reachable by phone"],
@@ -214,7 +214,7 @@ export const mockOffers: Offer[] = [
   {
     id: "us8", title: "Mortgage Refinance Leads", business: "PrimeLend Mortgage", businessLogo: "🏦", category: "Mortgage",
     description: "Refer homeowners looking to refinance or first-time buyers needing mortgage pre-approval. NMLS-licensed.",
-    payout: 12, payoutType: "percentage", currency: "USD", country: "US", location: "Dallas, TX", state: "TX", city: "Dallas",
+    payout: 12, payoutType: "flat", currency: "USD", country: "US", location: "Dallas, TX", state: "TX", city: "Dallas",
     rating: 4.7, totalReferrals: 312, successRate: 35, featured: true,
     dealSizeMin: 200000, dealSizeMax: 750000, closeTimeDays: 45, remoteEligible: true, latitude: 32.7767, longitude: -96.797,
     qualificationRules: ["Homeowner with existing mortgage or pre-qualified buyer", "Credit score 620+", "Consent to credit check required"],
@@ -259,7 +259,7 @@ export const mockOffers: Offer[] = [
   {
     id: "us13", title: "Financial Planning Consultation", business: "WealthBridge Advisors", businessLogo: "💰", category: "Finance",
     description: "Refer individuals or business owners to certified financial planners. High-value clients preferred.",
-    payout: 20, payoutType: "percentage", currency: "USD", country: "US", location: "New York, NY", state: "NY", city: "New York",
+    payout: 20, payoutType: "flat", currency: "USD", country: "US", location: "New York, NY", state: "NY", city: "New York",
     rating: 4.8, totalReferrals: 92, successRate: 48, featured: false,
     dealSizeMin: 10000, dealSizeMax: 100000, closeTimeDays: 30, remoteEligible: true, latitude: 40.7128, longitude: -74.006,
     qualificationRules: ["Individual with $100k+ investable assets", "No existing financial advisor", "Interested in comprehensive planning"],
@@ -268,7 +268,7 @@ export const mockOffers: Offer[] = [
   {
     id: "us14", title: "IT Managed Services", business: "TechVault Systems", businessLogo: "💻", category: "Technology",
     description: "Refer businesses looking for managed IT support. Monthly recurring referral bonus.",
-    payout: 10, payoutType: "percentage", currency: "USD", country: "US", location: "Seattle, WA", state: "WA", city: "Seattle",
+    payout: 10, payoutType: "flat", currency: "USD", country: "US", location: "Seattle, WA", state: "WA", city: "Seattle",
     rating: 4.4, totalReferrals: 78, successRate: 42, featured: false,
     dealSizeMin: 3000, dealSizeMax: 15000, closeTimeDays: 21, remoteEligible: true, latitude: 47.6062, longitude: -122.3321,
     qualificationRules: ["Business with 5+ workstations", "No current MSP contract", "Must be reachable"],
