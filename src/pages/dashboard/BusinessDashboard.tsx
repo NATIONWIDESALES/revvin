@@ -40,6 +40,7 @@ const txTypeLabels: Record<string, { label: string; color: string }> = {
   fee: { label: "Fee", color: "text-muted-foreground" },
   payout: { label: "Payout", color: "text-destructive" },
   refund: { label: "Refund", color: "text-earnings" },
+  release: { label: "Released", color: "text-earnings" },
 };
 
 const SUGGESTED_AMOUNTS = [100, 250, 500, 1000];
