@@ -11,7 +11,7 @@ import {
   DollarSign, Users, PlusCircle,
   CheckCircle2, XCircle, Clock, Eye, Building2,
   Pause, Play, Edit, Target, Link2, Check, X,
-  Wallet, ArrowUpRight, CreditCard, Loader2
+  Wallet, ArrowUpRight, CreditCard, Loader2, Crown, Zap
 } from "lucide-react";
 import { motion } from "framer-motion";
 import DashboardChecklist from "@/components/DashboardChecklist";
@@ -69,6 +69,7 @@ const BusinessDashboard = () => {
   const [topUpAmount, setTopUpAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
   const [topUpLoading, setTopUpLoading] = useState(false);
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
 
   const fetchWallet = async (userId: string) => {
     const [balRes, txRes] = await Promise.all([
@@ -107,6 +108,15 @@ const BusinessDashboard = () => {
       searchParams.delete("topup");
       setSearchParams(searchParams, { replace: true });
     }
+    if (searchParams.get("upgrade") === "success" && user) {
+      toast({ title: "Upgrade complete!", description: "You're now on the Paid plan with 10% platform fees." });
+      // Refetch business data
+      supabase.from("businesses").select("*").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).then(({ data }) => {
+        if (data && data.length > 0) setBusiness(data[0]);
+      });
+      searchParams.delete("upgrade");
+      setSearchParams(searchParams, { replace: true });
+    }
   }, [searchParams, user]);
 
   const handleTopUp = async () => {
@@ -130,6 +140,23 @@ const BusinessDashboard = () => {
       toast({ title: "Error", description: err.message || "Failed to create payment session", variant: "destructive" });
     } finally {
       setTopUpLoading(false);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    setUpgradeLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-subscription-session");
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to create subscription session", variant: "destructive" });
+    } finally {
+      setUpgradeLoading(false);
     }
   };
 
@@ -245,7 +272,12 @@ const BusinessDashboard = () => {
           {/* Header */}
           <motion.div variants={fadeUp} custom={0} className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">{business?.name ?? "Your Business"}</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold text-foreground">{business?.name ?? "Your Business"}</h1>
+                <Badge variant={business?.pricing_tier === "paid" ? "default" : "secondary"} className="gap-1">
+                  {business?.pricing_tier === "paid" ? <><Crown className="h-3 w-3" /> Paid (10% fee)</> : <>Free (25% fee)</>}
+                </Badge>
+              </div>
               <p className="text-muted-foreground mt-1">{activeOffers} active offer{activeOffers !== 1 ? "s" : ""} • {referrals.length} referrals</p>
             </div>
             <div className="flex gap-2">
@@ -281,6 +313,29 @@ const BusinessDashboard = () => {
               </div>
             ))}
           </motion.div>
+
+          {/* Upgrade CTA */}
+          {business?.pricing_tier !== "paid" && (
+            <motion.div variants={fadeUp} custom={1.3} className="mb-8">
+              <div className="rounded-xl border border-primary/30 bg-primary/5 p-6 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="rounded-xl bg-primary/10 p-2.5">
+                      <Zap className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-foreground">Upgrade to Revvin Paid — $50/mo</h3>
+                      <p className="text-sm text-muted-foreground mt-1">Reduce your platform fee from 25% to 10% on every referral payout.</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Breakeven at ~3 closed referrals per month.</p>
+                    </div>
+                  </div>
+                  <Button onClick={handleUpgrade} disabled={upgradeLoading} className="gap-2 shrink-0">
+                    {upgradeLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing...</> : <><Crown className="h-4 w-4" /> Upgrade Now</>}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Wallet Section */}
           <motion.div variants={fadeUp} custom={1.5} className="mb-8">
