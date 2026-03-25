@@ -1,60 +1,41 @@
 
 
-## Fix Tremendous Integration Before Deploy
+## Fix: Payout Creation Failing on "Won" Due to Missing RLS Policy
 
-Two targeted fixes to the existing code, plus deploying the new functions and migration as previously planned.
+### Root Cause
+When a business marks a referral as "Won" in `BusinessDashboard.tsx`, two database calls happen:
+1. `referrals.update({ status: "won" })` — **succeeds** (business owners have UPDATE on referrals)
+2. `payouts.insert(...)` — **fails silently** (no INSERT policy exists for business owners on `payouts`)
 
-### Fix 1: `process-tremendous-payout/index.ts` — Populate `tremendous_reward_id`
+The `payouts` table only has an `ALL` policy for **admins**. Business owners can only SELECT.
 
-In the payout update call (line 200-206), add `tremendous_reward_id: rewardId` alongside `provider_reference`:
+### Fix: Add RLS Policy for Business Payout Creation
 
-```typescript
-await admin.from("payouts").update({
-  status: "processing",
-  method: "tremendous",
-  provider_reference: orderId || rewardId || "unknown",
-  tremendous_reward_id: rewardId,   // ← ADD THIS
-  processed_by: user.id,
-  updated_at: new Date().toISOString(),
-}).eq("id", payout_id);
+**SQL Migration** — Add an INSERT policy on `payouts` allowing business owners to create payout records for their own referrals:
+
+```sql
+CREATE POLICY "Business owners create payouts for own referrals"
+ON public.payouts
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM businesses
+    WHERE businesses.id = payouts.business_id
+    AND businesses.user_id = auth.uid()
+  )
+);
 ```
 
-This is in the **current deployed file** — the uploaded replacement file should also include this.
+This is safe because:
+- Business can only insert payouts linked to their own `business_id`
+- The payout amount is derived from the offer/snapshot, not user input of arbitrary values
+- Admins already have full access via the existing ALL policy
 
-### Fix 2: `tremendous-webhook/index.ts` — Direct column lookup first
+### Secondary Issue: `payout_snapshot` is null
 
-In the webhook handler, when resolving the payout from a Tremendous reward ID, use the new column as primary lookup:
+The referral's `payout_snapshot` column is null, meaning the payout terms weren't snapshotted at referral acceptance. The `handleWon` function already handles this gracefully (falls back to `ref.offers.payout`), so the payout amount of $675 is correct ($750 × 0.9 = $675). No code change needed here — this is a pre-existing data gap for referrals created before the snapshot logic was added.
 
-```typescript
-// Primary: direct column lookup
-const { data } = await admin
-  .from("payouts")
-  .select("*")
-  .eq("tremendous_reward_id", resourceId)
-  .maybeSingle();
-payoutRecord = data;
-
-// Fallback: audit_log scan (covers pre-migration payouts)
-if (!payoutRecord) {
-  // existing audit_log scan logic
-}
-```
-
-### Deployment order (unchanged)
-
-1. **Run SQL migration** — `tremendous_webhook_log` table, `tremendous_reward_id` column on `payouts`, indexes
-2. **Add secrets** — `TREMENDOUS_CAMPAIGN_ID` = `TZNSJ0D5NUGI`, prompt for `TREMENDOUS_WEBHOOK_SECRET`
-3. **Deploy 3 edge functions** with both fixes applied:
-   - `process-tremendous-payout` (replace) — with `tremendous_reward_id` in update
-   - `tremendous-webhook` (new) — with direct column lookup + audit_log fallback
-   - `generate-payout-link` (new) — unchanged
-4. **Update `supabase/config.toml`** — `verify_jwt = false` for `tremendous-webhook`
-
-### What stays the same
-- Migration, tables, indexes
-- LINK delivery + Resend branded email
-- Singular reward payload for sync 200
-- Campaign ID `TZNSJ0D5NUGI`
-- `updates@updates.revvin.co` from address
-- HMAC signature verification on webhook
+### No Code Changes Needed
+The `BusinessDashboard.tsx` code on line 99 is correct — it just needs the RLS policy to allow the insert to succeed.
 
