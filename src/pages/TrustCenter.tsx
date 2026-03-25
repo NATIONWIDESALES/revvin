@@ -240,17 +240,17 @@ const TrustCenter = () => {
                 </div>
                 <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-5">
                   <Users className="mx-auto mb-2 h-6 w-6 text-earnings" />
-                  <div className="text-3xl font-bold text-earnings">90%</div>
+                  <div className="text-3xl font-bold text-earnings">100%</div>
                   <p className="text-xs text-muted-foreground mt-1">Goes to referrer</p>
                 </div>
                 <div className="rounded-xl bg-muted/50 border border-border p-5">
                   <Briefcase className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-                  <div className="text-3xl font-bold text-foreground">10%</div>
-                  <p className="text-xs text-muted-foreground mt-1">Revvin platform fee</p>
+                  <div className="text-3xl font-bold text-foreground">10–25%</div>
+                  <p className="text-xs text-muted-foreground mt-1">Business platform fee</p>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mt-6">
-                The 10% fee covers verification, dispute resolution, fraud prevention, and platform infrastructure. No hidden fees, ever.
+                Referrers always get the full advertised payout. Businesses pay a platform fee (25% on Free, 10% on Paid tier) charged at offer publication. No hidden fees, ever.
               </p>
             </motion.div>
           </motion.div>

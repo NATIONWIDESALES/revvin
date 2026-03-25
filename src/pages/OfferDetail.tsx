@@ -44,7 +44,7 @@ const OfferDetail = () => {
         category: o.category,
         description: o.description ?? "",
         payout: Number(o.payout),
-        payoutType: o.payout_type as "flat" | "percentage",
+        payoutType: "flat" as const,
         currency: (o.currency === "CAD" ? "CAD" : "USD") as "CAD" | "USD",
         country: (o.country === "CA" ? "CA" : "US") as "CA" | "US",
         location: o.location ?? `${o.businesses?.city ?? ""}, ${o.businesses?.state ?? ""}`,
