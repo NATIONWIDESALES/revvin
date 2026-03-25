@@ -1,11 +1,33 @@
-## Parts 7–11: Complete ✅
 
-All subscription, wallet payout, offer lifecycle, public page updates, and percentage cleanup work is done.
 
-### Summary of Changes
+## Fixes for Webhook & Wallet Verification Gaps
 
-**Part 7** — Subscription upgrade flow (create-subscription-session, webhook handling, tier badge + upgrade CTA)
-**Part 8** — handleWon uses process-deal-won edge function (100% referrer payout, platform fee already collected)
-**Part 9** — Offer pause/close releases reserved funds via release-offer-funds edge function
-**Part 10** — Public pages updated: TrustCenter, HowItWorks, Index FAQ, ReferralAgreement, Terms
-**Part 11** — Percentage payout UI removed from OfferCard, OfferDetail, Browse, types, mockOffers
+### Concern 1: Missing `invoice.payment_failed` handler
+
+The webhook already handles subscription creation and cancellation correctly. The gap is `invoice.payment_failed` — if a renewal charge fails, the business stays on "paid" until Stripe eventually fires `customer.subscription.deleted` (which could take weeks depending on Stripe retry settings).
+
+**Fix**: Add an `invoice.payment_failed` handler to `stripe-deposit-webhook/index.ts`:
+- On `invoice.payment_failed` where `billing_reason === 'subscription_cycle'`:
+  - Look up business by `stripe_subscription_id` from the invoice's subscription
+  - Update `subscription_status` to `'past_due'`
+  - Do NOT revert `pricing_tier` yet (Stripe will retry; only revert on full cancellation)
+  - Log to `audit_log` for admin visibility
+
+This is the standard pattern: `past_due` is a warning state, `canceled` (already handled) is the final revert.
+
+### Concern 2: Reserved funds verification in `process-deal-won`
+
+**Fix**: Add a guard in `process-deal-won/index.ts` after fetching the wallet (line 65-69):
+- If no wallet exists → throw error "No wallet found"
+- If `wallet.reserved < payoutAmt` → throw error with details: `"Insufficient reserved funds: reserved=$X, payout=$Y"`
+- Only proceed with the wallet update if the check passes
+
+This prevents creating unbacked payouts. The business would need to top up and re-reserve before closing.
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `supabase/functions/stripe-deposit-webhook/index.ts` | Add `invoice.payment_failed` handler → set `subscription_status='past_due'` |
+| `supabase/functions/process-deal-won/index.ts` | Add reserved balance guard before payout creation |
+
