@@ -23,17 +23,18 @@ export function usePlatformStats() {
   return useQuery({
     queryKey: ["platform-stats"],
     queryFn: async (): Promise<PlatformStats> => {
-      const [offersRes, bizRes, referralsRes] = await Promise.all([
+      const [offersRes, bizRes, referralsRes, countsRes] = await Promise.all([
         supabase.from("offers").select("payout, business_id", { count: "exact" }).eq("status", "active"),
         supabase.from("businesses").select("id, city", { count: "exact" }),
         supabase.from("referrals").select("id", { count: "exact" }),
+        supabase.rpc("fn_platform_counts"),
       ]);
 
       const offers = offersRes.data ?? [];
       const businesses = bizRes.data ?? [];
       const referralCount = referralsRes.count ?? 0;
+      const counts = countsRes.data as { businesses: number; referrers: number } | null;
 
-      // If we have real data, compute stats; otherwise fall back
       if (offers.length === 0 && businesses.length === 0) {
         return FALLBACK;
       }
@@ -44,8 +45,8 @@ export function usePlatformStats() {
 
       return {
         totalPayoutsAvailable: totalPayout || FALLBACK.totalPayoutsAvailable,
-        activeBusinesses: businesses.length || FALLBACK.activeBusinesses,
-        totalReferrers: FALLBACK.totalReferrers, // profiles don't expose role, use fallback
+        activeBusinesses: counts?.businesses ?? businesses.length || FALLBACK.activeBusinesses,
+        totalReferrers: counts?.referrers ?? FALLBACK.totalReferrers,
         avgPayout,
         totalReferrals: referralCount || FALLBACK.totalReferrals,
         activeCities: uniqueCities.size || FALLBACK.activeCities,

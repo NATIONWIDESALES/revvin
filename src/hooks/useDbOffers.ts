@@ -47,6 +47,7 @@ export function useDbOffers() {
         longitude: o.businesses?.longitude ?? undefined,
         qualificationRules: o.qualification_criteria ? [o.qualification_criteria] : undefined,
         verified: o.businesses?.verified ?? false,
+        createdAt: o.created_at,
       }));
     },
     staleTime: 30_000,

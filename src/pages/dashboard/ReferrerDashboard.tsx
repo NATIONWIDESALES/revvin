@@ -14,7 +14,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useToast } from "@/hooks/use-toast";
 import InviteBusinessModal from "@/components/InviteBusinessModal";
 import DashboardChecklist from "@/components/DashboardChecklist";
-import PayoutMethodSetup from "@/components/PayoutMethodSetup";
+
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
   submitted: { bg: "bg-muted", text: "text-muted-foreground", label: "Submitted" },
@@ -150,8 +150,8 @@ const ReferrerDashboard = () => {
           </motion.div>
 
           {/* Chart + Payout Method */}
-          <motion.div variants={fadeUp} custom={2} className="mb-8 grid gap-6 md:grid-cols-3">
-            <div className="md:col-span-2 rounded-xl border border-border bg-card p-6 shadow-sm">
+          <motion.div variants={fadeUp} custom={2} className="mb-8">
+            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
               <h2 className="text-base font-bold mb-4 flex items-center gap-2"><BarChart3 className="h-4 w-4 text-earnings" /> Earnings Over Time</h2>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
@@ -165,7 +165,6 @@ const ReferrerDashboard = () => {
                 </ResponsiveContainer>
               </div>
             </div>
-            <PayoutMethodSetup />
           </motion.div>
 
           {/* Referral Pipeline */}
