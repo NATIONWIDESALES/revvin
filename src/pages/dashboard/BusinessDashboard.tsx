@@ -11,7 +11,7 @@ import {
   DollarSign, Users, PlusCircle,
   CheckCircle2, XCircle, Clock, Eye, Building2,
   Pause, Play, Edit, Target, Link2, Check, X,
-  Wallet, ArrowUpRight, CreditCard, Loader2
+  Wallet, ArrowUpRight, CreditCard, Loader2, Crown, Zap
 } from "lucide-react";
 import { motion } from "framer-motion";
 import DashboardChecklist from "@/components/DashboardChecklist";
@@ -106,6 +106,15 @@ const BusinessDashboard = () => {
       toast({ title: "Wallet funded!", description: "Your wallet balance has been updated." });
       fetchWallet(user.id);
       searchParams.delete("topup");
+      setSearchParams(searchParams, { replace: true });
+    }
+    if (searchParams.get("upgrade") === "success" && user) {
+      toast({ title: "Upgrade complete!", description: "You're now on the Paid plan with 10% platform fees." });
+      // Refetch business data
+      supabase.from("businesses").select("*").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).then(({ data }) => {
+        if (data && data.length > 0) setBusiness(data[0]);
+      });
+      searchParams.delete("upgrade");
       setSearchParams(searchParams, { replace: true });
     }
   }, [searchParams, user]);
