@@ -71,7 +71,7 @@ const Browse = () => {
     .sort((a, b) => {
       if (sortBy === "payout") return b.payout - a.payout;
       if (sortBy === "fastest") return (a.closeTimeDays ?? 99) - (b.closeTimeDays ?? 99);
-      return parseInt(b.id.replace(/\D/g, "")) - parseInt(a.id.replace(/\D/g, ""));
+      return new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime();
     });
 
   const clearFilters = () => {

@@ -59,7 +59,7 @@ const AdminDashboard = () => {
     if (!user) return;
     const fetchAll = async () => {
       const [refRes, offRes, roleRes, bizRes, profRes, payRes, auditRes] = await Promise.all([
-        supabase.from("referrals").select("*, offers(title, payout, payout_type), businesses(name)").order("created_at", { ascending: false }),
+        supabase.from("referrals").select("*, offers(title, payout, payout_type, platform_fee_rate), businesses(name)").order("created_at", { ascending: false }),
         supabase.from("offers").select("*, businesses(name)").order("created_at", { ascending: false }),
         supabase.from("user_roles").select("*"),
         supabase.from("businesses").select("*").order("created_at", { ascending: false }),
@@ -82,12 +82,12 @@ const AdminDashboard = () => {
   const totalBusinesses = roles.filter(r => r.role === "business").length;
   const totalReferrers = roles.filter(r => r.role === "referrer").length;
   const wonDeals = referrals.filter(r => r.status === "won").length;
-  const totalPlatformRevenue = referrals.filter(r => r.status === "won").reduce((sum, r) => sum + (r.payout_amount ?? r.offers?.payout ?? 0) * 0.1, 0);
+  const totalPlatformRevenue = referrals.filter(r => r.status === "won").reduce((sum, r) => sum + (r.payout_amount ?? r.offers?.payout ?? 0) * (r.offers?.platform_fee_rate ?? 0.25), 0);
   const totalPayoutsAmount = referrals.filter(r => r.status === "won").reduce((sum, r) => sum + (r.payout_amount ?? r.offers?.payout ?? 0), 0);
   const activeOffers = offers.filter(o => o.status === "active").length;
   const conversionRate = referrals.length > 0 ? Math.round((wonDeals / referrals.length) * 100) : 0;
   const pendingPayouts = payouts.filter(p => p.status === "ready" || p.status === "processing").length;
-  const pendingOfferApprovals = offers.filter(o => o.approval_status === "pending").length;
+  const pendingOfferApprovals = offers.filter(o => o.approval_status === "pending_approval").length;
   const disputedReferrals = referrals.filter(r => r.status === "disputed").length;
 
   const stats = [
@@ -313,9 +313,9 @@ const AdminDashboard = () => {
                 ) : (
                   <div className="space-y-3">
                     {offers
-                      .filter(o => searchQuery === "" ? o.approval_status === "pending" : o.title.toLowerCase().includes(searchQuery.toLowerCase()) || o.businesses?.name?.toLowerCase().includes(searchQuery.toLowerCase()))
+                      .filter(o => searchQuery === "" ? o.approval_status === "pending_approval" : o.title.toLowerCase().includes(searchQuery.toLowerCase()) || o.businesses?.name?.toLowerCase().includes(searchQuery.toLowerCase()))
                       .map((offer) => {
-                        const isPending = offer.approval_status === "pending";
+                        const isPending = offer.approval_status === "pending_approval";
                         return (
                           <div key={offer.id} className={`rounded-xl border p-4 ${isPending ? "border-accent bg-accent/5" : "border-border bg-muted/30"}`}>
                             <div className="flex items-start justify-between gap-4">
@@ -338,7 +338,7 @@ const AdminDashboard = () => {
                                   <Button size="sm" variant="destructive" onClick={() => rejectOffer(offer.id)} className="gap-1"><XCircle className="h-3.5 w-3.5" /> Reject</Button>
                                 </div>
                               )}
-                              {offer.approval_status !== "pending" && (
+                              {offer.approval_status !== "pending_approval" && (
                                 <Button size="sm" variant="outline" onClick={() => freezeOffer(offer.id)} className="gap-1">
                                   {offer.status === "active" ? <><Pause className="h-3.5 w-3.5" /> Pause</> : <><Play className="h-3.5 w-3.5" /> Activate</>}
                                 </Button>

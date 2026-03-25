@@ -30,6 +30,7 @@ export interface Offer {
   monthlyCapacity?: number;
   verified?: boolean;
   serviceRadius?: string;
+  createdAt?: string;
 }
 
 export type DisputeStatus = "submitted" | "under_review" | "resolved_paid" | "resolved_not_paid";
