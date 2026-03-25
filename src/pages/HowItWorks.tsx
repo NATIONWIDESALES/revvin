@@ -25,7 +25,7 @@ const steps = [
   { num: "02", title: "Referrer spots an opportunity", desc: "A realtor's client mentions they need a new roof." },
   { num: "03", title: "Referral is submitted", desc: "The realtor submits the client's details through Revvin. First submission wins." },
   { num: "04", title: "Business closes the deal", desc: "The roofing company contacts the lead, does the work, and marks it closed." },
-  { num: "05", title: "Everyone gets paid", desc: "The realtor receives $500. The business got a customer at a known cost. Revvin takes 10%." },
+  { num: "05", title: "Everyone gets paid", desc: "The realtor receives the full $500. The business paid a platform fee on top. Revvin earns from the business, not the referrer." },
 ];
 
 const HowItWorks = () => (

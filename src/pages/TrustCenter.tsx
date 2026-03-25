@@ -13,7 +13,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } }
 const TrustCenter = () => {
   return (
     <div>
-      <SEOHead title="Trust & Payouts — Revvin Verification and Dispute Resolution" description="How Revvin protects both businesses and referrers with verification, dispute resolution, and transparent payout economics. 90/10 payout split, verified businesses, fair dispute process." path="/trust" />
+      <SEOHead title="Trust & Payouts — Revvin Verification and Dispute Resolution" description="How Revvin protects both businesses and referrers with verification, dispute resolution, and transparent payout economics. 100% referrer payouts, verified businesses, fair dispute process." path="/trust" />
       {/* Hero */}
       <section className="hero-gradient py-20">
         <div className="container text-center">
@@ -44,7 +44,7 @@ const TrustCenter = () => {
                 { step: "1", title: "Business Posts Offer", desc: "The business sets a payout amount (flat fee or percentage) and publishes their referral offer to the marketplace.", icon: Briefcase, color: "text-primary" },
                 { step: "2", title: "Referrer Submits a Lead", desc: "A referrer submits a qualified lead with contact details and notes. First submission wins — timestamped for fairness.", icon: Users, color: "text-earnings" },
                 { step: "3", title: "Business Accepts & Works the Deal", desc: "The business reviews the referral, accepts it, and works toward closing the deal. Payout terms are locked at acceptance.", icon: CheckCircle2, color: "text-primary" },
-                { step: "4", title: "Deal Closes → Payout Processed", desc: "When the deal is marked as won, Revvin verifies the outcome and processes the payout. 90% goes to the referrer, 10% is the platform fee.", icon: DollarSign, color: "text-earnings" },
+                { step: "4", title: "Deal Closes → Payout Processed", desc: "When the deal is marked as won, Revvin verifies the outcome and processes the payout. The referrer receives 100% of the advertised amount. The platform fee is charged separately to the business.", icon: DollarSign, color: "text-earnings" },
                 { step: "↩", title: "Deal Lost → No Charge", desc: "If the referral is declined or the deal is lost, no payout is created. The business pays nothing.", icon: ArrowRight, color: "text-muted-foreground" },
               ].map((item, i) => (
                 <motion.div key={item.step} variants={fadeUp} custom={i + 2} className="flex items-start gap-4 rounded-xl border border-border bg-card p-5">
@@ -155,7 +155,7 @@ const TrustCenter = () => {
                 { step: "1", title: "Referral Submitted", desc: "Referrer submits lead details with timestamp. First submission wins for duplicate protection.", icon: Users },
                 { step: "2", title: "Business Accepts → Terms Locked", desc: "Business reviews the lead and accepts it. The payout amount and type are snapshotted at this point.", icon: CheckCircle2 },
                 { step: "3", title: "Deal Outcome Recorded", desc: "Business marks the referral as won or lost. Revenue and deal details are logged.", icon: FileCheck },
-                { step: "4", title: "Verified Close → Payout Processed", desc: "Revvin verifies the outcome and processes the payout. Referrer receives 90%, Revvin keeps 10%.", icon: DollarSign },
+                { step: "4", title: "Verified Close → Payout Processed", desc: "Revvin verifies the outcome and processes the payout. The referrer receives 100% of the advertised amount.", icon: DollarSign },
               ].map((item, i) => (
                 <motion.div key={item.step} variants={fadeUp} custom={i + 2} className="flex items-start gap-4 rounded-xl border border-border bg-card p-5">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shrink-0">{item.step}</div>

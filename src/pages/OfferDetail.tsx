@@ -92,8 +92,8 @@ const OfferDetail = () => {
   return (
     <div className="py-8">
       <SEOHead
-        title={`${offer.title} — Earn ${offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`} per Referral | Revvin`}
-        description={`Refer customers to ${offer.business} and earn ${offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}. ${offer.description?.substring(0, 100) ?? ""}`}
+        title={`${offer.title} — Earn ${formatPayout(offer.payout, offer.currency)} per Referral | Revvin`}
+        description={`Refer customers to ${offer.business} and earn ${formatPayout(offer.payout, offer.currency)}. ${offer.description?.substring(0, 100) ?? ""}`}
         path={`/offer/${toSlug(offer.business)}/${offer.id}`}
         jsonLd={[
           {
@@ -152,7 +152,7 @@ const OfferDetail = () => {
               <div className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5 text-earnings" />
                 <div>
-                  <p className="text-lg font-bold">{offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}</p>
+                  <p className="text-lg font-bold">{formatPayout(offer.payout, offer.currency)}</p>
                   <p className="text-xs text-muted-foreground">Per Referral</p>
                 </div>
               </div>

@@ -33,7 +33,7 @@ const ReferralAgreement = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">4. Payout Terms</h2>
-            <p>Payouts follow the 90/10 model: the Referrer receives 90% of the advertised referral fee, and Revvin retains 10% as a platform management fee. Payouts are triggered when the Business marks a deal as "Won/Closed" and the funds are released from escrow. Payment is processed to the Referrer's configured payout method (ACH for US, Interac e-Transfer or EFT for Canada).</p>
+            <p>Referrers receive 100% of the advertised referral fee upon a verified closed deal. The platform fee (25% on Free tier, 10% on Paid tier) is charged separately to the business at offer publication and does not reduce the referrer's payout. Payment is processed to the Referrer's configured payout method (ACH for US, Interac e-Transfer or EFT for Canada).</p>
           </section>
 
           <section>
