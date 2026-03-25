@@ -1,53 +1,60 @@
 
 
-## Tremendous Payout Integration
+## Fix Tremendous Integration Before Deploy
 
-### Current State
-- Payouts table exists with statuses: `ready` → `processing` → `paid`/`failed`
-- Admin manually clicks "Start Processing" → enters method/reference → "Mark Paid"
-- No automated payout delivery — everything is manual
+Two targeted fixes to the existing code, plus deploying the new functions and migration as previously planned.
 
-### What We'll Build
+### Fix 1: `process-tremendous-payout/index.ts` — Populate `tremendous_reward_id`
 
-**1. Store the Tremendous API key**
-- Use the secrets tool to prompt you for your Tremendous sandbox API key
-- Secret name: `TREMENDOUS_API_KEY`
+In the payout update call (line 200-206), add `tremendous_reward_id: rewardId` alongside `provider_reference`:
 
-**2. New edge function: `process-tremendous-payout`**
-- Called from admin UI when clicking "Send via Tremendous"
-- Accepts `payout_id`, validates admin role
-- Looks up payout details (amount, currency) and referrer's payout preference (method + email) from `referrer_payout_preferences`
-- Calls Tremendous API (`POST /api/v2/orders`) to create a reward order
-- Uses the referrer's email as the recipient
-- Supports funding sources from your Tremendous sandbox
-- Updates the `payouts` row: status → `processing`, method → `tremendous`, provider_reference → Tremendous order ID
-- Logs an audit entry
+```typescript
+await admin.from("payouts").update({
+  status: "processing",
+  method: "tremendous",
+  provider_reference: orderId || rewardId || "unknown",
+  tremendous_reward_id: rewardId,   // ← ADD THIS
+  processed_by: user.id,
+  updated_at: new Date().toISOString(),
+}).eq("id", payout_id);
+```
 
-**3. New edge function: `tremendous-webhook` (optional, phase 2)**
-- Receives Tremendous webhook callbacks when reward is delivered/claimed
-- Updates payout status to `paid` with delivery timestamp
-- For now, we can poll or manually confirm
+This is in the **current deployed file** — the uploaded replacement file should also include this.
 
-**4. Update Admin UI (SuperAdminCRM + AdminDashboard)**
-- Replace the manual "Start Processing" flow with a "Send via Tremendous" button for `ready` payouts
-- Button calls the edge function, shows loading state
-- On success, payout moves to `processing` with the Tremendous reference auto-filled
-- Keep manual fallback option for non-Tremendous payouts
+### Fix 2: `tremendous-webhook/index.ts` — Direct column lookup first
 
-**5. Referrer payout preferences update**
-- The existing `referrer_payout_preferences` table stores `method` (interac, eft_ca, ach)
-- Add the referrer's payout email to preferences if not already set (the `email` column already exists)
-- Tremendous will deliver via the method matching the referrer's preference
+In the webhook handler, when resolving the payout from a Tremendous reward ID, use the new column as primary lookup:
 
-### Tremendous API Details
-- **Sandbox base URL**: `https://testflight.tremendous.com/api/v2`
-- **Production base URL**: `https://www.tremendous.com/api/v2`
-- **Auth**: `Bearer {API_KEY}`
-- **Create order**: `POST /orders` with products, recipient email, amount, currency
+```typescript
+// Primary: direct column lookup
+const { data } = await admin
+  .from("payouts")
+  .select("*")
+  .eq("tremendous_reward_id", resourceId)
+  .maybeSingle();
+payoutRecord = data;
 
-### Implementation Order
-1. Add `TREMENDOUS_API_KEY` secret
-2. Create `process-tremendous-payout` edge function
-3. Update admin UI with "Send via Tremendous" button
-4. Test end-to-end with sandbox
+// Fallback: audit_log scan (covers pre-migration payouts)
+if (!payoutRecord) {
+  // existing audit_log scan logic
+}
+```
+
+### Deployment order (unchanged)
+
+1. **Run SQL migration** — `tremendous_webhook_log` table, `tremendous_reward_id` column on `payouts`, indexes
+2. **Add secrets** — `TREMENDOUS_CAMPAIGN_ID` = `TZNSJ0D5NUGI`, prompt for `TREMENDOUS_WEBHOOK_SECRET`
+3. **Deploy 3 edge functions** with both fixes applied:
+   - `process-tremendous-payout` (replace) — with `tremendous_reward_id` in update
+   - `tremendous-webhook` (new) — with direct column lookup + audit_log fallback
+   - `generate-payout-link` (new) — unchanged
+4. **Update `supabase/config.toml`** — `verify_jwt = false` for `tremendous-webhook`
+
+### What stays the same
+- Migration, tables, indexes
+- LINK delivery + Resend branded email
+- Singular reward payload for sync 200
+- Campaign ID `TZNSJ0D5NUGI`
+- `updates@updates.revvin.co` from address
+- HMAC signature verification on webhook
 
