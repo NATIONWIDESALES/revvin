@@ -308,6 +308,7 @@ export type Database = {
           referral_id: string
           referrer_id: string
           status: string
+          tremendous_reward_id: string | null
           updated_at: string
         }
         Insert: {
@@ -325,6 +326,7 @@ export type Database = {
           referral_id: string
           referrer_id: string
           status?: string
+          tremendous_reward_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -342,6 +344,7 @@ export type Database = {
           referral_id?: string
           referrer_id?: string
           status?: string
+          tremendous_reward_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -502,6 +505,33 @@ export type Database = {
           notes?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      tremendous_webhook_log: {
+        Row: {
+          event: string
+          payload: Json | null
+          processed_at: string
+          resource_id: string | null
+          resource_type: string | null
+          uuid: string
+        }
+        Insert: {
+          event: string
+          payload?: Json | null
+          processed_at?: string
+          resource_id?: string | null
+          resource_type?: string | null
+          uuid: string
+        }
+        Update: {
+          event?: string
+          payload?: Json | null
+          processed_at?: string
+          resource_id?: string | null
+          resource_type?: string | null
+          uuid?: string
         }
         Relationships: []
       }
