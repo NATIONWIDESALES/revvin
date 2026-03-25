@@ -202,7 +202,7 @@ const CreateOffer = () => {
         if (isRestricted) {
           toast({ title: "Offer submitted for review", description: "This category requires approval before going live." });
         } else {
-          toast({ title: "Offer published!", description: `$${reserveData.reserved} reserved + $${reserveData.fee} fee. Remaining balance: $${reserveData.remaining_balance}` });
+          toast({ title: "Offer published!", description: "Your offer is now live. Funds will be deducted when referrals close." });
         }
         navigate("/dashboard");
       }
@@ -309,7 +309,7 @@ const CreateOffer = () => {
                       <p className="font-display text-lg font-bold">${platformFee}</p>
                     </div>
                     <div className="rounded-xl bg-primary/10 border border-primary/20 p-3">
-                      <p className="text-xs text-muted-foreground">Total Reserved</p>
+                      <p className="text-xs text-muted-foreground">Total Cost per Referral</p>
                       <p className="font-display text-lg font-bold text-primary">${totalReserved}</p>
                     </div>
                   </div>
@@ -324,8 +324,8 @@ const CreateOffer = () => {
               <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
                 <Wallet className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium">Funds reserved from your wallet</p>
-                  <p className="text-xs text-muted-foreground mt-1">When you publish, the total amount will be deducted from your wallet balance. Make sure you have sufficient funds.</p>
+                  <p className="text-sm font-medium">Balance verified at publish</p>
+                  <p className="text-xs text-muted-foreground mt-1">When you publish, we'll verify your wallet balance can cover this offer. The actual deduction happens when a referral closes.</p>
                 </div>
               </div>
               <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
@@ -397,12 +397,12 @@ const CreateOffer = () => {
                 </div>
               )}
               {payoutNum > 0 && !isSuperAdmin && (
-                <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
+              <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
                   <Wallet className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium">Wallet Reserve: ${totalReserved}</p>
+                    <p className="text-sm font-medium">Cost per referral: ${totalReserved}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      ${payoutNum} referral fee + ${platformFee} platform fee ({feePercent}) will be reserved from your wallet when published.
+                      ${payoutNum} referral fee + ${platformFee} platform fee ({feePercent}). Your wallet balance will be verified at publish — actual deduction happens when a deal closes.
                     </p>
                   </div>
                 </div>
@@ -433,7 +433,7 @@ const CreateOffer = () => {
                 <AlertTriangle className="h-5 w-5 text-destructive" /> Insufficient Wallet Balance
               </DialogTitle>
               <DialogDescription>
-                You need <strong>${shortfallDialog.totalRequired}</strong> to publish this offer, but your wallet is short by <strong>${shortfallDialog.shortfall}</strong>.
+                You need <strong>${shortfallDialog.totalRequired}</strong> available in your wallet to cover this offer, but you're short by <strong>${shortfallDialog.shortfall}</strong>. Top up your wallet to continue.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="gap-2">
