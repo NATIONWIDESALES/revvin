@@ -1,42 +1,58 @@
 
 
-## Parts 4-6: Reserve Funds, CreateOffer Rewrite, Wallet Dashboard
+## Part 7: Subscription Upgrade Flow
 
-### Part 4: New Edge Function `reserve-offer-funds`
+### Overview
+Add tier badge, upgrade CTA, a new `create-subscription-session` edge function, and extend the existing webhook to handle subscription events.
 
-Create `supabase/functions/reserve-offer-funds/index.ts`:
+---
 
-- Auth via JWT, verify caller owns the business that owns the offer
-- Fetch offer (must be `status='draft'`), fetch business `pricing_tier`
-- Calculate: `fee_rate` = 0.25 (free) or 0.10 (paid), `total_required` = payout * (1 + fee_rate), `platform_fee` = payout * fee_rate
-- Fetch `wallet_balances` for user; if `available < total_required` return error with `shortfall`
-- If sufficient: use service-role client to atomically update `wallet_balances` (deduct `total_required` from `available`, add payout to `reserved`, add fee to `platform_fees`), insert two `wallet_transactions` (type `reserve` and `fee`), update offer to `status='active'`, `deposit_status='paid'`, `platform_fee_rate=fee_rate`
-- Return `{ success, reserved, fee, remaining_balance }`
+### 1. New Edge Function: `supabase/functions/create-subscription-session/index.ts`
 
-### Part 5: Rewrite `CreateOffer.tsx`
+- Auth via JWT (`getUser(token)` pattern per project convention)
+- Fetch the caller's business to get `business_id`; verify `pricing_tier === 'free'`
+- Create Stripe Checkout session with `mode: 'subscription'`, using price ID from env var `STRIPE_PAID_PLAN_PRICE_ID`
+- Metadata: `user_id`, `business_id`
+- Success URL: `/dashboard?upgrade=success`, Cancel URL: `/dashboard?upgrade=canceled`
+- Return `{ url }` for redirect
 
-- **Remove percentage payout**: Delete the flat/percentage toggle, `maxPayoutCap` field, all percentage logic. Hardcode `payout_type: 'flat'`.
-- **Remove Step 5** (Deposit & Publish): Change `TOTAL_STEPS` to 4, remove step 5 label, remove deposit polling useEffect, remove `handlePayDeposit`, remove step 5 render block.
-- **Step 4 "Publish" button**: On click, call `reserve-offer-funds`. If error with shortfall, show dialog: "You need $X more" with "Top Up Wallet" button navigating to `/dashboard`. If success, toast + navigate to dashboard.
-- **Step 2 fee breakdown**: Fetch business `pricing_tier` on mount. Show dynamic breakdown: "Referral Fee: $X | Platform Fee (Y%): $Z | Total Reserved: $W". Add note about upgrading to paid tier.
-- **Insert changes**: Set `deposit_status: 'not_required'`, `platform_fee_rate` based on tier. Offer saved as draft; publishing handled by edge function.
-- **handleSaveOffer** now saves draft without navigating to step 5. On success, immediately calls `reserve-offer-funds`. If insufficient funds, show modal.
+**Prerequisite**: A Stripe Price for the $50/mo plan must be created. Will use the Stripe tools to create the product+price and store the price ID as a secret (`STRIPE_PAID_PLAN_PRICE_ID`).
 
-### Part 6: Wallet Section in `BusinessDashboard.tsx`
+---
 
-Insert a new card section between Stats and Offers:
+### 2. Extend `stripe-deposit-webhook/index.ts`
 
-- **Wallet Card**: Shows Available Balance, Reserved, Total Funded, Platform Fees from `wallet_balances` (upsert zeros if not found — done via edge function, display zeros if no row)
-- **Top Up button** with suggested amount pills ($100, $250, $500, $1,000) + custom input (min $50). Calls `create-deposit-session` with `{ amount }`, redirects to Stripe.
-- **Recent Transactions**: Compact list of last 10 `wallet_transactions` (type, amount, description, date)
-- **Success detection**: Check URL param `?topup=success` to refetch balance and show toast.
-- **Deposit status cleanup**: Remove old `handlePayDeposit` (per-offer deposit) and old deposit badge logic from offer cards. Replace with wallet-based status.
+Add handling for two new event types alongside the existing `checkout.session.completed`:
+
+- **`checkout.session.completed` with `mode === 'subscription'`**: Read `business_id` from metadata. Update `businesses` table: `pricing_tier='paid'`, `stripe_subscription_id` from session.subscription, `subscription_status='active'`.
+- **`customer.subscription.deleted`**: Look up the business by `stripe_subscription_id`. Update: `pricing_tier='free'`, `subscription_status='canceled'`.
+
+The existing wallet top-up logic (mode=payment) stays untouched — just gate it with `session.mode === 'payment'`.
+
+---
+
+### 3. Update `BusinessDashboard.tsx`
+
+Add to the header area (next to business name):
+
+- **Tier Badge**: Show `Free (25% fee)` or `Paid (10% fee)` based on `business.pricing_tier`
+- **Upgrade CTA card** (only if `pricing_tier === 'free'`): 
+  - "Upgrade to Revvin Paid — $50/mo"
+  - "Reduce your platform fee from 25% to 10%"
+  - "Breakeven at ~3 closed referrals per month"
+  - "Upgrade Now" button → calls `create-subscription-session`, redirects to Stripe
+- **Detect `?upgrade=success`** URL param: show toast, refetch business data
+
+---
 
 ### Files Changed
 
 | File | Action |
 |------|--------|
-| `supabase/functions/reserve-offer-funds/index.ts` | New edge function |
-| `src/pages/dashboard/CreateOffer.tsx` | Major rewrite (remove % type, remove step 5, add wallet reserve flow) |
-| `src/pages/dashboard/BusinessDashboard.tsx` | Add wallet section, remove per-offer deposit logic |
+| `supabase/functions/create-subscription-session/index.ts` | New edge function |
+| `supabase/functions/stripe-deposit-webhook/index.ts` | Add subscription event handling |
+| `src/pages/dashboard/BusinessDashboard.tsx` | Add tier badge + upgrade CTA |
+
+### Secrets Needed
+- `STRIPE_PAID_PLAN_PRICE_ID` — will create the Stripe product/price first, then store the ID as a secret
 
