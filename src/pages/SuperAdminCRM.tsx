@@ -107,8 +107,6 @@ const SuperAdminCRM = () => {
   const [editingNotes, setEditingNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [approvingBiz, setApprovingBiz] = useState<string | null>(null);
-  const [payoutMethod, setPayoutMethod] = useState("");
-  const [payoutRef, setPayoutRef] = useState("");
   const [tremendousSending, setTremendousSending] = useState<string | null>(null);
 
   // SEO: noindex
@@ -363,8 +361,6 @@ const SuperAdminCRM = () => {
     setPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, ...updates } : p));
     if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: `payout_${status}`, p_referral_id: payouts.find(p => p.id === payoutId)?.referral_id });
     toast({ title: `Payout marked as ${status}` });
-    setPayoutMethod("");
-    setPayoutRef("");
   };
 
   const sendViaTremendous = async (payoutId: string) => {
@@ -656,19 +652,13 @@ const SuperAdminCRM = () => {
                                 </div>
                               )}
                               {payout.status === "processing" && (
-                                <div className="flex flex-col gap-2">
-                                  <div className="flex gap-1">
-                                    <Input placeholder="Method (e.g. tremendous)" className="h-7 text-xs w-32" value={payoutMethod} onChange={e => setPayoutMethod(e.target.value)} />
-                                    <Input placeholder="Reference ID" className="h-7 text-xs w-32" value={payoutRef} onChange={e => setPayoutRef(e.target.value)} />
-                                  </div>
-                                  <div className="flex gap-1">
-                                    <Button size="sm" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "paid", payoutMethod, payoutRef)}>
-                                      <CheckCircle2 className="h-3 w-3" /> Mark Paid
-                                    </Button>
-                                    <Button size="sm" variant="destructive" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "failed")}>
-                                      <XCircle className="h-3 w-3" /> Failed
-                                    </Button>
-                                  </div>
+                                <div className="flex gap-1">
+                                  <Button size="sm" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "paid")}>
+                                    <CheckCircle2 className="h-3 w-3" /> Approve
+                                  </Button>
+                                  <Button size="sm" variant="destructive" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "failed")}>
+                                    <XCircle className="h-3 w-3" /> Reject
+                                  </Button>
                                 </div>
                               )}
                             </div>
