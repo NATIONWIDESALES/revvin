@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import {
   DollarSign, Users, PlusCircle,
   CheckCircle2, XCircle, Clock, Eye, Building2,
-  Pause, Play, Edit, Target, Link2, Check, X,
+  Pause, Play, Edit, Target, Link2, Check, X, Info,
   Wallet, ArrowUpRight, CreditCard, Loader2, Crown, Zap
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -36,11 +36,9 @@ const statusConfig: Record<string, { bg: string; text: string; label: string }> 
 
 const txTypeLabels: Record<string, { label: string; color: string }> = {
   topup: { label: "Top-Up", color: "text-earnings" },
-  reserve: { label: "Reserved", color: "text-primary" },
   fee: { label: "Fee", color: "text-muted-foreground" },
   payout: { label: "Payout", color: "text-destructive" },
   refund: { label: "Refund", color: "text-earnings" },
-  release: { label: "Released", color: "text-earnings" },
 };
 
 const SUGGESTED_AMOUNTS = [100, 250, 500, 1000];
@@ -215,7 +213,7 @@ const BusinessDashboard = () => {
 
   const toggleOfferStatus = async (offerId: string, currentStatus: string) => {
     if (currentStatus === "active") {
-      // Pausing: use edge function to release funds
+      // Pausing: use edge function (checks for active referrals)
       try {
         const { data, error } = await supabase.functions.invoke("release-offer-funds", {
           body: { offer_id: offerId, new_status: "paused" },
@@ -223,15 +221,26 @@ const BusinessDashboard = () => {
         if (error) throw error;
         if (data?.error) throw new Error(data.error);
         setOffers((prev) => prev.map((o) => (o.id === offerId ? { ...o, status: "paused" } : o)));
-        toast({ title: "Offer paused", description: data?.released > 0 ? `$${data.released} released back to wallet.` : "Offer is now hidden from the marketplace." });
-        if (user) await fetchWallet(user.id);
+        toast({ title: "Offer paused", description: "Offer is now hidden from the marketplace." });
       } catch (err: any) {
         toast({ title: "Cannot pause offer", description: err.message || "Something went wrong", variant: "destructive" });
       }
     } else {
-      // Reactivating: simple status update
-      await supabase.from("offers").update({ status: "active" }).eq("id", offerId);
-      setOffers((prev) => prev.map((o) => (o.id === offerId ? { ...o, status: "active" } : o)));
+      // Reactivating: validate balance via reserve-offer-funds
+      try {
+        const { data, error } = await supabase.functions.invoke("reserve-offer-funds", {
+          body: { offer_id: offerId },
+        });
+        if (error) throw error;
+        if (data?.error) {
+          toast({ title: "Cannot activate offer", description: data.error, variant: "destructive" });
+          return;
+        }
+        setOffers((prev) => prev.map((o) => (o.id === offerId ? { ...o, status: "active" } : o)));
+        toast({ title: "Offer activated", description: "Offer is now live on the marketplace." });
+      } catch (err: any) {
+        toast({ title: "Cannot activate offer", description: err.message || "Something went wrong", variant: "destructive" });
+      }
     }
   };
 
@@ -257,7 +266,13 @@ const BusinessDashboard = () => {
   const newRefs7d = referrals.filter(r => new Date(r.created_at) > new Date(Date.now() - 7 * 86400000)).length;
   const sym = currencySymbol(displayCurrency);
 
-  const wb = walletBalance || { available: 0, reserved: 0, total_funded: 0, platform_fees: 0 };
+  const wb = walletBalance || { available: 0, reserved: 0, total_funded: 0, platform_fees: 0, paid_out: 0 };
+
+  // Soft reserve: calculate committed from active offers
+  const totalCommitted = offers
+    .filter(o => o.status === "active")
+    .reduce((sum, o) => sum + Math.round(Number(o.payout) * (1 + Number(o.platform_fee_rate ?? 0.25)) * 100) / 100, 0);
+  const availableToCommit = Math.max(0, Math.round((Number(wb.available) - totalCommitted) * 100) / 100);
 
   const checklistItems = [
     { label: "Upload business logo", done: !!business?.logo_url, action: () => navigate("/dashboard/profile"), actionLabel: "Upload" },
@@ -362,14 +377,22 @@ const BusinessDashboard = () => {
             <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-6">
                 {[
-                  { label: "Available", value: `$${Number(wb.available).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: "text-earnings" },
-                  { label: "Reserved", value: `$${Number(wb.reserved).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: "text-primary" },
-                  { label: "Total Funded", value: `$${Number(wb.total_funded).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: "text-foreground" },
-                  { label: "Platform Fees", value: `$${Number(wb.platform_fees).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: "text-muted-foreground" },
-                ].map((item) => (
-                  <div key={item.label} className="rounded-xl bg-muted/30 border border-border p-4 text-center">
-                    <p className="text-xs text-muted-foreground font-medium">{item.label}</p>
+                  { label: "Balance", value: `$${Number(wb.available).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: "text-earnings" },
+                  { label: "Committed", value: `$${totalCommitted.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: "text-primary", tooltip: "This is the total amount your active offers could pay out. Your wallet balance needs to stay above this amount. When a referral closes, the payout + platform fee is deducted from your balance." },
+                  { label: "Available to Commit", value: `$${availableToCommit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: "text-foreground" },
+                  { label: "Total Paid Out", value: `$${Number(wb.paid_out).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: "text-muted-foreground" },
+                ].map((item: any) => (
+                  <div key={item.label} className="rounded-xl bg-muted/30 border border-border p-4 text-center relative group">
+                    <p className="text-xs text-muted-foreground font-medium flex items-center justify-center gap-1">
+                      {item.label}
+                      {item.tooltip && <Info className="h-3 w-3 text-muted-foreground/60 cursor-help" />}
+                    </p>
                     <p className={`text-xl font-bold ${item.color}`}>{item.value}</p>
+                    {item.tooltip && (
+                      <div className="absolute z-10 hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 rounded-lg bg-popover border border-border shadow-lg text-xs text-popover-foreground">
+                        {item.tooltip}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -420,8 +443,8 @@ const BusinessDashboard = () => {
                             <span className="text-muted-foreground text-xs truncate max-w-[200px]">{tx.description}</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className={`font-medium ${["topup", "refund", "release"].includes(tx.type) ? "text-earnings" : "text-foreground"}`}>
-                              {["topup", "refund", "release"].includes(tx.type) ? "+" : "-"}${Number(tx.amount).toFixed(2)}
+                            <span className={`font-medium ${["topup", "refund"].includes(tx.type) ? "text-earnings" : "text-foreground"}`}>
+                              {["topup", "refund"].includes(tx.type) ? "+" : "-"}${Number(tx.amount).toFixed(2)}
                             </span>
                             <span className="text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleDateString()}</span>
                           </div>

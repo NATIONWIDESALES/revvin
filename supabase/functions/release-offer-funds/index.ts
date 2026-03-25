@@ -54,42 +54,13 @@ serve(async (req) => {
       throw new Error(`Cannot ${new_status} offer: ${activeRefs.length} active referral(s) in progress. Complete or decline them first.`);
     }
 
-    const releaseAmount = Number(offer.payout);
-
-    // Release reserved funds back to available
-    const { data: wallet } = await serviceClient
-      .from("wallet_balances")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
-
-    if (wallet && releaseAmount > 0) {
-      await serviceClient
-        .from("wallet_balances")
-        .update({
-          available: Number(wallet.available) + releaseAmount,
-          reserved: Math.max(0, Number(wallet.reserved) - releaseAmount),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", wallet.id);
-
-      // Insert release transaction
-      await serviceClient.from("wallet_transactions").insert({
-        user_id: userId,
-        type: "release",
-        amount: releaseAmount,
-        offer_id: offer_id,
-        description: `Funds released — offer ${new_status}: ${offer.title}`,
-      });
-    }
-
-    // Update offer status
+    // Just update offer status — no wallet mutation in soft reserve model
     await serviceClient
       .from("offers")
       .update({ status: new_status })
       .eq("id", offer_id);
 
-    return new Response(JSON.stringify({ success: true, released: releaseAmount }), {
+    return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

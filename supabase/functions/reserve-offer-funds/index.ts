@@ -36,11 +36,11 @@ serve(async (req) => {
     // Fetch offer
     const { data: offer, error: offerErr } = await serviceClient
       .from("offers")
-      .select("id, title, payout, status, business_id, deposit_status")
+      .select("id, title, payout, status, business_id, deposit_status, platform_fee_rate")
       .eq("id", offer_id)
       .single();
     if (offerErr || !offer) throw new Error("Offer not found");
-    if (offer.status !== "draft") throw new Error("Offer must be in draft status to publish");
+    if (!["draft", "paused"].includes(offer.status)) throw new Error("Offer must be in draft or paused status to publish");
 
     // Fetch business & verify ownership
     const { data: biz, error: bizErr } = await serviceClient
@@ -51,11 +51,22 @@ serve(async (req) => {
     if (bizErr || !biz) throw new Error("Business not found");
     if (biz.user_id !== user.id) throw new Error("You do not own this business");
 
-    // Calculate fees
+    // Calculate fee rate and new offer cost
     const feeRate = biz.pricing_tier === "paid" ? 0.10 : 0.25;
     const payout = Number(offer.payout);
-    const platformFee = Math.round(payout * feeRate * 100) / 100;
-    const totalRequired = Math.round((payout + platformFee) * 100) / 100;
+    const newOfferCost = Math.round(payout * (1 + feeRate) * 100) / 100;
+
+    // Calculate total committed from all OTHER active offers for this business
+    const { data: activeOffers, error: activeErr } = await serviceClient
+      .from("offers")
+      .select("payout, platform_fee_rate")
+      .eq("business_id", biz.id)
+      .eq("status", "active");
+    if (activeErr) throw new Error("Failed to fetch active offers");
+
+    const totalCommitted = (activeOffers ?? []).reduce((sum, o) => {
+      return sum + Math.round(Number(o.payout) * (1 + Number(o.platform_fee_rate)) * 100) / 100;
+    }, 0);
 
     // Fetch wallet balance
     const { data: wallet } = await serviceClient
@@ -65,61 +76,28 @@ serve(async (req) => {
       .maybeSingle();
 
     const available = wallet ? Number(wallet.available) : 0;
+    const totalNeeded = Math.round((totalCommitted + newOfferCost) * 100) / 100;
 
-    if (available < totalRequired) {
+    if (available < totalNeeded) {
+      const shortfall = Math.round((totalNeeded - available) * 100) / 100;
       return new Response(
         JSON.stringify({
           error: "Insufficient wallet balance",
-          shortfall: Math.round((totalRequired - available) * 100) / 100,
-          total_required: totalRequired,
+          shortfall,
+          total_required: newOfferCost,
+          total_committed: totalCommitted,
           available,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 402 }
       );
     }
 
-    // Atomic updates using service role
-    const newAvailable = Math.round((available - totalRequired) * 100) / 100;
-    const newReserved = Math.round(((wallet?.reserved ? Number(wallet.reserved) : 0) + payout) * 100) / 100;
-    const newFees = Math.round(((wallet?.platform_fees ? Number(wallet.platform_fees) : 0) + platformFee) * 100) / 100;
-
-    // Update wallet balance
-    const { error: walletErr } = await serviceClient
-      .from("wallet_balances")
-      .update({
-        available: newAvailable,
-        reserved: newReserved,
-        platform_fees: newFees,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", user.id);
-    if (walletErr) throw new Error("Failed to update wallet: " + walletErr.message);
-
-    // Insert reserve transaction
-    const feeLabel = biz.pricing_tier === "paid" ? "10%" : "25%";
-    await serviceClient.from("wallet_transactions").insert([
-      {
-        user_id: user.id,
-        type: "reserve",
-        amount: payout,
-        offer_id: offer.id,
-        description: `Reserved for offer: ${offer.title}`,
-      },
-      {
-        user_id: user.id,
-        type: "fee",
-        amount: platformFee,
-        offer_id: offer.id,
-        description: `Platform fee (${feeLabel}): ${offer.title}`,
-      },
-    ]);
-
-    // Update offer status
+    // Just activate the offer — no wallet mutation
     await serviceClient
       .from("offers")
       .update({
         status: "active",
-        deposit_status: "paid",
+        deposit_status: "validated",
         platform_fee_rate: feeRate,
       })
       .eq("id", offer.id);
@@ -127,14 +105,14 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        reserved: payout,
-        fee: platformFee,
-        remaining_balance: newAvailable,
+        offer_cost: newOfferCost,
+        total_committed: Math.round((totalCommitted + newOfferCost) * 100) / 100,
+        available,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {
-    console.error("Error reserving offer funds:", error);
+    console.error("Error validating offer funds:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
