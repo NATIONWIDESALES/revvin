@@ -143,6 +143,23 @@ const BusinessDashboard = () => {
     }
   };
 
+  const handleUpgrade = async () => {
+    setUpgradeLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-subscription-session");
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to create subscription session", variant: "destructive" });
+    } finally {
+      setUpgradeLoading(false);
+    }
+  };
+
   const handleAccept = async (ref: any) => {
     const payoutAmt = ref.offers?.payout_type === "flat" ? Number(ref.offers.payout) : 0;
     await supabase.from("referrals").update({ status: "accepted", payout_snapshot: payoutAmt, payout_type_snapshot: ref.offers?.payout_type ?? "flat" }).eq("id", ref.id);
