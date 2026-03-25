@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get referrer's email from auth and payout preferences
+    // Get referrer's email from auth
     const { data: { user: referrerUser } } = await admin.auth.admin.getUserById(payout.referrer_id);
     const referrerEmail = referrerUser?.email;
 
@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get referrer payout preferences
+    // Get referrer payout preferences (may override email)
     const { data: prefs } = await admin
       .from("referrer_payout_preferences")
       .select("method, email")
@@ -101,8 +101,7 @@ Deno.serve(async (req) => {
 
     const recipientName = profile?.full_name || "Referrer";
 
-    // Map internal method to Tremendous delivery method
-    // Tremendous products: ACH, INTERAC, etc. — we'll use their default catalog
+    // Tremendous API setup
     const tremendousApiKey = Deno.env.get("TREMENDOUS_API_KEY");
     if (!tremendousApiKey) {
       return new Response(JSON.stringify({ error: "TREMENDOUS_API_KEY not configured" }), {
@@ -111,58 +110,34 @@ Deno.serve(async (req) => {
       });
     }
 
-    // First, get the funding source
-    const fundingRes = await fetch(`${TREMENDOUS_BASE_URL}/funding_sources`, {
-      headers: {
-        Authorization: `Bearer ${tremendousApiKey}`,
-        "Content-Type": "application/json",
+    // Optional: use a campaign for branded redemption page
+    const campaignId = Deno.env.get("TREMENDOUS_CAMPAIGN_ID");
+
+    // Build order payload — singular "reward" for synchronous processing (HTTP 200)
+    const rewardPayload: Record<string, any> = {
+      value: {
+        denomination: Number(payout.amount),
+        currency_code: payout.currency || "CAD",
       },
-    });
-    const fundingData = await fundingRes.json();
-    if (!fundingRes.ok) {
-      console.error("Tremendous funding sources error:", fundingData);
-      return new Response(JSON.stringify({ error: "Failed to fetch Tremendous funding sources", details: fundingData }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      delivery: {
+        method: "LINK", // Revvin controls notification UX, not Tremendous
+      },
+      recipient: {
+        name: recipientName,
+        email: recipientEmail,
+      },
+    };
+
+    // If campaign is configured, use it (handles product selection + branding)
+    if (campaignId) {
+      rewardPayload.campaign_id = campaignId;
     }
 
-    // Use the first available funding source
-    const fundingSource = fundingData.funding_sources?.find((fs: any) => fs.method === "balance" || fs.method === "bank_account") || fundingData.funding_sources?.[0];
-    if (!fundingSource) {
-      return new Response(JSON.stringify({ error: "No Tremendous funding source available" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Determine delivery method based on referrer preference
-    let deliveryMethod = "EMAIL";
-    // Tremendous supports: EMAIL, LINK, PHONE
-    // For now, always use EMAIL delivery
-
-    // Create Tremendous order
     const orderPayload = {
       payment: {
-        funding_source_id: fundingSource.id,
+        funding_source_id: "BALANCE",
       },
-      rewards: [
-        {
-          value: {
-            denomination: payout.amount,
-            currency_code: payout.currency || "USD",
-          },
-          delivery: {
-            method: deliveryMethod,
-          },
-          recipient: {
-            name: recipientName,
-            email: recipientEmail,
-          },
-          // Use Tremendous' default catalog (all available options)
-          products: ["OKMHM2X2OHYV"],
-        },
-      ],
+      reward: rewardPayload, // singular = synchronous
     };
 
     console.log("Creating Tremendous order:", JSON.stringify(orderPayload));
@@ -180,7 +155,7 @@ Deno.serve(async (req) => {
 
     if (!orderRes.ok) {
       console.error("Tremendous order error:", orderData);
-      // Update payout with failure info
+
       await admin.from("payouts").update({
         status: "failed",
         notes: `Tremendous API error: ${JSON.stringify(orderData.errors || orderData)}`,
@@ -193,14 +168,18 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Extract IDs and the redemption LINK
     const orderId = orderData.order?.id;
-    const rewardId = orderData.order?.rewards?.[0]?.id;
+    const reward = orderData.order?.rewards?.[0];
+    const rewardId = reward?.id;
+    const redemptionLink = reward?.delivery?.link;
 
-    // Update payout to processing
+    // Update payout record — includes tremendous_reward_id for direct webhook lookup
     await admin.from("payouts").update({
       status: "processing",
       method: "tremendous",
       provider_reference: orderId || rewardId || "unknown",
+      tremendous_reward_id: rewardId,
       processed_by: user.id,
       updated_at: new Date().toISOString(),
     }).eq("id", payout_id);
@@ -213,10 +192,85 @@ Deno.serve(async (req) => {
       payload: {
         payout_id,
         tremendous_order_id: orderId,
+        tremendous_reward_id: rewardId,
         amount: payout.amount,
         currency: payout.currency,
         recipient_email: recipientEmail,
+        delivery_method: "LINK",
       },
+    });
+
+    // Send payout notification email via Resend with the redemption link
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    if (resendApiKey && redemptionLink) {
+      try {
+        const firstName = recipientName.split(" ")[0];
+        const amount = Number(payout.amount).toFixed(2);
+        const curr = payout.currency || "CAD";
+
+        const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F9FAFB;">
+<tr><td align="center" style="padding:40px 16px;">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background-color:#FFFFFF;border-radius:12px;overflow:hidden;">
+<tr><td style="padding:32px 24px;">
+<p style="margin:0 0 24px 0;font-size:14px;font-weight:700;color:#15803D;text-transform:lowercase;">revvin</p>
+<p style="margin:0 0 8px 0;font-size:20px;font-weight:600;color:#111827;">Your $${amount} ${curr} reward is ready!</p>
+<p style="margin:0 0 24px 0;font-size:15px;color:#374151;line-height:1.6;">Hi ${firstName}, your referral payout has been approved. Click below to choose how you'd like to receive your reward — gift card, PayPal, bank transfer, and more.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td align="center" style="padding:8px 0 24px 0;">
+<a href="${redemptionLink}" target="_blank" style="display:inline-block;background-color:#15803D;color:#FFFFFF;font-size:16px;font-weight:600;text-decoration:none;padding:14px 32px;border-radius:8px;">Claim Your Reward</a>
+</td></tr>
+</table>
+<p style="margin:0;font-size:13px;color:#9CA3AF;line-height:1.5;text-align:center;">This link is unique to you. If you have questions, reply to this email.</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${resendApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: "Revvin <updates@updates.revvin.co>",
+            to: [recipientEmail],
+            reply_to: "support@revvin.co",
+            subject: `Your $${amount} ${curr} referral reward is ready`,
+            html,
+          }),
+        });
+
+        console.log(`📧 Payout notification sent to ${recipientEmail}`);
+      } catch (emailErr) {
+        console.error("Failed to send payout email:", emailErr);
+        // Non-blocking — payout still succeeded
+      }
+    }
+
+    // Log notification
+    await admin.from("notifications_log").insert({
+      type: "payout_sent",
+      recipient_email: recipientEmail,
+      recipient_name: recipientName,
+      subject: `Payout of $${payout.amount} ${payout.currency || "CAD"} sent`,
+      body: `Tremendous order ${orderId}, reward ${rewardId}`,
+      status: redemptionLink ? "sent" : "link_only",
+    });
+
+    // Create in-app notification for the referrer
+    await admin.from("notifications").insert({
+      user_id: payout.referrer_id,
+      title: "Payout Ready!",
+      body: `Your $${Number(payout.amount).toFixed(2)} ${payout.currency || "CAD"} reward is ready to claim.`,
+      type: "payout_ready",
+      referral_id: payout.referral_id,
     });
 
     return new Response(JSON.stringify({
@@ -224,6 +278,7 @@ Deno.serve(async (req) => {
       order_id: orderId,
       reward_id: rewardId,
       recipient_email: recipientEmail,
+      has_link: !!redemptionLink,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
