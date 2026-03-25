@@ -40,6 +40,7 @@ const txTypeLabels: Record<string, { label: string; color: string }> = {
   fee: { label: "Fee", color: "text-muted-foreground" },
   payout: { label: "Payout", color: "text-destructive" },
   refund: { label: "Refund", color: "text-earnings" },
+  release: { label: "Released", color: "text-earnings" },
 };
 
 const SUGGESTED_AMOUNTS = [100, 250, 500, 1000];
@@ -182,16 +183,18 @@ const BusinessDashboard = () => {
   };
 
   const handleWon = async (ref: any) => {
-    const payoutAmt = ref.payout_snapshot ?? (ref.offers?.payout_type === "flat" ? Number(ref.offers.payout) : 0);
-    const referrerPayout = Math.round(payoutAmt * 0.9);
-    const platformFee = payoutAmt - referrerPayout;
-    await supabase.from("referrals").update({ status: "won", payout_amount: referrerPayout, payout_status: "approved" }).eq("id", ref.id);
-    await supabase.from("payouts").insert({ referral_id: ref.id, business_id: ref.business_id, referrer_id: ref.referrer_id, amount: referrerPayout, platform_fee: platformFee, status: "ready" });
-    setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "won", payout_amount: referrerPayout, payout_status: "approved" } : r)));
-    toast({ title: "Deal closed!", description: `Payout created for referrer.` });
-    if (user) {
-      supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_event_type: "referral_won", p_payload: { payout: referrerPayout, fee: platformFee } });
-      supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Deal closed — payout coming!", p_body: `Your referral for "${ref.offers?.title}" closed. Payout is being processed.`, p_type: "referral_won", p_referral_id: ref.id });
+    try {
+      const { data, error } = await supabase.functions.invoke("process-deal-won", {
+        body: { referral_id: ref.id },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const payoutAmt = data?.payout_amount ?? ref.payout_snapshot ?? Number(ref.offers?.payout ?? 0);
+      setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "won", payout_amount: payoutAmt, payout_status: "approved" } : r)));
+      toast({ title: "Deal closed!", description: `Payout of $${payoutAmt} created for referrer.` });
+      if (user) await fetchWallet(user.id);
+    } catch (err: any) {
+      toast({ title: "Error closing deal", description: err.message || "Something went wrong", variant: "destructive" });
     }
   };
 
@@ -211,9 +214,25 @@ const BusinessDashboard = () => {
   };
 
   const toggleOfferStatus = async (offerId: string, currentStatus: string) => {
-    const newStatus = currentStatus === "active" ? "paused" : "active";
-    await supabase.from("offers").update({ status: newStatus }).eq("id", offerId);
-    setOffers((prev) => prev.map((o) => (o.id === offerId ? { ...o, status: newStatus } : o)));
+    if (currentStatus === "active") {
+      // Pausing: use edge function to release funds
+      try {
+        const { data, error } = await supabase.functions.invoke("release-offer-funds", {
+          body: { offer_id: offerId, new_status: "paused" },
+        });
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+        setOffers((prev) => prev.map((o) => (o.id === offerId ? { ...o, status: "paused" } : o)));
+        toast({ title: "Offer paused", description: data?.released > 0 ? `$${data.released} released back to wallet.` : "Offer is now hidden from the marketplace." });
+        if (user) await fetchWallet(user.id);
+      } catch (err: any) {
+        toast({ title: "Cannot pause offer", description: err.message || "Something went wrong", variant: "destructive" });
+      }
+    } else {
+      // Reactivating: simple status update
+      await supabase.from("offers").update({ status: "active" }).eq("id", offerId);
+      setOffers((prev) => prev.map((o) => (o.id === offerId ? { ...o, status: "active" } : o)));
+    }
   };
 
   const saveEditPayout = async (offerId: string) => {
@@ -401,8 +420,8 @@ const BusinessDashboard = () => {
                             <span className="text-muted-foreground text-xs truncate max-w-[200px]">{tx.description}</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className={`font-medium ${tx.type === "topup" || tx.type === "refund" ? "text-earnings" : "text-foreground"}`}>
-                              {tx.type === "topup" || tx.type === "refund" ? "+" : "-"}${Number(tx.amount).toFixed(2)}
+                            <span className={`font-medium ${["topup", "refund", "release"].includes(tx.type) ? "text-earnings" : "text-foreground"}`}>
+                              {["topup", "refund", "release"].includes(tx.type) ? "+" : "-"}${Number(tx.amount).toFixed(2)}
                             </span>
                             <span className="text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleDateString()}</span>
                           </div>

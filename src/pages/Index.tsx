@@ -27,7 +27,7 @@ const faqItems = [
   { q: "How much does it cost to list?", a: "Nothing. You only pay when a referred customer actually closes." },
   { q: "How do referrers get paid?", a: "When a deal is confirmed closed, Revvin processes the payout automatically. The business sets the reward amount upfront." },
   { q: "What if a referral doesn't convert?", a: "You owe nothing. No close, no cost." },
-  { q: "How does Revvin make money?", a: "A 10% platform fee on successful payouts. We only earn when everyone else does." },
+  { q: "How does Revvin make money?", a: "A platform fee on each referral offer (25% on Free tier, 10% on Paid). The referrer always gets the full advertised amount." },
 ];
 
 const Index = () => {
@@ -158,7 +158,7 @@ const Index = () => {
       <section className="py-12 border-y border-border">
         <div className="container">
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
-            {["Free to list", "90/10 payout split", "Pay only on close", "Canada & USA"].map((text) => (
+            {["Free to list", "100% referrer payout", "Pay only on close", "Canada & USA"].map((text) => (
               <span key={text} className="rounded-full border border-border bg-surface px-5 py-2 text-xs font-medium text-muted-foreground">
                 {text}
               </span>

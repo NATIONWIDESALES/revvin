@@ -76,7 +76,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
               {offer.category}
             </Badge>
             <p className="text-base font-bold text-foreground">
-              {offer.payoutType === "flat" ? formatPayout(offer.payout, offer.currency) : `${offer.payout}%`}
+              {formatPayout(offer.payout, offer.currency)}
               <span className="text-xs font-normal text-muted-foreground ml-1">/ referral</span>
             </p>
           </div>

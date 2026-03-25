@@ -9,7 +9,7 @@ export interface Offer {
   category: string;
   description: string;
   payout: number;
-  payoutType: "flat" | "percentage";
+  payoutType: "flat";
   currency: Currency;
   country: Country;
   location: string;

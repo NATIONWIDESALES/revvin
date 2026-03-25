@@ -35,7 +35,7 @@ const Browse = () => {
 
   // Filter states
   const [payoutRange, setPayoutRange] = useState([0, 1000]);
-  const [payoutTypeFilter, setPayoutTypeFilter] = useState<"all" | "flat" | "percentage">("all");
+  // payoutTypeFilter removed — all offers are flat
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [stateFilter, setStateFilter] = useState("");
   const [cityFilter, setCityFilter] = useState("");
@@ -62,7 +62,7 @@ const Browse = () => {
         o.city.toLowerCase().includes(search.toLowerCase());
       const matchesCat = activeCategory === "All" || o.category === activeCategory;
       const matchesPayout = o.payout >= payoutRange[0] && o.payout <= payoutRange[1];
-      const matchesType = payoutTypeFilter === "all" || o.payoutType === payoutTypeFilter;
+      const matchesType = true;
       const matchesVerified = !verifiedOnly || o.verified !== false;
       const matchesState = !stateFilter || o.state === stateFilter;
       const matchesCity = !cityFilter || o.city === cityFilter;
@@ -76,7 +76,7 @@ const Browse = () => {
 
   const clearFilters = () => {
     setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]);
-    setPayoutTypeFilter("all"); setVerifiedOnly(false); setStateFilter(""); setCityFilter("");
+    setVerifiedOnly(false); setStateFilter(""); setCityFilter("");
   };
 
   if (isLoading) {
@@ -227,9 +227,6 @@ const Browse = () => {
                 </div>
               </div>
               <div className="mt-4 flex gap-2 flex-wrap">
-                <Button size="sm" variant={payoutTypeFilter === "all" ? "default" : "outline"} onClick={() => setPayoutTypeFilter("all")}>All Types</Button>
-                <Button size="sm" variant={payoutTypeFilter === "flat" ? "default" : "outline"} onClick={() => setPayoutTypeFilter("flat")}>$ Flat</Button>
-                <Button size="sm" variant={payoutTypeFilter === "percentage" ? "default" : "outline"} onClick={() => setPayoutTypeFilter("percentage")}>% Pct</Button>
                 <Button size="sm" variant={verifiedOnly ? "default" : "outline"} onClick={() => setVerifiedOnly(!verifiedOnly)}>Verified Only</Button>
                 <div className="ml-auto">
                   <Button size="sm" variant="ghost" onClick={clearFilters}>Clear All</Button>
