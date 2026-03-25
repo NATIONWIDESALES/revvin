@@ -68,16 +68,21 @@ serve(async (req) => {
       .eq("user_id", userId)
       .single();
 
-    if (wallet) {
-      await serviceClient
-        .from("wallet_balances")
-        .update({
-          reserved: Math.max(0, Number(wallet.reserved) - payoutAmt),
-          paid_out: Number(wallet.paid_out) + payoutAmt,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", wallet.id);
+    if (!wallet) throw new Error("No wallet found for this business");
+    if (Number(wallet.reserved) < payoutAmt) {
+      throw new Error(
+        `Insufficient reserved funds: reserved=$${Number(wallet.reserved).toFixed(2)}, payout=$${payoutAmt.toFixed(2)}`
+      );
     }
+
+    await serviceClient
+      .from("wallet_balances")
+      .update({
+        reserved: Number(wallet.reserved) - payoutAmt,
+        paid_out: Number(wallet.paid_out) + payoutAmt,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", wallet.id);
 
     // 3. Insert wallet transaction
     await serviceClient.from("wallet_transactions").insert({

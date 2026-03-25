@@ -157,6 +157,35 @@ serve(async (req) => {
     }
   }
 
+  // ─── invoice.payment_failed ───
+  if (event.type === "invoice.payment_failed") {
+    const invoice = event.data.object as Stripe.Invoice;
+    if (invoice.billing_reason === "subscription_cycle" && invoice.subscription) {
+      const subscriptionId = typeof invoice.subscription === "string" ? invoice.subscription : invoice.subscription.id;
+
+      const { data: biz } = await supabaseAdmin
+        .from("businesses")
+        .select("id")
+        .eq("stripe_subscription_id", subscriptionId)
+        .single();
+
+      if (biz) {
+        await supabaseAdmin
+          .from("businesses")
+          .update({ subscription_status: "past_due" })
+          .eq("id", biz.id);
+
+        await supabaseAdmin.from("audit_log").insert({
+          actor_id: biz.id,
+          event_type: "subscription_payment_failed",
+          payload: { subscription_id: subscriptionId, invoice_id: invoice.id },
+        });
+
+        console.log(`Subscription ${subscriptionId} payment failed, marked past_due`);
+      }
+    }
+  }
+
   // ─── customer.subscription.deleted ───
   if (event.type === "customer.subscription.deleted") {
     const subscription = event.data.object as Stripe.Subscription;
