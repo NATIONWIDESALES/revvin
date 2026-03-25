@@ -81,7 +81,10 @@ export type Database = {
           longitude: number | null
           name: string
           phone: string | null
+          pricing_tier: string
           state: string | null
+          stripe_subscription_id: string | null
+          subscription_status: string | null
           updated_at: string
           user_id: string
           verified: boolean | null
@@ -99,7 +102,10 @@ export type Database = {
           longitude?: number | null
           name: string
           phone?: string | null
+          pricing_tier?: string
           state?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
           updated_at?: string
           user_id: string
           verified?: boolean | null
@@ -117,7 +123,10 @@ export type Database = {
           longitude?: number | null
           name?: string
           phone?: string | null
+          pricing_tier?: string
           state?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
           updated_at?: string
           user_id?: string
           verified?: boolean | null
@@ -213,6 +222,7 @@ export type Database = {
           max_payout_cap: number | null
           payout: number
           payout_type: string
+          platform_fee_rate: number
           qualification_criteria: string | null
           remote_eligible: boolean | null
           restricted: boolean | null
@@ -243,6 +253,7 @@ export type Database = {
           max_payout_cap?: number | null
           payout?: number
           payout_type?: string
+          platform_fee_rate?: number
           qualification_criteria?: string | null
           remote_eligible?: boolean | null
           restricted?: boolean | null
@@ -273,6 +284,7 @@ export type Database = {
           max_payout_cap?: number | null
           payout?: number
           payout_type?: string
+          platform_fee_rate?: number
           qualification_criteria?: string | null
           remote_eligible?: boolean | null
           restricted?: boolean | null
@@ -627,6 +639,7 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          offer_id: string | null
           referral_id: string | null
           type: string
           user_id: string
@@ -636,6 +649,7 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
+          offer_id?: string | null
           referral_id?: string | null
           type: string
           user_id: string
@@ -645,11 +659,19 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          offer_id?: string | null
           referral_id?: string | null
           type?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "wallet_transactions_referral_id_fkey"
             columns: ["referral_id"]

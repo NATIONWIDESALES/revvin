@@ -36,12 +36,19 @@ serve(async (req) => {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const offerId = session.metadata?.offer_id;
-    const expectedAmount = session.metadata?.deposit_amount;
+    const userId = session.metadata?.user_id;
+    const amountStr = session.metadata?.amount;
+    const paymentIntent = session.payment_intent as string;
 
-    if (!offerId) {
-      console.error("No offer_id in session metadata");
-      return new Response("Missing offer_id", { status: 400 });
+    if (!userId || !amountStr) {
+      console.error("Missing user_id or amount in session metadata");
+      return new Response("Missing metadata", { status: 400 });
+    }
+
+    const amount = parseFloat(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+      console.error("Invalid amount in metadata:", amountStr);
+      return new Response("Invalid amount", { status: 400 });
     }
 
     const supabaseAdmin = createClient(
@@ -49,49 +56,73 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { data: offer } = await supabaseAdmin
-      .from("offers")
-      .select("deposit_status, deposit_amount, stripe_checkout_session_id")
-      .eq("id", offerId)
-      .single();
+    // Idempotency: check if we already processed this payment intent
+    const { data: existing } = await supabaseAdmin
+      .from("wallet_transactions")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("type", "topup")
+      .eq("description", `Stripe top-up (${paymentIntent})`)
+      .limit(1);
 
-    if (!offer) {
-      console.error("Offer not found:", offerId);
-      return new Response("Offer not found", { status: 404 });
-    }
-
-    if (offer.deposit_status === "paid") {
-      console.log("Deposit already marked as paid, skipping");
+    if (existing && existing.length > 0) {
+      console.log("Top-up already processed for payment_intent:", paymentIntent);
       return new Response(JSON.stringify({ received: true }), { status: 200 });
     }
 
-    if (offer.stripe_checkout_session_id !== session.id) {
-      console.error("Session ID mismatch");
-      return new Response("Session mismatch", { status: 400 });
+    // Upsert wallet balance
+    const { data: wallet } = await supabaseAdmin
+      .from("wallet_balances")
+      .select("id, available, total_funded")
+      .eq("user_id", userId)
+      .single();
+
+    if (wallet) {
+      const { error: updateError } = await supabaseAdmin
+        .from("wallet_balances")
+        .update({
+          available: wallet.available + amount,
+          total_funded: wallet.total_funded + amount,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", wallet.id);
+
+      if (updateError) {
+        console.error("Failed to update wallet_balances:", updateError);
+        return new Response("DB update failed", { status: 500 });
+      }
+    } else {
+      const { error: insertError } = await supabaseAdmin
+        .from("wallet_balances")
+        .insert({
+          user_id: userId,
+          available: amount,
+          total_funded: amount,
+          currency: "USD",
+        });
+
+      if (insertError) {
+        console.error("Failed to insert wallet_balances:", insertError);
+        return new Response("DB insert failed", { status: 500 });
+      }
     }
 
-    const paidAmountCents = session.amount_total;
-    const expectedAmountCents = expectedAmount ? Math.round(parseFloat(expectedAmount) * 100) : null;
-    if (expectedAmountCents && paidAmountCents !== expectedAmountCents) {
-      console.error(`Amount mismatch: paid ${paidAmountCents}, expected ${expectedAmountCents}`);
-      return new Response("Amount mismatch", { status: 400 });
+    // Record transaction
+    const { error: txError } = await supabaseAdmin
+      .from("wallet_transactions")
+      .insert({
+        user_id: userId,
+        type: "topup",
+        amount,
+        description: `Stripe top-up (${paymentIntent})`,
+      });
+
+    if (txError) {
+      console.error("Failed to insert wallet_transaction:", txError);
+      return new Response("TX insert failed", { status: 500 });
     }
 
-    const { error: updateError } = await supabaseAdmin
-      .from("offers")
-      .update({
-        deposit_status: "paid",
-        stripe_payment_intent_id: session.payment_intent as string,
-        deposit_paid_at: new Date().toISOString(),
-      })
-      .eq("id", offerId);
-
-    if (updateError) {
-      console.error("Failed to update offer:", updateError);
-      return new Response("DB update failed", { status: 500 });
-    }
-
-    console.log(`Deposit marked as paid for offer ${offerId}`);
+    console.log(`Wallet topped up $${amount} for user ${userId}`);
   }
 
   return new Response(JSON.stringify({ received: true }), {
