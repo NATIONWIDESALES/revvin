@@ -34,7 +34,7 @@ serve(async (req) => {
     // Fetch referral with offer info
     const { data: ref, error: refErr } = await serviceClient
       .from("referrals")
-      .select("*, offers(title, payout, currency)")
+      .select("*, offers(title, payout, currency, platform_fee_rate)")
       .eq("id", referral_id)
       .single();
     if (refErr || !ref) throw new Error("Referral not found");
@@ -54,14 +54,11 @@ serve(async (req) => {
 
     const payoutAmt = ref.payout_snapshot ?? Number(ref.offers?.payout ?? 0);
     const currency = ref.offers?.currency ?? "USD";
+    const feeRate = Number(ref.offers?.platform_fee_rate ?? 0.25);
+    const platformFee = Math.round(payoutAmt * feeRate * 100) / 100;
+    const totalDeduction = Math.round((payoutAmt + platformFee) * 100) / 100;
 
-    // 1. Update referral status
-    await serviceClient
-      .from("referrals")
-      .update({ status: "won", payout_amount: payoutAmt, payout_status: "approved" })
-      .eq("id", referral_id);
-
-    // 2. Update wallet: deduct from reserved, add to paid_out
+    // Fetch wallet and guard balance
     const { data: wallet } = await serviceClient
       .from("wallet_balances")
       .select("*")
@@ -69,37 +66,58 @@ serve(async (req) => {
       .single();
 
     if (!wallet) throw new Error("No wallet found for this business");
-    if (Number(wallet.reserved) < payoutAmt) {
-      throw new Error(
-        `Insufficient reserved funds: reserved=$${Number(wallet.reserved).toFixed(2)}, payout=$${payoutAmt.toFixed(2)}`
+    if (Number(wallet.available) < totalDeduction) {
+      return new Response(
+        JSON.stringify({
+          error: `Insufficient wallet balance to process this payout. Need $${totalDeduction.toFixed(2)}, available $${Number(wallet.available).toFixed(2)}. Please top up your wallet.`,
+          shortfall: Math.round((totalDeduction - Number(wallet.available)) * 100) / 100,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 402 }
       );
     }
 
+    // 1. Update referral status
+    await serviceClient
+      .from("referrals")
+      .update({ status: "won", payout_amount: payoutAmt, payout_status: "approved" })
+      .eq("id", referral_id);
+
+    // 2. Deduct from available, add to paid_out and platform_fees
     await serviceClient
       .from("wallet_balances")
       .update({
-        reserved: Number(wallet.reserved) - payoutAmt,
-        paid_out: Number(wallet.paid_out) + payoutAmt,
+        available: Math.round((Number(wallet.available) - totalDeduction) * 100) / 100,
+        paid_out: Math.round((Number(wallet.paid_out) + payoutAmt) * 100) / 100,
+        platform_fees: Math.round((Number(wallet.platform_fees) + platformFee) * 100) / 100,
         updated_at: new Date().toISOString(),
       })
       .eq("id", wallet.id);
 
-    // 3. Insert wallet transaction
-    await serviceClient.from("wallet_transactions").insert({
-      user_id: userId,
-      type: "payout",
-      amount: payoutAmt,
-      referral_id: referral_id,
-      description: `Payout for referral — ${ref.offers?.title ?? "offer"}`,
-    });
+    // 3. Insert wallet transactions — payout and fee
+    await serviceClient.from("wallet_transactions").insert([
+      {
+        user_id: userId,
+        type: "payout",
+        amount: payoutAmt,
+        referral_id: referral_id,
+        description: `Payout for referral — ${ref.offers?.title ?? "offer"}`,
+      },
+      {
+        user_id: userId,
+        type: "fee",
+        amount: platformFee,
+        referral_id: referral_id,
+        description: `Platform fee (${Math.round(feeRate * 100)}%) — ${ref.offers?.title ?? "offer"}`,
+      },
+    ]);
 
-    // 4. Create payout record (platform_fee = 0, already collected at publish)
+    // 4. Create payout record
     await serviceClient.from("payouts").insert({
       referral_id: referral_id,
       business_id: ref.business_id,
       referrer_id: ref.referrer_id,
       amount: payoutAmt,
-      platform_fee: 0,
+      platform_fee: platformFee,
       currency: currency,
       status: "ready",
     });
@@ -109,7 +127,7 @@ serve(async (req) => {
       p_referral_id: referral_id,
       p_actor_id: userId,
       p_event_type: "referral_won",
-      p_payload: { payout: payoutAmt, platform_fee: 0 },
+      p_payload: { payout: payoutAmt, platform_fee: platformFee },
     });
 
     await serviceClient.rpc("fn_create_notification", {
@@ -120,7 +138,7 @@ serve(async (req) => {
       p_referral_id: referral_id,
     });
 
-    return new Response(JSON.stringify({ success: true, payout_amount: payoutAmt }), {
+    return new Response(JSON.stringify({ success: true, payout_amount: payoutAmt, platform_fee: platformFee }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
