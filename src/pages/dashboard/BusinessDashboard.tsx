@@ -272,7 +272,12 @@ const BusinessDashboard = () => {
           {/* Header */}
           <motion.div variants={fadeUp} custom={0} className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">{business?.name ?? "Your Business"}</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold text-foreground">{business?.name ?? "Your Business"}</h1>
+                <Badge variant={business?.pricing_tier === "paid" ? "default" : "secondary"} className="gap-1">
+                  {business?.pricing_tier === "paid" ? <><Crown className="h-3 w-3" /> Paid (10% fee)</> : <>Free (25% fee)</>}
+                </Badge>
+              </div>
               <p className="text-muted-foreground mt-1">{activeOffers} active offer{activeOffers !== 1 ? "s" : ""} • {referrals.length} referrals</p>
             </div>
             <div className="flex gap-2">
