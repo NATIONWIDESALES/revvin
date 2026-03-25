@@ -75,41 +75,41 @@ const TrustCenter = () => {
               </h3>
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-3">Canada Example (CAD)</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-3">Canada Example (CAD) — Free Tier</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground mb-1">Referral Fee</p>
+                      <p className="text-xs text-muted-foreground mb-1">Advertised Payout</p>
                       <p className="text-lg font-bold">CA$600</p>
                     </div>
                     <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-3">
                       <p className="text-xs text-muted-foreground mb-1">Referrer Earns</p>
-                      <p className="text-lg font-bold text-earnings">CA$540</p>
+                      <p className="text-lg font-bold text-earnings">CA$600</p>
                     </div>
                     <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground mb-1">Platform Fee</p>
-                      <p className="text-lg font-bold">CA$60</p>
+                      <p className="text-xs text-muted-foreground mb-1">Business Total Cost</p>
+                      <p className="text-lg font-bold">CA$750</p>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-3">USA Example (USD)</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-3">USA Example (USD) — Paid Tier</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground mb-1">Referral Fee</p>
+                      <p className="text-xs text-muted-foreground mb-1">Advertised Payout</p>
                       <p className="text-lg font-bold">$500</p>
                     </div>
                     <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-3">
                       <p className="text-xs text-muted-foreground mb-1">Referrer Earns</p>
-                      <p className="text-lg font-bold text-earnings">$450</p>
+                      <p className="text-lg font-bold text-earnings">$500</p>
                     </div>
                     <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground mb-1">Platform Fee</p>
-                      <p className="text-lg font-bold">$50</p>
+                      <p className="text-xs text-muted-foreground mb-1">Business Total Cost</p>
+                      <p className="text-lg font-bold">$550</p>
                     </div>
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-4 text-center">Same 90/10 split in both countries. Business pays on close only.</p>
+              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn 100% of the advertised payout. Platform fee (25% free, 10% paid) is charged to the business separately.</p>
             </motion.div>
           </motion.div>
         </div>
