@@ -724,6 +724,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      fn_platform_counts: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
