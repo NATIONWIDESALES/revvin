@@ -8,13 +8,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info, CreditCard, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info, CreditCard, Loader2, Wallet, AlertTriangle } from "lucide-react";
 import { categories, RESTRICTED_CATEGORIES } from "@/lib/offerUtils";
 import { motion } from "framer-motion";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 4;
 
-const STEP_LABELS = ["Offer Details", "Payout & Timing", "Qualification Rules", "Preview", "Deposit & Publish"];
+const STEP_LABELS = ["Offer Details", "Payout & Timing", "Qualification Rules", "Preview & Publish"];
 
 const SUPER_ADMIN_EMAIL = "sales@nationwidesales.ca";
 
@@ -24,21 +32,20 @@ const CreateOffer = () => {
   const { toast } = useToast();
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [businessName, setBusinessName] = useState("");
+  const [pricingTier, setPricingTier] = useState<string>("free");
   const [loading, setLoading] = useState(false);
+  const [publishLoading, setPublishLoading] = useState(false);
   const [step, setStep] = useState(1);
-  const [savedOfferId, setSavedOfferId] = useState<string | null>(null);
-  const [depositStatus, setDepositStatus] = useState<string | null>(null);
-  const [depositLoading, setDepositLoading] = useState(false);
+  const [shortfallDialog, setShortfallDialog] = useState<{ open: boolean; shortfall: number; totalRequired: number }>({ open: false, shortfall: 0, totalRequired: 0 });
   const isSuperAdmin = user?.email?.toLowerCase() === SUPER_ADMIN_EMAIL;
 
   const [form, setForm] = useState({
     title: "", description: "", category: "Services",
-    payout: "", payoutType: "flat" as "flat" | "percentage",
+    payout: "",
     location: "", dealSizeMin: "", dealSizeMax: "", closeTimeDays: "",
     remoteEligible: false, qualificationCriteria: "",
     payoutTimeline: "net14" as "net7" | "net14" | "net30",
     monthlyCapacity: "", leadFreshness: "", minProjectSize: "", eligibleLocations: "",
-    maxPayoutCap: "",
     country: "US" as "US" | "CA",
   });
 
@@ -48,7 +55,7 @@ const CreateOffer = () => {
     const ensureBusinessProfile = async () => {
       const { data: rows, error: fetchError } = await supabase
         .from("businesses")
-        .select("id, name, account_status")
+        .select("id, name, account_status, pricing_tier")
         .eq("user_id", user.id)
         .order("created_at", { ascending: true })
         .limit(1);
@@ -75,7 +82,7 @@ const CreateOffer = () => {
             name: fallbackName,
             account_status: isSuperAdmin ? "approved" : "pending_approval",
           })
-          .select("id, name, account_status")
+          .select("id, name, account_status, pricing_tier")
           .maybeSingle();
 
         if (createError) {
@@ -105,33 +112,23 @@ const CreateOffer = () => {
 
       setBusinessId(business.id);
       setBusinessName(business.name);
+      setPricingTier(business.pricing_tier || "free");
     };
 
     ensureBusinessProfile();
   }, [user, isSuperAdmin, navigate, toast]);
 
-  // Poll deposit status when on step 5
-  useEffect(() => {
-    if (step !== 5 || !savedOfferId) return;
-    const interval = setInterval(async () => {
-      const { data } = await supabase
-        .from("offers")
-        .select("deposit_status")
-        .eq("id", savedOfferId)
-        .single();
-      if (data?.deposit_status) {
-        setDepositStatus(data.deposit_status);
-        if (data.deposit_status === "paid") clearInterval(interval);
-      }
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [step, savedOfferId]);
-
   const isRestricted = RESTRICTED_CATEGORIES.includes(form.category);
 
-  const handleSaveOffer = async () => {
+  const feeRate = pricingTier === "paid" ? 0.10 : 0.25;
+  const payoutNum = parseFloat(form.payout) || 0;
+  const platformFee = Math.round(payoutNum * feeRate * 100) / 100;
+  const totalReserved = Math.round((payoutNum + platformFee) * 100) / 100;
+  const feePercent = pricingTier === "paid" ? "10%" : "25%";
+
+  const handlePublishOffer = async () => {
     if (!businessId) {
-      toast({ title: "Error", description: "Business profile not found. Please refresh and try again.", variant: "destructive" });
+      toast({ title: "Error", description: "Business profile not found.", variant: "destructive" });
       return;
     }
 
@@ -142,17 +139,9 @@ const CreateOffer = () => {
       return;
     }
 
-    if (form.payoutType === "percentage") {
-      const cap = parseFloat(form.maxPayoutCap);
-      if (!Number.isFinite(cap) || cap <= 0) {
-        toast({ title: "Missing max payout cap", description: "Please enter a valid maximum payout cap for percentage offers.", variant: "destructive" });
-        setStep(2);
-        return;
-      }
-    }
-
-    setLoading(true);
+    setPublishLoading(true);
     try {
+      // Save offer as draft first
       const qualRules = [
         form.leadFreshness && `Lead freshness: ${form.leadFreshness}`,
         form.minProjectSize && `Minimum project size: $${form.minProjectSize}`,
@@ -166,7 +155,7 @@ const CreateOffer = () => {
         description: form.description,
         category: form.category,
         payout: payoutValue,
-        payout_type: form.payoutType,
+        payout_type: "flat",
         location: form.location,
         country: form.country,
         currency: form.country === "CA" ? "CAD" : "USD",
@@ -177,30 +166,50 @@ const CreateOffer = () => {
         qualification_criteria: qualRules || null,
         approval_status: isRestricted ? "pending_approval" : "approved",
         status: isSuperAdmin ? "active" : "draft",
-        deposit_status: isSuperAdmin ? "waived" : "required",
+        deposit_status: isSuperAdmin ? "waived" : "not_required",
+        platform_fee_rate: feeRate,
       };
 
-      if (form.payoutType === "percentage" && form.maxPayoutCap) {
-        insertData.max_payout_cap = parseFloat(form.maxPayoutCap);
-      }
-
-      const { data, error } = await supabase.from("offers").insert(insertData).select("id, deposit_status").single();
+      const { data, error } = await supabase.from("offers").insert(insertData).select("id").single();
       if (error) throw error;
 
-      if (data) {
-        setSavedOfferId(data.id);
-        setDepositStatus(data.deposit_status);
-        if (isSuperAdmin) {
-          toast({ title: "Offer published!", description: "Your offer is now live (deposit waived)." });
-          navigate("/dashboard");
-        } else {
-          setStep(5);
+      if (isSuperAdmin) {
+        toast({ title: "Offer published!", description: "Your offer is now live (deposit waived)." });
+        navigate("/dashboard");
+        return;
+      }
+
+      // Call reserve-offer-funds
+      const { data: reserveData, error: reserveError } = await supabase.functions.invoke("reserve-offer-funds", {
+        body: { offer_id: data.id },
+      });
+
+      if (reserveError) {
+        // Try to parse the error body
+        const errBody = typeof reserveError === "object" && "message" in reserveError ? reserveError.message : String(reserveError);
+        throw new Error(errBody);
+      }
+
+      if (reserveData?.error) {
+        if (reserveData.shortfall !== undefined) {
+          setShortfallDialog({ open: true, shortfall: reserveData.shortfall, totalRequired: reserveData.total_required });
+          return;
         }
+        throw new Error(reserveData.error);
+      }
+
+      if (reserveData?.success) {
+        if (isRestricted) {
+          toast({ title: "Offer submitted for review", description: "This category requires approval before going live." });
+        } else {
+          toast({ title: "Offer published!", description: `$${reserveData.reserved} reserved + $${reserveData.fee} fee. Remaining balance: $${reserveData.remaining_balance}` });
+        }
+        navigate("/dashboard");
       }
     } catch (err: any) {
-      toast({ title: "Error", description: err?.message || "Failed to save offer", variant: "destructive" });
+      toast({ title: "Error", description: err?.message || "Failed to publish offer", variant: "destructive" });
     } finally {
-      setLoading(false);
+      setPublishLoading(false);
     }
   };
 
@@ -210,52 +219,11 @@ const CreateOffer = () => {
       return;
     }
     if (step === 4) {
-      await handleSaveOffer();
-    }
-  };
-
-  const handlePayDeposit = async () => {
-    if (!savedOfferId) return;
-    setDepositLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-deposit-session", {
-        body: { offer_id: savedOfferId },
-      });
-      if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
-      }
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to create payment session", variant: "destructive" });
-    } finally {
-      setDepositLoading(false);
-    }
-  };
-
-  const handlePublish = async () => {
-    if (!savedOfferId) return;
-    setLoading(true);
-    const { error } = await supabase.from("offers").update({ status: "active" }).eq("id", savedOfferId);
-    setLoading(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      if (isRestricted) {
-        toast({ title: "Offer submitted for review", description: "This category requires approval before going live." });
-      } else {
-        toast({ title: "Offer published!", description: "Your referral offer is now live." });
-      }
-      navigate("/dashboard");
+      await handlePublishOffer();
     }
   };
 
   const update = (key: string, value: any) => setForm((f) => ({ ...f, [key]: value }));
-  const payoutNum = parseFloat(form.payout) || 0;
-  const referrerEarns = form.payoutType === "flat" ? Math.round(payoutNum * 0.9) : payoutNum;
-  const platformFee = form.payoutType === "flat" ? Math.round(payoutNum * 0.1) : null;
-  const depositAmount = form.payoutType === "percentage" ? (parseFloat(form.maxPayoutCap) || 0) : payoutNum;
 
   return (
     <div className="py-8">
@@ -314,46 +282,52 @@ const CreateOffer = () => {
           {step === 2 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
               <div className="grid gap-4 sm:grid-cols-2">
-                <div><Label>Payout Amount</Label><Input type="number" value={form.payout} onChange={(e) => update("payout", e.target.value)} placeholder="500" required className="mt-1" /></div>
-                <div>
-                  <Label>Payout Type</Label>
-                  <div className="mt-1 flex gap-2">
-                    <Button type="button" variant={form.payoutType === "flat" ? "default" : "outline"} size="sm" onClick={() => update("payoutType", "flat")} className="flex-1">$ Fixed</Button>
-                    <Button type="button" variant={form.payoutType === "percentage" ? "default" : "outline"} size="sm" onClick={() => update("payoutType", "percentage")} className="flex-1">% Percentage</Button>
+                <div><Label>Payout Amount ($)</Label><Input type="number" value={form.payout} onChange={(e) => update("payout", e.target.value)} placeholder="500" required className="mt-1" /></div>
+                <div className="flex items-end">
+                  <div className="rounded-lg bg-muted/50 border border-border px-3 py-2 text-sm text-muted-foreground w-full">
+                    <span className="font-medium text-foreground">Fixed payout</span> per successful referral
                   </div>
                 </div>
               </div>
-              {form.payoutType === "percentage" && (
-                <div>
-                  <Label>Maximum Payout Cap ($)</Label>
-                  <Input type="number" value={form.maxPayoutCap} onChange={(e) => update("maxPayoutCap", e.target.value)} placeholder="e.g. 2000" required className="mt-1" />
-                  <p className="text-xs text-muted-foreground mt-1">This cap determines your deposit amount and the maximum a referrer can earn per deal.</p>
-                </div>
-              )}
               <div className="grid gap-4 sm:grid-cols-3">
                 <div><Label>Deal Size Min ($)</Label><Input type="number" value={form.dealSizeMin} onChange={(e) => update("dealSizeMin", e.target.value)} placeholder="5000" className="mt-1" /></div>
                 <div><Label>Deal Size Max ($)</Label><Input type="number" value={form.dealSizeMax} onChange={(e) => update("dealSizeMax", e.target.value)} placeholder="50000" className="mt-1" /></div>
                 <div><Label>Est. Close Time (days)</Label><Input type="number" value={form.closeTimeDays} onChange={(e) => update("closeTimeDays", e.target.value)} placeholder="30" className="mt-1" /></div>
               </div>
-              {payoutNum > 0 && form.payoutType === "flat" && (
+
+              {/* Fee breakdown */}
+              {payoutNum > 0 && (
                 <div className="rounded-2xl border border-border bg-muted/30 p-5">
-                  <p className="text-sm font-medium mb-3">Payout Breakdown Preview</p>
+                  <p className="text-sm font-medium mb-3">Cost Breakdown</p>
                   <div className="grid grid-cols-3 gap-3 text-center">
-                    <div className="rounded-xl bg-card border border-border p-3"><p className="text-xs text-muted-foreground">Referral Fee</p><p className="font-display text-lg font-bold">${payoutNum}</p></div>
-                    <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-3"><p className="text-xs text-muted-foreground">Referrer Earns</p><p className="font-display text-lg font-bold text-earnings">${referrerEarns}</p></div>
-                    <div className="rounded-xl bg-card border border-border p-3"><p className="text-xs text-muted-foreground">Platform Fee</p><p className="font-display text-lg font-bold">${platformFee}</p></div>
+                    <div className="rounded-xl bg-card border border-border p-3">
+                      <p className="text-xs text-muted-foreground">Referral Fee</p>
+                      <p className="font-display text-lg font-bold">${payoutNum}</p>
+                    </div>
+                    <div className="rounded-xl bg-card border border-border p-3">
+                      <p className="text-xs text-muted-foreground">Platform Fee ({feePercent})</p>
+                      <p className="font-display text-lg font-bold">${platformFee}</p>
+                    </div>
+                    <div className="rounded-xl bg-primary/10 border border-primary/20 p-3">
+                      <p className="text-xs text-muted-foreground">Total Reserved</p>
+                      <p className="font-display text-lg font-bold text-primary">${totalReserved}</p>
+                    </div>
                   </div>
+                  {pricingTier === "free" && (
+                    <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
+                      <Info className="h-3 w-3" /> Upgrade to Paid ($50/mo) to reduce your platform fee to 10%.
+                    </p>
+                  )}
                 </div>
               )}
-              {depositAmount > 0 && !isSuperAdmin && (
-                <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
-                  <CreditCard className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Deposit Required: ${depositAmount}</p>
-                    <p className="text-xs text-muted-foreground mt-1">A one-time deposit of 1× {form.payoutType === "percentage" ? "your max payout cap" : "the referral fee"} is required before publishing. This acts as a credit toward future payouts.</p>
-                  </div>
+
+              <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
+                <Wallet className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Funds reserved from your wallet</p>
+                  <p className="text-xs text-muted-foreground mt-1">When you publish, the total amount will be deducted from your wallet balance. Make sure you have sufficient funds.</p>
                 </div>
-              )}
+              </div>
               <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
                 <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
@@ -404,7 +378,7 @@ const CreateOffer = () => {
                 <div className="rounded-xl bg-earnings/5 border border-earnings/20 p-4 mb-4">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-semibold text-earnings uppercase tracking-wide">Earn per referral</span>
-                    <span className="earnings-badge rounded-full px-4 py-1.5 text-sm font-bold shadow-sm">{form.payoutType === "flat" ? `$${payoutNum || "—"}` : `${payoutNum || "—"}%`}</span>
+                    <span className="earnings-badge rounded-full px-4 py-1.5 text-sm font-bold shadow-sm">${payoutNum || "—"}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -422,83 +396,54 @@ const CreateOffer = () => {
                   </div>
                 </div>
               )}
-              <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
-                <CreditCard className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium">Deposit: ${depositAmount}</p>
-                  <p className="text-xs text-muted-foreground mt-1">After saving, you'll be asked to pay a one-time deposit before your offer goes live.</p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 5 && (
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-              <h2 className="font-display text-lg font-semibold">Deposit & Publish</h2>
-              <p className="text-sm text-muted-foreground">Your offer has been saved as a draft. Pay the deposit to publish it.</p>
-
-              <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${depositStatus === "paid" ? "bg-earnings/10" : "bg-primary/10"}`}>
-                    {depositStatus === "paid" ? <CheckCircle2 className="h-6 w-6 text-earnings" /> : <CreditCard className="h-6 w-6 text-primary" />}
-                  </div>
+              {payoutNum > 0 && !isSuperAdmin && (
+                <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
+                  <Wallet className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-display text-lg font-bold">${depositAmount}</p>
-                    <p className="text-sm text-muted-foreground">One-time publishing deposit</p>
+                    <p className="text-sm font-medium">Wallet Reserve: ${totalReserved}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      ${payoutNum} referral fee + ${platformFee} platform fee ({feePercent}) will be reserved from your wallet when published.
+                    </p>
                   </div>
                 </div>
-
-                {depositStatus === "paid" ? (
-                  <div className="rounded-xl bg-earnings/5 border border-earnings/20 p-4 text-center">
-                    <CheckCircle2 className="h-8 w-8 text-earnings mx-auto mb-2" />
-                    <p className="font-display font-bold text-earnings">Deposit Paid!</p>
-                    <p className="text-sm text-muted-foreground mt-1">Your deposit has been received. You can now publish your offer.</p>
-                  </div>
-                ) : depositStatus === "pending" ? (
-                  <div className="rounded-xl bg-accent/5 border border-accent/20 p-4 text-center">
-                    <Loader2 className="h-8 w-8 text-accent-foreground mx-auto mb-2 animate-spin" />
-                    <p className="font-display font-bold text-accent-foreground">Payment Processing...</p>
-                    <p className="text-sm text-muted-foreground mt-1">Waiting for payment confirmation. This page will update automatically.</p>
-                    <Button variant="outline" size="sm" className="mt-3" onClick={handlePayDeposit} disabled={depositLoading}>
-                      Retry Payment
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">This deposit acts as a credit toward future referral payouts and ensures payout readiness.</p>
-                    <Button onClick={handlePayDeposit} disabled={depositLoading} className="w-full gap-2" size="lg">
-                      {depositLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating checkout...</> : <><CreditCard className="h-4 w-4" /> Pay ${depositAmount} Deposit</>}
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-xl p-3">
-                <Shield className="h-4 w-4 text-primary shrink-0" />
-                <span>Payments are processed securely via Stripe. Your deposit is credited toward future payouts.</span>
-              </div>
+              )}
             </motion.div>
           )}
 
           <div className="flex gap-3 pt-2">
-            {step > 1 && step < 5 && <Button type="button" variant="outline" onClick={() => setStep(step - 1)} className="flex-1">Back</Button>}
+            {step > 1 && <Button type="button" variant="outline" onClick={() => setStep(step - 1)} className="flex-1">Back</Button>}
             {step < 4 && (
               <Button type="button" onClick={handleNextStep} size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
                 Next <ArrowRight className="h-4 w-4" />
               </Button>
             )}
             {step === 4 && (
-              <Button type="button" onClick={handleNextStep} size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading || !businessId}>
-                {loading ? "Saving..." : "Save & Continue to Deposit"}
-              </Button>
-            )}
-            {step === 5 && depositStatus === "paid" && (
-              <Button onClick={handlePublish} size="lg" className="w-full gap-2" disabled={loading}>
-                {loading ? "Publishing..." : isRestricted ? "Submit for Review" : "Publish Offer"}
+              <Button type="button" onClick={handleNextStep} size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={publishLoading || !businessId}>
+                {publishLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Publishing...</> : isRestricted ? "Submit for Review" : "Publish Offer"}
               </Button>
             )}
           </div>
         </form>
+
+        {/* Insufficient funds dialog */}
+        <Dialog open={shortfallDialog.open} onOpenChange={(open) => setShortfallDialog((s) => ({ ...s, open }))}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" /> Insufficient Wallet Balance
+              </DialogTitle>
+              <DialogDescription>
+                You need <strong>${shortfallDialog.totalRequired}</strong> to publish this offer, but your wallet is short by <strong>${shortfallDialog.shortfall}</strong>.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setShortfallDialog((s) => ({ ...s, open: false }))}>Cancel</Button>
+              <Button onClick={() => navigate("/dashboard")} className="gap-2">
+                <Wallet className="h-4 w-4" /> Top Up Wallet
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

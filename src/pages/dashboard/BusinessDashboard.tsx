@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toSlug } from "@/lib/utils";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import {
   DollarSign, Users, PlusCircle,
   CheckCircle2, XCircle, Clock, Eye, Building2,
-  Pause, Play, Edit, Target, Link2, Check, X
+  Pause, Play, Edit, Target, Link2, Check, X,
+  Wallet, ArrowUpRight, CreditCard, Loader2
 } from "lucide-react";
 import { motion } from "framer-motion";
 import DashboardChecklist from "@/components/DashboardChecklist";
@@ -33,6 +34,16 @@ const statusConfig: Record<string, { bg: string; text: string; label: string }> 
   duplicate: { bg: "bg-muted", text: "text-muted-foreground", label: "Duplicate" },
 };
 
+const txTypeLabels: Record<string, { label: string; color: string }> = {
+  topup: { label: "Top-Up", color: "text-earnings" },
+  reserve: { label: "Reserved", color: "text-primary" },
+  fee: { label: "Fee", color: "text-muted-foreground" },
+  payout: { label: "Payout", color: "text-destructive" },
+  refund: { label: "Refund", color: "text-earnings" },
+};
+
+const SUGGESTED_AMOUNTS = [100, 250, 500, 1000];
+
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.5 } }),
@@ -41,6 +52,7 @@ const fadeUp = {
 const BusinessDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { currencySymbol, displayCurrency } = useCountry();
   const { toast } = useToast();
   const [business, setBusiness] = useState<any>(null);
@@ -50,6 +62,22 @@ const BusinessDashboard = () => {
   const [editingPayout, setEditingPayout] = useState<string | null>(null);
   const [newPayout, setNewPayout] = useState("");
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
+
+  // Wallet state
+  const [walletBalance, setWalletBalance] = useState<any>(null);
+  const [walletTransactions, setWalletTransactions] = useState<any[]>([]);
+  const [topUpAmount, setTopUpAmount] = useState<number | null>(null);
+  const [customAmount, setCustomAmount] = useState("");
+  const [topUpLoading, setTopUpLoading] = useState(false);
+
+  const fetchWallet = async (userId: string) => {
+    const [balRes, txRes] = await Promise.all([
+      supabase.from("wallet_balances").select("*").eq("user_id", userId).maybeSingle(),
+      supabase.from("wallet_transactions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(10),
+    ]);
+    setWalletBalance(balRes.data);
+    setWalletTransactions(txRes.data ?? []);
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -65,10 +93,45 @@ const BusinessDashboard = () => {
         setOffers(offRes.data ?? []);
         setReferrals(refRes.data ?? []);
       }
+      await fetchWallet(user.id);
       setLoading(false);
     };
     fetchData();
   }, [user]);
+
+  // Detect top-up success from URL
+  useEffect(() => {
+    if (searchParams.get("topup") === "success" && user) {
+      toast({ title: "Wallet funded!", description: "Your wallet balance has been updated." });
+      fetchWallet(user.id);
+      searchParams.delete("topup");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, user]);
+
+  const handleTopUp = async () => {
+    const amount = topUpAmount ?? (parseFloat(customAmount) || 0);
+    if (amount < 50) {
+      toast({ title: "Minimum $50", description: "The minimum top-up amount is $50.", variant: "destructive" });
+      return;
+    }
+    setTopUpLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-deposit-session", {
+        body: { amount },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to create payment session", variant: "destructive" });
+    } finally {
+      setTopUpLoading(false);
+    }
+  };
 
   const handleAccept = async (ref: any) => {
     const payoutAmt = ref.offers?.payout_type === "flat" ? Number(ref.offers.payout) : 0;
@@ -121,32 +184,9 @@ const BusinessDashboard = () => {
   };
 
   const toggleOfferStatus = async (offerId: string, currentStatus: string) => {
-    const offer = offers.find(o => o.id === offerId);
-    if (currentStatus !== "active" && offer?.deposit_status === "required") {
-      toast({ title: "Deposit required", description: "You must pay the deposit before activating this offer.", variant: "destructive" });
-      return;
-    }
-    if (currentStatus !== "active" && offer?.deposit_status === "pending") {
-      toast({ title: "Deposit pending", description: "Your deposit payment is still processing.", variant: "destructive" });
-      return;
-    }
     const newStatus = currentStatus === "active" ? "paused" : "active";
     await supabase.from("offers").update({ status: newStatus }).eq("id", offerId);
     setOffers((prev) => prev.map((o) => (o.id === offerId ? { ...o, status: newStatus } : o)));
-  };
-
-  const handlePayDeposit = async (offerId: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke("create-deposit-session", {
-        body: { offer_id: offerId },
-      });
-      if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
-      }
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to create payment session", variant: "destructive" });
-    }
   };
 
   const saveEditPayout = async (offerId: string) => {
@@ -170,6 +210,8 @@ const BusinessDashboard = () => {
   const activeOffers = offers.filter(o => o.status === "active").length;
   const newRefs7d = referrals.filter(r => new Date(r.created_at) > new Date(Date.now() - 7 * 86400000)).length;
   const sym = currencySymbol(displayCurrency);
+
+  const wb = walletBalance || { available: 0, reserved: 0, total_funded: 0, platform_fees: 0 };
 
   const checklistItems = [
     { label: "Upload business logo", done: !!business?.logo_url, action: () => navigate("/dashboard/profile"), actionLabel: "Upload" },
@@ -240,6 +282,84 @@ const BusinessDashboard = () => {
             ))}
           </motion.div>
 
+          {/* Wallet Section */}
+          <motion.div variants={fadeUp} custom={1.5} className="mb-8">
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2"><Wallet className="h-5 w-5" /> Wallet</h2>
+            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+                {[
+                  { label: "Available", value: `$${Number(wb.available).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: "text-earnings" },
+                  { label: "Reserved", value: `$${Number(wb.reserved).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: "text-primary" },
+                  { label: "Total Funded", value: `$${Number(wb.total_funded).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: "text-foreground" },
+                  { label: "Platform Fees", value: `$${Number(wb.platform_fees).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: "text-muted-foreground" },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-xl bg-muted/30 border border-border p-4 text-center">
+                    <p className="text-xs text-muted-foreground font-medium">{item.label}</p>
+                    <p className={`text-xl font-bold ${item.color}`}>{item.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Top Up */}
+              <div className="border-t border-border pt-4">
+                <p className="text-sm font-medium mb-3">Top Up Wallet</p>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {SUGGESTED_AMOUNTS.map((amt) => (
+                    <Button
+                      key={amt}
+                      type="button"
+                      variant={topUpAmount === amt ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => { setTopUpAmount(amt); setCustomAmount(""); }}
+                    >
+                      ${amt}
+                    </Button>
+                  ))}
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      placeholder="Custom"
+                      value={customAmount}
+                      onChange={(e) => { setCustomAmount(e.target.value); setTopUpAmount(null); }}
+                      className="h-9 w-24 text-sm"
+                      min={50}
+                    />
+                  </div>
+                </div>
+                <Button onClick={handleTopUp} disabled={topUpLoading} className="gap-2">
+                  {topUpLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing...</> : <><CreditCard className="h-4 w-4" /> Fund Wallet</>}
+                </Button>
+                <p className="text-xs text-muted-foreground mt-2">Minimum top-up: $50. Payments processed via Stripe.</p>
+              </div>
+
+              {/* Recent Transactions */}
+              {walletTransactions.length > 0 && (
+                <div className="border-t border-border pt-4 mt-4">
+                  <p className="text-sm font-medium mb-3">Recent Transactions</p>
+                  <div className="space-y-2">
+                    {walletTransactions.map((tx) => {
+                      const txMeta = txTypeLabels[tx.type] || { label: tx.type, color: "text-foreground" };
+                      return (
+                        <div key={tx.id} className="flex items-center justify-between text-sm py-1.5 border-b border-border last:border-0">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className={`text-xs ${txMeta.color}`}>{txMeta.label}</Badge>
+                            <span className="text-muted-foreground text-xs truncate max-w-[200px]">{tx.description}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className={`font-medium ${tx.type === "topup" || tx.type === "refund" ? "text-earnings" : "text-foreground"}`}>
+                              {tx.type === "topup" || tx.type === "refund" ? "+" : "-"}${Number(tx.amount).toFixed(2)}
+                            </span>
+                            <span className="text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+
           {/* Offers */}
           <motion.div variants={fadeUp} custom={2} className="mb-8">
             <div className="mb-4 flex items-center justify-between">
@@ -272,43 +392,18 @@ const BusinessDashboard = () => {
                             <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => setEditingPayout(null)}><X className="h-3 w-3" /></Button>
                           </div>
                         ) : (
-                          <span className="rounded-full bg-primary/10 text-primary px-3 py-0.5 text-xs font-bold">{offer.payout_type === "flat" ? `${sym}${offer.payout}` : `${offer.payout}%`}</span>
+                          <span className="rounded-full bg-primary/10 text-primary px-3 py-0.5 text-xs font-bold">${offer.payout}</span>
                         )}
                         <span className="text-xs text-muted-foreground">{offer.category}</span>
                       </div>
                       <div className="text-xs text-muted-foreground mb-3">{offerRefs.length} refs • {offerWon} won</div>
-                      {/* Deposit status badge */}
-                      {offer.deposit_status && offer.deposit_status !== "not_required" && offer.deposit_status !== "paid" && (
-                        <div className="mb-3">
-                          <Badge variant="outline" className={`text-xs ${offer.deposit_status === "pending" ? "border-accent text-accent-foreground" : "border-destructive text-destructive"}`}>
-                            {offer.deposit_status === "pending" ? "Deposit Pending" : "Deposit Required"}
-                          </Badge>
-                        </div>
-                      )}
-                      {offer.deposit_status === "paid" && (
-                        <div className="mb-3">
-                          <Badge variant="outline" className="text-xs border-earnings text-earnings">Deposit Paid</Badge>
-                        </div>
-                      )}
                       <div className="flex items-center gap-2 pt-3 border-t border-border flex-wrap">
-                        {offer.deposit_status === "required" ? (
-                          <Button size="sm" className="gap-1 text-xs" onClick={() => handlePayDeposit(offer.id)}>
-                            <DollarSign className="h-3 w-3" /> Pay Deposit
-                          </Button>
-                        ) : offer.deposit_status === "pending" ? (
-                          <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handlePayDeposit(offer.id)}>
-                            <Clock className="h-3 w-3" /> Retry Deposit
-                          </Button>
-                        ) : (
-                          <>
-                            <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => toggleOfferStatus(offer.id, offer.status)}>
-                              {offer.status === "active" ? <><Pause className="h-3 w-3" /> Pause</> : <><Play className="h-3 w-3" /> Activate</>}
-                            </Button>
-                            <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => { setEditingPayout(offer.id); setNewPayout(String(offer.payout)); }}>
-                              <Edit className="h-3 w-3" /> Edit Payout
-                            </Button>
-                          </>
-                        )}
+                        <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => toggleOfferStatus(offer.id, offer.status)}>
+                          {offer.status === "active" ? <><Pause className="h-3 w-3" /> Pause</> : <><Play className="h-3 w-3" /> Activate</>}
+                        </Button>
+                        <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => { setEditingPayout(offer.id); setNewPayout(String(offer.payout)); }}>
+                          <Edit className="h-3 w-3" /> Edit Payout
+                        </Button>
                         <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => inviteReferrers(offer.id)}>
                           {copiedLink === offer.id ? <><Check className="h-3 w-3" /> Copied!</> : <><Link2 className="h-3 w-3" /> Invite Referrers</>}
                         </Button>
