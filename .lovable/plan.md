@@ -1,47 +1,72 @@
 
 
-## Part 7: Subscription Upgrade Flow
-
-### Overview
-Add tier badge, upgrade CTA, a new `create-subscription-session` edge function, and extend the existing webhook to handle subscription events.
+## Parts 8–11: Wallet Payout, Offer Pause/Close, Public Page Updates, Percentage Cleanup
 
 ---
 
-### 1. New Edge Function: `supabase/functions/create-subscription-session/index.ts`
+### Part 8: Update `handleWon` in BusinessDashboard.tsx
 
-- Auth via JWT (`getUser(token)` pattern per project convention)
-- Fetch the caller's business to get `business_id`; verify `pricing_tier === 'free'`
-- Create Stripe Checkout session with `mode: 'subscription'`, using price ID from env var `STRIPE_PAID_PLAN_PRICE_ID`
-- Metadata: `user_id`, `business_id`
-- Success URL: `/dashboard?upgrade=success`, Cancel URL: `/dashboard?upgrade=canceled`
-- Return `{ url }` for redirect
+**Current** (line 184-196): Calculates `referrerPayout = payoutAmt * 0.9`, deducts 10% as platform fee from the referrer's cut.
 
-**Prerequisite**: A Stripe Price for the $50/mo plan must be created. Will use the Stripe tools to create the product+price and store the price ID as a secret (`STRIPE_PAID_PLAN_PRICE_ID`).
+**New behavior**:
+- Referrer gets 100% of `payout_snapshot` (fee already collected at publish time)
+- Update `wallet_balances`: deduct `payout_snapshot` from `reserved`, add to `paid_out`
+- Insert `wallet_transaction`: `type='payout'`, `amount=payout_snapshot`, `referral_id`
+- Create payout record: `amount = payout_snapshot`, `platform_fee = 0`
+- Update `referrals`: `payout_amount = payout_snapshot`
+- Refetch wallet after update
 
----
+Since `wallet_balances` has no INSERT/UPDATE RLS for authenticated users, the wallet update must go through a service-role call. Two options:
+1. Create an edge function `process-deal-won` that handles the atomic wallet + payout creation
+2. Do the payout insert client-side (RLS allows business owners) and wallet update via edge function
 
-### 2. Extend `stripe-deposit-webhook/index.ts`
-
-Add handling for two new event types alongside the existing `checkout.session.completed`:
-
-- **`checkout.session.completed` with `mode === 'subscription'`**: Read `business_id` from metadata. Update `businesses` table: `pricing_tier='paid'`, `stripe_subscription_id` from session.subscription, `subscription_status='active'`.
-- **`customer.subscription.deleted`**: Look up the business by `stripe_subscription_id`. Update: `pricing_tier='free'`, `subscription_status='canceled'`.
-
-The existing wallet top-up logic (mode=payment) stays untouched — just gate it with `session.mode === 'payment'`.
+**Decision**: Create a new edge function `process-deal-won` to handle the atomic operation (wallet update + payout insert + referral status update). This is cleaner and prevents partial failures.
 
 ---
 
-### 3. Update `BusinessDashboard.tsx`
+### Part 9: Offer Pause/Close with Fund Release
 
-Add to the header area (next to business name):
+**Current** `toggleOfferStatus` (line 213-217): Simply flips `active` ↔ `paused` with no wallet logic.
 
-- **Tier Badge**: Show `Free (25% fee)` or `Paid (10% fee)` based on `business.pricing_tier`
-- **Upgrade CTA card** (only if `pricing_tier === 'free'`): 
-  - "Upgrade to Revvin Paid — $50/mo"
-  - "Reduce your platform fee from 25% to 10%"
-  - "Breakeven at ~3 closed referrals per month"
-  - "Upgrade Now" button → calls `create-subscription-session`, redirects to Stripe
-- **Detect `?upgrade=success`** URL param: show toast, refetch business data
+**New behavior**:
+- Before pausing/closing, check if offer has referrals in `submitted`, `accepted`, `contacted`, `in_progress`, or `qualified` status → if yes, block and show warning toast
+- If no active referrals: release reserved funds back to wallet
+- Create edge function `release-offer-funds`:
+  - Auth + ownership check
+  - Verify no in-progress referrals for this offer
+  - Add `payout` back to `wallet_balances.available`, deduct from `reserved`
+  - Insert `wallet_transaction`: `type='release'`, `amount=payout`, `offer_id`
+  - Update offer status to `paused` or `closed`
+  - Platform fee is NOT refunded
+- Update `toggleOfferStatus` to call this edge function instead of direct update
+
+---
+
+### Part 10: Public-Facing Page Updates
+
+Update payout language across 5 files:
+
+| File | Change |
+|------|--------|
+| **TrustCenter.tsx** | Step 4 desc → "referrer receives 100% of the advertised payout. Platform fee is charged separately to the business." Payout examples: CA$600 → referrer gets CA$600, business pays CA$750 (free) or CA$660 (paid). Remove "90/10" references. SEO description update. |
+| **HowItWorks.tsx** | Step 05 → "The realtor receives the full $500. The business paid a platform fee on top. Revvin earns from the business, not the referrer." |
+| **Index.tsx** | FAQ answer → "A platform fee on each referral offer (25% free tier, 10% paid). The referrer always gets the full advertised amount." Social proof strip: "90/10 payout split" → "100% referrer payout" |
+| **ReferralAgreement.tsx** | Section 4 → Remove 90/10 language. "Referrers receive 100% of the advertised referral fee. The platform fee is charged separately to the business at offer publication." |
+| **Terms.tsx** | Section 6 → Same update. Remove 90/10 split language. |
+
+---
+
+### Part 11: Percentage Payout Cleanup
+
+Remove all `percentage` payout type UI (keep DB columns):
+
+| File | Change |
+|------|--------|
+| **OfferCard.tsx** | Line 79: Remove ternary, always use `formatPayout(offer.payout, offer.currency)` |
+| **OfferDetail.tsx** | Lines 47, 95-96, 155: Remove `percentage` conditionals, always show flat format |
+| **Browse.tsx** | Lines 38, 65, 230-232: Remove `payoutTypeFilter` state, remove "$ Flat" / "% Pct" buttons, remove filter logic |
+| **types/offer.ts** | Line 12: Change `payoutType` to just `"flat"` (keep field for compatibility) |
+| **CreateOffer.tsx** | Already cleaned in Part 5 |
 
 ---
 
@@ -49,10 +74,16 @@ Add to the header area (next to business name):
 
 | File | Action |
 |------|--------|
-| `supabase/functions/create-subscription-session/index.ts` | New edge function |
-| `supabase/functions/stripe-deposit-webhook/index.ts` | Add subscription event handling |
-| `src/pages/dashboard/BusinessDashboard.tsx` | Add tier badge + upgrade CTA |
-
-### Secrets Needed
-- `STRIPE_PAID_PLAN_PRICE_ID` — will create the Stripe product/price first, then store the ID as a secret
+| `supabase/functions/process-deal-won/index.ts` | **New** — atomic wallet debit + payout creation |
+| `supabase/functions/release-offer-funds/index.ts` | **New** — release reserved funds on pause/close |
+| `src/pages/dashboard/BusinessDashboard.tsx` | Update `handleWon` → call edge function; update `toggleOfferStatus` → call release edge function with active referral check |
+| `src/pages/TrustCenter.tsx` | Update payout examples and language |
+| `src/pages/HowItWorks.tsx` | Update step 5 description |
+| `src/pages/Index.tsx` | Update FAQ and social proof strip |
+| `src/pages/ReferralAgreement.tsx` | Update Section 4 |
+| `src/pages/Terms.tsx` | Update Section 6 |
+| `src/components/OfferCard.tsx` | Remove percentage conditional |
+| `src/pages/OfferDetail.tsx` | Remove percentage conditionals |
+| `src/pages/Browse.tsx` | Remove percentage filter |
+| `src/types/offer.ts` | Simplify payoutType to `"flat"` |
 
