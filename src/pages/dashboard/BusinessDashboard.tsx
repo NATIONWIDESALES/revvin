@@ -420,8 +420,8 @@ const BusinessDashboard = () => {
                             <span className="text-muted-foreground text-xs truncate max-w-[200px]">{tx.description}</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className={`font-medium ${tx.type === "topup" || tx.type === "refund" ? "text-earnings" : "text-foreground"}`}>
-                              {tx.type === "topup" || tx.type === "refund" ? "+" : "-"}${Number(tx.amount).toFixed(2)}
+                            <span className={`font-medium ${["topup", "refund", "release"].includes(tx.type) ? "text-earnings" : "text-foreground"}`}>
+                              {["topup", "refund", "release"].includes(tx.type) ? "+" : "-"}${Number(tx.amount).toFixed(2)}
                             </span>
                             <span className="text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleDateString()}</span>
                           </div>
