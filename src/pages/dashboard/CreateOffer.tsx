@@ -31,6 +31,7 @@ const CreateOffer = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [businessId, setBusinessId] = useState<string | null>(null);
+  const [businessAccountStatus, setBusinessAccountStatus] = useState<string>("pending_approval");
   const [businessName, setBusinessName] = useState("");
   const [pricingTier, setPricingTier] = useState<string>("free");
   const [loading, setLoading] = useState(false);
