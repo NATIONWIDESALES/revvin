@@ -159,9 +159,7 @@ serve(async (req) => {
         else { emailStatus = "failed"; }
       }
 
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      const supa = createClient(supabaseUrl, supabaseKey);
+      const supa = createClient(supabaseUrl, serviceKey);
       await supa.from("notifications_log").insert({
         type: "invite_business",
         recipient_email: rawPayload.to,
