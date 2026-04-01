@@ -109,7 +109,7 @@ const TrustCenter = () => {
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn 100% of the advertised payout. Platform fee (25% free, 10% paid) is charged to the business separately.</p>
+              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn the full advertised payout. The platform fee is charged to the business separately — it depends on the business's selected plan.</p>
             </motion.div>
           </motion.div>
         </div>
