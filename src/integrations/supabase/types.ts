@@ -488,6 +488,13 @@ export type Database = {
             referencedRelation: "offers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "referrals_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       referrer_payout_preferences: {
@@ -673,6 +680,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "wallet_transactions_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "wallet_transactions_referral_id_fkey"
             columns: ["referral_id"]
             isOneToOne: false
@@ -683,9 +697,110 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      offers_public: {
+        Row: {
+          approval_status: string | null
+          business_id: string | null
+          category: string | null
+          close_time_days: number | null
+          country: string | null
+          created_at: string | null
+          currency: string | null
+          deal_size_max: number | null
+          deal_size_min: number | null
+          deposit_amount: number | null
+          deposit_currency: string | null
+          deposit_paid_at: string | null
+          deposit_status: string | null
+          description: string | null
+          featured: boolean | null
+          id: string | null
+          location: string | null
+          max_payout_cap: number | null
+          payout: number | null
+          payout_type: string | null
+          platform_fee_rate: number | null
+          qualification_criteria: string | null
+          remote_eligible: boolean | null
+          restricted: boolean | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approval_status?: string | null
+          business_id?: string | null
+          category?: string | null
+          close_time_days?: number | null
+          country?: string | null
+          created_at?: string | null
+          currency?: string | null
+          deal_size_max?: number | null
+          deal_size_min?: number | null
+          deposit_amount?: number | null
+          deposit_currency?: string | null
+          deposit_paid_at?: string | null
+          deposit_status?: string | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string | null
+          location?: string | null
+          max_payout_cap?: number | null
+          payout?: number | null
+          payout_type?: string | null
+          platform_fee_rate?: number | null
+          qualification_criteria?: string | null
+          remote_eligible?: boolean | null
+          restricted?: boolean | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approval_status?: string | null
+          business_id?: string | null
+          category?: string | null
+          close_time_days?: number | null
+          country?: string | null
+          created_at?: string | null
+          currency?: string | null
+          deal_size_max?: number | null
+          deal_size_min?: number | null
+          deposit_amount?: number | null
+          deposit_currency?: string | null
+          deposit_paid_at?: string | null
+          deposit_status?: string | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string | null
+          location?: string | null
+          max_payout_cap?: number | null
+          payout?: number | null
+          payout_type?: string | null
+          platform_fee_rate?: number | null
+          qualification_criteria?: string | null
+          remote_eligible?: boolean | null
+          restricted?: boolean | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      award_badge_if_qualified: {
+        Args: { p_badge_id: string }
+        Returns: boolean
+      }
       fn_check_duplicate_referral: {
         Args: {
           p_business_id: string
