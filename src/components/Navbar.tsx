@@ -39,10 +39,11 @@ const Navbar = () => {
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? "U";
 
   const navLinks = [
-    { to: "/how-it-works", label: "How It Works" },
+    { to: "/browse", label: "Browse Offers" },
     { to: "/for-businesses", label: "For Businesses" },
     { to: "/for-referrers", label: "For Referrers" },
-    { to: "/browse", label: "Browse Offers" },
+    { to: "/pricing", label: "Pricing" },
+    { to: "/how-it-works", label: "How It Works" },
   ];
 
   const roleLabel = userRole === "business" ? "Business" : userRole === "admin" ? "Admin" : "Referrer";
