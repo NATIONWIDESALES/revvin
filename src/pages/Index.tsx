@@ -38,13 +38,13 @@ const categories = [
 ];
 
 const faqItems = [
-  { q: "How much does it cost to list an offer?", a: "Nothing. Listing is free. You only pay a platform fee when a referred customer actually closes. The referrer always receives the full advertised payout amount." },
-  { q: "How do referrers get paid?", a: "When the business confirms a deal is closed, Revvin processes the payout. The business sets the reward amount upfront, and the referrer receives 100% of it." },
+  { q: "How much does it cost to list an offer?", a: "Nothing upfront. Creating your account and listing your offer is completely free. A platform fee applies only when a referred customer actually closes — so you never pay unless you get results." },
+  { q: "How do referrers get paid?", a: "When the business confirms a deal is closed, Revvin processes the payout. The business sets the reward amount upfront, and the referrer receives the full advertised amount." },
   { q: "What if a referral doesn't convert?", a: "You owe nothing. No close, no cost. There's zero risk to listing an offer." },
-  { q: "How does Revvin make money?", a: "Revvin charges a platform fee on top of each successful referral payout. The fee depends on the plan the business selects — and the referrer always receives the full advertised amount. Businesses choose their plan after signing up." },
-  { q: "What types of businesses can use Revvin?", a: "Any business that benefits from customer referrals — realtors, contractors, mortgage brokers, gyms, auto dealers, SaaS companies, service providers, and more. If someone can refer a customer to you, Revvin works." },
+  { q: "How does Revvin make money?", a: "Revvin charges the business a platform fee on each successful referral payout. The fee depends on the plan the business selects during onboarding. The referrer is never charged — they always earn the full advertised payout." },
+  { q: "What types of businesses can use Revvin?", a: "Any business that benefits from customer referrals — realtors, contractors, mortgage brokers, gyms, auto dealers, service providers, and more. If someone can refer a customer to you, Revvin works." },
   { q: "How is this different from affiliate marketing?", a: "Affiliate marketing tracks clicks and cookies. Revvin tracks real introductions between real people and real businesses, with payouts tied to actual closed deals — not impressions or signups." },
-  { q: "Is my data and payment information secure?", a: "Yes. Revvin uses bank-level encryption, platform-mediated payouts, and every business is reviewed before going live. We're building the trust layer that informal referral deals are missing." },
+  { q: "Is my data safe?", a: "Yes. Revvin uses secure infrastructure, platform-mediated payouts, and every business is reviewed before going live. We're building the trust layer that informal referral deals are missing." },
 ];
 
 const Index = () => {
