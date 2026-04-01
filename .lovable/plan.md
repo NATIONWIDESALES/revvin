@@ -1,71 +1,72 @@
 
 
-## Fix 5 Platform Issues
+## Root Cause & Fix: "Database error saving new user"
 
-### Issue 1: AdminDashboard Offers tab always empty
-**Root cause**: DB stores `approval_status = 'pending_approval'` but the Offers tab filters by `=== "pending"` (lines 90, 316, 318, 325, 335, 341).
+### Root Cause (confirmed from auth logs)
 
-**Fix** in `AdminDashboard.tsx`:
-- Line 90: `offers.filter(o => o.approval_status === "pending")` → `"pending_approval"`
-- Line 316: same filter fix
-- Line 318, 325, 335, 341: all `"pending"` comparisons → `"pending_approval"`
+The auth error log shows:
 
----
+```
+ERROR: schema "net" does not exist (SQLSTATE 3F000)
+```
 
-### Issue 2: totalReferrers / totalBusinesses always 0
-**Root cause**: `usePlatformStats.ts` can't query `user_roles` (RLS blocks non-admin reads of other users' roles). AdminDashboard also queries `user_roles` but admins have RLS access so it works there.
+The chain of events:
 
-For the public-facing `usePlatformStats`, the fix is to count from tables that are publicly readable:
-- `totalBusinesses` = count from `businesses` table (already queried, already has public SELECT for approved)
-- `totalReferrers` = count from `profiles` minus `businesses` count (rough proxy), OR use a DB function
+1. User submits signup form → Supabase creates `auth.users` row
+2. `on_auth_user_created` trigger fires `handle_new_user()` → inserts into `profiles`, `user_roles`, and (for businesses) `businesses`
+3. The INSERT into `businesses` fires the `on_business_insert_notify` trigger
+4. That trigger calls `net.http_post()` — the `pg_net` extension is **not available** in Lovable Cloud
+5. The entire transaction aborts → auth user creation rolls back → "Database error saving new user"
 
-**Chosen approach**: Use `businesses.length` for totalBusinesses (already available). For totalReferrers, count `profiles` and subtract business count as an approximation. This avoids needing RLS changes on `user_roles`.
-
-**Fix** in `usePlatformStats.ts`:
-- Add profiles count query: `supabase.from("profiles").select("id", { count: "exact", head: true })`
-- `totalReferrers = (profilesCount - businesses.length)` (clamped to 0)
-- `totalBusinesses = businesses.length`
-
-Wait — profiles RLS only allows users to view their own profile. So anonymous/non-admin users can't count profiles either.
-
-Better approach: Create a **security definer DB function** `fn_platform_counts()` that returns `{businesses: int, referrers: int}` by querying `user_roles` internally, bypassing RLS.
-
-**Fix**:
-1. Migration: Create `fn_platform_counts()` security definer function
-2. Update `usePlatformStats.ts` to call `supabase.rpc("fn_platform_counts")` instead of querying `user_roles`
-
-Also fix `AdminDashboard.tsx` line 82-83 — these work for admins since they have RLS access to `user_roles`, so no change needed there.
+**Referrer signups are unaffected** because the `handle_new_user` trigger doesn't insert into `businesses` for referrers, so the broken trigger never fires.
 
 ---
 
-### Issue 3: "Newest" sort broken — parseInt on UUID
-**Root cause**: `Browse.tsx` line 74: `parseInt(b.id.replace(/\D/g, ""))` on UUIDs produces unreliable numbers.
+### Fix Plan
 
-**Fix** in `Browse.tsx` line 74 and `useDbOffers.ts`:
-- Add `createdAt` field to the Offer mapping in `useDbOffers.ts` (from `o.created_at`)
-- Sort by `createdAt` timestamp: `new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()`
-- Update `types/offer.ts` to include optional `createdAt?: string`
+#### 1. Drop the broken trigger (Migration)
 
----
+Create a migration that drops the `on_business_insert_notify` trigger and the `notify_business_signup_webhook` function. These use `pg_net` which doesn't exist in Lovable Cloud.
 
-### Issue 4: PayoutMethodSetup — remove component
-Per the instruction to remove payment buttons/redemption that don't relate to Stripe or Tremendous: the PayoutMethodSetup component offers ACH/Interac/EFT options that are not wired to any actual payout dispatch and aren't part of Stripe or Tremendous.
+```sql
+DROP TRIGGER IF EXISTS on_business_insert_notify ON public.businesses;
+DROP FUNCTION IF EXISTS public.notify_business_signup_webhook();
+```
 
-**Fix**:
-- Remove `PayoutMethodSetup` import and usage from `ReferrerDashboard.tsx` (line 17, 168)
-- Delete `src/components/PayoutMethodSetup.tsx`
+#### 2. Move business signup notification to client-side (Auth.tsx)
 
----
+After a successful business signup, fire-and-forget invoke the `notify-business-signup` edge function from the client. This preserves the admin notification email without depending on `pg_net`.
 
-### Issue 5: Platform revenue stat uses hardcoded 10%
-**Root cause**: `AdminDashboard.tsx` line 85: `* 0.1` hardcoded instead of using each offer's `platform_fee_rate`.
+In `Auth.tsx`, after the `signUp` call succeeds and the role is `business`, add:
 
-**Fix** in `AdminDashboard.tsx`:
-- Join offers data to get `platform_fee_rate` per referral
-- Line 85: For each won referral, look up the associated offer's `platform_fee_rate` (already available via `offers` join on referrals query): `(r.payout_amount ?? r.offers?.payout ?? 0) * (r.offers?.platform_fee_rate ?? 0.25)`
-- Need to add `platform_fee_rate` to the offers select in the referrals query (line 62)
+```typescript
+// Fire-and-forget notification to admin
+supabase.functions.invoke("notify-business-signup", {
+  body: {
+    type: "INSERT",
+    table: "businesses",
+    record: {
+      user_id: data.user?.id,
+      name: businessName || fullName + "'s Business",
+      industry,
+      city: serviceArea,
+      phone: businessPhone,
+    },
+  },
+}).catch(() => {}); // non-blocking
+```
 
-Actually, referrals already join `offers(title, payout, payout_type)` — just add `platform_fee_rate` to the select.
+#### 3. Harden error handling in Auth.tsx
+
+- Wrap the signup flow in better try/catch with specific error messages
+- If Supabase returns a 500-class error mentioning "Database error", show a user-friendly message: "Something went wrong creating your account. Please try again or contact support."
+- Add console.error logging for debugging
+
+#### 4. Add retry/recovery for edge cases
+
+- If a user's auth record was created but the trigger failed mid-transaction (shouldn't happen anymore after the fix since the transaction would have rolled back), add a check: on login, if user has no profile, create one from their metadata. This is a safety net.
+
+In `AuthContext.tsx`, after `fetchRole`, check if profile exists. If not, upsert from user metadata.
 
 ---
 
@@ -73,12 +74,16 @@ Actually, referrals already join `offers(title, payout, payout_type)` — just a
 
 | File | Change |
 |------|--------|
-| `src/pages/dashboard/AdminDashboard.tsx` | Fix `"pending"` → `"pending_approval"` (6 places); add `platform_fee_rate` to referrals→offers select; use dynamic fee rate for revenue calc |
-| `src/hooks/usePlatformStats.ts` | Use `fn_platform_counts` RPC for referrer/business counts |
-| `src/pages/Browse.tsx` | Fix newest sort to use `createdAt` timestamp |
-| `src/hooks/useDbOffers.ts` | Add `createdAt` to offer mapping |
-| `src/types/offer.ts` | Add optional `createdAt` field |
-| `src/pages/dashboard/ReferrerDashboard.tsx` | Remove PayoutMethodSetup usage |
-| `src/components/PayoutMethodSetup.tsx` | Delete file |
-| Migration | Create `fn_platform_counts()` security definer function |
+| New migration | `DROP TRIGGER on_business_insert_notify`; `DROP FUNCTION notify_business_signup_webhook` |
+| `src/pages/Auth.tsx` | Add client-side edge function call for business signup notification; improve error messages |
+| `src/contexts/AuthContext.tsx` | Add profile existence check on login as safety net |
+
+### What stays the same
+- `handle_new_user()` trigger function (still works correctly once the broken downstream trigger is removed)
+- `notify-business-signup` edge function code (unchanged, just invoked from client instead of DB trigger)
+- All RLS policies, table schemas, referrer flow
+
+### Remaining risks to flag
+- The `notify-business-signup` edge function sends from `updates@updates.revvin.co` via Resend — verify this domain is still verified in Resend
+- The client-side notification call means if the user closes the browser immediately after signup, the admin email won't fire (acceptable trade-off vs. blocking signups)
 
