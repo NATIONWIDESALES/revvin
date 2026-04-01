@@ -304,6 +304,17 @@ const BusinessDashboard = () => {
             </motion.div>
           )}
 
+          {/* Plan Selection (shown during onboarding for new businesses) */}
+          {!isApproved && business && (!business.pricing_tier || business.pricing_tier === "free") && (
+            <motion.div variants={fadeUp} custom={0.5} className="mb-8 rounded-2xl border bg-card p-6 md:p-8">
+              <PlanSelector
+                businessId={business.id}
+                currentTier={business.pricing_tier}
+                onPlanSelected={(tier) => setBusiness((prev: any) => prev ? { ...prev, pricing_tier: tier } : prev)}
+              />
+            </motion.div>
+          )}
+
           {/* Header */}
           <motion.div variants={fadeUp} custom={0} className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
