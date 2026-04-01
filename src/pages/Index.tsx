@@ -219,7 +219,7 @@ const Index = () => {
                   {[
                     "Free to join — no fees ever",
                     "Browse live referral offers",
-                    "Keep 100% of the referral payout",
+                    "Earn the full advertised payout",
                     "Platform handles everything",
                   ].map(item => (
                     <li key={item} className="flex items-start gap-2 text-sm text-foreground">
