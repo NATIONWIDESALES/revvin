@@ -259,8 +259,18 @@ const CreateOffer = () => {
           <Link to="/dashboard"><ArrowLeft className="h-4 w-4" /> Back to Dashboard</Link>
         </Button>
 
-        <h1 className="font-display text-2xl font-bold text-foreground mb-2">Create Referral Offer</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground mb-2">{isPendingApproval ? "Draft Referral Offer" : "Create Referral Offer"}</h1>
         <p className="text-muted-foreground mb-6">Define what you're willing to pay for successful referrals</p>
+
+        {isPendingApproval && (
+          <div className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-4 flex items-start gap-3">
+            <Clock className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Account pending approval</p>
+              <p className="text-xs text-muted-foreground mt-1">You can prepare your offer now. It will be saved as a draft and can go live once your account is approved.</p>
+            </div>
+          </div>
+        )}
 
         <div className="flex items-center gap-2 mb-8">
           {STEP_LABELS.map((label, i) => (
