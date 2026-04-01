@@ -35,12 +35,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUserRole((data?.role as "business" | "referrer" | "admin") ?? null);
   };
 
+  // Safety net: ensure profile exists on login (recovers from partial signup failures)
+  const ensureProfile = async (user: User) => {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!profile) {
+      const fullName = user.user_metadata?.full_name || user.email?.split("@")[0] || "";
+      await supabase.from("profiles").insert({ user_id: user.id, full_name: fullName }).select().maybeSingle();
+      console.info("Profile recovery: created missing profile for user", user.id);
+    }
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        setTimeout(() => fetchRole(session.user.id), 0);
+        setTimeout(() => {
+          fetchRole(session.user.id);
+          ensureProfile(session.user);
+        }, 0);
       } else {
         setUserRole(null);
       }
@@ -50,7 +67,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) fetchRole(session.user.id);
+      if (session?.user) {
+        fetchRole(session.user.id);
+        ensureProfile(session.user);
+      }
       setLoading(false);
     });
 
