@@ -48,7 +48,7 @@ const ReferralAgreement = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">7. Termination</h2>
-            <p>Either party may terminate their participation in any active referral by notifying Revvin. If funds have been escrowed, they will be returned to the Business unless the referral has already progressed to a qualified stage. Termination of this Agreement does not affect pending payouts for completed deals.</p>
+            <p>Either party may terminate their participation in any active referral by notifying Revvin. If funds have been reserved in the Business's wallet, they will be released back unless the referral has already progressed to a qualified stage. Termination of this Agreement does not affect pending payouts for completed deals.</p>
           </section>
         </div>
       </div>
