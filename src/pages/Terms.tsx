@@ -13,7 +13,7 @@ const Terms = () => {
         </Button>
 
         <h1 className="text-3xl font-bold mb-2">Terms of Service</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last updated: February 20, 2026</p>
+        <p className="text-sm text-muted-foreground mb-8">Last updated: April 1, 2026</p>
 
         <div className="prose prose-sm max-w-none space-y-6 text-muted-foreground">
           <section>
@@ -95,7 +95,7 @@ const Terms = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">13. Contact</h2>
-            <p>For questions about these Terms, contact us at <span className="text-primary font-medium">legal@revvin.io</span>.</p>
+            <p>For questions about these Terms, contact us at <span className="text-primary font-medium">legal@revvin.co</span>.</p>
           </section>
         </div>
       </div>

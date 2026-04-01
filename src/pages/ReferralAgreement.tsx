@@ -13,7 +13,7 @@ const ReferralAgreement = () => {
         </Button>
 
         <h1 className="text-3xl font-bold mb-2">Referral Agreement</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last updated: February 20, 2026</p>
+        <p className="text-sm text-muted-foreground mb-8">Last updated: April 1, 2026</p>
 
         <div className="prose prose-sm max-w-none space-y-6 text-muted-foreground">
           <section>
@@ -33,7 +33,7 @@ const ReferralAgreement = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">4. Payout Terms</h2>
-            <p>Referrers receive the full advertised referral fee upon a verified closed deal. The platform fee is charged separately to the business based on their selected plan and does not reduce the referrer's payout. Payment is processed to the Referrer's configured payout method (ACH for US, Interac e-Transfer or EFT for Canada).</p>
+            <p>Referrers receive the full advertised referral fee upon a verified closed deal. The platform fee is charged separately to the business based on their selected plan and does not reduce the referrer's payout. Payment is delivered via the Referrer's configured payout method through the platform's payment partner. Payout timing follows the schedule specified on the offer (Net 7, Net 14, or Net 30 from verified close).</p>
           </section>
 
           <section>
@@ -48,7 +48,7 @@ const ReferralAgreement = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">7. Termination</h2>
-            <p>Either party may terminate their participation in any active referral by notifying Revvin. If funds have been escrowed, they will be returned to the Business unless the referral has already progressed to a qualified stage. Termination of this Agreement does not affect pending payouts for completed deals.</p>
+            <p>Either party may terminate their participation in any active referral by notifying Revvin. If funds have been reserved in the Business's wallet, they will be released back unless the referral has already progressed to a qualified stage. Termination of this Agreement does not affect pending payouts for completed deals.</p>
           </section>
         </div>
       </div>
