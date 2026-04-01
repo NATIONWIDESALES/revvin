@@ -1,0 +1,198 @@
+import { useState } from "react";
+import { CheckCircle2, Crown, Zap, Building2, Rocket } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+const plans = [
+  {
+    id: "free",
+    name: "Free",
+    price: "$0",
+    period: "/mo",
+    fee: "25%",
+    feeLabel: "platform fee per closed referral",
+    desc: "Get listed quickly with no monthly cost.",
+    icon: Building2,
+    features: [
+      "List your business for free",
+      "Create referral offers",
+      "Receive and manage referrals",
+      "Platform-mediated payouts",
+      "Basic business profile",
+      "Email notifications",
+    ],
+    featured: false,
+  },
+  {
+    id: "starter",
+    name: "Starter",
+    price: "$50",
+    period: "/mo",
+    fee: "10%",
+    feeLabel: "platform fee per closed referral",
+    desc: "For businesses actively acquiring through referrals.",
+    icon: Zap,
+    features: [
+      "Everything in Free",
+      "Lower 10% platform fee",
+      "Priority business review",
+      "Enhanced profile visibility",
+      "Referral analytics",
+      "Priority support",
+    ],
+    featured: true,
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    price: "$250",
+    period: "/mo",
+    fee: "1%",
+    feeLabel: "platform fee per closed referral",
+    desc: "For high-volume referral programs.",
+    icon: Crown,
+    features: [
+      "Everything in Starter",
+      "Minimal 1% platform fee",
+      "Featured marketplace placement",
+      "Advanced analytics dashboard",
+      "Dedicated support",
+      "Custom payout terms",
+    ],
+    featured: false,
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    price: "$500",
+    period: "/mo",
+    fee: "Custom",
+    feeLabel: "negotiated rate",
+    desc: "For referral programs at scale.",
+    icon: Rocket,
+    features: [
+      "Everything in Pro",
+      "Custom platform fee",
+      "Premium featured placement",
+      "Multi-location support",
+      "Dedicated account manager",
+      "Custom integrations",
+    ],
+    featured: false,
+  },
+];
+
+interface PlanSelectorProps {
+  businessId: string;
+  currentTier?: string;
+  onPlanSelected?: (tier: string) => void;
+}
+
+const PlanSelector = ({ businessId, currentTier, onPlanSelected }: PlanSelectorProps) => {
+  const [selected, setSelected] = useState(currentTier || "free");
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
+
+  const handleConfirm = async () => {
+    setSaving(true);
+    try {
+      const feeMap: Record<string, number> = { free: 0.25, starter: 0.10, pro: 0.01, enterprise: 0.01 };
+      const { error } = await supabase
+        .from("businesses")
+        .update({ pricing_tier: selected })
+        .eq("id", businessId);
+      if (error) throw error;
+
+      // Also update platform_fee_rate on existing offers
+      const fee = feeMap[selected] ?? 0.25;
+      await supabase
+        .from("offers")
+        .update({ platform_fee_rate: fee })
+        .eq("business_id", businessId);
+
+      toast({ title: "Plan selected", description: `You're on the ${selected.charAt(0).toUpperCase() + selected.slice(1)} plan.` });
+      onPlanSelected?.(selected);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to save plan", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">Select your plan</h2>
+        <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+          All plans include full platform access. The main difference is the platform fee on successful referrals. You can change your plan at any time.
+        </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
+        {plans.map((plan, i) => {
+          const isSelected = selected === plan.id;
+          return (
+            <motion.button
+              key={plan.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08, duration: 0.4 }}
+              onClick={() => setSelected(plan.id)}
+              className={`rounded-2xl border p-5 text-left relative flex flex-col transition-all ${
+                isSelected
+                  ? "border-primary bg-primary/[0.02] shadow-sm ring-2 ring-primary/20"
+                  : "border-border bg-card hover:border-primary/20"
+              } ${plan.featured && !isSelected ? "border-primary/15" : ""}`}
+            >
+              {plan.featured && (
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+                  Most Popular
+                </span>
+              )}
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/5">
+                  <plan.icon className="h-4 w-4 text-primary" />
+                </div>
+                <span className="text-sm font-semibold text-foreground">{plan.name}</span>
+              </div>
+              <div className="flex items-baseline gap-0.5 mb-1">
+                <span className="text-2xl font-bold text-foreground">{plan.price}</span>
+                <span className="text-xs text-muted-foreground">{plan.period}</span>
+              </div>
+              <span className="inline-flex items-center text-[11px] font-medium bg-primary/5 text-primary px-2 py-0.5 rounded-full mb-3 w-fit">
+                {plan.fee} {plan.feeLabel}
+              </span>
+              <p className="text-xs text-muted-foreground mb-4">{plan.desc}</p>
+              <ul className="space-y-1.5 flex-1">
+                {plan.features.map(f => (
+                  <li key={f} className="flex items-start gap-1.5 text-xs text-foreground">
+                    <CheckCircle2 className="h-3 w-3 text-primary mt-0.5 shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              {isSelected && (
+                <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-primary">
+                  <CheckCircle2 className="h-4 w-4" /> Selected
+                </div>
+              )}
+            </motion.button>
+          );
+        })}
+      </div>
+
+      <div className="text-center mt-8">
+        <Button onClick={handleConfirm} disabled={saving} className="h-11 px-8 gap-2">
+          {saving ? "Saving…" : `Continue with ${selected.charAt(0).toUpperCase() + selected.slice(1)} plan`}
+        </Button>
+        <p className="mt-3 text-xs text-muted-foreground">
+          You can change your plan anytime from your dashboard. The Free plan is always available.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default PlanSelector;

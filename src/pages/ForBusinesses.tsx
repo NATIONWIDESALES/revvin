@@ -68,7 +68,7 @@ const ForBusinesses = () => (
               <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" className="h-12 px-8 text-sm" asChild>
-              <Link to="/pricing">See Pricing</Link>
+              <Link to="/how-it-works">How It Works</Link>
             </Button>
           </motion.div>
           <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">

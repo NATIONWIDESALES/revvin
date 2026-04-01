@@ -53,7 +53,7 @@ const App = () => (
                 <Route path="/trust" element={<TrustCenter />} />
                 <Route path="/for-businesses" element={<ForBusinesses />} />
                 <Route path="/for-referrers" element={<ForReferrers />} />
-                <Route path="/pricing" element={<Pricing />} />
+                
                 <Route path="/referrer/:userId" element={<ReferrerProfile />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
