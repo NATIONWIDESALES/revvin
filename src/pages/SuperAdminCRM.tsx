@@ -506,8 +506,11 @@ const SuperAdminCRM = () => {
               <TabsContent value="verification">
                 <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
                   <h2 className="text-base font-bold mb-4 flex items-center gap-2"><BadgeCheck className="h-4 w-4 text-primary" /> Business Verification Queue</h2>
-                  <div className="space-y-3">
-                    {businesses.map((biz) => {
+                   <div className="space-y-3">
+                    {[...businesses].sort((a, b) => {
+                      const order: Record<string, number> = { pending_approval: 0, rejected: 1, approved: 2 };
+                      return (order[(a as any).account_status] ?? 3) - (order[(b as any).account_status] ?? 3);
+                    }).map((biz) => {
                       const accountStatus = (biz as any).account_status || "approved";
                       return (
                       <div key={biz.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-4">
