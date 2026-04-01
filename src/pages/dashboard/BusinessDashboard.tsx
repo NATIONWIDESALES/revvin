@@ -320,8 +320,18 @@ const BusinessDashboard = () => {
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-bold text-foreground">{business?.name ?? "Your Business"}</h1>
-                <Badge variant={business?.pricing_tier === "paid" ? "default" : "secondary"} className="gap-1">
-                  {business?.pricing_tier === "paid" ? <><Crown className="h-3 w-3" /> Paid (10% fee)</> : <>Free (25% fee)</>}
+                <Badge variant={business?.pricing_tier && business.pricing_tier !== "free" ? "default" : "secondary"} className="gap-1">
+                  {(() => {
+                    const tier = business?.pricing_tier || "free";
+                    const labels: Record<string, { label: string; fee: string }> = {
+                      free: { label: "Free", fee: "25%" },
+                      starter: { label: "Starter", fee: "10%" },
+                      pro: { label: "Pro", fee: "1%" },
+                      enterprise: { label: "Enterprise", fee: "Custom" },
+                    };
+                    const info = labels[tier] || labels.free;
+                    return tier !== "free" ? <><Crown className="h-3 w-3" /> {info.label} ({info.fee} fee)</> : <>{info.label} ({info.fee} fee)</>;
+                  })()}
                 </Badge>
               </div>
               <p className="text-muted-foreground mt-1">{activeOffers} active offer{activeOffers !== 1 ? "s" : ""} • {referrals.length} referrals</p>
