@@ -84,7 +84,30 @@ const Auth = () => {
             emailRedirectTo: window.location.origin,
           },
         });
-        if (error) throw error;
+        if (error) {
+          console.error("Signup error:", error);
+          if (error.message?.toLowerCase().includes("database error")) {
+            throw new Error("Something went wrong creating your account. Please try again or contact support@revvin.co.");
+          }
+          throw error;
+        }
+
+        // Fire-and-forget admin notification for business signups
+        if (role === "business" && data.user) {
+          supabase.functions.invoke("notify-business-signup", {
+            body: {
+              type: "INSERT",
+              table: "businesses",
+              record: {
+                user_id: data.user.id,
+                name: businessName || fullName + "'s Business",
+                industry,
+                city: serviceArea,
+                phone: businessPhone,
+              },
+            },
+          }).catch((err) => console.warn("Admin notification failed (non-blocking):", err));
+        }
 
         toast({ title: "Check your email!", description: "We sent a confirmation link. Click it to activate your account." });
         setEmail(""); setPassword(""); setFullName(""); setStep(1);
