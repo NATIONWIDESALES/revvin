@@ -121,10 +121,17 @@ const CreateOffer = () => {
   const totalReserved = Math.round((payoutNum + platformFee) * 100) / 100;
   const feePercent = pricingTier === "paid" ? "10%" : "25%";
 
+  const isPendingApproval = businessAccountStatus !== "approved" && !isSuperAdmin;
+
   const handlePublishOffer = async () => {
     if (!businessId) {
       toast({ title: "Error", description: "Business profile not found.", variant: "destructive" });
       return;
+    }
+
+    if (isPendingApproval) {
+      // Save as draft only for pending businesses
+      return handleSaveDraft();
     }
 
     const payoutValue = parseFloat(form.payout);
