@@ -42,7 +42,7 @@ const ForReferrers = () => (
             Get paid for the intro.
           </motion.h1>
           <motion.p variants={fadeUp} custom={2} className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Browse businesses willing to pay real money for customer referrals. Submit a referral. Earn when the deal closes. Keep 100%.
+            Browse businesses willing to pay real money for customer referrals. Submit a referral. Earn when the deal closes.
           </motion.p>
           <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
