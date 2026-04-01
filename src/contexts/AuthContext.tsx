@@ -54,7 +54,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        setTimeout(() => fetchRole(session.user.id), 0);
+        setTimeout(() => {
+          fetchRole(session.user.id);
+          ensureProfile(session.user);
+        }, 0);
+      }
       } else {
         setUserRole(null);
       }
