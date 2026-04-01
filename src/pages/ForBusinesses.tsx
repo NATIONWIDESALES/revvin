@@ -72,7 +72,7 @@ const ForBusinesses = () => (
             </Button>
           </motion.div>
           <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
-            Free to list · No credit card required
+            Free to list · Pay only when deals close
           </motion.p>
         </motion.div>
       </div>
