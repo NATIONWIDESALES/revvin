@@ -246,3 +246,11 @@ ${isApproved ? `
     return new Response(null, { status: 404, headers: corsHeaders });
   }
 });
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
