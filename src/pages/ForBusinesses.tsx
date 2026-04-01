@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Building2, ArrowRight } from "lucide-react";
+import { Building2, ArrowRight, CheckCircle2, DollarSign, BarChart3, Shield, Users, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
-import PhoneNotification from "@/components/PhoneNotification";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -25,13 +24,13 @@ const ForBusinesses = () => (
   <div>
     <SEOHead
       title="Revvin for Businesses — Acquire Customers Through Referral Payouts"
-      description="Stop paying for clicks. Set your own referral fee and only pay when a deal closes. Zero upfront cost. Available across Canada and the United States."
+      description="Stop paying for clicks. List your referral offer on Revvin. Set your own payout. Only pay when a deal closes. Free to list. Available in Canada and the USA."
       path="/for-businesses"
       jsonLd={{
         "@context": "https://schema.org",
         "@type": "Service",
         "name": "Revvin Referral Marketing for Businesses",
-        "description": "Pay-per-close customer acquisition.",
+        "description": "Pay-per-close customer acquisition through structured referrals.",
         "provider": { "@type": "Organization", "name": "Revvin" },
         "areaServed": [
           { "@type": "Country", "name": "Canada" },
@@ -47,7 +46,8 @@ const ForBusinesses = () => (
     />
 
     {/* Hero */}
-    <section className="relative pt-32 pb-28 lg:pt-40 lg:pb-36 dot-grid">
+    <section className="relative pt-28 pb-24 lg:pt-36 lg:pb-32">
+      <div className="absolute inset-0 dot-grid opacity-50" />
       <div className="container relative z-10 text-center">
         <motion.div initial="hidden" animate="visible">
           <motion.div variants={fadeUp} custom={0}>
@@ -55,53 +55,49 @@ const ForBusinesses = () => (
               <Building2 className="h-3.5 w-3.5" /> For Businesses
             </span>
           </motion.div>
-          <motion.h1 variants={fadeUp} custom={1} className="text-5xl md:text-6xl font-bold leading-[1.05] tracking-tight text-foreground">
-            Acquire customers.
+          <motion.h1 variants={fadeUp} custom={1} className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.08] tracking-tight text-foreground">
+            Stop paying for clicks.
             <br />
-            <span className="text-primary">Pay when deals close.</span>
+            <span className="text-primary">Start paying for customers.</span>
           </motion.h1>
-          <motion.p variants={fadeUp} custom={2} className="mt-6 text-lg text-muted-foreground max-w-lg mx-auto leading-relaxed">
-            Zero upfront cost. You set the reward. You control the rules.
+          <motion.p variants={fadeUp} custom={2} className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+            List your referral offer on Revvin. Set what a new customer is worth to you. Only pay when a deal actually closes.
           </motion.p>
-          <motion.div variants={fadeUp} custom={3} className="mt-10">
+          <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
               <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
             </Button>
+            <Button size="lg" variant="outline" className="h-12 px-8 text-sm" asChild>
+              <Link to="/pricing">See Pricing</Link>
+            </Button>
           </motion.div>
-        </motion.div>
-      </div>
-    </section>
-
-    {/* How it works — Phone mockup */}
-    <section className="py-28 lg:py-36 bg-surface">
-      <div className="container">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-4xl mx-auto">
-          <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold text-center mb-4 tracking-tight">
-            A lead arrives. You close. They get paid.
-          </motion.h2>
-          <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-center mb-16 text-sm">
-            That's the entire workflow.
+          <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
+            Free to list · No credit card required
           </motion.p>
-          <div className="flex justify-center">
-            <PhoneNotification variant="business" />
-          </div>
         </motion.div>
       </div>
     </section>
 
-    {/* 3 steps — minimal */}
-    <section className="py-28 lg:py-36">
+    {/* How it works */}
+    <section className="py-24 lg:py-32 bg-surface">
       <div className="container">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-4xl mx-auto">
-          <div className="grid gap-16 md:grid-cols-3 text-center">
+          <motion.p variants={fadeUp} custom={0} className="section-label text-center mb-3">How it works</motion.p>
+          <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold text-center mb-16 tracking-tight">
+            From listing to payout in 4 steps
+          </motion.h2>
+          <div className="grid gap-12 md:gap-8 md:grid-cols-4 text-center">
             {[
-              { num: "01", title: "Set your payout", desc: "Define a flat fee or percentage for each closed referral." },
-              { num: "02", title: "Publish your offer", desc: "Set qualifications, payout timelines, and service area." },
-              { num: "03", title: "Pay on close", desc: "Accept referrals, close deals, and Revvin handles payout." },
+              { num: "01", title: "Create your profile", desc: "Sign up free, add your business details, logo, and service area." },
+              { num: "02", title: "Set your payout", desc: "Define what you'll pay for a closed referral — flat fee or percentage." },
+              { num: "03", title: "Get approved", desc: "Our team reviews your business. Once approved, your offer goes live." },
+              { num: "04", title: "Close & pay", desc: "Receive referrals, close deals, and the referrer gets paid automatically." },
             ].map((item, i) => (
               <motion.div key={item.num} variants={fadeUp} custom={i + 1}>
-                <div className="mb-4 text-4xl font-bold text-primary/15">{item.num}</div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}</h3>
+                <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/5 text-sm font-bold text-primary">
+                  {item.num}
+                </div>
+                <h3 className="text-base font-semibold text-foreground mb-2">{item.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
@@ -110,8 +106,71 @@ const ForBusinesses = () => (
       </div>
     </section>
 
+    {/* Benefits */}
+    <section className="py-24 lg:py-32">
+      <div className="container">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-4xl mx-auto">
+          <motion.p variants={fadeUp} custom={0} className="section-label text-center mb-3">Why businesses choose Revvin</motion.p>
+          <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold text-center mb-16 tracking-tight">
+            Better than ads. Simpler than hiring.
+          </motion.h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              { icon: DollarSign, title: "Pay on results only", desc: "No upfront cost, no monthly spend on ads. You only pay when a referred customer actually closes." },
+              { icon: Users, title: "Warm introductions", desc: "Referrals come from people who know your next customer — not algorithms guessing from cookie data." },
+              { icon: Shield, title: "Platform structure", desc: "Clean records, tracked referrals, mediated payouts. No more informal deals and missing payments." },
+              { icon: Zap, title: "Free to start", desc: "List your business and create your first offer for free. Upgrade to reduce platform fees as you grow." },
+              { icon: BarChart3, title: "Full visibility", desc: "Track referrals, see pipeline activity, and manage payouts all from your dashboard." },
+              { icon: CheckCircle2, title: "You set the terms", desc: "Choose your payout amount, define qualification criteria, and control your referral program." },
+            ].map((item, i) => (
+              <motion.div key={item.title} variants={fadeUp} custom={i + 1} className="rounded-xl border bg-card p-6">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/5">
+                  <item.icon className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="text-base font-semibold text-foreground mb-1">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </section>
+
+    {/* Pricing Preview */}
+    <section className="py-24 lg:py-32 bg-surface">
+      <div className="container">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-3xl mx-auto text-center">
+          <motion.p variants={fadeUp} custom={0} className="section-label mb-3">Pricing</motion.p>
+          <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+            Free to list. Pay as you grow.
+          </motion.h2>
+          <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-sm mb-10">
+            All plans include full access to the platform. The only difference is the platform fee on successful referrals.
+          </motion.p>
+          <motion.div variants={fadeUp} custom={2} className="grid gap-4 md:grid-cols-3">
+            {[
+              { name: "Free", fee: "25% fee", price: "$0/mo" },
+              { name: "Starter", fee: "10% fee", price: "$50/mo" },
+              { name: "Pro", fee: "1% fee", price: "$250/mo" },
+            ].map(plan => (
+              <div key={plan.name} className="rounded-xl border bg-card p-5">
+                <p className="text-sm font-semibold text-primary">{plan.name}</p>
+                <p className="text-2xl font-bold text-foreground mt-1">{plan.price}</p>
+                <p className="text-xs text-muted-foreground mt-1">{plan.fee} on closed referrals</p>
+              </div>
+            ))}
+          </motion.div>
+          <motion.div variants={fadeUp} custom={3} className="mt-8">
+            <Button variant="outline" className="gap-2" asChild>
+              <Link to="/pricing">See Full Pricing Details <ArrowRight className="h-4 w-4" /></Link>
+            </Button>
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+
     {/* Cross-border */}
-    <section className="py-20 bg-surface">
+    <section className="py-20">
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -139,7 +198,7 @@ const ForBusinesses = () => (
     </section>
 
     {/* CTA */}
-    <section className="py-28 lg:py-36">
+    <section className="py-24 lg:py-32 bg-surface">
       <div className="container text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -148,7 +207,8 @@ const ForBusinesses = () => (
           transition={{ duration: 0.7, ease }}
           className="max-w-xl mx-auto"
         >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">Start acquiring customers today</h2>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Start acquiring customers today</h2>
+          <p className="text-muted-foreground mb-8">Create your business account, set your referral payout, and let your network do the selling.</p>
           <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
             <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
           </Button>
