@@ -95,7 +95,7 @@ const Terms = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">13. Contact</h2>
-            <p>For questions about these Terms, contact us at <span className="text-primary font-medium">legal@revvin.io</span>.</p>
+            <p>For questions about these Terms, contact us at <span className="text-primary font-medium">legal@revvin.co</span>.</p>
           </section>
         </div>
       </div>
