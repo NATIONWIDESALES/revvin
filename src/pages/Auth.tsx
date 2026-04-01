@@ -104,6 +104,7 @@ const Auth = () => {
                 industry,
                 city: serviceArea,
                 phone: businessPhone,
+                created_at: new Date().toISOString(),
               },
             },
           }).catch((err) => console.warn("Admin notification failed (non-blocking):", err));

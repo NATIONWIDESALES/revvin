@@ -106,6 +106,7 @@ const CreateOffer = () => {
 
       setBusinessId(business.id);
       setBusinessName(business.name);
+      setBusinessAccountStatus(business.account_status || "pending_approval");
       setPricingTier(business.pricing_tier || "free");
     };
 
