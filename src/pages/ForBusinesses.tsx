@@ -136,34 +136,30 @@ const ForBusinesses = () => (
       </div>
     </section>
 
-    {/* Pricing Preview */}
+    {/* Pricing Hook */}
     <section className="py-24 lg:py-32 bg-surface">
       <div className="container">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-3xl mx-auto text-center">
-          <motion.p variants={fadeUp} custom={0} className="section-label mb-3">Pricing</motion.p>
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-2xl mx-auto text-center">
+          <motion.p variants={fadeUp} custom={0} className="section-label mb-3">Simple economics</motion.p>
           <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-            Free to list. Pay as you grow.
+            Free to list. Pay only when deals close.
           </motion.h2>
-          <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-sm mb-10">
-            All plans include full access to the platform. The only difference is the platform fee on successful referrals.
+          <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-sm mb-8 max-w-lg mx-auto">
+            No subscriptions required. No upfront costs. Create your profile, publish your offer, and start receiving referrals. A small platform fee applies only on successful closes.
           </motion.p>
-          <motion.div variants={fadeUp} custom={2} className="grid gap-4 md:grid-cols-3">
-            {[
-              { name: "Free", fee: "25% fee", price: "$0/mo" },
-              { name: "Starter", fee: "10% fee", price: "$50/mo" },
-              { name: "Pro", fee: "1% fee", price: "$250/mo" },
-            ].map(plan => (
-              <div key={plan.name} className="rounded-xl border bg-card p-5">
-                <p className="text-sm font-semibold text-primary">{plan.name}</p>
-                <p className="text-2xl font-bold text-foreground mt-1">{plan.price}</p>
-                <p className="text-xs text-muted-foreground mt-1">{plan.fee} on closed referrals</p>
-              </div>
+          <motion.div variants={fadeUp} custom={2} className="inline-flex flex-wrap items-center justify-center gap-4">
+            {["Free business listing", "You set the payout", "No monthly commitment", "Pay on results only"].map(item => (
+              <span key={item} className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                {item}
+              </span>
             ))}
           </motion.div>
-          <motion.div variants={fadeUp} custom={3} className="mt-8">
-            <Button variant="outline" className="gap-2" asChild>
-              <Link to="/pricing">See Full Pricing Details <ArrowRight className="h-4 w-4" /></Link>
+          <motion.div variants={fadeUp} custom={3} className="mt-10">
+            <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
+              <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
             </Button>
+            <p className="mt-3 text-xs text-muted-foreground">Choose your plan after signing up. Free plan available.</p>
           </motion.div>
         </motion.div>
       </div>
