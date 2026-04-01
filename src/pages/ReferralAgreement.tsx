@@ -33,7 +33,7 @@ const ReferralAgreement = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">4. Payout Terms</h2>
-            <p>Referrers receive the full advertised referral fee upon a verified closed deal. The platform fee is charged separately to the business based on their selected plan and does not reduce the referrer's payout. Payment is processed to the Referrer's configured payout method (ACH for US, Interac e-Transfer or EFT for Canada).</p>
+            <p>Referrers receive the full advertised referral fee upon a verified closed deal. The platform fee is charged separately to the business based on their selected plan and does not reduce the referrer's payout. Payment is delivered via the Referrer's configured payout method through the platform's payment partner. Payout timing follows the schedule specified on the offer (Net 7, Net 14, or Net 30 from verified close).</p>
           </section>
 
           <section>
