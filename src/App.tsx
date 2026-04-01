@@ -25,6 +25,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import ReferralAgreement from "./pages/ReferralAgreement";
 import NotFound from "./pages/NotFound";
+import Pricing from "./pages/Pricing";
 import { lazy, Suspense } from "react";
 
 const SuperAdminCRM = lazy(() => import("./pages/SuperAdminCRM"));
@@ -52,6 +53,7 @@ const App = () => (
                 <Route path="/trust" element={<TrustCenter />} />
                 <Route path="/for-businesses" element={<ForBusinesses />} />
                 <Route path="/for-referrers" element={<ForReferrers />} />
+                <Route path="/pricing" element={<Pricing />} />
                 <Route path="/referrer/:userId" element={<ReferrerProfile />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
