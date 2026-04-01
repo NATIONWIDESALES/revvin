@@ -116,7 +116,7 @@ const Index = () => {
               </Button>
             </motion.div>
             <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
-              Free to list · No credit card required · Canada & USA
+              Free to list · Pay only on results · Canada & USA
             </motion.p>
           </motion.div>
         </div>
