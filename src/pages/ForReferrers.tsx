@@ -22,7 +22,7 @@ const stagger = {
 
 const ForReferrers = () => (
   <div>
-    <SEOHead title="Revvin for Referrers — Earn Money Referring Customers You Trust" description="Browse paid referral opportunities across Canada and the USA. Earn $75 to $1,500+ per closed referral. Free to join. Keep 100% of every payout." path="/for-referrers" />
+    <SEOHead title="Revvin for Referrers — Earn Money Referring Customers You Trust" description="Browse paid referral opportunities across Canada and the USA. Earn $75 to $1,500+ per closed referral. Free to join. Earn the full advertised payout." path="/for-referrers" />
 
     {/* Hero */}
     <section className="relative pt-28 pb-24 lg:pt-36 lg:pb-32">
@@ -42,7 +42,7 @@ const ForReferrers = () => (
             Get paid for the intro.
           </motion.h1>
           <motion.p variants={fadeUp} custom={2} className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Browse businesses willing to pay real money for customer referrals. Submit a referral. Earn when the deal closes. Keep 100%.
+            Browse businesses willing to pay real money for customer referrals. Submit a referral. Earn when the deal closes.
           </motion.p>
           <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
@@ -53,7 +53,7 @@ const ForReferrers = () => (
             </Button>
           </motion.div>
           <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
-            Free to join · No fees ever · Keep 100% of every payout
+            Free to join · No fees ever · Earn the full advertised payout
           </motion.p>
         </motion.div>
       </div>
@@ -96,7 +96,7 @@ const ForReferrers = () => (
           </motion.h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: DollarSign, title: "Keep 100% of payouts", desc: "The full advertised payout goes to you. Revvin never takes a cut from the referrer." },
+              { icon: DollarSign, title: "Earn the full payout", desc: "The full advertised payout goes to you. Revvin charges a separate fee to the business — you keep every dollar." },
               { icon: BadgeCheck, title: "Verified businesses", desc: "Every business on Revvin is reviewed and approved. You're referring people to legitimate companies." },
               { icon: Shield, title: "Platform protection", desc: "No chasing businesses for payment. Revvin handles the payout process so you always get paid." },
               { icon: Trophy, title: "Build your reputation", desc: "Earn badges, climb leaderboards, and build a track record as a top referrer." },

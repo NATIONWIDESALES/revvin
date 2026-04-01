@@ -25,7 +25,6 @@ const Footer = () => {
               <Link to="/browse" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Browse Offers</Link>
               <Link to="/for-businesses" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">For Businesses</Link>
               <Link to="/for-referrers" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">For Referrers</Link>
-              
             </div>
           </div>
 
@@ -51,7 +50,7 @@ const Footer = () => {
 
         <div className="mt-10 border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} Revvin. All rights reserved.</p>
-          <p className="text-xs text-muted-foreground">Free to list · No credit card required</p>
+          <p className="text-xs text-muted-foreground">Free to list · Pay only on results</p>
         </div>
       </div>
     </footer>

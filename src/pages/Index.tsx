@@ -38,13 +38,13 @@ const categories = [
 ];
 
 const faqItems = [
-  { q: "How much does it cost to list an offer?", a: "Nothing. Listing is free. You only pay a platform fee when a referred customer actually closes. The referrer always receives the full advertised payout amount." },
-  { q: "How do referrers get paid?", a: "When the business confirms a deal is closed, Revvin processes the payout. The business sets the reward amount upfront, and the referrer receives 100% of it." },
+  { q: "How much does it cost to list an offer?", a: "Nothing upfront. Creating your account and listing your offer is completely free. A platform fee applies only when a referred customer actually closes — so you never pay unless you get results." },
+  { q: "How do referrers get paid?", a: "When the business confirms a deal is closed, Revvin processes the payout. The business sets the reward amount upfront, and the referrer receives the full advertised amount." },
   { q: "What if a referral doesn't convert?", a: "You owe nothing. No close, no cost. There's zero risk to listing an offer." },
-  { q: "How does Revvin make money?", a: "Revvin charges a platform fee on top of each successful referral payout. The fee depends on the plan the business selects — and the referrer always receives the full advertised amount. Businesses choose their plan after signing up." },
-  { q: "What types of businesses can use Revvin?", a: "Any business that benefits from customer referrals — realtors, contractors, mortgage brokers, gyms, auto dealers, SaaS companies, service providers, and more. If someone can refer a customer to you, Revvin works." },
+  { q: "How does Revvin make money?", a: "Revvin charges the business a platform fee on each successful referral payout. The fee depends on the plan the business selects during onboarding. The referrer is never charged — they always earn the full advertised payout." },
+  { q: "What types of businesses can use Revvin?", a: "Any business that benefits from customer referrals — realtors, contractors, mortgage brokers, gyms, auto dealers, service providers, and more. If someone can refer a customer to you, Revvin works." },
   { q: "How is this different from affiliate marketing?", a: "Affiliate marketing tracks clicks and cookies. Revvin tracks real introductions between real people and real businesses, with payouts tied to actual closed deals — not impressions or signups." },
-  { q: "Is my data and payment information secure?", a: "Yes. Revvin uses bank-level encryption, platform-mediated payouts, and every business is reviewed before going live. We're building the trust layer that informal referral deals are missing." },
+  { q: "Is my data safe?", a: "Yes. Revvin uses secure infrastructure, platform-mediated payouts, and every business is reviewed before going live. We're building the trust layer that informal referral deals are missing." },
 ];
 
 const Index = () => {
@@ -116,7 +116,7 @@ const Index = () => {
               </Button>
             </motion.div>
             <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
-              Free to list · No credit card required · Canada & USA
+              Free to list · Pay only on results · Canada & USA
             </motion.p>
           </motion.div>
         </div>
@@ -130,7 +130,7 @@ const Index = () => {
               { icon: CheckCircle2, text: "Free to list" },
               { icon: Shield, text: "Platform-mediated payouts" },
               { icon: BadgeCheck, text: "Every business reviewed" },
-              { icon: DollarSign, text: "Referrers keep 100%" },
+              { icon: DollarSign, text: "Referrers earn the full payout" },
             ].map(({ icon: Icon, text }) => (
               <span key={text} className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <Icon className="h-3.5 w-3.5 text-primary" />
@@ -189,7 +189,7 @@ const Index = () => {
                 </p>
                 <ul className="space-y-3 mb-8">
                   {[
-                    "Free to list your first offer",
+                    "Free to list",
                     "You set the payout amount",
                     "Only pay when a deal closes",
                     "Reviewed by our team before going live",
@@ -219,7 +219,7 @@ const Index = () => {
                   {[
                     "Free to join — no fees ever",
                     "Browse live referral offers",
-                    "Keep 100% of the referral payout",
+                    "Earn the full advertised payout",
                     "Platform handles everything",
                   ].map(item => (
                     <li key={item} className="flex items-start gap-2 text-sm text-foreground">
@@ -502,7 +502,7 @@ const Index = () => {
               </Button>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              Free to list · No credit card required
+              Free to list · Pay only on results
             </p>
           </motion.div>
         </div>

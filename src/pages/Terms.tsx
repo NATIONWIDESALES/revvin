@@ -54,7 +54,7 @@ const Terms = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">6. Payout Structure</h2>
-            <p>Referrers receive 100% of the advertised referral fee upon a verified closed deal. The platform fee (25% on Free tier, 10% on Paid tier) is charged separately to the business at offer publication. Payouts are processed according to the timeline specified on the offer (Net 7, Net 14, or Net 30).</p>
+            <p>Referrers receive the full advertised referral fee upon a verified closed deal. The platform fee is charged separately to the business based on their selected plan. Payouts are processed according to the timeline specified on the offer (Net 7, Net 14, or Net 30).</p>
           </section>
 
           <section>

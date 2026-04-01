@@ -13,7 +13,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } }
 const TrustCenter = () => {
   return (
     <div>
-      <SEOHead title="Trust & Payouts — Revvin Verification and Dispute Resolution" description="How Revvin protects both businesses and referrers with verification, dispute resolution, and transparent payout economics. 100% referrer payouts, verified businesses, fair dispute process." path="/trust" />
+      <SEOHead title="Trust & Payouts — Revvin Verification and Dispute Resolution" description="How Revvin protects both businesses and referrers with verification, dispute resolution, and transparent payout economics. Full referrer payouts, verified businesses, fair dispute process." path="/trust" />
       {/* Hero */}
       <section className="hero-gradient py-20">
         <div className="container text-center">
@@ -44,7 +44,7 @@ const TrustCenter = () => {
                 { step: "1", title: "Business Posts Offer", desc: "The business sets a payout amount (flat fee or percentage) and publishes their referral offer to the marketplace.", icon: Briefcase, color: "text-primary" },
                 { step: "2", title: "Referrer Submits a Lead", desc: "A referrer submits a qualified lead with contact details and notes. First submission wins — timestamped for fairness.", icon: Users, color: "text-earnings" },
                 { step: "3", title: "Business Accepts & Works the Deal", desc: "The business reviews the referral, accepts it, and works toward closing the deal. Payout terms are locked at acceptance.", icon: CheckCircle2, color: "text-primary" },
-                { step: "4", title: "Deal Closes → Payout Processed", desc: "When the deal is marked as won, Revvin verifies the outcome and processes the payout. The referrer receives 100% of the advertised amount. The platform fee is charged separately to the business.", icon: DollarSign, color: "text-earnings" },
+                { step: "4", title: "Deal Closes → Payout Processed", desc: "When the deal is marked as won, Revvin verifies the outcome and processes the payout. The referrer receives the full advertised amount. The platform fee is charged separately to the business.", icon: DollarSign, color: "text-earnings" },
                 { step: "↩", title: "Deal Lost → No Charge", desc: "If the referral is declined or the deal is lost, no payout is created. The business pays nothing.", icon: ArrowRight, color: "text-muted-foreground" },
               ].map((item, i) => (
                 <motion.div key={item.step} variants={fadeUp} custom={i + 2} className="flex items-start gap-4 rounded-xl border border-border bg-card p-5">
@@ -92,7 +92,7 @@ const TrustCenter = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-3">USA Example (USD) — Paid Tier</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-3">USA Example (USD) — Starter Tier (10% fee)</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl bg-card border border-border p-3">
                       <p className="text-xs text-muted-foreground mb-1">Advertised Payout</p>
@@ -109,7 +109,7 @@ const TrustCenter = () => {
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn 100% of the advertised payout. Platform fee (25% free, 10% paid) is charged to the business separately.</p>
+              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn the full advertised payout. The platform fee is charged to the business separately — it depends on the business's selected plan.</p>
             </motion.div>
           </motion.div>
         </div>
@@ -155,7 +155,7 @@ const TrustCenter = () => {
                 { step: "1", title: "Referral Submitted", desc: "Referrer submits lead details with timestamp. First submission wins for duplicate protection.", icon: Users },
                 { step: "2", title: "Business Accepts → Terms Locked", desc: "Business reviews the lead and accepts it. The payout amount and type are snapshotted at this point.", icon: CheckCircle2 },
                 { step: "3", title: "Deal Outcome Recorded", desc: "Business marks the referral as won or lost. Revenue and deal details are logged.", icon: FileCheck },
-                { step: "4", title: "Verified Close → Payout Processed", desc: "Revvin verifies the outcome and processes the payout. The referrer receives 100% of the advertised amount.", icon: DollarSign },
+                { step: "4", title: "Verified Close → Payout Processed", desc: "Revvin verifies the outcome and processes the payout. The referrer receives the full advertised amount.", icon: DollarSign },
               ].map((item, i) => (
                 <motion.div key={item.step} variants={fadeUp} custom={i + 2} className="flex items-start gap-4 rounded-xl border border-border bg-card p-5">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shrink-0">{item.step}</div>
@@ -240,17 +240,17 @@ const TrustCenter = () => {
                 </div>
                 <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-5">
                   <Users className="mx-auto mb-2 h-6 w-6 text-earnings" />
-                  <div className="text-3xl font-bold text-earnings">100%</div>
-                  <p className="text-xs text-muted-foreground mt-1">Goes to referrer</p>
+                  <div className="text-3xl font-bold text-earnings">Full</div>
+                  <p className="text-xs text-muted-foreground mt-1">Payout to referrer</p>
                 </div>
                 <div className="rounded-xl bg-muted/50 border border-border p-5">
                   <Briefcase className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-                  <div className="text-3xl font-bold text-foreground">10–25%</div>
-                  <p className="text-xs text-muted-foreground mt-1">Business platform fee</p>
+                 <div className="text-3xl font-bold text-foreground">Varies</div>
+                  <p className="text-xs text-muted-foreground mt-1">Platform fee to business</p>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mt-6">
-                Referrers always get the full advertised payout. Businesses pay a platform fee (25% on Free, 10% on Paid tier) charged at offer publication. No hidden fees, ever.
+                Referrers always earn the full advertised payout. The platform fee is charged to the business on each successful close — the rate depends on the business's selected plan.
               </p>
             </motion.div>
           </motion.div>
