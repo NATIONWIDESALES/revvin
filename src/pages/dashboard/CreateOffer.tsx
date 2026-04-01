@@ -100,15 +100,8 @@ const CreateOffer = () => {
         return;
       }
 
-      if (business.account_status !== "approved") {
-        toast({
-          title: "Account not approved",
-          description: "Your business account must be approved before creating offers.",
-          variant: "destructive",
-        });
-        navigate("/dashboard");
-        return;
-      }
+      // Allow pending businesses to create draft offers
+      // They just can't publish until approved
 
       setBusinessId(business.id);
       setBusinessName(business.name);

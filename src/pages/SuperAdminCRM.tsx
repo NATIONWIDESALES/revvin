@@ -321,17 +321,11 @@ const SuperAdminCRM = () => {
   };
 
   const approveAccount = async (bizId: string) => {
-    const { error } = await supabase.from("businesses").update({ account_status: "approved" } as any).eq("id", bizId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, account_status: "approved" } : b));
-    toast({ title: "Account approved", description: "Business can now create offers." });
+    await updateBusinessStatus(bizId, "approved");
   };
 
   const rejectAccount = async (bizId: string) => {
-    const { error } = await supabase.from("businesses").update({ account_status: "rejected" } as any).eq("id", bizId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, account_status: "rejected" } : b));
-    toast({ title: "Account rejected" });
+    await updateBusinessStatus(bizId, "rejected");
   };
 
   const freezeOffer = async (offerId: string) => {
