@@ -298,7 +298,7 @@ const BusinessDashboard = () => {
               <Clock className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-bold text-foreground">Account Pending Approval</h3>
-                <p className="text-sm text-muted-foreground mt-1">Your business account is under review. You'll be able to create offers once an admin approves your account.</p>
+                <p className="text-sm text-muted-foreground mt-1">Your business account is under review. While you wait, you can continue setting up your profile, uploading your logo, and preparing your offers. Once approved, your business and offers will go live on the marketplace.</p>
               </div>
             </motion.div>
           )}
