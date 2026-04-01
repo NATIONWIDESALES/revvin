@@ -92,7 +92,7 @@ const TrustCenter = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-3">USA Example (USD) — Paid Tier</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-3">USA Example (USD) — Starter Tier (10% fee)</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl bg-card border border-border p-3">
                       <p className="text-xs text-muted-foreground mb-1">Advertised Payout</p>
