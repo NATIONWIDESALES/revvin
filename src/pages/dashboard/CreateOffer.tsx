@@ -123,6 +123,55 @@ const CreateOffer = () => {
 
   const isPendingApproval = businessAccountStatus !== "approved" && !isSuperAdmin;
 
+  const buildInsertData = () => {
+    const payoutValue = parseFloat(form.payout) || 0;
+    const qualRules = [
+      form.leadFreshness && `Lead freshness: ${form.leadFreshness}`,
+      form.minProjectSize && `Minimum project size: $${form.minProjectSize}`,
+      form.eligibleLocations && `Eligible locations: ${form.eligibleLocations}`,
+      form.qualificationCriteria,
+    ].filter(Boolean).join("\n");
+
+    return {
+      business_id: businessId!,
+      title: form.title,
+      description: form.description,
+      category: form.category,
+      payout: payoutValue,
+      payout_type: "flat" as const,
+      location: form.location,
+      country: form.country,
+      currency: form.country === "CA" ? "CAD" : "USD",
+      deal_size_min: form.dealSizeMin ? parseFloat(form.dealSizeMin) : null,
+      deal_size_max: form.dealSizeMax ? parseFloat(form.dealSizeMax) : null,
+      close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
+      remote_eligible: form.remoteEligible,
+      qualification_criteria: qualRules || null,
+      platform_fee_rate: feeRate,
+    };
+  };
+
+  const handleSaveDraft = async () => {
+    if (!businessId) return;
+    setPublishLoading(true);
+    try {
+      const insertData = {
+        ...buildInsertData(),
+        status: "draft",
+        deposit_status: "not_required",
+        approval_status: "approved",
+      };
+      const { error } = await supabase.from("offers").insert(insertData).select("id").single();
+      if (error) throw error;
+      toast({ title: "Offer saved as draft", description: "Your offer has been saved. It will go live after your account is approved and you publish it." });
+      navigate("/dashboard");
+    } catch (err: any) {
+      toast({ title: "Error", description: err?.message || "Failed to save draft", variant: "destructive" });
+    } finally {
+      setPublishLoading(false);
+    }
+  };
+
   const handlePublishOffer = async () => {
     if (!businessId) {
       toast({ title: "Error", description: "Business profile not found.", variant: "destructive" });
@@ -130,7 +179,6 @@ const CreateOffer = () => {
     }
 
     if (isPendingApproval) {
-      // Save as draft only for pending businesses
       return handleSaveDraft();
     }
 
@@ -143,33 +191,11 @@ const CreateOffer = () => {
 
     setPublishLoading(true);
     try {
-      // Save offer as draft first
-      const qualRules = [
-        form.leadFreshness && `Lead freshness: ${form.leadFreshness}`,
-        form.minProjectSize && `Minimum project size: $${form.minProjectSize}`,
-        form.eligibleLocations && `Eligible locations: ${form.eligibleLocations}`,
-        form.qualificationCriteria,
-      ].filter(Boolean).join("\n");
-
-      const insertData: any = {
-        business_id: businessId,
-        title: form.title,
-        description: form.description,
-        category: form.category,
-        payout: payoutValue,
-        payout_type: "flat",
-        location: form.location,
-        country: form.country,
-        currency: form.country === "CA" ? "CAD" : "USD",
-        deal_size_min: form.dealSizeMin ? parseFloat(form.dealSizeMin) : null,
-        deal_size_max: form.dealSizeMax ? parseFloat(form.dealSizeMax) : null,
-        close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
-        remote_eligible: form.remoteEligible,
-        qualification_criteria: qualRules || null,
+      const insertData = {
+        ...buildInsertData(),
         approval_status: isRestricted ? "pending_approval" : "approved",
         status: isSuperAdmin ? "active" : "draft",
         deposit_status: isSuperAdmin ? "waived" : "not_required",
-        platform_fee_rate: feeRate,
       };
 
       const { data, error } = await supabase.from("offers").insert(insertData).select("id").single();
@@ -187,7 +213,6 @@ const CreateOffer = () => {
       });
 
       if (reserveError) {
-        // Try to parse the error body
         const errBody = typeof reserveError === "object" && "message" in reserveError ? reserveError.message : String(reserveError);
         throw new Error(errBody);
       }
