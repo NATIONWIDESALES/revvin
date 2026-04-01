@@ -58,7 +58,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           fetchRole(session.user.id);
           ensureProfile(session.user);
         }, 0);
-      }
       } else {
         setUserRole(null);
       }
