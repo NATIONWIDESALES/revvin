@@ -250,7 +250,7 @@ const TrustCenter = () => {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mt-6">
-                Referrers always get the full advertised payout. Businesses pay a platform fee (25% on Free, 10% on Paid tier) charged at offer publication. No hidden fees, ever.
+                Referrers always earn the full advertised payout. The platform fee is charged to the business on each successful close — the rate depends on the business's selected plan.
               </p>
             </motion.div>
           </motion.div>

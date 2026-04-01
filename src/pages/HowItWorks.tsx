@@ -150,7 +150,7 @@ const HowItWorks = () => (
               <Link to="/auth?mode=signup&role=business">List Your Business</Link>
             </Button>
           </div>
-          <p className="mt-4 text-xs text-muted-foreground">Free to list. No credit card required.</p>
+          <p className="mt-4 text-xs text-muted-foreground">Free to list. Free to join.</p>
         </motion.div>
       </div>
     </section>

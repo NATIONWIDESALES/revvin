@@ -96,7 +96,7 @@ const ForReferrers = () => (
           </motion.h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: DollarSign, title: "Keep 100% of payouts", desc: "The full advertised payout goes to you. Revvin never takes a cut from the referrer." },
+              { icon: DollarSign, title: "Earn the full payout", desc: "The full advertised payout goes to you. Revvin charges a separate fee to the business — you keep every dollar." },
               { icon: BadgeCheck, title: "Verified businesses", desc: "Every business on Revvin is reviewed and approved. You're referring people to legitimate companies." },
               { icon: Shield, title: "Platform protection", desc: "No chasing businesses for payment. Revvin handles the payout process so you always get paid." },
               { icon: Trophy, title: "Build your reputation", desc: "Earn badges, climb leaderboards, and build a track record as a top referrer." },

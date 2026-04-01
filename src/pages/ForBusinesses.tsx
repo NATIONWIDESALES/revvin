@@ -208,7 +208,7 @@ const ForBusinesses = () => (
           <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
             <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
           </Button>
-          <p className="mt-4 text-xs text-muted-foreground">Free to list. No credit card required.</p>
+          <p className="mt-4 text-xs text-muted-foreground">Free to list. Pay only when referrals convert.</p>
         </motion.div>
       </div>
     </section>

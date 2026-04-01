@@ -502,7 +502,7 @@ const Index = () => {
               </Button>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              Free to list · No credit card required
+              Free to list · Pay only on results
             </p>
           </motion.div>
         </div>
