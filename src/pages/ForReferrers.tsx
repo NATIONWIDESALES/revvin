@@ -53,7 +53,7 @@ const ForReferrers = () => (
             </Button>
           </motion.div>
           <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
-            Free to join · No fees ever · Keep 100% of every payout
+            Free to join · No fees ever · Earn the full advertised payout
           </motion.p>
         </motion.div>
       </div>

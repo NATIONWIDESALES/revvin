@@ -245,8 +245,8 @@ const TrustCenter = () => {
                 </div>
                 <div className="rounded-xl bg-muted/50 border border-border p-5">
                   <Briefcase className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-                  <div className="text-3xl font-bold text-foreground">10–25%</div>
-                  <p className="text-xs text-muted-foreground mt-1">Business platform fee</p>
+                 <div className="text-3xl font-bold text-foreground">Varies</div>
+                  <p className="text-xs text-muted-foreground mt-1">Platform fee to business</p>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mt-6">
