@@ -67,6 +67,96 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+
+      // Send email notification to the business owner
+      if (account_status === "approved" || account_status === "rejected") {
+        try {
+          const { data: biz } = await admin.from("businesses").select("user_id, name").eq("id", business_id).single();
+          if (biz) {
+            const { data: { user: ownerUser } } = await admin.auth.admin.getUserById(biz.user_id);
+            const ownerEmail = ownerUser?.email;
+            const ownerName = ownerUser?.user_metadata?.full_name || ownerEmail?.split("@")[0] || "there";
+            const businessName = biz.name || "Your Business";
+
+            if (ownerEmail) {
+              const resendApiKey = Deno.env.get("RESEND_API_KEY");
+              if (resendApiKey) {
+                const isApproved = account_status === "approved";
+                const subject = isApproved
+                  ? `Your business "${businessName}" has been approved on Revvin!`
+                  : `Update on your Revvin application for "${businessName}"`;
+
+                const appUrl = "https://revvin.lovable.app";
+                const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F9FAFB;">
+<tr><td align="center" style="padding:40px 16px;">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background-color:#FFFFFF;border-radius:12px;overflow:hidden;">
+<tr><td style="padding:24px;">
+<p style="margin:0 0 24px 0;font-size:14px;font-weight:700;color:#15803D;text-transform:lowercase;">revvin</p>
+${isApproved ? `
+<p style="margin:0 0 8px 0;font-size:20px;font-weight:600;color:#15803D;">🎉 You're Approved!</p>
+<p style="margin:0 0 16px 0;font-size:15px;color:#374151;line-height:1.6;">Hi ${escapeHtml(ownerName)},</p>
+<p style="margin:0 0 16px 0;font-size:15px;color:#374151;line-height:1.6;">Great news! Your business <strong>${escapeHtml(businessName)}</strong> has been approved on Revvin. Your profile and offers are now live on the marketplace.</p>
+<p style="margin:0 0 24px 0;font-size:15px;color:#374151;line-height:1.6;">Referrers can now discover your offers and start sending you qualified leads.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td align="center" style="padding:8px 0 0 0;">
+<a href="${appUrl}/dashboard" target="_blank" style="display:inline-block;background-color:#15803D;color:#FFFFFF;font-size:15px;font-weight:500;text-decoration:none;padding:12px 28px;border-radius:8px;">Go to Your Dashboard</a>
+</td></tr>
+</table>
+` : `
+<p style="margin:0 0 8px 0;font-size:20px;font-weight:600;color:#DC2626;">Application Update</p>
+<p style="margin:0 0 16px 0;font-size:15px;color:#374151;line-height:1.6;">Hi ${escapeHtml(ownerName)},</p>
+<p style="margin:0 0 16px 0;font-size:15px;color:#374151;line-height:1.6;">Thank you for your interest in Revvin. After reviewing your application for <strong>${escapeHtml(businessName)}</strong>, we're unable to approve it at this time.</p>
+<p style="margin:0 0 24px 0;font-size:15px;color:#374151;line-height:1.6;">If you believe this was made in error or would like to provide additional information, please reach out to us at <a href="mailto:support@revvin.co" style="color:#15803D;">support@revvin.co</a>.</p>
+`}
+<p style="margin:32px 0 0 0;font-size:13px;color:#9CA3AF;line-height:1.5;text-align:center;">— The Revvin Team</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+
+                const res = await fetch("https://api.resend.com/emails", {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${resendApiKey}`,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    from: "Revvin <updates@updates.revvin.co>",
+                    to: [ownerEmail],
+                    reply_to: "support@revvin.co",
+                    subject,
+                    html,
+                  }),
+                });
+
+                const emailStatus = res.ok ? "sent" : "failed";
+                if (!res.ok) console.error("Status email failed:", await res.text());
+
+                await admin.from("notifications_log").insert({
+                  type: `business_${account_status}`,
+                  recipient_email: ownerEmail,
+                  recipient_name: ownerName,
+                  subject,
+                  body: `Business ${account_status}: ${businessName}`,
+                  status: emailStatus,
+                });
+
+                console.log(`📧 Business ${account_status} email [${emailStatus}] to ${ownerEmail}`);
+              }
+            }
+          }
+        } catch (emailErr) {
+          console.error("Failed to send status email:", emailErr);
+          // Don't fail the status update if email fails
+        }
+      }
+
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
