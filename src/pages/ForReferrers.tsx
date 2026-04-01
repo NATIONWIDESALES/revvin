@@ -22,7 +22,7 @@ const stagger = {
 
 const ForReferrers = () => (
   <div>
-    <SEOHead title="Revvin for Referrers — Earn Money Referring Customers You Trust" description="Browse paid referral opportunities across Canada and the USA. Earn $75 to $1,500+ per closed referral. Free to join. Keep 100% of every payout." path="/for-referrers" />
+    <SEOHead title="Revvin for Referrers — Earn Money Referring Customers You Trust" description="Browse paid referral opportunities across Canada and the USA. Earn $75 to $1,500+ per closed referral. Free to join. Earn the full advertised payout." path="/for-referrers" />
 
     {/* Hero */}
     <section className="relative pt-28 pb-24 lg:pt-36 lg:pb-32">
