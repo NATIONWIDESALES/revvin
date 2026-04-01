@@ -25,6 +25,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import ReferralAgreement from "./pages/ReferralAgreement";
 import NotFound from "./pages/NotFound";
+import Pricing from "./pages/Pricing";
 import { lazy, Suspense } from "react";
 
 const SuperAdminCRM = lazy(() => import("./pages/SuperAdminCRM"));
