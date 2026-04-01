@@ -13,7 +13,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } }
 const TrustCenter = () => {
   return (
     <div>
-      <SEOHead title="Trust & Payouts — Revvin Verification and Dispute Resolution" description="How Revvin protects both businesses and referrers with verification, dispute resolution, and transparent payout economics. 100% referrer payouts, verified businesses, fair dispute process." path="/trust" />
+      <SEOHead title="Trust & Payouts — Revvin Verification and Dispute Resolution" description="How Revvin protects both businesses and referrers with verification, dispute resolution, and transparent payout economics. Full referrer payouts, verified businesses, fair dispute process." path="/trust" />
       {/* Hero */}
       <section className="hero-gradient py-20">
         <div className="container text-center">
