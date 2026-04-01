@@ -124,8 +124,26 @@ serve(async (req) => {
 
     const rawPayload = await req.json();
 
-    // Support simple {to, subject, html} payloads (e.g. invite emails)
+    // Support simple {to, subject, html} payloads — ADMIN ONLY
     if (rawPayload.to && rawPayload.subject && rawPayload.html) {
+      // Verify the caller has the admin role before allowing arbitrary emails
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const adminCheck = createClient(supabaseUrl, serviceKey);
+      const { data: roleRow } = await adminCheck
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!roleRow) {
+        return new Response(JSON.stringify({ error: "Forbidden: admin role required" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       const resendApiKey = Deno.env.get("RESEND_API_KEY");
       let emailStatus = "logged";
       let resendId: string | undefined;
@@ -141,9 +159,7 @@ serve(async (req) => {
         else { emailStatus = "failed"; }
       }
 
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      const supa = createClient(supabaseUrl, supabaseKey);
+      const supa = createClient(supabaseUrl, serviceKey);
       await supa.from("notifications_log").insert({
         type: "invite_business",
         recipient_email: rawPayload.to,
