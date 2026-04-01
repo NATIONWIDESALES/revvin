@@ -321,17 +321,11 @@ const SuperAdminCRM = () => {
   };
 
   const approveAccount = async (bizId: string) => {
-    const { error } = await supabase.from("businesses").update({ account_status: "approved" } as any).eq("id", bizId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, account_status: "approved" } : b));
-    toast({ title: "Account approved", description: "Business can now create offers." });
+    await updateBusinessStatus(bizId, "approved");
   };
 
   const rejectAccount = async (bizId: string) => {
-    const { error } = await supabase.from("businesses").update({ account_status: "rejected" } as any).eq("id", bizId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, account_status: "rejected" } : b));
-    toast({ title: "Account rejected" });
+    await updateBusinessStatus(bizId, "rejected");
   };
 
   const freezeOffer = async (offerId: string) => {
@@ -512,8 +506,11 @@ const SuperAdminCRM = () => {
               <TabsContent value="verification">
                 <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
                   <h2 className="text-base font-bold mb-4 flex items-center gap-2"><BadgeCheck className="h-4 w-4 text-primary" /> Business Verification Queue</h2>
-                  <div className="space-y-3">
-                    {businesses.map((biz) => {
+                   <div className="space-y-3">
+                    {[...businesses].sort((a, b) => {
+                      const order: Record<string, number> = { pending_approval: 0, rejected: 1, approved: 2 };
+                      return (order[(a as any).account_status] ?? 3) - (order[(b as any).account_status] ?? 3);
+                    }).map((biz) => {
                       const accountStatus = (biz as any).account_status || "approved";
                       return (
                       <div key={biz.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-4">
