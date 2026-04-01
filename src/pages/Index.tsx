@@ -189,7 +189,7 @@ const Index = () => {
                 </p>
                 <ul className="space-y-3 mb-8">
                   {[
-                    "Free to list your first offer",
+                    "Free to list",
                     "You set the payout amount",
                     "Only pay when a deal closes",
                     "Reviewed by our team before going live",
