@@ -320,8 +320,18 @@ const BusinessDashboard = () => {
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-bold text-foreground">{business?.name ?? "Your Business"}</h1>
-                <Badge variant={business?.pricing_tier === "paid" ? "default" : "secondary"} className="gap-1">
-                  {business?.pricing_tier === "paid" ? <><Crown className="h-3 w-3" /> Paid (10% fee)</> : <>Free (25% fee)</>}
+                <Badge variant={business?.pricing_tier && business.pricing_tier !== "free" ? "default" : "secondary"} className="gap-1">
+                  {(() => {
+                    const tier = business?.pricing_tier || "free";
+                    const labels: Record<string, { label: string; fee: string }> = {
+                      free: { label: "Free", fee: "25%" },
+                      starter: { label: "Starter", fee: "10%" },
+                      pro: { label: "Pro", fee: "1%" },
+                      enterprise: { label: "Enterprise", fee: "Custom" },
+                    };
+                    const info = labels[tier] || labels.free;
+                    return tier !== "free" ? <><Crown className="h-3 w-3" /> {info.label} ({info.fee} fee)</> : <>{info.label} ({info.fee} fee)</>;
+                  })()}
                 </Badge>
               </div>
               <p className="text-muted-foreground mt-1">{activeOffers} active offer{activeOffers !== 1 ? "s" : ""} • {referrals.length} referrals</p>
@@ -359,7 +369,7 @@ const BusinessDashboard = () => {
           </motion.div>
 
           {/* Upgrade CTA */}
-          {business?.pricing_tier !== "paid" && (
+          {business?.pricing_tier === "free" && (
             <motion.div variants={fadeUp} custom={1.3} className="mb-8">
               <div className="rounded-xl border border-primary/30 bg-primary/5 p-6 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -368,7 +378,7 @@ const BusinessDashboard = () => {
                       <Zap className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-foreground">Upgrade to Revvin Paid — $50/mo</h3>
+                      <h3 className="font-bold text-foreground">Upgrade to Starter — $50/mo</h3>
                       <p className="text-sm text-muted-foreground mt-1">Reduce your platform fee from 25% to 10% on every referral payout.</p>
                       <p className="text-xs text-muted-foreground mt-0.5">Breakeven at ~3 closed referrals per month.</p>
                     </div>
