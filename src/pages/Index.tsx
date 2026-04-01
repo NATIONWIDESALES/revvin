@@ -41,7 +41,7 @@ const faqItems = [
   { q: "How much does it cost to list an offer?", a: "Nothing. Listing is free. You only pay a platform fee when a referred customer actually closes. The referrer always receives the full advertised payout amount." },
   { q: "How do referrers get paid?", a: "When the business confirms a deal is closed, Revvin processes the payout. The business sets the reward amount upfront, and the referrer receives 100% of it." },
   { q: "What if a referral doesn't convert?", a: "You owe nothing. No close, no cost. There's zero risk to listing an offer." },
-  { q: "How does Revvin make money?", a: "Revvin charges a platform fee on top of each successful referral payout — 25% on the Free plan, 10% on Starter, and as low as 1% on higher tiers. The referrer always gets the full amount." },
+  { q: "How does Revvin make money?", a: "Revvin charges a platform fee on top of each successful referral payout. The fee depends on the plan the business selects — and the referrer always receives the full advertised amount. Businesses choose their plan after signing up." },
   { q: "What types of businesses can use Revvin?", a: "Any business that benefits from customer referrals — realtors, contractors, mortgage brokers, gyms, auto dealers, SaaS companies, service providers, and more. If someone can refer a customer to you, Revvin works." },
   { q: "How is this different from affiliate marketing?", a: "Affiliate marketing tracks clicks and cookies. Revvin tracks real introductions between real people and real businesses, with payouts tied to actual closed deals — not impressions or signups." },
   { q: "Is my data and payment information secure?", a: "Yes. Revvin uses bank-level encryption, platform-mediated payouts, and every business is reviewed before going live. We're building the trust layer that informal referral deals are missing." },
@@ -329,87 +329,39 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ============ PRICING PREVIEW ============ */}
+      {/* ============ FREE TO LIST ============ */}
       <section className="py-24 lg:py-32">
         <div className="container">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-            <motion.p variants={fadeUp} custom={0} className="section-label text-center mb-3">Simple pricing</motion.p>
-            <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold text-center mb-4 tracking-tight">
-              Free to start. Pay as you grow.
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="mx-auto max-w-3xl text-center">
+            <motion.p variants={fadeUp} custom={0} className="section-label mb-3">No upfront cost</motion.p>
+            <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+              Free to list. Pay only on results.
             </motion.h2>
-            <motion.p variants={fadeUp} custom={1} className="text-center text-muted-foreground text-sm mb-12 max-w-lg mx-auto">
-              Revvin charges businesses a small platform fee on successful referrals. Referrers always earn 100% of the advertised payout.
+            <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-sm mb-10 max-w-lg mx-auto">
+              There's no subscription required to get started. List your business, create your offer, and start receiving referrals. You only pay a platform fee when a referred customer actually closes.
             </motion.p>
-            <div className="mx-auto max-w-4xl grid gap-6 md:grid-cols-3">
-              {[
-                {
-                  name: "Free",
-                  price: "$0",
-                  period: "/mo",
-                  fee: "25%",
-                  desc: "Perfect for testing the waters",
-                  features: ["List your business", "Create referral offers", "Receive referrals", "Platform-mediated payouts"],
-                  cta: "Get Started Free",
-                  featured: false,
-                },
-                {
-                  name: "Starter",
-                  price: "$50",
-                  period: "/mo",
-                  fee: "10%",
-                  desc: "For businesses ready to scale",
-                  features: ["Everything in Free", "Lower 10% platform fee", "Priority business review", "Enhanced profile visibility"],
-                  cta: "Start Starter Plan",
-                  featured: true,
-                },
-                {
-                  name: "Pro",
-                  price: "$250",
-                  period: "/mo",
-                  fee: "1%",
-                  desc: "For high-volume referral programs",
-                  features: ["Everything in Starter", "Minimal 1% platform fee", "Featured marketplace placement", "Priority support"],
-                  cta: "Go Pro",
-                  featured: false,
-                },
-              ].map((plan, i) => (
-                <motion.div
-                  key={plan.name}
-                  variants={fadeUp}
-                  custom={i + 1}
-                  className={`rounded-2xl border p-7 relative ${plan.featured ? "border-primary/30 bg-card shadow-md" : "bg-card"}`}
-                >
-                  {plan.featured && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <span className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">Most Popular</span>
-                    </div>
-                  )}
-                  <p className="text-sm font-semibold text-primary mb-1">{plan.name}</p>
-                  <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-3xl font-bold text-foreground">{plan.price}</span>
-                    <span className="text-sm text-muted-foreground">{plan.period}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-1">{plan.fee} platform fee on closed referrals</p>
-                  <p className="text-sm text-muted-foreground mb-6">{plan.desc}</p>
-                  <ul className="space-y-2.5 mb-6">
-                    {plan.features.map(f => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-foreground">
-                        <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button variant={plan.featured ? "default" : "outline"} className="w-full" asChild>
-                    <Link to="/auth?mode=signup&role=business">{plan.cta}</Link>
-                  </Button>
-                </motion.div>
-              ))}
-            </div>
-            <div className="text-center mt-8">
-              <Link to="/pricing" className="text-sm text-primary font-medium hover:underline inline-flex items-center gap-1">
-                See all plans & details <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
+            <motion.div variants={fadeUp} custom={2} className="mx-auto max-w-md rounded-2xl border bg-card p-8">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/5">
+                  <DollarSign className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-2">$0 to get started</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+                Create your account, build your profile, and publish your referral offer — all free. A small platform fee applies only when a deal closes successfully.
+              </p>
+              <ul className="space-y-2.5 text-left mb-6">
+                {["Free business listing", "Set your own referral payout", "No monthly commitment", "Pay only when referrals convert"].map(f => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Button className="w-full gap-2" asChild>
+                <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
+              </Button>
+            </motion.div>
           </motion.div>
         </div>
       </section>

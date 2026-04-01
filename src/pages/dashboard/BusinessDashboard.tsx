@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import DashboardChecklist from "@/components/DashboardChecklist";
+import PlanSelector from "@/components/PlanSelector";
 import OfferQRCode from "@/components/OfferQRCode";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
@@ -300,6 +301,17 @@ const BusinessDashboard = () => {
                 <h3 className="font-bold text-foreground">Account Pending Approval</h3>
                 <p className="text-sm text-muted-foreground mt-1">Your business account is under review. While you wait, you can continue setting up your profile, uploading your logo, and preparing your offers. Once approved, your business and offers will go live on the marketplace.</p>
               </div>
+            </motion.div>
+          )}
+
+          {/* Plan Selection (shown during onboarding for new businesses) */}
+          {!isApproved && business && (!business.pricing_tier || business.pricing_tier === "free") && (
+            <motion.div variants={fadeUp} custom={0.5} className="mb-8 rounded-2xl border bg-card p-6 md:p-8">
+              <PlanSelector
+                businessId={business.id}
+                currentTier={business.pricing_tier}
+                onPlanSelected={(tier) => setBusiness((prev: any) => prev ? { ...prev, pricing_tier: tier } : prev)}
+              />
             </motion.div>
           )}
 

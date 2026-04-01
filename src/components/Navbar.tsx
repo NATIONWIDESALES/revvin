@@ -42,7 +42,7 @@ const Navbar = () => {
     { to: "/browse", label: "Browse Offers" },
     { to: "/for-businesses", label: "For Businesses" },
     { to: "/for-referrers", label: "For Referrers" },
-    { to: "/pricing", label: "Pricing" },
+    
     { to: "/how-it-works", label: "How It Works" },
   ];
 
