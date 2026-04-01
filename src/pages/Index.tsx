@@ -130,7 +130,7 @@ const Index = () => {
               { icon: CheckCircle2, text: "Free to list" },
               { icon: Shield, text: "Platform-mediated payouts" },
               { icon: BadgeCheck, text: "Every business reviewed" },
-              { icon: DollarSign, text: "Referrers keep 100%" },
+              { icon: DollarSign, text: "Referrers earn the full payout" },
             ].map(({ icon: Icon, text }) => (
               <span key={text} className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <Icon className="h-3.5 w-3.5 text-primary" />
