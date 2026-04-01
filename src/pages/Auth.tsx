@@ -120,7 +120,9 @@ const Auth = () => {
         navigate(redirectTo || "/dashboard");
       }
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      console.error("Auth error:", err);
+      const message = err?.message || "An unexpected error occurred. Please try again.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
