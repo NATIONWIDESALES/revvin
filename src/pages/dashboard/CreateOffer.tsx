@@ -456,7 +456,7 @@ const CreateOffer = () => {
             )}
             {step === 4 && (
               <Button type="button" onClick={handleNextStep} size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={publishLoading || !businessId}>
-                {publishLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Publishing...</> : isRestricted ? "Submit for Review" : "Publish Offer"}
+                {publishLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> {isPendingApproval ? "Saving..." : "Publishing..."}</> : isPendingApproval ? "Save as Draft" : isRestricted ? "Submit for Review" : "Publish Offer"}
               </Button>
             )}
           </div>
