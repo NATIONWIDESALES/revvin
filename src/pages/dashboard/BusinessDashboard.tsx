@@ -11,7 +11,7 @@ import {
   DollarSign, Users, PlusCircle,
   CheckCircle2, XCircle, Clock, Eye, Building2,
   Pause, Play, Edit, Target, Link2, Check, X, Info,
-  Wallet, ArrowUpRight, CreditCard, Loader2, Crown, Zap
+  Wallet, ArrowUpRight, CreditCard, Loader2, Crown, Zap, AlertTriangle
 } from "lucide-react";
 import { motion } from "framer-motion";
 import DashboardChecklist from "@/components/DashboardChecklist";
@@ -325,6 +325,29 @@ const BusinessDashboard = () => {
               <div>
                 <h3 className="font-bold text-foreground">Account Pending Approval</h3>
                 <p className="text-sm text-muted-foreground mt-1">Your business account is under review. While you wait, you can continue setting up your profile, uploading your logo, and preparing your offers. Once approved, your business and offers will go live on the marketplace.</p>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Past Due Payment Banner */}
+          {business?.subscription_status === "past_due" && (
+            <motion.div variants={fadeUp} custom={0.2} className="mb-6 rounded-xl border border-destructive/40 bg-destructive/5 p-5 flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="font-bold text-destructive">Payment Failed</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Your latest subscription payment failed. Please update your payment method to keep your plan benefits and avoid being downgraded to the Free tier.
+                </p>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="mt-3 gap-1.5"
+                  disabled={portalLoading}
+                  onClick={handleManageSubscription}
+                >
+                  {portalLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+                  Update Payment Method
+                </Button>
               </div>
             </motion.div>
           )}
