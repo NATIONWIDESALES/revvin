@@ -11,7 +11,7 @@ import {
   DollarSign, Users, PlusCircle,
   CheckCircle2, XCircle, Clock, Eye, Building2,
   Pause, Play, Edit, Target, Link2, Check, X, Info,
-  Wallet, ArrowUpRight, CreditCard, Loader2, Crown, Zap
+  Wallet, ArrowUpRight, CreditCard, Loader2, Crown, Zap, AlertTriangle
 } from "lucide-react";
 import { motion } from "framer-motion";
 import DashboardChecklist from "@/components/DashboardChecklist";
