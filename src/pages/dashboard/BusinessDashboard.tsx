@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toSlug } from "@/lib/utils";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -102,25 +102,70 @@ const BusinessDashboard = () => {
     fetchData();
   }, [user]);
 
-  // Detect top-up success from URL
+  // Refetch business row from DB
+  const refetchBusiness = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase.from("businesses").select("*").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1);
+    if (data && data.length > 0) setBusiness(data[0]);
+  }, [user]);
+
+  // Auto-refresh polling after returning from Stripe checkout/portal
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollCountRef = useRef(0);
+
+  const startPolling = useCallback(() => {
+    if (pollRef.current) return; // already polling
+    pollCountRef.current = 0;
+    pollRef.current = setInterval(async () => {
+      pollCountRef.current += 1;
+      await refetchBusiness();
+      if (user) await fetchWallet(user.id);
+      // Stop after 10 polls (~30s)
+      if (pollCountRef.current >= 10 && pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    }, 3000);
+  }, [refetchBusiness, user]);
+
+  // Clean up polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
+
+  // Listen for window focus (user returning from Stripe tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      refetchBusiness();
+      if (user) fetchWallet(user.id);
+      startPolling();
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [refetchBusiness, startPolling, user]);
+
+  // Detect top-up / upgrade success from URL
   useEffect(() => {
     if (searchParams.get("topup") === "success" && user) {
       toast({ title: "Wallet funded!", description: "Your wallet balance has been updated." });
       fetchWallet(user.id);
+      startPolling();
       searchParams.delete("topup");
       setSearchParams(searchParams, { replace: true });
     }
     if (searchParams.get("upgrade") === "success" && user) {
-      // Sync subscription status from Stripe, then refetch business
       supabase.functions.invoke("check-subscription").then(() => {
-        supabase.from("businesses").select("*").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).then(({ data }) => {
-          if (data && data.length > 0) {
-            setBusiness(data[0]);
-            const tier = data[0].pricing_tier || "free";
+        refetchBusiness().then(() => {
+          // Show toast with latest tier
+          supabase.from("businesses").select("pricing_tier").eq("user_id", user.id).limit(1).single().then(({ data }) => {
+            const tier = data?.pricing_tier || "free";
             toast({ title: "Upgrade complete!", description: `You're now on the ${tier.charAt(0).toUpperCase() + tier.slice(1)} plan.` });
-          }
+          });
         });
       });
+      startPolling();
       searchParams.delete("upgrade");
       setSearchParams(searchParams, { replace: true });
     }
