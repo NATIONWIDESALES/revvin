@@ -393,8 +393,8 @@ const BusinessDashboard = () => {
             ))}
           </motion.div>
 
-          {/* Upgrade CTA */}
-          {business?.pricing_tier === "free" && (
+          {/* Subscription Management */}
+          {business?.pricing_tier === "free" ? (
             <motion.div variants={fadeUp} custom={1.3} className="mb-8">
               <div className="rounded-xl border border-primary/30 bg-primary/5 p-6 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -408,11 +408,76 @@ const BusinessDashboard = () => {
                       <p className="text-xs text-muted-foreground mt-0.5">Breakeven at ~3 closed referrals per month.</p>
                     </div>
                   </div>
-                  <Button onClick={handleUpgrade} disabled={upgradeLoading} className="gap-2 shrink-0">
-                    {upgradeLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing...</> : <><Crown className="h-4 w-4" /> Upgrade Now</>}
-                  </Button>
+                  <div className="flex gap-2 shrink-0">
+                    <Button variant="outline" onClick={() => setShowPlanSelector(!showPlanSelector)} className="gap-2">
+                      <Target className="h-4 w-4" /> View Plans
+                    </Button>
+                    <Button onClick={handleUpgrade} disabled={upgradeLoading} className="gap-2">
+                      {upgradeLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing...</> : <><Crown className="h-4 w-4" /> Upgrade Now</>}
+                    </Button>
+                  </div>
                 </div>
               </div>
+              {showPlanSelector && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-4 rounded-2xl border bg-card p-6 md:p-8">
+                  <PlanSelector
+                    businessId={business.id}
+                    currentTier={business.pricing_tier}
+                    onPlanSelected={(tier) => {
+                      setBusiness((prev: any) => prev ? { ...prev, pricing_tier: tier } : prev);
+                      setShowPlanSelector(false);
+                    }}
+                  />
+                </motion.div>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div variants={fadeUp} custom={1.3} className="mb-8">
+              <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="rounded-xl bg-primary/10 p-2.5">
+                      <Crown className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-foreground">
+                        {(() => {
+                          const tier = business?.pricing_tier || "free";
+                          const labels: Record<string, string> = { starter: "Starter", pro: "Pro", enterprise: "Enterprise" };
+                          const prices: Record<string, string> = { starter: "$50", pro: "$250", enterprise: "$500" };
+                          return `${labels[tier] || tier} Plan — ${prices[tier] || ""}/mo`;
+                        })()}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {(() => {
+                          const fees: Record<string, string> = { starter: "10%", pro: "1%", enterprise: "Custom" };
+                          return `${fees[business?.pricing_tier] || "25%"} platform fee on referral payouts`;
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <Button variant="outline" onClick={() => setShowPlanSelector(!showPlanSelector)} className="gap-2">
+                      <Target className="h-4 w-4" /> Change Plan
+                    </Button>
+                    <Button variant="outline" onClick={handleManageSubscription} disabled={portalLoading} className="gap-2">
+                      {portalLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Loading...</> : <><CreditCard className="h-4 w-4" /> Manage Billing</>}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              {showPlanSelector && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-4 rounded-2xl border bg-card p-6 md:p-8">
+                  <PlanSelector
+                    businessId={business.id}
+                    currentTier={business.pricing_tier}
+                    onPlanSelected={(tier) => {
+                      setBusiness((prev: any) => prev ? { ...prev, pricing_tier: tier } : prev);
+                      setShowPlanSelector(false);
+                    }}
+                  />
+                </motion.div>
+              )}
             </motion.div>
           )}
 
