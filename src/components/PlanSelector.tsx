@@ -24,6 +24,7 @@ const plans = [
       "Email notifications",
     ],
     featured: false,
+    paid: false,
   },
   {
     id: "starter",
@@ -43,6 +44,7 @@ const plans = [
       "Priority support",
     ],
     featured: true,
+    paid: true,
   },
   {
     id: "pro",
@@ -62,6 +64,7 @@ const plans = [
       "Custom payout terms",
     ],
     featured: false,
+    paid: true,
   },
   {
     id: "enterprise",
@@ -81,6 +84,7 @@ const plans = [
       "Custom integrations",
     ],
     featured: false,
+    paid: true,
   },
 ];
 
@@ -98,24 +102,46 @@ const PlanSelector = ({ businessId, currentTier, onPlanSelected }: PlanSelectorP
   const handleConfirm = async () => {
     setSaving(true);
     try {
-      const feeMap: Record<string, number> = { free: 0.25, starter: 0.10, pro: 0.01, enterprise: 0.01 };
-      const { error } = await supabase
-        .from("businesses")
-        .update({ pricing_tier: selected })
-        .eq("id", businessId);
-      if (error) throw error;
+      const plan = plans.find(p => p.id === selected);
 
-      // Also update platform_fee_rate on existing offers
-      const fee = feeMap[selected] ?? 0.25;
-      await supabase
-        .from("offers")
-        .update({ platform_fee_rate: fee })
-        .eq("business_id", businessId);
+      // Free plan — just update DB directly
+      if (!plan?.paid) {
+        const feeMap: Record<string, number> = { free: 0.25, starter: 0.10, pro: 0.01, enterprise: 0.01 };
+        const { error } = await supabase
+          .from("businesses")
+          .update({ pricing_tier: selected })
+          .eq("id", businessId);
+        if (error) throw error;
 
-      toast({ title: "Plan selected", description: `You're on the ${selected.charAt(0).toUpperCase() + selected.slice(1)} plan.` });
-      onPlanSelected?.(selected);
+        const fee = feeMap[selected] ?? 0.25;
+        await supabase
+          .from("offers")
+          .update({ platform_fee_rate: fee })
+          .eq("business_id", businessId);
+
+        toast({ title: "Plan selected", description: `You're on the Free plan.` });
+        onPlanSelected?.(selected);
+        return;
+      }
+
+      // Paid plan — redirect to Stripe Checkout
+      const { data, error } = await supabase.functions.invoke("create-subscription-session", {
+        body: { plan: selected },
+      });
+
+      if (error) throw new Error(error.message || "Failed to create checkout session");
+      if (data?.error) throw new Error(data.error);
+      if (!data?.url) throw new Error("No checkout URL returned");
+
+      // Open Stripe Checkout in new tab
+      window.open(data.url, "_blank");
+
+      toast({
+        title: "Redirecting to checkout",
+        description: `Complete your ${plan.name} subscription in the new tab.`,
+      });
     } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to save plan", variant: "destructive" });
+      toast({ title: "Error", description: err.message || "Failed to process plan selection", variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -133,6 +159,7 @@ const PlanSelector = ({ businessId, currentTier, onPlanSelected }: PlanSelectorP
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
         {plans.map((plan, i) => {
           const isSelected = selected === plan.id;
+          const isCurrent = currentTier === plan.id;
           return (
             <motion.button
               key={plan.id}
@@ -149,6 +176,11 @@ const PlanSelector = ({ businessId, currentTier, onPlanSelected }: PlanSelectorP
               {plan.featured && (
                 <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
                   Most Popular
+                </span>
+              )}
+              {isCurrent && (
+                <span className="absolute -top-2.5 right-3 bg-accent text-accent-foreground text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+                  Current
                 </span>
               )}
               <div className="flex items-center gap-2 mb-2">
@@ -184,11 +216,23 @@ const PlanSelector = ({ businessId, currentTier, onPlanSelected }: PlanSelectorP
       </div>
 
       <div className="text-center mt-8">
-        <Button onClick={handleConfirm} disabled={saving} className="h-11 px-8 gap-2">
-          {saving ? "Saving…" : `Continue with ${selected.charAt(0).toUpperCase() + selected.slice(1)} plan`}
+        <Button
+          onClick={handleConfirm}
+          disabled={saving || selected === currentTier}
+          className="h-11 px-8 gap-2"
+        >
+          {saving
+            ? "Processing…"
+            : selected === currentTier
+              ? `Already on ${selected.charAt(0).toUpperCase() + selected.slice(1)}`
+              : plans.find(p => p.id === selected)?.paid
+                ? `Subscribe to ${selected.charAt(0).toUpperCase() + selected.slice(1)} — ${plans.find(p => p.id === selected)?.price}/mo`
+                : `Continue with Free plan`}
         </Button>
         <p className="mt-3 text-xs text-muted-foreground">
-          You can change your plan anytime from your dashboard. The Free plan is always available.
+          {plans.find(p => p.id === selected)?.paid
+            ? "You'll be redirected to a secure Stripe checkout to complete your subscription."
+            : "You can upgrade to a paid plan anytime from your dashboard."}
         </p>
       </div>
     </div>
