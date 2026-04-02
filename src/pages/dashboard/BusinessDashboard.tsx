@@ -167,6 +167,23 @@ const BusinessDashboard = () => {
     }
   };
 
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      } else {
+        throw new Error("No portal URL returned");
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to open subscription portal", variant: "destructive" });
+    } finally {
+      setPortalLoading(false);
+    }
+
   const handleAccept = async (ref: any) => {
     const payoutAmt = ref.offers?.payout_type === "flat" ? Number(ref.offers.payout) : 0;
     await supabase.from("referrals").update({ status: "accepted", payout_snapshot: payoutAmt, payout_type_snapshot: ref.offers?.payout_type ?? "flat" }).eq("id", ref.id);
