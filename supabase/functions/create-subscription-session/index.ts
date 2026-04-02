@@ -8,7 +8,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const PAID_PLAN_PRICE_ID = "price_1TEi6RFrrk51Q8Oz3Tcf4nVr";
+const PLAN_PRICES: Record<string, string> = {
+  starter: "price_1TEi6RFrrk51Q8Oz3Tcf4nVr",
+  pro: "price_1THc9UFrrk51Q8OzhuUZ1h0f",
+  enterprise: "price_1THc9yFrrk51Q8OzzRki21p3",
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -27,6 +31,12 @@ serve(async (req) => {
     if (authError || !authData.user) throw new Error("Unauthorized");
     const user = authData.user;
 
+    const body = await req.json().catch(() => ({}));
+    const plan = body.plan || "starter";
+
+    const priceId = PLAN_PRICES[plan];
+    if (!priceId) throw new Error(`Invalid plan: ${plan}`);
+
     // Fetch business
     const { data: biz, error: bizError } = await supabaseClient
       .from("businesses")
@@ -35,7 +45,6 @@ serve(async (req) => {
       .single();
 
     if (bizError || !biz) throw new Error("Business not found");
-    if (biz.pricing_tier === "paid") throw new Error("Already on Paid plan");
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -52,11 +61,12 @@ serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
-      line_items: [{ price: PAID_PLAN_PRICE_ID, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
       metadata: {
         user_id: user.id,
         business_id: biz.id,
+        plan,
       },
       success_url: `${origin}/dashboard?upgrade=success`,
       cancel_url: `${origin}/dashboard?upgrade=canceled`,
