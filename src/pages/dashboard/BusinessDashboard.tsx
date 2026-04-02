@@ -109,10 +109,15 @@ const BusinessDashboard = () => {
       setSearchParams(searchParams, { replace: true });
     }
     if (searchParams.get("upgrade") === "success" && user) {
-      toast({ title: "Upgrade complete!", description: "You're now on the Paid plan with 10% platform fees." });
-      // Refetch business data
-      supabase.from("businesses").select("*").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).then(({ data }) => {
-        if (data && data.length > 0) setBusiness(data[0]);
+      // Sync subscription status from Stripe, then refetch business
+      supabase.functions.invoke("check-subscription").then(() => {
+        supabase.from("businesses").select("*").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).then(({ data }) => {
+          if (data && data.length > 0) {
+            setBusiness(data[0]);
+            const tier = data[0].pricing_tier || "free";
+            toast({ title: "Upgrade complete!", description: `You're now on the ${tier.charAt(0).toUpperCase() + tier.slice(1)} plan.` });
+          }
+        });
       });
       searchParams.delete("upgrade");
       setSearchParams(searchParams, { replace: true });
