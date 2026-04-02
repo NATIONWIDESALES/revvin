@@ -419,7 +419,7 @@ const BusinessDashboard = () => {
                 </div>
               </div>
               {showPlanSelector && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-4 rounded-2xl border bg-card p-6 md:p-8">
+                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mt-4 rounded-2xl border bg-card p-6 md:p-8 overflow-visible">
                   <PlanSelector
                     businessId={business.id}
                     currentTier={business.pricing_tier}
