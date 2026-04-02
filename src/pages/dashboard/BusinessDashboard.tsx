@@ -183,6 +183,7 @@ const BusinessDashboard = () => {
     } finally {
       setPortalLoading(false);
     }
+  };
 
   const handleAccept = async (ref: any) => {
     const payoutAmt = ref.offers?.payout_type === "flat" ? Number(ref.offers.payout) : 0;
