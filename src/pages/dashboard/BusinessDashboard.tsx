@@ -70,6 +70,8 @@ const BusinessDashboard = () => {
   const [customAmount, setCustomAmount] = useState("");
   const [topUpLoading, setTopUpLoading] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [showPlanSelector, setShowPlanSelector] = useState(false);
 
   const fetchWallet = async (userId: string) => {
     const [balRes, txRes] = await Promise.all([
