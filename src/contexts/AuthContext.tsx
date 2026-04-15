@@ -93,7 +93,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         ensureProfile(session.user);
         ensureWallet(session.user.id);
       }
-      }
       setLoading(false);
     });
 
