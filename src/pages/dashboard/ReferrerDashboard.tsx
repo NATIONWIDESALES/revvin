@@ -41,12 +41,17 @@ const ReferrerDashboard = () => {
   const { displayCurrency, currencySymbol } = useCountry();
   const [referrals, setReferrals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasPayoutPrefs, setHasPayoutPrefs] = useState(true); // assume true to avoid flash
 
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
-      const { data } = await supabase.from("referrals").select("*, offers(title, payout, payout_type, category), businesses(name)").eq("referrer_id", user.id).order("created_at", { ascending: false });
-      setReferrals(data ?? []);
+      const [refRes, prefRes] = await Promise.all([
+        supabase.from("referrals").select("*, offers(title, payout, payout_type, category), businesses(name)").eq("referrer_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("referrer_payout_preferences").select("method").eq("user_id", user.id).limit(1),
+      ]);
+      setReferrals(refRes.data ?? []);
+      setHasPayoutPrefs(!!(prefRes.data?.[0]?.method));
       setLoading(false);
     };
     fetchData();
