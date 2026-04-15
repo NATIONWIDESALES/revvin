@@ -9,6 +9,8 @@ import {
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import AnimatedCounter from "@/components/AnimatedCounter";
+import MarqueeTicker from "@/components/MarqueeTicker";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -122,22 +124,49 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ============ SOCIAL PROOF STRIP ============ */}
-      <section className="py-6 border-y border-border bg-surface">
+      {/* ============ PLATFORM STATS ============ */}
+      <section className="py-10 border-y border-border bg-surface">
         <div className="container">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
-              { icon: CheckCircle2, text: "Free to list" },
-              { icon: Shield, text: "Platform-mediated payouts" },
-              { icon: BadgeCheck, text: "Every business reviewed" },
-              { icon: DollarSign, text: "Referrers earn the full payout" },
-            ].map(({ icon: Icon, text }) => (
-              <span key={text} className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                <Icon className="h-3.5 w-3.5 text-primary" />
-                {text}
-              </span>
+              { value: 500, prefix: "", suffix: "+", label: "Referrals Submitted" },
+              { value: 250000, prefix: "$", suffix: "+", label: "Paid to Referrers" },
+              { value: 150, prefix: "", suffix: "+", label: "Businesses Listed" },
+              { value: 49, prefix: "", suffix: "★", label: "Average Rating" },
+            ].map((stat) => (
+              <div key={stat.label}>
+                <p className="text-2xl md:text-3xl font-bold text-foreground">
+                  <AnimatedCounter value={stat.value} prefix={stat.prefix} suffix={stat.suffix} />
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
+              </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ============ ACTIVITY TICKER ============ */}
+      <section className="py-3 bg-muted/30 border-b border-border overflow-hidden">
+        <MarqueeTicker
+          items={[
+            "🔨 Roofing", "☀️ Solar", "🏠 Real Estate",
+            "New offer: $500 per roofing customer in Vancouver",
+            "💰 Referrer earned $750 this week",
+            "🏋️ Fitness", "⚡ Electrical",
+            "New offer: $1,000 per real estate referral in Toronto",
+            "🌿 Landscaping", "🛡️ Pest Control",
+          ]}
+        />
+        <div className="mt-1">
+          <MarqueeTicker
+            reverse
+            items={[
+              "Free to list", "$250K+ paid to referrers",
+              "Platform-mediated payouts", "150+ businesses listed",
+              "Available in Canada & USA", "Every business reviewed",
+              "Referrers earn the full payout", "Pay only on results",
+            ]}
+          />
         </div>
       </section>
 

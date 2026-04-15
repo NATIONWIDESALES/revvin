@@ -296,11 +296,24 @@ const Browse = () => {
         {viewMode === "map" ? (
           <MapView offers={filtered} />
         ) : filtered.length > 0 ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <motion.div
+            className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            initial="hidden"
+            animate="visible"
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
+          >
             {filtered.map((offer) => (
-              <OfferCard key={offer.id} offer={offer} isSample={offer.isSample} isNew={isNewOffer(offer.createdAt)} />
+              <motion.div
+                key={offer.id}
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
+                }}
+              >
+                <OfferCard offer={offer} isSample={offer.isSample} isNew={isNewOffer(offer.createdAt)} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div className="py-16 text-center">
             <Building2 className="mx-auto mb-6 h-12 w-12 text-muted-foreground/30" />

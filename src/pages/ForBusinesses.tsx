@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Building2, ArrowRight, CheckCircle2, DollarSign, BarChart3, Shield, Users, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
+import MarqueeTicker from "@/components/MarqueeTicker";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -78,7 +79,10 @@ const ForBusinesses = () => (
       </div>
     </section>
 
-    {/* How it works */}
+    {/* Social proof ticker */}
+    <section className="py-3 bg-muted/30 border-y border-border overflow-hidden">
+      <MarqueeTicker items={["Zero upfront cost", "$500 average referral payout", "Only pay on closed deals", "Verified referrer network", "Available in Canada & USA", "Free to list"]} />
+    </section>
     <section className="py-24 lg:py-32 bg-surface">
       <div className="container">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-4xl mx-auto">
