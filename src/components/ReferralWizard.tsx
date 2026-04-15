@@ -136,6 +136,19 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
         return;
       }
 
+      // Self-referral prevention: block users from referring to their own business
+      const { data: ownBiz } = await supabase
+        .from("businesses")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("id", dbOffer.business_id)
+        .maybeSingle();
+      if (ownBiz) {
+        toast({ title: "Cannot self-refer", description: "You cannot submit a referral to your own business.", variant: "destructive" });
+        setSubmitting(false);
+        return;
+      }
+
       // Check for duplicate referral before inserting
       const { data: isDuplicate } = await supabase.rpc("fn_check_duplicate_referral", {
         p_offer_id: dbOffer.id,
@@ -158,8 +171,8 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           .from("referral-attachments")
           .upload(filePath, attachedFile);
         if (!uploadErr) {
-          const { data: urlData } = supabase.storage.from("referral-attachments").getPublicUrl(filePath);
-          fileUrl = urlData.publicUrl;
+          const { data: signedData } = await supabase.storage.from("referral-attachments").createSignedUrl(filePath, 60 * 60 * 24 * 365);
+          fileUrl = signedData?.signedUrl ?? null;
         }
       }
 
@@ -174,7 +187,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           customer_phone: formData.phone || null,
           notes: formData.notes || null,
           file_url: fileUrl,
-          payout_amount: offer.payoutType === "flat" ? Math.round(offer.payout * 0.9) : null,
+          payout_amount: offer.payoutType === "flat" ? offer.payout : null,
         })
         .select("id")
         .single();

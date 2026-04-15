@@ -91,18 +91,34 @@ const ReferrerDashboard = () => {
   const handleDispute = async (refId: string) => {
     const ref = referrals.find(r => r.id === refId);
     if (!ref || !user) return;
-    // Persist dispute status to DB
     const { error } = await supabase.from("referrals").update({ status: "disputed" }).eq("id", refId);
     if (error) {
       toast({ title: "Error", description: "Failed to submit dispute.", variant: "destructive" });
       return;
     }
-    // Create audit log entry (fire-and-forget)
     supabase.rpc("fn_create_audit_entry", {
       p_referral_id: refId,
       p_event_type: "dispute_submitted",
       p_payload: { previous_status: ref.status } as any,
     }).then(() => {});
+    // Notify business via in-app + email
+    if (ref.business_id) {
+      supabase.rpc("fn_create_notification", {
+        p_user_id: ref.business_id,
+        p_title: "Dispute submitted",
+        p_body: `A dispute has been filed for a referral on "${ref.offers?.title}".`,
+        p_type: "dispute_submitted",
+        p_referral_id: refId,
+      });
+      supabase.functions.invoke("send-notification", {
+        body: {
+          type: "dispute_submitted",
+          recipientEmail: "",
+          recipientName: "",
+          data: { businessName: ref.businesses?.name || "", customerName: ref.customer_name, referrerName: user.email || "", offerTitle: ref.offers?.title || "" },
+        },
+      }).catch((err) => console.error("Dispute email failed:", err));
+    }
     setReferrals(prev => prev.map(r => r.id === refId ? { ...r, status: "disputed" } : r));
     toast({ title: "Dispute submitted", description: "Your dispute has been sent for review." });
   };

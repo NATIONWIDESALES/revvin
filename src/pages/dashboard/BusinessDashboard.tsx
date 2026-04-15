@@ -238,6 +238,15 @@ const BusinessDashboard = () => {
     if (user) {
       supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_event_type: "referral_accepted", p_payload: { payout: payoutAmt } });
       supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Referral accepted!", p_body: `Your referral for "${ref.offers?.title}" has been accepted.`, p_type: "referral_accepted", p_referral_id: ref.id });
+      // Send email notification (fire-and-forget)
+      supabase.functions.invoke("send-notification", {
+        body: {
+          type: "referral_accepted",
+          recipientEmail: ref.customer_email || "",
+          recipientName: ref.customer_name || "",
+          data: { referrerName: ref.customer_name, customerName: ref.customer_name, offerTitle: ref.offers?.title || "" },
+        },
+      }).catch((err) => console.error("Email notification failed:", err));
     }
   };
 
@@ -248,6 +257,14 @@ const BusinessDashboard = () => {
     if (user) {
       supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_event_type: "referral_declined" });
       supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Referral declined", p_body: `Your referral for "${ref.offers?.title}" was declined.`, p_type: "referral_declined", p_referral_id: ref.id });
+      supabase.functions.invoke("send-notification", {
+        body: {
+          type: "referral_declined",
+          recipientEmail: "",
+          recipientName: ref.customer_name || "",
+          data: { referrerName: ref.customer_name, customerName: ref.customer_name, offerTitle: ref.offers?.title || "" },
+        },
+      }).catch((err) => console.error("Email notification failed:", err));
     }
   };
 
@@ -274,6 +291,14 @@ const BusinessDashboard = () => {
     if (user) {
       supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_event_type: "referral_lost" });
       supabase.rpc("fn_create_notification", { p_user_id: ref.referrer_id, p_title: "Referral lost", p_body: `Your referral for "${ref.offers?.title}" was marked as lost.`, p_type: "referral_lost", p_referral_id: ref.id });
+      supabase.functions.invoke("send-notification", {
+        body: {
+          type: "deal_lost",
+          recipientEmail: "",
+          recipientName: ref.customer_name || "",
+          data: { referrerName: ref.customer_name, customerName: ref.customer_name, offerTitle: ref.offers?.title || "" },
+        },
+      }).catch((err) => console.error("Email notification failed:", err));
     }
   };
 

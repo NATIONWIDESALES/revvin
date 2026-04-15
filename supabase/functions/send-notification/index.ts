@@ -11,9 +11,12 @@ interface NotificationPayload {
   type:
     | "referral_submitted"
     | "referral_accepted"
+    | "referral_declined"
     | "deal_closed"
     | "deal_lost"
     | "payout_released"
+    | "dispute_submitted"
+    | "dispute_resolved"
     | "welcome";
   recipientEmail: string;
   recipientName: string;
@@ -59,6 +62,21 @@ const templates: Record<
     subject: "Payout Released — $${payoutAmount}",
     body: (d) =>
       `Hi ${d.referrerName},\n\nYour payout of $${d.payoutAmount} for "${d.offerTitle}" has been released.\n\nCheck your earnings dashboard: https://revvin.lovable.app/dashboard\n\n— Revvin`,
+  },
+  referral_declined: {
+    subject: "Referral Update — Declined",
+    body: (d) =>
+      `Hi ${d.referrerName},\n\nYour referral for ${d.customerName} to "${d.offerTitle}" was declined by the business.\n\nDon't be discouraged — browse more opportunities and keep referring.\n\nBrowse offers: https://revvin.lovable.app/browse\n\n— Revvin`,
+  },
+  dispute_submitted: {
+    subject: "Dispute Received — ${offerTitle}",
+    body: (d) =>
+      `Hi ${d.businessName},\n\nA dispute has been submitted for a referral on "${d.offerTitle}".\n\nCustomer: ${d.customerName}\nSubmitted by: ${d.referrerName}\n\nOur team will review and reach out shortly.\n\nLog in: https://revvin.lovable.app/dashboard\n\n— Revvin`,
+  },
+  dispute_resolved: {
+    subject: "Dispute Resolved — ${offerTitle}",
+    body: (d) =>
+      `Hi ${d.referrerName},\n\nThe dispute for your referral of ${d.customerName} on "${d.offerTitle}" has been resolved.\n\nOutcome: ${d.outcome}\n\nView details: https://revvin.lovable.app/dashboard\n\n— Revvin`,
   },
 };
 
