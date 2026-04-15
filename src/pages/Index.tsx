@@ -9,7 +9,6 @@ import {
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import AnimatedCounter from "@/components/AnimatedCounter";
 import MarqueeTicker from "@/components/MarqueeTicker";
 
 const ease = [0.16, 1, 0.3, 1] as const;
