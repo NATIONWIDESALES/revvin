@@ -4,6 +4,7 @@ import { Users, ArrowRight, BadgeCheck, Trophy, DollarSign, Search, Shield, Chec
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 import MarqueeTicker from "@/components/MarqueeTicker";
+import EarningsEstimator from "@/components/EarningsEstimator";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -116,6 +117,38 @@ const ForReferrers = () => (
               </motion.div>
             ))}
           </div>
+        </motion.div>
+      </div>
+    </section>
+
+    {/* Earnings Estimator */}
+    <section className="py-24 lg:py-32">
+      <div className="container">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-2xl mx-auto">
+          <motion.p variants={fadeUp} custom={0} className="section-label text-center mb-3">Your earnings</motion.p>
+          <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold text-center mb-8 tracking-tight">
+            How much could you earn?
+          </motion.h2>
+          <motion.div variants={fadeUp} custom={1}>
+            <EarningsEstimator />
+          </motion.div>
+          {/* Persona examples */}
+          <motion.div variants={fadeUp} custom={2} className="mt-10 space-y-4">
+            <p className="text-sm font-semibold text-foreground text-center mb-4">Real-world examples</p>
+            {[
+              { name: "Sarah", role: "realtor", desc: "Refers buyers to mortgage brokers and home inspectors.", refs: 3, payout: 500 },
+              { name: "Mike", role: "condo manager", desc: "Refers residents to movers, cleaners, and contractors.", refs: 5, payout: 200 },
+              { name: "Lisa", role: "gym member", desc: "Refers friends to her personal trainer.", refs: 2, payout: 100 },
+            ].map((p) => (
+              <div key={p.name} className="rounded-xl border border-border bg-card p-4">
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">{p.name}</strong> is a {p.role}. {p.desc}{" "}
+                  {p.refs} referrals/month × ${p.payout} = <strong className="text-earnings">${(p.refs * p.payout).toLocaleString()}/month.</strong>
+                </p>
+              </div>
+            ))}
+            <p className="text-xs text-muted-foreground text-center italic">These are illustrative examples showing potential earnings.</p>
+          </motion.div>
         </motion.div>
       </div>
     </section>

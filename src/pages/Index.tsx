@@ -9,7 +9,6 @@ import {
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import AnimatedCounter from "@/components/AnimatedCounter";
 import MarqueeTicker from "@/components/MarqueeTicker";
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -124,47 +123,34 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ============ PLATFORM STATS ============ */}
-      <section className="py-10 border-y border-border bg-surface">
-        <div className="container">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {[
-              { value: 500, prefix: "", suffix: "+", label: "Referrals Submitted" },
-              { value: 250000, prefix: "$", suffix: "+", label: "Paid to Referrers" },
-              { value: 150, prefix: "", suffix: "+", label: "Businesses Listed" },
-              { value: 49, prefix: "", suffix: "★", label: "Average Rating" },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <p className="text-2xl md:text-3xl font-bold text-foreground">
-                  <AnimatedCounter value={stat.value} prefix={stat.prefix} suffix={stat.suffix} />
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* ============ SOCIAL PROOF STRIP ============ */}
+      <section className="py-3 bg-primary text-primary-foreground overflow-hidden">
+        <MarqueeTicker
+          items={[
+            "Offers from $75 to $1,000+ per referral",
+            "Available in Canada and the USA",
+            "100% payout to referrers — always",
+            "Businesses pay only on closed deals",
+            "Free to list · Pay only on results",
+          ]}
+          className="[&_span]:text-primary-foreground/90"
+        />
       </section>
 
       {/* ============ ACTIVITY TICKER ============ */}
       <section className="py-3 bg-muted/30 border-b border-border overflow-hidden">
         <MarqueeTicker
           items={[
-            "🔨 Roofing", "☀️ Solar", "🏠 Real Estate",
-            "New offer: $500 per roofing customer in Vancouver",
-            "💰 Referrer earned $750 this week",
-            "🏋️ Fitness", "⚡ Electrical",
-            "New offer: $1,000 per real estate referral in Toronto",
-            "🌿 Landscaping", "🛡️ Pest Control",
+            "🔨 Roofing · $400 payout", "☀️ Solar · $750 payout", "🏠 Real Estate · $1,000 payout",
+            "💰 Mortgage · $500 payout", "🏋️ Fitness · $75 payout", "🔧 Home Services · $200 payout",
           ]}
         />
         <div className="mt-1">
           <MarqueeTicker
             reverse
             items={[
-              "Free to list", "$250K+ paid to referrers",
-              "Platform-mediated payouts", "150+ businesses listed",
-              "Available in Canada & USA", "Every business reviewed",
-              "Referrers earn the full payout", "Pay only on results",
+              "Vancouver, BC", "Toronto, ON", "Los Angeles, CA", "Calgary, AB",
+              "Austin, TX", "Houston, TX", "Maple Ridge, BC", "Surrey, BC",
             ]}
           />
         </div>
@@ -193,6 +179,25 @@ const Index = () => {
                 </motion.div>
               ))}
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ============ FOUNDER'S NOTE ============ */}
+      <section className="py-24 lg:py-32 bg-surface">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7, ease }}
+            className="mx-auto max-w-3xl"
+          >
+            <p className="section-label text-center mb-8">Why we built REVVIN</p>
+            <blockquote className="text-xl md:text-2xl font-medium text-foreground leading-relaxed text-center">
+              "We spent years running ads for service businesses. Costs kept climbing. Quality kept dropping. But the best customers always came from referrals — a friend, a neighbor, someone who actually knew the person. The problem was there was no system for it. No tracking, no guaranteed payouts, no accountability. So we built one. REVVIN replaces the handshake deal with a real platform. Businesses only pay when deals close. Referrers always get paid. That's it."
+            </blockquote>
+            <p className="text-center mt-6 text-sm text-muted-foreground font-medium">— The REVVIN Team</p>
           </motion.div>
         </div>
       </section>

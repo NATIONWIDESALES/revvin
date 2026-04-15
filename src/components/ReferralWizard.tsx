@@ -88,11 +88,13 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
 
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
+  const isSampleOffer = offer.id.startsWith("sample-");
   const isLogoUrl = offer.businessLogo.startsWith("http");
 
   const redirectPath = `/offer/${toSlug(offer.business)}/${offer.id}`;
 
   const goNext = () => {
+    if (isSampleOffer) return; // blocked for sample offers
     if (step === 0 && !user) {
       setShowAuthPrompt(true);
       return;
@@ -436,7 +438,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
       )}
 
       {/* Navigation buttons */}
-      {step < 4 && !showAuthPrompt && (
+      {step < 4 && !showAuthPrompt && !isSampleOffer && (
         <div className="px-5 pb-5 flex gap-2">
           {step > 0 && (
             <Button variant="outline" onClick={goBack} className="gap-1.5">
