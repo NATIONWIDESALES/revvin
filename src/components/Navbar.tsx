@@ -43,6 +43,7 @@ const Navbar = () => {
     { to: "/for-businesses", label: "For Businesses" },
     { to: "/for-referrers", label: "For Referrers" },
     { to: "/how-it-works", label: "How It Works" },
+    { to: "/pricing", label: "Pricing" },
   ];
 
   const roleLabel = userRole === "business" ? "Business" : userRole === "admin" ? "Admin" : "Referrer";
