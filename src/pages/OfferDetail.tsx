@@ -11,6 +11,7 @@ import ShareOfferLink from "@/components/ShareOfferLink";
 import ReferralWizard from "@/components/ReferralWizard";
 import SEOHead from "@/components/SEOHead";
 import type { Offer } from "@/types/offer";
+import { sampleOffers } from "@/data/sampleOffers";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -29,37 +30,44 @@ const OfferDetail = () => {
     queryKey: ["offer-detail", id],
     queryFn: async (): Promise<Offer | null> => {
       if (!id) return null;
+      
+      // First try to fetch from database
       const { data, error } = await supabase
         .from("offers")
         .select("*, businesses(name, logo_url, city, state, verified, latitude, longitude)")
         .eq("id", id)
         .single();
 
-      if (error || !data) return null;
-      const o: any = data;
-      return {
-        id: o.id, title: o.title,
-        business: o.businesses?.name ?? "Business",
-        businessLogo: o.businesses?.logo_url ?? "🏢",
-        category: o.category,
-        description: o.description ?? "",
-        payout: Number(o.payout),
-        payoutType: "flat" as const,
-        currency: (o.currency === "CAD" ? "CAD" : "USD") as "CAD" | "USD",
-        country: (o.country === "CA" ? "CA" : "US") as "CA" | "US",
-        location: o.location ?? `${o.businesses?.city ?? ""}, ${o.businesses?.state ?? ""}`,
-        state: o.businesses?.state ?? "", city: o.businesses?.city ?? "",
-        rating: 4.5, totalReferrals: 0, successRate: 0,
-        featured: o.featured ?? false,
-        dealSizeMin: o.deal_size_min ? Number(o.deal_size_min) : undefined,
-        dealSizeMax: o.deal_size_max ? Number(o.deal_size_max) : undefined,
-        closeTimeDays: o.close_time_days ?? 30,
-        remoteEligible: o.remote_eligible ?? false,
-        latitude: o.businesses?.latitude ?? undefined,
-        longitude: o.businesses?.longitude ?? undefined,
-        qualificationRules: o.qualification_criteria ? [o.qualification_criteria] : undefined,
-        verified: o.businesses?.verified ?? false,
-      };
+      if (!error && data) {
+        const o: any = data;
+        return {
+          id: o.id, title: o.title,
+          business: o.businesses?.name ?? "Business",
+          businessLogo: o.businesses?.logo_url ?? "🏢",
+          category: o.category,
+          description: o.description ?? "",
+          payout: Number(o.payout),
+          payoutType: "flat" as const,
+          currency: (o.currency === "CAD" ? "CAD" : "USD") as "CAD" | "USD",
+          country: (o.country === "CA" ? "CA" : "US") as "CA" | "US",
+          location: o.location ?? `${o.businesses?.city ?? ""}, ${o.businesses?.state ?? ""}`,
+          state: o.businesses?.state ?? "", city: o.businesses?.city ?? "",
+          rating: 4.5, totalReferrals: 0, successRate: 0,
+          featured: o.featured ?? false,
+          dealSizeMin: o.deal_size_min ? Number(o.deal_size_min) : undefined,
+          dealSizeMax: o.deal_size_max ? Number(o.deal_size_max) : undefined,
+          closeTimeDays: o.close_time_days ?? 30,
+          remoteEligible: o.remote_eligible ?? false,
+          latitude: o.businesses?.latitude ?? undefined,
+          longitude: o.businesses?.longitude ?? undefined,
+          qualificationRules: o.qualification_criteria ? [o.qualification_criteria] : undefined,
+          verified: o.businesses?.verified ?? false,
+        };
+      }
+      
+      // If not in database, check sample offers
+      const sampleOffer = sampleOffers.find(o => o.id === id);
+      return sampleOffer || null;
     },
     enabled: !!id,
   });
