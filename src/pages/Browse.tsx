@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Search, SlidersHorizontal, Map, List, Building2, PlusCircle, X
+  Search, SlidersHorizontal, Map, List, Building2, PlusCircle, X, Sparkles
 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import MapView from "@/components/MapView";
 import SEOHead from "@/components/SEOHead";
 import { categories } from "@/lib/offerUtils";
 import { useDbOffers } from "@/hooks/useDbOffers";
+import { sampleOffers } from "@/data/sampleOffers";
 import { Slider } from "@/components/ui/slider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCountry } from "@/contexts/CountryContext";
@@ -21,11 +22,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Country } from "@/types/offer";
+import type { Offer } from "@/types/offer";
 
 type SortOption = "payout" | "newest" | "fastest";
 
 const Browse = () => {
-  const { data: allOffers = [], isLoading } = useDbOffers();
+  const { data: dbOffers = [], isLoading } = useDbOffers();
   const { country, setCountry } = useCountry();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -35,10 +37,17 @@ const Browse = () => {
 
   // Filter states
   const [payoutRange, setPayoutRange] = useState([0, 1000]);
-  // payoutTypeFilter removed — all offers are flat
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [stateFilter, setStateFilter] = useState("");
   const [cityFilter, setCityFilter] = useState("");
+
+  // Merge DB offers with sample offers (real offers first)
+  const allOffers: (Offer & { isSample?: boolean })[] = useMemo(() => {
+    const real = dbOffers.map(o => ({ ...o, isSample: false as const }));
+    // Only show samples if < 10 real offers
+    if (real.length >= 10) return real;
+    return [...real, ...sampleOffers];
+  }, [dbOffers]);
 
   const availableStates = useMemo(() => {
     const countryOffers = country === "ALL" ? allOffers : allOffers.filter(o => o.country === country);
@@ -62,21 +71,38 @@ const Browse = () => {
         o.city.toLowerCase().includes(search.toLowerCase());
       const matchesCat = activeCategory === "All" || o.category === activeCategory;
       const matchesPayout = o.payout >= payoutRange[0] && o.payout <= payoutRange[1];
-      const matchesType = true;
       const matchesVerified = !verifiedOnly || o.verified !== false;
       const matchesState = !stateFilter || o.state === stateFilter;
       const matchesCity = !cityFilter || o.city === cityFilter;
-      return matchesCountry && matchesSearch && matchesCat && matchesPayout && matchesType && matchesVerified && matchesState && matchesCity;
+      return matchesCountry && matchesSearch && matchesCat && matchesPayout && matchesVerified && matchesState && matchesCity;
     })
     .sort((a, b) => {
+      // Real offers always sort above sample offers
+      if (a.isSample !== b.isSample) return a.isSample ? 1 : -1;
       if (sortBy === "payout") return b.payout - a.payout;
       if (sortBy === "fastest") return (a.closeTimeDays ?? 99) - (b.closeTimeDays ?? 99);
       return new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime();
     });
 
+  // Featured: top 4 highest-payout offers
+  const featuredOffers = useMemo(() => {
+    return [...allOffers]
+      .sort((a, b) => {
+        if (a.isSample !== b.isSample) return a.isSample ? 1 : -1;
+        return b.payout - a.payout;
+      })
+      .slice(0, 4);
+  }, [allOffers]);
+
   const clearFilters = () => {
     setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]);
     setVerifiedOnly(false); setStateFilter(""); setCityFilter("");
+  };
+
+  // Check if offer is new (< 7 days)
+  const isNewOffer = (createdAt?: string) => {
+    if (!createdAt) return false;
+    return Date.now() - new Date(createdAt).getTime() < 7 * 86400000;
   };
 
   if (isLoading) {
@@ -98,7 +124,7 @@ const Browse = () => {
           "@type": "ItemList",
           "name": "Referral Offers on Revvin",
           "description": "Browse active referral opportunities from verified businesses",
-          "itemListElement": filtered.slice(0, 20).map((offer, i) => ({
+          "itemListElement": filtered.filter(o => !o.isSample).slice(0, 20).map((offer, i) => ({
             "@type": "ListItem",
             "position": i + 1,
             "item": {
@@ -123,6 +149,21 @@ const Browse = () => {
         } : undefined}
       />
       <div className="container">
+        {/* Featured Offers */}
+        {featuredOffers.length > 0 && !search && activeCategory === "All" && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-bold text-foreground">Featured Offers</h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {featuredOffers.map((offer) => (
+                <OfferCard key={offer.id} offer={offer} isSample={offer.isSample} isNew={isNewOffer(offer.createdAt)} />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Search bar */}
         <div className="mb-5 flex gap-2">
           <div className="relative flex-1">
@@ -257,21 +298,21 @@ const Browse = () => {
         ) : filtered.length > 0 ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((offer) => (
-              <OfferCard key={offer.id} offer={offer} />
+              <OfferCard key={offer.id} offer={offer} isSample={offer.isSample} isNew={isNewOffer(offer.createdAt)} />
             ))}
           </div>
         ) : (
           <div className="py-16 text-center">
             <Building2 className="mx-auto mb-6 h-12 w-12 text-muted-foreground/30" />
             <h2 className="text-xl font-bold text-foreground mb-2">
-              {allOffers.length === 0 ? "The marketplace is warming up" : "No offers match your filters"}
+              {dbOffers.length === 0 ? "The marketplace is warming up" : "No offers match your filters"}
             </h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
-              {allOffers.length === 0
+              {dbOffers.length === 0
                 ? "Businesses are being onboarded right now. New referral opportunities from realtors, contractors, gyms, and more will appear here soon."
                 : "Try adjusting your search or filter criteria to find more opportunities."}
             </p>
-            {allOffers.length === 0 ? (
+            {dbOffers.length === 0 ? (
               <div className="max-w-2xl mx-auto">
                 <p className="text-xs text-muted-foreground mb-4 font-medium uppercase tracking-wider">Categories coming soon</p>
                 <div className="flex flex-wrap justify-center gap-2">
@@ -297,8 +338,17 @@ const Browse = () => {
           </div>
         )}
 
+        {/* Invite CTA for referrers */}
+        <div className="mt-8 rounded-xl border border-border bg-muted/30 p-5 text-center">
+          <p className="text-sm font-semibold text-foreground mb-1">Don't see your industry?</p>
+          <p className="text-sm text-muted-foreground mb-4">Invite a business you know to list their referral program on REVVIN.CO</p>
+          <Button variant="outline" asChild className="gap-2">
+            <Link to="/dashboard"><PlusCircle className="h-4 w-4" /> Invite a Business</Link>
+          </Button>
+        </div>
+
         {/* Business CTA */}
-        <div className="mt-10 rounded-xl border border-border bg-card p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-l-4 border-l-primary">
+        <div className="mt-4 rounded-xl border border-border bg-card p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-l-4 border-l-primary">
           <div>
             <h3 className="text-lg font-bold">Are you a business?</h3>
             <p className="text-sm text-muted-foreground">List your referral program and start receiving qualified leads.</p>
