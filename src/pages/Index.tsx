@@ -184,6 +184,25 @@ const Index = () => {
         </div>
       </section>
 
+      {/* ============ FOUNDER'S NOTE ============ */}
+      <section className="py-24 lg:py-32 bg-surface">
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7, ease }}
+            className="mx-auto max-w-3xl"
+          >
+            <p className="section-label text-center mb-8">Why we built REVVIN</p>
+            <blockquote className="text-xl md:text-2xl font-medium text-foreground leading-relaxed text-center">
+              "We spent years running ads for service businesses. Costs kept climbing. Quality kept dropping. But the best customers always came from referrals — a friend, a neighbor, someone who actually knew the person. The problem was there was no system for it. No tracking, no guaranteed payouts, no accountability. So we built one. REVVIN replaces the handshake deal with a real platform. Businesses only pay when deals close. Referrers always get paid. That's it."
+            </blockquote>
+            <p className="text-center mt-6 text-sm text-muted-foreground font-medium">— The REVVIN Team</p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ============ DUAL PATH - WHO IS REVVIN FOR ============ */}
       <section className="py-24 lg:py-32 bg-surface">
         <div className="container">
