@@ -8,6 +8,8 @@ import { useState } from "react";
 
 interface OfferCardProps {
   offer: Offer;
+  isSample?: boolean;
+  isNew?: boolean;
 }
 
 const INITIAL_COLORS = ['#6366F1', '#0D9488', '#D97706', '#E11D48', '#15803D', '#7C3AED'];
