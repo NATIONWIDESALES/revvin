@@ -365,11 +365,38 @@ const BusinessDashboard = () => {
         <motion.div initial="hidden" animate="visible">
           {/* Pending Approval Banner */}
           {!isApproved && business && (
-            <motion.div variants={fadeUp} custom={0} className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-5 flex items-start gap-3">
-              <Clock className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
-              <div>
-                <h3 className="font-bold text-foreground">Account Pending Approval</h3>
-                <p className="text-sm text-muted-foreground mt-1">Your business account is under review. While you wait, you can continue setting up your profile, uploading your logo, and preparing your offers. Once approved, your business and offers will go live on the marketplace.</p>
+            <motion.div variants={fadeUp} custom={0} className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-5">
+              <div className="flex items-start gap-3">
+                <Clock className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-bold text-foreground">Your account is under review</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Our team reviews every business before offers go live. This typically takes less than 24 hours. We'll email you as soon as you're approved.
+                  </p>
+                  <div className="mt-4 space-y-2">
+                    <p className="text-sm font-semibold text-foreground">While you wait — get set up:</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" size="sm" className="gap-1.5" asChild>
+                        <Link to="/dashboard/profile">Upload your logo</Link>
+                      </Button>
+                      <Button variant="outline" size="sm" className="gap-1.5" asChild>
+                        <Link to="/dashboard/create-offer">Create your first offer</Link>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1.5"
+                        onClick={() => {
+                          const slug = business?.name ? toSlug(business.name) : business?.id;
+                          navigator.clipboard.writeText(`${window.location.origin}/referrer/${user?.id}`);
+                          toast({ title: "Link copied", description: "Share your profile link with your network." });
+                        }}
+                      >
+                        <Link2 className="h-3.5 w-3.5" /> Copy profile link
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}

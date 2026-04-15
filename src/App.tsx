@@ -24,6 +24,7 @@ import AccountSettings from "./pages/dashboard/AccountSettings";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import ReferralAgreement from "./pages/ReferralAgreement";
+import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 
 import { lazy, Suspense } from "react";
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="/offer/:businessSlug/:id" element={<OfferDetail />} />
                 <Route path="/offer/:id" element={<OfferDetail />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/pricing" element={<Pricing />} />
                 <Route path="/trust" element={<TrustCenter />} />
                 <Route path="/for-businesses" element={<ForBusinesses />} />
                 <Route path="/for-referrers" element={<ForReferrers />} />
