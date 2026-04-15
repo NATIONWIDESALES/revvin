@@ -14,6 +14,16 @@ interface OfferCardProps {
 
 const INITIAL_COLORS = ['#6366F1', '#0D9488', '#D97706', '#E11D48', '#15803D', '#7C3AED'];
 
+const CATEGORY_GRADIENTS: Record<string, string> = {
+  "Roofing": "from-slate-700 to-slate-900",
+  "Energy": "from-amber-500 to-orange-600",
+  "Real Estate": "from-blue-700 to-indigo-900",
+  "Mortgage": "from-emerald-700 to-green-900",
+  "Finance": "from-emerald-700 to-green-900",
+  "Services": "from-rose-500 to-orange-500",
+  "Landscaping": "from-green-600 to-emerald-800",
+};
+
 function getBusinessColor(name: string): string {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
@@ -28,14 +38,24 @@ const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
   const isLogoUrl = offer.businessLogo.startsWith("http");
   const color = getBusinessColor(offer.business);
   const initial = offer.business.charAt(0).toUpperCase();
+  const gradientClass = CATEGORY_GRADIENTS[offer.category] || "from-gray-600 to-gray-800";
 
   return (
     <Link to={`/offer/${toSlug(offer.business)}/${offer.id}`} className="group block">
-      <div className="rounded-xl border border-border bg-card overflow-hidden transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5 h-full flex flex-col" style={{ borderTopColor: color, borderTopWidth: '3px' }}>
+      <div className="rounded-xl border border-border bg-card overflow-hidden transition-all duration-250 ease-out hover:shadow-card-hover hover:-translate-y-1 h-full flex flex-col" style={{ borderTopColor: color, borderTopWidth: '3px' }}>
         {/* Image / Logo area */}
         <div className="relative aspect-[4/3] bg-surface flex items-center justify-center overflow-hidden">
           {isLogoUrl ? (
-            <img src={offer.businessLogo} alt={offer.business} className="h-full w-full object-cover" />
+            <img src={offer.businessLogo} alt={offer.business} className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" />
+          ) : isSample ? (
+            /* Gradient + monogram for sample offers */
+            <div className={`h-full w-full bg-gradient-to-br ${gradientClass} flex items-center justify-center transition-transform duration-500 ease-out group-hover:scale-105`}>
+              <div
+                className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-white/20 bg-white/10 backdrop-blur-sm"
+              >
+                <span className="text-3xl font-bold text-white/90 leading-none">{offer.business.split(' ').map(w => w[0]).join('').slice(0, 2)}</span>
+              </div>
+            </div>
           ) : (
             <div
               className="flex h-16 w-16 items-center justify-center rounded-full"
@@ -47,7 +67,7 @@ const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
           {/* Heart icon */}
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSaved(!saved); }}
-            className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:scale-110"
+            className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:scale-110 active:scale-95"
           >
             <Heart className={`h-4 w-4 transition-all duration-200 ${saved ? "fill-destructive text-destructive" : "text-foreground"}`} />
           </button>
