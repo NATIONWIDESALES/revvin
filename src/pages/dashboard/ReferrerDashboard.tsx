@@ -15,11 +15,6 @@ import { useToast } from "@/hooks/use-toast";
 import InviteBusinessModal from "@/components/InviteBusinessModal";
 import DashboardChecklist from "@/components/DashboardChecklist";
 import PayoutPreferences from "@/components/PayoutPreferences";
-          {/* Payout Preferences */}
-          <motion.div variants={fadeUp} custom={2.5} className="mb-8" id="payout-prefs">
-            <PayoutPreferences />
-          </motion.div>
-
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
   submitted: { bg: "bg-muted", text: "text-muted-foreground", label: "Submitted" },
