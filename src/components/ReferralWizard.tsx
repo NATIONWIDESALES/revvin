@@ -136,6 +136,19 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
         return;
       }
 
+      // Self-referral prevention: block users from referring to their own business
+      const { data: ownBiz } = await supabase
+        .from("businesses")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("id", dbOffer.business_id)
+        .maybeSingle();
+      if (ownBiz) {
+        toast({ title: "Cannot self-refer", description: "You cannot submit a referral to your own business.", variant: "destructive" });
+        setSubmitting(false);
+        return;
+      }
+
       // Check for duplicate referral before inserting
       const { data: isDuplicate } = await supabase.rpc("fn_check_duplicate_referral", {
         p_offer_id: dbOffer.id,

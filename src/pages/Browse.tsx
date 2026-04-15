@@ -182,7 +182,7 @@ const Browse = () => {
           >
             <SlidersHorizontal className="h-4 w-4" /> Filters
           </Button>
-          <div className="hidden sm:flex gap-1 items-center">
+          <div className="flex gap-1 items-center">
             <Button variant={viewMode === "list" ? "default" : "ghost"} size="icon" className="h-12 w-12" onClick={() => setViewMode("list")}>
               <List className="h-4 w-4" />
             </Button>
