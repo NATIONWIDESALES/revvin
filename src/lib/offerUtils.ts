@@ -6,6 +6,9 @@ export const categories = [
   "SaaS", "Services", "Technology",
 ];
 
+// Note: cityJumpsCA / cityJumpsUS are retained for backward compatibility
+// but MapView now derives city chips dynamically from the filtered offers.
+
 export const RESTRICTED_CATEGORIES = ["Finance", "Insurance", "Legal", "Mortgage"];
 
 export const canadaProvinces = ["BC", "AB", "ON", "QC", "MB", "SK"];
