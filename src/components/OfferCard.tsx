@@ -22,6 +22,12 @@ const CATEGORY_GRADIENTS: Record<string, string> = {
   "Finance": "from-emerald-700 to-green-900",
   "Services": "from-rose-500 to-orange-500",
   "Landscaping": "from-green-600 to-emerald-800",
+  "HVAC": "from-cyan-600 to-blue-800",
+  "Plumbing": "from-sky-600 to-blue-900",
+  "Insurance": "from-violet-600 to-purple-900",
+  "Legal": "from-stone-600 to-stone-900",
+  "Home Inspection": "from-teal-600 to-teal-900",
+  "Paving": "from-zinc-600 to-zinc-800",
 };
 
 function getBusinessColor(name: string): string {
