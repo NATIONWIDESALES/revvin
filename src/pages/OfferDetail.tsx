@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, DollarSign, CheckCircle2, Clock, FileCheck, BadgeCheck, AlertTriangle, Loader2 } from "lucide-react";
+import { ArrowLeft, MapPin, DollarSign, CheckCircle2, Clock, FileCheck, BadgeCheck, AlertTriangle, Loader2, Send, ArrowRight } from "lucide-react";
 import { toSlug } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useCountry } from "@/contexts/CountryContext";
@@ -208,8 +208,37 @@ const OfferDetail = () => {
               </div>
             </motion.div>
 
+            {/* Payout Earnings Callout */}
+            <motion.div variants={fadeUp} custom={5} className="rounded-xl border-2 border-primary/20 bg-primary/5 p-5">
+              <p className="text-lg font-bold text-foreground">
+                You earn <span className="text-primary">{formatPayout(offer.payout, offer.currency)}</span> for every closed deal.
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">No catches. Full payout, every time.</p>
+            </motion.div>
+
+            {/* Payout Timeline */}
+            <motion.div variants={fadeUp} custom={6}>
+              <h2 className="text-lg font-semibold mb-4">How You Get Paid</h2>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0">
+                {[
+                  { icon: Send, label: "Submit Referral" },
+                  { icon: Clock, label: "Business Reviews (1-2 days)" },
+                  { icon: CheckCircle2, label: "Deal Closes" },
+                  { icon: DollarSign, label: "You Get Paid (3-5 days)" },
+                ].map((step, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 shrink-0">
+                      <step.icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <span className="text-xs font-medium text-foreground whitespace-nowrap">{step.label}</span>
+                    {i < 3 && <ArrowRight className="hidden sm:block h-4 w-4 text-muted-foreground mx-2 shrink-0" />}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
             {/* How Verification Works */}
-            <motion.div variants={fadeUp} custom={5}>
+            <motion.div variants={fadeUp} custom={7}>
               <h2 className="text-lg font-semibold mb-4">How It Works</h2>
               <div className="space-y-3">
                 {[
