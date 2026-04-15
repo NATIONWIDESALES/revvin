@@ -709,6 +709,9 @@ const BusinessDashboard = () => {
                         <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => { setEditingPayout(offer.id); setNewPayout(String(offer.payout)); }}>
                           <Edit className="h-3 w-3" /> Edit Payout
                         </Button>
+                        <Button variant="ghost" size="sm" className="gap-1 text-xs" asChild>
+                          <Link to={`/dashboard/edit-offer/${offer.id}`}><Edit className="h-3 w-3" /> Edit Offer</Link>
+                        </Button>
                         <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => inviteReferrers(offer.id)}>
                           {copiedLink === offer.id ? <><Check className="h-3 w-3" /> Copied!</> : <><Link2 className="h-3 w-3" /> Invite Referrers</>}
                         </Button>
