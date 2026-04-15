@@ -186,6 +186,11 @@ const ReferrerDashboard = () => {
             </div>
           </motion.div>
 
+          {/* Payout Preferences */}
+          <motion.div variants={fadeUp} custom={2.5} className="mb-8" id="payout-prefs">
+            <PayoutPreferences />
+          </motion.div>
+
           {/* Referral Pipeline */}
           <motion.div variants={fadeUp} custom={3}>
             <h2 className="text-lg font-bold mb-4">Referral Pipeline</h2>
