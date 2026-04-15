@@ -15,6 +15,10 @@ import { useToast } from "@/hooks/use-toast";
 import InviteBusinessModal from "@/components/InviteBusinessModal";
 import DashboardChecklist from "@/components/DashboardChecklist";
 import PayoutPreferences from "@/components/PayoutPreferences";
+          {/* Payout Preferences */}
+          <motion.div variants={fadeUp} custom={2.5} className="mb-8" id="payout-prefs">
+            <PayoutPreferences />
+          </motion.div>
 
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
@@ -139,6 +143,20 @@ const ReferrerDashboard = () => {
           </motion.div>
 
           <DashboardChecklist title="Getting Started" items={checklistItems} />
+
+          {/* Payout Method Banner */}
+          {!hasPayoutPrefs && (
+            <motion.div variants={fadeUp} custom={0.5} className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-4 flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 text-accent-foreground shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-foreground">Set up your payout method to receive earnings</p>
+                <p className="text-xs text-muted-foreground">Choose how you'd like to get paid when referrals close.</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => document.getElementById("payout-prefs")?.scrollIntoView({ behavior: "smooth" })}>
+                Set up <ArrowRight className="h-3.5 w-3.5 ml-1" />
+              </Button>
+            </motion.div>
+          )}
 
           {/* Stats */}
           <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
