@@ -49,6 +49,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Safety net: ensure wallet exists for business users (recovers from legacy accounts)
+  const ensureWallet = async (userId: string) => {
+    const { data: role } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "business")
+      .maybeSingle();
+    if (!role) return;
+    const { data: wallet } = await supabase
+      .from("wallet_balances")
+      .select("id")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!wallet) {
+      await supabase.from("wallet_balances").insert({ user_id: userId });
+      console.info("Wallet recovery: created missing wallet for business user", userId);
+    }
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
