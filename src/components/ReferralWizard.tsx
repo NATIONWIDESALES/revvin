@@ -158,8 +158,8 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           .from("referral-attachments")
           .upload(filePath, attachedFile);
         if (!uploadErr) {
-          const { data: urlData } = supabase.storage.from("referral-attachments").getPublicUrl(filePath);
-          fileUrl = urlData.publicUrl;
+          const { data: signedData } = await supabase.storage.from("referral-attachments").createSignedUrl(filePath, 60 * 60 * 24 * 365);
+          fileUrl = signedData?.signedUrl ?? null;
         }
       }
 
@@ -174,7 +174,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           customer_phone: formData.phone || null,
           notes: formData.notes || null,
           file_url: fileUrl,
-          payout_amount: offer.payoutType === "flat" ? Math.round(offer.payout * 0.9) : null,
+          payout_amount: offer.payoutType === "flat" ? offer.payout : null,
         })
         .select("id")
         .single();
