@@ -364,36 +364,38 @@ const BusinessDashboard = () => {
     <div className="py-8">
       <div className="container max-w-6xl">
         <motion.div initial="hidden" animate="visible">
-          {/* Pending Approval Banner */}
-          {!isApproved && business && (
-            <motion.div variants={fadeUp} custom={0} className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-5">
+          {/* Suspended Banner */}
+          {isSuspended && business && (
+            <motion.div variants={fadeUp} custom={0} className="mb-6 rounded-xl border border-destructive/30 bg-destructive/5 p-5">
               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
+                <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h3 className="font-bold text-foreground">Your account is under review</h3>
+                  <h3 className="font-bold text-destructive">Your account has been temporarily suspended</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Our team reviews every business before offers go live. This typically takes less than 24 hours. We'll email you as soon as you're approved.
+                    Your offers are hidden from the marketplace. Contact support@revvin.co for details.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Pending Approval Banner (legacy — new signups are auto-approved) */}
+          {!isApproved && !isSuspended && business && (
+            <motion.div variants={fadeUp} custom={0} className="mb-6 rounded-xl border border-primary/30 bg-primary/5 p-5">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-bold text-foreground">You're in. Let's get your first offer live.</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Your account is active. Follow these steps to start receiving referrals:
                   </p>
                   <div className="mt-4 space-y-2">
-                    <p className="text-sm font-semibold text-foreground">While you wait — get set up:</p>
                     <div className="flex flex-wrap gap-2">
                       <Button variant="outline" size="sm" className="gap-1.5" asChild>
                         <Link to="/dashboard/profile">Upload your logo</Link>
                       </Button>
                       <Button variant="outline" size="sm" className="gap-1.5" asChild>
                         <Link to="/dashboard/create-offer">Create your first offer</Link>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1.5"
-                        onClick={() => {
-                          const slug = business?.name ? toSlug(business.name) : business?.id;
-                          navigator.clipboard.writeText(`${window.location.origin}/referrer/${user?.id}`);
-                          toast({ title: "Link copied", description: "Share your profile link with your network." });
-                        }}
-                      >
-                        <Link2 className="h-3.5 w-3.5" /> Copy profile link
                       </Button>
                     </div>
                   </div>
