@@ -218,8 +218,10 @@ export type Database = {
           description: string | null
           featured: boolean | null
           id: string
+          is_sample: boolean
           location: string | null
           max_payout_cap: number | null
+          paused_reason: string | null
           payout: number
           payout_type: string
           platform_fee_rate: number
@@ -249,8 +251,10 @@ export type Database = {
           description?: string | null
           featured?: boolean | null
           id?: string
+          is_sample?: boolean
           location?: string | null
           max_payout_cap?: number | null
+          paused_reason?: string | null
           payout?: number
           payout_type?: string
           platform_fee_rate?: number
@@ -280,8 +284,10 @@ export type Database = {
           description?: string | null
           featured?: boolean | null
           id?: string
+          is_sample?: boolean
           location?: string | null
           max_payout_cap?: number | null
+          paused_reason?: string | null
           payout?: number
           payout_type?: string
           platform_fee_rate?: number
