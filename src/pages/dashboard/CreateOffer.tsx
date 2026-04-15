@@ -81,7 +81,7 @@ const CreateOffer = () => {
           .insert({
             user_id: user.id,
             name: fallbackName,
-            account_status: isSuperAdmin ? "approved" : "pending_approval",
+            account_status: "approved",
           })
           .select("id, name, account_status, pricing_tier")
           .maybeSingle();

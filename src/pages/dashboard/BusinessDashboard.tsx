@@ -358,6 +358,7 @@ const BusinessDashboard = () => {
   }
 
   const isApproved = business?.account_status === "approved";
+  const isSuspended = business?.account_status === "suspended";
 
   return (
     <div className="py-8">
