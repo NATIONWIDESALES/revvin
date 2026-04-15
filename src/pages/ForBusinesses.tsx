@@ -5,8 +5,6 @@ import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 import MarqueeTicker from "@/components/MarqueeTicker";
 import ROICalculator from "@/components/ROICalculator";
-import SEOHead from "@/components/SEOHead";
-import MarqueeTicker from "@/components/MarqueeTicker";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
