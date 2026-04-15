@@ -213,7 +213,22 @@ const OfferDetail = () => {
               <p className="text-lg font-bold text-foreground">
                 You earn <span className="text-primary">{formatPayout(offer.payout, offer.currency)}</span> for every closed deal.
               </p>
-              <p className="text-sm text-muted-foreground mt-1">No catches. Full payout, every time.</p>
+              <p className="text-sm text-muted-foreground mt-1">Full payout, every time. No hidden fees.</p>
+            </motion.div>
+
+            {/* Trust Signals */}
+            <motion.div variants={fadeUp} custom={5.5} className="space-y-2">
+              {[
+                "Business verified by REVVIN",
+                "Payout terms locked when referral is accepted",
+                "Platform-mediated payout — you never chase payment",
+                "Dispute resolution if anything goes wrong",
+              ].map((signal) => (
+                <div key={signal} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                  {signal}
+                </div>
+              ))}
             </motion.div>
 
             {/* Payout Timeline */}
