@@ -91,6 +91,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (session?.user) {
         fetchRole(session.user.id);
         ensureProfile(session.user);
+        ensureWallet(session.user.id);
+      }
       }
       setLoading(false);
     });
