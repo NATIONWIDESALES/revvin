@@ -19,6 +19,7 @@ import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import CreateOffer from "./pages/dashboard/CreateOffer";
+import EditOffer from "./pages/dashboard/EditOffer";
 import ProfileEdit from "./pages/dashboard/ProfileEdit";
 import AccountSettings from "./pages/dashboard/AccountSettings";
 import Terms from "./pages/Terms";
@@ -62,6 +63,7 @@ const App = () => (
                 <Route path="/referral-agreement" element={<ReferralAgreement />} />
                 <Route path="/dashboard" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
                 <Route path="/dashboard/create-offer" element={<ProtectedRoute requiredRole="business"><CreateOffer /></ProtectedRoute>} />
+                <Route path="/dashboard/edit-offer/:id" element={<ProtectedRoute requiredRole="business"><EditOffer /></ProtectedRoute>} />
                 <Route path="/dashboard/profile" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
                 <Route path="/dashboard/settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
               </Route>
