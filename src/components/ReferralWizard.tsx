@@ -460,7 +460,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
       {/* Sample offer message */}
       {isSampleOffer && (
         <div className="px-5 pb-5 space-y-3">
-          <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+          <div className="rounded-xl border border-border bg-muted/30 p-4">
             <p className="text-sm font-semibold text-foreground mb-2">This is an example offer</p>
             <p className="text-xs text-muted-foreground mb-3">
               This offer shows how REVVIN.CO works. Browse our live offers to start earning, or invite a business you know.
