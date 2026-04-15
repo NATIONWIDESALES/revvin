@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   DollarSign, Clock, CheckCircle2, User,
-  Send, ArrowRight, Wallet, Bell, Scale, BarChart3
+  Send, ArrowRight, Wallet, Bell, Scale, BarChart3, AlertCircle
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 import InviteBusinessModal from "@/components/InviteBusinessModal";
 import DashboardChecklist from "@/components/DashboardChecklist";
+import PayoutPreferences from "@/components/PayoutPreferences";
 
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
