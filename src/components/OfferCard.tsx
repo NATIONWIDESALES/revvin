@@ -22,7 +22,7 @@ function getBusinessColor(name: string): string {
   return INITIAL_COLORS[Math.abs(hash) % INITIAL_COLORS.length];
 }
 
-const OfferCard = ({ offer }: OfferCardProps) => {
+const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
   const { formatPayout } = useCountry();
   const [saved, setSaved] = useState(false);
   const isLogoUrl = offer.businessLogo.startsWith("http");
@@ -54,6 +54,16 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           {offer.featured && (
             <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs shadow-sm">
               Featured
+            </Badge>
+          )}
+          {isSample && !offer.featured && (
+            <Badge variant="outline" className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm text-xs">
+              Sample
+            </Badge>
+          )}
+          {isNew && !isSample && (
+            <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground text-xs shadow-sm">
+              New on REVVIN
             </Badge>
           )}
         </div>
