@@ -4,6 +4,9 @@ import { Building2, ArrowRight, CheckCircle2, DollarSign, BarChart3, Shield, Use
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 import MarqueeTicker from "@/components/MarqueeTicker";
+import ROICalculator from "@/components/ROICalculator";
+import SEOHead from "@/components/SEOHead";
+import MarqueeTicker from "@/components/MarqueeTicker";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -136,6 +139,21 @@ const ForBusinesses = () => (
               </motion.div>
             ))}
           </div>
+        </motion.div>
+      </div>
+    </section>
+
+    {/* ROI Calculator */}
+    <section className="py-24 lg:py-32 bg-surface">
+      <div className="container">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-2xl mx-auto">
+          <motion.p variants={fadeUp} custom={0} className="section-label text-center mb-3">The math</motion.p>
+          <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold text-center mb-8 tracking-tight">
+            See what you'd save vs. ads
+          </motion.h2>
+          <motion.div variants={fadeUp} custom={1}>
+            <ROICalculator />
+          </motion.div>
         </motion.div>
       </div>
     </section>
