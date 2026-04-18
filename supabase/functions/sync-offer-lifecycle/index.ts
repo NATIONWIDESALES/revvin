@@ -33,23 +33,23 @@ serve(async (req) => {
       .maybeSingle();
     const available = wallet ? Number(wallet.available) : 0;
 
-    // Fetch this user's business
-    const { data: biz } = await serviceClient
+    // Fetch all of this user's businesses (a user may own multiple)
+    const { data: businesses } = await serviceClient
       .from("businesses")
       .select("id")
-      .eq("user_id", user_id)
-      .maybeSingle();
-    if (!biz) {
+      .eq("user_id", user_id);
+    if (!businesses || businesses.length === 0) {
       return new Response(JSON.stringify({ skipped: "no business" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const businessIds = businesses.map((b: any) => b.id);
 
-    // Fetch all of this business's offers (active + auto_paused)
+    // Fetch all offers across this user's businesses (active + paused)
     const { data: offers } = await serviceClient
       .from("offers")
-      .select("id, payout, platform_fee_rate, status, paused_reason")
-      .eq("business_id", biz.id)
+      .select("id, business_id, payout, platform_fee_rate, status, paused_reason")
+      .in("business_id", businessIds)
       .in("status", ["active", "paused"]);
 
     if (!offers || offers.length === 0) {
@@ -101,7 +101,7 @@ serve(async (req) => {
       const { data: stillActive } = await serviceClient
         .from("offers")
         .select("payout, platform_fee_rate")
-        .eq("business_id", biz.id)
+        .in("business_id", businessIds)
         .eq("status", "active");
       let runningCommitted = (stillActive ?? []).reduce(
         (s, o: any) => s + Math.round(Number(o.payout) * (1 + Number(o.platform_fee_rate)) * 100) / 100,
