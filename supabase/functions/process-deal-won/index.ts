@@ -138,6 +138,11 @@ serve(async (req) => {
       p_referral_id: referral_id,
     });
 
+    // 6. Sync offer lifecycle (auto-pause if wallet now below committed)
+    serviceClient.functions
+      .invoke("sync-offer-lifecycle", { body: { user_id: userId } })
+      .catch((e) => console.warn("sync-offer-lifecycle invoke failed:", e));
+
     return new Response(JSON.stringify({ success: true, payout_amount: payoutAmt, platform_fee: platformFee }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
