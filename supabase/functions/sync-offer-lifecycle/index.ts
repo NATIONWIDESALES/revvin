@@ -101,7 +101,7 @@ serve(async (req) => {
       const { data: stillActive } = await serviceClient
         .from("offers")
         .select("payout, platform_fee_rate")
-        .eq("business_id", biz.id)
+        .in("business_id", businessIds)
         .eq("status", "active");
       let runningCommitted = (stillActive ?? []).reduce(
         (s, o: any) => s + Math.round(Number(o.payout) * (1 + Number(o.platform_fee_rate)) * 100) / 100,
