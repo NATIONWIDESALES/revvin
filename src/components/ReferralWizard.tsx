@@ -447,6 +447,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
               <LogIn className="h-3.5 w-3.5" /> Sign In
             </Button>
           </div>
+          <p className="text-center text-[11px] text-muted-foreground">Free to join · Takes 60 seconds</p>
         </div>
       )}
 

@@ -404,8 +404,25 @@ const BusinessDashboard = () => {
             </motion.div>
           )}
 
-          {/* Pending Approval Banner (legacy — new signups are auto-approved) */}
-          {!isApproved && !isSuspended && business && (
+          {/* T5: Low-wallet auto-pause banner */}
+          {(() => {
+            const autoPaused = offers.filter((o: any) => o.status === "paused" && o.paused_reason === "low_wallet");
+            if (autoPaused.length === 0 || isSuspended) return null;
+            return (
+              <motion.div variants={fadeUp} custom={0.1} className="mb-6 rounded-xl border border-accent/40 bg-accent/5 p-5 flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-bold text-foreground">{autoPaused.length} offer{autoPaused.length > 1 ? "s" : ""} paused — wallet too low</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Top up your wallet to automatically reactivate paused offers. They'll go live again as soon as your balance covers the committed amount.
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })()}
+
+          {/* Welcome banner for brand-new businesses with no offers yet */}
+          {isApproved && business && offers.length === 0 && (
             <motion.div variants={fadeUp} custom={0} className="mb-6 rounded-xl border border-primary/30 bg-primary/5 p-5">
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -414,15 +431,19 @@ const BusinessDashboard = () => {
                   <p className="text-sm text-muted-foreground mt-1">
                     Your account is active. Follow these steps to start receiving referrals:
                   </p>
-                  <div className="mt-4 space-y-2">
-                    <div className="flex flex-wrap gap-2">
-                      <Button variant="outline" size="sm" className="gap-1.5" asChild>
-                        <Link to="/dashboard/profile">Upload your logo</Link>
-                      </Button>
-                      <Button variant="outline" size="sm" className="gap-1.5" asChild>
-                        <Link to="/dashboard/create-offer">Create your first offer</Link>
-                      </Button>
-                    </div>
+                  <ol className="text-sm text-muted-foreground mt-3 space-y-1 list-decimal list-inside">
+                    <li>Upload your business logo</li>
+                    <li>Fund your wallet (minimum $50)</li>
+                    <li>Create your first referral offer</li>
+                    <li>Share your offer link</li>
+                  </ol>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" className="gap-1.5" asChild>
+                      <Link to="/dashboard/profile">Upload your logo</Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="gap-1.5" asChild>
+                      <Link to="/dashboard/create-offer">Create your first offer</Link>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -452,8 +473,8 @@ const BusinessDashboard = () => {
             </motion.div>
           )}
 
-          {/* Plan Selection (shown during onboarding for new businesses) */}
-          {!isApproved && business && (!business.pricing_tier || business.pricing_tier === "free") && (
+          {/* Plan Selection (shown during onboarding for new businesses with no offers) */}
+          {isApproved && business && offers.length === 0 && (!business.pricing_tier || business.pricing_tier === "free") && (
             <motion.div variants={fadeUp} custom={0.5} className="mb-8 rounded-2xl border bg-card p-6 md:p-8">
               <PlanSelector
                 businessId={business.id}
@@ -488,8 +509,8 @@ const BusinessDashboard = () => {
               <Button variant="outline" asChild className="gap-2 h-11">
                 <Link to="/dashboard/profile"><Edit className="h-4 w-4" /> Edit Profile</Link>
               </Button>
-              <Button asChild className="gap-2 h-11">
-                <Link to="/dashboard/create-offer"><PlusCircle className="h-4 w-4" /> {isApproved ? "Create Offer" : "Draft Offer"}</Link>
+              <Button asChild className="gap-2 h-11" disabled={isSuspended}>
+                <Link to="/dashboard/create-offer"><PlusCircle className="h-4 w-4" /> Create Offer</Link>
               </Button>
             </div>
           </motion.div>
@@ -712,7 +733,14 @@ const BusinessDashboard = () => {
                     <div key={offer.id} className="rounded-xl border border-border bg-card p-5 shadow-sm">
                       <div className="flex items-start justify-between mb-3">
                         <h3 className="font-bold text-foreground">{offer.title}</h3>
-                        <Badge variant={offer.status === "active" ? "default" : "secondary"}>{offer.status}</Badge>
+                        {(() => {
+                          // T5: surface auto-paused state distinctly
+                          if (offer.status === "active") return <Badge className="bg-primary/10 text-primary border-0">Live</Badge>;
+                          if (offer.status === "paused" && offer.paused_reason === "low_wallet") return <Badge className="bg-accent/10 text-accent-foreground border-0">Paused — Low Balance</Badge>;
+                          if (offer.status === "paused") return <Badge variant="secondary">Paused by You</Badge>;
+                          if (offer.status === "draft") return <Badge variant="secondary">Draft</Badge>;
+                          return <Badge variant="secondary">{offer.status}</Badge>;
+                        })()}
                       </div>
                       <div className="flex items-center justify-between mb-3">
                         {editingPayout === offer.id ? (

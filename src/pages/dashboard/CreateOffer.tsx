@@ -121,7 +121,8 @@ const CreateOffer = () => {
   const totalReserved = Math.round((payoutNum + platformFee) * 100) / 100;
   const feePercent = pricingTier === "paid" ? "10%" : "25%";
 
-  const isPendingApproval = businessAccountStatus !== "approved" && !isSuperAdmin;
+  // T1: New signups are auto-approved. Only the suspended state should block publishing.
+  const isPendingApproval = businessAccountStatus === "suspended";
 
   const buildInsertData = () => {
     const payoutValue = parseFloat(form.payout) || 0;
@@ -263,11 +264,11 @@ const CreateOffer = () => {
         <p className="text-muted-foreground mb-6">Define what you're willing to pay for successful referrals</p>
 
         {isPendingApproval && (
-          <div className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-4 flex items-start gap-3">
-            <Clock className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
+          <div className="mb-6 rounded-xl border border-destructive/30 bg-destructive/5 p-4 flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-foreground">Account pending approval</p>
-              <p className="text-xs text-muted-foreground mt-1">You can prepare your offer now. It will be saved as a draft and can go live once your account is approved.</p>
+              <p className="text-sm font-medium text-foreground">Your account has been suspended</p>
+              <p className="text-xs text-muted-foreground mt-1">Contact support@revvin.co to restore access. You can save offers as drafts but they can't go live while suspended.</p>
             </div>
           </div>
         )}

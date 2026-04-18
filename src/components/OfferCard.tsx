@@ -82,11 +82,7 @@ const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
               Featured
             </Badge>
           )}
-          {isSample && !offer.featured && (
-            <Badge variant="outline" className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm text-xs">
-              Sample
-            </Badge>
-          )}
+          {/* Showcase offers blend in — no badge label */}
           {isNew && !isSample && (
             <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground text-xs shadow-sm">
               New on REVVIN

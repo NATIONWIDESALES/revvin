@@ -193,6 +193,11 @@ serve(async (req) => {
       }
 
       console.log(`Wallet topped up $${amount} for user ${userId}`);
+
+      // Sync offer lifecycle (auto-reactivate any offers paused for low wallet)
+      supabaseAdmin.functions
+        .invoke("sync-offer-lifecycle", { body: { user_id: userId } })
+        .catch((e) => console.warn("sync-offer-lifecycle invoke failed:", e));
     }
   }
 
