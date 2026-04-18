@@ -25,26 +25,38 @@ const stagger = {
 const ForBusinesses = () => (
   <div>
     <SEOHead
-      title="Revvin for Businesses — Acquire Customers Through Referral Payouts"
-      description="Stop paying for clicks. List your referral offer on Revvin. Set your own payout. Only pay when a deal closes. Free to list. Available in Canada and the USA."
+      title="Customer Acquisition for Businesses | Pay Per Close | Revvin"
+      description="Stop paying for clicks. Acquire high-ticket customers with zero upfront cost. List your referral offer on Revvin and only pay when a deal successfully closes."
       path="/for-businesses"
-      jsonLd={{
-        "@context": "https://schema.org",
-        "@type": "Service",
-        "name": "Revvin Referral Marketing for Businesses",
-        "description": "Pay-per-close customer acquisition through structured referrals.",
-        "provider": { "@type": "Organization", "name": "Revvin" },
-        "areaServed": [
-          { "@type": "Country", "name": "Canada" },
-          { "@type": "Country", "name": "United States" }
-        ],
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "CAD",
-          "description": "Free to list. Pay only on closed deals."
+      jsonLd={[
+        {
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "name": "Revvin Referral Marketing for Businesses",
+          "description": "Pay-per-close customer acquisition through structured referrals.",
+          "provider": { "@type": "Organization", "name": "Revvin", "slogan": "The Referral Marketplace" },
+          "areaServed": [
+            { "@type": "Country", "name": "Canada" },
+            { "@type": "Country", "name": "United States" }
+          ],
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "CAD",
+            "description": "Free to list. Pay only on closed deals."
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "How much does it cost to list?", "acceptedAnswer": { "@type": "Answer", "text": "Listing is free. You only pay a platform fee when a referral closes into a paying customer." } },
+            { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay nothing. Revvin's pay-per-close model means there is zero cost for unconverted referrals." } },
+            { "@type": "Question", "name": "Who decides the referral payout amount?", "acceptedAnswer": { "@type": "Answer", "text": "The business sets the payout based on what a closed customer is worth. Referrers receive 100% of that advertised amount." } },
+            { "@type": "Question", "name": "How is this different from Google Ads or Facebook Ads?", "acceptedAnswer": { "@type": "Answer", "text": "Ads charge per click or impression with no guarantee of conversion. Revvin only charges when a referred lead becomes a closed customer." } }
+          ]
         }
-      }}
+      ]}
     />
 
     {/* Hero */}

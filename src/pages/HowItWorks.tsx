@@ -30,7 +30,23 @@ const steps = [
 
 const HowItWorks = () => (
   <div>
-    <SEOHead title="How Revvin Works — Pay-Per-Close Referral Marketplace" description="Businesses set referral rewards. Referrers submit warm introductions. Deals close, payouts are processed. Learn how it works." path="/how-it-works" />
+    <SEOHead
+      title="How Revvin Works | The Pay-Per-Close Referral Platform"
+      description="Learn how Revvin's referral marketplace works. See how businesses post offers, referrers submit leads, and everyone gets paid securely."
+      path="/how-it-works"
+      jsonLd={{
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How Revvin's Referral Marketplace Works",
+        "description": "A 5-step pay-per-close referral process connecting businesses with referrers.",
+        "step": steps.map((s, i) => ({
+          "@type": "HowToStep",
+          "position": i + 1,
+          "name": s.title,
+          "text": s.desc
+        }))
+      }}
+    />
 
     {/* Hero */}
     <section className="relative pt-32 pb-28 lg:pt-40 lg:pb-36 dot-grid">

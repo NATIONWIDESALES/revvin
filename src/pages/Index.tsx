@@ -53,7 +53,7 @@ const Index = () => {
     <div>
       <SEOHead
         title="Revvin — The Referral Marketplace | List Offers. Refer Customers. Get Paid."
-        description="Revvin connects businesses with referrers who bring real, paying customers. Businesses list referral offers and only pay when deals close. Referrers earn by making introductions. Free to list."
+        description="Revvin connects businesses with referrers who bring real, paying customers. Businesses list referral offers and only pay when deals close. Free to list."
         path="/"
         jsonLd={[
           {
@@ -61,12 +61,28 @@ const Index = () => {
             "@type": "Organization",
             "name": "Revvin",
             "url": "https://revvin.co",
+            "logo": "https://revvin.co/og-image.png",
+            "slogan": "The Referral Marketplace",
             "description": "The referral marketplace where businesses list offers and referrers earn by sending customers.",
             "foundingDate": "2025",
             "areaServed": [
               { "@type": "Country", "name": "Canada" },
               { "@type": "Country", "name": "United States" }
             ]
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Revvin",
+            "url": "https://revvin.co",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://revvin.co/browse?search={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
           },
           {
             "@context": "https://schema.org",
