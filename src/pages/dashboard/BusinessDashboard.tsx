@@ -404,6 +404,23 @@ const BusinessDashboard = () => {
             </motion.div>
           )}
 
+          {/* T5: Low-wallet auto-pause banner */}
+          {(() => {
+            const autoPaused = offers.filter((o: any) => o.status === "paused" && o.paused_reason === "low_wallet");
+            if (autoPaused.length === 0 || isSuspended) return null;
+            return (
+              <motion.div variants={fadeUp} custom={0.1} className="mb-6 rounded-xl border border-accent/40 bg-accent/5 p-5 flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-bold text-foreground">{autoPaused.length} offer{autoPaused.length > 1 ? "s" : ""} paused — wallet too low</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Top up your wallet to automatically reactivate paused offers. They'll go live again as soon as your balance covers the committed amount.
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })()}
+
           {/* Welcome banner for brand-new businesses with no offers yet */}
           {isApproved && business && offers.length === 0 && (
             <motion.div variants={fadeUp} custom={0} className="mb-6 rounded-xl border border-primary/30 bg-primary/5 p-5">
