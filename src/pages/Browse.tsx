@@ -116,8 +116,8 @@ const Browse = () => {
   return (
     <div className="py-6">
       <SEOHead
-        title="Browse Referral Offers — Earn Money Referring Customers on Revvin"
-        description="Explore referral opportunities from verified businesses. Earn $150 to $1,500+ per closed referral. Browse by category, city, or payout amount. Solar, real estate, mortgage, fitness, childcare, and more."
+        title="Browse Referral Offers | Real Estate, Home Services & More | Revvin"
+        description="Explore high-paying referral offers from verified businesses. Find opportunities in real estate, roofing, solar, and financial services."
         path="/browse"
         jsonLd={filtered.length > 0 ? {
           "@context": "https://schema.org",

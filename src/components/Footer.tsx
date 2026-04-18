@@ -22,19 +22,19 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider text-muted-foreground">Marketplace</h4>
             <div className="space-y-2.5">
-              <Link to="/browse" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Browse Offers</Link>
-              <Link to="/for-businesses" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">For Businesses</Link>
-              <Link to="/for-referrers" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">For Referrers</Link>
+              <Link to="/browse" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Browse Referral Offers</Link>
+              <Link to="/for-businesses" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Customer Acquisition for Businesses</Link>
+              <Link to="/for-referrers" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Earn Money as a Referrer</Link>
             </div>
           </div>
 
           <div>
             <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider text-muted-foreground">Company</h4>
             <div className="space-y-2.5">
-              <Link to="/how-it-works" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">How It Works</Link>
-              <Link to="/trust" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Trust Center</Link>
-              <Link to="/auth?mode=signup&role=business" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">List Your Business</Link>
-              <Link to="/auth?mode=signup&role=referrer" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Start Earning</Link>
+              <Link to="/how-it-works" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">How the Pay-Per-Close Model Works</Link>
+              <Link to="/trust" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Trust, Verification & Disputes</Link>
+              <Link to="/auth?mode=signup&role=business" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">List Your Business on Revvin</Link>
+              <Link to="/auth?mode=signup&role=referrer" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Start Earning Referral Fees</Link>
             </div>
           </div>
 

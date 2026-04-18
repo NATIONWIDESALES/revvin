@@ -15,6 +15,7 @@ import HowItWorks from "./pages/HowItWorks";
 import TrustCenter from "./pages/TrustCenter";
 import ForBusinesses from "./pages/ForBusinesses";
 import ForReferrers from "./pages/ForReferrers";
+import AboutRevvinLLM from "./pages/AboutRevvinLLM";
 import ReferrerProfile from "./pages/ReferrerProfile";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -58,6 +59,7 @@ const App = () => (
                   <Route path="/trust" element={<TrustCenter />} />
                   <Route path="/for-businesses" element={<ForBusinesses />} />
                   <Route path="/for-referrers" element={<ForReferrers />} />
+                  <Route path="/about-revvin-llm" element={<AboutRevvinLLM />} />
                   
                   <Route path="/referrer/:userId" element={<ReferrerProfile />} />
                   <Route path="/terms" element={<Terms />} />

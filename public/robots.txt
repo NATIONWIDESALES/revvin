@@ -6,28 +6,57 @@ Disallow: /api/
 Disallow: /auth/
 Disallow: /__sa
 
+# AI crawlers — explicit allow
 User-agent: GPTBot
-Allow: /
-
-User-agent: Google-Extended
 Allow: /
 
 User-agent: ChatGPT-User
 Allow: /
 
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
 User-agent: Claude-Web
 Allow: /
 
+User-agent: ClaudeBot
+Allow: /
+
 User-agent: Anthropic-AI
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+# Search engines
+User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
 Allow: /
 
 User-agent: Applebot
-Allow: /
-
-User-agent: Googlebot
 Allow: /
 
 User-agent: Twitterbot
