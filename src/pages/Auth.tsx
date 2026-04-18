@@ -111,7 +111,7 @@ const Auth = () => {
           }).catch((err) => console.warn("Admin notification failed (non-blocking):", err));
         }
 
-        toast({ title: "Check your email!", description: "We sent a confirmation link. Click it to activate your account." });
+        toast({ title: "You're live on REVVIN.CO!", description: "Check your email and click the confirmation link, then create your first offer." });
         setEmail(""); setPassword(""); setFullName(""); setStep(1);
         setMode("login");
         return;
