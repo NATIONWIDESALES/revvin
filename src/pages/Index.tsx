@@ -143,7 +143,31 @@ const Index = () => {
                 </Link>
               </Button>
             </motion.div>
-            <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
+            <motion.form
+              variants={fadeUp}
+              custom={4}
+              onSubmit={submitHeroSearch}
+              className="mt-8 mx-auto flex w-full max-w-xl items-center gap-2"
+              role="search"
+              aria-label="Search referral offers"
+            >
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="search"
+                  inputMode="search"
+                  value={heroSearch}
+                  onChange={(e) => setHeroSearch(e.target.value)}
+                  placeholder="Search by industry, city, or business…"
+                  aria-label="Search referral offers"
+                  className="pl-10 h-12 rounded-xl text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]"
+                />
+              </div>
+              <Button type="submit" size="lg" className="h-12 px-5 text-sm shrink-0">
+                Search
+              </Button>
+            </motion.form>
+            <motion.p variants={fadeUp} custom={5} className="mt-4 text-xs text-muted-foreground">
               Free to list · Pay only on results · Canada & USA
             </motion.p>
           </motion.div>
