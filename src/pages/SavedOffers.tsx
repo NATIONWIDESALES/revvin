@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bookmark, Heart, Trash2, MapPin, Loader2, CloudCheck, LogIn } from "lucide-react";
+import { Bookmark, Heart, Trash2, MapPin, Loader2, Cloud, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -198,7 +198,7 @@ const SavedOffers = () => {
               <p className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
                 {isSynced ? (
                   <>
-                    <CloudCheck className="h-3.5 w-3.5 text-primary" />
+                    <Cloud className="h-3.5 w-3.5 text-primary" />
                     Synced to your account — available on every device.
                   </>
                 ) : (
