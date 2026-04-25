@@ -97,33 +97,81 @@ const OfferDetail = () => {
   ];
   const payoutTimelineLabel = offer.payoutTimeline === "net7" ? "Net 7" : offer.payoutTimeline === "net14" ? "Net 14" : offer.payoutTimeline === "net30" ? "Net 30" : `~${offer.closeTimeDays} days`;
 
+  // ---- SEO helpers ----
+  const offerPath = `/offer/${toSlug(offer.business)}/${offer.id}`;
+  const canonicalUrl = `https://revvin.co${offerPath}`;
+  const payoutText = formatPayout(offer.payout, offer.currency);
+
+  // Title: keep under ~60 chars where possible. Format prioritises payout
+  // (the value prop) + business name + brand.
+  const seoTitle = `Earn ${payoutText} referring ${offer.business} | Revvin`;
+
+  // Description: aim for 140–160 chars and never cut a word in half.
+  const truncate = (s: string, max: number) => {
+    const clean = s.replace(/\s+/g, " ").trim();
+    if (clean.length <= max) return clean;
+    const slice = clean.slice(0, max);
+    const lastSpace = slice.lastIndexOf(" ");
+    return `${(lastSpace > max * 0.6 ? slice.slice(0, lastSpace) : slice).replace(/[.,;:\s]+$/, "")}…`;
+  };
+  const intro = `Earn ${payoutText} per closed referral with ${offer.business} in ${offer.location || offer.city || offer.state || "North America"}.`;
+  const seoDescription = truncate(
+    `${intro} ${offer.description ?? ""}`.trim(),
+    158,
+  );
+
+  // Use the real business logo as the OG image when available; otherwise
+  // fall back to the platform default (handled inside SEOHead). Reuses the
+  // `isLogoUrl` flag declared above.
+  const seoOgImage = isLogoUrl ? offer.businessLogo : undefined;
+
   return (
     <div className="py-8">
       <SEOHead
-        title={`${offer.title} — Earn ${formatPayout(offer.payout, offer.currency)} per Referral | Revvin`}
-        description={`Refer customers to ${offer.business} and earn ${formatPayout(offer.payout, offer.currency)}. ${offer.description?.substring(0, 100) ?? ""}`}
-        path={`/offer/${toSlug(offer.business)}/${offer.id}`}
+        title={seoTitle}
+        description={seoDescription}
+        path={offerPath}
+        ogImage={seoOgImage}
         jsonLd={[
           {
             "@context": "https://schema.org",
             "@type": "LocalBusiness",
             "name": offer.business,
+            "image": isLogoUrl ? offer.businessLogo : undefined,
+            "url": canonicalUrl,
             "address": {
               "@type": "PostalAddress",
               "addressLocality": offer.city,
               "addressRegion": offer.state,
-              "addressCountry": offer.country
-            }
+              "addressCountry": offer.country,
+            },
           },
           {
             "@context": "https://schema.org",
             "@type": "Offer",
             "name": offer.title,
             "description": offer.description,
+            "url": canonicalUrl,
+            "category": offer.category,
+            "availability": "https://schema.org/InStock",
             "price": String(offer.payout),
             "priceCurrency": offer.currency,
-            "offeredBy": { "@type": "LocalBusiness", "name": offer.business }
-          }
+            "areaServed": offer.location || offer.city || offer.state || undefined,
+            "offeredBy": {
+              "@type": "LocalBusiness",
+              "name": offer.business,
+              "url": canonicalUrl,
+            },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Browse", "item": "https://revvin.co/browse" },
+              { "@type": "ListItem", "position": 2, "name": offer.category, "item": `https://revvin.co/browse?category=${encodeURIComponent(offer.category)}` },
+              { "@type": "ListItem", "position": 3, "name": offer.title, "item": canonicalUrl },
+            ],
+          },
         ]}
       />
       <div className="container max-w-5xl">
