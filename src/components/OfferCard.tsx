@@ -4,7 +4,8 @@ import { MapPin, Heart, BadgeCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useCountry } from "@/contexts/CountryContext";
 import { toSlug } from "@/lib/utils";
-import { useState } from "react";
+import { useSavedOffers } from "@/hooks/useSavedOffers";
+import { toast } from "sonner";
 
 interface OfferCardProps {
   offer: Offer;
@@ -40,7 +41,8 @@ function getBusinessColor(name: string): string {
 
 const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
   const { formatPayout } = useCountry();
-  const [saved, setSaved] = useState(false);
+  const { isSaved, toggle } = useSavedOffers();
+  const saved = isSaved(offer.id);
   const isLogoUrl = offer.businessLogo.startsWith("http");
   const color = getBusinessColor(offer.business);
   const monogram = offer.business
@@ -118,7 +120,14 @@ const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
             type="button"
             aria-label={saved ? "Remove from saved" : "Save offer"}
             aria-pressed={saved}
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSaved(!saved); }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const nowSaved = toggle(offer.id);
+              toast(nowSaved ? "Saved to your list" : "Removed from saved", {
+                description: offer.title,
+              });
+            }}
             className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm transform-gpu transition-transform duration-200 hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
           >
             <Heart className={`h-4 w-4 transition-all duration-200 ${saved ? "fill-destructive text-destructive" : "text-foreground"}`} />
