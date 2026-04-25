@@ -22,7 +22,9 @@ const EVENT_META: Record<string, { label: string; Icon: any; color: string; isKe
   dispute_resolved: { label: "Dispute resolved", Icon: Scale, color: "text-primary", isKey: false },
 };
 
-type FilterMode = "key" | "all";
+type FilterMode = "key" | "disputes" | "all";
+
+const DISPUTE_EVENTS = new Set(["dispute_submitted", "dispute_resolved"]);
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleString(undefined, {
@@ -62,8 +64,13 @@ const ReferralTimeline = ({ referralId, createdAt }: Props) => {
   const items =
     filter === "key"
       ? allItems.filter((e) => EVENT_META[e.event_type]?.isKey)
+      : filter === "disputes"
+      ? allItems.filter(
+          (e) => EVENT_META[e.event_type]?.isKey || DISPUTE_EVENTS.has(e.event_type),
+        )
       : allItems;
   const hiddenCount = allItems.length - items.length;
+  const disputeCount = allItems.filter((e) => DISPUTE_EVENTS.has(e.event_type)).length;
 
   if (loading) {
     return (
@@ -96,6 +103,21 @@ const ReferralTimeline = ({ referralId, createdAt }: Props) => {
             }`}
           >
             Key stages
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={filter === "disputes"}
+            onClick={() => setFilter("disputes")}
+            disabled={disputeCount === 0}
+            className={`rounded-md px-2.5 py-1 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+              filter === "disputes"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            title={disputeCount === 0 ? "No dispute events for this referral" : undefined}
+          >
+            Disputes{disputeCount > 0 ? ` (${disputeCount})` : ""}
           </button>
           <button
             type="button"
