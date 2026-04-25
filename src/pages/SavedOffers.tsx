@@ -115,21 +115,30 @@ const SavedOffers = () => {
   }, [sort]);
 
   const saved = useMemo(() => {
-    const list = [...savedInSaveOrder];
+    const list = savedInSaveOrder.map((offer) => ({
+      offer,
+      distanceLabel: undefined as string | undefined,
+    }));
     if (sort === "payout") {
-      return list.sort((a, b) => b.payout - a.payout);
+      return list.sort((a, b) => b.offer.payout - a.offer.payout);
     }
     if (sort === "nearest" && coords) {
-      const withDist = list.map((o) => {
+      const withDist = list.map(({ offer }) => {
         const hasCoords =
-          typeof o.latitude === "number" && typeof o.longitude === "number";
+          typeof offer.latitude === "number" && typeof offer.longitude === "number";
         const d = hasCoords
-          ? distanceKm(coords, { lat: o.latitude!, lng: o.longitude! })
+          ? distanceKm(coords, { lat: offer.latitude!, lng: offer.longitude! })
           : Number.POSITIVE_INFINITY;
-        return { offer: o, d };
+        let label: string | undefined;
+        if (Number.isFinite(d)) {
+          if (d < 1) label = `${Math.max(1, Math.round(d * 1000))} m away`;
+          else if (d < 10) label = `${d.toFixed(1)} km away`;
+          else label = `${Math.round(d)} km away`;
+        }
+        return { offer, distanceLabel: label, d };
       });
       withDist.sort((a, b) => a.d - b.d);
-      return withDist.map((x) => x.offer);
+      return withDist.map(({ offer, distanceLabel }) => ({ offer, distanceLabel }));
     }
     // "recent" — already in save order
     return list;
@@ -264,11 +273,12 @@ const SavedOffers = () => {
           </div>
         ) : hasSaved ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {saved.map((offer) => (
+            {saved.map(({ offer, distanceLabel }) => (
               <OfferCard
                 key={offer.id}
                 offer={offer}
                 isSample={offer.isSample}
+                distanceLabel={distanceLabel}
               />
             ))}
           </div>

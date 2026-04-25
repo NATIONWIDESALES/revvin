@@ -11,6 +11,8 @@ interface OfferCardProps {
   offer: Offer;
   isSample?: boolean;
   isNew?: boolean;
+  /** Optional pre-formatted distance label (e.g. "12 km away") shown next to the location. */
+  distanceLabel?: string;
 }
 
 const INITIAL_COLORS = ['#6366F1', '#0D9488', '#D97706', '#E11D48', '#15803D', '#7C3AED'];
@@ -39,7 +41,7 @@ function getBusinessColor(name: string): string {
   return INITIAL_COLORS[Math.abs(hash) % INITIAL_COLORS.length];
 }
 
-const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
+const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) => {
   const { formatPayout } = useCountry();
   const { isSaved, toggle } = useSavedOffers();
   const saved = isSaved(offer.id);
@@ -157,7 +159,16 @@ const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
           <p className="text-sm text-muted-foreground line-clamp-1">{offer.title}</p>
 
           <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-            <MapPin className="h-3 w-3" /> {offer.location}
+            <MapPin className="h-3 w-3 shrink-0" />
+            <span className="line-clamp-1">{offer.location}</span>
+            {distanceLabel && (
+              <span
+                className="ml-auto shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-foreground"
+                aria-label={`Approximately ${distanceLabel} from your location`}
+              >
+                {distanceLabel}
+              </span>
+            )}
           </p>
 
           <div className="flex items-center justify-between mt-auto pt-2">
