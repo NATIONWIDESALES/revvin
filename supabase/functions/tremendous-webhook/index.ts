@@ -74,7 +74,7 @@ interface DbCallContext {
  */
 async function dbCall<T>(
   ctx: DbCallContext,
-  exec: () => Promise<{ data: T | null; error: unknown }>
+  exec: () => PromiseLike<{ data: T | null; error: unknown }>
 ): Promise<{ data: T | null; error: unknown }> {
   const alertOnFailure = ctx.alertOnFailure !== false;
   try {
