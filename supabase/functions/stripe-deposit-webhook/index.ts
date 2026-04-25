@@ -12,7 +12,7 @@ const TIER_FEE: Record<string, number> = {
   free: 0.25,
   starter: 0.10,
   pro: 0.01,
-  enterprise: 0.01,
+  enterprise: 0,
 };
 
 serve(async (req) => {

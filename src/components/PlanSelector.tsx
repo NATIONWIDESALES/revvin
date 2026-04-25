@@ -28,7 +28,7 @@ const plans = [
   },
   {
     id: "starter",
-    name: "Starter",
+    name: "Growth",
     price: "$50",
     period: "/mo",
     fee: "10%",
@@ -68,20 +68,20 @@ const plans = [
   },
   {
     id: "enterprise",
-    name: "Enterprise",
+    name: "Elite",
     price: "$500",
     period: "/mo",
-    fee: "Custom",
-    feeLabel: "negotiated rate",
-    desc: "For referral programs at scale.",
+    fee: "0%",
+    feeLabel: "platform fee on closed referrals",
+    desc: "For category leaders running serious referral programs.",
     icon: Rocket,
     features: [
       "Everything in Pro",
-      "Custom platform fee",
+      "0% platform fee — keep every dollar",
       "Premium featured placement",
-      "Multi-location support",
       "Dedicated account manager",
-      "Custom integrations",
+      "Custom referral campaigns",
+      "Multi-location support",
     ],
     featured: false,
     paid: true,
@@ -106,7 +106,7 @@ const PlanSelector = ({ businessId, currentTier, onPlanSelected }: PlanSelectorP
 
       // Free plan — just update DB directly
       if (!plan?.paid) {
-        const feeMap: Record<string, number> = { free: 0.25, starter: 0.10, pro: 0.01, enterprise: 0.01 };
+        const feeMap: Record<string, number> = { free: 0.25, starter: 0.10, pro: 0.01, enterprise: 0 };
         const { error } = await supabase
           .from("businesses")
           .update({ pricing_tier: selected })

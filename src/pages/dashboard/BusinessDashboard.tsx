@@ -494,9 +494,9 @@ const BusinessDashboard = () => {
                     const tier = business?.pricing_tier || "free";
                     const labels: Record<string, { label: string; fee: string }> = {
                       free: { label: "Free", fee: "25%" },
-                      starter: { label: "Starter", fee: "10%" },
+                      starter: { label: "Growth", fee: "10%" },
                       pro: { label: "Pro", fee: "1%" },
-                      enterprise: { label: "Enterprise", fee: "Custom" },
+                      enterprise: { label: "Elite", fee: "0%" },
                     };
                     const info = labels[tier] || labels.free;
                     return tier !== "free" ? <><Crown className="h-3 w-3" /> {info.label} ({info.fee} fee)</> : <>{info.label} ({info.fee} fee)</>;
@@ -587,14 +587,14 @@ const BusinessDashboard = () => {
                       <h3 className="font-bold text-foreground">
                         {(() => {
                           const tier = business?.pricing_tier || "free";
-                          const labels: Record<string, string> = { starter: "Starter", pro: "Pro", enterprise: "Enterprise" };
+                          const labels: Record<string, string> = { starter: "Growth", pro: "Pro", enterprise: "Elite" };
                           const prices: Record<string, string> = { starter: "$50", pro: "$250", enterprise: "$500" };
                           return `${labels[tier] || tier} Plan — ${prices[tier] || ""}/mo`;
                         })()}
                       </h3>
                       <p className="text-sm text-muted-foreground mt-1">
                         {(() => {
-                          const fees: Record<string, string> = { starter: "10%", pro: "1%", enterprise: "Custom" };
+                          const fees: Record<string, string> = { starter: "10%", pro: "1%", enterprise: "0%" };
                           return `${fees[business?.pricing_tier] || "25%"} platform fee on referral payouts`;
                         })()}
                       </p>
