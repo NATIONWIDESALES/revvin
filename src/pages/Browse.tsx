@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +29,8 @@ type SortOption = "payout" | "newest" | "fastest";
 const Browse = () => {
   const { data: dbOffers = [], isLoading } = useDbOffers();
   const { country, setCountry } = useCountry();
-  const [search, setSearch] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => searchParams.get("q") ?? "");
   const [activeCategory, setActiveCategory] = useState("All");
   const [sortBy, setSortBy] = useState<SortOption>("payout");
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
@@ -38,8 +39,20 @@ const Browse = () => {
   // Filter states
   const [payoutRange, setPayoutRange] = useState([0, 1000]);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [remoteOnly, setRemoteOnly] = useState(false);
   const [stateFilter, setStateFilter] = useState("");
   const [cityFilter, setCityFilter] = useState("");
+
+  // Keep ?q= in the URL in sync with the search box (debounced via effect).
+  useEffect(() => {
+    const current = searchParams.get("q") ?? "";
+    if (current === search) return;
+    const next = new URLSearchParams(searchParams);
+    if (search) next.set("q", search);
+    else next.delete("q");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   // Merge DB offers with sample offers (real offers first)
   const allOffers: (Offer & { isSample?: boolean })[] = useMemo(() => {
@@ -54,12 +67,6 @@ const Browse = () => {
     return [...new Set(countryOffers.map(o => o.state))].sort();
   }, [country, allOffers]);
 
-  const availableCities = useMemo(() => {
-    let offers = country === "ALL" ? allOffers : allOffers.filter(o => o.country === country);
-    if (stateFilter) offers = offers.filter(o => o.state === stateFilter);
-    return [...new Set(offers.map(o => o.city))].sort();
-  }, [country, stateFilter, allOffers]);
-
   const filtered = allOffers
     .filter((o) => {
       const matchesCountry = country === "ALL" || o.country === country;
@@ -72,9 +79,11 @@ const Browse = () => {
       const matchesCat = activeCategory === "All" || o.category === activeCategory;
       const matchesPayout = o.payout >= payoutRange[0] && o.payout <= payoutRange[1];
       const matchesVerified = !verifiedOnly || o.verified !== false;
+      const matchesRemote = !remoteOnly || o.remoteEligible === true;
       const matchesState = !stateFilter || o.state === stateFilter;
-      const matchesCity = !cityFilter || o.city === cityFilter;
-      return matchesCountry && matchesSearch && matchesCat && matchesPayout && matchesVerified && matchesState && matchesCity;
+      const matchesCity =
+        !cityFilter || (o.city ?? "").toLowerCase().includes(cityFilter.toLowerCase());
+      return matchesCountry && matchesSearch && matchesCat && matchesPayout && matchesVerified && matchesRemote && matchesState && matchesCity;
     })
     .sort((a, b) => {
       // Real offers always sort above sample offers
@@ -96,7 +105,7 @@ const Browse = () => {
 
   const clearFilters = () => {
     setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]);
-    setVerifiedOnly(false); setStateFilter(""); setCityFilter("");
+    setVerifiedOnly(false); setRemoteOnly(false); setStateFilter(""); setCityFilter("");
   };
 
   // Check if offer is new (< 7 days)
@@ -253,13 +262,14 @@ const Browse = () => {
                 {/* City */}
                 <div>
                   <label className="text-sm font-medium mb-2 block">City</label>
-                  <Select value={cityFilter || "all"} onValueChange={(v) => setCityFilter(v === "all" ? "" : v)}>
-                    <SelectTrigger className="h-10"><SelectValue placeholder="All Cities" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Cities</SelectItem>
-                      {availableCities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    type="text"
+                    value={cityFilter}
+                    onChange={(e) => setCityFilter(e.target.value)}
+                    placeholder="Any city"
+                    className="h-10"
+                    aria-label="City"
+                  />
                 </div>
                 {/* Payout range */}
                 <div>
@@ -269,6 +279,7 @@ const Browse = () => {
               </div>
               <div className="mt-4 flex gap-2 flex-wrap">
                 <Button size="sm" variant={verifiedOnly ? "default" : "outline"} onClick={() => setVerifiedOnly(!verifiedOnly)}>Verified Only</Button>
+                <Button size="sm" variant={remoteOnly ? "default" : "outline"} onClick={() => setRemoteOnly(!remoteOnly)}>Remote Eligible</Button>
                 <div className="ml-auto">
                   <Button size="sm" variant="ghost" onClick={clearFilters}>Clear All</Button>
                 </div>
