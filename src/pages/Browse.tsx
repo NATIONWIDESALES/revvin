@@ -174,30 +174,50 @@ const Browse = () => {
         )}
 
         {/* Search bar */}
-        <div className="mb-5 flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="mb-5 flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input
+              type="search"
               placeholder="Search by category, city, or business..."
+              aria-label="Search referral offers"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10 h-12 rounded-xl shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]"
             />
           </div>
-          <Button
-            variant={showFilters ? "default" : "outline"}
-            onClick={() => setShowFilters(!showFilters)}
-            className="gap-1.5 h-12 px-5"
-          >
-            <SlidersHorizontal className="h-4 w-4" /> Filters
-          </Button>
-          <div className="flex gap-1 items-center">
-            <Button variant={viewMode === "list" ? "default" : "ghost"} size="icon" className="h-12 w-12" onClick={() => setViewMode("list")}>
-              <List className="h-4 w-4" />
+          <div className="flex gap-2 sm:shrink-0">
+            <Button
+              variant={showFilters ? "default" : "outline"}
+              onClick={() => setShowFilters(!showFilters)}
+              aria-expanded={showFilters}
+              aria-controls="browse-filters-panel"
+              className="gap-1.5 h-12 px-5 flex-1 sm:flex-none"
+            >
+              <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> Filters
             </Button>
-            <Button variant={viewMode === "map" ? "default" : "ghost"} size="icon" className="h-12 w-12" onClick={() => setViewMode("map")}>
-              <Map className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-1 items-center" role="group" aria-label="View mode">
+              <Button
+                variant={viewMode === "list" ? "default" : "ghost"}
+                size="icon"
+                className="h-12 w-12"
+                onClick={() => setViewMode("list")}
+                aria-label="List view"
+                aria-pressed={viewMode === "list"}
+              >
+                <List className="h-4 w-4" aria-hidden="true" />
+              </Button>
+              <Button
+                variant={viewMode === "map" ? "default" : "ghost"}
+                size="icon"
+                className="h-12 w-12"
+                onClick={() => setViewMode("map")}
+                aria-label="Map view"
+                aria-pressed={viewMode === "map"}
+              >
+                <Map className="h-4 w-4" aria-hidden="true" />
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -227,6 +247,7 @@ const Browse = () => {
         <AnimatePresence>
           {showFilters && (
             <motion.div
+              id="browse-filters-panel"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
