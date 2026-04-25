@@ -105,7 +105,7 @@ const Browse = () => {
 
   const clearFilters = () => {
     setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]);
-    setVerifiedOnly(false); setStateFilter(""); setCityFilter("");
+    setVerifiedOnly(false); setRemoteOnly(false); setStateFilter(""); setCityFilter("");
   };
 
   // Check if offer is new (< 7 days)
@@ -262,13 +262,14 @@ const Browse = () => {
                 {/* City */}
                 <div>
                   <label className="text-sm font-medium mb-2 block">City</label>
-                  <Select value={cityFilter || "all"} onValueChange={(v) => setCityFilter(v === "all" ? "" : v)}>
-                    <SelectTrigger className="h-10"><SelectValue placeholder="All Cities" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Cities</SelectItem>
-                      {availableCities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    type="text"
+                    value={cityFilter}
+                    onChange={(e) => setCityFilter(e.target.value)}
+                    placeholder="Any city"
+                    className="h-10"
+                    aria-label="City"
+                  />
                 </div>
                 {/* Payout range */}
                 <div>
@@ -278,6 +279,7 @@ const Browse = () => {
               </div>
               <div className="mt-4 flex gap-2 flex-wrap">
                 <Button size="sm" variant={verifiedOnly ? "default" : "outline"} onClick={() => setVerifiedOnly(!verifiedOnly)}>Verified Only</Button>
+                <Button size="sm" variant={remoteOnly ? "default" : "outline"} onClick={() => setRemoteOnly(!remoteOnly)}>Remote Eligible</Button>
                 <div className="ml-auto">
                   <Button size="sm" variant="ghost" onClick={clearFilters}>Clear All</Button>
                 </div>
