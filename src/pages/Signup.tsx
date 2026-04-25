@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { Building2, Users, Layers, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -49,7 +49,13 @@ const options = [
   },
 ];
 
-const Signup = () => (
+const Signup = () => {
+  const [params] = useSearchParams();
+  const presetRole = params.get("role");
+  if (presetRole === "business" || presetRole === "referrer" || presetRole === "both") {
+    return <Navigate to={`/auth?mode=signup&role=${presetRole}`} replace />;
+  }
+  return (
   <div className="min-h-screen bg-background">
     <SEOHead
       title="Sign Up — Revvin Pay-Per-Close Referral Marketplace"
@@ -168,6 +174,7 @@ const Signup = () => (
       </motion.div>
     </div>
   </div>
-);
+  );
+};
 
 export default Signup;
