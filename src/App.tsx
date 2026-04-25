@@ -18,6 +18,7 @@ import ForReferrers from "./pages/ForReferrers";
 import AboutRevvinLLM from "./pages/AboutRevvinLLM";
 import ReferrerProfile from "./pages/ReferrerProfile";
 import Auth from "./pages/Auth";
+import Signup from "./pages/Signup";
 import ResetPassword from "./pages/ResetPassword";
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import CreateOffer from "./pages/dashboard/CreateOffer";
@@ -47,6 +48,8 @@ const App = () => (
             <CountryProvider>
               <Routes>
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/login" element={<Auth />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/__sa" element={<Suspense fallback={null}><SuperAdminCRM /></Suspense>} />
                 <Route element={<Layout />}>

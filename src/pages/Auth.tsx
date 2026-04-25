@@ -22,8 +22,8 @@ const Auth = () => {
   const [mode, setMode] = useState<"login" | "signup">(
     searchParams.get("mode") === "signup" ? "signup" : "login"
   );
-  const [role, setRole] = useState<"business" | "referrer">(
-    (searchParams.get("role") as "business" | "referrer") || "referrer"
+  const [role, setRole] = useState<"business" | "referrer" | "both">(
+    (searchParams.get("role") as "business" | "referrer" | "both") || "referrer"
   );
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
@@ -49,10 +49,10 @@ const Auth = () => {
     const modeParam = searchParams.get("mode");
     const roleParam = searchParams.get("role");
     if (modeParam === "signup") setMode("signup");
-    if (roleParam === "business" || roleParam === "referrer") setRole(roleParam);
+    if (roleParam === "business" || roleParam === "referrer" || roleParam === "both") setRole(roleParam);
   }, [searchParams]);
 
-  const totalSteps = mode === "signup" ? (role === "business" ? 2 : 2) : 1;
+  const totalSteps = mode === "signup" ? 2 : 1;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,13 +67,13 @@ const Auth = () => {
     try {
       if (mode === "signup") {
         const metadata: Record<string, string> = { full_name: fullName, role };
-        if (role === "business") {
+        if (role === "business" || role === "both") {
           if (businessName) metadata.business_name = businessName;
           if (businessPhone) metadata.phone = businessPhone;
           if (industry) metadata.industry = industry;
           if (serviceArea) metadata.service_area = serviceArea;
         }
-        if (role === "referrer") {
+        if (role === "referrer" || role === "both") {
           if (location) metadata.location = location;
           if (industryFamiliarity) metadata.industry_familiarity = industryFamiliarity;
         }
@@ -94,7 +94,7 @@ const Auth = () => {
         }
 
         // Fire-and-forget admin notification for business signups
-        if (role === "business" && data.user) {
+        if ((role === "business" || role === "both") && data.user) {
           supabase.functions.invoke("notify-business-signup", {
             body: {
               type: "INSERT",
