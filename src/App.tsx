@@ -11,6 +11,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Browse from "./pages/Browse";
 import OfferDetail from "./pages/OfferDetail";
+import SavedOffers from "./pages/SavedOffers";
 import HowItWorks from "./pages/HowItWorks";
 import TrustCenter from "./pages/TrustCenter";
 import ForBusinesses from "./pages/ForBusinesses";
@@ -55,6 +56,7 @@ const App = () => (
                 <Route element={<Layout />}>
                   <Route path="/" element={<Index />} />
                   <Route path="/browse" element={<Browse />} />
+                  <Route path="/saved" element={<SavedOffers />} />
                   <Route path="/offer/:businessSlug/:id" element={<OfferDetail />} />
                   <Route path="/offer/:id" element={<OfferDetail />} />
                   <Route path="/how-it-works" element={<HowItWorks />} />

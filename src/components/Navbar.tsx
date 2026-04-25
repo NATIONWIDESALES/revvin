@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, LayoutDashboard, UserCircle, Settings } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, UserCircle, Settings, Heart } from "lucide-react";
 import revvinLogo from "@/assets/revvin-logo.png";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -123,6 +123,13 @@ const Navbar = () => {
                           <LayoutDashboard className="h-4 w-4" /> Dashboard
                         </Link>
                         <Link
+                          to="/saved"
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                        >
+                          <Heart className="h-4 w-4" /> Saved Offers
+                        </Link>
+                        <Link
                           to="/dashboard/profile"
                           onClick={() => setDropdownOpen(false)}
                           className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
@@ -197,6 +204,9 @@ const Navbar = () => {
               ))}
               {user && (
                 <div className="border-t border-border pt-3 mt-1 space-y-1">
+                  <Link to="/saved" onClick={() => setOpen(false)} className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+                    Saved Offers
+                  </Link>
                   <Link to="/dashboard/profile" onClick={() => setOpen(false)} className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
                     Profile
                   </Link>
