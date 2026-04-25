@@ -157,7 +157,7 @@ const Navbar = () => {
                   Log In
                 </Link>
                 <Button size="sm" className="px-5" asChild>
-                  <Link to="/auth?mode=signup">Get Started</Link>
+                  <Link to="/signup">Get Started</Link>
                 </Button>
                 <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ backgroundColor: '#DBEAFE', color: '#2563EB' }}>
                   in beta
@@ -219,7 +219,7 @@ const Navbar = () => {
                       <Link to="/auth" onClick={() => setOpen(false)}>Log In</Link>
                     </Button>
                     <Button size="sm" className="flex-1" asChild>
-                      <Link to="/auth?mode=signup" onClick={() => setOpen(false)}>Get Started</Link>
+                      <Link to="/signup" onClick={() => setOpen(false)}>Get Started</Link>
                     </Button>
                   </>
                 )}

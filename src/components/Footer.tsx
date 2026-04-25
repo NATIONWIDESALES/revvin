@@ -32,9 +32,11 @@ const Footer = () => {
             <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider text-muted-foreground">Company</h4>
             <div className="space-y-2.5">
               <Link to="/how-it-works" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">How the Pay-Per-Close Model Works</Link>
+              <Link to="/pricing" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Pricing</Link>
               <Link to="/trust" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Trust, Verification & Disputes</Link>
               <Link to="/auth?mode=signup&role=business" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">List Your Business on Revvin</Link>
               <Link to="/auth?mode=signup&role=referrer" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Start Earning Referral Fees</Link>
+              <Link to="/signup" className="block text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">Sign Up</Link>
             </div>
           </div>
 

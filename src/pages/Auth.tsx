@@ -354,7 +354,7 @@ const Auth = () => {
           </Button>
 
           <h1 className="text-2xl font-bold text-foreground">
-            {mode === "login" ? "Sign in to your account" : step === 1 ? "Create your account" : role === "business" ? "Tell us about your business" : "Complete your profile"}
+            {mode === "login" ? "Sign in to your account" : step === 1 ? "Create your account" : (role === "business" || role === "both") ? "Tell us about your business" : "Complete your profile"}
           </h1>
           <p className="mt-2 text-muted-foreground">
             {mode === "login" ? "Don't have an account? " : "Already have an account? "}
