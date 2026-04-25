@@ -3,7 +3,7 @@
 // Internal-only: requires SERVICE_ROLE auth via shared secret header.
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.2";
 import {
   runSyncLifecycle,
   type LifecycleClient,
@@ -16,7 +16,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-internal-key, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-function makeAdapter(serviceClient: ReturnType<typeof createClient>): LifecycleClient {
+function makeAdapter(serviceClient: SupabaseClient<any, any, any>): LifecycleClient {
   return {
     async fetchWallet(userId) {
       const { data } = await serviceClient
@@ -55,7 +55,7 @@ function makeAdapter(serviceClient: ReturnType<typeof createClient>): LifecycleC
     async updateOfferStatus(offerId, status, pausedReason) {
       await serviceClient
         .from("offers")
-        .update({ status, paused_reason: pausedReason })
+        .update({ status, paused_reason: pausedReason } as any)
         .eq("id", offerId);
     },
     async notify(userId, title, body, type) {
@@ -64,7 +64,7 @@ function makeAdapter(serviceClient: ReturnType<typeof createClient>): LifecycleC
         p_title: title,
         p_body: body,
         p_type: type,
-      });
+      } as any);
     },
   };
 }
@@ -74,7 +74,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const serviceClient = createClient(
+  const serviceClient: SupabaseClient<any, any, any> = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
   );
