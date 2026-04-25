@@ -309,7 +309,7 @@ const SavedOffers = () => {
                 <span>Sorted by distance from your current location.</span>
                 <button
                   type="button"
-                  onClick={requestLocation}
+                  onClick={() => requestLocation({ force: true })}
                   className="font-medium text-foreground underline-offset-2 hover:underline"
                 >
                   Refresh location
@@ -320,7 +320,7 @@ const SavedOffers = () => {
                 <span>Location needed to sort by distance.</span>
                 <button
                   type="button"
-                  onClick={requestLocation}
+                  onClick={() => requestLocation()}
                   className="font-medium text-foreground underline-offset-2 hover:underline"
                 >
                   Allow location
