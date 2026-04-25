@@ -43,7 +43,13 @@ const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
   const [saved, setSaved] = useState(false);
   const isLogoUrl = offer.businessLogo.startsWith("http");
   const color = getBusinessColor(offer.business);
-  const initial = offer.business.charAt(0).toUpperCase();
+  const monogram = offer.business
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
   const gradientClass = CATEGORY_GRADIENTS[offer.category] || "from-gray-600 to-gray-800";
 
   return (
@@ -63,11 +69,38 @@ const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
               </div>
             </div>
           ) : (
+            /* Polished initials avatar for real businesses without a logo */
             <div
-              className="flex h-16 w-16 items-center justify-center rounded-full"
-              style={{ backgroundColor: color }}
+              className={`relative h-full w-full bg-gradient-to-br ${gradientClass} flex items-center justify-center overflow-hidden transition-transform duration-500 ease-out group-hover:scale-105`}
             >
-              <span className="text-[28px] font-bold text-white leading-none">{initial}</span>
+              {/* Soft radial highlight for depth */}
+              <div
+                className="pointer-events-none absolute inset-0 opacity-60"
+                style={{
+                  background:
+                    "radial-gradient(circle at 30% 25%, rgba(255,255,255,0.25), transparent 55%)",
+                }}
+              />
+              {/* Faint grid texture */}
+              <div
+                className="pointer-events-none absolute inset-0 opacity-[0.08]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+                  backgroundSize: "20px 20px",
+                }}
+              />
+              <div
+                className="relative flex h-24 w-24 items-center justify-center rounded-full ring-1 ring-white/30 border border-white/20 bg-white/15 backdrop-blur-sm shadow-[0_8px_24px_-8px_rgba(0,0,0,0.45)]"
+                style={{ boxShadow: `inset 0 0 0 1px rgba(255,255,255,0.12)` }}
+              >
+                <span
+                  className="font-display text-3xl font-bold tracking-tight text-white leading-none"
+                  style={{ textShadow: "0 1px 2px rgba(0,0,0,0.25)" }}
+                >
+                  {monogram}
+                </span>
+              </div>
             </div>
           )}
           {/* Heart icon */}
