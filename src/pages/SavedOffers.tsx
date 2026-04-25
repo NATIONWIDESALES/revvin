@@ -197,8 +197,10 @@ const SavedOffers = () => {
   return (
     <>
       <SEOHead
-        title="Saved offers — Revvin"
-        description="Your bookmarked referral opportunities. Open any saved offer to review the details and submit a warm lead."
+        title="Saved Offers — Revvin"
+        description="Your private list of bookmarked referral opportunities on Revvin. Open any saved offer to review the details and submit a warm lead."
+        path="/saved"
+        noindex
       />
       <div className="container py-8 md:py-12">
         {/* Mobile-only sticky sort bar — sits flush under the app navbar (h-14) */}
