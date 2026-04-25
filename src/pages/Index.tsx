@@ -51,6 +51,15 @@ const faqItems = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
+  const [heroSearch, setHeroSearch] = useState("");
+
+  const submitHeroSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = heroSearch.trim();
+    navigate(q ? `/browse?q=${encodeURIComponent(q)}` : "/browse");
+  };
+
   return (
     <div>
       <SEOHead
