@@ -53,15 +53,25 @@ const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
   const gradientClass = CATEGORY_GRADIENTS[offer.category] || "from-gray-600 to-gray-800";
 
   return (
-    <Link to={`/offer/${toSlug(offer.business)}/${offer.id}`} className="group block">
-      <div className="rounded-xl border border-border bg-card overflow-hidden transition-all duration-250 ease-out hover:shadow-card-hover hover:-translate-y-1 h-full flex flex-col" style={{ borderTopColor: color, borderTopWidth: '3px' }}>
+    <Link
+      to={`/offer/${toSlug(offer.business)}/${offer.id}`}
+      className="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      aria-label={`${offer.business} — ${offer.title}`}
+    >
+      <div className="rounded-xl border border-border bg-card overflow-hidden transition-all duration-250 ease-out hover:shadow-card-hover hover:-translate-y-1 group-focus-visible:shadow-card-hover group-focus-visible:-translate-y-1 h-full flex flex-col" style={{ borderTopColor: color, borderTopWidth: '3px' }}>
         {/* Image / Logo area */}
         <div className="relative aspect-[4/3] bg-surface flex items-center justify-center overflow-hidden">
           {isLogoUrl ? (
-            <img src={offer.businessLogo} alt={offer.business} className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" />
+            <img
+              src={offer.businessLogo}
+              alt={offer.business}
+              className="h-full w-full object-cover transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105"
+            />
           ) : isSample ? (
             /* Gradient + monogram for sample offers */
-            <div className={`h-full w-full bg-gradient-to-br ${gradientClass} flex items-center justify-center transition-transform duration-500 ease-out group-hover:scale-105`}>
+            <div
+              className={`h-full w-full bg-gradient-to-br ${gradientClass} flex items-center justify-center transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105`}
+            >
               <div
                 className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-white/20 bg-white/10 backdrop-blur-sm"
               >
@@ -71,7 +81,7 @@ const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
           ) : (
             /* Polished initials avatar for real businesses without a logo */
             <div
-              className={`relative h-full w-full bg-gradient-to-br ${gradientClass} flex items-center justify-center overflow-hidden transition-transform duration-500 ease-out group-hover:scale-105`}
+              className={`relative h-full w-full bg-gradient-to-br ${gradientClass} flex items-center justify-center overflow-hidden transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105`}
             >
               {/* Soft radial highlight for depth */}
               <div
@@ -105,8 +115,11 @@ const OfferCard = ({ offer, isSample, isNew }: OfferCardProps) => {
           )}
           {/* Heart icon */}
           <button
+            type="button"
+            aria-label={saved ? "Remove from saved" : "Save offer"}
+            aria-pressed={saved}
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSaved(!saved); }}
-            className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm transition-all duration-200 hover:scale-110 active:scale-95"
+            className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm transform-gpu transition-transform duration-200 hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
           >
             <Heart className={`h-4 w-4 transition-all duration-200 ${saved ? "fill-destructive text-destructive" : "text-foreground"}`} />
           </button>
