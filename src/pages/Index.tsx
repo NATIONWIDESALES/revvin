@@ -1,12 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   ArrowRight, Building2, Users, Zap, Ban, DollarSign, Shield, Target,
   CheckCircle2, Briefcase, Home, Wrench, Car, Dumbbell, PaintBucket,
   Landmark, Sun, Camera, Scale, Heart, TrendingUp, Star, Lock, FileText,
-  BadgeCheck
+  BadgeCheck, Search
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import SEOHead from "@/components/SEOHead";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import MarqueeTicker from "@/components/MarqueeTicker";
