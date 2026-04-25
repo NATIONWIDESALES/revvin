@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bookmark, Heart, Trash2, MapPin, Loader2 } from "lucide-react";
+import { Bookmark, Heart, Trash2, MapPin, Loader2, CloudCheck, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -46,7 +46,7 @@ function distanceKm(
 
 const SavedOffers = () => {
   const { data: dbOffers = [], isLoading } = useDbOffers();
-  const { ids, clear } = useSavedOffers();
+  const { ids, clear, isSynced } = useSavedOffers();
   const [sort, setSort] = useState<SortKey>(readSort);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
@@ -194,6 +194,27 @@ const SavedOffers = () => {
                 ? `${saved.length} offer${saved.length === 1 ? "" : "s"} bookmarked. Open any card to view full details.`
                 : "Tap the heart on any offer to bookmark it for later."}
             </p>
+            {hasSaved && (
+              <p className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+                {isSynced ? (
+                  <>
+                    <CloudCheck className="h-3.5 w-3.5 text-primary" />
+                    Synced to your account — available on every device.
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="h-3.5 w-3.5" />
+                    <span>
+                      Saved on this device only.{" "}
+                      <Link to="/auth" className="font-semibold text-foreground underline-offset-2 hover:underline">
+                        Sign in
+                      </Link>{" "}
+                      to sync across devices.
+                    </span>
+                  </>
+                )}
+              </p>
+            )}
           </div>
           {hasSaved && (
             <div className="flex items-center gap-2 self-start sm:self-auto">
