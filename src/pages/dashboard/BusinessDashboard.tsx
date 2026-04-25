@@ -278,6 +278,9 @@ const BusinessDashboard = () => {
       const payoutAmt = data?.payout_amount ?? ref.payout_snapshot ?? Number(ref.offers?.payout ?? 0);
       setReferrals((prev) => prev.map((r) => (r.id === ref.id ? { ...r, status: "won", payout_amount: payoutAmt, payout_status: "approved" } : r)));
       toast({ title: "Deal closed!", description: `Payout of $${payoutAmt} created for referrer.` });
+      if (user) {
+        supabase.rpc("fn_create_audit_entry", { p_referral_id: ref.id, p_event_type: "referral_won", p_payload: { payout: payoutAmt } as any });
+      }
       if (user) await fetchWallet(user.id);
     } catch (err: any) {
       toast({ title: "Error closing deal", description: err.message || "Something went wrong", variant: "destructive" });
@@ -305,6 +308,9 @@ const BusinessDashboard = () => {
   const updateReferralStatus = async (id: string, status: string) => {
     await supabase.from("referrals").update({ status }).eq("id", id);
     setReferrals((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+    if (user) {
+      supabase.rpc("fn_create_audit_entry", { p_referral_id: id, p_event_type: `referral_${status}` });
+    }
   };
 
   const toggleOfferStatus = async (offerId: string, currentStatus: string) => {
