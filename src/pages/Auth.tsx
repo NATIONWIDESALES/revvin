@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 
 import { useToast } from "@/hooks/use-toast";
-import { Building2, Users, ArrowLeft, Eye, EyeOff, ArrowRight, MapPin } from "lucide-react";
+import { Building2, Users, ArrowLeft, Eye, EyeOff, ArrowRight, MapPin, Layers } from "lucide-react";
 import revvinLogo from "@/assets/revvin-logo.png";
 import SEOHead from "@/components/SEOHead";
 import {
@@ -143,14 +143,14 @@ const Auth = () => {
         </>
       );
     }
-    if (role === "business") {
+    if (role === "business" || role === "both") {
       return (
         <>
           <h2 className="text-4xl font-bold text-primary-foreground leading-tight">
-            Acquire Customers Through Referral Payouts
+            {role === "both" ? "List offers. Send referrals. Earn both ways." : "Acquire Customers Through Referral Payouts"}
           </h2>
           <p className="mt-4 text-primary-foreground/60 text-lg">
-            Set your own payout. Get qualified leads. Pay only when deals close.
+            {role === "both" ? "Your account will include both a business profile and a referrer profile." : "Set your own payout. Get qualified leads. Pay only when deals close."}
           </p>
           <div className="mt-8 space-y-3 text-primary-foreground/50 text-sm">
             <div className="flex items-center gap-2">
@@ -193,28 +193,39 @@ const Auth = () => {
         <>
           {mode === "signup" && (
             <>
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="grid grid-cols-3 gap-2 mb-6">
                 <button
                   type="button"
                   onClick={() => { setRole("referrer"); setStep(1); }}
-                  className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
+                  className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition-all ${
                     role === "referrer" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
                   }`}
                 >
-                  <Users className={`h-6 w-6 ${role === "referrer" ? "text-primary" : "text-muted-foreground"}`} />
-                  <span className="font-medium text-sm">I want to earn</span>
-                  <span className="text-xs text-muted-foreground">Refer & get paid</span>
+                  <Users className={`h-5 w-5 ${role === "referrer" ? "text-primary" : "text-muted-foreground"}`} />
+                  <span className="font-medium text-xs">Referrer</span>
+                  <span className="text-[10px] text-muted-foreground text-center leading-tight">Refer & earn</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => { setRole("business"); setStep(1); }}
-                  className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
+                  className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition-all ${
                     role === "business" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
                   }`}
                 >
-                  <Building2 className={`h-6 w-6 ${role === "business" ? "text-primary" : "text-muted-foreground"}`} />
-                  <span className="font-medium text-sm">I'm a business</span>
-                  <span className="text-xs text-muted-foreground">Get customers</span>
+                  <Building2 className={`h-5 w-5 ${role === "business" ? "text-primary" : "text-muted-foreground"}`} />
+                  <span className="font-medium text-xs">Business</span>
+                  <span className="text-[10px] text-muted-foreground text-center leading-tight">Get customers</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setRole("both"); setStep(1); }}
+                  className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition-all ${
+                    role === "both" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <Layers className={`h-5 w-5 ${role === "both" ? "text-primary" : "text-muted-foreground"}`} />
+                  <span className="font-medium text-xs">Both</span>
+                  <span className="text-[10px] text-muted-foreground text-center leading-tight">List & refer</span>
                 </button>
               </div>
               <div>
@@ -263,9 +274,14 @@ const Auth = () => {
     }
 
     // Step 2 — role-specific fields
-    if (role === "business") {
+    if (role === "business" || role === "both") {
       return (
       <>
+          {role === "both" && (
+            <p className="text-xs text-muted-foreground mb-2">
+              Tell us about your business. We'll also create a referrer profile for you using your account details.
+            </p>
+          )}
           <div>
             <Label>Business Name</Label>
             <Input value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Acme Corp" className="mt-1" />
