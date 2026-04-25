@@ -144,6 +144,34 @@ const SavedOffers = () => {
         description="Your bookmarked referral opportunities. Open any saved offer to review the details and submit a warm lead."
       />
       <div className="container py-8 md:py-12">
+        {/* Mobile-only sticky sort bar — sits flush under the app navbar (h-14) */}
+        {hasSaved && (
+          <div
+            className="sticky top-14 z-30 -mx-4 mb-4 border-b border-border bg-background/85 px-4 py-2 backdrop-blur-md sm:hidden"
+            role="region"
+            aria-label="Sort saved offers"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-muted-foreground shrink-0">
+                Sort
+              </span>
+              <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+                <SelectTrigger
+                  className="h-9 flex-1 text-sm"
+                  aria-label="Sort saved offers"
+                >
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">Most recently saved</SelectItem>
+                  <SelectItem value="payout">Highest payout</SelectItem>
+                  <SelectItem value="nearest">Nearest location</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
         <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -163,10 +191,11 @@ const SavedOffers = () => {
               <label htmlFor="saved-sort" className="sr-only">
                 Sort saved offers
               </label>
+              {/* Inline sort: desktop only — mobile uses the sticky bar above */}
               <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
                 <SelectTrigger
                   id="saved-sort"
-                  className="h-9 w-[180px] text-sm"
+                  className="hidden h-9 w-[180px] text-sm sm:flex"
                   aria-label="Sort saved offers"
                 >
                   <SelectValue placeholder="Sort by" />
