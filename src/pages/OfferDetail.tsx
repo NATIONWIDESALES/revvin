@@ -121,8 +121,8 @@ const OfferDetail = () => {
   );
 
   // Use the real business logo as the OG image when available; otherwise
-  // fall back to the platform default (handled inside SEOHead).
-  const isLogoUrl = typeof offer.businessLogo === "string" && offer.businessLogo.startsWith("http");
+  // fall back to the platform default (handled inside SEOHead). Reuses the
+  // `isLogoUrl` flag declared above.
   const seoOgImage = isLogoUrl ? offer.businessLogo : undefined;
 
   return (
