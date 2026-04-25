@@ -20,6 +20,42 @@ import type { Offer } from "@/types/offer";
 type SortKey = "recent" | "payout" | "nearest";
 
 const SORT_STORAGE_KEY = "revvin:saved-offers:sort";
+const COORDS_STORAGE_KEY = "revvin:saved-offers:coords";
+const COORDS_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+type CachedCoords = { lat: number; lng: number; ts: number };
+
+function readCachedCoords(): { lat: number; lng: number } | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(COORDS_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as CachedCoords;
+    if (
+      typeof parsed?.lat !== "number" ||
+      typeof parsed?.lng !== "number" ||
+      typeof parsed?.ts !== "number"
+    ) {
+      return null;
+    }
+    if (Date.now() - parsed.ts > COORDS_TTL_MS) {
+      window.localStorage.removeItem(COORDS_STORAGE_KEY);
+      return null;
+    }
+    return { lat: parsed.lat, lng: parsed.lng };
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedCoords(c: { lat: number; lng: number }) {
+  try {
+    const payload: CachedCoords = { lat: c.lat, lng: c.lng, ts: Date.now() };
+    window.localStorage.setItem(COORDS_STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    /* no-op */
+  }
+}
 
 function readSort(): SortKey {
   if (typeof window === "undefined") return "recent";
@@ -48,7 +84,9 @@ const SavedOffers = () => {
   const { data: dbOffers = [], isLoading } = useDbOffers();
   const { ids, clear, isSynced } = useSavedOffers();
   const [sort, setSort] = useState<SortKey>(readSort);
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    () => readCachedCoords(),
+  );
   const [locating, setLocating] = useState(false);
 
   // Persist sort selection.
@@ -78,7 +116,15 @@ const SavedOffers = () => {
       .filter((o): o is Offer & { isSample?: boolean } => Boolean(o));
   }, [dbOffers, ids]);
 
-  const requestLocation = () => {
+  const requestLocation = (opts: { force?: boolean } = {}) => {
+    // Reuse cached coords if still fresh and the user didn't ask for a refresh.
+    if (!opts.force) {
+      const cached = readCachedCoords();
+      if (cached) {
+        setCoords(cached);
+        return;
+      }
+    }
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       toast("Location unavailable", {
         description: "Your browser does not support geolocation.",
@@ -89,7 +135,9 @@ const SavedOffers = () => {
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setCoords(next);
+        writeCachedCoords(next);
         setLocating(false);
       },
       (err) => {
@@ -102,7 +150,7 @@ const SavedOffers = () => {
         });
         setSort("recent");
       },
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: COORDS_TTL_MS },
     );
   };
 
