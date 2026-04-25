@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   DollarSign, Clock, CheckCircle2, User,
-  Send, ArrowRight, Wallet, Bell, Scale, BarChart3, AlertCircle
+  Send, ArrowRight, Wallet, Bell, Scale, BarChart3, AlertCircle, ChevronDown, ChevronUp
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import InviteBusinessModal from "@/components/InviteBusinessModal";
 import DashboardChecklist from "@/components/DashboardChecklist";
 import PayoutPreferences from "@/components/PayoutPreferences";
+import ReferralTimeline from "@/components/ReferralTimeline";
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
   submitted: { bg: "bg-muted", text: "text-muted-foreground", label: "Submitted" },
@@ -41,6 +42,7 @@ const ReferrerDashboard = () => {
   const [referrals, setReferrals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasPayoutPrefs, setHasPayoutPrefs] = useState(true); // assume true to avoid flash
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!user) return;
@@ -223,14 +225,16 @@ const ReferrerDashboard = () => {
                   const sc = statusConfig[ref.status] ?? statusConfig.submitted;
                   const expectedPay = getExpectedPayDate(ref);
                   const canDispute = ref.status === "lost" || ref.status === "declined";
+                  const isOpen = !!expanded[ref.id];
                   return (
-                    <div key={ref.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-4 shadow-sm">
-                      <div className="flex-1">
-                        <p className="font-medium text-foreground">{ref.customer_name}</p>
-                        <p className="text-sm text-muted-foreground">{ref.offers?.title ?? "Offer"} • {ref.businesses?.name ?? "Business"}</p>
-                        {expectedPay && <p className="text-xs text-muted-foreground mt-0.5">📅 {expectedPay}</p>}
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
+                    <div key={ref.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="font-medium text-foreground">{ref.customer_name}</p>
+                          <p className="text-sm text-muted-foreground">{ref.offers?.title ?? "Offer"} • {ref.businesses?.name ?? "Business"}</p>
+                          {expectedPay && <p className="text-xs text-muted-foreground mt-0.5">📅 {expectedPay}</p>}
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap">
                         {["submitted", "contacted", "in_progress", "qualified"].includes(ref.status) && (
                           <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={async () => {
                             // Send in-app notification to business owner
@@ -256,7 +260,20 @@ const ReferrerDashboard = () => {
                         )}
                         <Badge className={`${sc.bg} ${sc.text} border-0`}>{sc.label}</Badge>
                         {ref.payout_amount && <span className="font-bold text-earnings">{sym}{ref.payout_amount}</span>}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1 text-xs"
+                          onClick={() => setExpanded((prev) => ({ ...prev, [ref.id]: !prev[ref.id] }))}
+                          aria-expanded={isOpen}
+                          aria-label={isOpen ? "Hide timeline" : "Show timeline"}
+                        >
+                          {isOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                          Timeline
+                        </Button>
+                        </div>
                       </div>
+                      {isOpen && <ReferralTimeline referralId={ref.id} createdAt={ref.created_at} />}
                     </div>
                   );
                 })}
