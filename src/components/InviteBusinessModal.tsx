@@ -21,11 +21,13 @@ const InviteBusinessModal = ({ trigger }: InviteBusinessModalProps) => {
     e.preventDefault();
     setSending(true);
     // Log the invite via the send-notification edge function (Resend)
+    const signupUrl = `${window.location.origin}/auth?mode=signup&role=business`;
     await supabase.functions.invoke("send-notification", {
       body: {
-        to: businessEmail,
-        subject: `You've been invited to Revvin — ${businessName}`,
-        html: `<p>Hi there,</p><p>Someone thinks <strong>${businessName}</strong> should be on Revvin — a referral marketplace where you only pay for closed deals.</p><p><a href="https://revvin.lovable.app/auth?mode=signup&role=business">Create your free account →</a></p><p>— The Revvin Team</p>`,
+        type: "business_invite",
+        recipientEmail: businessEmail,
+        recipientName: "there",
+        data: { businessName, signupUrl },
       },
     }).catch(() => {});
     setSending(false);

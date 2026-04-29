@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,13 +18,14 @@ interface NotificationPayload {
     | "payout_released"
     | "dispute_submitted"
     | "dispute_resolved"
-    | "welcome";
-  recipientEmail: string;
-  recipientName: string;
+    | "welcome"
+    | "business_invite";
+  recipientEmail?: string;
+  recipientName?: string;
+  recipientUserId?: string;
+  recipientBusinessId?: string;
   data?: Record<string, string>;
 }
-
-const FROM_ADDRESS = "Revvin <onboarding@resend.dev>";
 
 const templates: Record<
   string,
@@ -36,17 +38,22 @@ const templates: Record<
         d.role === "business"
           ? "You can now create referral offers and start receiving qualified leads from our referrer network."
           : "Browse high-paying referral opportunities and start earning commissions today."
-      }\n\nGet started: https://revvin.lovable.app/dashboard\n\n— The Revvin Team`,
+      }\n\nGet started: ${appUrl("/dashboard")}\n\n— The Revvin Team`,
+  },
+  business_invite: {
+    subject: "You've been invited to Revvin — ${businessName}",
+    body: (d) =>
+      `Hi ${d.name},\n\nSomeone thinks ${d.businessName} should be on Revvin — a referral marketplace where businesses only pay for closed deals.\n\nCreate your free account: ${d.signupUrl || appUrl("/auth?mode=signup&role=business")}\n\n— The Revvin Team`,
   },
   referral_submitted: {
     subject: "New Referral Submitted — ${offerTitle}",
     body: (d) =>
-      `Hi ${d.businessName},\n\nA new referral has been submitted for your offer "${d.offerTitle}".\n\nCustomer: ${d.customerName}\nSubmitted by: ${d.referrerName}\n\nLog in to review and accept: https://revvin.lovable.app/dashboard\n\n— Revvin`,
+      `Hi ${d.businessName},\n\nA new referral has been submitted for your offer "${d.offerTitle}".\n\nCustomer: ${d.customerName}\nSubmitted by: ${d.referrerName}\n\nLog in to review and accept: ${appUrl("/dashboard")}\n\n— Revvin`,
   },
   referral_accepted: {
     subject: "Your Referral Was Accepted!",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nGreat news! Your referral for ${d.customerName} to "${d.offerTitle}" has been accepted.\n\nFunds have been reserved in escrow. You'll be paid when the deal closes.\n\nTrack progress: https://revvin.lovable.app/dashboard\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nGreat news! Your referral for ${d.customerName} to "${d.offerTitle}" has been accepted.\n\nFunds have been reserved in escrow. You'll be paid when the deal closes.\n\nTrack progress: ${appUrl("/dashboard")}\n\n— Revvin`,
   },
   deal_closed: {
     subject: "Deal Closed — Payout Incoming!",
@@ -56,27 +63,27 @@ const templates: Record<
   deal_lost: {
     subject: "Referral Update — Deal Lost",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nUnfortunately, the deal for ${d.customerName} ("${d.offerTitle}") did not close.\n\nEscrowed funds have been returned to the business. Keep referring — your next win is around the corner.\n\nBrowse offers: https://revvin.lovable.app/browse\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nUnfortunately, the deal for ${d.customerName} ("${d.offerTitle}") did not close.\n\nEscrowed funds have been returned to the business. Keep referring — your next win is around the corner.\n\nBrowse offers: ${appUrl("/browse")}\n\n— Revvin`,
   },
   payout_released: {
     subject: "Payout Released — $${payoutAmount}",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nYour payout of $${d.payoutAmount} for "${d.offerTitle}" has been released.\n\nCheck your earnings dashboard: https://revvin.lovable.app/dashboard\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nYour payout of $${d.payoutAmount} for "${d.offerTitle}" has been released.\n\nCheck your earnings dashboard: ${appUrl("/dashboard")}\n\n— Revvin`,
   },
   referral_declined: {
     subject: "Referral Update — Declined",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nYour referral for ${d.customerName} to "${d.offerTitle}" was declined by the business.\n\nDon't be discouraged — browse more opportunities and keep referring.\n\nBrowse offers: https://revvin.lovable.app/browse\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nYour referral for ${d.customerName} to "${d.offerTitle}" was declined by the business.\n\nDon't be discouraged — browse more opportunities and keep referring.\n\nBrowse offers: ${appUrl("/browse")}\n\n— Revvin`,
   },
   dispute_submitted: {
     subject: "Dispute Received — ${offerTitle}",
     body: (d) =>
-      `Hi ${d.businessName},\n\nA dispute has been submitted for a referral on "${d.offerTitle}".\n\nCustomer: ${d.customerName}\nSubmitted by: ${d.referrerName}\n\nOur team will review and reach out shortly.\n\nLog in: https://revvin.lovable.app/dashboard\n\n— Revvin`,
+      `Hi ${d.businessName},\n\nA dispute has been submitted for a referral on "${d.offerTitle}".\n\nCustomer: ${d.customerName}\nSubmitted by: ${d.referrerName}\n\nOur team will review and reach out shortly.\n\nLog in: ${appUrl("/dashboard")}\n\n— Revvin`,
   },
   dispute_resolved: {
     subject: "Dispute Resolved — ${offerTitle}",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nThe dispute for your referral of ${d.customerName} on "${d.offerTitle}" has been resolved.\n\nOutcome: ${d.outcome}\n\nView details: https://revvin.lovable.app/dashboard\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nThe dispute for your referral of ${d.customerName} on "${d.offerTitle}" has been resolved.\n\nOutcome: ${d.outcome}\n\nView details: ${appUrl("/dashboard")}\n\n— Revvin`,
   },
 };
 
@@ -93,8 +100,9 @@ async function sendWithResend(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: FROM_ADDRESS,
+      from: RESEND_FROM_ADDRESS,
       to: [to],
+      reply_to: RESEND_REPLY_TO,
       subject,
       text: textBody,
     }),
@@ -170,7 +178,13 @@ serve(async (req) => {
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ from: FROM_ADDRESS, to: [rawPayload.to], subject: rawPayload.subject, html: rawPayload.html }),
+          body: JSON.stringify({
+            from: RESEND_FROM_ADDRESS,
+            to: [rawPayload.to],
+            reply_to: RESEND_REPLY_TO,
+            subject: rawPayload.subject,
+            html: rawPayload.html,
+          }),
         });
         const data = await res.json();
         if (res.ok) { emailStatus = "sent"; resendId = data.id; }
@@ -194,7 +208,8 @@ serve(async (req) => {
 
     // Template-based flow
     const payload: NotificationPayload = rawPayload;
-    const { type, recipientEmail, recipientName, data = {} } = payload;
+    let { recipientEmail, recipientName, recipientUserId, recipientBusinessId } = payload;
+    const { type, data = {} } = payload;
 
     const template = templates[type];
     if (!template) {
@@ -204,7 +219,45 @@ serve(async (req) => {
       );
     }
 
-    const mergedData = { ...data, name: recipientName };
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    if (!recipientUserId && recipientBusinessId) {
+      const { data: business } = await supabase
+        .from("businesses")
+        .select("name, user_id")
+        .eq("id", recipientBusinessId)
+        .maybeSingle();
+      recipientUserId = business?.user_id;
+      recipientName = recipientName || business?.name;
+    }
+
+    if (!recipientEmail && recipientUserId) {
+      const { data: userData } = await supabase.auth.admin.getUserById(recipientUserId);
+      const recipientUser = userData.user;
+      recipientEmail = recipientUser?.email || undefined;
+      recipientName =
+        recipientName ||
+        recipientUser?.user_metadata?.full_name ||
+        recipientUser?.user_metadata?.business_name ||
+        recipientEmail?.split("@")[0];
+    }
+
+    if (!recipientEmail) {
+      return new Response(JSON.stringify({ error: "Recipient email required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    recipientName = recipientName || "there";
+    const mergedData = {
+      ...data,
+      name: data.name || recipientName,
+      referrerName: data.referrerName || recipientName,
+      businessName: data.businessName || recipientName,
+    };
     const subject = template.subject.replace(
       /\$\{(\w+)\}/g,
       (_, k) => mergedData[k] ?? "",
@@ -232,10 +285,6 @@ serve(async (req) => {
     }
 
     // Store notification record for audit
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
     await supabase.from("notifications_log").insert({
       type,
       recipient_email: recipientEmail,

@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const SUPER_ADMIN_EMAIL = "sales@nationwidesales.ca";
+import { isPlatformAdmin } from "../_shared/admin-auth.ts";
+import { appUrl as getAppUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,16 +32,15 @@ Deno.serve(async (req) => {
       return new Response(null, { status: 404, headers: corsHeaders });
     }
 
-    const email = user.email;
-    if (!email || email.toLowerCase() !== SUPER_ADMIN_EMAIL) {
-      return new Response(null, { status: 404, headers: corsHeaders });
-    }
-
     // Authenticated as super admin — use service role
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    if (!(await isPlatformAdmin(admin, user))) {
+      return new Response(null, { status: 404, headers: corsHeaders });
+    }
 
     const url = new URL(req.url);
     const bizId = url.searchParams.get("biz_id");
@@ -86,7 +85,7 @@ Deno.serve(async (req) => {
                   ? `Your business "${businessName}" has been approved on Revvin!`
                   : `Update on your Revvin application for "${businessName}"`;
 
-                const appUrl = "https://revvin.lovable.app";
+                const appUrl = getAppUrl();
                 const html = `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -127,9 +126,9 @@ ${isApproved ? `
                     "Content-Type": "application/json",
                   },
                   body: JSON.stringify({
-                    from: "Revvin <updates@updates.revvin.co>",
+                    from: RESEND_FROM_ADDRESS,
                     to: [ownerEmail],
-                    reply_to: "support@revvin.co",
+                    reply_to: RESEND_REPLY_TO,
                     subject,
                     html,
                   }),

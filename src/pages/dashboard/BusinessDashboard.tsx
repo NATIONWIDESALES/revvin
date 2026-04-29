@@ -242,9 +242,8 @@ const BusinessDashboard = () => {
       supabase.functions.invoke("send-notification", {
         body: {
           type: "referral_accepted",
-          recipientEmail: ref.customer_email || "",
-          recipientName: ref.customer_name || "",
-          data: { referrerName: ref.customer_name, customerName: ref.customer_name, offerTitle: ref.offers?.title || "" },
+          recipientUserId: ref.referrer_id,
+          data: { referrerName: "there", customerName: ref.customer_name, offerTitle: ref.offers?.title || "" },
         },
       }).catch((err) => console.error("Email notification failed:", err));
     }
@@ -260,9 +259,8 @@ const BusinessDashboard = () => {
       supabase.functions.invoke("send-notification", {
         body: {
           type: "referral_declined",
-          recipientEmail: "",
-          recipientName: ref.customer_name || "",
-          data: { referrerName: ref.customer_name, customerName: ref.customer_name, offerTitle: ref.offers?.title || "" },
+          recipientUserId: ref.referrer_id,
+          data: { referrerName: "there", customerName: ref.customer_name, offerTitle: ref.offers?.title || "" },
         },
       }).catch((err) => console.error("Email notification failed:", err));
     }
@@ -297,9 +295,8 @@ const BusinessDashboard = () => {
       supabase.functions.invoke("send-notification", {
         body: {
           type: "deal_lost",
-          recipientEmail: "",
-          recipientName: ref.customer_name || "",
-          data: { referrerName: ref.customer_name, customerName: ref.customer_name, offerTitle: ref.offers?.title || "" },
+          recipientUserId: ref.referrer_id,
+          data: { referrerName: "there", customerName: ref.customer_name, offerTitle: ref.offers?.title || "" },
         },
       }).catch((err) => console.error("Email notification failed:", err));
     }

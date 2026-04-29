@@ -17,8 +17,6 @@ import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
-const SUPER_ADMIN_EMAIL = "sales@nationwidesales.ca";
-
 const STAGES = ["submitted", "accepted", "in_progress", "won", "lost", "declined", "void"] as const;
 
 const stageConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
@@ -78,7 +76,7 @@ interface OfferRecord {
 }
 
 const SuperAdminCRM = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, userRole, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [overview, setOverview] = useState<{
     businesses: Business[]; profiles: Profile[]; referral_summary: ReferralSummary[];
@@ -118,7 +116,7 @@ const SuperAdminCRM = () => {
     return () => { document.head.removeChild(meta); };
   }, []);
 
-  const isAuthorized = user?.email?.toLowerCase() === SUPER_ADMIN_EMAIL;
+  const isAuthorized = userRole === "admin";
 
   // Load data
   useEffect(() => {

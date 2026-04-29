@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info, CreditCard, Loader2, Wallet, AlertTriangle } from "lucide-react";
 import { categories, RESTRICTED_CATEGORIES } from "@/lib/offerUtils";
+import { formatPlatformFeePercent, getPlatformFeeRate } from "@/lib/pricing";
 import { motion } from "framer-motion";
 import {
   Dialog,
@@ -24,10 +25,8 @@ const TOTAL_STEPS = 4;
 
 const STEP_LABELS = ["Offer Details", "Payout & Timing", "Qualification Rules", "Preview & Publish"];
 
-const SUPER_ADMIN_EMAIL = "sales@nationwidesales.ca";
-
 const CreateOffer = () => {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [businessId, setBusinessId] = useState<string | null>(null);
@@ -38,7 +37,7 @@ const CreateOffer = () => {
   const [publishLoading, setPublishLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [shortfallDialog, setShortfallDialog] = useState<{ open: boolean; shortfall: number; totalRequired: number }>({ open: false, shortfall: 0, totalRequired: 0 });
-  const isSuperAdmin = user?.email?.toLowerCase() === SUPER_ADMIN_EMAIL;
+  const isSuperAdmin = userRole === "admin";
 
   const [form, setForm] = useState({
     title: "", description: "", category: "Services",
@@ -115,11 +114,11 @@ const CreateOffer = () => {
 
   const isRestricted = RESTRICTED_CATEGORIES.includes(form.category);
 
-  const feeRate = pricingTier === "paid" ? 0.10 : 0.25;
+  const feeRate = getPlatformFeeRate(pricingTier);
   const payoutNum = parseFloat(form.payout) || 0;
   const platformFee = Math.round(payoutNum * feeRate * 100) / 100;
   const totalReserved = Math.round((payoutNum + platformFee) * 100) / 100;
-  const feePercent = pricingTier === "paid" ? "10%" : "25%";
+  const feePercent = formatPlatformFeePercent(feeRate);
 
   // T1: New signups are auto-approved. Only the suspended state should block publishing.
   const isPendingApproval = businessAccountStatus === "suspended";
@@ -159,7 +158,7 @@ const CreateOffer = () => {
       const insertData = {
         ...buildInsertData(),
         status: "draft",
-        deposit_status: "not_required",
+        deposit_status: "required",
         approval_status: "approved",
       };
       const { error } = await supabase.from("offers").insert(insertData).select("id").single();
@@ -196,7 +195,7 @@ const CreateOffer = () => {
         ...buildInsertData(),
         approval_status: isRestricted ? "pending_approval" : "approved",
         status: isSuperAdmin ? "active" : "draft",
-        deposit_status: isSuperAdmin ? "waived" : "not_required",
+        deposit_status: isSuperAdmin ? "waived" : "required",
       };
 
       const { data, error } = await supabase.from("offers").insert(insertData).select("id").single();

@@ -31,119 +31,25 @@ serve(async (req) => {
     const { referral_id } = await req.json();
     if (!referral_id) throw new Error("referral_id is required");
 
-    // Fetch referral with offer info
-    const { data: ref, error: refErr } = await serviceClient
-      .from("referrals")
-      .select("*, offers(title, payout, currency, platform_fee_rate)")
-      .eq("id", referral_id)
-      .single();
-    if (refErr || !ref) throw new Error("Referral not found");
+    const { data, error } = await serviceClient.rpc("fn_process_deal_won", {
+      p_referral_id: referral_id,
+      p_actor_id: userId,
+    });
+    if (error) throw error;
 
-    // Verify the caller owns the business
-    const { data: biz } = await serviceClient
-      .from("businesses")
-      .select("id, user_id")
-      .eq("id", ref.business_id)
-      .single();
-    if (!biz || biz.user_id !== userId) throw new Error("Not authorized");
-
-    // Ensure referral is in a closeable state
-    if (!["accepted", "contacted", "in_progress", "qualified"].includes(ref.status)) {
-      throw new Error(`Referral status '${ref.status}' cannot be closed`);
-    }
-
-    const payoutAmt = ref.payout_snapshot ?? Number(ref.offers?.payout ?? 0);
-    const currency = ref.offers?.currency ?? "USD";
-    const feeRate = Number(ref.offers?.platform_fee_rate ?? 0.25);
-    const platformFee = Math.round(payoutAmt * feeRate * 100) / 100;
-    const totalDeduction = Math.round((payoutAmt + platformFee) * 100) / 100;
-
-    // Fetch wallet and guard balance
-    const { data: wallet } = await serviceClient
-      .from("wallet_balances")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
-
-    if (!wallet) throw new Error("No wallet found for this business");
-    if (Number(wallet.available) < totalDeduction) {
+    if (data?.success === false) {
       return new Response(
-        JSON.stringify({
-          error: `Insufficient wallet balance to process this payout. Need $${totalDeduction.toFixed(2)}, available $${Number(wallet.available).toFixed(2)}. Please top up your wallet.`,
-          shortfall: Math.round((totalDeduction - Number(wallet.available)) * 100) / 100,
-        }),
+        JSON.stringify(data),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 402 }
       );
     }
 
-    // 1. Update referral status
-    await serviceClient
-      .from("referrals")
-      .update({ status: "won", payout_amount: payoutAmt, payout_status: "approved" })
-      .eq("id", referral_id);
-
-    // 2. Deduct from available, add to paid_out and platform_fees
-    await serviceClient
-      .from("wallet_balances")
-      .update({
-        available: Math.round((Number(wallet.available) - totalDeduction) * 100) / 100,
-        paid_out: Math.round((Number(wallet.paid_out) + payoutAmt) * 100) / 100,
-        platform_fees: Math.round((Number(wallet.platform_fees) + platformFee) * 100) / 100,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", wallet.id);
-
-    // 3. Insert wallet transactions — payout and fee
-    await serviceClient.from("wallet_transactions").insert([
-      {
-        user_id: userId,
-        type: "payout",
-        amount: payoutAmt,
-        referral_id: referral_id,
-        description: `Payout for referral — ${ref.offers?.title ?? "offer"}`,
-      },
-      {
-        user_id: userId,
-        type: "fee",
-        amount: platformFee,
-        referral_id: referral_id,
-        description: `Platform fee (${Math.round(feeRate * 100)}%) — ${ref.offers?.title ?? "offer"}`,
-      },
-    ]);
-
-    // 4. Create payout record
-    await serviceClient.from("payouts").insert({
-      referral_id: referral_id,
-      business_id: ref.business_id,
-      referrer_id: ref.referrer_id,
-      amount: payoutAmt,
-      platform_fee: platformFee,
-      currency: currency,
-      status: "ready",
-    });
-
-    // 5. Audit + notification
-    await serviceClient.rpc("fn_create_audit_entry", {
-      p_referral_id: referral_id,
-      p_actor_id: userId,
-      p_event_type: "referral_won",
-      p_payload: { payout: payoutAmt, platform_fee: platformFee },
-    });
-
-    await serviceClient.rpc("fn_create_notification", {
-      p_user_id: ref.referrer_id,
-      p_title: "Deal closed — payout coming!",
-      p_body: `Your referral for "${ref.offers?.title}" closed. You'll receive $${payoutAmt}.`,
-      p_type: "referral_won",
-      p_referral_id: referral_id,
-    });
-
-    // 6. Sync offer lifecycle (auto-pause if wallet now below committed)
+    // Sync offer lifecycle after the transaction commits.
     serviceClient.functions
       .invoke("sync-offer-lifecycle", { body: { user_id: userId } })
       .catch((e) => console.warn("sync-offer-lifecycle invoke failed:", e));
 
-    return new Response(JSON.stringify({ success: true, payout_amount: payoutAmt, platform_fee: platformFee }), {
+    return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

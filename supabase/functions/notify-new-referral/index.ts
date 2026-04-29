@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -109,8 +110,6 @@ Deno.serve(async (req) => {
     const customerFirstName = referral.customer_name.split(" ")[0];
 
     // 5. Build HTML email
-    const appUrl = "https://revvin.lovable.app";
-
     const detailRows: string[] = [];
     detailRows.push(`<tr><td style="padding:6px 0;color:#6B7280;font-size:14px;width:140px;vertical-align:top;">Name</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:500;">${escapeHtml(referral.customer_name)}</td></tr>`);
     if (referral.customer_phone) {
@@ -152,7 +151,7 @@ ${detailRows.join("\n")}
 <!-- CTA -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
 <tr><td align="center" style="padding:24px 0 0 0;">
-<a href="${appUrl}/dashboard" target="_blank" style="display:inline-block;background-color:#15803D;color:#FFFFFF;font-size:15px;font-weight:500;text-decoration:none;padding:12px 28px;border-radius:8px;">View Referral in Dashboard</a>
+	<a href="${appUrl("/dashboard")}" target="_blank" style="display:inline-block;background-color:#15803D;color:#FFFFFF;font-size:15px;font-weight:500;text-decoration:none;padding:12px 28px;border-radius:8px;">View Referral in Dashboard</a>
 </td></tr>
 </table>
 
@@ -178,9 +177,9 @@ ${detailRows.join("\n")}
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Revvin <updates@updates.revvin.co>",
+          from: RESEND_FROM_ADDRESS,
           to: [ownerUser.email],
-          reply_to: "support@revvin.co",
+          reply_to: RESEND_REPLY_TO,
           subject,
           html,
         }),

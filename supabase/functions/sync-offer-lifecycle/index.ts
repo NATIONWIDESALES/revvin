@@ -1,6 +1,6 @@
 // Auto-pause / auto-reactivate offers based on wallet balance vs. committed amount.
 // Called from process-deal-won (after wallet drop) and stripe-deposit-webhook (after top-up).
-// Internal-only: requires SERVICE_ROLE auth via shared secret header.
+// Internal-only: requires service-role auth or a shared secret header.
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.2";
@@ -69,14 +69,34 @@ function makeAdapter(serviceClient: SupabaseClient<any, any, any>): LifecycleCli
   };
 }
 
+function isInternalRequest(req: Request, serviceRoleKey: string) {
+  const authHeader = req.headers.get("Authorization") ?? "";
+  const internalSecret = Deno.env.get("INTERNAL_FUNCTION_SECRET") ?? "";
+  const internalHeader = req.headers.get("x-internal-key") ?? "";
+
+  if (internalSecret && internalHeader === internalSecret) {
+    return true;
+  }
+
+  return Boolean(serviceRoleKey && authHeader === `Bearer ${serviceRoleKey}`);
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  if (!isInternalRequest(req, serviceRoleKey)) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 401,
+    });
+  }
+
   const serviceClient: SupabaseClient<any, any, any> = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    serviceRoleKey
   );
 
   try {

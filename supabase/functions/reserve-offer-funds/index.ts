@@ -7,6 +7,18 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const PLATFORM_FEE_RATES: Record<string, number> = {
+  free: 0.25,
+  starter: 0.1,
+  paid: 0.1,
+  pro: 0.01,
+  enterprise: 0,
+};
+
+function getPlatformFeeRate(pricingTier?: string | null) {
+  return PLATFORM_FEE_RATES[(pricingTier ?? "free").toLowerCase()] ?? PLATFORM_FEE_RATES.free;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -52,7 +64,7 @@ serve(async (req) => {
     if (biz.user_id !== user.id) throw new Error("You do not own this business");
 
     // Calculate fee rate and new offer cost
-    const feeRate = biz.pricing_tier === "paid" ? 0.10 : 0.25;
+    const feeRate = getPlatformFeeRate(biz.pricing_tier);
     const payout = Number(offer.payout);
     const newOfferCost = Math.round(payout * (1 + feeRate) * 100) / 100;
 

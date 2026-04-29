@@ -48,7 +48,7 @@ const ReferrerDashboard = () => {
     if (!user) return;
     const fetchData = async () => {
       const [refRes, prefRes] = await Promise.all([
-        supabase.from("referrals").select("*, offers(title, payout, payout_type, category), businesses(name)").eq("referrer_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("referrals").select("*, offers(title, payout, payout_type, category), businesses(name, user_id)").eq("referrer_id", user.id).order("created_at", { ascending: false }),
         supabase.from("referrer_payout_preferences").select("method").eq("user_id", user.id).limit(1),
       ]);
       setReferrals(refRes.data ?? []);
@@ -105,19 +105,33 @@ const ReferrerDashboard = () => {
     }).then(() => {});
     // Notify business via in-app + email
     if (ref.business_id) {
-      supabase.rpc("fn_create_notification", {
-        p_user_id: ref.business_id,
-        p_title: "Dispute submitted",
-        p_body: `A dispute has been filed for a referral on "${ref.offers?.title}".`,
-        p_type: "dispute_submitted",
-        p_referral_id: refId,
-      });
+      let businessOwnerId = ref.businesses?.user_id;
+      let businessName = ref.businesses?.name || "";
+      if (!businessOwnerId) {
+        const { data: business } = await supabase
+          .from("businesses")
+          .select("name, user_id")
+          .eq("id", ref.business_id)
+          .maybeSingle();
+        businessOwnerId = business?.user_id;
+        businessName = businessName || business?.name || "";
+      }
+
+      if (businessOwnerId) {
+        supabase.rpc("fn_create_notification", {
+          p_user_id: businessOwnerId,
+          p_title: "Dispute submitted",
+          p_body: `A dispute has been filed for a referral on "${ref.offers?.title}".`,
+          p_type: "dispute_submitted",
+          p_referral_id: refId,
+        });
+      }
+
       supabase.functions.invoke("send-notification", {
         body: {
           type: "dispute_submitted",
-          recipientEmail: "",
-          recipientName: "",
-          data: { businessName: ref.businesses?.name || "", customerName: ref.customer_name, referrerName: user.email || "", offerTitle: ref.offers?.title || "" },
+          recipientBusinessId: ref.business_id,
+          data: { businessName, customerName: ref.customer_name, referrerName: user.email || "A referrer", offerTitle: ref.offers?.title || "" },
         },
       }).catch((err) => console.error("Dispute email failed:", err));
     }

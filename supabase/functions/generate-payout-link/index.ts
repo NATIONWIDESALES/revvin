@@ -6,7 +6,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const TREMENDOUS_BASE_URL = "https://testflight.tremendous.com/api/v2";
+const TREMENDOUS_BASE_URL =
+  Deno.env.get("TREMENDOUS_BASE_URL") || "https://api.tremendous.com/api/v2";
 
 /**
  * Generate a fresh Tremendous payout link for a referee.

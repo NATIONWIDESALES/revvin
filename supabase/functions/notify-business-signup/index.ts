@@ -1,4 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  ADMIN_NOTIFICATION_EMAIL,
+  appUrl,
+  RESEND_FROM_ADDRESS,
+  RESEND_REPLY_TO,
+} from "../_shared/app-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -58,8 +64,6 @@ Deno.serve(async (req) => {
     const serviceArea = [city, state].filter(Boolean).join(", ") || "Not specified";
 
     // Build HTML email
-    const appUrl = "https://revvin.lovable.app";
-
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -94,7 +98,7 @@ Deno.serve(async (req) => {
 <!-- CTA -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
 <tr><td align="center" style="padding:24px 0 0 0;">
-<a href="${appUrl}/__sa" target="_blank" style="display:inline-block;background-color:#15803D;color:#FFFFFF;font-size:15px;font-weight:500;text-decoration:none;padding:12px 28px;border-radius:8px;">Review &amp; Approve</a>
+<a href="${appUrl("/__sa")}" target="_blank" style="display:inline-block;background-color:#15803D;color:#FFFFFF;font-size:15px;font-weight:500;text-decoration:none;padding:12px 28px;border-radius:8px;">Review &amp; Approve</a>
 </td></tr>
 </table>
 
@@ -120,9 +124,9 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Revvin <updates@updates.revvin.co>",
-          to: ["info@revvin.co"],
-          reply_to: "support@revvin.co",
+          from: RESEND_FROM_ADDRESS,
+          to: [ADMIN_NOTIFICATION_EMAIL],
+          reply_to: RESEND_REPLY_TO,
           subject,
           html,
         }),

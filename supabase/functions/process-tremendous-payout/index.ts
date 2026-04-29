@@ -1,4 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { isPlatformAdmin } from "../_shared/admin-auth.ts";
+import { RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,8 +8,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SUPER_ADMIN_EMAIL = "sales@nationwidesales.ca";
-const TREMENDOUS_BASE_URL = "https://testflight.tremendous.com/api/v2";
+const TREMENDOUS_BASE_URL =
+  Deno.env.get("TREMENDOUS_BASE_URL") || "https://api.tremendous.com/api/v2";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -31,7 +33,7 @@ Deno.serve(async (req) => {
     );
 
     const { data: { user }, error: userError } = await anonClient.auth.getUser();
-    if (userError || !user || user.email?.toLowerCase() !== SUPER_ADMIN_EMAIL) {
+    if (userError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -50,6 +52,13 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    if (!(await isPlatformAdmin(admin, user))) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Get payout record
     const { data: payout, error: payoutErr } = await admin
@@ -239,9 +248,9 @@ Deno.serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "Revvin <updates@updates.revvin.co>",
+            from: RESEND_FROM_ADDRESS,
             to: [recipientEmail],
-            reply_to: "support@revvin.co",
+            reply_to: RESEND_REPLY_TO,
             subject: `Your $${amount} ${curr} referral reward is ready`,
             html,
           }),
