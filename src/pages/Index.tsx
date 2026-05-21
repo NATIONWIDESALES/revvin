@@ -15,6 +15,7 @@ import MockQRCard from "@/components/marketing/MockQRCard";
 import MockPageBuilder from "@/components/marketing/MockPageBuilder";
 import TrustBar from "@/components/marketing/TrustBar";
 import LiveTicker from "@/components/marketing/LiveTicker";
+import StatsMarquee from "@/components/marketing/StatsMarquee";
 import Wordmark from "@/components/brand/Wordmark";
 
 const Index = () => {
@@ -42,22 +43,29 @@ const Index = () => {
 
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border hero-radial">
+        <div aria-hidden className="aurora" />
         <div aria-hidden className="absolute inset-0 grid-faint" />
+        <div aria-hidden className="grain" />
         <div className="container relative py-20 md:py-28">
           <div className="grid items-center gap-14 lg:grid-cols-12">
             <div className="lg:col-span-7">
-              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/70 shadow-soft">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/70 shadow-soft backdrop-blur">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                </span>
                 Live in US &amp; Canada
               </span>
-              <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-foreground leading-[1.02] md:text-6xl">
-                Get your own business referral page in minutes.
+              <h1 className="mt-5 text-5xl font-extrabold tracking-tight text-foreground leading-[0.98] md:text-7xl">
+                Get your own{" "}
+                <span className="highlight-underline text-gradient-green">referral page</span>{" "}
+                in minutes.
               </h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground md:text-xl">
+              <p className="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground md:text-xl">
                 Launch a branded referral page, create a clear offer, share your link or QR code, and track every referral lead from one simple dashboard.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button size="lg" className="h-12 px-6 text-base shadow-soft hover:translate-y-[-1px] hover:bg-primary-deep" asChild>
+                <Button size="lg" className="shine-on-hover h-12 px-6 text-base shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep" asChild>
                   <Link to="/signup">
                     Start your referral program — $147 for 3 months
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -76,12 +84,35 @@ const Index = () => {
               <PhoneMockup rotate={4}>
                 <MockReferralPage />
               </PhoneMockup>
+              {/* floating notification card */}
+              <div className="absolute -left-2 top-8 hidden w-56 rounded-xl border border-border bg-card/95 p-3 shadow-product backdrop-blur md:block animate-fade-up" style={{ transform: "rotate(-4deg)" }}>
+                <div className="flex items-start gap-2.5">
+                  <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+                    <Bell className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold text-foreground">New referral</p>
+                    <p className="truncate text-[10px] text-muted-foreground">Jordan M. · roof replacement</p>
+                    <p className="mt-0.5 text-[9px] uppercase tracking-wider text-primary">just now</p>
+                  </div>
+                </div>
+              </div>
+              {/* floating deal-closed card */}
+              <div className="absolute -bottom-2 -right-2 hidden w-60 rounded-xl border border-border bg-card/95 p-3 shadow-product backdrop-blur md:block animate-fade-up" style={{ transform: "rotate(5deg)", animationDelay: "0.2s" }}>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Deal closed</p>
+                <p className="mt-1 text-xl font-extrabold tracking-tight text-foreground">+$8,400</p>
+                <p className="text-[10px] text-muted-foreground">Apex Roofing · paid Carlos R.</p>
+                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-muted">
+                  <div className="h-full w-3/4 bg-gradient-to-r from-primary to-accent" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       <TrustBar />
+      <StatsMarquee />
 
       {/* How it works */}
       <section className="border-b border-border bg-surface-warm">
@@ -259,7 +290,7 @@ const Index = () => {
               What if I don't get referrals?
             </p>
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
-              The math is on your side.
+              The math is <span className="text-gradient-green">on your side.</span>
             </h2>
           </div>
 
@@ -286,8 +317,9 @@ const Index = () => {
             </div>
           </div>
 
-          <p className="mx-auto mt-10 max-w-2xl text-center text-lg font-semibold tracking-tight text-foreground md:text-xl">
-            Most leads cost <span className="text-foreground">$200–$600</span>. Most referrals cost <span className="text-primary">a handshake</span>.
+          <p className="mx-auto mt-12 max-w-3xl text-center text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+            Most leads cost <span className="highlight-underline">$200–$600</span>. Most referrals cost{" "}
+            <span className="shimmer-text">a handshake</span>.
           </p>
         </div>
       </section>
@@ -349,18 +381,17 @@ const Index = () => {
       {/* Final CTA — dark */}
       <LiveTicker variant="dark" />
       <section className="relative overflow-hidden bg-ink text-white">
-        <div aria-hidden className="absolute inset-0 opacity-40" style={{
-          backgroundImage: "radial-gradient(circle at 80% 30%, hsl(var(--primary) / 0.35), transparent 55%), radial-gradient(circle at 15% 80%, hsl(var(--accent) / 0.18), transparent 55%)",
-        }} />
+        <div aria-hidden className="aurora opacity-80" />
+        <div aria-hidden className="grain opacity-[0.08]" />
         <div className="container relative py-24 text-center">
           <Wordmark size="xl" variant="white" />
-          <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-extrabold tracking-tight md:text-5xl">
-            Launch your referral program today.
+          <h2 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold tracking-tight md:text-6xl">
+            Launch your referral program <span className="shimmer-text">today.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
             One plan. $147 for the first 3 months. Cancel anytime.
           </p>
-          <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
+          <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
             <Link to="/signup">Start your referral program</Link>
           </Button>
         </div>
