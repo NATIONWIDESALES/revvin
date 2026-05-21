@@ -1,0 +1,442 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Copy, ExternalLink, Download, Inbox, AlertCircle, Check } from "lucide-react";
+import QRCodeStyling from "qr-code-styling";
+import { useRef } from "react";
+
+interface Business {
+  id: string;
+  name: string;
+  slug: string | null;
+  description: string | null;
+  category: string | null;
+  service_area: string | null;
+  logo_url: string | null;
+  offer_amount: string | null;
+  offer_trigger: string | null;
+  offer_fine_print: string | null;
+  is_published: boolean;
+  is_disabled: boolean;
+  subscription_status: string | null;
+  current_period_end: string | null;
+  business_email: string | null;
+  phone: string | null;
+  stripe_customer_id: string | null;
+}
+
+interface Lead {
+  id: string;
+  created_at: string;
+  referrer_name: string;
+  referrer_email: string;
+  referrer_phone: string | null;
+  lead_name: string;
+  lead_phone: string;
+  lead_email: string | null;
+  lead_need: string;
+  relationship_to_lead: string | null;
+  status: string;
+  notes: string | null;
+}
+
+const STATUSES = ["new", "contacted", "in_progress", "closed_won", "closed_lost", "invalid"];
+const STATUS_LABEL: Record<string, string> = {
+  new: "New", contacted: "Contacted", in_progress: "In Progress",
+  closed_won: "Closed Won", closed_lost: "Closed Lost", invalid: "Invalid",
+};
+
+const BusinessDashboard = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [biz, setBiz] = useState<Business | null>(null);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { if (user) loadAll(); }, [user]);
+
+  const loadAll = async () => {
+    if (!user) return;
+    setLoading(true);
+    const { data: bizData } = await supabase
+      .from("businesses")
+      .select("*")
+      .eq("user_id", user.id)
+      .limit(1);
+    const b = (bizData?.[0] as Business) ?? null;
+    setBiz(b);
+    if (b) {
+      const { data: leadData } = await supabase
+        .from("leads")
+        .select("*")
+        .eq("business_id", b.id)
+        .order("created_at", { ascending: false });
+      setLeads((leadData as Lead[]) ?? []);
+    }
+    setLoading(false);
+  };
+
+  if (loading) {
+    return <div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  }
+
+  if (!biz) {
+    return (
+      <div className="container py-16 text-center">
+        <p className="text-muted-foreground">No business found.</p>
+      </div>
+    );
+  }
+
+  // Not yet onboarded
+  if (!biz.slug || !biz.is_published) {
+    return (
+      <div className="container py-16 max-w-xl text-center">
+        <h1 className="text-2xl font-semibold text-foreground">Finish setting up your referral page</h1>
+        <p className="mt-2 text-sm text-muted-foreground">You're almost there.</p>
+        <Button asChild className="mt-6"><Link to="/welcome">Continue setup</Link></Button>
+      </div>
+    );
+  }
+
+  const publicUrl = `${window.location.origin}/r/${biz.slug}`;
+
+  return (
+    <div className="container py-10 max-w-6xl">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">{biz.name}</h1>
+          <p className="text-sm text-muted-foreground mt-1">Your referral program dashboard</p>
+        </div>
+        <Button variant="outline" asChild><a href={publicUrl} target="_blank" rel="noopener noreferrer">View public page <ExternalLink className="ml-2 h-3.5 w-3.5" /></a></Button>
+      </div>
+
+      <Tabs defaultValue="leads">
+        <TabsList className="mb-6">
+          <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
+          <TabsTrigger value="page">My Page</TabsTrigger>
+          <TabsTrigger value="share">Share Tools</TabsTrigger>
+          <TabsTrigger value="account">Account</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="leads"><LeadsTab leads={leads} reload={loadAll} /></TabsContent>
+        <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} /></TabsContent>
+        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} /></TabsContent>
+        <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+// ============= LEADS TAB =============
+const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
+  const { toast } = useToast();
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [editingNotes, setEditingNotes] = useState<Record<string, string>>({});
+
+  const updateStatus = async (id: string, status: string) => {
+    const { error } = await supabase.from("leads").update({ status }).eq("id", id);
+    if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    else reload();
+  };
+
+  const saveNotes = async (id: string) => {
+    const { error } = await supabase.from("leads").update({ notes: editingNotes[id] ?? "" }).eq("id", id);
+    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    else { toast({ title: "Notes saved" }); reload(); }
+  };
+
+  const exportCsv = () => {
+    const rows = [
+      ["Date","Lead name","Lead phone","Lead email","Need","Referrer name","Referrer email","Referrer phone","Status","Notes"],
+      ...leads.map(l => [
+        new Date(l.created_at).toISOString(),
+        l.lead_name, l.lead_phone, l.lead_email || "", l.lead_need,
+        l.referrer_name, l.referrer_email, l.referrer_phone || "",
+        l.status, (l.notes || "").replace(/\n/g, " "),
+      ]),
+    ];
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `revvin-leads-${Date.now()}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  if (leads.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-border p-16 text-center">
+        <Inbox className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
+        <h2 className="text-lg font-semibold text-foreground">No leads yet</h2>
+        <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">Share your referral link or QR code to start receiving leads. Check the Share Tools tab.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex justify-end mb-4">
+        <Button variant="outline" size="sm" onClick={exportCsv}><Download className="mr-2 h-3.5 w-3.5" /> Export CSV</Button>
+      </div>
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+              <tr>
+                <th className="text-left px-4 py-3 font-medium">Date</th>
+                <th className="text-left px-4 py-3 font-medium">Lead</th>
+                <th className="text-left px-4 py-3 font-medium">Referrer</th>
+                <th className="text-left px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {leads.map((l) => (
+                <>
+                  <tr key={l.id} className="border-t border-border hover:bg-muted/30">
+                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{new Date(l.created_at).toLocaleDateString()}</td>
+                    <td className="px-4 py-3"><div className="font-medium text-foreground">{l.lead_name}</div><div className="text-xs text-muted-foreground">{l.lead_phone}</div></td>
+                    <td className="px-4 py-3"><div className="text-foreground">{l.referrer_name}</div><div className="text-xs text-muted-foreground">{l.referrer_email}</div></td>
+                    <td className="px-4 py-3">
+                      <Select value={l.status} onValueChange={(v) => updateStatus(l.id, v)}>
+                        <SelectTrigger className="h-8 w-36 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>{STATUSES.map((s) => <SelectItem key={s} value={s}>{STATUS_LABEL[s]}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Button variant="ghost" size="sm" onClick={() => setExpanded(expanded === l.id ? null : l.id)}>{expanded === l.id ? "Hide" : "Details"}</Button>
+                    </td>
+                  </tr>
+                  {expanded === l.id && (
+                    <tr className="border-t border-border bg-muted/20">
+                      <td colSpan={5} className="px-4 py-5">
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <div className="space-y-2 text-sm">
+                            <div><span className="text-muted-foreground">Lead email:</span> {l.lead_email || "—"}</div>
+                            <div><span className="text-muted-foreground">What they need:</span> {l.lead_need}</div>
+                            <div><span className="text-muted-foreground">Referrer phone:</span> {l.referrer_phone || "—"}</div>
+                            <div><span className="text-muted-foreground">Relationship:</span> {l.relationship_to_lead || "—"}</div>
+                          </div>
+                          <div>
+                            <Label className="text-xs">Notes</Label>
+                            <Textarea
+                              className="mt-1.5"
+                              defaultValue={l.notes || ""}
+                              onChange={(e) => setEditingNotes((p) => ({ ...p, [l.id]: e.target.value }))}
+                              rows={3}
+                            />
+                            <Button size="sm" className="mt-2" onClick={() => saveNotes(l.id)}>Save notes</Button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============= PAGE TAB =============
+const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: string; onUpdate: () => void }) => {
+  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
+  const copy = () => { navigator.clipboard.writeText(publicUrl); setCopied(true); setTimeout(() => setCopied(false), 1500); };
+
+  return (
+    <div className="grid gap-6 md:grid-cols-2">
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <h3 className="text-sm font-semibold text-foreground mb-3">Your public referral page</h3>
+        <div className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm font-mono text-foreground break-all">{publicUrl}</div>
+        <div className="mt-3 flex gap-2">
+          <Button variant="outline" size="sm" onClick={copy}>{copied ? <><Check className="mr-2 h-3.5 w-3.5" /> Copied</> : <><Copy className="mr-2 h-3.5 w-3.5" /> Copy link</>}</Button>
+          <Button variant="outline" size="sm" asChild><a href={publicUrl} target="_blank" rel="noopener noreferrer">Open <ExternalLink className="ml-2 h-3.5 w-3.5" /></a></Button>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <h3 className="text-sm font-semibold text-foreground mb-3">Edit your page</h3>
+        <p className="text-sm text-muted-foreground mb-4">Update your business info, offer, or logo.</p>
+        <Button variant="outline" asChild><Link to="/welcome">Edit setup</Link></Button>
+      </div>
+
+      <div className="md:col-span-2 rounded-2xl border border-border bg-card p-6">
+        <h3 className="text-sm font-semibold text-foreground mb-4">Preview</h3>
+        <div className="rounded-xl border border-border bg-muted/30 p-6">
+          <div className="flex items-center gap-3">
+            {biz.logo_url ? <img src={biz.logo_url} className="h-12 w-12 rounded-xl object-cover border border-border" alt="" /> : <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-semibold">{biz.name.charAt(0)}</div>}
+            <div>
+              <p className="font-semibold text-foreground">{biz.name}</p>
+              <p className="text-xs text-muted-foreground">{biz.description}</p>
+            </div>
+          </div>
+          {biz.offer_amount && (
+            <div className="mt-4 rounded-lg bg-primary/5 border border-primary/20 p-3">
+              <p className="text-sm font-semibold text-foreground">Refer a customer, earn {biz.offer_amount}</p>
+              {biz.offer_trigger && <p className="text-xs text-muted-foreground">{biz.offer_trigger}</p>}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============= SHARE TAB =============
+const ShareTab = ({ biz, publicUrl }: { biz: Business; publicUrl: string }) => {
+  const qrRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!qrRef.current) return;
+    const qr = new QRCodeStyling({
+      width: 240, height: 240, data: publicUrl,
+      dotsOptions: { color: "#0F172A", type: "rounded" },
+      cornersSquareOptions: { color: "#15803D", type: "extra-rounded" },
+      cornersDotOptions: { color: "#15803D", type: "dot" },
+      backgroundOptions: { color: "#ffffff" },
+      qrOptions: { errorCorrectionLevel: "H" },
+    });
+    qrRef.current.innerHTML = "";
+    qr.append(qrRef.current);
+  }, [publicUrl]);
+
+  const download = (ext: "png" | "svg") => {
+    const hq = new QRCodeStyling({
+      width: 1024, height: 1024, data: publicUrl,
+      dotsOptions: { color: "#0F172A", type: "rounded" },
+      cornersSquareOptions: { color: "#15803D", type: "extra-rounded" },
+      cornersDotOptions: { color: "#15803D", type: "dot" },
+      backgroundOptions: { color: "#ffffff" },
+      qrOptions: { errorCorrectionLevel: "H" },
+    });
+    hq.download({ name: `${biz.slug}-qr`, extension: ext });
+  };
+
+  const printPdf = () => {
+    const canvas = qrRef.current?.querySelector("canvas");
+    if (!canvas) return;
+    const dataUrl = canvas.toDataURL("image/png");
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(`<html><head><title>${biz.name} — Referral QR</title><style>body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;text-align:center}img{width:400px;height:400px}h1{font-size:24px;margin:24px 0 8px}p{color:#64748b;font-size:14px}@media print{body{padding:0}}</style></head><body><h1>${biz.name}</h1><p>Refer a customer, earn ${biz.offer_amount || ""}</p><img src="${dataUrl}" /><p style="margin-top:16px;font-size:12px;word-break:break-all">${publicUrl}</p><script>window.onload=()=>window.print()</script></body></html>`);
+    w.document.close();
+  };
+
+  const emailTemplate = `Hey [name], we've launched a referral program. If you know someone who could use our services, send them through this link: ${publicUrl}`;
+  const smsTemplate = `Hey — quick favor: if you know anyone who needs ${biz.category || "our services"}, send them here: ${publicUrl}`;
+
+  const copy = (s: string, label: string) => { navigator.clipboard.writeText(s); toast({ title: `${label} copied` }); };
+
+  return (
+    <div className="grid gap-6 md:grid-cols-2">
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <h3 className="text-sm font-semibold text-foreground mb-4">QR code</h3>
+        <div className="flex justify-center mb-4" ref={qrRef} />
+        <div className="flex gap-2 flex-wrap justify-center">
+          <Button variant="outline" size="sm" onClick={() => download("png")}><Download className="mr-2 h-3.5 w-3.5" /> PNG</Button>
+          <Button variant="outline" size="sm" onClick={() => download("svg")}><Download className="mr-2 h-3.5 w-3.5" /> SVG</Button>
+          <Button variant="outline" size="sm" onClick={printPdf}>Print / PDF</Button>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+        <div>
+          <h3 className="text-sm font-semibold text-foreground mb-2">Referral link</h3>
+          <div className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm font-mono break-all">{publicUrl}</div>
+          <Button size="sm" variant="outline" className="mt-2" onClick={() => copy(publicUrl, "Link")}><Copy className="mr-2 h-3.5 w-3.5" /> Copy</Button>
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-foreground mb-2">Email template</h3>
+          <Textarea readOnly value={emailTemplate} rows={3} className="text-xs" />
+          <Button size="sm" variant="outline" className="mt-2" onClick={() => copy(emailTemplate, "Email")}><Copy className="mr-2 h-3.5 w-3.5" /> Copy</Button>
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-foreground mb-2">SMS template</h3>
+          <Textarea readOnly value={smsTemplate} rows={2} className="text-xs" />
+          <Button size="sm" variant="outline" className="mt-2" onClick={() => copy(smsTemplate, "SMS")}><Copy className="mr-2 h-3.5 w-3.5" /> Copy</Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============= ACCOUNT TAB =============
+const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) => {
+  const { toast } = useToast();
+  const [busy, setBusy] = useState(false);
+  const [notifs, setNotifs] = useState({ email: true, sms: false, notification_email: biz.business_email || "", notification_phone: biz.phone || "" });
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("notification_settings").select("*").eq("business_id", biz.id).limit(1);
+      const n = data?.[0];
+      if (n) setNotifs({ email: n.email_notifications_enabled, sms: n.sms_notifications_enabled, notification_email: n.notification_email || biz.business_email || "", notification_phone: n.notification_phone || biz.phone || "" });
+    })();
+  }, [biz.id]);
+
+  const saveNotifs = async () => {
+    setBusy(true);
+    const { error } = await supabase.from("notification_settings").upsert({
+      business_id: biz.id,
+      email_notifications_enabled: notifs.email,
+      sms_notifications_enabled: notifs.sms,
+      notification_email: notifs.notification_email,
+      notification_phone: notifs.notification_phone,
+    }, { onConflict: "business_id" });
+    setBusy(false);
+    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    else toast({ title: "Saved" });
+  };
+
+  const openPortal = async () => {
+    setBusy(true);
+    const { data, error } = await supabase.functions.invoke("customer-portal");
+    setBusy(false);
+    if (error || !data?.url) { toast({ title: "Could not open billing portal", description: error?.message, variant: "destructive" }); return; }
+    window.open(data.url, "_blank");
+  };
+
+  const periodEnd = biz.current_period_end ? new Date(biz.current_period_end).toLocaleDateString() : null;
+
+  return (
+    <div className="grid gap-6 md:grid-cols-2">
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <h3 className="text-sm font-semibold text-foreground mb-1">Subscription</h3>
+        <p className="text-xs text-muted-foreground mb-4">$147 first 3 months, then $49/month.</p>
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between"><span className="text-muted-foreground">Status</span><span className="text-foreground font-medium capitalize">{biz.subscription_status || "—"}</span></div>
+          {periodEnd && <div className="flex justify-between"><span className="text-muted-foreground">Next billing</span><span className="text-foreground">{periodEnd}</span></div>}
+        </div>
+        <Button variant="outline" className="mt-4 w-full" onClick={openPortal} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing"}</Button>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <h3 className="text-sm font-semibold text-foreground mb-4">Lead notifications</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between"><Label className="text-sm">Email notifications</Label><Switch checked={notifs.email} onCheckedChange={(v) => setNotifs((p) => ({ ...p, email: v }))} /></div>
+          <div><Label className="text-xs">Notification email</Label><Input type="email" value={notifs.notification_email} onChange={(e) => setNotifs((p) => ({ ...p, notification_email: e.target.value }))} className="mt-1.5" /></div>
+          <div className="flex items-center justify-between"><Label className="text-sm">SMS notifications</Label><Switch checked={notifs.sms} onCheckedChange={(v) => setNotifs((p) => ({ ...p, sms: v }))} /></div>
+          <div><Label className="text-xs">Notification phone</Label><Input type="tel" value={notifs.notification_phone} onChange={(e) => setNotifs((p) => ({ ...p, notification_phone: e.target.value }))} className="mt-1.5" /></div>
+          <Button onClick={saveNotifs} disabled={busy} className="w-full">Save</Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BusinessDashboard;
