@@ -46,7 +46,7 @@ const Index = () => {
         <div aria-hidden className="aurora" />
         <div aria-hidden className="absolute inset-0 grid-faint" />
         <div aria-hidden className="grain" />
-        <div className="container relative py-20 md:py-28">
+        <div className="container relative py-14 md:py-28">
           <div className="grid items-center gap-14 lg:grid-cols-12">
             <div className="lg:col-span-7">
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/70 shadow-soft backdrop-blur">
@@ -56,26 +56,27 @@ const Index = () => {
                 </span>
                 Live in US &amp; Canada
               </span>
-              <h1 className="mt-5 text-5xl font-extrabold tracking-tight text-foreground leading-[0.98] md:text-7xl">
+              <h1 className="mt-5 text-[2.5rem] font-extrabold tracking-tight text-foreground leading-[1.02] sm:text-5xl md:text-7xl">
                 Get your own{" "}
                 <span className="highlight-underline text-gradient-green">referral page</span>{" "}
                 in minutes.
               </h1>
-              <p className="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground md:text-xl">
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
                 Launch a branded referral page, create a clear offer, share your link or QR code, and track every referral lead from one simple dashboard.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button size="lg" className="shine-on-hover h-12 px-6 text-base shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep" asChild>
+                <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
                   <Link to="/signup">
-                    Start your referral program — $147 for 3 months
+                    <span className="sm:hidden">Start your program — $147</span>
+                    <span className="hidden sm:inline">Start your referral program — $147 for 3 months</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="h-12 px-6 text-base" asChild>
+                <Button size="lg" variant="outline" className="h-12 w-full px-6 text-base sm:w-auto" asChild>
                   <Link to="/how-it-works">See how it works</Link>
                 </Button>
               </div>
-              <p className="mt-5 text-xs text-muted-foreground">
+              <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
                 Billed upfront for the first 3 months, then $49/month. Cancel anytime.
               </p>
             </div>
