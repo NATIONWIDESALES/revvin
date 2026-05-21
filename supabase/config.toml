@@ -7,3 +7,7 @@ project_id = "olmpplfgzegzqdcznlrp"
     verify_jwt = true
   [functions.tremendous-webhook]
     verify_jwt = false
+  [functions.stripe-business-webhook]
+    verify_jwt = false
+  [functions.public-submit-lead]
+    verify_jwt = false

@@ -39,10 +39,7 @@ const Navbar = () => {
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? "U";
 
   const navLinks = [
-    { to: "/browse", label: "Browse Offers" },
-    { to: "/for-businesses", label: "For Businesses" },
-    { to: "/for-referrers", label: "For Referrers" },
-    { to: "/how-it-works", label: "How It Works" },
+    { to: "/how-it-works", label: "How it works" },
     { to: "/pricing", label: "Pricing" },
   ];
 
@@ -123,13 +120,6 @@ const Navbar = () => {
                           <LayoutDashboard className="h-4 w-4" /> Dashboard
                         </Link>
                         <Link
-                          to="/saved"
-                          onClick={() => setDropdownOpen(false)}
-                          className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-                        >
-                          <Heart className="h-4 w-4" /> Saved Offers
-                        </Link>
-                        <Link
                           to="/dashboard/profile"
                           onClick={() => setDropdownOpen(false)}
                           className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
@@ -164,11 +154,8 @@ const Navbar = () => {
                   Log In
                 </Link>
                 <Button size="sm" className="px-5" asChild>
-                  <Link to="/signup">Get Started</Link>
+                  <Link to="/signup">Start your referral program</Link>
                 </Button>
-                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ backgroundColor: '#DBEAFE', color: '#2563EB' }}>
-                  in beta
-                </span>
               </>
             )}
           </div>
@@ -204,9 +191,6 @@ const Navbar = () => {
               ))}
               {user && (
                 <div className="border-t border-border pt-3 mt-1 space-y-1">
-                  <Link to="/saved" onClick={() => setOpen(false)} className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
-                    Saved Offers
-                  </Link>
                   <Link to="/dashboard/profile" onClick={() => setOpen(false)} className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
                     Profile
                   </Link>
@@ -229,18 +213,11 @@ const Navbar = () => {
                       <Link to="/auth" onClick={() => setOpen(false)}>Log In</Link>
                     </Button>
                     <Button size="sm" className="flex-1" asChild>
-                      <Link to="/signup" onClick={() => setOpen(false)}>Get Started</Link>
+                      <Link to="/signup" onClick={() => setOpen(false)}>Start your referral program</Link>
                     </Button>
                   </>
                 )}
               </div>
-              {!user && (
-                <div className="mt-2 text-center">
-                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ backgroundColor: '#DBEAFE', color: '#2563EB' }}>
-                    in beta
-                  </span>
-                </div>
-              )}
             </motion.div>
           )}
         </AnimatePresence>

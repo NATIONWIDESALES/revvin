@@ -71,18 +71,29 @@ export type Database = {
       businesses: {
         Row: {
           account_status: string
+          business_email: string | null
+          category: string | null
           city: string | null
           created_at: string
+          current_period_end: string | null
           description: string | null
           id: string
           industry: string | null
+          is_disabled: boolean
+          is_published: boolean
           latitude: number | null
           logo_url: string | null
           longitude: number | null
           name: string
+          offer_amount: string | null
+          offer_fine_print: string | null
+          offer_trigger: string | null
           phone: string | null
           pricing_tier: string
+          service_area: string | null
+          slug: string | null
           state: string | null
+          stripe_customer_id: string | null
           stripe_subscription_id: string | null
           subscription_status: string | null
           updated_at: string
@@ -92,18 +103,29 @@ export type Database = {
         }
         Insert: {
           account_status?: string
+          business_email?: string | null
+          category?: string | null
           city?: string | null
           created_at?: string
+          current_period_end?: string | null
           description?: string | null
           id?: string
           industry?: string | null
+          is_disabled?: boolean
+          is_published?: boolean
           latitude?: number | null
           logo_url?: string | null
           longitude?: number | null
           name: string
+          offer_amount?: string | null
+          offer_fine_print?: string | null
+          offer_trigger?: string | null
           phone?: string | null
           pricing_tier?: string
+          service_area?: string | null
+          slug?: string | null
           state?: string | null
+          stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
           updated_at?: string
@@ -113,18 +135,29 @@ export type Database = {
         }
         Update: {
           account_status?: string
+          business_email?: string | null
+          category?: string | null
           city?: string | null
           created_at?: string
+          current_period_end?: string | null
           description?: string | null
           id?: string
           industry?: string | null
+          is_disabled?: boolean
+          is_published?: boolean
           latitude?: number | null
           logo_url?: string | null
           longitude?: number | null
           name?: string
+          offer_amount?: string | null
+          offer_fine_print?: string | null
+          offer_trigger?: string | null
           phone?: string | null
           pricing_tier?: string
+          service_area?: string | null
+          slug?: string | null
           state?: string | null
+          stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
           updated_at?: string
@@ -220,6 +253,112 @@ export type Database = {
           used_at?: string | null
         }
         Relationships: []
+      }
+      leads: {
+        Row: {
+          business_id: string
+          consent_given: boolean
+          created_at: string
+          id: string
+          lead_email: string | null
+          lead_name: string
+          lead_need: string
+          lead_phone: string
+          lead_source: string | null
+          notes: string | null
+          referrer_email: string
+          referrer_name: string
+          referrer_phone: string | null
+          relationship_to_lead: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          consent_given?: boolean
+          created_at?: string
+          id?: string
+          lead_email?: string | null
+          lead_name: string
+          lead_need: string
+          lead_phone: string
+          lead_source?: string | null
+          notes?: string | null
+          referrer_email: string
+          referrer_name: string
+          referrer_phone?: string | null
+          relationship_to_lead?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          consent_given?: boolean
+          created_at?: string
+          id?: string
+          lead_email?: string | null
+          lead_name?: string
+          lead_need?: string
+          lead_phone?: string
+          lead_source?: string | null
+          notes?: string | null
+          referrer_email?: string
+          referrer_name?: string
+          referrer_phone?: string | null
+          relationship_to_lead?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_settings: {
+        Row: {
+          business_id: string
+          created_at: string
+          email_notifications_enabled: boolean
+          id: string
+          notification_email: string | null
+          notification_phone: string | null
+          sms_notifications_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          email_notifications_enabled?: boolean
+          id?: string
+          notification_email?: string | null
+          notification_phone?: string | null
+          sms_notifications_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          email_notifications_enabled?: boolean
+          id?: string
+          notification_email?: string | null
+          notification_phone?: string | null
+          sms_notifications_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -986,6 +1125,7 @@ export type Database = {
         Returns: undefined
       }
       fn_platform_counts: { Args: never; Returns: Json }
+      fn_slug_available: { Args: { p_slug: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
