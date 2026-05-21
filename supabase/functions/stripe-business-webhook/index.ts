@@ -26,16 +26,30 @@ serve(async (req) => {
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();
 
+  // FIX 3: Require signature verification — no silent fallback in production
+  if (!webhookSecret) {
+    console.error("[stripe-business-webhook] STRIPE_WEBHOOK_SECRET is not configured");
+    return new Response(JSON.stringify({ error: "Webhook secret not configured" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  if (!signature) {
+    return new Response(JSON.stringify({ error: "Missing stripe-signature header" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   let event: Stripe.Event;
   try {
-    if (webhookSecret && signature) {
-      event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
-    } else {
-      event = JSON.parse(body) as Stripe.Event;
-    }
+    event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
   } catch (err) {
     console.error("[stripe-business-webhook] signature error", err);
-    return new Response(JSON.stringify({ error: "Invalid signature" }), { status: 400 });
+    return new Response(JSON.stringify({ error: "Invalid signature" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   console.log("[stripe-business-webhook]", event.type);
@@ -127,6 +141,26 @@ serve(async (req) => {
           await admin
             .from("businesses")
             .update({ subscription_status: "past_due" })
+            .eq("stripe_subscription_id", subId);
+        }
+        break;
+      }
+      case "invoice.payment_succeeded": {
+        // FIX 6: Keep current_period_end fresh on renewals
+        const inv = event.data.object as Stripe.Invoice;
+        const subId = typeof inv.subscription === "string" ? inv.subscription : inv.subscription?.id;
+        if (subId) {
+          const sub = await stripe.subscriptions.retrieve(subId);
+          const periodEnd = sub.current_period_end
+            ? new Date(sub.current_period_end * 1000).toISOString()
+            : null;
+          await admin
+            .from("businesses")
+            .update({
+              subscription_status: "active",
+              current_period_end: periodEnd,
+              is_published: true,
+            })
             .eq("stripe_subscription_id", subId);
         }
         break;
