@@ -14,6 +14,7 @@ import MockLeadsTable from "@/components/marketing/MockLeadsTable";
 import MockQRCard from "@/components/marketing/MockQRCard";
 import MockPageBuilder from "@/components/marketing/MockPageBuilder";
 import TrustBar from "@/components/marketing/TrustBar";
+import LiveTicker from "@/components/marketing/LiveTicker";
 import Wordmark from "@/components/brand/Wordmark";
 
 const Index = () => {
@@ -346,6 +347,7 @@ const Index = () => {
       </section>
 
       {/* Final CTA — dark */}
+      <LiveTicker variant="dark" />
       <section className="relative overflow-hidden bg-ink text-white">
         <div aria-hidden className="absolute inset-0 opacity-40" style={{
           backgroundImage: "radial-gradient(circle at 80% 30%, hsl(var(--primary) / 0.35), transparent 55%), radial-gradient(circle at 15% 80%, hsl(var(--accent) / 0.18), transparent 55%)",
