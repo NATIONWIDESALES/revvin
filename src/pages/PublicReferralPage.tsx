@@ -69,24 +69,35 @@ const PublicReferralPage = () => {
       return;
     }
     setSubmitting(true);
-    const { error } = await supabase.from("leads").insert({
-      business_id: biz.id,
-      referrer_name: form.referrer_name.trim(),
-      referrer_email: form.referrer_email.trim(),
-      referrer_phone: form.referrer_phone.trim() || null,
-      lead_name: form.lead_name.trim(),
-      lead_phone: form.lead_phone.trim(),
-      lead_email: form.lead_email.trim() || null,
-      lead_need: form.lead_need.trim(),
-      relationship_to_lead: form.relationship_to_lead.trim() || null,
-      consent_given: true,
-      lead_source: "public_page",
-      status: "new",
-    });
+    const { data: inserted, error } = await supabase
+      .from("leads")
+      .insert({
+        business_id: biz.id,
+        referrer_name: form.referrer_name.trim(),
+        referrer_email: form.referrer_email.trim(),
+        referrer_phone: form.referrer_phone.trim() || null,
+        lead_name: form.lead_name.trim(),
+        lead_phone: form.lead_phone.trim(),
+        lead_email: form.lead_email.trim() || null,
+        lead_need: form.lead_need.trim(),
+        relationship_to_lead: form.relationship_to_lead.trim() || null,
+        consent_given: true,
+        lead_source: "public_page",
+        status: "new",
+      })
+      .select("id")
+      .limit(1);
     setSubmitting(false);
     if (error) {
       toast({ title: "Could not submit", description: error.message, variant: "destructive" });
       return;
+    }
+    const newLeadId = inserted?.[0]?.id;
+    if (newLeadId) {
+      // Fire-and-forget email notification to business owner
+      supabase.functions
+        .invoke("notify-new-lead", { body: { lead_id: newLeadId } })
+        .catch((err) => console.warn("[notify-new-lead] failed", err));
     }
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
