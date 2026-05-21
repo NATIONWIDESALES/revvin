@@ -1,13 +1,20 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
-import { ArrowRight, Check, Share2, Inbox, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Bell, Pencil, Smartphone, CreditCard } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import PhoneMockup from "@/components/marketing/PhoneMockup";
+import MockReferralPage from "@/components/marketing/MockReferralPage";
+import MockLeadsTable from "@/components/marketing/MockLeadsTable";
+import MockQRCard from "@/components/marketing/MockQRCard";
+import MockPageBuilder from "@/components/marketing/MockPageBuilder";
+import TrustBar from "@/components/marketing/TrustBar";
+import Wordmark from "@/components/brand/Wordmark";
 
 const Index = () => {
   return (
@@ -33,144 +40,271 @@ const Index = () => {
       />
 
       {/* Hero */}
-      <section className="border-b border-border bg-background">
-        <div className="container py-20 md:py-28 max-w-4xl">
-          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.05]">
-            Get your own business referral page in minutes.
-          </h1>
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-            Launch a branded referral page, create a clear offer, share your link or QR code, and track every referral lead from one simple dashboard.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-3">
-            <Button size="lg" className="h-12 px-6 text-base" asChild>
-              <Link to="/signup">
-                Start your referral program — $147 for 3 months
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" className="h-12 px-6 text-base" asChild>
-              <Link to="/how-it-works">See how it works</Link>
-            </Button>
+      <section className="relative overflow-hidden border-b border-border hero-radial">
+        <div aria-hidden className="absolute inset-0 grid-faint" />
+        <div className="container relative py-20 md:py-28">
+          <div className="grid items-center gap-14 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/70 shadow-soft">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                Live in US &amp; Canada
+              </span>
+              <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-foreground leading-[1.02] md:text-6xl">
+                Get your own business referral page in minutes.
+              </h1>
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground md:text-xl">
+                Launch a branded referral page, create a clear offer, share your link or QR code, and track every referral lead from one simple dashboard.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button size="lg" className="h-12 px-6 text-base shadow-soft hover:translate-y-[-1px] hover:bg-primary-deep" asChild>
+                  <Link to="/signup">
+                    Start your referral program — $147 for 3 months
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="h-12 px-6 text-base" asChild>
+                  <Link to="/how-it-works">See how it works</Link>
+                </Button>
+              </div>
+              <p className="mt-5 text-xs text-muted-foreground">
+                Billed upfront for the first 3 months, then $49/month. Cancel anytime.
+              </p>
+            </div>
+
+            <div className="relative lg:col-span-5">
+              <PhoneMockup rotate={4}>
+                <MockReferralPage />
+              </PhoneMockup>
+            </div>
           </div>
-          <p className="mt-5 text-xs text-muted-foreground">
-            Billed upfront for the first 3 months, then $49/month. Cancel anytime.
-          </p>
         </div>
       </section>
 
+      <TrustBar />
+
       {/* How it works */}
-      <section className="border-b border-border">
-        <div className="container py-20">
-          <div className="max-w-2xl mb-12">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">How it works</p>
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+      <section className="border-b border-border bg-surface-warm">
+        <div className="container py-24">
+          <div className="mb-16 max-w-2xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-3">How it works</p>
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
               From signup to referrals in under 10 minutes.
             </h2>
           </div>
-          <div className="grid gap-8 md:grid-cols-3">
+
+          <div className="space-y-20">
             {[
-              { n: "01", t: "Build your referral page", d: "Add your logo, write your offer, and pick a custom URL. We do the rest." },
-              { n: "02", t: "Share your link or QR code", d: "Email it to past customers. Stick the QR on invoices, jobsites, business cards." },
-              { n: "03", t: "Receive and manage leads", d: "Every referral lands in your dashboard. Track status. Pay your referrer directly when the deal closes." },
-            ].map((s) => (
-              <div key={s.n} className="rounded-2xl border border-border bg-card p-8">
-                <div className="text-xs font-mono text-muted-foreground mb-4">{s.n}</div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">{s.t}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{s.d}</p>
+              { n: "01", t: "Build your referral page", d: "Add your logo, write your offer, and pick a custom URL. We do the rest.", visual: <MockPageBuilder /> },
+              { n: "02", t: "Share your link or QR code", d: "Email it to past customers. Stick the QR on invoices, jobsites, business cards.", visual: <MockQRCard /> },
+              { n: "03", t: "Receive and manage leads", d: "Every referral lands in your dashboard. Track status. Pay your referrer directly when the deal closes.", visual: <MockLeadsTable /> },
+            ].map((s, i) => (
+              <div key={s.n} className="relative grid items-center gap-10 md:grid-cols-12">
+                <span className="watermark-num pointer-events-none absolute -top-10 left-0 hidden text-[180px] md:block">
+                  {s.n}
+                </span>
+                <div className={`md:col-span-6 ${i % 2 === 1 ? "md:order-2" : ""}`}>
+                  <div className="relative">
+                    <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground md:hidden">
+                      Step {s.n}
+                    </p>
+                    <h3 className="text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+                      {s.t}
+                    </h3>
+                    <p className="mt-3 text-base leading-relaxed text-muted-foreground md:text-lg">
+                      {s.d}
+                    </p>
+                  </div>
+                </div>
+                <div className={`md:col-span-6 ${i % 2 === 1 ? "md:order-1" : ""}`}>
+                  <div className="mx-auto max-w-md">{s.visual}</div>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* What you get */}
-      <section className="border-b border-border bg-muted/30">
-        <div className="container py-20">
-          <div className="max-w-2xl mb-12">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">What you get</p>
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+      {/* What you get — bento */}
+      <section className="border-b border-border">
+        <div className="container py-24">
+          <div className="mb-12 max-w-2xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-3">What you get</p>
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
               Everything you need to run a referral program.
             </h2>
           </div>
-          <div className="grid gap-x-12 gap-y-4 md:grid-cols-2">
-            {[
-              "Custom business referral page",
-              "Clear referral offer builder",
-              "Public lead submission form",
-              "Shareable link",
-              "Downloadable QR code (PNG + print)",
-              "Lead inbox and dashboard",
-              "Email and SMS lead notifications",
-              "Mobile-friendly referral page",
-              "Edit your offer anytime",
-              "Stripe billing and customer portal",
-            ].map((f) => (
-              <div key={f} className="flex items-start gap-3 py-2">
-                <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                <span className="text-base text-foreground">{f}</span>
+
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-6 md:grid-rows-[auto_auto_auto]">
+            {/* Big leads dashboard tile */}
+            <div className="bento-tile md:col-span-4 md:row-span-2">
+              <div className="mb-5 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Lead inbox</p>
+                  <h3 className="mt-1 text-xl font-bold tracking-tight text-foreground">Every referral in one place</h3>
+                </div>
               </div>
-            ))}
+              <MockLeadsTable />
+            </div>
+
+            {/* QR tile */}
+            <div className="bento-tile md:col-span-2">
+              <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">QR code</p>
+              <MockQRCard className="border-0 p-0 shadow-none" />
+            </div>
+
+            {/* Offer headline tile */}
+            <div className="bento-tile md:col-span-2 flex flex-col justify-between">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Your offer</p>
+              <div className="py-2">
+                <p className="text-2xl font-extrabold leading-tight tracking-tight text-foreground">
+                  Refer a customer,<br />earn <span className="text-primary">$500</span>
+                </p>
+              </div>
+              <p className="text-xs text-muted-foreground">Set, edit, and publish in seconds.</p>
+            </div>
+
+            {/* URL tile */}
+            <div className="bento-tile md:col-span-3">
+              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Your custom URL</p>
+              <div className="flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-2.5">
+                <span className="font-mono text-sm text-foreground">apex-roofing.revvin.co</span>
+                <span className="rounded-md bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">COPY</span>
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">Branded. Shareable. Memorable.</p>
+            </div>
+
+            {/* Small feature tiles */}
+            <div className="bento-tile md:col-span-3 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Bell className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Email + SMS notifications</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Get pinged the second a referral comes in.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Pencil className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Edit anytime</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Change your offer in one click.</p>
+              </div>
+            </div>
+            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Smartphone className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Mobile-friendly</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Looks right on every device.</p>
+              </div>
+            </div>
+            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><CreditCard className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Stripe billing portal</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Cancel or update card anytime.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Pricing teaser */}
-      <section className="border-b border-border">
-        <div className="container py-20">
-          <div className="max-w-3xl mx-auto rounded-2xl border-2 border-primary/20 bg-card p-10 md:p-12 text-center">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-4">One simple plan</p>
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
-              Business Referral Page
-            </h2>
-            <div className="mt-6 flex items-baseline justify-center gap-2">
-              <span className="text-5xl font-semibold text-foreground">$147</span>
-              <span className="text-base text-muted-foreground">for the first 3 months</span>
+      <section className="border-b border-border bg-surface-warm">
+        <div className="container py-24">
+          <div className="mx-auto max-w-2xl">
+            <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-10 shadow-product md:p-12">
+              <span className="absolute left-0 top-0 h-full w-[3px] bg-primary" />
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-4">
+                One simple plan · Business Referral Page
+              </p>
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="text-6xl font-extrabold tracking-tight text-foreground">$147</span>
+                <span className="text-base font-medium text-muted-foreground">for the first 3 months</span>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">Then $49/month. Cancel anytime.</p>
+
+              <Button size="lg" className="mt-8 h-12 w-full text-base shadow-soft hover:bg-primary-deep" asChild>
+                <Link to="/signup">Start your referral program</Link>
+              </Button>
+
+              <div className="mt-8 grid grid-cols-1 gap-y-2.5 border-t border-border pt-6 sm:grid-cols-2 sm:gap-x-8">
+                {[
+                  "Branded referral page",
+                  "Offer builder",
+                  "Lead inbox & dashboard",
+                  "QR code (PNG + print)",
+                  "Email + SMS notifications",
+                  "Stripe billing portal",
+                ].map((f) => (
+                  <div key={f} className="flex items-start gap-2.5">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <span className="text-sm text-foreground">{f}</span>
+                  </div>
+                ))}
+              </div>
+
+              <p className="mt-6 text-center text-xs text-muted-foreground">
+                Cancel anytime &middot; <Link to="/pricing" className="underline hover:text-foreground">Full plan details</Link>
+              </p>
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">Then $49/month. Cancel anytime.</p>
-            <Button size="lg" className="h-12 px-8 mt-8" asChild>
-              <Link to="/signup">Start your referral program</Link>
-            </Button>
-            <p className="mt-4 text-xs text-muted-foreground">
-              <Link to="/pricing" className="underline hover:text-foreground">See full plan details</Link>
-            </p>
           </div>
         </div>
       </section>
 
-      {/* Example preview */}
-      <section className="border-b border-border bg-muted/30">
-        <div className="container py-20">
-          <div className="max-w-2xl mb-12 mx-auto text-center">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">Example</p>
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
-              What your referral page looks like.
+      {/* Old way vs Revvin */}
+      <section className="border-b border-border">
+        <div className="container py-24">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              What if I don't get referrals?
+            </p>
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
+              The math is on your side.
             </h2>
           </div>
-          <div className="max-w-sm mx-auto rounded-3xl border border-border bg-background p-8 shadow-sm">
-            <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-semibold text-xl mb-4">
-              A
+
+          <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-border bg-card p-8 shadow-soft">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Old way</p>
+              <h3 className="mt-1 text-xl font-bold text-foreground">Buying leads from ads</h3>
+              <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
+                <li className="flex gap-3"><span className="mt-2 h-1 w-3 shrink-0 bg-foreground/30" />Pay $400+ per lead on Google Ads</li>
+                <li className="flex gap-3"><span className="mt-2 h-1 w-3 shrink-0 bg-foreground/30" />Compete with 5 other roofers for the same click</li>
+                <li className="flex gap-3"><span className="mt-2 h-1 w-3 shrink-0 bg-foreground/30" />Burn $3,000 to find out which keywords work</li>
+                <li className="flex gap-3"><span className="mt-2 h-1 w-3 shrink-0 bg-foreground/30" />Hope the lead picks up the phone</li>
+              </ul>
             </div>
-            <h3 className="text-lg font-semibold text-foreground">Apex Roofing</h3>
-            <p className="text-sm text-muted-foreground mt-1">Residential roofing across Denver, CO</p>
-            <div className="mt-6 rounded-xl bg-primary/5 border border-primary/20 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">Referral offer</p>
-              <p className="text-2xl font-semibold text-foreground">Refer a customer, earn $500</p>
-              <p className="text-xs text-muted-foreground mt-1">Paid per closed roofing job.</p>
+            <div className="rounded-2xl border-2 border-primary bg-card p-8 shadow-product">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">With Revvin</p>
+              <h3 className="mt-1 text-xl font-bold text-foreground">Your own referral engine</h3>
+              <ul className="mt-6 space-y-3 text-sm text-foreground">
+                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />One flat price, your own referral page</li>
+                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />Customers share your link with people they trust</li>
+                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />Leads arrive pre-warmed and in your dashboard</li>
+                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />You decide what to pay referrers when deals close</li>
+              </ul>
             </div>
-            <Button className="w-full mt-6" size="lg">Submit a referral</Button>
-            <p className="text-[10px] text-muted-foreground text-center mt-3">Powered by REVVIN.CO</p>
           </div>
+
+          <p className="mx-auto mt-10 max-w-2xl text-center text-lg font-semibold tracking-tight text-foreground md:text-xl">
+            Most leads cost <span className="text-foreground">$200–$600</span>. Most referrals cost <span className="text-primary">a handshake</span>.
+          </p>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="border-b border-border">
-        <div className="container py-20 max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">Questions</p>
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-10">
+      <section className="border-b border-border bg-surface-warm">
+        <div className="container max-w-3xl py-24">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Questions</p>
+          <h2 className="mb-10 text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
             Frequently asked.
           </h2>
           <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="q0">
+              <AccordionTrigger>What if I don't get any referrals?</AccordionTrigger>
+              <AccordionContent>
+                Most of our customers get their first referral within the first month by texting their existing client list once. Your page stays live, you can edit your offer anytime, and the leads you do get cost a fraction of an ad-driven lead.
+              </AccordionContent>
+            </AccordionItem>
             <AccordionItem value="q1">
               <AccordionTrigger>Does Revvin pay the referrers for me?</AccordionTrigger>
               <AccordionContent>
@@ -211,16 +345,20 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section>
-        <div className="container py-20 text-center max-w-2xl">
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+      {/* Final CTA — dark */}
+      <section className="relative overflow-hidden bg-ink text-white">
+        <div aria-hidden className="absolute inset-0 opacity-40" style={{
+          backgroundImage: "radial-gradient(circle at 80% 30%, hsl(var(--primary) / 0.35), transparent 55%), radial-gradient(circle at 15% 80%, hsl(var(--accent) / 0.18), transparent 55%)",
+        }} />
+        <div className="container relative py-24 text-center">
+          <Wordmark size="xl" variant="white" />
+          <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-extrabold tracking-tight md:text-5xl">
             Launch your referral program today.
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
             One plan. $147 for the first 3 months. Cancel anytime.
           </p>
-          <Button size="lg" className="h-12 px-8 mt-8" asChild>
+          <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
             <Link to="/signup">Start your referral program</Link>
           </Button>
         </div>

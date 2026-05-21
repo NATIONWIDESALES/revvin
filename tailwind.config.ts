@@ -65,6 +65,9 @@ export default {
           foreground: "hsl(var(--earnings-foreground))",
         },
         surface: "hsl(var(--surface))",
+        "surface-warm": "hsl(var(--surface-warm))",
+        ink: "hsl(var(--ink))",
+        "primary-deep": "hsl(var(--primary-deep))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -74,6 +77,7 @@ export default {
       boxShadow: {
         card: "0 1px 3px rgba(0,0,0,0.04)",
         "card-hover": "0 4px 12px rgba(0,0,0,0.06)",
+        product: "0 1px 1px rgba(15,23,42,0.04), 0 8px 16px -6px rgba(15,23,42,0.08), 0 24px 48px -12px rgba(15,23,42,0.18)",
       },
       keyframes: {
         "accordion-down": {

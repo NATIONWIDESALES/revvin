@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut, LayoutDashboard, UserCircle, Settings, Heart } from "lucide-react";
-import revvinLogo from "@/assets/revvin-logo.png";
+import Wordmark from "@/components/brand/Wordmark";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import NotificationBell from "@/components/NotificationBell";
@@ -57,8 +57,8 @@ const Navbar = () => {
       <nav className="sticky top-0 z-50 border-b border-border" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
         <div className="container flex h-14 items-center justify-between">
           {/* Left: Logo */}
-          <Link to="/" className="flex items-center shrink-0">
-            <img src={revvinLogo} alt="Revvin" className="h-[34px] md:h-9 w-auto object-contain" />
+          <Link to="/" className="flex items-center shrink-0" aria-label="Revvin.co home">
+            <Wordmark size="sm" />
           </Link>
 
           {/* Center: Nav links */}
