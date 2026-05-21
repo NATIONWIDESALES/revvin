@@ -30,43 +30,45 @@ const Pricing = () => {
         path="/pricing"
       />
 
-      <section className="border-b border-border">
-        <div className="container py-20 max-w-3xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">Pricing</p>
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground">
+      <section className="relative overflow-hidden border-b border-border hero-radial">
+        <div aria-hidden className="absolute inset-0 grid-faint" />
+        <div className="container relative max-w-3xl py-24 text-center">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pricing</p>
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
             One simple plan. No surprises.
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p className="mt-5 text-lg text-muted-foreground">
             Everything you need to launch a referral program for your business.
           </p>
         </div>
       </section>
 
       <section>
-        <div className="container py-16 max-w-2xl">
-          <div className="rounded-2xl border-2 border-primary bg-card p-10 md:p-12 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary">Business Referral Page</p>
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+        <div className="container max-w-2xl py-20">
+          <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-10 shadow-product md:p-14">
+            <span className="absolute left-0 top-0 h-full w-[3px] bg-primary" />
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Business Referral Page</p>
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
                 Only plan
               </span>
             </div>
-            <div className="mt-6 flex items-baseline gap-2">
-              <span className="text-5xl font-semibold text-foreground">$147</span>
-              <span className="text-base text-muted-foreground">for the first 3 months</span>
+            <div className="mt-8 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="text-6xl font-extrabold tracking-tight text-foreground">$147</span>
+              <span className="text-base font-medium text-muted-foreground">for the first 3 months</span>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
               Then $49/month. Cancel anytime — access continues through the end of the paid period.
             </p>
 
-            <Button size="lg" className="h-12 w-full mt-8" asChild>
+            <Button size="lg" className="mt-8 h-12 w-full text-base shadow-soft hover:bg-primary-deep" asChild>
               <Link to="/signup">Start your referral program</Link>
             </Button>
 
-            <div className="mt-8 border-t border-border pt-6 space-y-3">
+            <div className="mt-10 grid grid-cols-1 gap-y-3 border-t border-border pt-8 sm:grid-cols-2 sm:gap-x-8">
               {includes.map((f) => (
-                <div key={f} className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                <div key={f} className="flex items-start gap-2.5">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                   <span className="text-sm text-foreground">{f}</span>
                 </div>
               ))}
@@ -79,9 +81,9 @@ const Pricing = () => {
         </div>
       </section>
 
-      <section className="border-t border-border bg-muted/30">
-        <div className="container py-16 max-w-3xl">
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground mb-8">Common questions</h2>
+      <section className="border-t border-border bg-surface-warm">
+        <div className="container max-w-3xl py-20">
+          <h2 className="mb-8 text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Common questions</h2>
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="p1">
               <AccordionTrigger>How does the $147 work?</AccordionTrigger>
