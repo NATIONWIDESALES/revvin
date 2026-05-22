@@ -1180,9 +1180,12 @@ export type Database = {
           channel: string
           context: string | null
           created_at: string
+          error_message: string | null
           id: string
+          message_id: string | null
           mode: string
           recipient: string
+          status: string
           subject: string | null
         }
         Insert: {
@@ -1191,9 +1194,12 @@ export type Database = {
           channel: string
           context?: string | null
           created_at?: string
+          error_message?: string | null
           id?: string
+          message_id?: string | null
           mode?: string
           recipient: string
+          status?: string
           subject?: string | null
         }
         Update: {
@@ -1202,9 +1208,12 @@ export type Database = {
           channel?: string
           context?: string | null
           created_at?: string
+          error_message?: string | null
           id?: string
+          message_id?: string | null
           mode?: string
           recipient?: string
+          status?: string
           subject?: string | null
         }
         Relationships: []
@@ -1325,6 +1334,41 @@ export type Database = {
           uuid?: string
         }
         Relationships: []
+      }
+      unsubscribe_tokens: {
+        Row: {
+          business_id: string
+          contact_type: string
+          contact_value: string
+          created_at: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          business_id: string
+          contact_type: string
+          contact_value: string
+          created_at?: string
+          token: string
+          used_at?: string | null
+        }
+        Update: {
+          business_id?: string
+          contact_type?: string
+          contact_value?: string
+          created_at?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unsubscribe_tokens_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_badges: {
         Row: {
