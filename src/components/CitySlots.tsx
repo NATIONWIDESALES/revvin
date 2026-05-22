@@ -65,7 +65,7 @@ const CitySlots = ({ maxDisplay = 6, showApplyButton = false }: CitySlotsProps) 
       </div>
       {showApplyButton && (
         <Button className="w-full mt-4 gap-1" asChild>
-          <Link to="/auth?mode=signup&role=business">
+          <Link to="/signup">
             <BadgeCheck className="h-4 w-4" /> Apply for Verified Placement <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>

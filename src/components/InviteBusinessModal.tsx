@@ -21,7 +21,7 @@ const InviteBusinessModal = ({ trigger }: InviteBusinessModalProps) => {
     e.preventDefault();
     setSending(true);
     // Log the invite via the send-notification edge function (Resend)
-    const signupUrl = `${window.location.origin}/auth?mode=signup&role=business`;
+    const signupUrl = `${window.location.origin}/signup`;
     await supabase.functions.invoke("send-notification", {
       body: {
         type: "business_invite",
