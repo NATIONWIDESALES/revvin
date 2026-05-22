@@ -252,10 +252,11 @@ const ReferrerDashboard = () => {
                         {["submitted", "contacted", "in_progress", "qualified"].includes(ref.status) && (
                           <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={async () => {
                             // Send in-app notification to business owner
-                            const { data: biz } = await supabase.from("businesses").select("user_id, name").eq("id", ref.business_id).maybeSingle();
-                            if (biz?.user_id) {
+                            const { data: biz } = await supabase.from("businesses_public" as any).select("user_id, name").eq("id", ref.business_id).maybeSingle();
+                            const bizRow = biz as any;
+                            if (bizRow?.user_id) {
                               await supabase.rpc("fn_create_notification", {
-                                p_user_id: biz.user_id,
+                                p_user_id: bizRow.user_id,
                                 p_title: "Referral Nudge",
                                 p_body: `A referrer is following up on their referral for "${ref.offers?.title ?? "an offer"}".`,
                                 p_type: "nudge",
