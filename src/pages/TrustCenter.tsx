@@ -177,13 +177,13 @@ const TrustCenter = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-3">Payout Timelines</motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-muted-foreground mb-10 max-w-xl">
-              Businesses choose their payout timeline when creating an offer. Referrers always know when to expect payment.
+              Businesses publish the payout window they commit to when creating their offer, so referrers always know when to expect payment from the business.
             </motion.p>
             <motion.div variants={fadeUp} custom={2} className="grid gap-4 sm:grid-cols-3">
               {[
-                { label: "Net 7", desc: "Payout 7 days after verified close", speed: "Fastest" },
-                { label: "Net 14", desc: "Payout 14 days after verified close", speed: "Standard" },
-                { label: "Net 30", desc: "Payout 30 days after verified close", speed: "Extended" },
+                { label: "Net 7", desc: "Business pays within 7 days of close", speed: "Fastest" },
+                { label: "Net 14", desc: "Business pays within 14 days of close", speed: "Standard" },
+                { label: "Net 30", desc: "Business pays within 30 days of close", speed: "Extended" },
               ].map((t) => (
                 <div key={t.label} className="rounded-xl border border-border bg-card p-6 text-center">
                   <Clock className="mx-auto mb-3 h-8 w-8 text-primary" />
