@@ -25,7 +25,7 @@ export function usePlatformStats() {
     queryFn: async (): Promise<PlatformStats> => {
       const [offersRes, bizRes, referralsRes, countsRes] = await Promise.all([
         supabase.from("offers").select("payout, business_id", { count: "exact" }).eq("status", "active"),
-        supabase.from("businesses").select("id, city", { count: "exact" }),
+        supabase.from("businesses_public" as any).select("id, city", { count: "exact" }),
         supabase.from("referrals").select("id", { count: "exact" }),
         supabase.rpc("fn_platform_counts" as any),
       ]);
