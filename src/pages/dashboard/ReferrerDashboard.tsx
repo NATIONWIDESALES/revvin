@@ -109,12 +109,12 @@ const ReferrerDashboard = () => {
       let businessName = ref.businesses?.name || "";
       if (!businessOwnerId) {
         const { data: business } = await supabase
-          .from("businesses")
+          .from("businesses_public" as any)
           .select("name, user_id")
           .eq("id", ref.business_id)
           .maybeSingle();
-        businessOwnerId = business?.user_id;
-        businessName = businessName || business?.name || "";
+        businessOwnerId = (business as any)?.user_id;
+        businessName = businessName || (business as any)?.name || "";
       }
 
       if (businessOwnerId) {
