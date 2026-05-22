@@ -369,7 +369,7 @@ const Browse = () => {
                 </div>
                 <div className="mt-8">
                   <Button asChild>
-                    <Link to="/auth?mode=signup&role=business">
+                    <Link to="/signup">
                       <PlusCircle className="mr-2 h-4 w-4" /> Be the first to list
                     </Link>
                   </Button>
@@ -399,7 +399,7 @@ const Browse = () => {
             <p className="text-sm text-muted-foreground">List your referral program and start receiving qualified leads.</p>
           </div>
           <Button asChild className="gap-2 shrink-0">
-            <Link to="/auth?mode=signup&role=business"><PlusCircle className="h-4 w-4" /> Create an Offer</Link>
+            <Link to="/signup"><PlusCircle className="h-4 w-4" /> Create an Offer</Link>
           </Button>
         </div>
       </div>

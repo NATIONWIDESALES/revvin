@@ -44,7 +44,7 @@ const TrustCenter = () => {
                 { step: "1", title: "Business Posts Offer", desc: "The business sets a payout amount (flat fee or percentage) and publishes their referral offer to the marketplace.", icon: Briefcase, color: "text-primary" },
                 { step: "2", title: "Referrer Submits a Lead", desc: "A referrer submits a qualified lead with contact details and notes. First submission wins — timestamped for fairness.", icon: Users, color: "text-earnings" },
                 { step: "3", title: "Business Accepts & Works the Deal", desc: "The business reviews the referral, accepts it, and works toward closing the deal. Payout terms are locked at acceptance.", icon: CheckCircle2, color: "text-primary" },
-                { step: "4", title: "Deal Closes → Payout Processed", desc: "When the deal is marked as won, Revvin verifies the outcome and processes the payout. The referrer receives the full advertised amount. The platform fee is charged separately to the business.", icon: DollarSign, color: "text-earnings" },
+                { step: "4", title: "Deal Closes → Business Pays Referrer", desc: "When the deal is marked as won, the business pays the referrer directly using whatever method they prefer (e-transfer, Zelle, check, etc.). Revvin does not touch the money. The referrer receives the full advertised amount.", icon: DollarSign, color: "text-earnings" },
                 { step: "↩", title: "Deal Lost → No Charge", desc: "If the referral is declined or the deal is lost, no payout is created. The business pays nothing.", icon: ArrowRight, color: "text-muted-foreground" },
               ].map((item, i) => (
                 <motion.div key={item.step} variants={fadeUp} custom={i + 2} className="flex items-start gap-4 rounded-xl border border-border bg-card p-5">
@@ -58,13 +58,13 @@ const TrustCenter = () => {
               ))}
             </div>
 
-            {/* Early Access Note */}
+            {/* Direct Pay Note */}
             <motion.div variants={fadeUp} custom={7} className="mt-8 rounded-xl border border-primary/20 bg-primary/5 p-5 text-center">
               <p className="text-sm text-foreground font-medium">
-                During early access, payouts are processed by Revvin after a verified close.
+                Revvin does not touch the money.
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                We're building automated payout rails — for now, our team manually verifies and processes every payout.
+                You pay your referrers directly using whatever method you trust. We give you the infrastructure to run the program — the relationship stays yours.
               </p>
             </motion.div>
 
@@ -75,7 +75,7 @@ const TrustCenter = () => {
               </h3>
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-3">Canada Example (CAD) — Free Tier</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-3">Canada Example (CAD)</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl bg-card border border-border p-3">
                       <p className="text-xs text-muted-foreground mb-1">Advertised Payout</p>
@@ -87,12 +87,12 @@ const TrustCenter = () => {
                     </div>
                     <div className="rounded-xl bg-card border border-border p-3">
                       <p className="text-xs text-muted-foreground mb-1">Business Total Cost</p>
-                      <p className="text-lg font-bold">CA$750</p>
+                      <p className="text-lg font-bold">CA$600</p>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-3">USA Example (USD) — Starter Tier (10% fee)</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-3">USA Example (USD)</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl bg-card border border-border p-3">
                       <p className="text-xs text-muted-foreground mb-1">Advertised Payout</p>
@@ -104,12 +104,12 @@ const TrustCenter = () => {
                     </div>
                     <div className="rounded-xl bg-card border border-border p-3">
                       <p className="text-xs text-muted-foreground mb-1">Business Total Cost</p>
-                      <p className="text-lg font-bold">$550</p>
+                      <p className="text-lg font-bold">$500</p>
                     </div>
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn the full advertised payout. The platform fee is charged to the business separately — it depends on the business's selected plan.</p>
+              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn the full advertised payout. Businesses pay the referrer directly — Revvin does not take a per-referral fee. The business's only cost to Revvin is the $49/month subscription.</p>
             </motion.div>
           </motion.div>
         </div>
@@ -155,7 +155,7 @@ const TrustCenter = () => {
                 { step: "1", title: "Referral Submitted", desc: "Referrer submits lead details with timestamp. First submission wins for duplicate protection.", icon: Users },
                 { step: "2", title: "Business Accepts → Terms Locked", desc: "Business reviews the lead and accepts it. The payout amount and type are snapshotted at this point.", icon: CheckCircle2 },
                 { step: "3", title: "Deal Outcome Recorded", desc: "Business marks the referral as won or lost. Revenue and deal details are logged.", icon: FileCheck },
-                { step: "4", title: "Verified Close → Payout Processed", desc: "Revvin verifies the outcome and processes the payout. The referrer receives the full advertised amount.", icon: DollarSign },
+                { step: "4", title: "Verified Close → Business Pays Direct", desc: "Once the deal is marked won, the business pays the referrer directly. The referrer receives the full advertised amount.", icon: DollarSign },
               ].map((item, i) => (
                 <motion.div key={item.step} variants={fadeUp} custom={i + 2} className="flex items-start gap-4 rounded-xl border border-border bg-card p-5">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shrink-0">{item.step}</div>
@@ -177,13 +177,13 @@ const TrustCenter = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-3">Payout Timelines</motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-muted-foreground mb-10 max-w-xl">
-              Businesses choose their payout timeline when creating an offer. Referrers always know when to expect payment.
+              Businesses publish the payout window they commit to when creating their offer, so referrers always know when to expect payment from the business.
             </motion.p>
             <motion.div variants={fadeUp} custom={2} className="grid gap-4 sm:grid-cols-3">
               {[
-                { label: "Net 7", desc: "Payout 7 days after verified close", speed: "Fastest" },
-                { label: "Net 14", desc: "Payout 14 days after verified close", speed: "Standard" },
-                { label: "Net 30", desc: "Payout 30 days after verified close", speed: "Extended" },
+                { label: "Net 7", desc: "Business pays within 7 days of close", speed: "Fastest" },
+                { label: "Net 14", desc: "Business pays within 14 days of close", speed: "Standard" },
+                { label: "Net 30", desc: "Business pays within 30 days of close", speed: "Extended" },
               ].map((t) => (
                 <div key={t.label} className="rounded-xl border border-border bg-card p-6 text-center">
                   <Clock className="mx-auto mb-3 h-8 w-8 text-primary" />
@@ -235,22 +235,22 @@ const TrustCenter = () => {
               <div className="grid grid-cols-3 gap-4">
                 <div className="rounded-xl bg-muted/50 border border-border p-5">
                   <Briefcase className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-                  <div className="text-3xl font-bold text-foreground">$0</div>
-                  <p className="text-xs text-muted-foreground mt-1">To list an offer</p>
+                  <div className="text-3xl font-bold text-foreground">$49</div>
+                  <p className="text-xs text-muted-foreground mt-1">/month — business plan</p>
                 </div>
                 <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-5">
                   <Users className="mx-auto mb-2 h-6 w-6 text-earnings" />
-                  <div className="text-3xl font-bold text-earnings">Full</div>
-                  <p className="text-xs text-muted-foreground mt-1">Payout to referrer</p>
+                  <div className="text-3xl font-bold text-earnings">100%</div>
+                  <p className="text-xs text-muted-foreground mt-1">Of payout to referrer</p>
                 </div>
                 <div className="rounded-xl bg-muted/50 border border-border p-5">
                   <Briefcase className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-                 <div className="text-3xl font-bold text-foreground">Varies</div>
-                  <p className="text-xs text-muted-foreground mt-1">Platform fee to business</p>
+                  <div className="text-3xl font-bold text-foreground">$0</div>
+                  <p className="text-xs text-muted-foreground mt-1">Per-referral platform fee</p>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mt-6">
-                Referrers always earn the full advertised payout. The platform fee is charged to the business on each successful close — the rate depends on the business's selected plan.
+                Referrers always earn the full advertised payout. Businesses pay one flat $49/month — no per-referral fees, no surprise charges.
               </p>
             </motion.div>
           </motion.div>
@@ -265,10 +265,10 @@ const TrustCenter = () => {
             <motion.p variants={fadeUp} custom={1} className="mt-3 text-muted-foreground text-lg">Join a marketplace built on trust and transparency</motion.p>
             <motion.div variants={fadeUp} custom={2} className="mt-8 flex justify-center gap-4">
               <Button size="lg" className="gap-2 h-12 px-8" asChild>
-                <Link to="/auth?mode=signup&role=referrer">Start Earning <ArrowRight className="h-4 w-4" /></Link>
+                <Link to="/signup">Start Earning <ArrowRight className="h-4 w-4" /></Link>
               </Button>
               <Button size="lg" variant="outline" className="h-12 px-8" asChild>
-                <Link to="/auth?mode=signup&role=business">List Your Business</Link>
+                <Link to="/signup">List Your Business</Link>
               </Button>
             </motion.div>
           </motion.div>

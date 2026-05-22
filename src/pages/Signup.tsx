@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
-import revvinLogo from "@/assets/revvin-logo.png";
+import Wordmark from "@/components/brand/Wordmark";
 import { Loader2 } from "lucide-react";
 
 const Signup = () => {
@@ -108,8 +108,8 @@ const Signup = () => {
       />
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-md">
-          <Link to="/" className="flex items-center justify-center mb-8">
-            <img src={revvinLogo} alt="Revvin" className="h-9 w-auto" />
+          <Link to="/" className="flex items-center justify-center mb-8" aria-label="Revvin home">
+            <Wordmark size="md" />
           </Link>
           <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">

@@ -62,7 +62,7 @@ const ForReferrers = () => (
           </motion.p>
           <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/auth?mode=signup&role=referrer">Start Earning <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/signup">Start Earning <ArrowRight className="h-4 w-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" className="h-12 px-8 text-sm gap-2" asChild>
               <Link to="/browse"><Search className="h-4 w-4" /> Browse Offers</Link>
@@ -209,7 +209,7 @@ const ForReferrers = () => (
           <p className="text-muted-foreground mb-8">Create your free account, browse live offers, and start making introductions that pay.</p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/auth?mode=signup&role=referrer">Create Free Account <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/signup">Create Free Account <ArrowRight className="h-4 w-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" className="h-12 px-8 text-sm gap-2" asChild>
               <Link to="/browse">Browse Offers</Link>

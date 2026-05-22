@@ -435,14 +435,14 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           <div className="flex gap-2">
             <Button
               className="flex-1 gap-1.5"
-              onClick={() => navigate(`/auth?mode=signup&role=referrer&redirect=${encodeURIComponent(redirectPath)}`)}
+              onClick={() => navigate(`/signup?redirect=${encodeURIComponent(redirectPath)}`)}
             >
               <UserPlus className="h-3.5 w-3.5" /> Sign Up Free
             </Button>
             <Button
               variant="outline"
               className="flex-1 gap-1.5"
-              onClick={() => navigate(`/auth?mode=login&redirect=${encodeURIComponent(redirectPath)}`)}
+              onClick={() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`)}
             >
               <LogIn className="h-3.5 w-3.5" /> Sign In
             </Button>

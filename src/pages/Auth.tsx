@@ -7,8 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
-import revvinLogo from "@/assets/revvin-logo.png";
 import SEOHead from "@/components/SEOHead";
+import Wordmark from "@/components/brand/Wordmark";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -57,8 +57,8 @@ const Auth = () => {
       />
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 hero-gradient flex-col justify-between p-12">
-        <Link to="/" className="flex items-center">
-          <img src={revvinLogo} alt="Revvin" className="h-9 w-auto object-contain brightness-0 invert" />
+        <Link to="/" className="flex items-center" aria-label="Revvin home">
+          <Wordmark size="md" variant="white" />
         </Link>
         <div>
           <h2 className="text-4xl font-bold text-primary-foreground leading-tight">Welcome back to Revvin</h2>
