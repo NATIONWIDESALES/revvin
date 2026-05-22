@@ -58,13 +58,13 @@ const TrustCenter = () => {
               ))}
             </div>
 
-            {/* Early Access Note */}
+            {/* Direct Pay Note */}
             <motion.div variants={fadeUp} custom={7} className="mt-8 rounded-xl border border-primary/20 bg-primary/5 p-5 text-center">
               <p className="text-sm text-foreground font-medium">
-                During early access, payouts are processed by Revvin after a verified close.
+                Revvin does not touch the money.
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                We're building automated payout rails — for now, our team manually verifies and processes every payout.
+                You pay your referrers directly using whatever method you trust. We give you the infrastructure to run the program — the relationship stays yours.
               </p>
             </motion.div>
 
