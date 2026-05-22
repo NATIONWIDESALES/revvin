@@ -95,7 +95,7 @@ const Pricing = () => {
               <p className="mt-2 text-sm text-muted-foreground">
                 Send referrals to any business on Revvin and get paid directly.
               </p>
-              <Button variant="outline" size="lg" className="mt-6 h-11 w-full" asChild onClick={clearLaunchAtCheckout}>
+              <Button variant="outline" size="lg" className="mt-6 h-11 w-full" asChild onClick={() => setLaunchFlag(false)}>
                 <Link to="/signup?role=referrer">Create free account</Link>
               </Button>
               <ul className="mt-8 space-y-2.5 border-t border-border pt-6">
@@ -124,9 +124,25 @@ const Pricing = () => {
               <p className="mt-2 text-sm text-muted-foreground">
                 Cancel anytime. No contract, no setup fee.
               </p>
-              <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={clearLaunchAtCheckout}>
-                <Link to="/signup">Start your referral program</Link>
+              <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(addLaunch)}>
+                <Link to="/signup">
+                  {addLaunch ? "Start program + Launch Package" : "Start your referral program"}
+                </Link>
               </Button>
+              <div className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-surface-warm p-3">
+                <Checkbox
+                  id="add-launch-pro"
+                  checked={addLaunch}
+                  onCheckedChange={(v) => toggleLaunch(v === true)}
+                  className="mt-0.5"
+                />
+                <Label htmlFor="add-launch-pro" className="cursor-pointer text-xs leading-snug text-foreground">
+                  <span className="font-semibold">Add $297 Launch Package</span>
+                  <span className="block text-muted-foreground">
+                    One-time. We set up your offer, page, and launch assets with you.
+                  </span>
+                </Label>
+              </div>
               <ul className="mt-8 space-y-2.5 border-t border-border pt-6">
                 {proFeatures.map((f) => (
                   <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
@@ -148,8 +164,25 @@ const Pricing = () => {
               <p className="mt-2 text-sm text-muted-foreground">
                 Optional. We set up your offer, page, and launch assets with you.
               </p>
-              <Button variant="outline" size="lg" className="mt-6 h-11 w-full" asChild onClick={addLaunchAtCheckout}>
-                <Link to="/signup">Add at checkout</Link>
+              <div className="mt-6 flex items-start gap-3 rounded-lg border border-border bg-surface-warm p-3">
+                <Checkbox
+                  id="add-launch-card"
+                  checked={addLaunch}
+                  onCheckedChange={(v) => toggleLaunch(v === true)}
+                  className="mt-0.5"
+                />
+                <Label htmlFor="add-launch-card" className="cursor-pointer text-sm font-semibold text-foreground">
+                  {addLaunch ? "Added to checkout" : "Add $297 Launch Package"}
+                </Label>
+              </div>
+              <Button
+                variant={addLaunch ? "default" : "outline"}
+                size="lg"
+                className="mt-3 h-11 w-full"
+                asChild
+                onClick={() => setLaunchFlag(true)}
+              >
+                <Link to="/signup">{addLaunch ? "Continue to checkout" : "Add and continue"}</Link>
               </Button>
               <ul className="mt-8 space-y-2.5 border-t border-border pt-6">
                 {launchFeatures.map((f) => (
