@@ -49,7 +49,7 @@ const PublicReferralPage = () => {
     if (!slug) return;
     (async () => {
       const { data } = await supabase
-        .from("businesses")
+        .from("businesses_public" as any)
         .select("id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print")
         .eq("slug", slug)
         .limit(1);
