@@ -75,7 +75,7 @@ const TrustCenter = () => {
               </h3>
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-3">Canada Example (CAD) — Free Tier</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-3">Canada Example (CAD)</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl bg-card border border-border p-3">
                       <p className="text-xs text-muted-foreground mb-1">Advertised Payout</p>
@@ -87,12 +87,12 @@ const TrustCenter = () => {
                     </div>
                     <div className="rounded-xl bg-card border border-border p-3">
                       <p className="text-xs text-muted-foreground mb-1">Business Total Cost</p>
-                      <p className="text-lg font-bold">CA$750</p>
+                      <p className="text-lg font-bold">CA$600</p>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-3">USA Example (USD) — Starter Tier (10% fee)</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-3">USA Example (USD)</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl bg-card border border-border p-3">
                       <p className="text-xs text-muted-foreground mb-1">Advertised Payout</p>
@@ -104,12 +104,12 @@ const TrustCenter = () => {
                     </div>
                     <div className="rounded-xl bg-card border border-border p-3">
                       <p className="text-xs text-muted-foreground mb-1">Business Total Cost</p>
-                      <p className="text-lg font-bold">$550</p>
+                      <p className="text-lg font-bold">$500</p>
                     </div>
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn the full advertised payout. The platform fee is charged to the business separately — it depends on the business's selected plan.</p>
+              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn the full advertised payout. Businesses pay the referrer directly — Revvin does not take a per-referral fee. The business's only cost to Revvin is the $49/month subscription.</p>
             </motion.div>
           </motion.div>
         </div>
