@@ -1,6 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import {
+  ADMIN_NOTIFICATION_EMAIL,
+  RESEND_FROM_ADDRESS,
+  RESEND_REPLY_TO,
+  appUrl,
+} from "../_shared/app-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -166,6 +172,75 @@ serve(async (req) => {
                 if (ltErr) console.error("[stripe-business-webhook] launch_tasks insert", ltErr);
               }
             }
+          }
+
+          // 💰 Admin alert: new paying customer
+          try {
+            const resendApiKey = Deno.env.get("RESEND_API_KEY");
+            if (resendApiKey) {
+              const { data: { user: ownerUser } } =
+                await admin.auth.admin.getUserById(userId);
+              const ownerEmail = ownerUser?.email || "Unknown";
+              const ownerName =
+                ownerUser?.user_metadata?.full_name || ownerEmail.split("@")[0];
+              const { data: bizRow } = await admin
+                .from("businesses")
+                .select("name, industry, city, state")
+                .eq("user_id", userId)
+                .limit(1);
+              const biz = bizRow?.[0];
+              const businessName = biz?.name || "New Business";
+              const total = (s.amount_total ?? 0) / 100;
+              const currency = (s.currency || "usd").toUpperCase();
+              const items: string[] = ["$49/mo Pro subscription"];
+              if (launchPackagePurchased) items.push("$297 Launch Package");
+
+              const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F9FAFB;"><tr><td align="center" style="padding:40px 16px;">
+<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border-radius:12px;overflow:hidden;"><tr><td style="padding:24px;">
+<p style="margin:0 0 24px;font-size:14px;font-weight:700;color:#15803D;text-transform:lowercase;">revvin</p>
+<p style="margin:0 0 8px;font-size:16px;color:#111827;">💰 New paying customer</p>
+<p style="margin:0 0 24px;font-size:15px;color:#374151;line-height:1.6;"><strong>${escapeHtml(businessName)}</strong> just completed Stripe checkout.</p>
+<table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E5E7EB;border-radius:8px;"><tr><td style="padding:20px;">
+<table width="100%" cellpadding="0" cellspacing="0">
+<tr><td style="padding:6px 0;color:#6B7280;font-size:14px;width:140px;">Business</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:500;">${escapeHtml(businessName)}</td></tr>
+<tr><td style="padding:6px 0;color:#6B7280;font-size:14px;">Owner</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:500;">${escapeHtml(ownerName)}</td></tr>
+<tr><td style="padding:6px 0;color:#6B7280;font-size:14px;">Email</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:500;">${escapeHtml(ownerEmail)}</td></tr>
+<tr><td style="padding:6px 0;color:#6B7280;font-size:14px;">Total Charged</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:600;">${currency} $${total.toFixed(2)}</td></tr>
+<tr><td style="padding:6px 0;color:#6B7280;font-size:14px;vertical-align:top;">Items</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:500;">${items.map(escapeHtml).join("<br/>")}</td></tr>
+${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size:14px;font-weight:600;">⚡ Action</td><td style="padding:6px 0;color:#D97706;font-size:14px;font-weight:600;">Schedule Launch Package onboarding call within 1 business day</td></tr>` : ""}
+</table></td></tr></table>
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 0 0;">
+<a href="${appUrl("/__sa")}" style="display:inline-block;background:#15803D;color:#FFF;font-size:15px;font-weight:500;text-decoration:none;padding:12px 28px;border-radius:8px;">Open Admin Dashboard</a>
+</td></tr></table>
+</td></tr></table></td></tr></table></body></html>`;
+
+              const subject = launchPackagePurchased
+                ? `💰 New paying customer + Launch Package: ${businessName}`
+                : `💰 New paying customer: ${businessName}`;
+
+              const res = await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${resendApiKey}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  from: RESEND_FROM_ADDRESS,
+                  to: [ADMIN_NOTIFICATION_EMAIL],
+                  reply_to: RESEND_REPLY_TO,
+                  subject,
+                  html,
+                }),
+              });
+              if (!res.ok) {
+                console.error("[stripe-business-webhook] payment alert email failed", res.status, await res.text());
+              } else {
+                console.log("[stripe-business-webhook] 💰 payment alert sent for", businessName);
+              }
+            }
+          } catch (e) {
+            console.error("[stripe-business-webhook] payment alert error", e);
           }
         }
         break;
