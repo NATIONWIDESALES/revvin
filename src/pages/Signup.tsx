@@ -25,8 +25,14 @@ const Signup = () => {
   const startCheckout = async () => {
     setBusy(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-business-checkout");
+      const includeLaunchPackage =
+        typeof window !== "undefined" &&
+        window.sessionStorage.getItem("revvin_addon_launch") === "1";
+      const { data, error } = await supabase.functions.invoke("create-business-checkout", {
+        body: { includeLaunchPackage },
+      });
       if (error || !data?.url) throw new Error(error?.message || "Could not start checkout");
+      if (typeof window !== "undefined") window.sessionStorage.removeItem("revvin_addon_launch");
       window.location.href = data.url;
     } catch (err: any) {
       toast({ title: "Checkout error", description: err.message, variant: "destructive" });
@@ -96,7 +102,7 @@ const Signup = () => {
     <>
       <SEOHead
         title="Start your referral program — Revvin"
-        description="Create your Revvin account and launch a branded referral page for your business. $147 for the first 3 months."
+        description="Create your Revvin account and launch a branded referral page for your business. $49/month, cancel anytime."
         path="/signup"
         noindex
       />
@@ -110,7 +116,7 @@ const Signup = () => {
               Start your referral program
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Create your account, then we'll send you to secure checkout. $147 for the first 3 months.
+              Create your account, then we'll send you to secure checkout. $49/month, cancel anytime.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
