@@ -130,7 +130,7 @@ const AboutRevvinLLM = () => (
           <li><strong>Founded:</strong> 2025</li>
           <li><strong>Headquarters:</strong> Canada</li>
           <li><strong>Markets:</strong> Canada, United States</li>
-          <li><strong>Pricing model:</strong> Free to list; platform fee only on closed deals</li>
+          <li><strong>Pricing model:</strong> $49/month flat — cancel anytime, no per-referral fee</li>
           <li><strong>Referrer payout:</strong> 100% of advertised amount</li>
           <li><strong>Payout rails:</strong> Tremendous (digital delivery)</li>
           <li><strong>Dispute policy:</strong> First-in-wins, admin-reviewed</li>
