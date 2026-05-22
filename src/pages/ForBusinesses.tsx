@@ -174,13 +174,13 @@ const ForBusinesses = () => (
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-2xl mx-auto text-center">
           <motion.p variants={fadeUp} custom={0} className="section-label mb-3">Simple economics</motion.p>
           <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-            Free to list. Pay only when deals close.
+            $49/month. Cancel anytime.
           </motion.h2>
           <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-sm mb-8 max-w-lg mx-auto">
-            No subscriptions required. No upfront costs. Create your profile, publish your offer, and start receiving referrals. A small platform fee applies only on successful closes.
+            One flat price. No contract, no setup fee, no per-referral cut. Create your page, publish your offer, and pay referrers directly when deals close.
           </motion.p>
           <motion.div variants={fadeUp} custom={2} className="inline-flex flex-wrap items-center justify-center gap-4">
-            {["Free business listing", "You set the payout", "No monthly commitment", "Pay on results only"].map(item => (
+            {["$49/month flat", "You set the payout", "Cancel anytime", "Pay referrers directly"].map(item => (
               <span key={item} className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                 <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                 {item}
@@ -189,9 +189,9 @@ const ForBusinesses = () => (
           </motion.div>
           <motion.div variants={fadeUp} custom={3} className="mt-10">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/signup">Start your referral program <ArrowRight className="h-4 w-4" /></Link>
             </Button>
-            <p className="mt-3 text-xs text-muted-foreground">Choose your plan after signing up. Free plan available.</p>
+            <p className="mt-3 text-xs text-muted-foreground">Free tier available for referrers.</p>
           </motion.div>
         </motion.div>
       </div>
@@ -238,9 +238,9 @@ const ForBusinesses = () => (
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Start acquiring customers today</h2>
           <p className="text-muted-foreground mb-8">Create your business account, set your referral payout, and let your network do the selling.</p>
           <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-            <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
+            <Link to="/signup">Start your referral program <ArrowRight className="h-4 w-4" /></Link>
           </Button>
-          <p className="mt-4 text-xs text-muted-foreground">Free to list. Pay only when referrals convert.</p>
+          <p className="mt-4 text-xs text-muted-foreground">$49/month. Cancel anytime. No contract.</p>
         </motion.div>
       </div>
     </section>
