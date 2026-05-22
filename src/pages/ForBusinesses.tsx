@@ -26,7 +26,7 @@ const ForBusinesses = () => (
   <div>
     <SEOHead
       title="Customer Acquisition for Businesses | Pay Per Close | Revvin"
-      description="Stop paying for clicks. Acquire high-ticket customers with zero upfront cost. List your referral offer on Revvin and only pay when a deal successfully closes."
+      description="Stop paying for clicks. Launch a branded referral page for $49/month. Set what a new customer is worth and pay your referrers directly when deals close."
       path="/for-businesses"
       jsonLd={[
         {
@@ -41,17 +41,17 @@ const ForBusinesses = () => (
           ],
           "offers": {
             "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "CAD",
-            "description": "Free to list. Pay only on closed deals."
+            "price": "49",
+            "priceCurrency": "USD",
+            "description": "$49/month. Cancel anytime. No contract."
           }
         },
         {
           "@context": "https://schema.org",
           "@type": "FAQPage",
           "mainEntity": [
-            { "@type": "Question", "name": "How much does it cost to list?", "acceptedAnswer": { "@type": "Answer", "text": "Listing is free. You only pay a platform fee when a referral closes into a paying customer." } },
-            { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay nothing. Revvin's pay-per-close model means there is zero cost for unconverted referrals." } },
+            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "$49/month. Cancel anytime, no contract, no setup fee. You pay your referrers directly when deals close — Revvin does not take a per-referral fee." } },
+            { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay your referrer nothing — they only earn on closed deals. Your only ongoing cost to Revvin is the $49/month subscription." } },
             { "@type": "Question", "name": "Who decides the referral payout amount?", "acceptedAnswer": { "@type": "Answer", "text": "The business sets the payout based on what a closed customer is worth. Referrers receive 100% of that advertised amount." } },
             { "@type": "Question", "name": "How is this different from Google Ads or Facebook Ads?", "acceptedAnswer": { "@type": "Answer", "text": "Ads charge per click or impression with no guarantee of conversion. Revvin only charges when a referred lead becomes a closed customer." } }
           ]
@@ -79,14 +79,14 @@ const ForBusinesses = () => (
           </motion.p>
           <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/auth?mode=signup&role=business">Create Business Account <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/signup">Start your referral program <ArrowRight className="h-4 w-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" className="h-12 px-8 text-sm" asChild>
               <Link to="/how-it-works">How It Works</Link>
             </Button>
           </motion.div>
           <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
-            Free to list · Pay only when deals close
+            $49/month · Cancel anytime · No contract
           </motion.p>
         </motion.div>
       </div>
@@ -94,7 +94,7 @@ const ForBusinesses = () => (
 
     {/* Social proof ticker */}
     <section className="py-3 bg-muted/30 border-y border-border overflow-hidden">
-      <MarqueeTicker items={["Zero upfront cost", "$500 average referral payout", "Only pay on closed deals", "Verified referrer network", "Available in Canada & USA", "Free to list"]} />
+      <MarqueeTicker items={["$49/month flat", "$500 average referral payout", "Pay referrers directly", "Verified referrer network", "Available in Canada & USA", "Cancel anytime"]} />
     </section>
     <section className="py-24 lg:py-32 bg-surface">
       <div className="container">
