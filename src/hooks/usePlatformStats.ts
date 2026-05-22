@@ -31,7 +31,7 @@ export function usePlatformStats() {
       ]);
 
       const offers = offersRes.data ?? [];
-      const businesses = (bizRes.data ?? []) as Array<{ id: string; city: string | null }>;
+      const businesses = ((bizRes.data ?? []) as unknown) as Array<{ id: string; city: string | null }>;
       const referralCount = referralsRes.count ?? 0;
       const counts = countsRes.data as unknown as { businesses: number; referrers: number } | null;
 
