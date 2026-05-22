@@ -109,7 +109,7 @@ ${isApproved ? `
 <p style="margin:0 0 8px 0;font-size:20px;font-weight:600;color:#DC2626;">Application Update</p>
 <p style="margin:0 0 16px 0;font-size:15px;color:#374151;line-height:1.6;">Hi ${escapeHtml(ownerName)},</p>
 <p style="margin:0 0 16px 0;font-size:15px;color:#374151;line-height:1.6;">Thank you for your interest in Revvin. After reviewing your application for <strong>${escapeHtml(businessName)}</strong>, we're unable to approve it at this time.</p>
-<p style="margin:0 0 24px 0;font-size:15px;color:#374151;line-height:1.6;">If you believe this was made in error or would like to provide additional information, please reach out to us at <a href="mailto:support@revvin.co" style="color:#15803D;">support@revvin.co</a>.</p>
+<p style="margin:0 0 24px 0;font-size:15px;color:#374151;line-height:1.6;">If you believe this was made in error or would like to provide additional information, please reach out to us at <a href="mailto:info@revvin.co" style="color:#15803D;">info@revvin.co</a>.</p>
 `}
 <p style="margin:32px 0 0 0;font-size:13px;color:#9CA3AF;line-height:1.5;text-align:center;">— The Revvin Team</p>
 </td></tr>

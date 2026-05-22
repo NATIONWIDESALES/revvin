@@ -267,7 +267,7 @@ const CreateOffer = () => {
             <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-foreground">Your account has been suspended</p>
-              <p className="text-xs text-muted-foreground mt-1">Contact support@revvin.co to restore access. You can save offers as drafts but they can't go live while suspended.</p>
+              <p className="text-xs text-muted-foreground mt-1">Contact info@revvin.co to restore access. You can save offers as drafts but they can't go live while suspended.</p>
             </div>
           </div>
         )}
