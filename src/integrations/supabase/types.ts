@@ -81,7 +81,13 @@ export type Database = {
           industry: string | null
           is_disabled: boolean
           is_published: boolean
+          jobber_access_token_encrypted: string | null
+          jobber_account_id: string | null
+          jobber_integration_status: string | null
+          jobber_refresh_token_encrypted: string | null
+          jobber_token_expires_at: string | null
           latitude: number | null
+          launch_package_status: string | null
           logo_url: string | null
           longitude: number | null
           name: string
@@ -93,9 +99,16 @@ export type Database = {
           service_area: string | null
           slug: string | null
           state: string | null
+          stripe_connect_status: string | null
+          stripe_connected_account_id: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           subscription_status: string | null
+          trigger_delay_hours: number
+          trigger_email_enabled: boolean
+          trigger_sms_enabled: boolean
+          trigger_template_email: string | null
+          trigger_template_sms: string | null
           updated_at: string
           user_id: string
           verified: boolean | null
@@ -113,7 +126,13 @@ export type Database = {
           industry?: string | null
           is_disabled?: boolean
           is_published?: boolean
+          jobber_access_token_encrypted?: string | null
+          jobber_account_id?: string | null
+          jobber_integration_status?: string | null
+          jobber_refresh_token_encrypted?: string | null
+          jobber_token_expires_at?: string | null
           latitude?: number | null
+          launch_package_status?: string | null
           logo_url?: string | null
           longitude?: number | null
           name: string
@@ -125,9 +144,16 @@ export type Database = {
           service_area?: string | null
           slug?: string | null
           state?: string | null
+          stripe_connect_status?: string | null
+          stripe_connected_account_id?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
+          trigger_delay_hours?: number
+          trigger_email_enabled?: boolean
+          trigger_sms_enabled?: boolean
+          trigger_template_email?: string | null
+          trigger_template_sms?: string | null
           updated_at?: string
           user_id: string
           verified?: boolean | null
@@ -145,7 +171,13 @@ export type Database = {
           industry?: string | null
           is_disabled?: boolean
           is_published?: boolean
+          jobber_access_token_encrypted?: string | null
+          jobber_account_id?: string | null
+          jobber_integration_status?: string | null
+          jobber_refresh_token_encrypted?: string | null
+          jobber_token_expires_at?: string | null
           latitude?: number | null
+          launch_package_status?: string | null
           logo_url?: string | null
           longitude?: number | null
           name?: string
@@ -157,13 +189,212 @@ export type Database = {
           service_area?: string | null
           slug?: string | null
           state?: string | null
+          stripe_connect_status?: string | null
+          stripe_connected_account_id?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
+          trigger_delay_hours?: number
+          trigger_email_enabled?: boolean
+          trigger_sms_enabled?: boolean
+          trigger_template_email?: string | null
+          trigger_template_sms?: string | null
           updated_at?: string
           user_id?: string
           verified?: boolean | null
           website?: string | null
+        }
+        Relationships: []
+      }
+      campaign_contacts: {
+        Row: {
+          business_id: string
+          consent_confirmed_at: string | null
+          created_at: string
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          opted_out: boolean
+          opted_out_at: string | null
+          phone: string | null
+          source: string | null
+        }
+        Insert: {
+          business_id: string
+          consent_confirmed_at?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          opted_out?: boolean
+          opted_out_at?: string | null
+          phone?: string | null
+          source?: string | null
+        }
+        Update: {
+          business_id?: string
+          consent_confirmed_at?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          opted_out?: boolean
+          opted_out_at?: string | null
+          phone?: string | null
+          source?: string | null
+        }
+        Relationships: []
+      }
+      campaign_sends: {
+        Row: {
+          business_id: string
+          campaign_id: string
+          clicked_at: string | null
+          contact_id: string | null
+          created_at: string
+          failure_reason: string | null
+          id: string
+          message_id: string | null
+          opened_at: string | null
+          recipient_email: string | null
+          recipient_phone: string | null
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          business_id: string
+          campaign_id: string
+          clicked_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          failure_reason?: string | null
+          id?: string
+          message_id?: string | null
+          opened_at?: string | null
+          recipient_email?: string | null
+          recipient_phone?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          business_id?: string
+          campaign_id?: string
+          clicked_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          failure_reason?: string | null
+          id?: string
+          message_id?: string | null
+          opened_at?: string | null
+          recipient_email?: string | null
+          recipient_phone?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      campaign_templates: {
+        Row: {
+          body: string
+          business_id: string | null
+          channel: string
+          created_at: string
+          id: string
+          is_system: boolean
+          name: string
+          subject: string | null
+        }
+        Insert: {
+          body: string
+          business_id?: string | null
+          channel: string
+          created_at?: string
+          id?: string
+          is_system?: boolean
+          name: string
+          subject?: string | null
+        }
+        Update: {
+          body?: string
+          business_id?: string | null
+          channel?: string
+          created_at?: string
+          id?: string
+          is_system?: boolean
+          name?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
+      campaigns: {
+        Row: {
+          body: string
+          business_id: string
+          channel: string
+          clicked_count: number
+          completed_at: string | null
+          consent_confirmed: boolean
+          created_at: string
+          created_by: string
+          failed_count: number
+          id: string
+          name: string
+          opened_count: number
+          opted_out_count: number
+          scheduled_at: string | null
+          sent_count: number
+          started_at: string | null
+          status: string
+          subject: string | null
+          total_recipients: number
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          business_id: string
+          channel: string
+          clicked_count?: number
+          completed_at?: string | null
+          consent_confirmed?: boolean
+          created_at?: string
+          created_by: string
+          failed_count?: number
+          id?: string
+          name: string
+          opened_count?: number
+          opted_out_count?: number
+          scheduled_at?: string | null
+          sent_count?: number
+          started_at?: string | null
+          status?: string
+          subject?: string | null
+          total_recipients?: number
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          business_id?: string
+          channel?: string
+          clicked_count?: number
+          completed_at?: string | null
+          consent_confirmed?: boolean
+          created_at?: string
+          created_by?: string
+          failed_count?: number
+          id?: string
+          name?: string
+          opened_count?: number
+          opted_out_count?: number
+          scheduled_at?: string | null
+          sent_count?: number
+          started_at?: string | null
+          status?: string
+          subject?: string | null
+          total_recipients?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -251,6 +482,51 @@ export type Database = {
           id?: string
           token?: string
           used_at?: string | null
+        }
+        Relationships: []
+      }
+      launch_tasks: {
+        Row: {
+          amount_paid: number
+          assigned_admin_id: string | null
+          business_id: string
+          created_at: string
+          currency: string
+          delivered_at: string | null
+          id: string
+          notes: string | null
+          package_type: string
+          status: string
+          stripe_payment_intent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_paid?: number
+          assigned_admin_id?: string | null
+          business_id: string
+          created_at?: string
+          currency?: string
+          delivered_at?: string | null
+          id?: string
+          notes?: string | null
+          package_type?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          assigned_admin_id?: string | null
+          business_id?: string
+          created_at?: string
+          currency?: string
+          delivered_at?: string | null
+          id?: string
+          notes?: string | null
+          package_type?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -647,6 +923,63 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_triggers: {
+        Row: {
+          amount_paid: number | null
+          attempts: number
+          business_id: string
+          channel: string | null
+          created_at: string
+          customer_email: string | null
+          customer_first_name: string | null
+          customer_phone: string | null
+          failure_reason: string | null
+          id: string
+          scheduled_send_at: string
+          sent_at: string | null
+          service_description: string | null
+          source: string
+          source_event_id: string | null
+          status: string
+        }
+        Insert: {
+          amount_paid?: number | null
+          attempts?: number
+          business_id: string
+          channel?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_first_name?: string | null
+          customer_phone?: string | null
+          failure_reason?: string | null
+          id?: string
+          scheduled_send_at?: string
+          sent_at?: string | null
+          service_description?: string | null
+          source: string
+          source_event_id?: string | null
+          status?: string
+        }
+        Update: {
+          amount_paid?: number | null
+          attempts?: number
+          business_id?: string
+          channel?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_first_name?: string | null
+          customer_phone?: string | null
+          failure_reason?: string | null
+          id?: string
+          scheduled_send_at?: string
+          sent_at?: string | null
+          service_description?: string | null
+          source?: string
+          source_event_id?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       referrals: {
         Row: {
           business_id: string
@@ -759,6 +1092,33 @@ export type Database = {
         }
         Relationships: []
       }
+      reward_tiers: {
+        Row: {
+          created_at: string
+          id: string
+          min_referrals: number
+          offer_id: string
+          reward_amount: number
+          tier_label: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          min_referrals: number
+          offer_id: string
+          reward_amount: number
+          tier_label: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          min_referrals?: number
+          offer_id?: string
+          reward_amount?: number
+          tier_label?: string
+        }
+        Relationships: []
+      }
       saved_offers: {
         Row: {
           created_at: string
@@ -777,6 +1137,141 @@ export type Database = {
           id?: string
           offer_id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      seasonal_campaigns: {
+        Row: {
+          created_at: string
+          ends_at: string
+          id: string
+          is_active: boolean
+          multiplier: number
+          name: string
+          offer_id: string
+          starts_at: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          id?: string
+          is_active?: boolean
+          multiplier: number
+          name: string
+          offer_id: string
+          starts_at: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          id?: string
+          is_active?: boolean
+          multiplier?: number
+          name?: string
+          offer_id?: string
+          starts_at?: string
+        }
+        Relationships: []
+      }
+      send_log: {
+        Row: {
+          body: string | null
+          business_id: string | null
+          channel: string
+          context: string | null
+          created_at: string
+          id: string
+          mode: string
+          recipient: string
+          subject: string | null
+        }
+        Insert: {
+          body?: string | null
+          business_id?: string | null
+          channel: string
+          context?: string | null
+          created_at?: string
+          id?: string
+          mode?: string
+          recipient: string
+          subject?: string | null
+        }
+        Update: {
+          body?: string | null
+          business_id?: string | null
+          channel?: string
+          context?: string | null
+          created_at?: string
+          id?: string
+          mode?: string
+          recipient?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
+      sms_outbound_log: {
+        Row: {
+          body: string
+          business_id: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          message_id: string | null
+          metadata: Json | null
+          recipient_phone: string
+          status: string
+        }
+        Insert: {
+          body: string
+          business_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_id?: string | null
+          metadata?: Json | null
+          recipient_phone: string
+          status?: string
+        }
+        Update: {
+          body?: string
+          business_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_id?: string | null
+          metadata?: Json | null
+          recipient_phone?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      suppressed_contacts: {
+        Row: {
+          business_id: string
+          contact_type: string
+          contact_value: string
+          created_at: string
+          id: string
+          reason: string | null
+          source: string | null
+        }
+        Insert: {
+          business_id: string
+          contact_type: string
+          contact_value: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          source?: string | null
+        }
+        Update: {
+          business_id?: string
+          contact_type?: string
+          contact_value?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          source?: string | null
         }
         Relationships: []
       }
@@ -1123,6 +1618,14 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
+      }
+      fn_is_suppressed: {
+        Args: {
+          p_business_id: string
+          p_contact_type: string
+          p_contact_value: string
+        }
+        Returns: boolean
       }
       fn_platform_counts: { Args: never; Returns: Json }
       fn_slug_available: { Args: { p_slug: string }; Returns: boolean }
