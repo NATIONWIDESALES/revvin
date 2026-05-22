@@ -27,6 +27,14 @@ function flaggedLaunchPackage(meta: Stripe.Metadata | null | undefined): boolean
   return raw === "1" || raw === "true";
 }
 
+function escapeHtml(str: string): string {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
