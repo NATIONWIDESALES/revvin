@@ -235,22 +235,22 @@ const TrustCenter = () => {
               <div className="grid grid-cols-3 gap-4">
                 <div className="rounded-xl bg-muted/50 border border-border p-5">
                   <Briefcase className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-                  <div className="text-3xl font-bold text-foreground">$0</div>
-                  <p className="text-xs text-muted-foreground mt-1">To list an offer</p>
+                  <div className="text-3xl font-bold text-foreground">$49</div>
+                  <p className="text-xs text-muted-foreground mt-1">/month — business plan</p>
                 </div>
                 <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-5">
                   <Users className="mx-auto mb-2 h-6 w-6 text-earnings" />
-                  <div className="text-3xl font-bold text-earnings">Full</div>
-                  <p className="text-xs text-muted-foreground mt-1">Payout to referrer</p>
+                  <div className="text-3xl font-bold text-earnings">100%</div>
+                  <p className="text-xs text-muted-foreground mt-1">Of payout to referrer</p>
                 </div>
                 <div className="rounded-xl bg-muted/50 border border-border p-5">
                   <Briefcase className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-                 <div className="text-3xl font-bold text-foreground">Varies</div>
-                  <p className="text-xs text-muted-foreground mt-1">Platform fee to business</p>
+                  <div className="text-3xl font-bold text-foreground">$0</div>
+                  <p className="text-xs text-muted-foreground mt-1">Per-referral platform fee</p>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mt-6">
-                Referrers always earn the full advertised payout. The platform fee is charged to the business on each successful close — the rate depends on the business's selected plan.
+                Referrers always earn the full advertised payout. Businesses pay one flat $49/month — no per-referral fees, no surprise charges.
               </p>
             </motion.div>
           </motion.div>
