@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import SEOHead from "@/components/SEOHead";
 import { Check } from "lucide-react";
 import {
@@ -36,19 +39,27 @@ const launchFeatures = [
   "30 days of priority support",
 ];
 
-const addLaunchAtCheckout = () => {
-  if (typeof window !== "undefined") {
-    window.sessionStorage.setItem("revvin_addon_launch", "1");
-  }
-};
+const LAUNCH_KEY = "revvin_addon_launch";
 
-const clearLaunchAtCheckout = () => {
-  if (typeof window !== "undefined") {
-    window.sessionStorage.removeItem("revvin_addon_launch");
-  }
+const setLaunchFlag = (on: boolean) => {
+  if (typeof window === "undefined") return;
+  if (on) window.sessionStorage.setItem(LAUNCH_KEY, "1");
+  else window.sessionStorage.removeItem(LAUNCH_KEY);
 };
 
 const Pricing = () => {
+  const [addLaunch, setAddLaunch] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setAddLaunch(window.sessionStorage.getItem(LAUNCH_KEY) === "1");
+  }, []);
+
+  const toggleLaunch = (next: boolean) => {
+    setAddLaunch(next);
+    setLaunchFlag(next);
+  };
+
   return (
     <>
       <SEOHead
