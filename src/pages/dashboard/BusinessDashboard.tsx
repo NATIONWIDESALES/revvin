@@ -32,6 +32,7 @@ interface Business {
   business_email: string | null;
   phone: string | null;
   stripe_customer_id: string | null;
+  launch_package_status: string | null;
 }
 
 interface Lead {
@@ -421,7 +422,22 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
         <div className="space-y-2 text-sm">
           <div className="flex justify-between"><span className="text-muted-foreground">Status</span><span className="text-foreground font-medium capitalize">{biz.subscription_status || "—"}</span></div>
           {periodEnd && <div className="flex justify-between"><span className="text-muted-foreground">Next billing</span><span className="text-foreground">{periodEnd}</span></div>}
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Launch Package</span>
+            {biz.launch_package_status && biz.launch_package_status !== "none" ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                <Check className="h-3 w-3" /> {biz.launch_package_status === "purchased" ? "Purchased" : biz.launch_package_status.replace(/_/g, " ")}
+              </span>
+            ) : (
+              <span className="text-muted-foreground">Not added</span>
+            )}
+          </div>
         </div>
+        {biz.launch_package_status && biz.launch_package_status !== "none" && (
+          <p className="mt-3 rounded-md bg-surface-warm p-2.5 text-[11px] leading-snug text-muted-foreground">
+            $297 Launch Package recorded. Our team will reach out within 1 business day to schedule your onboarding call.
+          </p>
+        )}
         <Button variant="outline" className="mt-4 w-full" onClick={openPortal} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing"}</Button>
       </div>
 
