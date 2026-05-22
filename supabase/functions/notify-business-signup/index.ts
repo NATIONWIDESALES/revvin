@@ -18,20 +18,37 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Database webhook sends { type, table, record, ... }
-    const payload = await req.json();
-    const record = payload.record;
-
-    if (!record) {
-      console.error("No record in webhook payload");
-      return new Response(JSON.stringify({ ok: true }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    // Accepts either:
+    //   - Database-webhook payload: { type, table, record, ... }
+    //   - Direct invocation:        { user_id }
+    const payload = await req.json().catch(() => ({}));
+    let record = payload.record;
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
+
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false },
+    });
+
+    if (!record && payload.user_id) {
+      // Direct invocation: load the most recently created business for this user.
+      const { data: bizRows } = await supabase
+        .from("businesses")
+        .select("*")
+        .eq("user_id", payload.user_id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      record = bizRows?.[0];
+    }
+
+    if (!record) {
+      console.error("notify-business-signup: no record found", payload);
+      return new Response(JSON.stringify({ ok: true, skipped: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     if (!resendApiKey) {
       console.error("RESEND_API_KEY not configured");
@@ -39,10 +56,6 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const supabase = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false },
-    });
 
     // Look up the business owner's email and name
     const { data: { user: ownerUser }, error: userErr } =

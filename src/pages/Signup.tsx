@@ -76,6 +76,12 @@ const Signup = () => {
       setBusy(false);
       return;
     }
+    // Fire admin notification (info@revvin.co). Non-blocking.
+    if (data.user?.id) {
+      supabase.functions
+        .invoke("notify-business-signup", { body: { user_id: data.user.id } })
+        .catch((err) => console.warn("[notify-business-signup] failed", err));
+    }
     if (!data.session) {
       toast({
         title: "Check your email",
