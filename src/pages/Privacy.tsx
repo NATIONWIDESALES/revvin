@@ -64,7 +64,7 @@ const Privacy = () => {
               <li>Opt out of marketing communications.</li>
               <li>Download a copy of your data in a portable format.</li>
             </ul>
-            <p className="mt-2">To exercise these rights, contact <span className="text-primary font-medium">privacy@revvin.io</span>.</p>
+            <p className="mt-2">To exercise these rights, contact <span className="text-primary font-medium">info@revvin.co</span>.</p>
           </section>
 
           <section>
@@ -89,7 +89,7 @@ const Privacy = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">11. Contact</h2>
-            <p>For privacy inquiries, contact our Data Protection Officer at <span className="text-primary font-medium">privacy@revvin.io</span>.</p>
+            <p>For privacy inquiries, contact our Data Protection Officer at <span className="text-primary font-medium">info@revvin.co</span>.</p>
             <p className="mt-2">Revvin Technologies Inc.<br />Vancouver, BC, Canada</p>
           </section>
         </div>
