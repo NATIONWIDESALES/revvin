@@ -23,7 +23,7 @@ const Index = () => {
     <>
       <SEOHead
         title="Revvin — Launch a referral program for your business in minutes"
-        description="Branded referral page, shareable link and QR code, and a simple lead inbox. One plan. $147 for the first 3 months, then $49/month."
+        description="Branded referral page, shareable link and QR code, and a simple lead inbox. $49/month, cancel anytime. No contract."
         path="/"
         jsonLd={{
           "@context": "https://schema.org",
@@ -33,7 +33,7 @@ const Index = () => {
           brand: { "@type": "Brand", name: "Revvin" },
           offers: {
             "@type": "Offer",
-            price: "147.00",
+            price: "49.00",
             priceCurrency: "USD",
             url: "https://revvin.co/pricing",
             availability: "https://schema.org/InStock",
@@ -67,8 +67,8 @@ const Index = () => {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
                   <Link to="/signup">
-                    <span className="sm:hidden">Start your program — $147</span>
-                    <span className="hidden sm:inline">Start your referral program — $147 for 3 months</span>
+                    <span className="sm:hidden">Start your program — $49/mo</span>
+                    <span className="hidden sm:inline">Start your referral program — $49/month</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -77,7 +77,7 @@ const Index = () => {
                 </Button>
               </div>
               <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
-                Billed upfront for the first 3 months, then $49/month. Cancel anytime.
+                $49/month. Cancel anytime. No contract, no setup fee.
               </p>
             </div>
 
@@ -247,13 +247,13 @@ const Index = () => {
             <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-10 shadow-product md:p-12">
               <span className="absolute left-0 top-0 h-full w-[3px] bg-primary" />
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-4">
-                One simple plan · Business Referral Page
+                Pro · Business Referral Page
               </p>
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="text-6xl font-extrabold tracking-tight text-foreground">$147</span>
-                <span className="text-base font-medium text-muted-foreground">for the first 3 months</span>
+                <span className="text-6xl font-extrabold tracking-tight text-foreground">$49</span>
+                <span className="text-base font-medium text-muted-foreground">/month</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">Then $49/month. Cancel anytime.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Cancel anytime. No contract. Free tier available.</p>
 
               <Button size="lg" className="mt-8 h-12 w-full text-base shadow-soft hover:bg-primary-deep" asChild>
                 <Link to="/signup">Start your referral program</Link>
@@ -348,13 +348,13 @@ const Index = () => {
             <AccordionItem value="q2">
               <AccordionTrigger>How does billing work?</AccordionTrigger>
               <AccordionContent>
-                You pay $147 upfront, which covers your first 3 months. After that, it renews at $49/month. You can cancel anytime, and you keep access until the end of the period you've already paid for.
+                Pro is $49/month, billed monthly. No contract, no setup fee. Cancel anytime from your billing portal — your page stays live until the end of the period you've already paid for.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q3">
               <AccordionTrigger>Is there a free tier?</AccordionTrigger>
               <AccordionContent>
-                No. We keep one simple plan so we can support every customer well.
+                Yes — the Free tier is for referrers who want to send leads to businesses on Revvin and earn payouts directly. Businesses run on Pro ($49/month).
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q4">
@@ -390,7 +390,7 @@ const Index = () => {
             Launch your referral program <span className="shimmer-text">today.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-            One plan. $147 for the first 3 months. Cancel anytime.
+            $49/month. Cancel anytime. No contract.
           </p>
           <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
             <Link to="/signup">Start your referral program</Link>

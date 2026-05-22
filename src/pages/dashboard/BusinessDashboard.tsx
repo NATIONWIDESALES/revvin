@@ -417,7 +417,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     <div className="grid gap-6 md:grid-cols-2">
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-1">Subscription</h3>
-        <p className="text-xs text-muted-foreground mb-4">$147 first 3 months, then $49/month.</p>
+        <p className="text-xs text-muted-foreground mb-4">Pro · $49/month · cancel anytime.</p>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between"><span className="text-muted-foreground">Status</span><span className="text-foreground font-medium capitalize">{biz.subscription_status || "—"}</span></div>
           {periodEnd && <div className="flex justify-between"><span className="text-muted-foreground">Next billing</span><span className="text-foreground">{periodEnd}</span></div>}

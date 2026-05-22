@@ -72,7 +72,7 @@ const HowItWorks = () => {
         <div className="container max-w-2xl py-24 text-center">
           <h2 className="text-3xl font-extrabold tracking-tight md:text-5xl">Ready in minutes.</h2>
           <p className="mt-4 text-lg text-white/70">
-            $147 for the first 3 months, then $49/month. Cancel anytime.
+            $49/month. Cancel anytime. No contract.
           </p>
           <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
             <Link to="/signup">Start your referral program</Link>
