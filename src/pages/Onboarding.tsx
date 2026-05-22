@@ -24,6 +24,7 @@ const Onboarding = () => {
   const { toast } = useToast();
 
   const [bizId, setBizId] = useState<string | null>(null);
+  const [launchPackageStatus, setLaunchPackageStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
@@ -50,12 +51,13 @@ const Onboarding = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id,name,description,category,service_area,phone,business_email,website,logo_url,offer_amount,offer_trigger,offer_fine_print,slug")
+        .select("id,name,description,category,service_area,phone,business_email,website,logo_url,offer_amount,offer_trigger,offer_fine_print,slug,launch_package_status")
         .eq("user_id", user.id)
         .limit(1);
       const b = data?.[0];
       if (b) {
         setBizId(b.id);
+        setLaunchPackageStatus(b.launch_package_status || null);
         setName(b.name || "");
         setDescription(b.description || "");
         setCategory(b.category || "");
@@ -135,10 +137,36 @@ const Onboarding = () => {
       <div className="min-h-screen bg-muted/30 py-12 px-4">
         <div className="mx-auto max-w-2xl">
           {params.get("checkout") === "success" && step === 1 && (
-            <div className="mb-6 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm text-foreground flex items-start gap-3">
-              <Check className="h-4 w-4 text-primary mt-0.5" />
-              <div>Payment received. Let's set up your referral page — takes about 3 minutes.</div>
-            </div>
+            launchPackageStatus && launchPackageStatus !== "none" ? (
+              <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-50 dark:bg-amber-950/20 p-4 text-sm text-foreground">
+                <div className="flex items-start gap-3">
+                  <Check className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-foreground">Payment received — Pro + Launch Package ✨</p>
+                    <p className="mt-1 text-muted-foreground">
+                      Our team will reach out within 1 business day to schedule your 1:1 onboarding call.
+                      In the meantime, get a head start by filling in the basics below.
+                    </p>
+                    <ul className="mt-3 space-y-1 text-xs text-muted-foreground list-disc pl-4">
+                      <li>We'll build your offer with you on the call</li>
+                      <li>We'll set up your referral page, QR code, and flyer</li>
+                      <li>You'll get launch email + SMS templates and 30 days of priority support</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="mb-6 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm text-foreground flex items-start gap-3">
+                <Check className="h-4 w-4 text-primary mt-0.5" />
+                <div>
+                  <p className="font-semibold text-foreground">Payment received — Pro plan active</p>
+                  <p className="mt-1 text-muted-foreground">
+                    Let's set up your referral page — takes about 3 minutes. Want hands-on help?{" "}
+                    <Link to="/pricing" className="underline text-foreground">Add the Launch Package</Link>.
+                  </p>
+                </div>
+              </div>
+            )
           )}
 
           {/* Stepper */}
