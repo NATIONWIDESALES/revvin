@@ -28,7 +28,6 @@ const RoleSelector = () => {
           name: name + "'s Business",
           account_status: "approved",
         });
-        await supabase.from("wallet_balances").insert({ user_id: user.id });
       }
 
       // Reload to pick up the new role
