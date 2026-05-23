@@ -53,7 +53,7 @@ const templates: Record<
   referral_accepted: {
     subject: "Your Referral Was Accepted!",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nGreat news! Your referral for ${d.customerName} to "${d.offerTitle}" has been accepted.\n\nFunds have been reserved in escrow. You'll be paid when the deal closes.\n\nTrack progress: ${appUrl("/dashboard")}\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nGreat news! Your referral for ${d.customerName} to "${d.offerTitle}" has been accepted.\n\nYou'll be paid directly by the business when the deal closes.\n\nTrack progress: ${appUrl("/dashboard")}\n\n— Revvin`,
   },
   deal_closed: {
     subject: "Deal Closed — Payout Incoming!",

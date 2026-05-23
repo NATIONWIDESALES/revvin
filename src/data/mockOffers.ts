@@ -240,7 +240,7 @@ export const mockOffers: Offer[] = [
   },
   {
     id: "us11", title: "Premium CRM Software", business: "CloudFlow CRM", businessLogo: "☁️", category: "SaaS",
-    description: "Refer companies looking for enterprise CRM solutions. Recurring commission on annual contracts.",
+    description: "Refer companies looking for a CRM that scales with their team. Recurring commission on annual contracts.",
     payout: 200, payoutType: "flat", currency: "USD", country: "US", location: "San Francisco, CA", state: "CA", city: "San Francisco",
     rating: 4.9, totalReferrals: 891, successRate: 38, featured: false,
     dealSizeMin: 5000, dealSizeMax: 50000, closeTimeDays: 30, remoteEligible: true, latitude: 37.7749, longitude: -122.4194,
