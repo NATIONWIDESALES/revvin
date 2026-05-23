@@ -60,8 +60,8 @@ const FORBIDDEN: Array<{ label: string; pattern: RegExp }> = [
   { label: "Starter tier", pattern: /\bstarter\b/i },
   { label: "Enterprise tier", pattern: /\benterprise\b/i },
   // Additional deprecated pricing models — flat $49/mo only, no tiers, no per-referral cuts.
-  { label: "per-referral fee", pattern: /\bper[-\s]referral\s+fees?\b/i },
-  { label: "per-lead fee", pattern: /\bper[-\s]lead\s+fees?\b/i },
+  // NOTE: "per-referral fee" is intentionally NOT guarded — we use the phrase
+  // in negation ("no per-referral fee") as a selling point across marketing copy.
   { label: "success fee", pattern: /\bsuccess\s+fees?\b/i },
   { label: "finder's fee", pattern: /\bfinder'?s\s+fees?\b/i },
   { label: "transaction fee", pattern: /\btransaction\s+fees?\b/i },
