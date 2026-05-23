@@ -17,6 +17,8 @@ import TrustBar from "@/components/marketing/TrustBar";
 import LiveTicker from "@/components/marketing/LiveTicker";
 import StatsMarquee from "@/components/marketing/StatsMarquee";
 import Wordmark from "@/components/brand/Wordmark";
+import OfferCard from "@/components/OfferCard";
+import { sampleOffers } from "@/data/sampleOffers";
 
 const Index = () => {
   return (
@@ -57,12 +59,12 @@ const Index = () => {
                 Live in US &amp; Canada
               </span>
               <h1 className="mt-5 text-[2.5rem] font-extrabold tracking-tight text-foreground leading-[1.02] sm:text-5xl md:text-7xl">
-                Get your own{" "}
-                <span className="highlight-underline text-gradient-green">referral page</span>{" "}
-                in minutes.
+                The complete{" "}
+                <span className="highlight-underline text-gradient-green">referral system</span>{" "}
+                for your business.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-                Launch a branded referral page, create a clear offer, share your link or QR code, and track every referral lead from one simple dashboard.
+                Branded referral page, shareable link and QR code, lead inbox, and a marketplace of motivated referrers — all for a flat $49/month. You pay your referrer directly when a deal closes.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
@@ -113,6 +115,32 @@ const Index = () => {
       </section>
 
       <TrustBar />
+
+      {/* Browse Offers preview */}
+      <section className="border-b border-border bg-background">
+        <div className="container py-16 md:py-20">
+          <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-3">Browse offers</p>
+              <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
+                Real referral offers from real businesses.
+              </h2>
+              <p className="mt-3 text-base text-muted-foreground">
+                Send a customer their way. Get paid directly when the deal closes.
+              </p>
+            </div>
+            <Button variant="outline" asChild className="self-start md:self-auto">
+              <Link to="/browse">See all offers <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {sampleOffers.slice(0, 8).map((offer) => (
+              <OfferCard key={offer.id} offer={offer} isSample />
+            ))}
+          </div>
+        </div>
+      </section>
+
       <StatsMarquee />
 
       {/* How it works */}
