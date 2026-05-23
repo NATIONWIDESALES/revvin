@@ -34,7 +34,7 @@ export default function BusinessProfile() {
         title={`${listing.name} — ${listing.category} in ${listing.city}, ${listing.region}`}
         description={listing.tagline ?? listing.about?.slice(0, 150) ?? ""}
         path={`/business/${listing.slug}`}
-        image={listing.hero_image}
+        ogImage={listing.hero_image}
       />
 
       {/* Hero */}
