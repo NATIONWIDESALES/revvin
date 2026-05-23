@@ -223,13 +223,13 @@ const TrustCenter = () => {
         </div>
       </section>
 
-      {/* Platform Fee Transparency */}
+      {/* Pricing Transparency */}
       <section className="py-20">
         <div className="container max-w-4xl text-center">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-            <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-3">Platform Fee Transparency</motion.h2>
+            <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-3">Pricing Transparency</motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-muted-foreground mb-10 max-w-xl mx-auto">
-              Revvin is aligned with successful outcomes. We only earn when you earn.
+              One flat price. No per-referral cut. You pay your referrers directly.
             </motion.p>
             <motion.div variants={fadeUp} custom={2} className="rounded-xl border border-border bg-card p-8 shadow-sm">
               <div className="grid grid-cols-3 gap-4">
@@ -241,12 +241,12 @@ const TrustCenter = () => {
                 <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-5">
                   <Users className="mx-auto mb-2 h-6 w-6 text-earnings" />
                   <div className="text-3xl font-bold text-earnings">100%</div>
-                  <p className="text-xs text-muted-foreground mt-1">Of payout to referrer</p>
+                  <p className="text-xs text-muted-foreground mt-1">Of payout to referrer, direct</p>
                 </div>
                 <div className="rounded-xl bg-muted/50 border border-border p-5">
                   <Briefcase className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
                   <div className="text-3xl font-bold text-foreground">$0</div>
-                  <p className="text-xs text-muted-foreground mt-1">Per-referral platform fee</p>
+                  <p className="text-xs text-muted-foreground mt-1">Extra per-referral charge</p>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mt-6">
