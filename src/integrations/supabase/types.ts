@@ -206,6 +206,42 @@ export type Database = {
         }
         Relationships: []
       }
+      callback_requests: {
+        Row: {
+          business_name: string | null
+          city: string | null
+          created_at: string
+          email: string
+          help_with: string | null
+          id: string
+          is_mock: boolean
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          business_name?: string | null
+          city?: string | null
+          created_at?: string
+          email: string
+          help_with?: string | null
+          id?: string
+          is_mock?: boolean
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          business_name?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string
+          help_with?: string | null
+          id?: string
+          is_mock?: boolean
+          name?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
       campaign_contacts: {
         Row: {
           business_id: string
@@ -594,6 +630,138 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mock_inquiries: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          is_mock: boolean
+          kind: string
+          listing_slug: string
+          message: string | null
+          name: string | null
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_mock?: boolean
+          kind: string
+          listing_slug: string
+          message?: string | null
+          name?: string | null
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_mock?: boolean
+          kind?: string
+          listing_slug?: string
+          message?: string | null
+          name?: string | null
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      mock_listings: {
+        Row: {
+          about: string | null
+          category: string
+          city: string
+          country: string
+          created_at: string
+          currency: string
+          email: string | null
+          gallery: Json
+          hero_image: string
+          hours: Json | null
+          id: string
+          is_mock: boolean
+          lat: number | null
+          lng: number | null
+          name: string
+          phone: string | null
+          price_max: number | null
+          price_min: number | null
+          rating: number
+          referral_fee: number
+          referral_fee_unit: string
+          region: string
+          review_count: number
+          reviews: Json
+          services: Json
+          slug: string
+          tagline: string | null
+          verified: boolean
+          website: string | null
+        }
+        Insert: {
+          about?: string | null
+          category: string
+          city: string
+          country: string
+          created_at?: string
+          currency?: string
+          email?: string | null
+          gallery?: Json
+          hero_image: string
+          hours?: Json | null
+          id?: string
+          is_mock?: boolean
+          lat?: number | null
+          lng?: number | null
+          name: string
+          phone?: string | null
+          price_max?: number | null
+          price_min?: number | null
+          rating?: number
+          referral_fee: number
+          referral_fee_unit: string
+          region: string
+          review_count?: number
+          reviews?: Json
+          services?: Json
+          slug: string
+          tagline?: string | null
+          verified?: boolean
+          website?: string | null
+        }
+        Update: {
+          about?: string | null
+          category?: string
+          city?: string
+          country?: string
+          created_at?: string
+          currency?: string
+          email?: string | null
+          gallery?: Json
+          hero_image?: string
+          hours?: Json | null
+          id?: string
+          is_mock?: boolean
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          phone?: string | null
+          price_max?: number | null
+          price_min?: number | null
+          rating?: number
+          referral_fee?: number
+          referral_fee_unit?: string
+          region?: string
+          review_count?: number
+          reviews?: Json
+          services?: Json
+          slug?: string
+          tagline?: string | null
+          verified?: boolean
+          website?: string | null
+        }
+        Relationships: []
       }
       notification_settings: {
         Row: {
