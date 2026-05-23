@@ -59,6 +59,26 @@ const FORBIDDEN: Array<{ label: string; pattern: RegExp }> = [
   { label: "platform fee", pattern: /\bplatform\s+fees?\b/i },
   { label: "Starter tier", pattern: /\bstarter\b/i },
   { label: "Enterprise tier", pattern: /\benterprise\b/i },
+  // Additional deprecated pricing models — flat $49/mo only, no tiers, no per-referral cuts.
+  { label: "per-referral fee", pattern: /\bper[-\s]referral\s+fees?\b/i },
+  { label: "per-lead fee", pattern: /\bper[-\s]lead\s+fees?\b/i },
+  { label: "success fee", pattern: /\bsuccess\s+fees?\b/i },
+  { label: "finder's fee", pattern: /\bfinder'?s\s+fees?\b/i },
+  { label: "transaction fee", pattern: /\btransaction\s+fees?\b/i },
+  { label: "payout fee", pattern: /\bpayout\s+fees?\b/i },
+  { label: "take rate", pattern: /\btake[-\s]rate\b/i },
+  { label: "revenue share", pattern: /\brevenue[-\s]share\b/i },
+  { label: "tiered pricing", pattern: /\btiered\s+pricing\b/i },
+  { label: "Pro tier/plan", pattern: /\bpro\s+(tier|plan)\b/i },
+  { label: "Basic tier/plan", pattern: /\bbasic\s+(tier|plan)\b/i },
+  { label: "Premium tier/plan", pattern: /\bpremium\s+(tier|plan)\b/i },
+  { label: "Growth tier/plan", pattern: /\bgrowth\s+(tier|plan)\b/i },
+  { label: "$97 price point", pattern: /\$97\b/ },
+  { label: "$197 price point", pattern: /\$197\b/ },
+  { label: "$247 price point", pattern: /\$247\b/ },
+  { label: "$99/mo price point", pattern: /\$99\s*\/?\s*(mo|month)\b/i },
+  { label: "$29/mo price point", pattern: /\$29\s*\/?\s*(mo|month)\b/i },
+  { label: "$19/mo price point", pattern: /\$19\s*\/?\s*(mo|month)\b/i },
 ];
 
 describe("content guards — deprecated pricing strings", () => {
