@@ -9,8 +9,10 @@ const ROICalculator = () => {
   const [revvinPayout, setRevvinPayout] = useState(500);
 
   const adCostPerCustomer = adCustomers > 0 ? Math.round(adSpend / adCustomers) : 0;
-  const platformFee = Math.round(revvinPayout * 0.25);
-  const revvinCost = revvinPayout + platformFee;
+  // Flat $49/mo amortized across customers in the month + direct payout to referrer
+  const monthlySubscription = 49;
+  const subscriptionShare = adCustomers > 0 ? Math.round(monthlySubscription / adCustomers) : monthlySubscription;
+  const revvinCost = revvinPayout + subscriptionShare;
   const savings = Math.max(0, adCostPerCustomer - revvinCost);
   const monthlySavings = savings * adCustomers;
 
@@ -73,7 +75,7 @@ const ROICalculator = () => {
       )}
 
       <p className="text-xs text-muted-foreground mt-4">
-        On the Pro plan ($250/mo), your platform fee drops to 1% — saving you even more.
+        Flat $49/month. No per-referral fees. You pay the referrer directly when the deal closes.
       </p>
     </div>
   );
