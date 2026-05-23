@@ -157,18 +157,7 @@ const AdminDashboard = () => {
   };
 
   const updatePayoutStatus = async (payoutId: string, status: string, method?: string, providerRef?: string) => {
-    const updates: any = { status, updated_at: new Date().toISOString() };
-    if (status === "paid") { updates.paid_at = new Date().toISOString(); updates.processed_by = user?.id; }
-    if (method) updates.method = method;
-    if (providerRef) updates.provider_reference = providerRef;
-
-    const { error } = await supabase.from("payouts").update(updates).eq("id", payoutId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    setPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, ...updates } : p));
-    if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: `payout_${status}`, p_referral_id: payouts.find(p => p.id === payoutId)?.referral_id });
-    toast({ title: `Payout marked as ${status}` });
-    setPayoutMethod("");
-    setPayoutRef("");
+    toast({ title: "Off-platform payouts", description: "Businesses pay referrers directly on REVVIN.CO v1." });
   };
 
   if (loading) {

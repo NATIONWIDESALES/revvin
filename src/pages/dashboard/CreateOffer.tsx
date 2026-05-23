@@ -295,44 +295,11 @@ const CreateOffer = () => {
                 <div><Label>Est. Close Time (days)</Label><Input type="number" value={form.closeTimeDays} onChange={(e) => update("closeTimeDays", e.target.value)} placeholder="30" className="mt-1" /></div>
               </div>
 
-              {/* Fee breakdown */}
-              {payoutNum > 0 && (
-                <div className="rounded-2xl border border-border bg-muted/30 p-5">
-                  <p className="text-sm font-medium mb-3">Cost Breakdown</p>
-                  <div className="grid grid-cols-3 gap-3 text-center">
-                    <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground">Referral Fee</p>
-                      <p className="font-display text-lg font-bold">${payoutNum}</p>
-                    </div>
-                    <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground">Platform Fee ({feePercent})</p>
-                      <p className="font-display text-lg font-bold">${platformFee}</p>
-                    </div>
-                    <div className="rounded-xl bg-primary/10 border border-primary/20 p-3">
-                      <p className="text-xs text-muted-foreground">Total Cost per Referral</p>
-                      <p className="font-display text-lg font-bold text-primary">${totalReserved}</p>
-                    </div>
-                  </div>
-                  {pricingTier === "free" && (
-                    <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
-                      <Info className="h-3 w-3" /> Upgrade to Paid ($50/mo) to reduce your platform fee to 10%.
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
-                <Wallet className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium">Balance verified at publish</p>
-                  <p className="text-xs text-muted-foreground mt-1">When you publish, we'll verify your wallet balance can cover this offer. The actual deduction happens when a referral closes.</p>
-                </div>
-              </div>
               <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
                 <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">How payouts work</p>
-                  <p className="text-xs text-muted-foreground mt-1">You set the payout amount. When a deal closes, Revvin verifies and handles payout to the referrer.</p>
+                  <p className="text-xs text-muted-foreground mt-1">You set the reward amount. When a deal closes, you pay the referrer directly — Revvin doesn't take a cut.</p>
                 </div>
               </div>
             </motion.div>
@@ -396,17 +363,6 @@ const CreateOffer = () => {
                   </div>
                 </div>
               )}
-              {payoutNum > 0 && !isSuperAdmin && (
-              <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
-                  <Wallet className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Cost per referral: ${totalReserved}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      ${payoutNum} referral fee + ${platformFee} platform fee ({feePercent}). Your wallet balance will be verified at publish — actual deduction happens when a deal closes.
-                    </p>
-                  </div>
-                </div>
-              )}
             </motion.div>
           )}
 
@@ -425,25 +381,6 @@ const CreateOffer = () => {
           </div>
         </form>
 
-        {/* Insufficient funds dialog */}
-        <Dialog open={shortfallDialog.open} onOpenChange={(open) => setShortfallDialog((s) => ({ ...s, open }))}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-destructive" /> Insufficient Wallet Balance
-              </DialogTitle>
-              <DialogDescription>
-                You need <strong>${shortfallDialog.totalRequired}</strong> available in your wallet to cover this offer, but you're short by <strong>${shortfallDialog.shortfall}</strong>. Top up your wallet to continue.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setShortfallDialog((s) => ({ ...s, open: false }))}>Cancel</Button>
-              <Button onClick={() => navigate("/dashboard")} className="gap-2">
-                <Wallet className="h-4 w-4" /> Top Up Wallet
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );
