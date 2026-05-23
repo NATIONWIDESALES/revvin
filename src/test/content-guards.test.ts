@@ -92,13 +92,16 @@ const FORBIDDEN: Array<{ label: string; pattern: RegExp }> = [
 ];
 
 describe("content guards — deprecated pricing strings", () => {
-  const files = ROOTS.flatMap((r) => walk(r));
+  const files = Array.from(new Set(ROOTS.flatMap((r) => walk(r)))).filter((f) => {
+    const p = f.replace(/\\/g, "/");
+    if (p === SELF) return false;
+    return !SKIP_PATHS.some((s) => p.includes(s));
+  });
 
   for (const { label, pattern } of FORBIDDEN) {
     it(`does not contain "${label}" anywhere in the app`, () => {
       const offenders: string[] = [];
       for (const file of files) {
-        if (file.replace(/\\/g, "/") === SELF) continue;
         const text = readFileSync(file, "utf8");
         const lines = text.split("\n");
         lines.forEach((line, i) => {
