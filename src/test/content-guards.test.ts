@@ -37,6 +37,9 @@ const SKIP_PATHS = [
   "src/pages/dashboard/",
   "src/pages/SuperAdminCRM",
   "src/integrations/",
+  // Internal server-side Stripe price→tier mapping. These are config keys
+  // referencing legacy Stripe products, not user-facing copy.
+  "supabase/functions/check-subscription/",
 ];
 const TEXT_EXT = new Set([
   ".ts", ".tsx", ".js", ".jsx", ".html", ".css", ".md", ".mdx",
