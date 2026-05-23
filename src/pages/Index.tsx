@@ -17,8 +17,26 @@ import TrustBar from "@/components/marketing/TrustBar";
 import LiveTicker from "@/components/marketing/LiveTicker";
 import StatsMarquee from "@/components/marketing/StatsMarquee";
 import Wordmark from "@/components/brand/Wordmark";
-import OfferCard from "@/components/OfferCard";
-import { sampleOffers } from "@/data/sampleOffers";
+
+const FEATURED_OFFERS = [
+  { id: "apex", business: "Apex Roofing", category: "Roofing", city: "Denver", state: "CO", payout: 500, desc: "Refer a closed roofing job", owner: "Mike Doyle" },
+  { id: "northair", business: "NorthAir HVAC", category: "HVAC", city: "Calgary", state: "AB", payout: 300, desc: "Refer a furnace or AC install", owner: "Sarah Lin" },
+  { id: "greenscape", business: "GreenScape Landscaping", category: "Landscaping", city: "Vancouver", state: "BC", payout: 400, desc: "Refer a full backyard project", owner: "Tom Patel" },
+  { id: "bcmortgage", business: "BC Mortgage Pros", category: "Mortgage", city: "Surrey", state: "BC", payout: 250, desc: "Refer a funded mortgage", owner: "Priya Shah" },
+  { id: "volt", business: "Volt Solar", category: "Solar", city: "Phoenix", state: "AZ", payout: 750, desc: "Refer a solar installation", owner: "Diego Ramos" },
+  { id: "proshine", business: "ProShine Detailing", category: "Auto", city: "Toronto", state: "ON", payout: 150, desc: "Refer a ceramic coating", owner: "Alex Chen" },
+  { id: "clearview", business: "ClearView Windows", category: "Home Services", city: "Seattle", state: "WA", payout: 350, desc: "Refer a window replacement", owner: "Jamie Roy" },
+  { id: "summit", business: "Summit Real Estate", category: "Real Estate", city: "Calgary", state: "AB", payout: 1000, desc: "Refer a buyer or seller", owner: "Erin Walsh" },
+];
+
+const initials = (name: string) =>
+  name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
+
+const businessHue = (name: string) => {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
+  return h;
+};
 
 const Index = () => {
   return (
