@@ -2,35 +2,45 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
 
-// User-facing copy only — marketing pages, public-facing components, index.html.
-// Admin/dashboard/internal payout UI is intentionally excluded; those are
-// rewritten in a follow-up pass.
+// Broad scan of all user-facing surfaces: pages, components, mock/seed data,
+// translation files, markdown docs, edge-function templates, public assets,
+// and the root HTML shell. Admin/dashboard internal payout UI is still
+// excluded via SKIP_PATHS until the follow-up pass.
 const ROOTS = [
-  "src/pages/Index.tsx",
-  "src/pages/Pricing.tsx",
-  "src/pages/ForBusinesses.tsx",
-  "src/pages/ForReferrers.tsx",
-  "src/pages/HowItWorks.tsx",
-  "src/pages/TrustCenter.tsx",
-  "src/pages/AboutRevvinLLM.tsx",
-  "src/pages/ReferralAgreement.tsx",
-  "src/pages/Terms.tsx",
-  "src/pages/Privacy.tsx",
-  "src/pages/Browse.tsx",
-  "src/pages/PublicReferralPage.tsx",
-  "src/pages/Auth.tsx",
-  "src/pages/Signup.tsx",
-  "src/pages/Onboarding.tsx",
-  "src/components/marketing",
-  "src/components/Navbar.tsx",
-  "src/components/ROICalculator.tsx",
-  "src/components/Footer.tsx",
-  "index.html",
+  "src/pages",
+  "src/components",
+  "src/data",
+  "src/contexts",
+  "src/hooks",
+  "src/lib",
+  "src/locales",
+  "src/i18n",
+  "src/content",
+  "src/assets",
+  "supabase/functions",
+  "docs",
   "public",
+  "index.html",
+  "README.md",
 ];
-const SKIP_DIRS = new Set(["node_modules", "dist", "build", ".git"]);
+const SKIP_DIRS = new Set([
+  "node_modules", "dist", "build", ".git", ".next", ".vercel",
+  "coverage", ".turbo", ".cache",
+  // shadcn primitives — vendored UI library, not our copy
+  "ui",
+  // Supabase generated client types
+  "supabase",
+]);
+// Path fragments to skip (matched against POSIX file path). Internal
+// admin/payout UI is rewritten in the follow-up pass.
+const SKIP_PATHS = [
+  "src/pages/dashboard/",
+  "src/pages/SuperAdminCRM",
+  "src/integrations/",
+];
 const TEXT_EXT = new Set([
-  ".ts", ".tsx", ".js", ".jsx", ".html", ".css", ".md", ".json", ".txt", ".svg",
+  ".ts", ".tsx", ".js", ".jsx", ".html", ".css", ".md", ".mdx",
+  ".json", ".yaml", ".yml", ".txt", ".svg", ".xml",
 ]);
 const SELF = "src/test/content-guards.test.ts";
 
