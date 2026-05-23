@@ -40,6 +40,9 @@ const SKIP_PATHS = [
   // Internal server-side Stripe price→tier mapping. These are config keys
   // referencing legacy Stripe products, not user-facing copy.
   "supabase/functions/check-subscription/",
+  // Legacy wallet-based lifecycle sync — server-side internals being removed
+  // in the follow-up payout/admin-UI pass. Not user-facing.
+  "supabase/functions/sync-offer-lifecycle/",
 ];
 const TEXT_EXT = new Set([
   ".ts", ".tsx", ".js", ".jsx", ".html", ".css", ".md", ".mdx",
