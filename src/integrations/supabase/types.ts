@@ -90,6 +90,7 @@ export type Database = {
           launch_package_status: string | null
           logo_url: string | null
           longitude: number | null
+          marketplace_listed: boolean
           name: string
           offer_amount: string | null
           offer_fine_print: string | null
@@ -134,6 +135,7 @@ export type Database = {
           launch_package_status?: string | null
           logo_url?: string | null
           longitude?: number | null
+          marketplace_listed?: boolean
           name: string
           offer_amount?: string | null
           offer_fine_print?: string | null
@@ -178,6 +180,7 @@ export type Database = {
           launch_package_status?: string | null
           logo_url?: string | null
           longitude?: number | null
+          marketplace_listed?: boolean
           name?: string
           offer_amount?: string | null
           offer_fine_print?: string | null

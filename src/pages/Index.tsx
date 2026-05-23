@@ -17,8 +17,26 @@ import TrustBar from "@/components/marketing/TrustBar";
 import LiveTicker from "@/components/marketing/LiveTicker";
 import StatsMarquee from "@/components/marketing/StatsMarquee";
 import Wordmark from "@/components/brand/Wordmark";
-import OfferCard from "@/components/OfferCard";
-import { sampleOffers } from "@/data/sampleOffers";
+
+const FEATURED_OFFERS = [
+  { id: "apex", business: "Apex Roofing", category: "Roofing", city: "Denver", state: "CO", payout: 500, desc: "Refer a closed roofing job", owner: "Mike Doyle" },
+  { id: "northair", business: "NorthAir HVAC", category: "HVAC", city: "Calgary", state: "AB", payout: 300, desc: "Refer a furnace or AC install", owner: "Sarah Lin" },
+  { id: "greenscape", business: "GreenScape Landscaping", category: "Landscaping", city: "Vancouver", state: "BC", payout: 400, desc: "Refer a full backyard project", owner: "Tom Patel" },
+  { id: "bcmortgage", business: "BC Mortgage Pros", category: "Mortgage", city: "Surrey", state: "BC", payout: 250, desc: "Refer a funded mortgage", owner: "Priya Shah" },
+  { id: "volt", business: "Volt Solar", category: "Solar", city: "Phoenix", state: "AZ", payout: 750, desc: "Refer a solar installation", owner: "Diego Ramos" },
+  { id: "proshine", business: "ProShine Detailing", category: "Auto", city: "Toronto", state: "ON", payout: 150, desc: "Refer a ceramic coating", owner: "Alex Chen" },
+  { id: "clearview", business: "ClearView Windows", category: "Home Services", city: "Seattle", state: "WA", payout: 350, desc: "Refer a window replacement", owner: "Jamie Roy" },
+  { id: "summit", business: "Summit Real Estate", category: "Real Estate", city: "Calgary", state: "AB", payout: 1000, desc: "Refer a buyer or seller", owner: "Erin Walsh" },
+];
+
+const initials = (name: string) =>
+  name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
+
+const businessHue = (name: string) => {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
+  return h;
+};
 
 const Index = () => {
   return (
@@ -64,7 +82,7 @@ const Index = () => {
                 for your business.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-                Branded referral page, shareable link and QR code, lead inbox, and a marketplace of motivated referrers — all for a flat $49/month. You pay your referrer directly when a deal closes.
+                Get a branded referral page, QR code, and pipeline CRM to turn your customers into your sales team. Optional: get listed on the REVVIN.CO marketplace where motivated referrers can find your offer. <span className="text-foreground font-medium">$49/month flat.</span>
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
@@ -114,32 +132,86 @@ const Index = () => {
         </div>
       </section>
 
-      <TrustBar />
-
-      {/* Browse Offers preview */}
+      {/* Featured Offers from the REVVIN.CO Marketplace */}
       <section className="border-b border-border bg-background">
-        <div className="container py-16 md:py-20">
-          <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div className="max-w-2xl">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-3">Browse offers</p>
-              <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
-                Real referral offers from real businesses.
-              </h2>
-              <p className="mt-3 text-base text-muted-foreground">
-                Send a customer their way. Get paid directly when the deal closes.
-              </p>
-            </div>
-            <Button variant="outline" asChild className="self-start md:self-auto">
-              <Link to="/browse">See all offers <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
+        <div className="container py-16 md:py-24">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-3">
+              The Revvin.co marketplace
+            </p>
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
+              Your offer, seen by referrers nationwide.
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
+              Businesses on Revvin can opt into our public marketplace, where motivated referrers browse offers and submit real customers. Here's a live look at active offers.
+            </p>
           </div>
+
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {sampleOffers.slice(0, 8).map((offer) => (
-              <OfferCard key={offer.id} offer={offer} isSample />
-            ))}
+            {FEATURED_OFFERS.map((o) => {
+              const hue = businessHue(o.business);
+              return (
+                <article
+                  key={o.id}
+                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-product"
+                >
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-0 top-0 h-[3px]"
+                    style={{ background: `hsl(${hue} 65% 45%)` }}
+                  />
+                  <div className="relative flex h-32 items-center justify-center" style={{ background: `hsl(${hue} 30% 96%)` }}>
+                    <div
+                      className="flex h-14 w-14 items-center justify-center rounded-xl text-sm font-bold text-white shadow-soft"
+                      style={{ background: `hsl(${hue} 60% 40%)` }}
+                    >
+                      {initials(o.business)}
+                    </div>
+                    <span className="absolute left-3 top-3 rounded-full bg-foreground/85 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-background">
+                      {o.category}
+                    </span>
+                  </div>
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <p className="text-2xl font-extrabold tracking-tight text-foreground">
+                        ${o.payout.toLocaleString()}
+                      </p>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        per closed deal
+                      </p>
+                    </div>
+                    <h3 className="mt-3 text-sm font-bold leading-tight text-foreground">{o.business}</h3>
+                    <p className="mt-1 text-xs leading-snug text-muted-foreground">{o.desc}</p>
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      {o.city}, {o.state}
+                    </p>
+                    <div className="mt-auto flex items-center gap-2 border-t border-border pt-3">
+                      <div
+                        className="flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold text-white"
+                        style={{ background: `hsl(${(hue + 60) % 360} 55% 45%)` }}
+                      >
+                        {initials(o.owner)}
+                      </div>
+                      <span className="text-[11px] text-muted-foreground">{o.owner}</span>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button variant="outline" size="lg" asChild className="h-12 px-6">
+              <Link to="/browse">Browse the marketplace <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+            <Button size="lg" className="h-12 px-6 shadow-product hover:bg-primary-deep" asChild>
+              <Link to="/signup">List your business here</Link>
+            </Button>
           </div>
         </div>
       </section>
+
+      <TrustBar />
 
       <StatsMarquee />
 

@@ -33,6 +33,7 @@ interface Business {
   phone: string | null;
   stripe_customer_id: string | null;
   launch_package_status: string | null;
+  marketplace_listed?: boolean | null;
 }
 
 interface Lead {
@@ -381,6 +382,25 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
   const [notifs, setNotifs] = useState({ email: true, sms: false, notification_email: biz.business_email || "", notification_phone: biz.phone || "" });
+  const [marketplaceListed, setMarketplaceListed] = useState<boolean>(biz.marketplace_listed ?? true);
+  const [savingMarketplace, setSavingMarketplace] = useState(false);
+
+  const toggleMarketplace = async (next: boolean) => {
+    setMarketplaceListed(next);
+    setSavingMarketplace(true);
+    const { error } = await supabase
+      .from("businesses")
+      .update({ marketplace_listed: next } as never)
+      .eq("id", biz.id);
+    setSavingMarketplace(false);
+    if (error) {
+      setMarketplaceListed(!next);
+      toast({ title: "Could not update", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: next ? "Listed on marketplace" : "Removed from marketplace" });
+      onUpdate();
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -416,6 +436,24 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
+      <div className="rounded-2xl border border-border bg-card p-6 md:col-span-2">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-foreground">Marketplace Listing</h3>
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${marketplaceListed ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                {marketplaceListed ? "On" : "Off"}
+              </span>
+            </div>
+            <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted-foreground">
+              When <span className="font-semibold text-foreground">ON</span>, your offer appears on the public Revvin.co marketplace where outside referrers can discover and submit referrals.
+              When <span className="font-semibold text-foreground">OFF</span>, your referral page is only accessible to people you share it with directly.
+            </p>
+          </div>
+          <Switch checked={marketplaceListed} onCheckedChange={toggleMarketplace} disabled={savingMarketplace} />
+        </div>
+      </div>
+
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-1">Subscription</h3>
         <p className="text-xs text-muted-foreground mb-4">Pro · $49/month · cancel anytime.</p>
