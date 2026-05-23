@@ -33,6 +33,7 @@ interface Business {
   phone: string | null;
   stripe_customer_id: string | null;
   launch_package_status: string | null;
+  marketplace_listed?: boolean | null;
 }
 
 interface Lead {
