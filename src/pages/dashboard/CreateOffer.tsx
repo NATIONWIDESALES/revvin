@@ -8,9 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info, CreditCard, Loader2, Wallet, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info, CreditCard, Loader2, AlertTriangle } from "lucide-react";
 import { categories, RESTRICTED_CATEGORIES } from "@/lib/offerUtils";
-import { formatPlatformFeePercent, getPlatformFeeRate } from "@/lib/pricing";
 import { motion } from "framer-motion";
 import {
   Dialog,
@@ -32,11 +31,9 @@ const CreateOffer = () => {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [businessAccountStatus, setBusinessAccountStatus] = useState<string>("pending_approval");
   const [businessName, setBusinessName] = useState("");
-  const [pricingTier, setPricingTier] = useState<string>("free");
   const [loading, setLoading] = useState(false);
   const [publishLoading, setPublishLoading] = useState(false);
   const [step, setStep] = useState(1);
-  const [shortfallDialog, setShortfallDialog] = useState<{ open: boolean; shortfall: number; totalRequired: number }>({ open: false, shortfall: 0, totalRequired: 0 });
   const isSuperAdmin = userRole === "admin";
 
   const [form, setForm] = useState({
@@ -55,7 +52,7 @@ const CreateOffer = () => {
     const ensureBusinessProfile = async () => {
       const { data: rows, error: fetchError } = await supabase
         .from("businesses")
-        .select("id, name, account_status, pricing_tier")
+        .select("id, name, account_status")
         .eq("user_id", user.id)
         .order("created_at", { ascending: true })
         .limit(1);
@@ -82,7 +79,7 @@ const CreateOffer = () => {
             name: fallbackName,
             account_status: "approved",
           })
-          .select("id, name, account_status, pricing_tier")
+          .select("id, name, account_status")
           .maybeSingle();
 
         if (createError) {
@@ -106,7 +103,6 @@ const CreateOffer = () => {
       setBusinessId(business.id);
       setBusinessName(business.name);
       setBusinessAccountStatus(business.account_status || "pending_approval");
-      setPricingTier(business.pricing_tier || "free");
     };
 
     ensureBusinessProfile();
@@ -114,11 +110,7 @@ const CreateOffer = () => {
 
   const isRestricted = RESTRICTED_CATEGORIES.includes(form.category);
 
-  const feeRate = getPlatformFeeRate(pricingTier);
   const payoutNum = parseFloat(form.payout) || 0;
-  const platformFee = Math.round(payoutNum * feeRate * 100) / 100;
-  const totalReserved = Math.round((payoutNum + platformFee) * 100) / 100;
-  const feePercent = formatPlatformFeePercent(feeRate);
 
   // T1: New signups are auto-approved. Only the suspended state should block publishing.
   const isPendingApproval = businessAccountStatus === "suspended";
@@ -147,7 +139,6 @@ const CreateOffer = () => {
       close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
       remote_eligible: form.remoteEligible,
       qualification_criteria: qualRules || null,
-      platform_fee_rate: feeRate,
     };
   };
 
@@ -158,12 +149,11 @@ const CreateOffer = () => {
       const insertData = {
         ...buildInsertData(),
         status: "draft",
-        deposit_status: "required",
         approval_status: "approved",
       };
       const { error } = await supabase.from("offers").insert(insertData).select("id").single();
       if (error) throw error;
-      toast({ title: "Offer saved as draft", description: "Your offer has been saved. It will go live after your account is approved and you publish it." });
+      toast({ title: "Offer saved as draft", description: "Your offer has been saved. Publish it to go live on the marketplace." });
       navigate("/dashboard");
     } catch (err: any) {
       toast({ title: "Error", description: err?.message || "Failed to save draft", variant: "destructive" });
@@ -194,45 +184,18 @@ const CreateOffer = () => {
       const insertData = {
         ...buildInsertData(),
         approval_status: isRestricted ? "pending_approval" : "approved",
-        status: isSuperAdmin ? "active" : "draft",
-        deposit_status: isSuperAdmin ? "waived" : "required",
+        status: "active",
       };
 
       const { data, error } = await supabase.from("offers").insert(insertData).select("id").single();
       if (error) throw error;
 
-      if (isSuperAdmin) {
-        toast({ title: "Offer published!", description: "Your offer is now live (deposit waived)." });
-        navigate("/dashboard");
-        return;
+      if (isRestricted) {
+        toast({ title: "Offer submitted for review", description: "This category requires approval before going live." });
+      } else {
+        toast({ title: "Offer published!", description: "Your offer is now live on the marketplace." });
       }
-
-      // Call reserve-offer-funds
-      const { data: reserveData, error: reserveError } = await supabase.functions.invoke("reserve-offer-funds", {
-        body: { offer_id: data.id },
-      });
-
-      if (reserveError) {
-        const errBody = typeof reserveError === "object" && "message" in reserveError ? reserveError.message : String(reserveError);
-        throw new Error(errBody);
-      }
-
-      if (reserveData?.error) {
-        if (reserveData.shortfall !== undefined) {
-          setShortfallDialog({ open: true, shortfall: reserveData.shortfall, totalRequired: reserveData.total_required });
-          return;
-        }
-        throw new Error(reserveData.error);
-      }
-
-      if (reserveData?.success) {
-        if (isRestricted) {
-          toast({ title: "Offer submitted for review", description: "This category requires approval before going live." });
-        } else {
-          toast({ title: "Offer published!", description: "Your offer is now live. Funds will be deducted when referrals close." });
-        }
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
     } catch (err: any) {
       toast({ title: "Error", description: err?.message || "Failed to publish offer", variant: "destructive" });
     } finally {

@@ -58,13 +58,12 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!user) return;
     const fetchAll = async () => {
-      const [refRes, offRes, roleRes, bizRes, profRes, payRes, auditRes] = await Promise.all([
-        supabase.from("referrals").select("*, offers(title, payout, payout_type, platform_fee_rate), businesses(name)").order("created_at", { ascending: false }),
+      const [refRes, offRes, roleRes, bizRes, profRes, auditRes] = await Promise.all([
+        supabase.from("referrals").select("*, offers(title, payout, payout_type), businesses(name)").order("created_at", { ascending: false }),
         supabase.from("offers").select("*, businesses(name)").order("created_at", { ascending: false }),
         supabase.from("user_roles").select("*"),
         supabase.from("businesses").select("*").order("created_at", { ascending: false }),
         supabase.from("profiles").select("*").order("created_at", { ascending: false }),
-        supabase.from("payouts").select("*").order("created_at", { ascending: false }),
         supabase.from("audit_log").select("*").order("created_at", { ascending: false }).limit(50),
       ]);
       setReferrals(refRes.data ?? []);
@@ -72,7 +71,7 @@ const AdminDashboard = () => {
       setRoles(roleRes.data ?? []);
       setBusinesses(bizRes.data ?? []);
       setProfiles(profRes.data ?? []);
-      setPayouts(payRes.data ?? []);
+      setPayouts([]);
       setAuditLog(auditRes.data ?? []);
       setLoading(false);
     };
