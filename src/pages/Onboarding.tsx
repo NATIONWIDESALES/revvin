@@ -159,7 +159,7 @@ const Onboarding = () => {
               <div className="mb-6 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm text-foreground flex items-start gap-3">
                 <Check className="h-4 w-4 text-primary mt-0.5" />
                 <div>
-                  <p className="font-semibold text-foreground">Payment received — Pro plan active</p>
+                  <p className="font-semibold text-foreground">Payment received — subscription active</p>
                   <p className="mt-1 text-muted-foreground">
                     Let's set up your referral page — takes about 3 minutes. Want hands-on help?{" "}
                     <Link to="/pricing" className="underline text-foreground">Add the Launch Package</Link>.

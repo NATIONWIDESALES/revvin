@@ -193,7 +193,7 @@ const Pricing = () => {
                 ))}
               </ul>
               <p className="mt-6 text-[11px] text-muted-foreground">
-                Charged once, at checkout, on top of your $49/month Pro plan.
+                Charged once, at checkout, on top of your $49/month subscription.
               </p>
             </div>
           </div>
