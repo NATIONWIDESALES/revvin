@@ -14,7 +14,6 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useToast } from "@/hooks/use-toast";
 import InviteBusinessModal from "@/components/InviteBusinessModal";
 import DashboardChecklist from "@/components/DashboardChecklist";
-import PayoutPreferences from "@/components/PayoutPreferences";
 import ReferralTimeline from "@/components/ReferralTimeline";
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
@@ -41,18 +40,17 @@ const ReferrerDashboard = () => {
   const { displayCurrency, currencySymbol } = useCountry();
   const [referrals, setReferrals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hasPayoutPrefs, setHasPayoutPrefs] = useState(true); // assume true to avoid flash
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
-      const [refRes, prefRes] = await Promise.all([
-        supabase.from("referrals").select("*, offers(title, payout, payout_type, category), businesses(name, user_id)").eq("referrer_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("referrer_payout_preferences").select("method").eq("user_id", user.id).limit(1),
-      ]);
+      const refRes = await supabase
+        .from("referrals")
+        .select("*, offers(title, payout, payout_type, category), businesses(name, user_id)")
+        .eq("referrer_id", user.id)
+        .order("created_at", { ascending: false });
       setReferrals(refRes.data ?? []);
-      setHasPayoutPrefs(!!(prefRes.data?.[0]?.method));
       setLoading(false);
     };
     fetchData();
@@ -171,20 +169,6 @@ const ReferrerDashboard = () => {
 
           <DashboardChecklist title="Getting Started" items={checklistItems} />
 
-          {/* Payout Method Banner */}
-          {!hasPayoutPrefs && (
-            <motion.div variants={fadeUp} custom={0.5} className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-4 flex items-center gap-3">
-              <AlertCircle className="h-5 w-5 text-accent-foreground shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">Set up your payout method to receive earnings</p>
-                <p className="text-xs text-muted-foreground">Choose how you'd like to get paid when referrals close.</p>
-              </div>
-              <Button size="sm" variant="outline" onClick={() => document.getElementById("payout-prefs")?.scrollIntoView({ behavior: "smooth" })}>
-                Set up <ArrowRight className="h-3.5 w-3.5 ml-1" />
-              </Button>
-            </motion.div>
-          )}
-
           {/* Stats */}
           <motion.div variants={fadeUp} custom={1} className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((s) => (
@@ -216,11 +200,6 @@ const ReferrerDashboard = () => {
                 </ResponsiveContainer>
               </div>
             </div>
-          </motion.div>
-
-          {/* Payout Preferences */}
-          <motion.div variants={fadeUp} custom={2.5} className="mb-8" id="payout-prefs">
-            <PayoutPreferences />
           </motion.div>
 
           {/* Referral Pipeline */}

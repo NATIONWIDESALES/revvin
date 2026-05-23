@@ -8,9 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info, CreditCard, Loader2, Wallet, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info, CreditCard, Loader2, AlertTriangle } from "lucide-react";
 import { categories, RESTRICTED_CATEGORIES } from "@/lib/offerUtils";
-import { formatPlatformFeePercent, getPlatformFeeRate } from "@/lib/pricing";
 import { motion } from "framer-motion";
 import {
   Dialog,
@@ -32,11 +31,9 @@ const CreateOffer = () => {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [businessAccountStatus, setBusinessAccountStatus] = useState<string>("pending_approval");
   const [businessName, setBusinessName] = useState("");
-  const [pricingTier, setPricingTier] = useState<string>("free");
   const [loading, setLoading] = useState(false);
   const [publishLoading, setPublishLoading] = useState(false);
   const [step, setStep] = useState(1);
-  const [shortfallDialog, setShortfallDialog] = useState<{ open: boolean; shortfall: number; totalRequired: number }>({ open: false, shortfall: 0, totalRequired: 0 });
   const isSuperAdmin = userRole === "admin";
 
   const [form, setForm] = useState({
@@ -55,7 +52,7 @@ const CreateOffer = () => {
     const ensureBusinessProfile = async () => {
       const { data: rows, error: fetchError } = await supabase
         .from("businesses")
-        .select("id, name, account_status, pricing_tier")
+        .select("id, name, account_status")
         .eq("user_id", user.id)
         .order("created_at", { ascending: true })
         .limit(1);
@@ -82,7 +79,7 @@ const CreateOffer = () => {
             name: fallbackName,
             account_status: "approved",
           })
-          .select("id, name, account_status, pricing_tier")
+          .select("id, name, account_status")
           .maybeSingle();
 
         if (createError) {
@@ -106,7 +103,6 @@ const CreateOffer = () => {
       setBusinessId(business.id);
       setBusinessName(business.name);
       setBusinessAccountStatus(business.account_status || "pending_approval");
-      setPricingTier(business.pricing_tier || "free");
     };
 
     ensureBusinessProfile();
@@ -114,11 +110,7 @@ const CreateOffer = () => {
 
   const isRestricted = RESTRICTED_CATEGORIES.includes(form.category);
 
-  const feeRate = getPlatformFeeRate(pricingTier);
   const payoutNum = parseFloat(form.payout) || 0;
-  const platformFee = Math.round(payoutNum * feeRate * 100) / 100;
-  const totalReserved = Math.round((payoutNum + platformFee) * 100) / 100;
-  const feePercent = formatPlatformFeePercent(feeRate);
 
   // T1: New signups are auto-approved. Only the suspended state should block publishing.
   const isPendingApproval = businessAccountStatus === "suspended";
@@ -147,7 +139,6 @@ const CreateOffer = () => {
       close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
       remote_eligible: form.remoteEligible,
       qualification_criteria: qualRules || null,
-      platform_fee_rate: feeRate,
     };
   };
 
@@ -158,12 +149,11 @@ const CreateOffer = () => {
       const insertData = {
         ...buildInsertData(),
         status: "draft",
-        deposit_status: "required",
         approval_status: "approved",
       };
       const { error } = await supabase.from("offers").insert(insertData).select("id").single();
       if (error) throw error;
-      toast({ title: "Offer saved as draft", description: "Your offer has been saved. It will go live after your account is approved and you publish it." });
+      toast({ title: "Offer saved as draft", description: "Your offer has been saved. Publish it to go live on the marketplace." });
       navigate("/dashboard");
     } catch (err: any) {
       toast({ title: "Error", description: err?.message || "Failed to save draft", variant: "destructive" });
@@ -194,45 +184,18 @@ const CreateOffer = () => {
       const insertData = {
         ...buildInsertData(),
         approval_status: isRestricted ? "pending_approval" : "approved",
-        status: isSuperAdmin ? "active" : "draft",
-        deposit_status: isSuperAdmin ? "waived" : "required",
+        status: "active",
       };
 
       const { data, error } = await supabase.from("offers").insert(insertData).select("id").single();
       if (error) throw error;
 
-      if (isSuperAdmin) {
-        toast({ title: "Offer published!", description: "Your offer is now live (deposit waived)." });
-        navigate("/dashboard");
-        return;
+      if (isRestricted) {
+        toast({ title: "Offer submitted for review", description: "This category requires approval before going live." });
+      } else {
+        toast({ title: "Offer published!", description: "Your offer is now live on the marketplace." });
       }
-
-      // Call reserve-offer-funds
-      const { data: reserveData, error: reserveError } = await supabase.functions.invoke("reserve-offer-funds", {
-        body: { offer_id: data.id },
-      });
-
-      if (reserveError) {
-        const errBody = typeof reserveError === "object" && "message" in reserveError ? reserveError.message : String(reserveError);
-        throw new Error(errBody);
-      }
-
-      if (reserveData?.error) {
-        if (reserveData.shortfall !== undefined) {
-          setShortfallDialog({ open: true, shortfall: reserveData.shortfall, totalRequired: reserveData.total_required });
-          return;
-        }
-        throw new Error(reserveData.error);
-      }
-
-      if (reserveData?.success) {
-        if (isRestricted) {
-          toast({ title: "Offer submitted for review", description: "This category requires approval before going live." });
-        } else {
-          toast({ title: "Offer published!", description: "Your offer is now live. Funds will be deducted when referrals close." });
-        }
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
     } catch (err: any) {
       toast({ title: "Error", description: err?.message || "Failed to publish offer", variant: "destructive" });
     } finally {
@@ -332,44 +295,11 @@ const CreateOffer = () => {
                 <div><Label>Est. Close Time (days)</Label><Input type="number" value={form.closeTimeDays} onChange={(e) => update("closeTimeDays", e.target.value)} placeholder="30" className="mt-1" /></div>
               </div>
 
-              {/* Fee breakdown */}
-              {payoutNum > 0 && (
-                <div className="rounded-2xl border border-border bg-muted/30 p-5">
-                  <p className="text-sm font-medium mb-3">Cost Breakdown</p>
-                  <div className="grid grid-cols-3 gap-3 text-center">
-                    <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground">Referral Fee</p>
-                      <p className="font-display text-lg font-bold">${payoutNum}</p>
-                    </div>
-                    <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground">Platform Fee ({feePercent})</p>
-                      <p className="font-display text-lg font-bold">${platformFee}</p>
-                    </div>
-                    <div className="rounded-xl bg-primary/10 border border-primary/20 p-3">
-                      <p className="text-xs text-muted-foreground">Total Cost per Referral</p>
-                      <p className="font-display text-lg font-bold text-primary">${totalReserved}</p>
-                    </div>
-                  </div>
-                  {pricingTier === "free" && (
-                    <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
-                      <Info className="h-3 w-3" /> Upgrade to Paid ($50/mo) to reduce your platform fee to 10%.
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
-                <Wallet className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium">Balance verified at publish</p>
-                  <p className="text-xs text-muted-foreground mt-1">When you publish, we'll verify your wallet balance can cover this offer. The actual deduction happens when a referral closes.</p>
-                </div>
-              </div>
               <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
                 <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">How payouts work</p>
-                  <p className="text-xs text-muted-foreground mt-1">You set the payout amount. When a deal closes, Revvin verifies and handles payout to the referrer.</p>
+                  <p className="text-xs text-muted-foreground mt-1">You set the reward amount. When a deal closes, you pay the referrer directly — Revvin doesn't take a cut.</p>
                 </div>
               </div>
             </motion.div>
@@ -433,17 +363,6 @@ const CreateOffer = () => {
                   </div>
                 </div>
               )}
-              {payoutNum > 0 && !isSuperAdmin && (
-              <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex items-start gap-3">
-                  <Wallet className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Cost per referral: ${totalReserved}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      ${payoutNum} referral fee + ${platformFee} platform fee ({feePercent}). Your wallet balance will be verified at publish — actual deduction happens when a deal closes.
-                    </p>
-                  </div>
-                </div>
-              )}
             </motion.div>
           )}
 
@@ -462,25 +381,6 @@ const CreateOffer = () => {
           </div>
         </form>
 
-        {/* Insufficient funds dialog */}
-        <Dialog open={shortfallDialog.open} onOpenChange={(open) => setShortfallDialog((s) => ({ ...s, open }))}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-destructive" /> Insufficient Wallet Balance
-              </DialogTitle>
-              <DialogDescription>
-                You need <strong>${shortfallDialog.totalRequired}</strong> available in your wallet to cover this offer, but you're short by <strong>${shortfallDialog.shortfall}</strong>. Top up your wallet to continue.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setShortfallDialog((s) => ({ ...s, open: false }))}>Cancel</Button>
-              <Button onClick={() => navigate("/dashboard")} className="gap-2">
-                <Wallet className="h-4 w-4" /> Top Up Wallet
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );

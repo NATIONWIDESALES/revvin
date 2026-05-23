@@ -58,13 +58,12 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!user) return;
     const fetchAll = async () => {
-      const [refRes, offRes, roleRes, bizRes, profRes, payRes, auditRes] = await Promise.all([
-        supabase.from("referrals").select("*, offers(title, payout, payout_type, platform_fee_rate), businesses(name)").order("created_at", { ascending: false }),
+      const [refRes, offRes, roleRes, bizRes, profRes, auditRes] = await Promise.all([
+        supabase.from("referrals").select("*, offers(title, payout, payout_type), businesses(name)").order("created_at", { ascending: false }),
         supabase.from("offers").select("*, businesses(name)").order("created_at", { ascending: false }),
         supabase.from("user_roles").select("*"),
         supabase.from("businesses").select("*").order("created_at", { ascending: false }),
         supabase.from("profiles").select("*").order("created_at", { ascending: false }),
-        supabase.from("payouts").select("*").order("created_at", { ascending: false }),
         supabase.from("audit_log").select("*").order("created_at", { ascending: false }).limit(50),
       ]);
       setReferrals(refRes.data ?? []);
@@ -72,7 +71,7 @@ const AdminDashboard = () => {
       setRoles(roleRes.data ?? []);
       setBusinesses(bizRes.data ?? []);
       setProfiles(profRes.data ?? []);
-      setPayouts(payRes.data ?? []);
+      setPayouts([]);
       setAuditLog(auditRes.data ?? []);
       setLoading(false);
     };
@@ -158,18 +157,7 @@ const AdminDashboard = () => {
   };
 
   const updatePayoutStatus = async (payoutId: string, status: string, method?: string, providerRef?: string) => {
-    const updates: any = { status, updated_at: new Date().toISOString() };
-    if (status === "paid") { updates.paid_at = new Date().toISOString(); updates.processed_by = user?.id; }
-    if (method) updates.method = method;
-    if (providerRef) updates.provider_reference = providerRef;
-
-    const { error } = await supabase.from("payouts").update(updates).eq("id", payoutId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    setPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, ...updates } : p));
-    if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: `payout_${status}`, p_referral_id: payouts.find(p => p.id === payoutId)?.referral_id });
-    toast({ title: `Payout marked as ${status}` });
-    setPayoutMethod("");
-    setPayoutRef("");
+    toast({ title: "Off-platform payouts", description: "Businesses pay referrers directly on REVVIN.CO v1." });
   };
 
   if (loading) {
@@ -492,13 +480,6 @@ const AdminDashboard = () => {
                         <Button size="sm" variant="ghost" className="text-xs h-7" onClick={() => freezeOffer(offer.id)}>
                           {offer.status === "active" ? <><Pause className="h-3 w-3 mr-1" /> Pause</> : <><Play className="h-3 w-3 mr-1" /> Activate</>}
                         </Button>
-                        {offer.deposit_status && offer.deposit_status !== "paid" && offer.deposit_status !== "not_required" && (
-                          <Button size="sm" variant="outline" className="text-xs h-7" onClick={async () => {
-                            await supabase.from("offers").update({ deposit_status: "paid", deposit_paid_at: new Date().toISOString() }).eq("id", offer.id);
-                            setOffers(prev => prev.map(o => o.id === offer.id ? { ...o, deposit_status: "paid", deposit_paid_at: new Date().toISOString() } : o));
-                            toast({ title: "Deposit overridden", description: "Deposit manually marked as paid." });
-                          }}>Override Deposit</Button>
-                        )}
                       </div>
                     </div>
                   ))}

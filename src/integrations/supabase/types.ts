@@ -95,7 +95,6 @@ export type Database = {
           offer_fine_print: string | null
           offer_trigger: string | null
           phone: string | null
-          pricing_tier: string
           service_area: string | null
           slug: string | null
           state: string | null
@@ -140,7 +139,6 @@ export type Database = {
           offer_fine_print?: string | null
           offer_trigger?: string | null
           phone?: string | null
-          pricing_tier?: string
           service_area?: string | null
           slug?: string | null
           state?: string | null
@@ -185,7 +183,6 @@ export type Database = {
           offer_fine_print?: string | null
           offer_trigger?: string | null
           phone?: string | null
-          pricing_tier?: string
           service_area?: string | null
           slug?: string | null
           state?: string | null
@@ -593,13 +590,6 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "leads_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       notification_settings: {
@@ -639,13 +629,6 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: true
             referencedRelation: "businesses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "notification_settings_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: true
-            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -727,26 +710,18 @@ export type Database = {
           currency: string
           deal_size_max: number | null
           deal_size_min: number | null
-          deposit_amount: number | null
-          deposit_currency: string | null
-          deposit_paid_at: string | null
-          deposit_status: string
           description: string | null
           featured: boolean | null
           id: string
           is_sample: boolean
           location: string | null
-          max_payout_cap: number | null
           paused_reason: string | null
           payout: number
           payout_type: string
-          platform_fee_rate: number
           qualification_criteria: string | null
           remote_eligible: boolean | null
           restricted: boolean | null
           status: string
-          stripe_checkout_session_id: string | null
-          stripe_payment_intent_id: string | null
           title: string
           updated_at: string
         }
@@ -760,26 +735,18 @@ export type Database = {
           currency?: string
           deal_size_max?: number | null
           deal_size_min?: number | null
-          deposit_amount?: number | null
-          deposit_currency?: string | null
-          deposit_paid_at?: string | null
-          deposit_status?: string
           description?: string | null
           featured?: boolean | null
           id?: string
           is_sample?: boolean
           location?: string | null
-          max_payout_cap?: number | null
           paused_reason?: string | null
           payout?: number
           payout_type?: string
-          platform_fee_rate?: number
           qualification_criteria?: string | null
           remote_eligible?: boolean | null
           restricted?: boolean | null
           status?: string
-          stripe_checkout_session_id?: string | null
-          stripe_payment_intent_id?: string | null
           title: string
           updated_at?: string
         }
@@ -793,26 +760,18 @@ export type Database = {
           currency?: string
           deal_size_max?: number | null
           deal_size_min?: number | null
-          deposit_amount?: number | null
-          deposit_currency?: string | null
-          deposit_paid_at?: string | null
-          deposit_status?: string
           description?: string | null
           featured?: boolean | null
           id?: string
           is_sample?: boolean
           location?: string | null
-          max_payout_cap?: number | null
           paused_reason?: string | null
           payout?: number
           payout_type?: string
-          platform_fee_rate?: number
           qualification_criteria?: string | null
           remote_eligible?: boolean | null
           restricted?: boolean | null
           status?: string
-          stripe_checkout_session_id?: string | null
-          stripe_payment_intent_id?: string | null
           title?: string
           updated_at?: string
         }
@@ -822,92 +781,6 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "offers_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      payouts: {
-        Row: {
-          amount: number
-          business_id: string
-          created_at: string
-          currency: string
-          id: string
-          method: string | null
-          notes: string | null
-          paid_at: string | null
-          platform_fee: number
-          processed_by: string | null
-          provider_reference: string | null
-          referral_id: string
-          referrer_id: string
-          status: string
-          tremendous_reward_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          amount: number
-          business_id: string
-          created_at?: string
-          currency?: string
-          id?: string
-          method?: string | null
-          notes?: string | null
-          paid_at?: string | null
-          platform_fee?: number
-          processed_by?: string | null
-          provider_reference?: string | null
-          referral_id: string
-          referrer_id: string
-          status?: string
-          tremendous_reward_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          amount?: number
-          business_id?: string
-          created_at?: string
-          currency?: string
-          id?: string
-          method?: string | null
-          notes?: string | null
-          paid_at?: string | null
-          platform_fee?: number
-          processed_by?: string | null
-          provider_reference?: string | null
-          referral_id?: string
-          referrer_id?: string
-          status?: string
-          tremendous_reward_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "payouts_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payouts_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payouts_referral_id_fkey"
-            columns: ["referral_id"]
-            isOneToOne: false
-            referencedRelation: "referrals"
             referencedColumns: ["id"]
           },
         ]
@@ -1016,9 +889,12 @@ export type Database = {
           customer_name: string
           customer_phone: string | null
           file_url: string | null
+          flagged_unpaid_at: string | null
           id: string
           notes: string | null
           offer_id: string
+          payment_marked_at: string | null
+          payment_status: string
           payout_amount: number | null
           payout_snapshot: number | null
           payout_status: string
@@ -1035,9 +911,12 @@ export type Database = {
           customer_name: string
           customer_phone?: string | null
           file_url?: string | null
+          flagged_unpaid_at?: string | null
           id?: string
           notes?: string | null
           offer_id: string
+          payment_marked_at?: string | null
+          payment_status?: string
           payout_amount?: number | null
           payout_snapshot?: number | null
           payout_status?: string
@@ -1054,9 +933,12 @@ export type Database = {
           customer_name?: string
           customer_phone?: string | null
           file_url?: string | null
+          flagged_unpaid_at?: string | null
           id?: string
           notes?: string | null
           offer_id?: string
+          payment_marked_at?: string | null
+          payment_status?: string
           payout_amount?: number | null
           payout_snapshot?: number | null
           payout_status?: string
@@ -1075,57 +957,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "referrals_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "referrals_offer_id_fkey"
             columns: ["offer_id"]
             isOneToOne: false
             referencedRelation: "offers"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "referrals_offer_id_fkey"
-            columns: ["offer_id"]
-            isOneToOne: false
-            referencedRelation: "offers_public"
-            referencedColumns: ["id"]
-          },
         ]
-      }
-      referrer_payout_preferences: {
-        Row: {
-          created_at: string
-          email: string | null
-          id: string
-          method: string | null
-          notes: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          email?: string | null
-          id?: string
-          method?: string | null
-          notes?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          email?: string | null
-          id?: string
-          method?: string | null
-          notes?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
       }
       reward_tiers: {
         Row: {
@@ -1343,33 +1181,6 @@ export type Database = {
         }
         Relationships: []
       }
-      tremendous_webhook_log: {
-        Row: {
-          event: string
-          payload: Json | null
-          processed_at: string
-          resource_id: string | null
-          resource_type: string | null
-          uuid: string
-        }
-        Insert: {
-          event: string
-          payload?: Json | null
-          processed_at?: string
-          resource_id?: string | null
-          resource_type?: string | null
-          uuid: string
-        }
-        Update: {
-          event?: string
-          payload?: Json | null
-          processed_at?: string
-          resource_id?: string | null
-          resource_type?: string | null
-          uuid?: string
-        }
-        Relationships: []
-      }
       unsubscribe_tokens: {
         Row: {
           business_id: string
@@ -1401,13 +1212,6 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "unsubscribe_tokens_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1459,291 +1263,9 @@ export type Database = {
         }
         Relationships: []
       }
-      wallet_balances: {
-        Row: {
-          available: number
-          created_at: string
-          currency: string
-          id: string
-          paid_out: number
-          platform_fees: number
-          reserved: number
-          total_funded: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          available?: number
-          created_at?: string
-          currency?: string
-          id?: string
-          paid_out?: number
-          platform_fees?: number
-          reserved?: number
-          total_funded?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          available?: number
-          created_at?: string
-          currency?: string
-          id?: string
-          paid_out?: number
-          platform_fees?: number
-          reserved?: number
-          total_funded?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      wallet_transactions: {
-        Row: {
-          amount: number
-          created_at: string
-          description: string
-          id: string
-          offer_id: string | null
-          referral_id: string | null
-          type: string
-          user_id: string
-        }
-        Insert: {
-          amount: number
-          created_at?: string
-          description: string
-          id?: string
-          offer_id?: string | null
-          referral_id?: string | null
-          type: string
-          user_id: string
-        }
-        Update: {
-          amount?: number
-          created_at?: string
-          description?: string
-          id?: string
-          offer_id?: string | null
-          referral_id?: string | null
-          type?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "wallet_transactions_offer_id_fkey"
-            columns: ["offer_id"]
-            isOneToOne: false
-            referencedRelation: "offers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "wallet_transactions_offer_id_fkey"
-            columns: ["offer_id"]
-            isOneToOne: false
-            referencedRelation: "offers_public"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "wallet_transactions_referral_id_fkey"
-            columns: ["referral_id"]
-            isOneToOne: false
-            referencedRelation: "referrals"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
-      businesses_public: {
-        Row: {
-          account_status: string | null
-          category: string | null
-          city: string | null
-          created_at: string | null
-          description: string | null
-          id: string | null
-          industry: string | null
-          is_disabled: boolean | null
-          is_published: boolean | null
-          latitude: number | null
-          logo_url: string | null
-          longitude: number | null
-          name: string | null
-          offer_amount: string | null
-          offer_fine_print: string | null
-          offer_trigger: string | null
-          pricing_tier: string | null
-          service_area: string | null
-          slug: string | null
-          state: string | null
-          subscription_status: string | null
-          updated_at: string | null
-          user_id: string | null
-          verified: boolean | null
-          website: string | null
-        }
-        Insert: {
-          account_status?: string | null
-          category?: string | null
-          city?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          industry?: string | null
-          is_disabled?: boolean | null
-          is_published?: boolean | null
-          latitude?: number | null
-          logo_url?: string | null
-          longitude?: number | null
-          name?: string | null
-          offer_amount?: string | null
-          offer_fine_print?: string | null
-          offer_trigger?: string | null
-          pricing_tier?: string | null
-          service_area?: string | null
-          slug?: string | null
-          state?: string | null
-          subscription_status?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-          verified?: boolean | null
-          website?: string | null
-        }
-        Update: {
-          account_status?: string | null
-          category?: string | null
-          city?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          industry?: string | null
-          is_disabled?: boolean | null
-          is_published?: boolean | null
-          latitude?: number | null
-          logo_url?: string | null
-          longitude?: number | null
-          name?: string | null
-          offer_amount?: string | null
-          offer_fine_print?: string | null
-          offer_trigger?: string | null
-          pricing_tier?: string | null
-          service_area?: string | null
-          slug?: string | null
-          state?: string | null
-          subscription_status?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-          verified?: boolean | null
-          website?: string | null
-        }
-        Relationships: []
-      }
-      offers_public: {
-        Row: {
-          approval_status: string | null
-          business_id: string | null
-          category: string | null
-          close_time_days: number | null
-          country: string | null
-          created_at: string | null
-          currency: string | null
-          deal_size_max: number | null
-          deal_size_min: number | null
-          deposit_amount: number | null
-          deposit_currency: string | null
-          deposit_paid_at: string | null
-          deposit_status: string | null
-          description: string | null
-          featured: boolean | null
-          id: string | null
-          location: string | null
-          max_payout_cap: number | null
-          payout: number | null
-          payout_type: string | null
-          platform_fee_rate: number | null
-          qualification_criteria: string | null
-          remote_eligible: boolean | null
-          restricted: boolean | null
-          status: string | null
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          approval_status?: string | null
-          business_id?: string | null
-          category?: string | null
-          close_time_days?: number | null
-          country?: string | null
-          created_at?: string | null
-          currency?: string | null
-          deal_size_max?: number | null
-          deal_size_min?: number | null
-          deposit_amount?: number | null
-          deposit_currency?: string | null
-          deposit_paid_at?: string | null
-          deposit_status?: string | null
-          description?: string | null
-          featured?: boolean | null
-          id?: string | null
-          location?: string | null
-          max_payout_cap?: number | null
-          payout?: number | null
-          payout_type?: string | null
-          platform_fee_rate?: number | null
-          qualification_criteria?: string | null
-          remote_eligible?: boolean | null
-          restricted?: boolean | null
-          status?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          approval_status?: string | null
-          business_id?: string | null
-          category?: string | null
-          close_time_days?: number | null
-          country?: string | null
-          created_at?: string | null
-          currency?: string | null
-          deal_size_max?: number | null
-          deal_size_min?: number | null
-          deposit_amount?: number | null
-          deposit_currency?: string | null
-          deposit_paid_at?: string | null
-          deposit_status?: string | null
-          description?: string | null
-          featured?: boolean | null
-          id?: string | null
-          location?: string | null
-          max_payout_cap?: number | null
-          payout?: number | null
-          payout_type?: string | null
-          platform_fee_rate?: number | null
-          qualification_criteria?: string | null
-          remote_eligible?: boolean | null
-          restricted?: boolean | null
-          status?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "offers_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "offers_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       award_badge_if_qualified: {
