@@ -354,7 +354,7 @@ const Index = () => {
             <AccordionItem value="q3">
               <AccordionTrigger>Is there a free tier?</AccordionTrigger>
               <AccordionContent>
-                Yes — the Free tier is for referrers who want to send leads to businesses on Revvin and earn payouts directly. Businesses run on Pro ($49/month).
+                Referrers can create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with a 14-day free trial.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q4">

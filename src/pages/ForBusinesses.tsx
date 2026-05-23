@@ -135,8 +135,8 @@ const ForBusinesses = () => (
             {[
               { icon: DollarSign, title: "Pay on results only", desc: "No upfront cost, no monthly spend on ads. You only pay when a referred customer actually closes." },
               { icon: Users, title: "Warm introductions", desc: "Referrals come from people who know your next customer — not algorithms guessing from cookie data." },
-              { icon: Shield, title: "Platform structure", desc: "Clean records, tracked referrals, mediated payouts. No more informal deals and missing payments." },
-              { icon: Zap, title: "Free to start", desc: "List your business and create your first offer for free. Upgrade to reduce platform fees as you grow." },
+              { icon: Shield, title: "Clean records", desc: "Tracked referrals and a clear pipeline. No more informal deals and missing follow-ups." },
+              { icon: Zap, title: "14-day free trial", desc: "List your business, set up your offer, and try the full product free for 14 days." },
               { icon: BarChart3, title: "Full visibility", desc: "Track referrals, see pipeline activity, and manage payouts all from your dashboard." },
               { icon: CheckCircle2, title: "You set the terms", desc: "Choose your payout amount, define qualification criteria, and control your referral program." },
             ].map((item, i) => (

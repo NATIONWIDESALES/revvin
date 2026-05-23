@@ -34,35 +34,34 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">What Revvin is</h2>
         <p>
-          Revvin is a two-sided referral marketplace at <a href="https://revvin.co">https://revvin.co</a> that
-          connects businesses with referrers (individuals or professionals with networks). Businesses list
-          referral offers describing what they will pay for a new customer. Referrers submit warm introductions.
-          When the introduced customer closes a deal, the referrer is paid the full advertised amount and the
-          business pays Revvin a platform fee. Revvin operates in Canada and the United States.
+          Revvin is a referral program platform at <a href="https://revvin.co">https://revvin.co</a> for service
+          businesses. Businesses subscribe for a flat monthly fee and get a branded referral page, lead capture
+          form, QR code, and dashboard to manage referrals. When a referred customer closes a deal, the business
+          pays the referrer directly — Revvin does not process or take a cut of payouts. Revvin operates in
+          Canada and the United States.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">Business model (pay-per-close)</h2>
+        <h2 className="text-xl font-semibold mb-3">Business model</h2>
         <ul>
-          <li>Listing offers is free. There is no upfront cost to businesses.</li>
+          <li>Businesses pay a flat $49 USD per month, billed monthly, with a 14-day free trial.</li>
+          <li>No contract, no setup fee, cancel anytime from the billing portal.</li>
           <li>Referrers always receive 100% of the advertised payout amount.</li>
-          <li>Revvin charges the business a platform fee only when a referral converts to a closed deal.</li>
-          <li>The platform fee depends on the business's plan tier (Free, Starter, Pro, or Enterprise).</li>
-          <li>Free tier businesses pay a 25% platform fee on closed deals; paid tiers pay lower fees.</li>
-          <li>Pricing tiers are shown to businesses after signup.</li>
+          <li>Revvin does not take any cut of referral payouts. The business pays the referrer directly when the deal closes.</li>
+          <li>An optional one-time $297 Launch Package adds a 1:1 setup call and done-for-you offer creation.</li>
         </ul>
       </section>
 
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">How a referral flows</h2>
         <ol>
-          <li>A business publishes a referral offer specifying the payout amount and qualification criteria.</li>
-          <li>A referrer browses live offers at <a href="https://revvin.co/browse">/browse</a> and finds an opportunity matching their network.</li>
-          <li>The referrer submits the customer's contact details through Revvin's referral wizard.</li>
-          <li>The business contacts the referred customer, qualifies them, and works the deal.</li>
-          <li>When the deal closes, the business marks it closed in their dashboard.</li>
-          <li>Revvin processes payout to the referrer (typically 3-5 business days) via Tremendous, and charges the platform fee to the business.</li>
+          <li>A business sets up a branded referral page with their offer, payout amount, and qualification criteria.</li>
+          <li>The business shares the page link or QR code with past customers, partners, and their network.</li>
+          <li>A referrer submits the customer's contact details through the page.</li>
+          <li>The business contacts the customer, qualifies them, and works the deal.</li>
+          <li>When the deal closes, the business pays the referrer directly and marks the referral as paid in their dashboard.</li>
+          <li>If a referrer is not paid within 30 days of a closed deal, they can flag the referral for Revvin review.</li>
         </ol>
       </section>
 
@@ -100,8 +99,8 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">Geography and currency</h2>
         <p>
-          Revvin serves Canada (CAD payouts) and the United States (USD payouts). Payouts are delivered
-          digitally via Tremendous, supporting bank deposit, prepaid cards, and gift card options.
+          Revvin serves Canada and the United States. The business chooses how it pays referrers (e-transfer,
+          check, direct deposit, gift card, etc.) and handles payouts directly.
         </p>
       </section>
 
@@ -109,9 +108,8 @@ const AboutRevvinLLM = () => (
         <h2 className="text-xl font-semibold mb-3">Trust and verification</h2>
         <ul>
           <li>Every business is reviewed before its first offer goes live.</li>
-          <li>Referrer payouts are platform-mediated — no chasing businesses for payment.</li>
+          <li>Referrers can flag any closed referral that hasn't been paid within 30 days for Revvin review.</li>
           <li>Revvin maintains an immutable audit log of referral status changes.</li>
-          <li>Businesses fund a wallet (soft reserve) so payout capacity is verified at offer publication.</li>
         </ul>
       </section>
 
@@ -120,7 +118,7 @@ const AboutRevvinLLM = () => (
         <ul>
           <li>vs. Google Ads / Facebook Ads: Revvin charges only on closed deals, not clicks or impressions.</li>
           <li>vs. Affiliate networks: Tracks real human introductions, not cookies or click attribution.</li>
-          <li>vs. Lead-gen platforms (HomeAdvisor, Thumbtack, Angi): Revvin pays the referrer 100% and only bills the business on close.</li>
+          <li>vs. Lead-gen platforms (HomeAdvisor, Thumbtack, Angi): Revvin gives you your own branded referral channel instead of selling shared leads.</li>
         </ul>
       </section>
 
@@ -132,7 +130,7 @@ const AboutRevvinLLM = () => (
           <li><strong>Markets:</strong> Canada, United States</li>
           <li><strong>Pricing model:</strong> $49/month flat — cancel anytime, no per-referral fee</li>
           <li><strong>Referrer payout:</strong> 100% of advertised amount</li>
-          <li><strong>Payout rails:</strong> Tremendous (digital delivery)</li>
+          <li><strong>Payout method:</strong> Business pays the referrer directly; Revvin does not handle payouts.</li>
           <li><strong>Dispute policy:</strong> First-in-wins, admin-reviewed</li>
           <li><strong>Website:</strong> https://revvin.co</li>
         </ul>

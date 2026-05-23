@@ -33,7 +33,7 @@ const ReferralAgreement = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">4. Payout Terms</h2>
-            <p>Referrers receive the full advertised referral fee upon a verified closed deal. The platform fee is charged separately to the business based on their selected plan and does not reduce the referrer's payout. Payment is delivered via the Referrer's configured payout method through the platform's payment partner. Payout timing follows the schedule specified on the offer (Net 7, Net 14, or Net 30 from verified close).</p>
+            <p>Referrers receive the full advertised referral fee upon a verified closed deal. Payment is made directly by the Business to the Referrer, using the payout method and timing specified on the offer (typically Net 7, Net 14, or Net 30 from verified close). Revvin does not process payouts on behalf of the Business and does not deduct any amount from the Referrer's payout.</p>
           </section>
 
           <section>
@@ -48,7 +48,7 @@ const ReferralAgreement = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">7. Termination</h2>
-            <p>Either party may terminate their participation in any active referral by notifying Revvin. If funds have been reserved in the Business's wallet, they will be released back unless the referral has already progressed to a qualified stage. Termination of this Agreement does not affect pending payouts for completed deals.</p>
+            <p>Either party may terminate their participation in any active referral by notifying Revvin. Termination of this Agreement does not affect a Business's obligation to pay Referrers for deals that have already closed.</p>
           </section>
         </div>
       </div>

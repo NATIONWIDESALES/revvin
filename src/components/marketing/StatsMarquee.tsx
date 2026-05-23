@@ -2,7 +2,7 @@ import { useReducedMotion } from "framer-motion";
 
 const stats = [
   { v: "$200–$600", l: "avg cost of a paid lead" },
-  { v: "$0", l: "platform fee per referral" },
+  { v: "$0", l: "extra fee per referral" },
   { v: "10 min", l: "to launch your page" },
   { v: "100%", l: "of payout goes to your referrer" },
   { v: "1 plan", l: "no upsells, no add-ons" },

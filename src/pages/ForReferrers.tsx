@@ -32,8 +32,8 @@ const ForReferrers = () => (
         "@context": "https://schema.org",
         "@type": "FAQPage",
         "mainEntity": [
-          { "@type": "Question", "name": "How do I get paid as a referrer?", "acceptedAnswer": { "@type": "Answer", "text": "When the business confirms the referred customer closed a deal, Revvin processes a payout to you for 100% of the advertised amount, typically within 3-5 business days." } },
-          { "@type": "Question", "name": "Does Revvin take a cut of my earnings?", "acceptedAnswer": { "@type": "Answer", "text": "No. Referrers always receive 100% of the advertised payout. Revvin's platform fee is charged separately to the business." } },
+          { "@type": "Question", "name": "How do I get paid as a referrer?", "acceptedAnswer": { "@type": "Answer", "text": "When the business confirms the referred customer closed a deal, the business pays you directly for the full advertised amount, in whatever way they specified on the offer." } },
+          { "@type": "Question", "name": "Does Revvin take a cut of my earnings?", "acceptedAnswer": { "@type": "Answer", "text": "No. You always receive 100% of the advertised payout, directly from the business. Revvin only charges the business a flat monthly subscription." } },
           { "@type": "Question", "name": "Do I need to be a professional to refer?", "acceptedAnswer": { "@type": "Answer", "text": "No. Anyone with a network — friends, family, neighbors, clients — can submit referrals and earn." } },
           { "@type": "Question", "name": "What if someone else refers the same customer first?", "acceptedAnswer": { "@type": "Answer", "text": "Revvin uses a first-in-wins policy. The first valid referral submitted for a given customer receives credit for the close." } }
         ]

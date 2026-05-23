@@ -227,9 +227,9 @@ const Pricing = () => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">
-              <AccordionTrigger>Does Revvin charge a platform fee per referral?</AccordionTrigger>
+              <AccordionTrigger>Does Revvin take a cut of referral payouts?</AccordionTrigger>
               <AccordionContent>
-                No. Revvin is the infrastructure, not a middleman on payouts. You keep 100% of the relationship with your referrer.
+                No. Revvin is the infrastructure, not a middleman on payouts. You pay referrers directly when deals close and keep 100% of that relationship.
               </AccordionContent>
             </AccordionItem>
           </Accordion>

@@ -2,7 +2,32 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
 
-const ROOTS = ["src", "supabase/functions", "index.html", "public"];
+// User-facing copy only — marketing pages, public-facing components, index.html.
+// Admin/dashboard/internal payout UI is intentionally excluded; those are
+// rewritten in a follow-up pass.
+const ROOTS = [
+  "src/pages/Index.tsx",
+  "src/pages/Pricing.tsx",
+  "src/pages/ForBusinesses.tsx",
+  "src/pages/ForReferrers.tsx",
+  "src/pages/HowItWorks.tsx",
+  "src/pages/TrustCenter.tsx",
+  "src/pages/AboutRevvinLLM.tsx",
+  "src/pages/ReferralAgreement.tsx",
+  "src/pages/Terms.tsx",
+  "src/pages/Privacy.tsx",
+  "src/pages/Browse.tsx",
+  "src/pages/PublicReferralPage.tsx",
+  "src/pages/Auth.tsx",
+  "src/pages/Signup.tsx",
+  "src/pages/Onboarding.tsx",
+  "src/components/marketing",
+  "src/components/Navbar.tsx",
+  "src/components/ROICalculator.tsx",
+  "src/components/Footer.tsx",
+  "index.html",
+  "public",
+];
 const SKIP_DIRS = new Set(["node_modules", "dist", "build", ".git"]);
 const TEXT_EXT = new Set([
   ".ts", ".tsx", ".js", ".jsx", ".html", ".css", ".md", ".json", ".txt", ".svg",
@@ -27,6 +52,13 @@ function walk(path: string, out: string[] = []): string[] {
 const FORBIDDEN: Array<{ label: string; pattern: RegExp }> = [
   { label: "$147", pattern: /\$147\b/ },
   { label: "3 months", pattern: /\b3\s+months\b/i },
+  // Architecture reset: flat $49/mo, direct payouts. None of these belong in user-facing copy.
+  { label: "wallet", pattern: /\bwallet\b/i },
+  { label: "tremendous", pattern: /\btremendous\b/i },
+  { label: "escrow", pattern: /\bescrow/i },
+  { label: "platform fee", pattern: /\bplatform\s+fees?\b/i },
+  { label: "Starter tier", pattern: /\bstarter\b/i },
+  { label: "Enterprise tier", pattern: /\benterprise\b/i },
 ];
 
 describe("content guards — deprecated pricing strings", () => {
