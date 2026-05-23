@@ -480,13 +480,6 @@ const AdminDashboard = () => {
                         <Button size="sm" variant="ghost" className="text-xs h-7" onClick={() => freezeOffer(offer.id)}>
                           {offer.status === "active" ? <><Pause className="h-3 w-3 mr-1" /> Pause</> : <><Play className="h-3 w-3 mr-1" /> Activate</>}
                         </Button>
-                        {offer.deposit_status && offer.deposit_status !== "paid" && offer.deposit_status !== "not_required" && (
-                          <Button size="sm" variant="outline" className="text-xs h-7" onClick={async () => {
-                            await supabase.from("offers").update({ deposit_status: "paid", deposit_paid_at: new Date().toISOString() }).eq("id", offer.id);
-                            setOffers(prev => prev.map(o => o.id === offer.id ? { ...o, deposit_status: "paid", deposit_paid_at: new Date().toISOString() } : o));
-                            toast({ title: "Deposit overridden", description: "Deposit manually marked as paid." });
-                          }}>Override Deposit</Button>
-                        )}
                       </div>
                     </div>
                   ))}
