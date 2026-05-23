@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import { useMockListing } from "@/hooks/useMockListings";
 import ContactBusinessDialog from "@/components/marketplace/ContactBusinessDialog";
-import OfferQRCode from "@/components/OfferQRCode";
+import SimpleQRCode from "@/components/marketplace/SimpleQRCode";
 import { Sparkles, ArrowLeft, Share2, QrCode, UserPlus, CheckCircle2 } from "lucide-react";
 
 function hashHue(s: string) {
@@ -109,7 +109,7 @@ export default function ReferralPreview() {
                   Share this page
                 </p>
                 <div className="mt-3">
-                  <OfferQRCode url={url} size={180} />
+                  <SimpleQRCode url={url} size={180} />
                 </div>
                 <p className="mt-3 max-w-[200px] text-center text-[10px] text-muted-foreground">
                   Scan, text, or email — every referral routes back here.
