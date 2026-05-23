@@ -277,7 +277,7 @@ const OfferDetail = () => {
               {[
                 "Business verified by REVVIN",
                 "Payout terms locked when referral is accepted",
-                "Platform-mediated payout — you never chase payment",
+                "Paid directly by the business — 100% of the payout goes to you",
                 "Dispute resolution if anything goes wrong",
               ].map((signal) => (
                 <div key={signal} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -295,7 +295,7 @@ const OfferDetail = () => {
                   { icon: Send, label: "Submit Referral" },
                   { icon: Clock, label: "Business Reviews (1-2 days)" },
                   { icon: CheckCircle2, label: "Deal Closes" },
-                  { icon: DollarSign, label: "You Get Paid (3-5 days)" },
+                  { icon: DollarSign, label: "Business Pays You Directly" },
                 ].map((step, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 shrink-0">
@@ -315,8 +315,8 @@ const OfferDetail = () => {
                 {[
                   "You submit the referral with contact details and context",
                   `${offer.business} reviews and reaches out to your lead`,
-                  "Revvin tracks the deal status and verifies the outcome",
-                  "Deal closes → your payout is approved and paid",
+                "Business updates the deal status in Revvin as it progresses",
+                "Deal closes → the business pays you directly (100% of the payout)",
                 ].map((step, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">

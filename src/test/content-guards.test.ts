@@ -70,6 +70,11 @@ const FORBIDDEN: ForbiddenPattern[] = [
   { label: "$99/mo price point", pattern: /\$99\s*\/?\s*(mo|month)\b/i },
   { label: "$29/mo price point", pattern: /\$29\s*\/?\s*(mo|month)\b/i },
   { label: "$19/mo price point", pattern: /\$19\s*\/?\s*(mo|month)\b/i },
+  // Payout-flow lies — Revvin never holds funds or pays referrers.
+  { label: "payout processed by Revvin", pattern: /payout\s+processed\s+by\s+revvin/i },
+  { label: "platform-mediated payout", pattern: /platform[-\s]mediated\s+payout/i },
+  { label: "Revvin pays you", pattern: /\brevvin\s+pays\s+(you|the\s+referrer)/i },
+  { label: "funds held/reserved by Revvin", pattern: /\bfunds\s+(held|reserved)\b/i },
 ];
 
 registerContentGuard(

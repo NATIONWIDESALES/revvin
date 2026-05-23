@@ -291,7 +291,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
                   {offer.verified && (
                     <div className="flex items-center gap-2 text-xs text-primary bg-primary/5 border border-primary/20 rounded-lg p-2">
                       <Shield className="h-3.5 w-3.5 shrink-0" />
-                      <span>Verified Business. Payout processed by Revvin after close</span>
+                      <span>Verified Business. Paid directly by the business when the deal closes.</span>
                     </div>
                   )}
                 </div>
@@ -479,11 +479,11 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
             <p className="text-xs text-muted-foreground mb-3">
               This offer shows how REVVIN.CO works. Browse our live offers to start earning, or invite a business you know.
             </p>
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" asChild>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button variant="outline" size="sm" className="flex-1 whitespace-nowrap" asChild>
                 <Link to="/browse">Browse Live Offers</Link>
               </Button>
-              <Button className="flex-1" asChild>
+              <Button size="sm" className="flex-1 whitespace-nowrap" asChild>
                 <Link to="/dashboard">Invite a Business</Link>
               </Button>
             </div>
