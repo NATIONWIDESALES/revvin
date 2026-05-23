@@ -54,12 +54,12 @@ const Terms = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">6. Payout Structure</h2>
-            <p>Referrers receive the full advertised referral fee upon a verified closed deal. The platform fee is charged separately to the business based on their selected plan. Payouts are processed according to the timeline specified on the offer (Net 7, Net 14, or Net 30).</p>
+            <p>Referrers receive the full advertised referral fee upon a verified closed deal, paid directly by the business per the timeline specified on the offer (Net 7, Net 14, or Net 30). Revvin does not deduct any amount from the referrer's payout.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-bold text-foreground">7. Payouts</h2>
-            <p>When a referral is accepted, payout terms are snapshotted. Upon a verified deal closure, Revvin processes the payout to the referrer. If a deal is lost or declined, no payout is created. During early access, payouts are processed manually by the Revvin team after verification.</p>
+            <p>When a referral is accepted, payout terms are snapshotted. Upon a verified deal closure, the business pays the referrer directly. If a deal is lost or declined, no payout is due. Referrers may flag a closed deal as unpaid after 30 days; Revvin will review and may suspend the business's account for unresolved non-payment.</p>
           </section>
 
           <section>
