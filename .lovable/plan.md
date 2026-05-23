@@ -1,136 +1,167 @@
+# Sprint 1 — Marketplace Transformation Plan
 
-# REVVIN.CO v1 — Full Architecture Reset
+This is a large, multi-file visual/structural sprint. I'll execute it in 5 phases. No Stripe, Tremendous, OAuth, auth, or RLS changes. All mock data flagged `is_mock: true` so it can be wiped in one operation later.
 
-Confirmed scope: **wipe, pre-launch** (no data migration). **Launch Package stays** as optional $297 add-on at checkout. **All at once** in a single sweep.
+---
 
-## 1. Project memory (first)
+## Phase 0 — Audit & inventory (no code)
 
-Rewrite `mem://index.md` Core + several memory files to reflect:
-- Single flat plan: **$49/month, 14-day free trial. No platform fees. No tiers.**
-- **Direct payouts**: businesses pay referrers off-platform. No Tremendous, no wallet, no escrow.
-- Platform tracks status pipeline only: Submitted → Contacted → Quoted → Closed-Won/Lost → Paid.
-- Non-payment flagging by referrers (30-day rule).
-- Launch Package $297 remains as optional add-on (existing checkbox keeps working).
+Before writing components, I'll list reusable existing primitives so we don't duplicate:
 
-Files to delete/rewrite:
-- `mem://business/monetization-model` → flat $49/mo, no fees
-- `mem://features/wallet-funding-model` → **delete**
-- `mem://features/offer-funding-reservation` → **delete**
-- `mem://features/referral-payout-logic` → rewrite: direct off-platform
-- `mem://features/subscription-tier-sync` → **delete**
-- `mem://features/subscription-management-portal` → keep, simplified
-- `mem://features/automated-payouts-tremendous` → **delete**
-- `mem://features/admin-revenue-reporting` → rewrite: MRR only, no fees
-- `mem://business/pricing-visibility-strategy` → rewrite: pricing public
-- `mem://style/copy-constraints` → drop "platform fee" / "wallet reservation" terminology
+- **Cards / shells:** `components/ui/card.tsx`, `OfferCard.tsx` (adapt → `MarketplaceListingCard`)
+- **Buttons / forms:** `ui/button.tsx`, `ui/input.tsx`, `ui/select.tsx`, `ui/textarea.tsx`, `ui/form.tsx`, `ui/dialog.tsx` (reuse for contact + callback modals)
+- **Layout chrome:** `Navbar.tsx`, `Footer.tsx`, `Layout.tsx`, `SEOHead.tsx` (keep; adjust nav CTA + footer copy)
+- **Map:** `MapView.tsx` (reuse for `/browse` map toggle; do not add new map deps or prompt for tokens)
+- **Misc:** `ShareOfferLink.tsx`, `OfferQRCode.tsx` (reuse on referral preview page)
 
-## 2. Database migration
+New components live under `src/components/marketplace/` with the `Marketplace*` / `BusinessProfile*` prefix so they're easy to grep and remove.
 
-Drop tables (wipe — pre-launch):
-- `wallet_balances`, `wallet_transactions`
-- `referrer_payout_preferences`
-- `tremendous_webhook_log`
-- Keep `payouts` table? **No — drop.** Replace with simple `payment_status` column on `referrals`.
-- Keep `launch_tasks` (Launch Package add-on stays)
+---
 
-Modify `referrals`:
-- Add `payment_status text default 'not_due'` (values: `not_due`, `paid`, `flagged_unpaid`)
-- Add `payment_marked_at timestamptz`
-- Add `flagged_unpaid_at timestamptz`
+## Phase 1 — Data layer (mock listings)
 
-Modify `offers`:
-- Drop `platform_fee_rate`, `deposit_status`, `deposit_amount`, `deposit_currency`, `stripe_checkout_session_id`, `stripe_payment_intent_id`, `deposit_paid_at`
+**New migration** — two small tables, both with `is_mock` flag so they're trivially deletable:
 
-Modify `businesses`:
-- Drop `pricing_tier` (or default everyone to `'pro'`/`'paid'`)
-- Keep `stripe_subscription_id`, `subscription_status`
+```sql
+create table public.mock_listings (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null,
+  name text not null,
+  tagline text,
+  category text not null,
+  city text not null,
+  region text not null,         -- state/province
+  country text not null,        -- US / CA
+  lat double precision,
+  lng double precision,
+  hero_image text not null,
+  gallery jsonb not null default '[]',
+  services jsonb not null default '[]',
+  price_min numeric, price_max numeric,
+  currency text not null default 'USD',
+  about text,
+  rating numeric not null default 4.8,
+  review_count int not null default 0,
+  reviews jsonb not null default '[]',  -- [{name, rating, date, body}]
+  referral_fee numeric not null,
+  referral_fee_unit text not null,      -- e.g. "per closed roof replacement"
+  verified boolean not null default true,
+  phone text, email text, website text,
+  hours jsonb,
+  is_mock boolean not null default true,
+  created_at timestamptz not null default now()
+);
 
-Update `handle_new_user` trigger: remove the `wallet_balances` insert.
+create table public.mock_inquiries (
+  id uuid primary key default gen_random_uuid(),
+  listing_slug text not null,
+  kind text not null,           -- 'contact' | 'quote' | 'referral'
+  name text, email text, phone text, message text,
+  is_mock boolean not null default true,
+  created_at timestamptz not null default now()
+);
 
-## 3. Edge functions — delete
+create table public.callback_requests (
+  id uuid primary key default gen_random_uuid(),
+  name text not null, business_name text, email text not null,
+  phone text, city text, help_with text,
+  is_mock boolean not null default true,
+  created_at timestamptz not null default now()
+);
+```
 
-- `create-deposit-session`
-- `stripe-deposit-webhook`
-- `reserve-offer-funds`
-- `release-offer-funds`
-- `process-deal-won`
-- `process-tremendous-payout`
-- `generate-payout-link`
-- `tremendous-webhook`
-- `create-subscription-session` (tier upgrade flow gone)
+RLS: `mock_listings` → public read. `mock_inquiries` + `callback_requests` → public insert only (no read from anon). No changes to existing tables/policies.
 
-Keep + simplify:
-- `create-business-checkout` — already correct ($49/mo + optional $297 add-on)
-- `check-subscription` — strip PRICE_TO_TIER map, just return `subscribed: true/false` + trial info
-- `stripe-business-webhook` — strip tier sync logic, keep subscription status sync
-- `customer-portal` — unchanged
+Then a `supabase--insert` call to seed the 5 listings (Summit Ridge Roofing, Brightline Solar, Oak & Iron Kitchen Co., North Shore HVAC, Sundial Landscape Design) with full review arrays, galleries, services, lat/lng, etc. — exactly as specified.
 
-## 4. Frontend — code deletion
+---
 
-Delete components:
-- `WalletPanel` (if exists), wallet display anywhere in dashboards
-- `PayoutPreferences`
-- `PlanSelector` (tier upgrade UI)
-- `src/lib/pricing.ts` (platform fee helper)
-- Wallet recovery in `AuthContext.ensureWallet` → remove
+## Phase 2 — Homepage transformation (`src/pages/Index.tsx`)
 
-## 5. Frontend — rewrites
+Full rewrite of `Index.tsx` content (keep file; preserve route). New structure:
 
-**`src/pages/Index.tsx`** — full rewrite per spec:
-- New nav: Logo | How it works | Browse Offers | Pricing | Log In | **List your business** (primary, top-right)
-- Hero: business-focused, "$49/month. Cancel anytime. No contract. No setup fee."
-- Industries strip (existing style)
-- **Browse Offers grid above the fold** (6–8 cards, real DB data via `useDbOffers`, fallback to seed)
-- How it works (3 cards, business-focused)
-- "Everything included for $49/month" 6-card grid
-- "Math beats ads" comparison table
-- For referrers (smaller section)
-- Trust & fairness (4 cards, updated — first submission wins, terms locked, business review, non-payment protection)
-- Pricing (single $49 card)
-- FAQ — 7 spec questions verbatim
-- Footer
+1. **Full-bleed hero** — Unsplash residential porch/family-home photo at `?w=2400&q=80`, dark overlay, single tagline "Find local businesses. Hire with confidence."
+2. **Search bar overlay** — location input + category select + Search button + secondary "Search on map" link.
+3. **Single business band** — cream/pale-green strip, one line: "Own a business? Get found. Get referrals. Get customers. — $49/mo." + green "List your business" button.
+4. **Featured businesses** — horizontal scroll of 5 `MarketplaceListingCard`s, "View all" → `/browse`.
+5. **Browse by category** — 5 tiles → `/browse?category=…`.
+6. **Browse by city** — 5 tiles → `/browse?city=…`.
+7. **Footer pitch band** — 3 columns (Get discovered / Build your referral program / Manage your leads) + "Get started — $49/mo" CTA.
 
-**`src/pages/Pricing.tsx`** — single card, $49/mo, 14-day trial.
+Strip from homepage: any "how it works" steps, fake stats, founder note, comparison-to-ads, marketing testimonial sections currently rendered there.
 
-**`src/pages/dashboard/BusinessDashboard.tsx`** — strip wallet/fees, add `payment_status` column + "Mark as paid" action on Closed-Won referrals.
+**Navbar:** keep, but ensure CTA reads "List your business" (already memory-enforced) and links to `/for-businesses`.
 
-**`src/pages/dashboard/ReferrerDashboard.tsx`** — strip wallet, change "in your wallet" → "total earned", add "Flag non-payment" button on Closed-Won referrals >30 days old without payment.
+---
 
-**`src/pages/PublicReferralPage.tsx`** — strip wallet/fee/escrow copy.
+## Phase 3 — Marketplace pages
 
-**`src/pages/Browse.tsx`** — strip fee display, just "$X per closed deal".
+### `src/pages/Browse.tsx` (rewrite)
+- Sticky filter bar: location text, category select, price range, min rating.
+- View toggle Grid ⇄ Map (default Grid).
+- Grid: 3-col responsive of `MarketplaceListingCard`.
+- Map: reuses existing `MapView` with markers pulled from `mock_listings`, click → mini card popover.
+- Reads from `mock_listings` (no auth required — already RLS public).
 
-**`src/pages/dashboard/CreateOffer.tsx` / `EditOffer.tsx`** — strip deposit + fee fields.
+### `src/pages/BusinessProfile.tsx` (new, route `/business/:slug`)
+- Hero image + name + location + rating + Verified badge.
+- Primary CTA "Contact this business" → `ContactBusinessDialog` (writes to `mock_inquiries`, shows "We'll be in touch" toast).
+- Secondary CTA "View their referral program" → links to `/refer/:slug`.
+- Sections in order: About, Services, Gallery, Reviews, Pricing, Service Area (small Leaflet/Map snippet centered on lat/lng), Referral Program Preview ("This business pays $X per closed …" + "Refer someone you know" button → mock referral form).
+- Sticky right sidebar: contact card (phone/email/website) + Hours widget + "Request a quote" form (also writes to `mock_inquiries`, kind `quote`).
 
-**`src/pages/dashboard/AccountSettings.tsx`** — strip wallet/payout sections.
+### `src/pages/ReferralPreview.tsx` (new, route `/refer/:slug`)
+- Branded mock referral page per listing: business logo/name color accent, prominent referral fee, "How it works" 3 steps for the referrer, referral submission form (writes to `mock_inquiries` kind `referral`), reuses `OfferQRCode` for a sample QR.
+- Clearly tagged as "Sample referral page".
 
-**`src/pages/dashboard/AdminDashboard.tsx`** — strip wallet/payout queues; revenue reporting becomes MRR.
+### Routes
+Add `/business/:slug` and `/refer/:slug` to `src/App.tsx`. Keep all existing routes.
 
-**`src/pages/SuperAdminCRM.tsx`** — same simplification.
+---
 
-## 6. Tests
+## Phase 4 — Marketing page rewrites
 
-Update `src/test/content-guards.test.ts` to also forbid: "wallet", "platform fee", "Tremendous", "escrow", "Starter", "Enterprise" in user-facing copy. Run vitest after.
+### `src/pages/ForBusinesses.tsx`
+- Hero: "Get found. Get referrals. Get customers." + $49/mo CTA + "Request a callback" secondary.
+- 3 expanded value props (marketplace / referral system w/ QR for in-shop + outbound to existing customers / lead management).
+- Single pricing card: $49/mo, no tiers. Optional $199 one-time setup add-on described below.
+- "Need help getting started?" → `CallbackRequestDialog` (writes to `callback_requests`, success toast "we'll be in touch within 1 business day").
+- Strip any pay-per-close / Starter / Enterprise / free-tier language.
 
-## 7. Order of execution
+### `src/pages/HowItWorks.tsx`
+- Two columns: For customers (search, browse verified listings, contact directly) / For businesses (list $49/mo, set up referral program, manage leads).
+- Strip pay-per-close, dispute resolution, Net-X payout timelines, first-in-wins references.
 
-1. Update memory index (one write)
-2. Submit DB migration (requires user approval)
-3. While migration approved: rewrite homepage, pricing, FAQ, public referral page, browse
-4. Strip dashboards
-5. Delete unused components/lib
-6. Delete edge functions (one batch)
-7. Simplify check-subscription + stripe-business-webhook
-8. Update content-guards test, run vitest
-9. Verify build
+### `src/pages/TrustCenter.tsx`
+- Remove pay-per-close / payout-timeline / dispute content.
+- Keep verified-business badge explanation.
+- Add "What businesses on Revvin commit to" charter + "How we vet businesses" (light verification).
+
+### `src/pages/Pricing.tsx`
+- Single $49/mo card with the bullet list spec'd. Below: $199 one-time setup add-on. Below that: small "Need help reaching your existing customers?" → callback form link on `/for-businesses`.
+
+---
+
+## Phase 5 — QA & guards
+
+- Run `bunx vitest run src/test/content-guards.test.ts` and fix any newly-introduced forbidden strings ("Starter", "Enterprise", "wallet", "platform fee", pay-per-close phrasings, etc.). Add any new patterns the sprint surfaces.
+- Manual sweep with browser tool: homepage hero renders, `/browse` grid + map toggle works, one business profile loads end-to-end, callback + contact + referral mock forms persist and show success toasts.
+- Confirm no edits to Stripe/Tremendous/auth/edge functions/RLS on existing tables.
+
+---
+
+## Out of scope (flagged, not built)
+
+Stripe checkout, signup wizard, real lead inbox CRM wiring, real referral engine, Tremendous payouts, real transactional emails, OAuth, existing RLS. All untouched.
+
+---
 
 ## Technical notes
 
-- `payments` and `business_id`/`referrer_id` foreign keys: the `payouts` table is dropped, so the FK on `referrals` is unaffected.
-- The Launch Package opt-in checkbox in `Signup`/checkout already works — leave as-is.
-- `useDbOffers` already returns offers; OfferCard will need a small prop tweak to hide fee.
-- Tremendous secrets stay in Supabase (orphaned) — that's fine, no code references them after deletion.
+- New components under `src/components/marketplace/` (`MarketplaceListingCard`, `MarketplaceSearchBar`, `BusinessProfileHero`, `ContactBusinessDialog`, `CallbackRequestDialog`, `ReviewList`, `ServiceAreaMap`).
+- Mock listing fetch via a tiny `src/hooks/useMockListings.ts` wrapping `supabase.from('mock_listings')`.
+- Unsplash URLs hard-coded in seed (chosen per category — residential roofing, Florida solar, Brooklyn kitchen, Vancouver heat pump, Toronto patio at dusk).
+- All colors continue to use existing semantic tokens (`--primary` green stays accent; cream/off-white tones already in `index.css` as `surface-warm`/`bg-card`).
+- Total file count est.: 1 migration + 1 seed insert + ~8 new components + 6 page rewrites + 1 router edit + content-guard touch-ups.
 
-## Out of scope (per spec)
-
-- No mobile app, no API access, no white-label, no team accounts, no escrow.
+Ready to execute on approval.
