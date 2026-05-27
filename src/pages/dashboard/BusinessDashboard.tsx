@@ -432,6 +432,21 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     window.open(data.url, "_blank");
   };
 
+  const startSubscription = async () => {
+    setBusy(true);
+    const { data, error } = await supabase.functions.invoke("create-business-checkout", {
+      body: { includeLaunchPackage: false },
+    });
+    setBusy(false);
+    if (error || !data?.url) {
+      toast({ title: "Could not start checkout", description: error?.message, variant: "destructive" });
+      return;
+    }
+    window.location.href = data.url;
+  };
+
+  const hasSubscription = !!biz.subscription_status && !["none", "canceled"].includes(biz.subscription_status);
+
   const periodEnd = biz.current_period_end ? new Date(biz.current_period_end).toLocaleDateString() : null;
 
   return (
@@ -476,7 +491,11 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
             $297 Launch Package recorded. Our team will reach out within 1 business day to schedule your onboarding call.
           </p>
         )}
-        <Button variant="outline" className="mt-4 w-full" onClick={openPortal} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing"}</Button>
+        {hasSubscription ? (
+          <Button variant="outline" className="mt-4 w-full" onClick={openPortal} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing"}</Button>
+        ) : (
+          <Button className="mt-4 w-full" onClick={startSubscription} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Start subscription · 14-day free trial"}</Button>
+        )}
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-6">
