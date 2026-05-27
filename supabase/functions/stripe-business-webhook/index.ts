@@ -13,8 +13,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
 };
 
-const PRICE_MONTHLY_49 = "price_1TZdW4Frrk51Q8OzqV0DquhU";
-const PRICE_LAUNCH_PACKAGE_297 = "price_1TZdWjFrrk51Q8OzsTqdozoc";
+const PRICE_MONTHLY_49 = "price_1TbjpSBYy3o7YlUASZ4B60a0";
+const PRICE_LAUNCH_PACKAGE_297 = "price_1TbjpuBYy3o7YlUAzjluU5Eu";
 
 /**
  * Validate launch-package intent from Stripe session/subscription metadata.
