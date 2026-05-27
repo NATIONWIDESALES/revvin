@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
@@ -30,20 +29,6 @@ const Auth = () => {
     } catch (err: any) {
       toast({ title: "Sign in failed", description: err?.message || "Please try again.", variant: "destructive" });
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOAuth = async (provider: "google" | "apple") => {
-    setLoading(true);
-    try {
-      const result = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin });
-      if (result.error) {
-        toast({ title: `${provider} sign-in failed`, description: (result.error as Error).message, variant: "destructive" });
-        setLoading(false);
-      }
-    } catch (err: any) {
-      toast({ title: "Error", description: err?.message || "Sign-in failed", variant: "destructive" });
       setLoading(false);
     }
   };
