@@ -51,13 +51,39 @@ const Onboarding = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id,name,description,category,service_area,phone,business_email,website,logo_url,offer_amount,offer_trigger,offer_fine_print,slug,launch_package_status")
+        .select("id,name,description,category,service_area,phone,business_email,website,logo_url,offer_amount,offer_trigger,offer_fine_print,slug,launch_package_status,subscription_status")
         .eq("user_id", user.id)
         .limit(1);
       const b = data?.[0];
       if (b) {
         setBizId(b.id);
         setLaunchPackageStatus(b.launch_package_status || null);
+        // Funnel guard: if this business is authenticated but has not paid yet,
+        // and they did NOT just come back from a successful checkout, send
+        // them straight to Stripe checkout. This keeps the ad-funnel intact
+        // when email confirmation is enabled (the confirm link lands on
+        // /welcome rather than /signup).
+        const paidStatuses = ["active", "trialing", "paid", "past_due"];
+        const justCheckedOut = params.get("checkout") === "success";
+        if (!paidStatuses.includes(b.subscription_status || "") && !justCheckedOut) {
+          try {
+            const includeLaunchPackage =
+              typeof window !== "undefined" &&
+              window.sessionStorage.getItem("revvin_addon_launch") === "1";
+            const { data: co, error: coErr } = await supabase.functions.invoke(
+              "create-business-checkout",
+              { body: { includeLaunchPackage } }
+            );
+            if (!coErr && co?.url) {
+              if (typeof window !== "undefined")
+                window.sessionStorage.removeItem("revvin_addon_launch");
+              window.location.href = co.url;
+              return;
+            }
+          } catch (err) {
+            console.warn("[onboarding] auto-checkout failed", err);
+          }
+        }
         setName(b.name || "");
         setDescription(b.description || "");
         setCategory(b.category || "");
