@@ -7,14 +7,12 @@ import {
   RESEND_REPLY_TO,
   appUrl,
 } from "../_shared/app-config.ts";
+import { PRICE_MONTHLY_49, PRICE_LAUNCH_PACKAGE_297 } from "../_shared/stripe-prices.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
 };
-
-const PRICE_MONTHLY_49 = "price_1TbjpSBYy3o7YlUASZ4B60a0";
-const PRICE_LAUNCH_PACKAGE_297 = "price_1TbjpuBYy3o7YlUAzjluU5Eu";
 
 /**
  * Validate launch-package intent from Stripe session/subscription metadata.
