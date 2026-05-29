@@ -278,6 +278,115 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
   );
 };
 
+// ============= MARKETPLACE REFERRALS TAB =============
+const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: MarketplaceReferral[]; reload: () => void }) => {
+  const { toast } = useToast();
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const updateStatus = async (id: string, status: string) => {
+    const { error } = await supabase.from("referrals").update({ status }).eq("id", id);
+    if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    else reload();
+  };
+
+  const markAsPaid = async (id: string) => {
+    const { error } = await supabase
+      .from("referrals")
+      .update({ payment_status: "paid", payment_marked_at: new Date().toISOString() } as never)
+      .eq("id", id);
+    if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    else { toast({ title: "Marked as paid" }); reload(); }
+  };
+
+  if (referrals.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-border p-16 text-center">
+        <Inbox className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
+        <h2 className="text-lg font-semibold text-foreground">No marketplace referrals yet</h2>
+        <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">Referrals submitted through public offers on the Revvin marketplace will appear here.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+            <tr>
+              <th className="text-left px-4 py-3 font-medium">Date</th>
+              <th className="text-left px-4 py-3 font-medium">Customer</th>
+              <th className="text-left px-4 py-3 font-medium">Offer</th>
+              <th className="text-left px-4 py-3 font-medium">Status</th>
+              <th className="text-left px-4 py-3 font-medium">Payment</th>
+              <th className="px-4 py-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {referrals.map((r) => (
+              <>
+                <tr key={r.id} className="border-t border-border hover:bg-muted/30">
+                  <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{new Date(r.created_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-foreground">{r.customer_name}</div>
+                    <div className="text-xs text-muted-foreground">{r.customer_phone || r.customer_email || "—"}</div>
+                  </td>
+                  <td className="px-4 py-3 text-foreground">{r.offers?.title ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    <Select value={r.status} onValueChange={(v) => updateStatus(r.id, v)}>
+                      <SelectTrigger className="h-8 w-32 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>{REFERRAL_STATUSES.map((s) => <SelectItem key={s} value={s}>{REFERRAL_STATUS_LABEL[s]}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </td>
+                  <td className="px-4 py-3">
+                    {r.status === "won" ? (
+                      r.payment_status === "paid" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
+                          <Check className="h-3 w-3" /> Paid
+                        </span>
+                      ) : r.payment_status === "flagged_unpaid" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-xs text-destructive">
+                          <AlertCircle className="h-3 w-3" /> Flagged unpaid
+                        </span>
+                      ) : (
+                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => markAsPaid(r.id)}>
+                          Mark as paid {r.payout_amount ? `($${r.payout_amount})` : ""}
+                        </Button>
+                      )
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Button variant="ghost" size="sm" onClick={() => setExpanded(expanded === r.id ? null : r.id)}>{expanded === r.id ? "Hide" : "Details"}</Button>
+                  </td>
+                </tr>
+                {expanded === r.id && (
+                  <tr className="border-t border-border bg-muted/20">
+                    <td colSpan={6} className="px-4 py-5">
+                      <div className="grid gap-4 md:grid-cols-2 text-sm">
+                        <div className="space-y-2">
+                          <div><span className="text-muted-foreground">Customer email:</span> {r.customer_email || "—"}</div>
+                          <div><span className="text-muted-foreground">Customer phone:</span> {r.customer_phone || "—"}</div>
+                          <div><span className="text-muted-foreground">Payout owed:</span> {r.payout_amount ? `$${r.payout_amount}` : "—"}</div>
+                        </div>
+                        <div>
+                          <Label className="text-xs">Notes from referrer</Label>
+                          <p className="mt-1.5 text-foreground">{r.notes || "—"}</p>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
 // ============= PAGE TAB =============
 const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: string; onUpdate: () => void }) => {
   const { toast } = useToast();
