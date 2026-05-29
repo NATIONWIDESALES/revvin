@@ -628,7 +628,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
         {hasSubscription ? (
           <Button variant="outline" className="mt-4 w-full" onClick={openPortal} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing"}</Button>
         ) : (
-          <Button className="mt-4 w-full" onClick={startSubscription} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Start subscription · 14-day free trial"}</Button>
+          <Button className="mt-4 w-full" onClick={startSubscription} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Start subscription · $49/month"}</Button>
         )}
       </div>
 

@@ -67,8 +67,8 @@ const Index = () => {
               { "@type": "Question", name: "What if I don't get any referrals?", acceptedAnswer: { "@type": "Answer", text: "Most of our customers get their first referral within the first month by texting their existing client list once. Your page stays live, you can edit your offer anytime, and the leads you do get cost a fraction of an ad-driven lead." } },
               { "@type": "Question", name: "Does Revvin pay the referrers for me?", acceptedAnswer: { "@type": "Answer", text: "No. Revvin is the infrastructure — your branded page, lead capture, and dashboard. You pay referrers directly when the deal closes, in whatever way works for your business." } },
               { "@type": "Question", name: "How does billing work?", acceptedAnswer: { "@type": "Answer", text: "Pro is $49/month, billed monthly. No contract, no setup fee. Cancel anytime from your billing portal — your page stays live until the end of the period you've already paid for." } },
-              { "@type": "Question", name: "Is there a free tier?", acceptedAnswer: { "@type": "Answer", text: "Referrers can create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with a 14-day free trial." } },
-              { "@type": "Question", name: "Do you have a marketplace where I can browse referrers?", acceptedAnswer: { "@type": "Answer", text: "Not for V1. Revvin powers your own referral program. Your network — customers, partners, employees — sends you the leads." } },
+              { "@type": "Question", name: "Is there a free tier?", acceptedAnswer: { "@type": "Answer", text: "Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan — no trial, no setup fee." } },
+              { "@type": "Question", name: "Do you have a marketplace where I can browse offers?", acceptedAnswer: { "@type": "Answer", text: "Yes. Listing on the public Revvin marketplace is live and optional — toggle it on in your dashboard so motivated referrers can find your offer. Your own branded referral page works either way." } },
               { "@type": "Question", name: "What if I cancel?", acceptedAnswer: { "@type": "Answer", text: "You can cancel from your Stripe customer portal anytime. Your referral page stays live until the end of the paid period." } },
               { "@type": "Question", name: "What kind of businesses is Revvin for?", acceptedAnswer: { "@type": "Answer", text: "Service businesses where one new customer is worth real money — roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more." } },
             ],
@@ -120,8 +120,9 @@ const Index = () => {
               <PhoneMockup rotate={4}>
                 <MockReferralPage />
               </PhoneMockup>
-              {/* floating notification card */}
+              {/* floating notification card (example) */}
               <div className="absolute -left-2 top-8 hidden w-56 rounded-xl border border-border bg-card/95 p-3 shadow-product backdrop-blur md:block animate-fade-up" style={{ transform: "rotate(-4deg)" }}>
+                <span className="absolute -top-2 right-2 rounded-full bg-muted px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Example</span>
                 <div className="flex items-start gap-2.5">
                   <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
                     <Bell className="h-3.5 w-3.5" />
@@ -133,8 +134,9 @@ const Index = () => {
                   </div>
                 </div>
               </div>
-              {/* floating deal-closed card */}
+              {/* floating deal-closed card (example) */}
               <div className="absolute -bottom-2 -right-2 hidden w-60 rounded-xl border border-border bg-card/95 p-3 shadow-product backdrop-blur md:block animate-fade-up" style={{ transform: "rotate(5deg)", animationDelay: "0.2s" }}>
+                <span className="absolute -top-2 right-2 rounded-full bg-muted px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Example</span>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Deal closed</p>
                 <p className="mt-1 text-xl font-extrabold tracking-tight text-foreground">+$8,400</p>
                 <p className="text-[10px] text-muted-foreground">Apex Roofing · paid Carlos R.</p>
@@ -158,7 +160,7 @@ const Index = () => {
               Your offer, seen by referrers nationwide.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              Businesses on Revvin can opt into our public marketplace, where motivated referrers browse offers and submit real customers. Here's a live look at active offers.
+              Businesses on Revvin can opt into our public marketplace, where motivated referrers browse offers and submit real customers. The cards below are example offers to show how listings appear.
             </p>
           </div>
 
@@ -368,7 +370,7 @@ const Index = () => {
                 <span className="text-6xl font-extrabold tracking-tight text-foreground">$49</span>
                 <span className="text-base font-medium text-muted-foreground">/month</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">Cancel anytime. No contract. Free tier available.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Cancel anytime. No contract. No setup fee.</p>
 
               <Button size="lg" className="mt-8 h-12 w-full text-base shadow-soft hover:bg-primary-deep" asChild>
                 <Link to="/signup">Start your referral program</Link>
@@ -469,13 +471,13 @@ const Index = () => {
             <AccordionItem value="q3">
               <AccordionTrigger>Is there a free tier?</AccordionTrigger>
               <AccordionContent>
-                Referrers can create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with a 14-day free trial.
+                Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan — no trial, no setup fee.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q4">
-              <AccordionTrigger>Do you have a marketplace where I can browse referrers?</AccordionTrigger>
+              <AccordionTrigger>Do you have a marketplace where I can browse offers?</AccordionTrigger>
               <AccordionContent>
-                Not for V1. Revvin powers your own referral program. Your network — customers, partners, employees — sends you the leads.
+                Yes — the Revvin marketplace is live. Listing your offer is optional and toggleable in your dashboard. When on, motivated referrers browsing the marketplace can find your offer and submit leads; when off, your branded referral page still works for your own network.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q5">

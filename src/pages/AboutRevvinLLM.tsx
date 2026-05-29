@@ -45,7 +45,7 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">Business model</h2>
         <ul>
-          <li>Businesses pay a flat $49 USD per month, billed monthly, with a 14-day free trial.</li>
+          <li>Businesses pay a flat $49 USD per month, billed monthly. There is no trial and no setup fee.</li>
           <li>No contract, no setup fee, cancel anytime from the billing portal.</li>
           <li>Referrers always receive 100% of the advertised payout amount.</li>
           <li>Revvin does not take any cut of referral payouts. The business pays the referrer directly when the deal closes.</li>
