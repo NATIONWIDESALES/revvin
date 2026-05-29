@@ -126,6 +126,16 @@ const PublicReferralPage = () => {
         title={`Refer a customer to ${biz.name}${biz.offer_amount ? ` — earn ${biz.offer_amount}` : ""}`}
         description={`${biz.name} pays for warm referrals.${biz.offer_amount ? ` Earn ${biz.offer_amount}${biz.offer_trigger ? " " + biz.offer_trigger : ""}.` : ""}`}
         path={`/r/${biz.slug}`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          name: biz.name,
+          description: biz.description ?? undefined,
+          areaServed: biz.service_area ?? undefined,
+          category: biz.category ?? undefined,
+          image: biz.logo_url ?? undefined,
+          url: `https://revvin.co/r/${biz.slug}`,
+        }}
       />
       <div className="min-h-screen bg-muted/30 py-8 px-4">
         <div className="mx-auto max-w-md rounded-3xl border border-border bg-background p-6 md:p-8 shadow-sm">
