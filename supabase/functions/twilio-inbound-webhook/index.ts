@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createHmac } from 'node:crypto';
 
 // Twilio posts application/x-www-form-urlencoded. We honor STOP/UNSUBSCRIBE/QUIT
 // keywords by adding the sender's number to suppressed_contacts for the matching
@@ -8,6 +9,20 @@ const STOP_KEYWORDS = new Set([
   'STOP', 'STOPALL', 'UNSUBSCRIBE', 'CANCEL', 'END', 'QUIT', 'OPTOUT',
 ]);
 const START_KEYWORDS = new Set(['START', 'YES', 'UNSTOP']);
+
+// Verify Twilio's X-Twilio-Signature header per
+// https://www.twilio.com/docs/usage/webhooks/webhooks-security
+function verifyTwilioSignature(
+  authToken: string,
+  url: string,
+  params: Record<string, string>,
+  signatureHeader: string,
+): boolean {
+  const sortedKeys = Object.keys(params).sort();
+  const data = sortedKeys.reduce((acc, k) => acc + k + params[k], url);
+  const expected = createHmac('sha1', authToken).update(data).digest('base64');
+  return expected === signatureHeader;
+}
 
 function twiml(message?: string) {
   const body = message
@@ -23,7 +38,28 @@ Deno.serve(async (req) => {
     return new Response('Method not allowed', { status: 405 });
   }
 
+  const authToken = Deno.env.get('TWILIO_AUTH_TOKEN') ?? '';
+  if (!authToken) {
+    console.error('twilio-inbound-webhook: TWILIO_AUTH_TOKEN not configured');
+    return new Response('Forbidden', { status: 403 });
+  }
+
+  const signatureHeader = req.headers.get('X-Twilio-Signature') ?? '';
+  if (!signatureHeader) {
+    return new Response('Forbidden', { status: 403 });
+  }
+
   const form = await req.formData();
+  const params: Record<string, string> = {};
+  for (const [k, v] of form.entries()) params[k] = String(v);
+
+  // Twilio signs the exact URL it POSTed to, including query string.
+  const url = req.url;
+  if (!verifyTwilioSignature(authToken, url, params, signatureHeader)) {
+    console.warn('twilio-inbound-webhook: signature mismatch from', req.headers.get('cf-connecting-ip') || 'unknown');
+    return new Response('Forbidden', { status: 403 });
+  }
+
   const from = String(form.get('From') || '').trim();
   const body = String(form.get('Body') || '').trim();
   const to = String(form.get('To') || '').trim();
