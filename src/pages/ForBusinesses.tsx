@@ -25,7 +25,7 @@ const stagger = {
 const ForBusinesses = () => (
   <div>
     <SEOHead
-      title="Customer Acquisition for Businesses | Pay Per Close | Revvin"
+      title="Customer acquisition for businesses — pay per close | Revvin"
       description="Stop paying for clicks. Launch a branded referral page for $49/month. Set what a new customer is worth and pay your referrers directly when deals close."
       path="/for-businesses"
       jsonLd={[

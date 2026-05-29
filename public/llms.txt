@@ -1,0 +1,20 @@
+# Revvin
+
+> Pay-per-close referral platform for service businesses in the US and Canada. Businesses launch a branded referral page in minutes, share a link or QR code, and only pay their referrers when deals close. Flat $49/month.
+
+## Pages
+
+- [Home](/): What Revvin is and how the referral system works.
+- [How it works](/how-it-works): End-to-end walkthrough of the referral flow.
+- [For businesses](/for-businesses): Pay-per-close customer acquisition for service businesses.
+- [For referrers](/for-referrers): How people earn by sending warm leads to local businesses.
+- [Browse offers](/browse): Marketplace of active referral offers across the US and Canada.
+- [Pricing](/pricing): Flat $49/month, 14-day free trial, cancel anytime.
+- [Trust](/trust): How Revvin protects referrers, businesses, and customers.
+- [About Revvin (LLM overview)](/about-revvin-llm): Plain-language summary for AI assistants.
+
+## Optional
+
+- [Terms of service](/terms)
+- [Privacy policy](/privacy)
+- [Referral agreement](/referral-agreement)
