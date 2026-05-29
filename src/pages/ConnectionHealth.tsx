@@ -8,7 +8,8 @@ const EXPECTED_PROJECT_REF = "olmpplfgzegzqdcznlrp";
 type Check = { label: string; value: string; ok: boolean };
 
 export default function ConnectionHealth() {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, userRole, loading } = useAuth();
+  const isAdmin = userRole === "admin";
   const [checks, setChecks] = useState<Check[]>([]);
   const [running, setRunning] = useState(true);
 
