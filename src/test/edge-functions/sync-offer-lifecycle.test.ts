@@ -36,7 +36,7 @@ function makeMock(state: MockState): LifecycleClient {
       const set = new Set(businessIds);
       return state.offers
         .filter((o) => set.has(o.business_id) && o.status === "active")
-        .map((o) => ({ payout: o.payout, platform_fee_rate: o.platform_fee_rate }));
+        .map((o) => ({ payout: o.payout }));
     },
     async updateOfferStatus(offerId, status, pausedReason) {
       state.updates.push({ id: offerId, status, paused_reason: pausedReason });
@@ -57,10 +57,9 @@ function offer(
   business_id: string,
   payout: number,
   status: OfferRow["status"] = "active",
-  paused_reason: string | null = null,
-  platform_fee_rate = 0.25
+  paused_reason: string | null = null
 ): OfferRow {
-  return { id, business_id, payout, platform_fee_rate, status, paused_reason };
+  return { id, business_id, payout, status, paused_reason };
 }
 
 let state: MockState;

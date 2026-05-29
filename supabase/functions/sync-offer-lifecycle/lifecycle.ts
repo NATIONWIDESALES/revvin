@@ -6,14 +6,12 @@ export interface OfferRow {
   id: string;
   business_id: string;
   payout: number | string;
-  platform_fee_rate: number | string;
   status: "active" | "paused" | string;
   paused_reason: string | null;
 }
 
 export interface MinimalOfferCost {
   payout: number | string;
-  platform_fee_rate: number | string;
 }
 
 export interface BusinessRow {
@@ -53,9 +51,10 @@ export interface LifecycleClient {
 }
 
 export function offerCost(o: MinimalOfferCost): number {
-  return (
-    Math.round(Number(o.payout) * (1 + Number(o.platform_fee_rate)) * 100) / 100
-  );
+  // Revvin v1 is a flat-fee subscription model — businesses pay $49/mo and pay
+  // referrers directly. There's no platform fee on individual payouts, so the
+  // committed amount is just the payout itself.
+  return Math.round(Number(o.payout) * 100) / 100;
 }
 
 export async function runSyncLifecycle(

@@ -36,7 +36,7 @@ function makeAdapter(serviceClient: SupabaseClient<any, any, any>): LifecycleCli
     async fetchOffersForLifecycle(businessIds) {
       const { data } = await serviceClient
         .from("offers")
-        .select("id, business_id, payout, platform_fee_rate, status, paused_reason")
+        .select("id, business_id, payout, status, paused_reason")
         .in("business_id", businessIds)
         .in("status", ["active", "paused"]);
       return ((data as any[]) ?? []) as OfferRow[];
@@ -44,12 +44,11 @@ function makeAdapter(serviceClient: SupabaseClient<any, any, any>): LifecycleCli
     async fetchActiveOfferCosts(businessIds) {
       const { data } = await serviceClient
         .from("offers")
-        .select("payout, platform_fee_rate")
+        .select("payout")
         .in("business_id", businessIds)
         .eq("status", "active");
       return ((data as any[]) ?? []).map((o) => ({
         payout: o.payout,
-        platform_fee_rate: o.platform_fee_rate,
       }));
     },
     async updateOfferStatus(offerId, status, pausedReason) {
