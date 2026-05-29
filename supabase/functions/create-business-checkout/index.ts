@@ -8,8 +8,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const PRICE_LAUNCH_PACKAGE_297 = "price_1TbjpuBYy3o7YlUAzjluU5Eu"; // $297 one-time Launch Package (USD)
-const PRICE_MONTHLY_49 = "price_1TbjpSBYy3o7YlUASZ4B60a0"; // $49/mo Pro (USD)
+const PRICE_LAUNCH_PACKAGE_297 = "price_1TcGrtBjSMQJWZ8i7KrEoDiR"; // $297 one-time Launch Package (USD) — LIVE
+const PRICE_MONTHLY_49 = "price_1TcGruBjSMQJWZ8iZ2T0xv0y"; // $49/mo Pro (USD) — LIVE
 // TODO: add CAD price IDs when founder confirms CAD pricing.
 
 serve(async (req) => {
