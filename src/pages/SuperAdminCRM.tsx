@@ -105,7 +105,6 @@ const SuperAdminCRM = () => {
   const [editingNotes, setEditingNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [approvingBiz, setApprovingBiz] = useState<string | null>(null);
-  const [tremendousSending, setTremendousSending] = useState<string | null>(null);
 
   // SEO: noindex
   useEffect(() => {
@@ -341,32 +340,8 @@ const SuperAdminCRM = () => {
     toast({ title: "Offer approved" });
   };
 
-  const updatePayoutStatus = async (payoutId: string, status: string, method?: string, providerRef?: string) => {
-    toast({ title: "Off-platform payouts", description: "Businesses pay referrers directly on REVVIN.CO v1." });
-  };
-
-  const sendViaTremendous = async (payoutId: string) => {
-    setTremendousSending(payoutId);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { setTremendousSending(null); return; }
-    try {
-      const res = await supabase.functions.invoke("process-tremendous-payout", {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-        body: { payout_id: payoutId },
-      });
-      if (res.error) {
-        toast({ title: "Tremendous Error", description: res.error.message || "Failed to send payout", variant: "destructive" });
-      } else if (res.data?.error) {
-        toast({ title: "Tremendous Error", description: res.data.error, variant: "destructive" });
-      } else {
-        setPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, status: "processing", method: "tremendous", provider_reference: res.data.order_id } : p));
-        toast({ title: "Payout sent via Tremendous", description: `Order: ${res.data.order_id} → ${res.data.recipient_email}` });
-      }
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    }
-    setTremendousSending(null);
-  };
+  // Payout processing was removed in Revvin v1: businesses pay referrers
+  // directly off-platform. The Payments tab is now read-only.
 
   // Auth gate
   if (authLoading) return <div className="flex items-center justify-center min-h-screen"><Skeleton className="h-8 w-48" /></div>;
@@ -413,9 +388,8 @@ const SuperAdminCRM = () => {
                   <BadgeCheck className="h-3.5 w-3.5" /> Verification
                   {businesses.filter(b => (b as any).account_status === "pending_approval").length > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-xs text-destructive-foreground flex items-center justify-center font-bold">{businesses.filter(b => (b as any).account_status === "pending_approval").length}</span>}
                 </TabsTrigger>
-                <TabsTrigger value="payouts" className="gap-1 relative">
-                  <DollarSign className="h-3.5 w-3.5" /> Payouts
-                  {pendingPayouts > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-xs text-destructive-foreground flex items-center justify-center font-bold">{pendingPayouts}</span>}
+                <TabsTrigger value="payments" className="gap-1">
+                  <DollarSign className="h-3.5 w-3.5" /> Payments
                 </TabsTrigger>
                 <TabsTrigger value="audit" className="gap-1"><History className="h-3.5 w-3.5" /> Audit Log</TabsTrigger>
               </TabsList>
@@ -592,58 +566,28 @@ const SuperAdminCRM = () => {
                 </div>
               </TabsContent>
 
-              {/* PAYOUTS TAB */}
-              <TabsContent value="payouts">
+              {/* PAYMENTS TAB — Revvin v1: businesses pay referrers directly */}
+              <TabsContent value="payments">
                 <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-                  <h2 className="text-base font-bold mb-4 flex items-center gap-2"><DollarSign className="h-4 w-4 text-earnings" /> Payout Queue</h2>
-                  <div className="space-y-3">
-                    {payouts.length === 0 ? (
-                      <p className="text-sm text-muted-foreground py-8 text-center">No payouts to process</p>
-                    ) : payouts.map((payout) => {
-                      const sc = payoutStatusConfig[payout.status] ?? payoutStatusConfig.ready;
-                      const isPending = payout.status === "ready" || payout.status === "processing";
-                      return (
-                        <div key={payout.id} className={`rounded-xl border p-4 ${isPending ? "border-primary/20 bg-primary/5" : "border-border bg-muted/30"}`}>
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Badge className={`${sc.bg} ${sc.text} border-0`}>{sc.label}</Badge>
-                                <span className="font-bold text-foreground">${payout.amount}</span>
-                                <span className="text-xs text-muted-foreground">{payout.currency}</span>
-                              </div>
-                              <p className="text-xs text-muted-foreground">
-                                Referral: {payout.referral_id?.slice(0, 8)}... • Created: {new Date(payout.created_at).toLocaleDateString()}
-                                {payout.method && ` • Method: ${payout.method}`}
-                                {payout.provider_reference && ` • Ref: ${payout.provider_reference}`}
-                                {payout.paid_at && ` • Paid: ${new Date(payout.paid_at).toLocaleDateString()}`}
-                              </p>
-                            </div>
-                            <div className="flex flex-col items-end gap-2">
-                              {payout.status === "ready" && (
-                                <div className="flex gap-1">
-                                  <Button size="sm" className="text-xs h-7 gap-1" onClick={() => sendViaTremendous(payout.id)} disabled={tremendousSending === payout.id}>
-                                    {tremendousSending === payout.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />} Send via Tremendous
-                                  </Button>
-                                  <Button size="sm" variant="outline" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "processing")}>
-                                    <Clock className="h-3 w-3" /> Manual
-                                  </Button>
-                                </div>
-                              )}
-                              {payout.status === "processing" && (
-                                <div className="flex gap-1">
-                                  <Button size="sm" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "paid")}>
-                                    <CheckCircle2 className="h-3 w-3" /> Approve
-                                  </Button>
-                                  <Button size="sm" variant="destructive" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "failed")}>
-                                    <XCircle className="h-3 w-3" /> Reject
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
+                  <h2 className="text-base font-bold mb-2 flex items-center gap-2"><DollarSign className="h-4 w-4 text-earnings" /> Payments</h2>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Revvin doesn't process or hold referrer payouts. Businesses pay their referrers directly when a deal closes. The platform's revenue is the flat $49/month subscription tracked on each business record.
+                  </p>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-xl border border-border bg-muted/30 p-3">
+                      <p className="text-xs text-muted-foreground">Subscribing businesses</p>
+                      <p className="text-xl font-bold text-foreground">
+                        {businesses.filter((b: any) => ["active","trialing","paid"].includes(b.subscription_status)).length}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-border bg-muted/30 p-3">
+                      <p className="text-xs text-muted-foreground">Deals closed (won)</p>
+                      <p className="text-xl font-bold text-foreground">{wonDeals}</p>
+                    </div>
+                    <div className="rounded-xl border border-border bg-muted/30 p-3">
+                      <p className="text-xs text-muted-foreground">Total payouts owed to referrers</p>
+                      <p className="text-xl font-bold text-foreground">${totalPayoutsAmount.toLocaleString()}</p>
+                    </div>
                   </div>
                 </div>
               </TabsContent>

@@ -51,10 +51,29 @@ interface Lead {
   notes: string | null;
 }
 
+interface MarketplaceReferral {
+  id: string;
+  created_at: string;
+  customer_name: string;
+  customer_email: string | null;
+  customer_phone: string | null;
+  notes: string | null;
+  status: string;
+  payment_status: string;
+  payout_amount: number | null;
+  offers: { title: string } | null;
+}
+
 const STATUSES = ["new", "contacted", "in_progress", "closed_won", "closed_lost", "invalid"];
 const STATUS_LABEL: Record<string, string> = {
   new: "New", contacted: "Contacted", in_progress: "In Progress",
   closed_won: "Closed Won", closed_lost: "Closed Lost", invalid: "Invalid",
+};
+
+const REFERRAL_STATUSES = ["submitted", "contacted", "in_progress", "won", "lost"];
+const REFERRAL_STATUS_LABEL: Record<string, string> = {
+  submitted: "Submitted", contacted: "Contacted", in_progress: "In Progress",
+  won: "Won", lost: "Lost",
 };
 
 const BusinessDashboard = () => {
@@ -62,6 +81,7 @@ const BusinessDashboard = () => {
   const { toast } = useToast();
   const [biz, setBiz] = useState<Business | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { if (user) loadAll(); }, [user]);
@@ -77,12 +97,15 @@ const BusinessDashboard = () => {
     const b = (bizData?.[0] as Business) ?? null;
     setBiz(b);
     if (b) {
-      const { data: leadData } = await supabase
-        .from("leads")
-        .select("*")
-        .eq("business_id", b.id)
-        .order("created_at", { ascending: false });
-      setLeads((leadData as Lead[]) ?? []);
+      const [leadRes, refRes] = await Promise.all([
+        supabase.from("leads").select("*").eq("business_id", b.id).order("created_at", { ascending: false }),
+        supabase.from("referrals")
+          .select("id, created_at, customer_name, customer_email, customer_phone, notes, status, payment_status, payout_amount, offers(title)")
+          .eq("business_id", b.id)
+          .order("created_at", { ascending: false }),
+      ]);
+      setLeads((leadRes.data as Lead[]) ?? []);
+      setMarketplaceReferrals((refRes.data as any[] as MarketplaceReferral[]) ?? []);
     }
     setLoading(false);
   };
@@ -125,12 +148,14 @@ const BusinessDashboard = () => {
       <Tabs defaultValue="leads">
         <TabsList className="mb-6">
           <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
+          <TabsTrigger value="referrals">Marketplace Referrals {marketplaceReferrals.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{marketplaceReferrals.length}</span>}</TabsTrigger>
           <TabsTrigger value="page">My Page</TabsTrigger>
           <TabsTrigger value="share">Share Tools</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
 
         <TabsContent value="leads"><LeadsTab leads={leads} reload={loadAll} /></TabsContent>
+        <TabsContent value="referrals"><MarketplaceReferralsTab referrals={marketplaceReferrals} reload={loadAll} /></TabsContent>
         <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} /></TabsContent>
         <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} /></TabsContent>
         <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
@@ -248,6 +273,115 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+  );
+};
+
+// ============= MARKETPLACE REFERRALS TAB =============
+const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: MarketplaceReferral[]; reload: () => void }) => {
+  const { toast } = useToast();
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const updateStatus = async (id: string, status: string) => {
+    const { error } = await supabase.from("referrals").update({ status }).eq("id", id);
+    if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    else reload();
+  };
+
+  const markAsPaid = async (id: string) => {
+    const { error } = await supabase
+      .from("referrals")
+      .update({ payment_status: "paid", payment_marked_at: new Date().toISOString() } as never)
+      .eq("id", id);
+    if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    else { toast({ title: "Marked as paid" }); reload(); }
+  };
+
+  if (referrals.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-border p-16 text-center">
+        <Inbox className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
+        <h2 className="text-lg font-semibold text-foreground">No marketplace referrals yet</h2>
+        <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">Referrals submitted through public offers on the Revvin marketplace will appear here.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+            <tr>
+              <th className="text-left px-4 py-3 font-medium">Date</th>
+              <th className="text-left px-4 py-3 font-medium">Customer</th>
+              <th className="text-left px-4 py-3 font-medium">Offer</th>
+              <th className="text-left px-4 py-3 font-medium">Status</th>
+              <th className="text-left px-4 py-3 font-medium">Payment</th>
+              <th className="px-4 py-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {referrals.map((r) => (
+              <>
+                <tr key={r.id} className="border-t border-border hover:bg-muted/30">
+                  <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{new Date(r.created_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-foreground">{r.customer_name}</div>
+                    <div className="text-xs text-muted-foreground">{r.customer_phone || r.customer_email || "—"}</div>
+                  </td>
+                  <td className="px-4 py-3 text-foreground">{r.offers?.title ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    <Select value={r.status} onValueChange={(v) => updateStatus(r.id, v)}>
+                      <SelectTrigger className="h-8 w-32 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>{REFERRAL_STATUSES.map((s) => <SelectItem key={s} value={s}>{REFERRAL_STATUS_LABEL[s]}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </td>
+                  <td className="px-4 py-3">
+                    {r.status === "won" ? (
+                      r.payment_status === "paid" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
+                          <Check className="h-3 w-3" /> Paid
+                        </span>
+                      ) : r.payment_status === "flagged_unpaid" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-xs text-destructive">
+                          <AlertCircle className="h-3 w-3" /> Flagged unpaid
+                        </span>
+                      ) : (
+                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => markAsPaid(r.id)}>
+                          Mark as paid {r.payout_amount ? `($${r.payout_amount})` : ""}
+                        </Button>
+                      )
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Button variant="ghost" size="sm" onClick={() => setExpanded(expanded === r.id ? null : r.id)}>{expanded === r.id ? "Hide" : "Details"}</Button>
+                  </td>
+                </tr>
+                {expanded === r.id && (
+                  <tr className="border-t border-border bg-muted/20">
+                    <td colSpan={6} className="px-4 py-5">
+                      <div className="grid gap-4 md:grid-cols-2 text-sm">
+                        <div className="space-y-2">
+                          <div><span className="text-muted-foreground">Customer email:</span> {r.customer_email || "—"}</div>
+                          <div><span className="text-muted-foreground">Customer phone:</span> {r.customer_phone || "—"}</div>
+                          <div><span className="text-muted-foreground">Payout owed:</span> {r.payout_amount ? `$${r.payout_amount}` : "—"}</div>
+                        </div>
+                        <div>
+                          <Label className="text-xs">Notes from referrer</Label>
+                          <p className="mt-1.5 text-foreground">{r.notes || "—"}</p>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

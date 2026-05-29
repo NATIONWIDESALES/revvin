@@ -194,10 +194,16 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
 
       if (error) throw error;
 
-      // Fire-and-forget — don't await, don't block UI
-      supabase.functions.invoke("notify-new-referral", {
-        body: { referral_id: inserted.id },
-      }).catch((err) => console.error("Notification trigger failed:", err));
+      // Await the notification trigger so the request is not cancelled if the
+      // user closes the tab immediately after submitting. The toast + step
+      // transition both happen right after, so this adds <500ms in practice.
+      try {
+        await supabase.functions.invoke("notify-new-referral", {
+          body: { referral_id: inserted.id },
+        });
+      } catch (err) {
+        console.error("Notification trigger failed:", err);
+      }
 
       setReferralId(inserted.id);
       setDirection(1);
