@@ -91,32 +91,25 @@ const ReferrerDashboard = () => {
   const handleDispute = async (refId: string) => {
     const ref = referrals.find(r => r.id === refId);
     if (!ref || !user) return;
-    const { error } = await supabase.from("referrals").update({ status: "disputed" }).eq("id", refId);
-    if (error) {
+    // Disputes are tracked via audit_log + admin notification; we intentionally
+    // do NOT mutate referrals.status (the column has a CHECK constraint that
+    // only allows submitted/contacted/in_progress/won/lost).
+    const { error: auditError } = await supabase.rpc("fn_create_audit_entry", {
+      p_referral_id: refId,
+      p_event_type: "dispute_submitted",
+      p_payload: { previous_status: ref.status, customer_name: ref.customer_name } as any,
+    });
+    if (auditError) {
       toast({ title: "Error", description: "Failed to submit dispute.", variant: "destructive" });
       return;
     }
-    supabase.rpc("fn_create_audit_entry", {
-      p_referral_id: refId,
-      p_event_type: "dispute_submitted",
-      p_payload: { previous_status: ref.status } as any,
-    }).then(() => {});
     // Notify business via in-app + email
     if (ref.business_id) {
       let businessOwnerId = ref.businesses?.user_id;
       let businessName = ref.businesses?.name || "";
-      if (!businessOwnerId) {
-        const { data: business } = await supabase
-          .from("businesses_public" as any)
-          .select("name, user_id")
-          .eq("id", ref.business_id)
-          .maybeSingle();
-        businessOwnerId = (business as any)?.user_id;
-        businessName = businessName || (business as any)?.name || "";
-      }
 
       if (businessOwnerId) {
-        supabase.rpc("fn_create_notification", {
+        await supabase.rpc("fn_create_notification", {
           p_user_id: businessOwnerId,
           p_title: "Dispute submitted",
           p_body: `A dispute has been filed for a referral on "${ref.offers?.title}".`,
@@ -125,16 +118,20 @@ const ReferrerDashboard = () => {
         });
       }
 
-      supabase.functions.invoke("send-notification", {
-        body: {
-          type: "dispute_submitted",
-          recipientBusinessId: ref.business_id,
-          data: { businessName, customerName: ref.customer_name, referrerName: user.email || "A referrer", offerTitle: ref.offers?.title || "" },
-        },
-      }).catch((err) => console.error("Dispute email failed:", err));
+      // Await the email invocation so it's not lost if the user navigates away.
+      try {
+        await supabase.functions.invoke("send-notification", {
+          body: {
+            type: "dispute_submitted",
+            recipientBusinessId: ref.business_id,
+            data: { businessName, customerName: ref.customer_name, referrerName: user.email || "A referrer", offerTitle: ref.offers?.title || "" },
+          },
+        });
+      } catch (err) {
+        console.error("Dispute email failed:", err);
+      }
     }
-    setReferrals(prev => prev.map(r => r.id === refId ? { ...r, status: "disputed" } : r));
-    toast({ title: "Dispute submitted", description: "Your dispute has been sent for review." });
+    toast({ title: "Dispute submitted", description: "An admin and the business have been notified." });
   };
 
   const getExpectedPayDate = (ref: any) => {
