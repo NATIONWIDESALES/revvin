@@ -9,7 +9,7 @@
 - [For businesses](/for-businesses): Pay-per-close customer acquisition for service businesses.
 - [For referrers](/for-referrers): How people earn by sending warm leads to local businesses.
 - [Browse offers](/browse): Marketplace of active referral offers across the US and Canada.
-- [Pricing](/pricing): Flat $49/month, 14-day free trial, cancel anytime.
+- [Pricing](/pricing): Flat $49/month, no trial, no setup fee, cancel anytime. Referrers free.
 - [Trust](/trust): How Revvin protects referrers, businesses, and customers.
 - [About Revvin (LLM overview)](/about-revvin-llm): Plain-language summary for AI assistants.
 

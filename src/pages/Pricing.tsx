@@ -64,7 +64,7 @@ const Pricing = () => {
     <>
       <SEOHead
         title="Pricing — Revvin"
-        description="$49/month, cancel anytime. No contract. Free tier available. Optional $297 Launch Package."
+        description="$49/month, cancel anytime. No contract, no setup fee. Free for referrers. Optional $297 Launch Package."
         path="/pricing"
       />
 
@@ -76,7 +76,7 @@ const Pricing = () => {
             $49/month. Cancel anytime.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            No contract, no setup fee. Start free, upgrade when you're ready.
+            No contract, no setup fee, no trial — businesses are billed from day one. Referrers are free.
           </p>
         </div>
       </section>
