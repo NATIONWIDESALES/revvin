@@ -7,7 +7,7 @@ import {
   RESEND_REPLY_TO,
   appUrl,
 } from "../_shared/app-config.ts";
-import { PRICE_MONTHLY_49, PRICE_LAUNCH_PACKAGE_297 } from "../_shared/stripe-prices.ts";
+import { PRICE_LAUNCH_PACKAGE_297 } from "../_shared/stripe-prices.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
