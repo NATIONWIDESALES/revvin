@@ -262,9 +262,11 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
         const periodEnd = sub.current_period_end
           ? new Date(sub.current_period_end * 1000).toISOString()
           : null;
+        const custId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id ?? null;
         if (userId) {
           await setBiz(userId, {
             stripe_subscription_id: sub.id,
+            stripe_customer_id: custId,
             subscription_status: status,
             current_period_end: periodEnd,
             is_published:
@@ -285,6 +287,7 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
                 .from("businesses")
                 .update({
                   stripe_subscription_id: sub.id,
+                  stripe_customer_id: customerId,
                   subscription_status: status,
                   current_period_end: periodEnd,
                   is_published: publishedStatuses.has(status),
