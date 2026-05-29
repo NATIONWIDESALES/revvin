@@ -42,23 +42,38 @@ const Index = () => {
   return (
     <>
       <SEOHead
-        title="Revvin — Launch a referral program for your business in minutes"
+        title="Revvin — Launch a referral program in minutes"
         description="Branded referral page, shareable link and QR code, and a simple lead inbox. $49/month, cancel anytime. No contract."
         path="/"
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "Product",
-          name: "Revvin Business Referral Page",
-          description: "Referral program software for service businesses.",
-          brand: { "@type": "Brand", name: "Revvin" },
-          offers: {
-            "@type": "Offer",
-            price: "49.00",
-            priceCurrency: "USD",
-            url: "https://revvin.co/pricing",
-            availability: "https://schema.org/InStock",
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: "Revvin Business Referral Page",
+            description: "Referral program software for service businesses.",
+            brand: { "@type": "Brand", name: "Revvin" },
+            offers: {
+              "@type": "Offer",
+              price: "49.00",
+              priceCurrency: "USD",
+              url: "https://revvin.co/pricing",
+              availability: "https://schema.org/InStock",
+            },
           },
-        }}
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              { "@type": "Question", name: "What if I don't get any referrals?", acceptedAnswer: { "@type": "Answer", text: "Most of our customers get their first referral within the first month by texting their existing client list once. Your page stays live, you can edit your offer anytime, and the leads you do get cost a fraction of an ad-driven lead." } },
+              { "@type": "Question", name: "Does Revvin pay the referrers for me?", acceptedAnswer: { "@type": "Answer", text: "No. Revvin is the infrastructure — your branded page, lead capture, and dashboard. You pay referrers directly when the deal closes, in whatever way works for your business." } },
+              { "@type": "Question", name: "How does billing work?", acceptedAnswer: { "@type": "Answer", text: "Pro is $49/month, billed monthly. No contract, no setup fee. Cancel anytime from your billing portal — your page stays live until the end of the period you've already paid for." } },
+              { "@type": "Question", name: "Is there a free tier?", acceptedAnswer: { "@type": "Answer", text: "Referrers can create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with a 14-day free trial." } },
+              { "@type": "Question", name: "Do you have a marketplace where I can browse referrers?", acceptedAnswer: { "@type": "Answer", text: "Not for V1. Revvin powers your own referral program. Your network — customers, partners, employees — sends you the leads." } },
+              { "@type": "Question", name: "What if I cancel?", acceptedAnswer: { "@type": "Answer", text: "You can cancel from your Stripe customer portal anytime. Your referral page stays live until the end of the paid period." } },
+              { "@type": "Question", name: "What kind of businesses is Revvin for?", acceptedAnswer: { "@type": "Answer", text: "Service businesses where one new customer is worth real money — roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more." } },
+            ],
+          },
+        ]}
       />
 
       {/* Hero */}
