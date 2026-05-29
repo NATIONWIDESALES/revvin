@@ -37,6 +37,7 @@ import Onboarding from "./pages/Onboarding";
 import { lazy, Suspense } from "react";
 
 const SuperAdminCRM = lazy(() => import("./pages/SuperAdminCRM"));
+const ConnectionHealth = lazy(() => import("./pages/ConnectionHealth"));
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const App = () => (
                 <Route path="/login" element={<Auth />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/__sa" element={<Suspense fallback={null}><SuperAdminCRM /></Suspense>} />
+                <Route path="/__health" element={<Suspense fallback={null}><ConnectionHealth /></Suspense>} />
                 <Route element={<Layout />}>
                   <Route path="/" element={<Index />} />
                   <Route path="/browse" element={<Browse />} />
