@@ -81,7 +81,9 @@ const AdminDashboard = () => {
   const totalBusinesses = roles.filter(r => r.role === "business").length;
   const totalReferrers = roles.filter(r => r.role === "referrer").length;
   const wonDeals = referrals.filter(r => r.status === "won").length;
-  const totalPlatformRevenue = referrals.filter(r => r.status === "won").reduce((sum, r) => sum + (r.payout_amount ?? r.offers?.payout ?? 0) * (r.offers?.platform_fee_rate ?? 0.25), 0);
+  // Revvin v1 is a flat-fee subscription. Per-referral platform revenue is $0;
+  // platform income lives in the $49/mo subscription, tracked elsewhere.
+  const totalPlatformRevenue = 0;
   const totalPayoutsAmount = referrals.filter(r => r.status === "won").reduce((sum, r) => sum + (r.payout_amount ?? r.offers?.payout ?? 0), 0);
   const activeOffers = offers.filter(o => o.status === "active").length;
   const conversionRate = referrals.length > 0 ? Math.round((wonDeals / referrals.length) * 100) : 0;
