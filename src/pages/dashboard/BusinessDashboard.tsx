@@ -51,10 +51,29 @@ interface Lead {
   notes: string | null;
 }
 
+interface MarketplaceReferral {
+  id: string;
+  created_at: string;
+  customer_name: string;
+  customer_email: string | null;
+  customer_phone: string | null;
+  notes: string | null;
+  status: string;
+  payment_status: string;
+  payout_amount: number | null;
+  offers: { title: string } | null;
+}
+
 const STATUSES = ["new", "contacted", "in_progress", "closed_won", "closed_lost", "invalid"];
 const STATUS_LABEL: Record<string, string> = {
   new: "New", contacted: "Contacted", in_progress: "In Progress",
   closed_won: "Closed Won", closed_lost: "Closed Lost", invalid: "Invalid",
+};
+
+const REFERRAL_STATUSES = ["submitted", "contacted", "in_progress", "won", "lost"];
+const REFERRAL_STATUS_LABEL: Record<string, string> = {
+  submitted: "Submitted", contacted: "Contacted", in_progress: "In Progress",
+  won: "Won", lost: "Lost",
 };
 
 const BusinessDashboard = () => {
@@ -62,6 +81,7 @@ const BusinessDashboard = () => {
   const { toast } = useToast();
   const [biz, setBiz] = useState<Business | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { if (user) loadAll(); }, [user]);
@@ -77,12 +97,15 @@ const BusinessDashboard = () => {
     const b = (bizData?.[0] as Business) ?? null;
     setBiz(b);
     if (b) {
-      const { data: leadData } = await supabase
-        .from("leads")
-        .select("*")
-        .eq("business_id", b.id)
-        .order("created_at", { ascending: false });
-      setLeads((leadData as Lead[]) ?? []);
+      const [leadRes, refRes] = await Promise.all([
+        supabase.from("leads").select("*").eq("business_id", b.id).order("created_at", { ascending: false }),
+        supabase.from("referrals")
+          .select("id, created_at, customer_name, customer_email, customer_phone, notes, status, payment_status, payout_amount, offers(title)")
+          .eq("business_id", b.id)
+          .order("created_at", { ascending: false }),
+      ]);
+      setLeads((leadRes.data as Lead[]) ?? []);
+      setMarketplaceReferrals((refRes.data as any[] as MarketplaceReferral[]) ?? []);
     }
     setLoading(false);
   };
@@ -125,12 +148,14 @@ const BusinessDashboard = () => {
       <Tabs defaultValue="leads">
         <TabsList className="mb-6">
           <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
+          <TabsTrigger value="referrals">Marketplace Referrals {marketplaceReferrals.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{marketplaceReferrals.length}</span>}</TabsTrigger>
           <TabsTrigger value="page">My Page</TabsTrigger>
           <TabsTrigger value="share">Share Tools</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
 
         <TabsContent value="leads"><LeadsTab leads={leads} reload={loadAll} /></TabsContent>
+        <TabsContent value="referrals"><MarketplaceReferralsTab referrals={marketplaceReferrals} reload={loadAll} /></TabsContent>
         <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} /></TabsContent>
         <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} /></TabsContent>
         <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
