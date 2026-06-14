@@ -1,6 +1,6 @@
 # Revvin
 
-> Referral program platform for service businesses in the US and Canada. A flat $49/month USD subscription gives a business a branded referral page, a shareable link, a QR code, a lead inbox, and a dashboard. Businesses optionally list on the public Revvin marketplace. Businesses pay their referrers directly when deals close; Revvin is the infrastructure and does not process payouts.
+> Referral program platform for service businesses. A flat $49/month subscription gives a business a branded referral page, a shareable link, a QR code, a lead inbox, and a dashboard. There is no trial and no platform fees. Businesses optionally list on the public Revvin marketplace. Businesses pay their referrers directly off-platform when deals close; Revvin is the infrastructure and does not process payouts.
 
 ## Pages
 
@@ -8,7 +8,7 @@
 - [How it works](/how-it-works): End-to-end walkthrough of the referral flow.
 - [For businesses](/for-businesses): Referral program software and customer acquisition for service businesses.
 - [For referrers](/for-referrers): How people earn by sending warm leads to local businesses.
-- [Browse offers](/browse): Marketplace of active referral offers across the US and Canada.
+- [Browse offers](/browse): Marketplace of active referral offers.
 - [Pricing](/pricing): Flat $49/month, no trial, no setup fee, cancel anytime. Referrers free.
 - [Trust](/trust): How Revvin protects referrers, businesses, and customers.
 - [About Revvin (LLM overview)](/about-revvin-llm): Plain-language summary for AI assistants.

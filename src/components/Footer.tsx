@@ -14,7 +14,7 @@ const Footer = () => {
               Revvin gives your business the referral infrastructure. You handle the relationship.
             </p>
             <p className="mt-5 text-xs uppercase tracking-[0.18em] text-white/40">
-              Available in Canada and the United States
+              Flat $49/month. No platform fees.
             </p>
           </div>
 

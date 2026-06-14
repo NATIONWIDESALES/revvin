@@ -66,7 +66,7 @@ const Index = () => {
             mainEntity: [
               { "@type": "Question", name: "What if I don't get any referrals?", acceptedAnswer: { "@type": "Answer", text: "Revvin is built so you can prime the pump on day one: text your existing client list with your branded page link, drop the QR on invoices, and add it to your email signature. Your page stays live, you can edit your offer anytime, and any leads you do get cost a fraction of an ad-driven lead." } },
               { "@type": "Question", name: "Does Revvin pay the referrers for me?", acceptedAnswer: { "@type": "Answer", text: "No. Revvin is the infrastructure — your branded page, lead capture, and dashboard. You pay referrers directly when the deal closes, in whatever way works for your business." } },
-              { "@type": "Question", name: "How does billing work?", acceptedAnswer: { "@type": "Answer", text: "Pro is $49/month, billed monthly to businesses in both the US and Canada. No contract, no setup fee. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for." } },
+              { "@type": "Question", name: "How does billing work?", acceptedAnswer: { "@type": "Answer", text: "Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for." } },
               { "@type": "Question", name: "Is there a free tier?", acceptedAnswer: { "@type": "Answer", text: "Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with no trial and no setup fee." } },
               { "@type": "Question", name: "Do you have a marketplace where I can browse offers?", acceptedAnswer: { "@type": "Answer", text: "Yes. Listing on the public Revvin marketplace is live and optional — toggle it on in your dashboard so motivated referrers can find your offer. Your own branded referral page works either way." } },
               { "@type": "Question", name: "What if I cancel?", acceptedAnswer: { "@type": "Answer", text: "You can cancel from your Stripe customer portal anytime. Your referral page stays live until the end of the paid period." } },
@@ -89,7 +89,7 @@ const Index = () => {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
                 </span>
-                Live in US &amp; Canada
+                Now live
               </span>
               <h1 className="mt-5 text-[2.5rem] font-extrabold tracking-tight text-foreground leading-[1.02] sm:text-5xl md:text-7xl">
                 The complete{" "}
@@ -465,7 +465,7 @@ const Index = () => {
             <AccordionItem value="q2">
               <AccordionTrigger>How does billing work?</AccordionTrigger>
               <AccordionContent>
-                Pro is $49/month, billed monthly to businesses in both the US and Canada. No contract, no setup fee. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.
+                Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q3">

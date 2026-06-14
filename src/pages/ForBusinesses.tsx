@@ -35,10 +35,6 @@ const ForBusinesses = () => (
           "name": "Revvin Referral Marketing for Businesses",
           "description": "Referral program software for service businesses. Flat $49/month subscription with a branded referral page, lead inbox, and dashboard. Businesses pay their referrers directly when deals close.",
           "provider": { "@type": "Organization", "name": "Revvin", "slogan": "The Referral Marketplace" },
-          "areaServed": [
-            { "@type": "Country", "name": "Canada" },
-            { "@type": "Country", "name": "United States" }
-          ],
           "offers": {
             "@type": "Offer",
             "price": "49",
@@ -50,10 +46,10 @@ const ForBusinesses = () => (
           "@context": "https://schema.org",
           "@type": "FAQPage",
           "mainEntity": [
-            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "$49/month for businesses in both the US and Canada. Cancel anytime, no contract, no setup fee. You pay your referrers directly when deals close; Revvin does not take a per-referral fee." } },
-            { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay your referrer nothing because they only earn on closed deals. Your only ongoing cost to Revvin is the $49/month subscription." } },
+            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "A flat $49/month. Cancel anytime, no trial, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close." } },
+            { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay your referrer nothing because they only earn when a deal closes. Your only cost to Revvin is the flat $49/month subscription." } },
             { "@type": "Question", "name": "Who decides the referral payout amount?", "acceptedAnswer": { "@type": "Answer", "text": "The business sets the payout based on what a closed customer is worth. Referrers receive 100% of that advertised amount." } },
-            { "@type": "Question", "name": "How is this different from Google Ads or Facebook Ads?", "acceptedAnswer": { "@type": "Answer", "text": "Ads charge per click or impression with no guarantee of conversion. Revvin only charges when a referred lead becomes a closed customer." } }
+            { "@type": "Question", "name": "How is this different from Google Ads or Facebook Ads?", "acceptedAnswer": { "@type": "Answer", "text": "Ads charge per click or impression with no guarantee of conversion. Revvin is a flat $49/month subscription, no platform fees. You pay your referrers directly when deals close." } }
           ]
         }
       ]}
@@ -193,34 +189,6 @@ const ForBusinesses = () => (
             </Button>
             <p className="mt-3 text-xs text-muted-foreground">Free tier available for referrers.</p>
           </motion.div>
-        </motion.div>
-      </div>
-    </section>
-
-    {/* Cross-border */}
-    <section className="py-20">
-      <div className="container">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7, ease }}
-          className="max-w-2xl mx-auto text-center"
-        >
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-6">Available in two countries</h2>
-          <div className="flex items-center justify-center gap-10">
-            <div className="text-center">
-              <span className="text-3xl mb-2 block">🇨🇦</span>
-              <p className="text-sm font-medium text-foreground">Canada</p>
-              <p className="text-xs text-muted-foreground">Paid in CAD</p>
-            </div>
-            <div className="h-12 w-px bg-border" />
-            <div className="text-center">
-              <span className="text-3xl mb-2 block">🇺🇸</span>
-              <p className="text-sm font-medium text-foreground">United States</p>
-              <p className="text-xs text-muted-foreground">Paid in USD</p>
-            </div>
-          </div>
         </motion.div>
       </div>
     </section>

@@ -25,7 +25,7 @@ const TrustCenter = () => {
               Trust & Payouts
             </motion.h1>
             <motion.p variants={fadeUp} custom={2} className="mt-4 text-lg text-primary-foreground/70 max-w-2xl mx-auto">
-              Revvin's verification and payout system ensures every referral commission is tracked transparently — in both Canada (CAD) and United States (USD).
+              Every referral is tracked transparently. Businesses pay their referrers directly off-platform. Revvin is the infrastructure.
             </motion.p>
           </motion.div>
         </div>
@@ -71,45 +71,25 @@ const TrustCenter = () => {
             {/* Payout Example */}
             <motion.div variants={fadeUp} custom={8} className="mt-10 rounded-xl border border-border bg-muted/30 p-6">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <Briefcase className="h-5 w-5 text-primary" /> Payout Examples — CAD & USD
+                <Briefcase className="h-5 w-5 text-primary" /> Payout Example
               </h3>
-              <div className="grid gap-6 md:grid-cols-2">
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-3">Canada Example (CAD)</p>
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground mb-1">Advertised Payout</p>
-                      <p className="text-lg font-bold">CA$600</p>
-                    </div>
-                    <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-3">
-                      <p className="text-xs text-muted-foreground mb-1">Referrer Earns</p>
-                      <p className="text-lg font-bold text-earnings">CA$600</p>
-                    </div>
-                    <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground mb-1">Business Total Cost</p>
-                      <p className="text-lg font-bold">CA$600</p>
-                    </div>
+              <div className="max-w-xl mx-auto">
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-xl bg-card border border-border p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Advertised Payout</p>
+                    <p className="text-lg font-bold">$500</p>
                   </div>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-3">USA Example (USD)</p>
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground mb-1">Advertised Payout</p>
-                      <p className="text-lg font-bold">$500</p>
-                    </div>
-                    <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-3">
-                      <p className="text-xs text-muted-foreground mb-1">Referrer Earns</p>
-                      <p className="text-lg font-bold text-earnings">$500</p>
-                    </div>
-                    <div className="rounded-xl bg-card border border-border p-3">
-                      <p className="text-xs text-muted-foreground mb-1">Business Total Cost</p>
-                      <p className="text-lg font-bold">$500</p>
-                    </div>
+                  <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Referrer Earns</p>
+                    <p className="text-lg font-bold text-earnings">$500</p>
+                  </div>
+                  <div className="rounded-xl bg-card border border-border p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Business Total Cost</p>
+                    <p className="text-lg font-bold">$500</p>
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn the full advertised payout. Businesses pay the referrer directly — Revvin does not take a per-referral fee. The business's only cost to Revvin is the $49/month subscription.</p>
+              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn the full advertised payout. Businesses pay the referrer directly off-platform. Revvin takes no platform fees. The business's only cost to Revvin is the flat $49/month subscription.</p>
             </motion.div>
           </motion.div>
         </div>

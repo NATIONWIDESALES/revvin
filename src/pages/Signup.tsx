@@ -28,7 +28,7 @@ const Signup = () => {
     try {
       // Launch Package is gated behind a feature flag for v1 launch.
       // When LAUNCH_PACKAGE_ENABLED is false we ignore any stale session flag
-      // so checkout always uses the clean $49/month USD path.
+      // so checkout always uses the clean $49/month path.
       const includeLaunchPackage =
         LAUNCH_PACKAGE_ENABLED &&
         typeof window !== "undefined" &&
@@ -113,7 +113,7 @@ const Signup = () => {
     <>
       <SEOHead
         title="Start your referral program — Revvin"
-        description="Create your Revvin account and launch a branded referral page for your business. $49/month USD, cancel anytime."
+        description="Create your Revvin account and launch a branded referral page for your business. $49/month, cancel anytime."
         path="/signup"
         noindex
       />
@@ -127,7 +127,7 @@ const Signup = () => {
               Start your referral program
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Create your account, then we'll send you to secure checkout. $49/month USD, cancel anytime.
+              Create your account, then we'll send you to secure checkout. $49/month, cancel anytime.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">

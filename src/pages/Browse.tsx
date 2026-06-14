@@ -125,7 +125,7 @@ const Browse = () => {
   return (
     <div className="py-6">
       <SEOHead
-        title="Browse referral offers — earn per closed deal | Revvin"
+        title="Browse referral offers | Revvin"
         description="Explore high-paying referral offers from verified businesses. Find opportunities in real estate, roofing, solar, and financial services."
         path="/browse"
         jsonLd={filtered.length > 0 ? {
