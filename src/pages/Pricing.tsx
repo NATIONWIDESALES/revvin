@@ -11,6 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
 
 const proFeatures = [
   "Branded referral page",
@@ -64,7 +65,7 @@ const Pricing = () => {
     <>
       <SEOHead
         title="Pricing — Revvin"
-        description="$49/month, cancel anytime. No contract, no setup fee. Free for referrers. Optional $297 Launch Package."
+        description="$49/month USD, cancel anytime. No contract, no setup fee. Free for referrers."
         path="/pricing"
       />
 
@@ -73,17 +74,17 @@ const Pricing = () => {
         <div className="container relative max-w-3xl py-24 text-center">
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pricing</p>
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
-            $49/month. Cancel anytime.
+            $49/month USD. Cancel anytime.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            No contract, no setup fee, no trial — businesses are billed from day one. Referrers are free.
+            Billed in USD for every customer, in both the US and Canada. No contract, no setup fee, no trial; businesses are billed from day one. Referrers are free.
           </p>
         </div>
       </section>
 
       <section>
         <div className="container max-w-6xl py-20">
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className={`grid gap-6 ${LAUNCH_PACKAGE_ENABLED ? "md:grid-cols-3" : "md:grid-cols-2 md:max-w-3xl md:mx-auto"}`}>
             {/* Free */}
             <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Free</p>
@@ -119,30 +120,32 @@ const Pricing = () => {
               <h2 className="mt-1 text-xl font-bold text-foreground">Business Referral Page</h2>
               <div className="mt-6 flex items-baseline gap-2">
                 <span className="text-5xl font-extrabold tracking-tight text-foreground">$49</span>
-                <span className="text-sm text-muted-foreground">/month</span>
+                <span className="text-sm text-muted-foreground">/month USD</span>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
                 Cancel anytime. No contract, no setup fee.
               </p>
-              <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(addLaunch)}>
+              <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
                 <Link to="/signup">
-                  {addLaunch ? "Start program + Launch Package" : "Start your referral program"}
+                  {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Start program + Launch Package" : "Start your referral program"}
                 </Link>
               </Button>
-              <div className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-surface-warm p-3">
-                <Checkbox
-                  id="add-launch-pro"
-                  checked={addLaunch}
-                  onCheckedChange={(v) => toggleLaunch(v === true)}
-                  className="mt-0.5"
-                />
-                <Label htmlFor="add-launch-pro" className="cursor-pointer text-xs leading-snug text-foreground">
-                  <span className="font-semibold">Add $297 Launch Package</span>
-                  <span className="block text-muted-foreground">
-                    One-time. We set up your offer, page, and launch assets with you.
-                  </span>
-                </Label>
-              </div>
+              {LAUNCH_PACKAGE_ENABLED && (
+                <div className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-surface-warm p-3">
+                  <Checkbox
+                    id="add-launch-pro"
+                    checked={addLaunch}
+                    onCheckedChange={(v) => toggleLaunch(v === true)}
+                    className="mt-0.5"
+                  />
+                  <Label htmlFor="add-launch-pro" className="cursor-pointer text-xs leading-snug text-foreground">
+                    <span className="font-semibold">Add $297 Launch Package</span>
+                    <span className="block text-muted-foreground">
+                      One-time. We set up your offer, page, and launch assets with you.
+                    </span>
+                  </Label>
+                </div>
+              )}
               <ul className="mt-8 space-y-2.5 border-t border-border pt-6">
                 {proFeatures.map((f) => (
                   <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
@@ -153,7 +156,8 @@ const Pricing = () => {
               </ul>
             </div>
 
-            {/* Launch Package add-on */}
+            {/* Launch Package add-on (gated by LAUNCH_PACKAGE_ENABLED) */}
+            {LAUNCH_PACKAGE_ENABLED && (
             <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Add-on</p>
               <h2 className="mt-1 text-xl font-bold text-foreground">Launch Package</h2>
@@ -196,6 +200,7 @@ const Pricing = () => {
                 Charged once, at checkout, on top of your $49/month subscription.
               </p>
             </div>
+            )}
           </div>
 
           <p className="mt-10 text-center text-xs text-muted-foreground">
@@ -214,12 +219,14 @@ const Pricing = () => {
                 Correct. Pro is $49/month, billed monthly. Cancel anytime from your billing portal — your page stays live through the end of the period you've already paid for.
               </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="p2">
-              <AccordionTrigger>What's in the $297 Launch Package?</AccordionTrigger>
-              <AccordionContent>
-                A 1:1 onboarding call where we build your offer with you, set up your referral page, generate your QR and print-ready flyer, and hand over launch email + SMS templates. Plus 30 days of priority support. It's optional — you can run Pro on your own without it.
-              </AccordionContent>
-            </AccordionItem>
+            {LAUNCH_PACKAGE_ENABLED && (
+              <AccordionItem value="p2">
+                <AccordionTrigger>What's in the $297 Launch Package?</AccordionTrigger>
+                <AccordionContent>
+                  A 1:1 onboarding call where we build your offer with you, set up your referral page, generate your QR and print-ready flyer, and hand over launch email and SMS templates. Plus 30 days of priority support. It's optional; you can run Pro on your own without it.
+                </AccordionContent>
+              </AccordionItem>
+            )}
             <AccordionItem value="p3">
               <AccordionTrigger>Is the Free tier really free?</AccordionTrigger>
               <AccordionContent>
