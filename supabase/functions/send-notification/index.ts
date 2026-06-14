@@ -34,7 +34,7 @@ const templates: Record<
   welcome: {
     subject: "Welcome to Revvin!",
     body: (d) =>
-      `Hi ${d.name},\n\nWelcome to Revvin — the pay-per-close referral marketplace.\n\n${
+      `Hi ${d.name},\n\nWelcome to Revvin, the complete referral program for service businesses.\n\n${
         d.role === "business"
           ? "You can now create referral offers and start receiving qualified leads from our referrer network."
           : "Browse high-paying referral opportunities and start earning commissions today."
@@ -43,7 +43,7 @@ const templates: Record<
   business_invite: {
     subject: "You've been invited to Revvin — ${businessName}",
     body: (d) =>
-      `Hi ${d.name},\n\nSomeone thinks ${d.businessName} should be on Revvin — a referral marketplace where businesses only pay for closed deals.\n\nCreate your free account: ${d.signupUrl || appUrl("/auth?mode=signup&role=business")}\n\n— The Revvin Team`,
+      `Hi ${d.name},\n\nSomeone thinks ${d.businessName} should be on Revvin, the referral program platform for service businesses. Flat $49/month USD, branded referral page, QR code, and a simple lead inbox.\n\nCreate your free account: ${d.signupUrl || appUrl("/auth?mode=signup&role=business")}\n\n— The Revvin Team`,
   },
   referral_submitted: {
     subject: "New Referral Submitted — ${offerTitle}",
@@ -63,7 +63,7 @@ const templates: Record<
   deal_lost: {
     subject: "Referral Update — Deal Lost",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nUnfortunately, the deal for ${d.customerName} ("${d.offerTitle}") did not close.\n\nEscrowed funds have been returned to the business. Keep referring — your next win is around the corner.\n\nBrowse offers: ${appUrl("/browse")}\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nUnfortunately, the deal for ${d.customerName} ("${d.offerTitle}") did not close.\n\nKeep referring — your next win is around the corner.\n\nBrowse offers: ${appUrl("/browse")}\n\n— Revvin`,
   },
   payout_released: {
     subject: "Payout Released — $${payoutAmount}",

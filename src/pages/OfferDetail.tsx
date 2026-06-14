@@ -275,7 +275,7 @@ const OfferDetail = () => {
             {/* Trust Signals */}
             <motion.div variants={fadeUp} custom={5.5} className="space-y-2">
               {[
-                "Business verified by REVVIN",
+                "Business verified by Revvin",
                 "Payout terms locked when referral is accepted",
                 "Paid directly by the business — 100% of the payout goes to you",
                 "Dispute resolution if anything goes wrong",

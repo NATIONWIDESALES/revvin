@@ -386,7 +386,7 @@ const Browse = () => {
         {/* Invite CTA for referrers */}
         <div className="mt-8 rounded-xl border border-border bg-muted/30 p-5 text-center">
           <p className="text-sm font-semibold text-foreground mb-1">Don't see your industry?</p>
-          <p className="text-sm text-muted-foreground mb-4">Invite a business you know to list their referral program on REVVIN.CO</p>
+          <p className="text-sm text-muted-foreground mb-4">Invite a business you know to list their referral program on Revvin</p>
           <Button variant="outline" asChild className="gap-2">
             <Link to="/dashboard"><PlusCircle className="h-4 w-4" /> Invite a Business</Link>
           </Button>
