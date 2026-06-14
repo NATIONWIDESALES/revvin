@@ -26,14 +26,14 @@ const ForBusinesses = () => (
   <div>
     <SEOHead
       title="Referral program software for service businesses | Revvin"
-      description="Launch a branded referral page, share a link or QR code, and manage every lead in one inbox. Flat $49/month USD. You pay your referrers directly when deals close."
+      description="Launch a branded referral page, share a link or QR code, and manage every lead in one inbox. Flat $49/month. You pay your referrers directly when deals close."
       path="/for-businesses"
       jsonLd={[
         {
           "@context": "https://schema.org",
           "@type": "Service",
           "name": "Revvin Referral Marketing for Businesses",
-          "description": "Referral program software for service businesses. Flat $49/month USD subscription with a branded referral page, lead inbox, and dashboard. Businesses pay their referrers directly when deals close.",
+          "description": "Referral program software for service businesses. Flat $49/month subscription with a branded referral page, lead inbox, and dashboard. Businesses pay their referrers directly when deals close.",
           "provider": { "@type": "Organization", "name": "Revvin", "slogan": "The Referral Marketplace" },
           "areaServed": [
             { "@type": "Country", "name": "Canada" },
@@ -43,15 +43,15 @@ const ForBusinesses = () => (
             "@type": "Offer",
             "price": "49",
             "priceCurrency": "USD",
-            "description": "$49/month USD. Cancel anytime. No contract."
+            "description": "$49/month. Cancel anytime. No contract."
           }
         },
         {
           "@context": "https://schema.org",
           "@type": "FAQPage",
           "mainEntity": [
-            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "$49/month USD for businesses in both the US and Canada. Cancel anytime, no contract, no setup fee. You pay your referrers directly when deals close; Revvin does not take a per-referral fee." } },
-            { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay your referrer nothing because they only earn on closed deals. Your only ongoing cost to Revvin is the $49/month USD subscription." } },
+            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "$49/month for businesses in both the US and Canada. Cancel anytime, no contract, no setup fee. You pay your referrers directly when deals close; Revvin does not take a per-referral fee." } },
+            { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay your referrer nothing because they only earn on closed deals. Your only ongoing cost to Revvin is the $49/month subscription." } },
             { "@type": "Question", "name": "Who decides the referral payout amount?", "acceptedAnswer": { "@type": "Answer", "text": "The business sets the payout based on what a closed customer is worth. Referrers receive 100% of that advertised amount." } },
             { "@type": "Question", "name": "How is this different from Google Ads or Facebook Ads?", "acceptedAnswer": { "@type": "Answer", "text": "Ads charge per click or impression with no guarantee of conversion. Revvin only charges when a referred lead becomes a closed customer." } }
           ]
@@ -75,7 +75,7 @@ const ForBusinesses = () => (
             <span className="text-primary">Start paying for customers.</span>
           </motion.h1>
           <motion.p variants={fadeUp} custom={2} className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Launch a branded referral page, share a link or QR code, and manage every lead in one inbox. Flat $49/month USD. You pay your referrers directly when deals close.
+            Launch a branded referral page, share a link or QR code, and manage every lead in one inbox. Flat $49/month. You pay your referrers directly when deals close.
           </motion.p>
           <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
@@ -86,7 +86,7 @@ const ForBusinesses = () => (
             </Button>
           </motion.div>
           <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
-            $49/month USD · Cancel anytime · No contract
+            $49/month · Cancel anytime · No contract
           </motion.p>
         </motion.div>
       </div>
@@ -94,7 +94,7 @@ const ForBusinesses = () => (
 
     {/* Social proof ticker */}
     <section className="py-3 bg-muted/30 border-y border-border overflow-hidden">
-      <MarqueeTicker items={["$49/month USD flat", "You set the referrer payout", "Pay referrers directly", "Available in Canada & USA", "Cancel anytime"]} />
+      <MarqueeTicker items={["$49/month flat", "You set the referrer payout", "Pay referrers directly", "Available in Canada & USA", "Cancel anytime"]} />
     </section>
     <section className="py-24 lg:py-32 bg-surface">
       <div className="container">
@@ -133,7 +133,7 @@ const ForBusinesses = () => (
           </motion.h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: DollarSign, title: "Flat monthly price", desc: "$49/month USD flat. No per-referral fee from Revvin; you decide what to pay your own referrers when deals close." },
+              { icon: DollarSign, title: "Flat monthly price", desc: "$49/month flat. No per-referral fee from Revvin; you decide what to pay your own referrers when deals close." },
               { icon: Users, title: "Warm introductions", desc: "Referrals come from people who know your next customer — not algorithms guessing from cookie data." },
               { icon: Shield, title: "Clean records", desc: "Tracked referrals and a clear pipeline. No more informal deals and missing follow-ups." },
               { icon: Zap, title: "Launch in minutes", desc: "List your business, build your offer, and start sharing your branded referral page the same day — no setup fee." },
@@ -174,13 +174,13 @@ const ForBusinesses = () => (
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-2xl mx-auto text-center">
           <motion.p variants={fadeUp} custom={0} className="section-label mb-3">Simple economics</motion.p>
           <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-            $49/month USD. Cancel anytime.
+            $49/month. Cancel anytime.
           </motion.h2>
           <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-sm mb-8 max-w-lg mx-auto">
-            One flat price, billed in USD for every customer. No contract, no setup fee, no per-referral cut. Create your page, publish your offer, and pay referrers directly when deals close.
+            One flat price, billed monthly for every customer. No contract, no setup fee, no per-referral cut. Create your page, publish your offer, and pay referrers directly when deals close.
           </motion.p>
           <motion.div variants={fadeUp} custom={2} className="inline-flex flex-wrap items-center justify-center gap-4">
-            {["$49/month USD flat", "You set the payout", "Cancel anytime", "Pay referrers directly"].map(item => (
+            {["$49/month flat", "You set the payout", "Cancel anytime", "Pay referrers directly"].map(item => (
               <span key={item} className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                 <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                 {item}
@@ -240,7 +240,7 @@ const ForBusinesses = () => (
           <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
             <Link to="/signup">Start your referral program <ArrowRight className="h-4 w-4" /></Link>
           </Button>
-          <p className="mt-4 text-xs text-muted-foreground">$49/month USD. Cancel anytime. No contract.</p>
+          <p className="mt-4 text-xs text-muted-foreground">$49/month. Cancel anytime. No contract.</p>
         </motion.div>
       </div>
     </section>
