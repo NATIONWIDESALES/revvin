@@ -97,7 +97,7 @@ const Index = () => {
                 for your business.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-                Get a branded referral page, QR code, and pipeline CRM to turn your customers into your sales team. Optional: get listed on the REVVIN.CO marketplace where motivated referrers can find your offer. <span className="text-foreground font-medium">$49/month USD flat.</span>
+                Get a branded referral page, QR code, and pipeline CRM to turn your customers into your sales team. Optional: get listed on the Revvin marketplace where motivated referrers can find your offer. <span className="text-foreground font-medium">$49/month USD flat.</span>
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
@@ -149,7 +149,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Offers from the REVVIN.CO Marketplace */}
+      {/* Featured Offers from the Revvin Marketplace */}
       <section className="border-b border-border bg-background">
         <div className="container py-16 md:py-24">
           <div className="mx-auto mb-12 max-w-2xl text-center">

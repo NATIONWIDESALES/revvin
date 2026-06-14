@@ -142,7 +142,7 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
           {/* Showcase offers blend in — no badge label */}
           {isNew && !isSample && (
             <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground text-xs shadow-sm">
-              New on REVVIN
+              New on Revvin
             </Badge>
           )}
         </div>

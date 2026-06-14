@@ -524,7 +524,7 @@ const AdminDashboard = () => {
                             {payout.status === "processing" && (
                               <div className="flex flex-col gap-2">
                                 <div className="flex gap-1">
-                                  <Input placeholder="Method (e.g. tremendous)" className="h-7 text-xs w-32" value={payoutMethod} onChange={e => setPayoutMethod(e.target.value)} />
+                                  <Input placeholder="Method (e.g. e-transfer, Zelle)" className="h-7 text-xs w-32" value={payoutMethod} onChange={e => setPayoutMethod(e.target.value)} />
                                   <Input placeholder="Reference ID" className="h-7 text-xs w-32" value={payoutRef} onChange={e => setPayoutRef(e.target.value)} />
                                 </div>
                                 <div className="flex gap-1">

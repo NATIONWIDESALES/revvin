@@ -39,7 +39,7 @@ const ROICalculator = () => {
 
         <div>
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-muted-foreground">Your REVVIN payout per customer</span>
+            <span className="text-muted-foreground">Your Revvin payout per customer</span>
             <span className="font-bold text-foreground">${revvinPayout}</span>
           </div>
           <Slider value={[revvinPayout]} onValueChange={([v]) => setRevvinPayout(v)} min={100} max={2000} step={50} />
@@ -52,7 +52,7 @@ const ROICalculator = () => {
           <p className="text-2xl font-bold text-foreground">${adCostPerCustomer.toLocaleString()}</p>
         </div>
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">REVVIN cost per customer</p>
+          <p className="text-xs text-muted-foreground mb-1">Revvin cost per customer</p>
           <p className="text-2xl font-bold text-primary">${revvinCost.toLocaleString()}</p>
         </div>
       </div>
