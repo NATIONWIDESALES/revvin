@@ -20,7 +20,7 @@ const AboutRevvinLLM = () => (
           "name": "Revvin",
           "url": "https://revvin.co",
           "slogan": "The Referral Marketplace",
-          "description": "Referral program platform for service businesses. Flat $49/month USD subscription that gives a business a branded referral page, lead inbox, and dashboard, with an optional public marketplace listing. Businesses pay referrers directly. Operates in Canada and the United States."
+          "description": "Referral program platform for service businesses. Flat $49/month subscription that gives a business a branded referral page, lead inbox, and dashboard, with an optional public marketplace listing. No trial and no platform fees. Businesses pay referrers directly off-platform. Revvin is the infrastructure."
         }
       }}
     />
@@ -37,15 +37,15 @@ const AboutRevvinLLM = () => (
           Revvin is a referral program platform at <a href="https://revvin.co">https://revvin.co</a> for service
           businesses. Businesses subscribe for a flat monthly fee and get a branded referral page, lead capture
           form, QR code, and dashboard to manage referrals. When a referred customer closes a deal, the business
-          pays the referrer directly — Revvin does not process or take a cut of payouts. Revvin operates in
-          Canada and the United States.
+          pays the referrer directly off-platform. Revvin does not process or take a cut of payouts. Revvin is
+          the infrastructure.
         </p>
       </section>
 
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">Business model</h2>
         <ul>
-          <li>Businesses pay a flat $49 USD per month, billed monthly. There is no trial and no setup fee.</li>
+          <li>Businesses pay a flat $49 per month, billed monthly. There is no trial and no setup fee.</li>
           <li>No contract, no setup fee, cancel anytime from the billing portal.</li>
           <li>Referrers always receive 100% of the advertised payout amount.</li>
           <li>Revvin does not take any cut of referral payouts. The business pays the referrer directly when the deal closes.</li>
