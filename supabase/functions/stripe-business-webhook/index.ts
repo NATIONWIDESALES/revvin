@@ -16,11 +16,13 @@ const corsHeaders = {
 
 /**
  * Validate launch-package intent from Stripe session/subscription metadata.
- * Returns true ONLY if metadata explicitly flags it AND the matching line item
- * is present in the checkout session.
+ * Accepts the new standardized `product_type === "launch_package"` flag and
+ * the legacy `launch_package === "1"` flag for in-flight sessions.
  */
 function flaggedLaunchPackage(meta: Stripe.Metadata | null | undefined): boolean {
   if (!meta) return false;
+  const productType = String(meta.product_type ?? "").toLowerCase();
+  if (productType === "launch_package") return true;
   const raw = String(meta.launch_package ?? "").toLowerCase();
   return raw === "1" || raw === "true";
 }
@@ -108,27 +110,37 @@ serve(async (req) => {
           }
 
           // Validate launch package: metadata flag MUST be backed by an actual
-          // line item charged in this checkout session.
+          // line item charged in this checkout session. If metadata is missing
+          // entirely, fall back to expanding line items and matching by price/product.
           let launchPackagePurchased = false;
           let launchPaymentIntentId: string | null = null;
-          if (flaggedLaunchPackage(s.metadata)) {
-            try {
-              const items = await stripe.checkout.sessions.listLineItems(s.id, { limit: 20 });
-              launchPackagePurchased = items.data.some(
-                (li) => li.price?.id === PRICE_LAUNCH_PACKAGE_297
-              );
-              if (!launchPackagePurchased) {
-                console.warn(
-                  "[stripe-business-webhook] launch_package metadata set but no $297 line item found",
-                  { session: s.id, user: userId }
-                );
+          try {
+            const items = await stripe.checkout.sessions.listLineItems(s.id, {
+              limit: 20,
+              expand: ["data.price.product"],
+            });
+            const hasLaunchLineItem = items.data.some((li) => {
+              if (li.price?.id === PRICE_LAUNCH_PACKAGE_297) return true;
+              const product = li.price?.product as Stripe.Product | string | undefined;
+              if (product && typeof product !== "string") {
+                const pm = (product.metadata ?? {}) as Stripe.Metadata;
+                if (String(pm.product_type ?? "").toLowerCase() === "launch_package") return true;
               }
-            } catch (e) {
-              console.error("[stripe-business-webhook] listLineItems failed", e);
+              return false;
+            });
+            // Detect by metadata first (preferred), then by line item presence.
+            launchPackagePurchased = flaggedLaunchPackage(s.metadata) ? hasLaunchLineItem : hasLaunchLineItem;
+            if (flaggedLaunchPackage(s.metadata) && !hasLaunchLineItem) {
+              console.warn(
+                "[stripe-business-webhook] launch_package metadata set but no $297 line item found",
+                { session: s.id, user: userId }
+              );
             }
-            launchPaymentIntentId =
-              typeof s.payment_intent === "string" ? s.payment_intent : s.payment_intent?.id ?? null;
+          } catch (e) {
+            console.error("[stripe-business-webhook] listLineItems failed", e);
           }
+          launchPaymentIntentId =
+            typeof s.payment_intent === "string" ? s.payment_intent : s.payment_intent?.id ?? null;
 
           const patch: Record<string, unknown> = {
             stripe_subscription_id: subId,
@@ -160,13 +172,24 @@ serve(async (req) => {
               .limit(1);
             const bizId = bizRow?.[0]?.id as string | undefined;
             if (bizId) {
-              const { data: existing } = await admin
+              // Idempotency: guard on (business_id + package_type) AND on the
+              // Stripe payment_intent_id so a redelivered webhook never doubles up.
+              let existingQuery = admin
                 .from("launch_tasks")
                 .select("id")
                 .eq("business_id", bizId)
-                .eq("package_type", "launch_297")
-                .limit(1);
-              if (!existing?.length) {
+                .eq("package_type", "launch_297");
+              const { data: existingByBiz } = await existingQuery.limit(1);
+              let alreadyExists = !!existingByBiz?.length;
+              if (!alreadyExists && launchPaymentIntentId) {
+                const { data: existingByPi } = await admin
+                  .from("launch_tasks")
+                  .select("id")
+                  .eq("stripe_payment_intent_id", launchPaymentIntentId)
+                  .limit(1);
+                alreadyExists = !!existingByPi?.length;
+              }
+              if (!alreadyExists) {
                 const { error: ltErr } = await admin.from("launch_tasks").insert({
                   business_id: bizId,
                   package_type: "launch_297",
@@ -176,8 +199,22 @@ serve(async (req) => {
                   stripe_payment_intent_id: launchPaymentIntentId,
                 });
                 if (ltErr) console.error("[stripe-business-webhook] launch_tasks insert", ltErr);
+                else console.log(
+                  "[stripe-business-webhook] launch_package fulfilled",
+                  { session: s.id, payment_intent: launchPaymentIntentId, business_id: bizId, user: userId }
+                );
+              } else {
+                console.log(
+                  "[stripe-business-webhook] launch_package already fulfilled (idempotent skip)",
+                  { session: s.id, payment_intent: launchPaymentIntentId, business_id: bizId }
+                );
               }
             }
+          } else {
+            console.log(
+              "[stripe-business-webhook] launch_package not detected on this session",
+              { session: s.id, user: userId, metadata_keys: Object.keys(s.metadata ?? {}) }
+            );
           }
 
           // 💰 Admin alert: new paying customer
