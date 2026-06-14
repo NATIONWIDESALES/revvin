@@ -65,7 +65,7 @@ const Pricing = () => {
     <>
       <SEOHead
         title="Pricing — Revvin"
-        description="$49/month USD, cancel anytime. No contract, no setup fee. Free for referrers."
+        description="$49/month, cancel anytime. No contract, no setup fee. Free for referrers."
         path="/pricing"
       />
 
@@ -74,10 +74,10 @@ const Pricing = () => {
         <div className="container relative max-w-3xl py-24 text-center">
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pricing</p>
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
-            $49/month USD. Cancel anytime.
+            $49/month. Cancel anytime.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            Billed in USD for every customer, in both the US and Canada. No contract, no setup fee, no trial; businesses are billed from day one. Referrers are free.
+            Billed monthly for every customer, in both the US and Canada. No contract, no setup fee, no trial; businesses are billed from day one. Referrers are free.
           </p>
         </div>
       </section>
@@ -120,7 +120,7 @@ const Pricing = () => {
               <h2 className="mt-1 text-xl font-bold text-foreground">Business Referral Page</h2>
               <div className="mt-6 flex items-baseline gap-2">
                 <span className="text-5xl font-extrabold tracking-tight text-foreground">$49</span>
-                <span className="text-sm text-muted-foreground">/month USD</span>
+                <span className="text-sm text-muted-foreground">/month</span>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
                 Cancel anytime. No contract, no setup fee.

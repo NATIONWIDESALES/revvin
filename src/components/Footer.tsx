@@ -44,7 +44,7 @@ const Footer = () => {
 
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center">
           <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} Revvin. All rights reserved.</p>
-          <p className="text-xs text-white/40">$49/month USD · cancel anytime · referrers join free</p>
+          <p className="text-xs text-white/40">$49/month · cancel anytime · referrers join free</p>
         </div>
       </div>
     </footer>
