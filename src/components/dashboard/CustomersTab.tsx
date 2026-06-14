@@ -3,10 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
-  Inbox, Send, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2,
+  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2,
 } from "lucide-react";
 
 export interface CustomersTabBusiness {
