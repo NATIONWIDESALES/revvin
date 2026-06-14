@@ -193,34 +193,6 @@ const ForBusinesses = () => (
       </div>
     </section>
 
-    {/* Cross-border */}
-    <section className="py-20">
-      <div className="container">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7, ease }}
-          className="max-w-2xl mx-auto text-center"
-        >
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-6">Available in two countries</h2>
-          <div className="flex items-center justify-center gap-10">
-            <div className="text-center">
-              <span className="text-3xl mb-2 block">🇨🇦</span>
-              <p className="text-sm font-medium text-foreground">Canada</p>
-              <p className="text-xs text-muted-foreground">Paid in CAD</p>
-            </div>
-            <div className="h-12 w-px bg-border" />
-            <div className="text-center">
-              <span className="text-3xl mb-2 block">🇺🇸</span>
-              <p className="text-sm font-medium text-foreground">United States</p>
-              <p className="text-xs text-muted-foreground">Paid in USD</p>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-
     {/* CTA */}
     <section className="py-24 lg:py-32 bg-surface">
       <div className="container text-center">
