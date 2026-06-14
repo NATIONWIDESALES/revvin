@@ -995,6 +995,56 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_contacts: {
+        Row: {
+          business_id: string
+          created_at: string
+          email: string | null
+          id: string
+          is_mock: boolean
+          last_sent_at: string | null
+          name: string
+          phone: string | null
+          send_channel: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_mock?: boolean
+          last_sent_at?: string | null
+          name: string
+          phone?: string | null
+          send_channel?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_mock?: boolean
+          last_sent_at?: string | null
+          name?: string
+          phone?: string | null
+          send_channel?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_contacts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referral_triggers: {
         Row: {
           amount_paid: number | null

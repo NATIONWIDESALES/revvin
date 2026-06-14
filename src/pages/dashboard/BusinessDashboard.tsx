@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Copy, ExternalLink, Download, Inbox, AlertCircle, Check } from "lucide-react";
 import QRCodeStyling from "qr-code-styling";
 import { useRef } from "react";
+import CustomersTab from "@/components/dashboard/CustomersTab";
+import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
 
 interface Business {
   id: string;
@@ -82,9 +84,18 @@ const BusinessDashboard = () => {
   const [biz, setBiz] = useState<Business | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
+  const [contactStats, setContactStats] = useState<{ total: number; sent: number }>({ total: 0, sent: 0 });
+  const [qrPrinted, setQrPrinted] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("customers");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { if (user) loadAll(); }, [user]);
+
+  useEffect(() => {
+    if (biz?.id) {
+      setQrPrinted(localStorage.getItem(`revvin_qr_printed_${biz.id}`) === "1");
+    }
+  }, [biz?.id]);
 
   const loadAll = async () => {
     if (!user) return;
@@ -97,15 +108,21 @@ const BusinessDashboard = () => {
     const b = (bizData?.[0] as Business) ?? null;
     setBiz(b);
     if (b) {
-      const [leadRes, refRes] = await Promise.all([
+      const [leadRes, refRes, contactRes] = await Promise.all([
         supabase.from("leads").select("*").eq("business_id", b.id).order("created_at", { ascending: false }),
         supabase.from("referrals")
           .select("id, created_at, customer_name, customer_email, customer_phone, notes, status, payment_status, payout_amount, offers(title)")
           .eq("business_id", b.id)
           .order("created_at", { ascending: false }),
+        (supabase as any).from("referral_contacts").select("id, status").eq("business_id", b.id),
       ]);
       setLeads((leadRes.data as Lead[]) ?? []);
       setMarketplaceReferrals((refRes.data as any[] as MarketplaceReferral[]) ?? []);
+      const cdata = (contactRes as any).data as Array<{ id: string; status: string }> | null;
+      setContactStats({
+        total: cdata?.length ?? 0,
+        sent: (cdata ?? []).filter((c) => c.status === "sent").length,
+      });
     }
     setLoading(false);
   };
@@ -135,6 +152,42 @@ const BusinessDashboard = () => {
 
   const publicUrl = `${window.location.origin}/r/${biz.slug}`;
 
+  const goToQr = () => {
+    if (!biz) return;
+    localStorage.setItem(`revvin_qr_printed_${biz.id}`, "1");
+    setQrPrinted(true);
+    setActiveTab("share");
+  };
+
+  const activationSteps: ActivationStep[] = [
+    {
+      label: "Add your offer (reward and description)",
+      done: !!(biz.offer_amount && biz.offer_trigger),
+      href: "/welcome",
+      actionLabel: "Add offer",
+    },
+    {
+      label: "Customize your referral page (upload a logo)",
+      done: !!biz.logo_url,
+      href: "/welcome",
+      actionLabel: "Upload logo",
+    },
+    {
+      label: "Import your customers",
+      done: contactStats.total > 0,
+    },
+    {
+      label: "Send your first batch",
+      done: contactStats.sent > 0,
+    },
+    {
+      label: "Print your QR code",
+      done: qrPrinted,
+      onClick: goToQr,
+      actionLabel: "Open QR",
+    },
+  ];
+
   return (
     <div className="container py-10 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
@@ -145,8 +198,11 @@ const BusinessDashboard = () => {
         <Button variant="outline" asChild><a href={publicUrl} target="_blank" rel="noopener noreferrer">View public page <ExternalLink className="ml-2 h-3.5 w-3.5" /></a></Button>
       </div>
 
-      <Tabs defaultValue="leads">
+      <ActivationChecklist steps={activationSteps} />
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
+          <TabsTrigger value="customers">Customers {contactStats.total > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{contactStats.total}</span>}</TabsTrigger>
           <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
           <TabsTrigger value="referrals">Marketplace Referrals {marketplaceReferrals.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{marketplaceReferrals.length}</span>}</TabsTrigger>
           <TabsTrigger value="page">My Page</TabsTrigger>
@@ -154,6 +210,9 @@ const BusinessDashboard = () => {
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="customers">
+          <CustomersTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger }} publicUrl={publicUrl} />
+        </TabsContent>
         <TabsContent value="leads"><LeadsTab leads={leads} reload={loadAll} /></TabsContent>
         <TabsContent value="referrals"><MarketplaceReferralsTab referrals={marketplaceReferrals} reload={loadAll} /></TabsContent>
         <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} /></TabsContent>
