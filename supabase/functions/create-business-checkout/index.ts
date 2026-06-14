@@ -66,6 +66,7 @@ serve(async (req) => {
         user_id: user.id,
         plan: "pro_monthly_49",
         launch_package: includeLaunchPackage ? "1" : "0",
+        ...(includeLaunchPackage ? { product_type: "launch_package" } : {}),
       },
       allow_promotion_codes: true,
       success_url: `${origin}/welcome?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
