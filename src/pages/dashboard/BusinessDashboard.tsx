@@ -85,9 +85,16 @@ const BusinessDashboard = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
   const [contactStats, setContactStats] = useState<{ total: number; sent: number }>({ total: 0, sent: 0 });
+  const [qrPrinted, setQrPrinted] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { if (user) loadAll(); }, [user]);
+
+  useEffect(() => {
+    if (biz?.id) {
+      setQrPrinted(localStorage.getItem(`revvin_qr_printed_${biz.id}`) === "1");
+    }
+  }, [biz?.id]);
 
   const loadAll = async () => {
     if (!user) return;
@@ -144,6 +151,12 @@ const BusinessDashboard = () => {
 
   const publicUrl = `${window.location.origin}/r/${biz.slug}`;
 
+  const markQrPrinted = () => {
+    if (!biz) return;
+    localStorage.setItem(`revvin_qr_printed_${biz.id}`, "1");
+    setQrPrinted(true);
+  };
+
   const activationSteps: ActivationStep[] = [
     {
       label: "Add your offer (reward and description)",
@@ -167,7 +180,9 @@ const BusinessDashboard = () => {
     },
     {
       label: "Print your QR code",
-      done: contactStats.sent > 0, // unverifiable; reuse send-progress as proxy
+      done: qrPrinted,
+      onClick: markQrPrinted,
+      actionLabel: "Open QR",
     },
   ];
 
