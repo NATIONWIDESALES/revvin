@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
 import Wordmark from "@/components/brand/Wordmark";
 import { Loader2 } from "lucide-react";
+import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
 
 const Signup = () => {
   const [searchParams] = useSearchParams();
@@ -25,7 +26,11 @@ const Signup = () => {
   const startCheckout = async () => {
     setBusy(true);
     try {
+      // Launch Package is gated behind a feature flag for v1 launch.
+      // When LAUNCH_PACKAGE_ENABLED is false we ignore any stale session flag
+      // so checkout always uses the clean $49/month USD path.
       const includeLaunchPackage =
+        LAUNCH_PACKAGE_ENABLED &&
         typeof window !== "undefined" &&
         window.sessionStorage.getItem("revvin_addon_launch") === "1";
       const { data, error } = await supabase.functions.invoke("create-business-checkout", {
@@ -108,7 +113,7 @@ const Signup = () => {
     <>
       <SEOHead
         title="Start your referral program — Revvin"
-        description="Create your Revvin account and launch a branded referral page for your business. $49/month, cancel anytime."
+        description="Create your Revvin account and launch a branded referral page for your business. $49/month USD, cancel anytime."
         path="/signup"
         noindex
       />
@@ -122,7 +127,7 @@ const Signup = () => {
               Start your referral program
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Create your account, then we'll send you to secure checkout. $49/month, cancel anytime.
+              Create your account, then we'll send you to secure checkout. $49/month USD, cancel anytime.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">

@@ -23,7 +23,7 @@ const Terms = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">2. Platform Overview</h2>
-            <p>Revvin is a pay-per-close referral marketplace that connects businesses seeking customer acquisition ("Businesses") with individuals who provide qualified introductions ("Referrers"). The platform facilitates referral submissions, tracks deal outcomes, coordinates payouts, and provides administrative oversight.</p>
+            <p>Revvin is a referral program platform that connects businesses seeking customer acquisition ("Businesses") with individuals who provide qualified introductions ("Referrers"). Businesses subscribe for a flat monthly fee and receive a branded referral page, lead capture, and dashboard. The platform facilitates referral submissions, tracks deal outcomes, and provides administrative oversight. Revvin does not process referrer payouts; Businesses pay Referrers directly when deals close.</p>
           </section>
 
           <section>

@@ -64,10 +64,10 @@ const Index = () => {
             "@context": "https://schema.org",
             "@type": "FAQPage",
             mainEntity: [
-              { "@type": "Question", name: "What if I don't get any referrals?", acceptedAnswer: { "@type": "Answer", text: "Most of our customers get their first referral within the first month by texting their existing client list once. Your page stays live, you can edit your offer anytime, and the leads you do get cost a fraction of an ad-driven lead." } },
+              { "@type": "Question", name: "What if I don't get any referrals?", acceptedAnswer: { "@type": "Answer", text: "Revvin is built so you can prime the pump on day one: text your existing client list with your branded page link, drop the QR on invoices, and add it to your email signature. Your page stays live, you can edit your offer anytime, and any leads you do get cost a fraction of an ad-driven lead." } },
               { "@type": "Question", name: "Does Revvin pay the referrers for me?", acceptedAnswer: { "@type": "Answer", text: "No. Revvin is the infrastructure — your branded page, lead capture, and dashboard. You pay referrers directly when the deal closes, in whatever way works for your business." } },
-              { "@type": "Question", name: "How does billing work?", acceptedAnswer: { "@type": "Answer", text: "Pro is $49/month, billed monthly. No contract, no setup fee. Cancel anytime from your billing portal — your page stays live until the end of the period you've already paid for." } },
-              { "@type": "Question", name: "Is there a free tier?", acceptedAnswer: { "@type": "Answer", text: "Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan — no trial, no setup fee." } },
+              { "@type": "Question", name: "How does billing work?", acceptedAnswer: { "@type": "Answer", text: "Pro is $49/month USD, billed monthly to businesses in both the US and Canada. No contract, no setup fee. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for." } },
+              { "@type": "Question", name: "Is there a free tier?", acceptedAnswer: { "@type": "Answer", text: "Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month USD plan with no trial and no setup fee." } },
               { "@type": "Question", name: "Do you have a marketplace where I can browse offers?", acceptedAnswer: { "@type": "Answer", text: "Yes. Listing on the public Revvin marketplace is live and optional — toggle it on in your dashboard so motivated referrers can find your offer. Your own branded referral page works either way." } },
               { "@type": "Question", name: "What if I cancel?", acceptedAnswer: { "@type": "Answer", text: "You can cancel from your Stripe customer portal anytime. Your referral page stays live until the end of the paid period." } },
               { "@type": "Question", name: "What kind of businesses is Revvin for?", acceptedAnswer: { "@type": "Answer", text: "Service businesses where one new customer is worth real money — roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more." } },
@@ -97,7 +97,7 @@ const Index = () => {
                 for your business.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-                Get a branded referral page, QR code, and pipeline CRM to turn your customers into your sales team. Optional: get listed on the REVVIN.CO marketplace where motivated referrers can find your offer. <span className="text-foreground font-medium">$49/month flat.</span>
+                Get a branded referral page, QR code, and pipeline CRM to turn your customers into your sales team. Optional: get listed on the REVVIN.CO marketplace where motivated referrers can find your offer. <span className="text-foreground font-medium">$49/month USD flat.</span>
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
@@ -112,7 +112,7 @@ const Index = () => {
                 </Button>
               </div>
               <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
-                $49/month. Cancel anytime. No contract, no setup fee.
+                $49/month USD. Cancel anytime. No contract, no setup fee.
               </p>
             </div>
 
@@ -368,7 +368,7 @@ const Index = () => {
               </p>
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="text-6xl font-extrabold tracking-tight text-foreground">$49</span>
-                <span className="text-base font-medium text-muted-foreground">/month</span>
+                <span className="text-base font-medium text-muted-foreground">/month USD</span>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">Cancel anytime. No contract. No setup fee.</p>
 
@@ -450,10 +450,10 @@ const Index = () => {
             Frequently asked.
           </h2>
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="q0">
+              <AccordionItem value="q0">
               <AccordionTrigger>What if I don't get any referrals?</AccordionTrigger>
               <AccordionContent>
-                Most of our customers get their first referral within the first month by texting their existing client list once. Your page stays live, you can edit your offer anytime, and the leads you do get cost a fraction of an ad-driven lead.
+                Revvin is built so you can prime the pump on day one: text your existing client list with your branded page link, drop the QR code on invoices, and add it to your email signature. Your page stays live, you can edit your offer anytime, and any leads you do get cost a fraction of an ad-driven lead.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q1">
@@ -465,13 +465,13 @@ const Index = () => {
             <AccordionItem value="q2">
               <AccordionTrigger>How does billing work?</AccordionTrigger>
               <AccordionContent>
-                Pro is $49/month, billed monthly. No contract, no setup fee. Cancel anytime from your billing portal — your page stays live until the end of the period you've already paid for.
+                Pro is $49/month USD, billed monthly to businesses in both the US and Canada. No contract, no setup fee. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q3">
               <AccordionTrigger>Is there a free tier?</AccordionTrigger>
               <AccordionContent>
-                Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan — no trial, no setup fee.
+                Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month USD plan with no trial and no setup fee.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q4">
@@ -507,7 +507,7 @@ const Index = () => {
             Launch your referral program <span className="shimmer-text">today.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-            $49/month. Cancel anytime. No contract.
+            $49/month USD. Cancel anytime. No contract.
           </p>
           <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
             <Link to="/signup">Start your referral program</Link>

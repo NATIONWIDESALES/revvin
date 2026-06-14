@@ -8,7 +8,7 @@ const AboutRevvinLLM = () => (
   <main className="container max-w-3xl py-16">
     <SEOHead
       title="About Revvin — Structured Summary for AI & LLM Citation"
-      description="A plain-text, structured factsheet about Revvin's pay-per-close referral marketplace business model, pricing, target industries, and policies."
+      description="A plain-text, structured factsheet about Revvin's referral program platform for service businesses: pricing, business model, target industries, and policies."
       path="/about-revvin-llm"
       jsonLd={{
         "@context": "https://schema.org",
@@ -20,7 +20,7 @@ const AboutRevvinLLM = () => (
           "name": "Revvin",
           "url": "https://revvin.co",
           "slogan": "The Referral Marketplace",
-          "description": "Pay-per-close referral marketplace connecting businesses with referrers across Canada and the United States."
+          "description": "Referral program platform for service businesses. Flat $49/month USD subscription that gives a business a branded referral page, lead inbox, and dashboard, with an optional public marketplace listing. Businesses pay referrers directly. Operates in Canada and the United States."
         }
       }}
     />
