@@ -86,6 +86,7 @@ const BusinessDashboard = () => {
   const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
   const [contactStats, setContactStats] = useState<{ total: number; sent: number }>({ total: 0, sent: 0 });
   const [qrPrinted, setQrPrinted] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("customers");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { if (user) loadAll(); }, [user]);
@@ -151,10 +152,11 @@ const BusinessDashboard = () => {
 
   const publicUrl = `${window.location.origin}/r/${biz.slug}`;
 
-  const markQrPrinted = () => {
+  const goToQr = () => {
     if (!biz) return;
     localStorage.setItem(`revvin_qr_printed_${biz.id}`, "1");
     setQrPrinted(true);
+    setActiveTab("share");
   };
 
   const activationSteps: ActivationStep[] = [
@@ -181,7 +183,7 @@ const BusinessDashboard = () => {
     {
       label: "Print your QR code",
       done: qrPrinted,
-      onClick: markQrPrinted,
+      onClick: goToQr,
       actionLabel: "Open QR",
     },
   ];
@@ -198,7 +200,7 @@ const BusinessDashboard = () => {
 
       <ActivationChecklist steps={activationSteps} />
 
-      <Tabs defaultValue="customers">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
           <TabsTrigger value="customers">Customers {contactStats.total > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{contactStats.total}</span>}</TabsTrigger>
           <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
