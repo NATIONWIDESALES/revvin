@@ -77,7 +77,7 @@ const Pricing = () => {
             $49/month. Cancel anytime.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            Billed monthly for every customer, in both the US and Canada. No contract, no setup fee, no trial; businesses are billed from day one. Referrers are free.
+            Billed monthly. No contract, no setup fee, no trial, no platform fees. Businesses are billed from day one. Referrers are free.
           </p>
         </div>
       </section>
