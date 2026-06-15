@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { KeyRound, Eye, EyeOff } from "lucide-react";
+import SEOHead from "@/components/SEOHead";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -52,6 +53,8 @@ const ResetPassword = () => {
 
   if (!ready) {
     return (
+      <>
+      <SEOHead title="Reset password | Revvin" description="Reset your Revvin account password." path="/reset-password" noindex />
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center max-w-md px-6">
           <KeyRound className="mx-auto mb-4 h-12 w-12 text-primary" />
@@ -59,10 +62,13 @@ const ResetPassword = () => {
           <p className="text-muted-foreground">Click the link in your email to reset your password. If you've already clicked it, this page will update automatically.</p>
         </div>
       </div>
+      </>
     );
   }
 
   return (
+    <>
+    <SEOHead title="Reset password | Revvin" description="Set a new password for your Revvin account." path="/reset-password" noindex />
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md px-6">
         <div className="text-center mb-8">
@@ -90,6 +96,7 @@ const ResetPassword = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 
