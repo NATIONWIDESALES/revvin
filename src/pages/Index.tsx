@@ -353,6 +353,27 @@ const Index = () => {
                 <p className="mt-0.5 text-xs text-muted-foreground">Cancel or update card anytime.</p>
               </div>
             </div>
+            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><BarChart3 className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Monthly ROI report</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">See the revenue your referrals bring in.</p>
+              </div>
+            </div>
+            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Zap className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Instant lead alerts</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Know the moment a referral comes in.</p>
+              </div>
+            </div>
+            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Users className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">1-click customer import</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Invite your past customers in minutes.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
