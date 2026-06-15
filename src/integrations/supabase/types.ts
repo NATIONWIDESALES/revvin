@@ -812,6 +812,8 @@ export type Database = {
           business_id: string
           created_at: string
           email_notifications_enabled: boolean
+          email_on_closed_deal: boolean
+          email_on_new_lead: boolean
           id: string
           notification_email: string | null
           notification_phone: string | null
@@ -822,6 +824,8 @@ export type Database = {
           business_id: string
           created_at?: string
           email_notifications_enabled?: boolean
+          email_on_closed_deal?: boolean
+          email_on_new_lead?: boolean
           id?: string
           notification_email?: string | null
           notification_phone?: string | null
@@ -832,6 +836,8 @@ export type Database = {
           business_id?: string
           created_at?: string
           email_notifications_enabled?: boolean
+          email_on_closed_deal?: boolean
+          email_on_new_lead?: boolean
           id?: string
           notification_email?: string | null
           notification_phone?: string | null
