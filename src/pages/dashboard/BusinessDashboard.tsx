@@ -237,7 +237,12 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("leads").update({ status }).eq("id", id);
     if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
-    else reload();
+    else {
+      if (status === "closed_won") {
+        supabase.functions.invoke("notify-deal-closed", { body: { lead_id: id } }).catch(() => {});
+      }
+      reload();
+    }
   };
 
   const saveNotes = async (id: string) => {
