@@ -571,6 +571,7 @@ export type Database = {
           business_id: string
           consent_given: boolean
           created_at: string
+          deal_value: number | null
           id: string
           lead_email: string | null
           lead_name: string
@@ -589,6 +590,7 @@ export type Database = {
           business_id: string
           consent_given?: boolean
           created_at?: string
+          deal_value?: number | null
           id?: string
           lead_email?: string | null
           lead_name: string
@@ -607,6 +609,7 @@ export type Database = {
           business_id?: string
           consent_given?: boolean
           created_at?: string
+          deal_value?: number | null
           id?: string
           lead_email?: string | null
           lead_name?: string
@@ -762,6 +765,47 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      monthly_recap_log: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          period_month: string
+          recipient_email: string
+          sent_at: string
+          status: string
+          summary: Json
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          period_month: string
+          recipient_email: string
+          sent_at?: string
+          status?: string
+          summary: Json
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          period_month?: string
+          recipient_email?: string
+          sent_at?: string
+          status?: string
+          summary?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_recap_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_settings: {
         Row: {
@@ -1109,6 +1153,7 @@ export type Database = {
           customer_email: string | null
           customer_name: string
           customer_phone: string | null
+          deal_value: number | null
           file_url: string | null
           flagged_unpaid_at: string | null
           id: string
@@ -1131,6 +1176,7 @@ export type Database = {
           customer_email?: string | null
           customer_name: string
           customer_phone?: string | null
+          deal_value?: number | null
           file_url?: string | null
           flagged_unpaid_at?: string | null
           id?: string
@@ -1153,6 +1199,7 @@ export type Database = {
           customer_email?: string | null
           customer_name?: string
           customer_phone?: string | null
+          deal_value?: number | null
           file_url?: string | null
           flagged_unpaid_at?: string | null
           id?: string
@@ -1538,6 +1585,10 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
+      }
+      fn_get_business_roi: {
+        Args: { p_business_id: string; p_from?: string; p_to?: string }
+        Returns: Json
       }
       fn_is_suppressed: {
         Args: {

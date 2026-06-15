@@ -15,6 +15,7 @@ import QRCodeStyling from "qr-code-styling";
 import { useRef } from "react";
 import CustomersTab from "@/components/dashboard/CustomersTab";
 import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
+import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 
 interface Business {
   id: string;
@@ -51,6 +52,7 @@ interface Lead {
   relationship_to_lead: string | null;
   status: string;
   notes: string | null;
+  deal_value?: number | null;
 }
 
 interface MarketplaceReferral {
@@ -64,6 +66,7 @@ interface MarketplaceReferral {
   payment_status: string;
   payout_amount: number | null;
   offers: { title: string } | null;
+  deal_value?: number | null;
 }
 
 const STATUSES = ["new", "contacted", "in_progress", "closed_won", "closed_lost", "invalid"];
@@ -111,7 +114,7 @@ const BusinessDashboard = () => {
       const [leadRes, refRes, contactRes] = await Promise.all([
         supabase.from("leads").select("*").eq("business_id", b.id).order("created_at", { ascending: false }),
         supabase.from("referrals")
-          .select("id, created_at, customer_name, customer_email, customer_phone, notes, status, payment_status, payout_amount, offers(title)")
+          .select("id, created_at, customer_name, customer_email, customer_phone, notes, status, payment_status, payout_amount, deal_value, offers(title)")
           .eq("business_id", b.id)
           .order("created_at", { ascending: false }),
         (supabase as any).from("referral_contacts").select("id, status").eq("business_id", b.id),
@@ -200,6 +203,8 @@ const BusinessDashboard = () => {
 
       <ActivationChecklist steps={activationSteps} />
 
+      <RoiSummaryCard businessId={biz.id} />
+
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
           <TabsTrigger value="customers">Customers {contactStats.total > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{contactStats.total}</span>}</TabsTrigger>
@@ -239,6 +244,17 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
     const { error } = await supabase.from("leads").update({ notes: editingNotes[id] ?? "" }).eq("id", id);
     if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
     else { toast({ title: "Notes saved" }); reload(); }
+  };
+
+  const saveDealValue = async (id: string, raw: string) => {
+    const v = raw.trim() === "" ? null : Number(raw.replace(/[^0-9.]/g, ""));
+    if (v !== null && (Number.isNaN(v) || v < 0)) {
+      toast({ title: "Enter a valid amount", variant: "destructive" });
+      return;
+    }
+    const { error } = await supabase.from("leads").update({ deal_value: v } as never).eq("id", id);
+    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    else { toast({ title: "Deal value saved" }); reload(); }
   };
 
   const exportCsv = () => {
@@ -312,6 +328,29 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                             <div><span className="text-muted-foreground">What they need:</span> {l.lead_need}</div>
                             <div><span className="text-muted-foreground">Referrer phone:</span> {l.referrer_phone || "—"}</div>
                             <div><span className="text-muted-foreground">Relationship:</span> {l.relationship_to_lead || "—"}</div>
+                            {l.status === "closed_won" && (
+                              <div className="pt-2">
+                                <Label className="text-xs">Deal value (optional)</Label>
+                                <div className="mt-1.5 flex items-center gap-2">
+                                  <span className="text-sm text-muted-foreground">$</span>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    inputMode="decimal"
+                                    defaultValue={l.deal_value ?? ""}
+                                    placeholder="0"
+                                    className="h-9 max-w-[160px]"
+                                    onBlur={(e) => {
+                                      const v = e.target.value;
+                                      const current = l.deal_value == null ? "" : String(l.deal_value);
+                                      if (v !== current) saveDealValue(l.id, v);
+                                    }}
+                                  />
+                                </div>
+                                <p className="mt-1 text-xs text-muted-foreground">Powers your monthly Revvin ROI recap.</p>
+                              </div>
+                            )}
                           </div>
                           <div>
                             <Label className="text-xs">Notes</Label>
@@ -355,6 +394,18 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
       .eq("id", id);
     if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
     else { toast({ title: "Marked as paid" }); reload(); }
+  };
+
+  const saveDealValue = async (id: string, raw: string, current: number | null | undefined) => {
+    const v = raw.trim() === "" ? null : Number(raw.replace(/[^0-9.]/g, ""));
+    if (v !== null && (Number.isNaN(v) || v < 0)) {
+      toast({ title: "Enter a valid amount", variant: "destructive" });
+      return;
+    }
+    if ((v ?? null) === (current ?? null)) return;
+    const { error } = await supabase.from("referrals").update({ deal_value: v } as never).eq("id", id);
+    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    else { toast({ title: "Deal value saved" }); reload(); }
   };
 
   if (referrals.length === 0) {
@@ -428,6 +479,25 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
                           <div><span className="text-muted-foreground">Customer email:</span> {r.customer_email || "—"}</div>
                           <div><span className="text-muted-foreground">Customer phone:</span> {r.customer_phone || "—"}</div>
                           <div><span className="text-muted-foreground">Payout owed:</span> {r.payout_amount ? `$${r.payout_amount}` : "—"}</div>
+                          {r.status === "won" && (
+                            <div className="pt-2">
+                              <Label className="text-xs">Deal value (optional)</Label>
+                              <div className="mt-1.5 flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">$</span>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  inputMode="decimal"
+                                  defaultValue={r.deal_value ?? ""}
+                                  placeholder="0"
+                                  className="h-9 max-w-[160px]"
+                                  onBlur={(e) => saveDealValue(r.id, e.target.value, r.deal_value)}
+                                />
+                              </div>
+                              <p className="mt-1 text-xs text-muted-foreground">Powers your monthly Revvin ROI recap.</p>
+                            </div>
+                          )}
                         </div>
                         <div>
                           <Label className="text-xs">Notes from referrer</Label>
