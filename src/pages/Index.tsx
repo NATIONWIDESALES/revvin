@@ -97,7 +97,7 @@ const Index = () => {
                 for your business.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-                Get a branded referral page, QR code, and pipeline CRM to turn your customers into your sales team. Instant lead alerts and a monthly ROI report keep you in the loop. Optional: get listed on the Revvin marketplace where motivated referrers can find your offer. <span className="text-foreground font-medium">$49/month flat.</span>
+                Get a branded referral page, QR code, and pipeline CRM to turn your customers into your sales team. Optional: get listed on the Revvin marketplace where motivated referrers can find your offer. <span className="text-foreground font-medium">$49/month flat.</span>
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
@@ -282,6 +282,9 @@ const Index = () => {
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
               Everything you need to run a referral program.
             </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
+              Track leads, get instant alerts, and see your monthly ROI — all in one place.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-6 md:grid-rows-[auto_auto_auto]">
