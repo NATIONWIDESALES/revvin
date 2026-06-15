@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
     // Notification settings override + email toggle
     const { data: settingsRows } = await supabase
       .from("notification_settings")
-      .select("email_notifications_enabled, notification_email")
+      .select("email_notifications_enabled, email_on_new_lead, notification_email")
       .eq("business_id", biz.id)
       .limit(1);
     const settings = settingsRows?.[0];
