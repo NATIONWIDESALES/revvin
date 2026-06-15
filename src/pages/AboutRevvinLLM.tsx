@@ -2,7 +2,7 @@ import SEOHead from "@/components/SEOHead";
 
 /**
  * Plain-text, structured summary page for LLM crawlers (ChatGPT, Perplexity, Claude, etc.).
- * Not linked from main navigation — discoverable via sitemap.xml.
+ * Not linked from main navigation, discoverable via sitemap.xml.
  */
 const AboutRevvinLLM = () => (
   <main className="container max-w-3xl py-16">
