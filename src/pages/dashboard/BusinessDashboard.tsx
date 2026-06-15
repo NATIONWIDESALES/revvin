@@ -654,7 +654,14 @@ const ShareTab = ({ biz, publicUrl }: { biz: Business; publicUrl: string }) => {
 const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) => {
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
-  const [notifs, setNotifs] = useState({ email: true, sms: false, notification_email: biz.business_email || "", notification_phone: biz.phone || "" });
+  const [notifs, setNotifs] = useState({
+    email: true,
+    sms: false,
+    email_on_new_lead: true,
+    email_on_closed_deal: true,
+    notification_email: biz.business_email || "",
+    notification_phone: biz.phone || "",
+  });
   const [marketplaceListed, setMarketplaceListed] = useState<boolean>(biz.marketplace_listed ?? true);
   const [savingMarketplace, setSavingMarketplace] = useState(false);
 
@@ -679,7 +686,14 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     (async () => {
       const { data } = await supabase.from("notification_settings").select("*").eq("business_id", biz.id).limit(1);
       const n = data?.[0];
-      if (n) setNotifs({ email: n.email_notifications_enabled, sms: n.sms_notifications_enabled, notification_email: n.notification_email || biz.business_email || "", notification_phone: n.notification_phone || biz.phone || "" });
+      if (n) setNotifs({
+        email: n.email_notifications_enabled,
+        sms: n.sms_notifications_enabled,
+        email_on_new_lead: (n as any).email_on_new_lead ?? true,
+        email_on_closed_deal: (n as any).email_on_closed_deal ?? true,
+        notification_email: n.notification_email || biz.business_email || "",
+        notification_phone: n.notification_phone || biz.phone || "",
+      });
     })();
   }, [biz.id]);
 
@@ -689,9 +703,11 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
       business_id: biz.id,
       email_notifications_enabled: notifs.email,
       sms_notifications_enabled: notifs.sms,
+      email_on_new_lead: notifs.email_on_new_lead,
+      email_on_closed_deal: notifs.email_on_closed_deal,
       notification_email: notifs.notification_email,
       notification_phone: notifs.notification_phone,
-    }, { onConflict: "business_id" });
+    } as never, { onConflict: "business_id" });
     setBusy(false);
     if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
     else toast({ title: "Saved" });
