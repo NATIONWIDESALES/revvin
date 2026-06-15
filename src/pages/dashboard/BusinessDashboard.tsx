@@ -15,6 +15,7 @@ import QRCodeStyling from "qr-code-styling";
 import { useRef } from "react";
 import CustomersTab from "@/components/dashboard/CustomersTab";
 import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
+import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 
 interface Business {
   id: string;
@@ -51,6 +52,7 @@ interface Lead {
   relationship_to_lead: string | null;
   status: string;
   notes: string | null;
+  deal_value?: number | null;
 }
 
 interface MarketplaceReferral {
@@ -64,6 +66,7 @@ interface MarketplaceReferral {
   payment_status: string;
   payout_amount: number | null;
   offers: { title: string } | null;
+  deal_value?: number | null;
 }
 
 const STATUSES = ["new", "contacted", "in_progress", "closed_won", "closed_lost", "invalid"];
@@ -199,6 +202,8 @@ const BusinessDashboard = () => {
       </div>
 
       <ActivationChecklist steps={activationSteps} />
+
+      <RoiSummaryCard businessId={biz.id} />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
