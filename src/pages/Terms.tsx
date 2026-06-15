@@ -6,7 +6,7 @@ import SEOHead from "@/components/SEOHead";
 const Terms = () => {
   return (
     <div className="py-12">
-      <SEOHead title="Terms of Service — Revvin" description="Read Revvin's Terms of Service covering platform usage, referral obligations, payout structure, and dispute resolution for businesses and referrers." path="/terms" />
+      <SEOHead title="Terms of Service | Revvin" description="Read Revvin's Terms of Service covering platform usage, referral obligations, payout structure, and dispute resolution for businesses and referrers." path="/terms" />
       <div className="container max-w-3xl">
         <Button variant="ghost" size="sm" className="gap-1 mb-6" asChild>
           <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>
@@ -45,7 +45,7 @@ const Terms = () => {
           <section>
             <h2 className="text-lg font-bold text-foreground">5. Referrer Obligations</h2>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Referrals must be genuine introductions — not fabricated, purchased, or recycled leads.</li>
+              <li>Referrals must be genuine introductions, not fabricated, purchased, or recycled leads.</li>
               <li>Referrers must have the consent of the referred individual before submitting their information.</li>
               <li>Duplicate submissions are not permitted. First submission wins, timestamped.</li>
               <li>Referrers may not misrepresent the business's services or pricing to the referred individual.</li>
@@ -90,7 +90,7 @@ const Terms = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">12. Governing Law</h2>
-            <p>These Terms are governed by the laws of the Province of British Columbia, Canada, without regard to conflict of law principles. For users in the United States, disputes shall be resolved in accordance with the laws of the State of Delaware. Any disputes shall be resolved through binding arbitration.</p>
+            <p>These Terms are governed by applicable laws, without regard to conflict of law principles. Any disputes shall be resolved through binding arbitration.</p>
           </section>
 
           <section>

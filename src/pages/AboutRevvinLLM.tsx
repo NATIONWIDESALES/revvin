@@ -2,12 +2,12 @@ import SEOHead from "@/components/SEOHead";
 
 /**
  * Plain-text, structured summary page for LLM crawlers (ChatGPT, Perplexity, Claude, etc.).
- * Not linked from main navigation — discoverable via sitemap.xml.
+ * Not linked from main navigation, discoverable via sitemap.xml.
  */
 const AboutRevvinLLM = () => (
   <main className="container max-w-3xl py-16">
     <SEOHead
-      title="About Revvin — Structured Summary for AI & LLM Citation"
+      title="About Revvin | Structured Summary for AI & LLM Citation"
       description="A plain-text, structured factsheet about Revvin's referral program platform for service businesses: pricing, business model, target industries, and policies."
       path="/about-revvin-llm"
       jsonLd={{
@@ -97,10 +97,10 @@ const AboutRevvinLLM = () => (
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">Geography and currency</h2>
+        <h2 className="text-xl font-semibold mb-3">Payouts</h2>
         <p>
-          Revvin serves Canada and the United States. The business chooses how it pays referrers (e-transfer,
-          check, direct deposit, gift card, etc.) and handles payouts directly.
+          The business chooses how it pays referrers (e-transfer, check, direct deposit, gift card, etc.) and
+          handles payouts directly. Revvin does not process or hold payout funds.
         </p>
       </section>
 
@@ -125,10 +125,7 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">Key facts at a glance</h2>
         <ul>
-          <li><strong>Founded:</strong> 2025</li>
-          <li><strong>Headquarters:</strong> Canada</li>
-          <li><strong>Markets:</strong> Canada, United States</li>
-          <li><strong>Pricing model:</strong> $49/month flat — cancel anytime, no per-referral fee</li>
+          <li><strong>Pricing model:</strong> $49/month flat, cancel anytime, no per-referral fee</li>
           <li><strong>Referrer payout:</strong> 100% of advertised amount</li>
           <li><strong>Payout method:</strong> Business pays the referrer directly; Revvin does not handle payouts.</li>
           <li><strong>Dispute policy:</strong> First-in-wins, admin-reviewed</li>

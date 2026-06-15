@@ -6,7 +6,7 @@ import SEOHead from "@/components/SEOHead";
 const Privacy = () => {
   return (
     <div className="py-12">
-      <SEOHead title="Privacy Policy — Revvin" description="Learn how Revvin collects, uses, and protects your personal information across Canada and the United States. PIPEDA and CCPA compliant." path="/privacy" />
+      <SEOHead title="Privacy Policy | Revvin" description="Learn how Revvin collects, uses, and protects your personal information." path="/privacy" />
       <div className="container max-w-3xl">
         <Button variant="ghost" size="sm" className="gap-1 mb-6" asChild>
           <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>
@@ -29,7 +29,7 @@ const Privacy = () => {
               <li>To verify business identities and referrer eligibility.</li>
               <li>To communicate platform updates, referral status changes, and payout notifications.</li>
               <li>To detect and prevent fraudulent activity.</li>
-              <li>To comply with legal obligations in Canada and the United States.</li>
+              <li>To comply with applicable legal obligations.</li>
             </ul>
           </section>
 
@@ -46,7 +46,7 @@ const Privacy = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">4. Cross-Border Data Transfer</h2>
-            <p>Revvin operates in both Canada and the United States. Your data may be processed and stored in either country. By using the platform, you consent to the transfer of your information across borders. We comply with PIPEDA (Canada) and applicable U.S. state privacy laws including CCPA (California).</p>
+            <p>Your data may be processed and stored in jurisdictions other than your own. By using the platform, you consent to the transfer of your information across borders. We apply reasonable safeguards consistent with applicable privacy laws.</p>
           </section>
 
           <section>
@@ -90,7 +90,6 @@ const Privacy = () => {
           <section>
             <h2 className="text-lg font-bold text-foreground">11. Contact</h2>
             <p>For privacy inquiries, contact our Data Protection Officer at <span className="text-primary font-medium">info@revvin.co</span>.</p>
-            <p className="mt-2">Revvin Technologies Inc.<br />Vancouver, BC, Canada</p>
           </section>
         </div>
       </div>

@@ -90,7 +90,7 @@ const ForBusinesses = () => (
 
     {/* Social proof ticker */}
     <section className="py-3 bg-muted/30 border-y border-border overflow-hidden">
-      <MarqueeTicker items={["$49/month flat", "You set the referrer payout", "Pay referrers directly", "Available in Canada & USA", "Cancel anytime"]} />
+      <MarqueeTicker items={["$49/month flat", "You set the referrer payout", "Pay referrers directly", "Cancel anytime"]} />
     </section>
     <section className="py-24 lg:py-32 bg-surface">
       <div className="container">
