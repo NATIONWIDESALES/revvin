@@ -282,6 +282,9 @@ const Index = () => {
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
               Everything you need to run a referral program.
             </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
+              Track leads, get instant alerts, and see your monthly ROI — all in one place.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-6 md:grid-rows-[auto_auto_auto]">
