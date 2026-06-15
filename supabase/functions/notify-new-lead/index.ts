@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
     // Notification settings override + email toggle
     const { data: settingsRows } = await supabase
       .from("notification_settings")
-      .select("email_notifications_enabled, notification_email")
+      .select("email_notifications_enabled, email_on_new_lead, notification_email")
       .eq("business_id", biz.id)
       .limit(1);
     const settings = settingsRows?.[0];
@@ -91,6 +91,24 @@ Deno.serve(async (req) => {
       );
       toEmail = ownerData?.user?.email || null;
     }
+
+    // In-app notification for the owner (independent of email pref).
+    if (biz.user_id) {
+      await supabase.from("notifications").insert({
+        user_id: biz.user_id,
+        title: `New referral: ${lead.lead_name}`,
+        body: `Referred by ${lead.referrer_name}. Reach out today while it's hot.`,
+        type: "referral_submitted",
+      });
+    }
+
+    // Per-channel email preference (defaults true).
+    if (settings && settings.email_on_new_lead === false) {
+      return new Response(JSON.stringify({ ok: true, skipped: "email_on_new_lead_off" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!toEmail) {
       return new Response(JSON.stringify({ ok: true, skipped: "no email" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

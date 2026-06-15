@@ -237,7 +237,12 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("leads").update({ status }).eq("id", id);
     if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
-    else reload();
+    else {
+      if (status === "closed_won") {
+        supabase.functions.invoke("notify-deal-closed", { body: { lead_id: id } }).catch(() => {});
+      }
+      reload();
+    }
   };
 
   const saveNotes = async (id: string) => {
@@ -384,7 +389,12 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("referrals").update({ status }).eq("id", id);
     if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
-    else reload();
+    else {
+      if (status === "won") {
+        supabase.functions.invoke("notify-deal-closed", { body: { referral_id: id } }).catch(() => {});
+      }
+      reload();
+    }
   };
 
   const markAsPaid = async (id: string) => {
@@ -644,7 +654,14 @@ const ShareTab = ({ biz, publicUrl }: { biz: Business; publicUrl: string }) => {
 const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) => {
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
-  const [notifs, setNotifs] = useState({ email: true, sms: false, notification_email: biz.business_email || "", notification_phone: biz.phone || "" });
+  const [notifs, setNotifs] = useState({
+    email: true,
+    sms: false,
+    email_on_new_lead: true,
+    email_on_closed_deal: true,
+    notification_email: biz.business_email || "",
+    notification_phone: biz.phone || "",
+  });
   const [marketplaceListed, setMarketplaceListed] = useState<boolean>(biz.marketplace_listed ?? true);
   const [savingMarketplace, setSavingMarketplace] = useState(false);
 
@@ -669,7 +686,14 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     (async () => {
       const { data } = await supabase.from("notification_settings").select("*").eq("business_id", biz.id).limit(1);
       const n = data?.[0];
-      if (n) setNotifs({ email: n.email_notifications_enabled, sms: n.sms_notifications_enabled, notification_email: n.notification_email || biz.business_email || "", notification_phone: n.notification_phone || biz.phone || "" });
+      if (n) setNotifs({
+        email: n.email_notifications_enabled,
+        sms: n.sms_notifications_enabled,
+        email_on_new_lead: (n as any).email_on_new_lead ?? true,
+        email_on_closed_deal: (n as any).email_on_closed_deal ?? true,
+        notification_email: n.notification_email || biz.business_email || "",
+        notification_phone: n.notification_phone || biz.phone || "",
+      });
     })();
   }, [biz.id]);
 
@@ -679,9 +703,11 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
       business_id: biz.id,
       email_notifications_enabled: notifs.email,
       sms_notifications_enabled: notifs.sms,
+      email_on_new_lead: notifs.email_on_new_lead,
+      email_on_closed_deal: notifs.email_on_closed_deal,
       notification_email: notifs.notification_email,
       notification_phone: notifs.notification_phone,
-    }, { onConflict: "business_id" });
+    } as never, { onConflict: "business_id" });
     setBusy(false);
     if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
     else toast({ title: "Saved" });
@@ -765,6 +791,30 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
         <h3 className="text-sm font-semibold text-foreground mb-4">Lead notifications</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between"><Label className="text-sm">Email notifications</Label><Switch checked={notifs.email} onCheckedChange={(v) => setNotifs((p) => ({ ...p, email: v }))} /></div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm text-foreground">Email me when a new lead arrives</p>
+                <p className="text-xs text-muted-foreground">Instant alert with lead details and a link to the dashboard.</p>
+              </div>
+              <Switch
+                disabled={!notifs.email}
+                checked={notifs.email_on_new_lead}
+                onCheckedChange={(v) => setNotifs((p) => ({ ...p, email_on_new_lead: v }))}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm text-foreground">Email me when a deal closes</p>
+                <p className="text-xs text-muted-foreground">Short congrats note when you mark a referral closed or won.</p>
+              </div>
+              <Switch
+                disabled={!notifs.email}
+                checked={notifs.email_on_closed_deal}
+                onCheckedChange={(v) => setNotifs((p) => ({ ...p, email_on_closed_deal: v }))}
+              />
+            </div>
+          </div>
           <div><Label className="text-xs">Notification email</Label><Input type="email" value={notifs.notification_email} onChange={(e) => setNotifs((p) => ({ ...p, notification_email: e.target.value }))} className="mt-1.5" /></div>
           <div className="flex items-center justify-between"><Label className="text-sm">SMS notifications</Label><Switch checked={notifs.sms} onCheckedChange={(v) => setNotifs((p) => ({ ...p, sms: v }))} /></div>
           <div><Label className="text-xs">Notification phone</Label><Input type="tel" value={notifs.notification_phone} onChange={(e) => setNotifs((p) => ({ ...p, notification_phone: e.target.value }))} className="mt-1.5" /></div>
