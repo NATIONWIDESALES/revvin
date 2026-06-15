@@ -54,7 +54,7 @@ const ResetPassword = () => {
   if (!ready) {
     return (
       <>
-      <SEOHead title="Reset password — Revvin" description="Reset your Revvin account password." path="/reset-password" noindex />
+      <SEOHead title="Reset password | Revvin" description="Reset your Revvin account password." path="/reset-password" noindex />
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center max-w-md px-6">
           <KeyRound className="mx-auto mb-4 h-12 w-12 text-primary" />
@@ -68,7 +68,7 @@ const ResetPassword = () => {
 
   return (
     <>
-    <SEOHead title="Reset password — Revvin" description="Set a new password for your Revvin account." path="/reset-password" noindex />
+    <SEOHead title="Reset password | Revvin" description="Set a new password for your Revvin account." path="/reset-password" noindex />
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md px-6">
         <div className="text-center mb-8">
