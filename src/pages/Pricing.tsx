@@ -20,9 +20,12 @@ const proFeatures = [
   "Lead dashboard",
   "QR code (PNG + print)",
   "Shareable link",
-  "Email and SMS lead notifications",
+  "Email and in-app lead notifications",
   "Edit your offer anytime",
   "Stripe billing portal",
+  "Monthly ROI report, see the revenue your referrals bring in",
+  "Instant lead alerts, know the moment a referral comes in",
+  "1-click customer import, invite your past customers in minutes",
 ];
 
 const freeFeatures = [
