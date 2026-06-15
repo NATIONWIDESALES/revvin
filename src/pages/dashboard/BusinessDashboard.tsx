@@ -114,7 +114,7 @@ const BusinessDashboard = () => {
       const [leadRes, refRes, contactRes] = await Promise.all([
         supabase.from("leads").select("*").eq("business_id", b.id).order("created_at", { ascending: false }),
         supabase.from("referrals")
-          .select("id, created_at, customer_name, customer_email, customer_phone, notes, status, payment_status, payout_amount, offers(title)")
+          .select("id, created_at, customer_name, customer_email, customer_phone, notes, status, payment_status, payout_amount, deal_value, offers(title)")
           .eq("business_id", b.id)
           .order("created_at", { ascending: false }),
         (supabase as any).from("referral_contacts").select("id, status").eq("business_id", b.id),
