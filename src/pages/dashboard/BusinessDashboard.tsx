@@ -791,6 +791,30 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
         <h3 className="text-sm font-semibold text-foreground mb-4">Lead notifications</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between"><Label className="text-sm">Email notifications</Label><Switch checked={notifs.email} onCheckedChange={(v) => setNotifs((p) => ({ ...p, email: v }))} /></div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm text-foreground">Email me when a new lead arrives</p>
+                <p className="text-xs text-muted-foreground">Instant alert with lead details and a link to the dashboard.</p>
+              </div>
+              <Switch
+                disabled={!notifs.email}
+                checked={notifs.email_on_new_lead}
+                onCheckedChange={(v) => setNotifs((p) => ({ ...p, email_on_new_lead: v }))}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm text-foreground">Email me when a deal closes</p>
+                <p className="text-xs text-muted-foreground">Short congrats note when you mark a referral closed or won.</p>
+              </div>
+              <Switch
+                disabled={!notifs.email}
+                checked={notifs.email_on_closed_deal}
+                onCheckedChange={(v) => setNotifs((p) => ({ ...p, email_on_closed_deal: v }))}
+              />
+            </div>
+          </div>
           <div><Label className="text-xs">Notification email</Label><Input type="email" value={notifs.notification_email} onChange={(e) => setNotifs((p) => ({ ...p, notification_email: e.target.value }))} className="mt-1.5" /></div>
           <div className="flex items-center justify-between"><Label className="text-sm">SMS notifications</Label><Switch checked={notifs.sms} onCheckedChange={(v) => setNotifs((p) => ({ ...p, sms: v }))} /></div>
           <div><Label className="text-xs">Notification phone</Label><Input type="tel" value={notifs.notification_phone} onChange={(e) => setNotifs((p) => ({ ...p, notification_phone: e.target.value }))} className="mt-1.5" /></div>
