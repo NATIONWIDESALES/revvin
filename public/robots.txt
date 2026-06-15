@@ -1,10 +1,16 @@
 User-agent: *
 Allow: /
+Disallow: /dashboard
 Disallow: /dashboard/
+Disallow: /welcome
+Disallow: /auth
+Disallow: /login
+Disallow: /signup
+Disallow: /reset-password
 Disallow: /admin/
 Disallow: /api/
-Disallow: /auth/
 Disallow: /__sa
+Disallow: /__health
 
 # AI crawlers — explicit allow
 User-agent: GPTBot
