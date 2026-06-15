@@ -1,5 +1,5 @@
 export async function isPlatformAdmin(admin: any, user: { id: string; email?: string | null }) {
-  const adminEmails = (Deno.env.get("SUPER_ADMIN_EMAILS") || "sales@nationwidesales.ca")
+  const adminEmails = (Deno.env.get("SUPER_ADMIN_EMAILS") || "")
     .split(",")
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);
