@@ -91,6 +91,24 @@ Deno.serve(async (req) => {
       );
       toEmail = ownerData?.user?.email || null;
     }
+
+    // In-app notification for the owner (independent of email pref).
+    if (biz.user_id) {
+      await supabase.from("notifications").insert({
+        user_id: biz.user_id,
+        title: `New referral: ${lead.lead_name}`,
+        body: `Referred by ${lead.referrer_name}. Reach out today while it's hot.`,
+        type: "referral_submitted",
+      });
+    }
+
+    // Per-channel email preference (defaults true).
+    if (settings && settings.email_on_new_lead === false) {
+      return new Response(JSON.stringify({ ok: true, skipped: "email_on_new_lead_off" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!toEmail) {
       return new Response(JSON.stringify({ ok: true, skipped: "no email" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
