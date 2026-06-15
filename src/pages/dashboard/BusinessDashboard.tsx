@@ -389,7 +389,12 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("referrals").update({ status }).eq("id", id);
     if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
-    else reload();
+    else {
+      if (status === "won") {
+        supabase.functions.invoke("notify-deal-closed", { body: { referral_id: id } }).catch(() => {});
+      }
+      reload();
+    }
   };
 
   const markAsPaid = async (id: string) => {
