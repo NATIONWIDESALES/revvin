@@ -396,6 +396,18 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
     else { toast({ title: "Marked as paid" }); reload(); }
   };
 
+  const saveDealValue = async (id: string, raw: string, current: number | null | undefined) => {
+    const v = raw.trim() === "" ? null : Number(raw.replace(/[^0-9.]/g, ""));
+    if (v !== null && (Number.isNaN(v) || v < 0)) {
+      toast({ title: "Enter a valid amount", variant: "destructive" });
+      return;
+    }
+    if ((v ?? null) === (current ?? null)) return;
+    const { error } = await supabase.from("referrals").update({ deal_value: v } as never).eq("id", id);
+    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    else { toast({ title: "Deal value saved" }); reload(); }
+  };
+
   if (referrals.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-border p-16 text-center">
@@ -467,6 +479,25 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
                           <div><span className="text-muted-foreground">Customer email:</span> {r.customer_email || "—"}</div>
                           <div><span className="text-muted-foreground">Customer phone:</span> {r.customer_phone || "—"}</div>
                           <div><span className="text-muted-foreground">Payout owed:</span> {r.payout_amount ? `$${r.payout_amount}` : "—"}</div>
+                          {r.status === "won" && (
+                            <div className="pt-2">
+                              <Label className="text-xs">Deal value (optional)</Label>
+                              <div className="mt-1.5 flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">$</span>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  inputMode="decimal"
+                                  defaultValue={r.deal_value ?? ""}
+                                  placeholder="0"
+                                  className="h-9 max-w-[160px]"
+                                  onBlur={(e) => saveDealValue(r.id, e.target.value, r.deal_value)}
+                                />
+                              </div>
+                              <p className="mt-1 text-xs text-muted-foreground">Powers your monthly Revvin ROI recap.</p>
+                            </div>
+                          )}
                         </div>
                         <div>
                           <Label className="text-xs">Notes from referrer</Label>
