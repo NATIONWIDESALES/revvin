@@ -97,7 +97,7 @@ const Index = () => {
                 for your business.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-                Get a branded referral page, QR code, and pipeline CRM to turn your customers into your sales team. Optional: get listed on the Revvin marketplace where motivated referrers can find your offer. <span className="text-foreground font-medium">$49/month flat.</span>
+                Get a branded referral page, QR code, and pipeline CRM to turn your customers into your sales team. Instant lead alerts and a monthly ROI report keep you in the loop. Optional: get listed on the Revvin marketplace where motivated referrers can find your offer. <span className="text-foreground font-medium">$49/month flat.</span>
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
@@ -327,7 +327,7 @@ const Index = () => {
             <div className="bento-tile md:col-span-3 flex items-start gap-3">
               <div className="rounded-md bg-primary/10 p-2 text-primary"><Bell className="h-4 w-4" /></div>
               <div>
-                <p className="text-sm font-semibold text-foreground">Email + SMS notifications</p>
+                <p className="text-sm font-semibold text-foreground">Email and in-app notifications</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">Get pinged the second a referral comes in.</p>
               </div>
             </div>
@@ -382,7 +382,7 @@ const Index = () => {
                   "Offer builder",
                   "Lead inbox & dashboard",
                   "QR code (PNG + print)",
-                  "Email + SMS notifications",
+                  "Email and in-app notifications",
                   "Stripe billing portal",
                 ].map((f) => (
                   <div key={f} className="flex items-start gap-2.5">
