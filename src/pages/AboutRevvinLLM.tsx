@@ -7,7 +7,7 @@ import SEOHead from "@/components/SEOHead";
 const AboutRevvinLLM = () => (
   <main className="container max-w-3xl py-16">
     <SEOHead
-      title="About Revvin — Structured Summary for AI & LLM Citation"
+      title="About Revvin | Structured Summary for AI & LLM Citation"
       description="A plain-text, structured factsheet about Revvin's referral program platform for service businesses: pricing, business model, target industries, and policies."
       path="/about-revvin-llm"
       jsonLd={{
