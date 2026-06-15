@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import SEOHead from "@/components/SEOHead";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -20,7 +21,18 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   if (!user) return <Navigate to="/auth" replace />;
   if (requiredRole && userRole !== requiredRole) return <Navigate to="/dashboard" replace />;
 
-  return <>{children}</>;
+  return (
+    <>
+      {/* Private app surface. Force noindex on every authenticated route so
+          dashboards, onboarding, and account pages never end up in search. */}
+      <SEOHead
+        title="Revvin"
+        description="Private Revvin app page."
+        noindex
+      />
+      {children}
+    </>
+  );
 };
 
 export default ProtectedRoute;

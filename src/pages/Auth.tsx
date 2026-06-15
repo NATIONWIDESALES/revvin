@@ -39,6 +39,7 @@ const Auth = () => {
         title="Log In — Revvin"
         description="Log in to your Revvin account to manage your referral program, leads, and payouts."
         path="/auth"
+        noindex
       />
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 hero-gradient flex-col justify-between p-12">
