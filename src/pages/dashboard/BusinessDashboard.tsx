@@ -246,6 +246,17 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
     else { toast({ title: "Notes saved" }); reload(); }
   };
 
+  const saveDealValue = async (id: string, raw: string) => {
+    const v = raw.trim() === "" ? null : Number(raw.replace(/[^0-9.]/g, ""));
+    if (v !== null && (Number.isNaN(v) || v < 0)) {
+      toast({ title: "Enter a valid amount", variant: "destructive" });
+      return;
+    }
+    const { error } = await supabase.from("leads").update({ deal_value: v } as never).eq("id", id);
+    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    else { toast({ title: "Deal value saved" }); reload(); }
+  };
+
   const exportCsv = () => {
     const rows = [
       ["Date","Lead name","Lead phone","Lead email","Need","Referrer name","Referrer email","Referrer phone","Status","Notes"],
@@ -317,6 +328,29 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                             <div><span className="text-muted-foreground">What they need:</span> {l.lead_need}</div>
                             <div><span className="text-muted-foreground">Referrer phone:</span> {l.referrer_phone || "—"}</div>
                             <div><span className="text-muted-foreground">Relationship:</span> {l.relationship_to_lead || "—"}</div>
+                            {l.status === "closed_won" && (
+                              <div className="pt-2">
+                                <Label className="text-xs">Deal value (optional)</Label>
+                                <div className="mt-1.5 flex items-center gap-2">
+                                  <span className="text-sm text-muted-foreground">$</span>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    inputMode="decimal"
+                                    defaultValue={l.deal_value ?? ""}
+                                    placeholder="0"
+                                    className="h-9 max-w-[160px]"
+                                    onBlur={(e) => {
+                                      const v = e.target.value;
+                                      const current = l.deal_value == null ? "" : String(l.deal_value);
+                                      if (v !== current) saveDealValue(l.id, v);
+                                    }}
+                                  />
+                                </div>
+                                <p className="mt-1 text-xs text-muted-foreground">Powers your monthly Revvin ROI recap.</p>
+                              </div>
+                            )}
                           </div>
                           <div>
                             <Label className="text-xs">Notes</Label>
