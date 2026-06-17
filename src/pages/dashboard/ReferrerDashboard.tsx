@@ -17,13 +17,16 @@ import DashboardChecklist from "@/components/DashboardChecklist";
 import ReferralTimeline from "@/components/ReferralTimeline";
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
+  new: { bg: "bg-muted", text: "text-muted-foreground", label: "New" },
   submitted: { bg: "bg-muted", text: "text-muted-foreground", label: "Submitted" },
   accepted: { bg: "bg-primary/10", text: "text-primary", label: "Accepted" },
   contacted: { bg: "bg-blue-100/60", text: "text-blue-700", label: "Contacted" },
   qualified: { bg: "bg-primary/10", text: "text-primary", label: "Qualified" },
   in_progress: { bg: "bg-accent/10", text: "text-accent-foreground", label: "In Progress" },
   won: { bg: "bg-earnings/10", text: "text-earnings", label: "Won" },
+  closed_won: { bg: "bg-earnings/10", text: "text-earnings", label: "Closed won" },
   lost: { bg: "bg-destructive/10", text: "text-destructive", label: "Lost" },
+  closed_lost: { bg: "bg-destructive/10", text: "text-destructive", label: "Closed lost" },
   declined: { bg: "bg-muted", text: "text-muted-foreground", label: "Declined" },
   disputed: { bg: "bg-accent/10", text: "text-accent-foreground", label: "Disputed" },
 };
