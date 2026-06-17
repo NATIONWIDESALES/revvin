@@ -284,6 +284,38 @@ const ReferrerDashboard = () => {
               </div>
             )}
           </motion.div>
+
+          {/* Public-page submissions (leads claimed by email or submitted while logged in) */}
+          {publicLeads.length > 0 && (
+            <motion.div variants={fadeUp} custom={4} className="mt-10">
+              <h2 className="text-lg font-bold mb-2">Direct referrals</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Referrals you submitted through a business's referral page. The business pays you directly when the deal closes.
+              </p>
+              <div className="space-y-3">
+                {publicLeads.map((l: any) => {
+                  const sc = statusConfig[l.status] ?? statusConfig.submitted;
+                  return (
+                    <div key={l.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground truncate">{l.lead_name}</p>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {l.businesses?.name ?? "Business"}
+                            {l.lead_need ? ` • ${l.lead_need}` : ""}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Submitted {new Date(l.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Badge className={`${sc.bg} ${sc.text} border-0`}>{sc.label}</Badge>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </div>
