@@ -57,10 +57,10 @@ const ReferrerDashboard = () => {
         .order("created_at", { ascending: false });
       setReferrals(refRes.data ?? []);
 
-      const leadsRes = await supabase
+      const leadsRes = await (supabase as any)
         .from("leads")
         .select("id, lead_name, lead_need, status, created_at, business_id, businesses:business_id(name, slug)")
-        .eq("referrer_user_id" as any, user.id)
+        .eq("referrer_user_id", user.id)
         .order("created_at", { ascending: false });
       setPublicLeads((leadsRes.data as any[]) ?? []);
 
