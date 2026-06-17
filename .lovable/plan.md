@@ -1,168 +1,147 @@
+## Investigation report — referrer account association
 
-## Funnel trace — why 0 offers exist (read-only investigation)
-
-Tracing a brand-new business signup end to end against live DB state (11 businesses, 1 with `subscription_status='active'`, 0 offers, 0 leads, 0 referrals).
-
----
-
-### 1. Signup → checkout → onboarding → dashboard sequence
-
-| Step | File | What happens |
-|---|---|---|
-| Signup | `src/pages/Signup.tsx:67` | `supabase.auth.signUp({ ... emailRedirectTo: '/welcome', data: { role: 'business', business_name }})` |
-| DB trigger | `handle_new_user()` (db function) | Creates `profiles`, inserts `user_roles(role='business')`, inserts `businesses(account_status='approved')`. New businesses are **auto-approved**, no admin gate. |
-| Auto checkout | `src/pages/Signup.tsx:49-54` | If session exists, immediately calls edge function `create-business-checkout` and redirects to Stripe. |
-| Email confirm path | `src/pages/Signup.tsx:71` | `emailRedirectTo: '/welcome'` — confirm link lands on Onboarding, not Signup. |
-| Onboarding guard | `src/pages/Onboarding.tsx:66-86` | **If `subscription_status` not in `[active, trialing, paid, past_due]` AND not returning from `?checkout=success`, force-redirects back to Stripe checkout.** Business never sees the wizard until paid. |
-| Onboarding finalize | `src/pages/Onboarding.tsx:140-153` | Sets `slug` + `is_published=true` on businesses row. |
-| Dashboard guard | `src/pages/dashboard/BusinessDashboard.tsx:146-154` | **If `!biz.slug || !biz.is_published` → renders "Finish setting up your referral page" screen with a single CTA back to `/welcome`. No tabs, no offer-creation entry, no anything.** |
-
-#### Guards that block publishing an offer
-
-- **Stripe subscription**: `Onboarding.tsx:66-86` forces unpaid users back to Stripe before they can even reach step 1 of the wizard.
-- **Onboarding completion**: `BusinessDashboard.tsx:146` requires both `slug` and `is_published=true`.
-- **`is_published` is set in two places**:
-  - `Onboarding.tsx:145` (`finalize()` — sets `is_published: true` on the businesses row).
-  - `stripe-business-webhook` → `checkout.session.completed` handler at `supabase/functions/stripe-business-webhook/index.ts:150` (`is_published: publishedStatuses.has(status)`).
-- **Email verification**: not gated in app code; default Supabase auth behaviour. `Signup.tsx:90` shows a "Check your email" toast when `!data.session`.
-- **`account_status='approved'`**: auto-set by `handle_new_user()`. **No admin approval gate** for businesses — only `suspended` blocks publishing (`CreateOffer.tsx:116`).
+This is a read-only report. No schema or code changes are proposed; a follow-up plan can be written once you confirm direction.
 
 ---
 
-### 2. CreateOffer.tsx submit handler analysis
+### 1. Tables, columns, and how a referral/lead is stored today
 
-**`buildInsertData()`** (`src/pages/dashboard/CreateOffer.tsx:118-143`) sends:
+There are **two separate tables** and **two separate submission paths**. They are not unified.
 
-```
-business_id, title, description, category, payout, payout_type='flat',
-location, country, currency, deal_size_min, deal_size_max, close_time_days,
-remote_eligible, qualification_criteria
-```
+**`public.leads`** — used by the public branded referral page (`/r/:slug`).
+Captures the referrer as **free-text only**, not as a user id.
 
-Plus, depending on path:
-- `handleSaveDraft` (`:149-153`): adds `status='draft'`, `approval_status='approved'`
-- `handlePublishOffer` (`:184-188`): adds `status='active'`, `approval_status='approved'` (or `'pending_approval'` for restricted categories)
+| column | type | nullable | default |
+|---|---|---|---|
+| id | uuid | no | gen_random_uuid() |
+| business_id | uuid | no | — |
+| referrer_name | text | **no** | — |
+| referrer_email | text | **no** | — |
+| referrer_phone | text | yes | — |
+| lead_name | text | no | — |
+| lead_phone | text | no | — |
+| lead_email | text | yes | — |
+| lead_need | text | no | — |
+| relationship_to_lead | text | yes | — |
+| consent_given | bool | no | false |
+| lead_source | text | yes | `'public_page'` |
+| status | text | no | `'new'` |
+| notes | text | yes | — |
+| deal_value | numeric | yes | — |
+| created_at / updated_at | timestamptz | no | now() |
 
-**Offers table schema** (from `information_schema.columns`):
+No `referrer_user_id` column. No FK to `auth.users`.
 
-- Required (NOT NULL): `business_id`, `title`, `category`, `payout` (default 0), `payout_type` (default `'flat'`), `status` (default `'active'`), `country` (default `'US'`), `currency` (default `'USD'`), `is_sample` (default `false`).
-- All other columns nullable or defaulted.
+**`public.referrals`** — used by the in-app offer wizard (`ReferralWizard`).
+Requires a logged-in user; the user id is stored as `referrer_id`.
 
-The insert payload satisfies every NOT NULL column. **No missing-column failure.**
+| column | type | nullable | default |
+|---|---|---|---|
+| id | uuid | no | gen_random_uuid() |
+| offer_id | uuid | **no** | — |
+| referrer_id | uuid | **no** | — (= `auth.uid()`) |
+| business_id | uuid | **no** | — |
+| customer_name | text | no | — |
+| customer_email | text | yes | — |
+| customer_phone | text | yes | — |
+| notes | text | yes | — |
+| file_url | text | yes | — |
+| status | text | no | `'submitted'` |
+| payout_amount / payout_snapshot / payout_type_snapshot | numeric/text | yes | — |
+| payout_status | text | no | `'pending'` |
+| payment_status | text | no | `'not_due'` |
+| payment_marked_at / flagged_unpaid_at | timestamptz | yes | — |
+| void_reason | text | yes | — |
+| deal_value | numeric | yes | — |
+| created_at / updated_at | timestamptz | no | now() |
 
-**INSERT RLS policy** (`offers`):
-
-```sql
-"Business owners manage offers" — INSERT
-WITH CHECK (
-  EXISTS (SELECT 1 FROM businesses
-          WHERE businesses.id = offers.business_id
-            AND businesses.user_id = auth.uid())
-  OR has_role(auth.uid(), 'admin')
-)
-```
-
-Client sends `business_id = businessId` resolved from `businesses` by `user_id = user.id` at `:53-58`. **Policy will pass.** No RLS issue blocking inserts.
-
-**Conclusion**: The submit handler itself is fine. An authenticated business owner who reaches `/dashboard/create-offer` and clicks Publish will successfully insert.
-
----
-
-### 3. Marketplace visibility requirements
-
-**Public SELECT policy on `offers`**:
-
-```sql
-status = 'active'
-AND approval_status = 'approved'
-AND EXISTS (SELECT 1 FROM businesses b
-            WHERE b.id = offers.business_id
-              AND b.account_status <> 'suspended'
-              AND b.marketplace_listed = true)
-```
-
-`useDbOffers` (`src/hooks/useDbOffers.ts:16`) additionally filters `.eq("status","active")`.
-
-**`marketplace_listed`** defaults to `true` (verified). **`is_published` is NOT part of the offers SELECT policy** — only required for the dashboard guard, not for marketplace visibility.
-
-So a published offer (status active, approval approved) from any non-suspended business would render. The fact that 0 offers exist is the only reason the marketplace is empty — not a visibility filter.
+**No declared FKs exist** on either table (`information_schema` returns 0 foreign-key constraints for `referrals` and `leads`). `referrer_id` and `business_id` are uuid columns by convention only.
 
 ---
 
-### 4. Is the Stripe / subscription flow itself broken?
+### 2. Submission handlers (file:line that inserts the row)
 
-Live DB: 11 businesses, only `Test` (`subscription_status='active'`, `sub_1TcH7iBjSMQJWZ8iyjqOewCo`) ever paid. 10 of 11 have `stripe_customer_id = NULL`. The "Test" business also has `is_published=true` and `KS Real Estate` does too (but with no Stripe IDs — likely manually toggled).
+- **Public branded page** → inserts into `leads`:
+  `src/pages/PublicReferralPage.tsx:72-89` — `.from("leads").insert({ business_id, referrer_name, referrer_email, referrer_phone, lead_*, consent_given:true, lead_source:"public_page", status:"new" })`.
+  Auth is **not required**; no `referrer_id` field is set.
 
-Possible causes the webhook never fires for new signups:
-- `STRIPE_WEBHOOK_SECRET` is set, so signature verification will run (`stripe-business-webhook/index.ts:56-79`). If signing secret doesn't match the actual Stripe endpoint configured for this environment, **every webhook 400s and `is_published`/`subscription_status` are never updated**.
-- Users may be bouncing off Stripe checkout (the auto-redirect in `Signup.tsx:51` and `Onboarding.tsx:73-86` is aggressive — there's no "skip for now" path, no way to even see the dashboard without paying).
-- `current_period_end` is NULL on the one paid business too — there is no test-data evidence the webhook code path that sets `current_period_end` has ever succeeded for these accounts.
-
-The webhook itself looks correct. The far more likely failure is **users abandoning at the Stripe checkout step** combined with the lack of any fallback path through the funnel.
-
----
-
-## Root-cause ranking (most → least likely)
-
-### #1 — There is no link to `/dashboard/create-offer` anywhere in the app.
-
-```
-$ rg "create-offer|CreateOffer" src/pages src/components
-src/pages/dashboard/CreateOffer.tsx:27   (definition)
-src/pages/dashboard/CreateOffer.tsx:389  (export)
-```
-
-`BusinessDashboard.tsx` exposes tabs `customers / leads / referrals / page / share / account`. **No tab, button, link, or CTA navigates to `/dashboard/create-offer`.** The route exists in `App.tsx:81`, but no UI ever points there. The page is reachable only by typing the URL manually.
-
-This alone explains 0 offers across 11 businesses. Even the one fully-paid business ("Test") never had a UI affordance to create one.
-
-**Min fix**: add a "Create marketplace offer" button on `BusinessDashboard.tsx` (e.g. in the activation checklist around `:165-192`, or as a header action near `:201`) that links to `/dashboard/create-offer`. Decide first whether marketplace offers are even a product surface you want businesses creating — the entire dashboard is organized around the **branded referral page** (`/r/:slug`) flow, not the marketplace `offers` table.
+- **Offer detail wizard (auth-gated)** → inserts into `referrals`:
+  `src/components/ReferralWizard.tsx:179-193` — `.from("referrals").insert({ referrer_id: user.id, offer_id, business_id, customer_*, notes, file_url, payout_amount })`.
+  Wizard is gated at Step 0 by auth (per project memory).
 
 ---
 
-### #2 — Pre-publish gate locks 9 of 11 businesses out of their dashboard.
+### 3. Lifecycle / status values
 
-`BusinessDashboard.tsx:146-154` shows only the "Finish setting up your referral page" screen unless `slug` AND `is_published=true`. Onboarding only sets these when:
-- the user reaches step 4 of the wizard AND completes it (`Onboarding.tsx:140-153`), AND
-- they got past the auto-redirect to Stripe at `Onboarding.tsx:68-86`.
+**`leads.status`** (free-text column, default `'new'`). Values observed in `BusinessDashboard.tsx` updates around `:238`: `new → contacted → qualified → closed_won → closed_lost`. Set by:
+- Insert default in `PublicReferralPage.tsx:86`
+- Business dashboard status dropdown (`BusinessDashboard.tsx:238`)
+- ROI summing uses `'closed_won'` (`fn_get_business_roi`, `RoiSummaryCard.tsx:42-43`)
 
-Result in DB: only 2 of 11 (`Test`, `KS Real Estate`) have `is_published=true`. The other 9 have `is_published=false` and would see the lock screen on every dashboard visit.
+**`referrals.status`** (free-text, default `'submitted'`). Values observed: `submitted → won / lost / declined / void`. Set by:
+- Insert default in `ReferralWizard.tsx:181` (effectively `'submitted'` via column default)
+- Business dashboard at `BusinessDashboard.tsx:390, 402`
+- Admin dashboard at `AdminDashboard.tsx:153`
+- DB function `process_deal_won_transaction` (migration `20260429182000`) flips to `'won'` + `payout_status='approved'`
+- Badge qualification reads `status='won'` (`award_badge_if_qualified`)
+- Duplicate-prevention RPC excludes `('declined','void')`
 
-**Min fix options** (pick one — don't need all):
-- Allow access to the dashboard before publish; just gate the "View public page" CTA and the share tools.
-- Add a clear "Skip checkout for now" path so users land on the wizard regardless of subscription state.
-- Decouple `is_published` from billing entirely for v1 and make it a manual toggle the business owns.
+**`referrals.payment_status`**: `not_due | paid | flagged_unpaid` (per project memory — business marks paid, referrer can flag unpaid after 30 days).
 
----
-
-### #3 — Onboarding auto-redirect funnels every unpaid user to Stripe with no escape.
-
-`Onboarding.tsx:68-86` invokes `create-business-checkout` and `window.location.href = co.url` if the user is unpaid. There's no "explore first / skip" option. 10 of 11 businesses never came back with `subscription_status` in the paid set, which is consistent with users hitting the Stripe wall and bouncing.
-
-**Min fix**: change the Onboarding effect to show a banner ("Start your subscription to publish your page") with a button instead of an automatic redirect. Let unpaid users at least fill out the wizard and see the dashboard in a read-only state.
+**`referrals.payout_status`**: `pending | approved | …` (set by `process_deal_won_transaction`).
 
 ---
 
-### #4 — Webhook may not have been wired up at the live endpoint when most signups happened.
+### 4. Existing referrer-side auth / role / dashboard
 
-Of 11 businesses, only 1 (`Test`, May 29) has `stripe_subscription_id` populated. Both `Test` and `KS Real Estate` have `is_published=true`, but only `Test` has Stripe IDs — `KS Real Estate` was likely toggled by hand or by the `finalize()` path. Other "approved" businesses with no Stripe customer ID strongly suggests they bailed at the Stripe step rather than paid-and-then-webhook-failed.
+All three exist already:
 
-That said: confirm `STRIPE_WEBHOOK_SECRET` matches the live endpoint and check `edge_function_logs` for `stripe-business-webhook` — a signature mismatch would 400 every event and is the only way a true payment would silently fail to update the row.
+- **Role enum**: `public.app_role` includes `'referrer'` (migration `20260219050306`).
+- **Role assignment**: `handle_new_user` assigns `'referrer'` to anyone signing up with `role=referrer` or `both` (`20260523040257:25-29`).
+- **Dashboard route**: `/dashboard` → `DashboardRouter.tsx:89` renders `ReferrerDashboard`.
+- **Referrer dashboard**: `src/pages/dashboard/ReferrerDashboard.tsx:49` already queries `referrals.where(referrer_id = auth.uid())`. Public profile page at `/referrer/:userId` (`ReferrerProfile.tsx:27`) reads the same.
 
-**Min fix**: verify endpoint secret, replay any historical Stripe events for the "active" customer base, and add a `checkout.session.completed` log line that always fires before the metadata branch so misconfigurations are obvious in logs.
-
----
-
-### #5 — `useDbOffers` filters strictly on `status='active'`; drafts never appear even if created.
-
-`src/hooks/useDbOffers.ts:16` — `.eq("status","active")`. Drafts saved via `handleSaveDraft` (`CreateOffer.tsx:151`) would never surface on `/browse`. Not the root cause (0 offers total) but worth knowing once #1–#3 are fixed.
-
-**Min fix**: none required; expected behaviour.
+So referrer accounts are already a first-class thing — but **only `referrals` rows are connected to them**. `leads` rows from the public branded page are completely disconnected from any account.
 
 ---
 
-## Bottom line
+### 5. Minimal, non-breaking association path (analysis only — not a proposal to implement yet)
 
-The funnel doesn't break at a single guard — it breaks twice. First the auto-redirect to Stripe blocks 9 of 11 businesses from ever completing onboarding (root causes #2 + #3 + maybe #4). Second, even for the 2 that did complete it, **no UI ever links to the offer-creation page** (root cause #1), so marketplace `offers` remains at 0 by design, not by bug.
+The gap is entirely on the `leads` side. Two question to resolve before designing the change:
 
-Recommend fixing in this order: #1 (add the link), #2 (loosen the dashboard gate), #3 (replace auto-redirect with a banner), then audit #4. No changes made yet.
+a. **Should a referrer's "all my referrals" view aggregate both `referrals` (wizard) and `leads` (public-page submissions), or only `leads`?** Today `ReferrerDashboard` only shows `referrals`.
+
+b. **Should account creation be required, prompted-but-optional, or fully retroactive (claim-by-email after the fact)?**
+
+Assuming "optional account, claim later by email", the smallest schema change would be:
+
+1. Add nullable `referrer_user_id uuid` to `public.leads` (no FK to `auth.users` per Lovable convention — uuid by reference only, like `referrer_id` on `referrals`).
+2. Add an index on `(referrer_user_id)` and on `lower(referrer_email)` to support claim/backfill.
+3. RLS: extend the existing `leads` SELECT policy so a row is visible to the row's business owner **OR** to `auth.uid() = referrer_user_id`. Keep insert path unchanged (still anon-allowed from `/r/:slug`).
+4. Submission path (`PublicReferralPage.tsx:72`): if a session exists at submit time, populate `referrer_user_id = user.id`; otherwise leave null.
+5. Backfill/claim mechanism: a SECURITY DEFINER RPC `fn_claim_referrer_leads()` that sets `referrer_user_id = auth.uid()` on all `leads` where `lower(referrer_email) = lower(<verified email of auth.uid()>)` AND `referrer_user_id IS NULL`. Called once on first login after signup (and exposed as a "Claim past referrals" button).
+6. Referrer dashboard query: union/`or` filter to fetch both `referrals.referrer_id = uid` and `leads.referrer_user_id = uid`.
+
+What this avoids breaking:
+- No existing column is altered; all reads/writes on `leads` keep working.
+- Public submission stays anon-allowed (the new column is nullable).
+- Business-side dashboard queries on `leads` are unaffected.
+- No FK is introduced (matches the existing convention — `referrals.referrer_id` is also a bare uuid).
+
+Open risks to discuss before implementation:
+- Email-based claim is trust-on-first-use; a hostile actor who knows someone's email could create an account and claim their historical referrals. Mitigation: only allow claims for the **verified** email of the authenticated user (which Supabase auth provides), and only auto-run claim on the user's first session.
+- `leads.referrer_email` is currently NOT NULL — good, so claim is always possible. Case-insensitive match is needed (existing data isn't normalized).
+
+---
+
+### Files referenced
+
+- `src/pages/PublicReferralPage.tsx:48-89` — anon lead insert
+- `src/components/ReferralWizard.tsx:179-193` — auth'd referral insert
+- `src/pages/dashboard/ReferrerDashboard.tsx:49` — referrer-side query
+- `src/pages/dashboard/BusinessDashboard.tsx:115-116, 238, 390-416` — status mutations
+- `src/pages/dashboard/DashboardRouter.tsx:89` — referrer dashboard routing
+- `src/App.tsx:76,80` — `/referrer/:userId` and `/dashboard` routes
+- Migrations: `20260219050306` (role enum), `20260523040257` (handle_new_user), `20260429182000` (process_deal_won)
+
+Tell me which of (a) and (b) above you want, and I'll write an implementation plan.

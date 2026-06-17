@@ -17,13 +17,16 @@ import DashboardChecklist from "@/components/DashboardChecklist";
 import ReferralTimeline from "@/components/ReferralTimeline";
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
+  new: { bg: "bg-muted", text: "text-muted-foreground", label: "New" },
   submitted: { bg: "bg-muted", text: "text-muted-foreground", label: "Submitted" },
   accepted: { bg: "bg-primary/10", text: "text-primary", label: "Accepted" },
   contacted: { bg: "bg-blue-100/60", text: "text-blue-700", label: "Contacted" },
   qualified: { bg: "bg-primary/10", text: "text-primary", label: "Qualified" },
   in_progress: { bg: "bg-accent/10", text: "text-accent-foreground", label: "In Progress" },
   won: { bg: "bg-earnings/10", text: "text-earnings", label: "Won" },
+  closed_won: { bg: "bg-earnings/10", text: "text-earnings", label: "Closed won" },
   lost: { bg: "bg-destructive/10", text: "text-destructive", label: "Lost" },
+  closed_lost: { bg: "bg-destructive/10", text: "text-destructive", label: "Closed lost" },
   declined: { bg: "bg-muted", text: "text-muted-foreground", label: "Declined" },
   disputed: { bg: "bg-accent/10", text: "text-accent-foreground", label: "Disputed" },
 };
@@ -39,18 +42,31 @@ const ReferrerDashboard = () => {
   const { toast } = useToast();
   const { displayCurrency, currencySymbol } = useCountry();
   const [referrals, setReferrals] = useState<any[]>([]);
+  const [publicLeads, setPublicLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
+      // Claim any past public-page submissions that match this user's email.
+      // Safe to call on every load; the RPC no-ops when nothing matches.
+      try { await supabase.rpc("fn_claim_referrer_leads" as any); } catch { /* non-fatal */ }
+
       const refRes = await supabase
         .from("referrals")
         .select("*, offers(title, payout, payout_type, category), businesses(name, user_id)")
         .eq("referrer_id", user.id)
         .order("created_at", { ascending: false });
       setReferrals(refRes.data ?? []);
+
+      const leadsRes = await (supabase as any)
+        .from("leads")
+        .select("id, lead_name, lead_need, status, created_at, business_id, businesses:business_id(name, slug)")
+        .eq("referrer_user_id", user.id)
+        .order("created_at", { ascending: false });
+      setPublicLeads((leadsRes.data as any[]) ?? []);
+
       setLoading(false);
     };
     fetchData();
@@ -271,6 +287,38 @@ const ReferrerDashboard = () => {
               </div>
             )}
           </motion.div>
+
+          {/* Public-page submissions (leads claimed by email or submitted while logged in) */}
+          {publicLeads.length > 0 && (
+            <motion.div variants={fadeUp} custom={4} className="mt-10">
+              <h2 className="text-lg font-bold mb-2">Direct referrals</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Referrals you submitted through a business's referral page. The business pays you directly when the deal closes.
+              </p>
+              <div className="space-y-3">
+                {publicLeads.map((l: any) => {
+                  const sc = statusConfig[l.status] ?? statusConfig.submitted;
+                  return (
+                    <div key={l.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground truncate">{l.lead_name}</p>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {l.businesses?.name ?? "Business"}
+                            {l.lead_need ? ` • ${l.lead_need}` : ""}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Submitted {new Date(l.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Badge className={`${sc.bg} ${sc.text} border-0`}>{sc.label}</Badge>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </div>

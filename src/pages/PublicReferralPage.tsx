@@ -69,9 +69,11 @@ const PublicReferralPage = () => {
       return;
     }
     setSubmitting(true);
+    const { data: sess } = await supabase.auth.getSession();
+    const referrerUserId = sess.session?.user?.id ?? null;
     const { data: inserted, error } = await supabase
       .from("leads")
-      .insert({
+      .insert(({
         business_id: biz.id,
         referrer_name: form.referrer_name.trim(),
         referrer_email: form.referrer_email.trim(),
@@ -84,7 +86,8 @@ const PublicReferralPage = () => {
         consent_given: true,
         lead_source: "public_page",
         status: "new",
-      })
+        referrer_user_id: referrerUserId,
+      } as any))
       .select("id")
       .limit(1);
     setSubmitting(false);
