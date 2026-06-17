@@ -69,6 +69,8 @@ const PublicReferralPage = () => {
       return;
     }
     setSubmitting(true);
+    const { data: sess } = await supabase.auth.getSession();
+    const referrerUserId = sess.session?.user?.id ?? null;
     const { data: inserted, error } = await supabase
       .from("leads")
       .insert({
@@ -84,6 +86,7 @@ const PublicReferralPage = () => {
         consent_given: true,
         lead_source: "public_page",
         status: "new",
+        referrer_user_id: referrerUserId,
       })
       .select("id")
       .limit(1);
