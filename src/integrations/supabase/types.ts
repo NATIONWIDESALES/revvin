@@ -582,6 +582,7 @@ export type Database = {
           referrer_email: string
           referrer_name: string
           referrer_phone: string | null
+          referrer_user_id: string | null
           relationship_to_lead: string | null
           status: string
           updated_at: string
@@ -601,6 +602,7 @@ export type Database = {
           referrer_email: string
           referrer_name: string
           referrer_phone?: string | null
+          referrer_user_id?: string | null
           relationship_to_lead?: string | null
           status?: string
           updated_at?: string
@@ -620,6 +622,7 @@ export type Database = {
           referrer_email?: string
           referrer_name?: string
           referrer_phone?: string | null
+          referrer_user_id?: string | null
           relationship_to_lead?: string | null
           status?: string
           updated_at?: string
@@ -1693,6 +1696,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      fn_claim_referrer_leads: { Args: never; Returns: number }
       fn_create_audit_entry:
         | {
             Args: {
