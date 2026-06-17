@@ -39,18 +39,31 @@ const ReferrerDashboard = () => {
   const { toast } = useToast();
   const { displayCurrency, currencySymbol } = useCountry();
   const [referrals, setReferrals] = useState<any[]>([]);
+  const [publicLeads, setPublicLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
+      // Claim any past public-page submissions that match this user's email.
+      // Safe to call on every load; the RPC no-ops when nothing matches.
+      try { await supabase.rpc("fn_claim_referrer_leads" as any); } catch { /* non-fatal */ }
+
       const refRes = await supabase
         .from("referrals")
         .select("*, offers(title, payout, payout_type, category), businesses(name, user_id)")
         .eq("referrer_id", user.id)
         .order("created_at", { ascending: false });
       setReferrals(refRes.data ?? []);
+
+      const leadsRes = await supabase
+        .from("leads")
+        .select("id, lead_name, lead_need, status, created_at, business_id, businesses:business_id(name, slug)")
+        .eq("referrer_user_id" as any, user.id)
+        .order("created_at", { ascending: false });
+      setPublicLeads((leadsRes.data as any[]) ?? []);
+
       setLoading(false);
     };
     fetchData();
