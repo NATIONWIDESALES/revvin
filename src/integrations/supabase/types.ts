@@ -632,6 +632,13 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "leads_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       mock_inquiries: {
@@ -805,6 +812,13 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "monthly_recap_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       notification_settings: {
@@ -850,6 +864,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: true
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1004,6 +1025,13 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "offers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -1091,6 +1119,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_contacts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1228,6 +1263,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
           {
@@ -1488,6 +1530,13 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "unsubscribe_tokens_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_badges: {
@@ -1539,7 +1588,87 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      businesses_public: {
+        Row: {
+          account_status: string | null
+          category: string | null
+          city: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          industry: string | null
+          is_disabled: boolean | null
+          is_published: boolean | null
+          latitude: number | null
+          logo_url: string | null
+          longitude: number | null
+          name: string | null
+          offer_amount: string | null
+          offer_fine_print: string | null
+          offer_trigger: string | null
+          service_area: string | null
+          slug: string | null
+          state: string | null
+          subscription_status: string | null
+          updated_at: string | null
+          user_id: string | null
+          verified: boolean | null
+          website: string | null
+        }
+        Insert: {
+          account_status?: string | null
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          industry?: string | null
+          is_disabled?: boolean | null
+          is_published?: boolean | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          name?: string | null
+          offer_amount?: string | null
+          offer_fine_print?: string | null
+          offer_trigger?: string | null
+          service_area?: string | null
+          slug?: string | null
+          state?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verified?: boolean | null
+          website?: string | null
+        }
+        Update: {
+          account_status?: string | null
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          industry?: string | null
+          is_disabled?: boolean | null
+          is_published?: boolean | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          name?: string | null
+          offer_amount?: string | null
+          offer_fine_print?: string | null
+          offer_trigger?: string | null
+          service_area?: string | null
+          slug?: string | null
+          state?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verified?: boolean | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       award_badge_if_qualified: {
