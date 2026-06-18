@@ -163,19 +163,8 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
         return;
       }
 
-      // Upload attachment if present
-      let fileUrl: string | null = null;
-      if (attachedFile && user) {
-        const filePath = `${user.id}/${Date.now()}-${attachedFile.name}`;
-        const { error: uploadErr } = await supabase.storage
-          .from("referral-attachments")
-          .upload(filePath, attachedFile);
-        if (!uploadErr) {
-          const { data: signedData } = await supabase.storage.from("referral-attachments").createSignedUrl(filePath, 60 * 60 * 24 * 365);
-          fileUrl = signedData?.signedUrl ?? null;
-        }
-      }
-
+      // Insert the referral row first so the storage RLS policy
+      // (which requires an existing referrals row for the uploader) is satisfied.
       const { data: inserted, error } = await supabase
         .from("referrals")
         .insert({
@@ -186,13 +175,30 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           customer_email: formData.email || null,
           customer_phone: formData.phone || null,
           notes: formData.notes || null,
-          file_url: fileUrl,
+          file_url: null,
           payout_amount: offer.payoutType === "flat" ? offer.payout : null,
         })
         .select("id")
         .single();
 
       if (error) throw error;
+
+      // Upload attachment (if any) AFTER the referral row exists, then patch file_url.
+      if (attachedFile && user) {
+        const filePath = `${user.id}/${Date.now()}-${attachedFile.name}`;
+        const { error: uploadErr } = await supabase.storage
+          .from("referral-attachments")
+          .upload(filePath, attachedFile);
+        if (!uploadErr) {
+          const { data: signedData } = await supabase.storage
+            .from("referral-attachments")
+            .createSignedUrl(filePath, 60 * 60 * 24 * 365);
+          const fileUrl = signedData?.signedUrl ?? null;
+          if (fileUrl) {
+            await supabase.from("referrals").update({ file_url: fileUrl }).eq("id", inserted.id);
+          }
+        }
+      }
 
       // Await the notification trigger so the request is not cancelled if the
       // user closes the tab immediately after submitting. The toast + step
