@@ -165,16 +165,19 @@ const Browse = () => {
               <Sparkles className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-bold text-foreground">Featured Offers</h2>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Mobile: horizontal snap scroll. Desktop: grid. */}
+            <div className="-mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:snap-none sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
               {featuredOffers.map((offer) => (
-                <OfferCard key={offer.id} offer={offer} isSample={offer.isSample} isNew={isNewOffer(offer.createdAt)} />
+                <div key={offer.id} className="snap-start shrink-0 w-[78%] sm:w-auto sm:shrink">
+                  <OfferCard offer={offer} isSample={offer.isSample} isNew={isNewOffer(offer.createdAt)} />
+                </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Search bar */}
-        <div className="mb-5 flex flex-col sm:flex-row gap-2">
+        {/* Search bar — sticky on mobile so controls stay reachable while scrolling */}
+        <div className="mb-5 sticky top-14 z-30 -mx-4 px-4 py-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border/60 sm:static sm:mx-0 sm:px-0 sm:py-0 sm:bg-transparent sm:backdrop-blur-none sm:border-0 flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1 min-w-0">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input
@@ -200,7 +203,7 @@ const Browse = () => {
               <Button
                 variant={viewMode === "list" ? "default" : "ghost"}
                 size="icon"
-                className="h-12 w-12"
+                className="h-12 w-12 shrink-0"
                 onClick={() => setViewMode("list")}
                 aria-label="List view"
                 aria-pressed={viewMode === "list"}
@@ -210,7 +213,7 @@ const Browse = () => {
               <Button
                 variant={viewMode === "map" ? "default" : "ghost"}
                 size="icon"
-                className="h-12 w-12"
+                className="h-12 w-12 shrink-0"
                 onClick={() => setViewMode("map")}
                 aria-label="Map view"
                 aria-pressed={viewMode === "map"}
