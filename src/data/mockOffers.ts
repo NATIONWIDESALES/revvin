@@ -3,7 +3,7 @@ import { Offer } from "@/types/offer";
 export const mockOffers: Offer[] = [
   // ===== CANADA =====
   {
-    id: "ca1", title: "Residential Roofing Replacement", business: "NorthShield Roofing", businessLogo: "https://images.unsplash.com/photo-1632823469850-2f77dd9c7d93?w=800&q=80&auto=format&fit=crop", category: "Roofing",
+    id: "ca1", title: "Residential Roofing Replacement", business: "NorthShield Roofing", businessLogo: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=800&q=80&auto=format&fit=crop", category: "Roofing",
     description: "Refer homeowners needing full roof replacements or storm damage repair across Metro Vancouver.",
     payout: 600, payoutType: "flat", currency: "CAD", country: "CA", location: "Vancouver, BC", state: "BC", city: "Vancouver",
     rating: 4.7, totalReferrals: 142, successRate: 64, featured: true,
@@ -21,7 +21,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 20, verified: true, serviceRadius: "30 km",
   },
   {
-    id: "ca3", title: "HVAC Installation & Repair", business: "ComfortAir Systems", businessLogo: "https://images.unsplash.com/photo-1631545806609-cb47f3e87a3a?w=800&q=80&auto=format&fit=crop", category: "HVAC",
+    id: "ca3", title: "HVAC Installation & Repair", business: "ComfortAir Systems", businessLogo: "https://images.unsplash.com/photo-1597047084897-51e81819a499?w=800&q=80&auto=format&fit=crop", category: "HVAC",
     description: "Refer homeowners needing furnace replacement, AC installation, or heat pump upgrades in Burnaby & Coquitlam.",
     payout: 400, payoutType: "flat", currency: "CAD", country: "CA", location: "Burnaby, BC", state: "BC", city: "Burnaby",
     rating: 4.6, totalReferrals: 76, successRate: 58, featured: true,
@@ -75,7 +75,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 50, verified: true, serviceRadius: "Province-wide",
   },
   {
-    id: "ca9", title: "Commercial Roofing & Maintenance", business: "Prairie Roofing Co.", businessLogo: "https://images.unsplash.com/photo-1632823469850-2f77dd9c7d93?w=800&q=80&auto=format&fit=crop", category: "Roofing",
+    id: "ca9", title: "Commercial Roofing & Maintenance", business: "Prairie Roofing Co.", businessLogo: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=800&q=80&auto=format&fit=crop", category: "Roofing",
     description: "Refer commercial property owners or managers needing flat roof repairs, replacements, or maintenance in Calgary.",
     payout: 800, payoutType: "flat", currency: "CAD", country: "CA", location: "Calgary, AB", state: "AB", city: "Calgary",
     rating: 4.6, totalReferrals: 54, successRate: 55, featured: true,
@@ -84,7 +84,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 6, verified: true, serviceRadius: "80 km",
   },
   {
-    id: "ca10", title: "Residential HVAC — Furnace & AC", business: "FlameGuard Heating", businessLogo: "https://images.unsplash.com/photo-1631545806609-cb47f3e87a3a?w=800&q=80&auto=format&fit=crop", category: "HVAC",
+    id: "ca10", title: "Residential HVAC — Furnace & AC", business: "FlameGuard Heating", businessLogo: "https://images.unsplash.com/photo-1597047084897-51e81819a499?w=800&q=80&auto=format&fit=crop", category: "HVAC",
     description: "Refer Calgary homeowners needing furnace replacements, AC units, or ductwork repairs before winter.",
     payout: 350, payoutType: "flat", currency: "CAD", country: "CA", location: "Calgary, AB", state: "AB", city: "Calgary",
     rating: 4.4, totalReferrals: 89, successRate: 62, featured: false,
@@ -138,7 +138,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 15, verified: true, serviceRadius: "50 km",
   },
   {
-    id: "ca16", title: "Pest Control Services", business: "BugShield Canada", businessLogo: "https://images.unsplash.com/photo-1632944968416-ac0ac2fbc6e1?w=800&q=80&auto=format&fit=crop", category: "Services",
+    id: "ca16", title: "Pest Control Services", business: "BugShield Canada", businessLogo: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=800&q=80&auto=format&fit=crop", category: "Services",
     description: "Refer homeowners or businesses needing pest inspection, removal, or prevention in Metro Vancouver.",
     payout: 80, payoutType: "flat", currency: "CAD", country: "CA", location: "Vancouver, BC", state: "BC", city: "Vancouver",
     rating: 4.6, totalReferrals: 134, successRate: 75, featured: false,
@@ -158,7 +158,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 20, verified: true, serviceRadius: "100 mi",
   },
   {
-    id: "us2", title: "Roof Replacement & Repair", business: "TopShield Roofing", businessLogo: "https://images.unsplash.com/photo-1632823469850-2f77dd9c7d93?w=800&q=80&auto=format&fit=crop", category: "Roofing",
+    id: "us2", title: "Roof Replacement & Repair", business: "TopShield Roofing", businessLogo: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=800&q=80&auto=format&fit=crop", category: "Roofing",
     description: "Refer homeowners needing roof repairs or full replacements. All major materials available.",
     payout: 350, payoutType: "flat", currency: "USD", country: "US", location: "Dallas, TX", state: "TX", city: "Dallas",
     rating: 4.6, totalReferrals: 189, successRate: 61, featured: true,
@@ -176,7 +176,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 25, verified: true, serviceRadius: "40 mi",
   },
   {
-    id: "us4", title: "HVAC Installation & Repair", business: "CoolBreeze HVAC", businessLogo: "https://images.unsplash.com/photo-1631545806609-cb47f3e87a3a?w=800&q=80&auto=format&fit=crop", category: "HVAC",
+    id: "us4", title: "HVAC Installation & Repair", business: "CoolBreeze HVAC", businessLogo: "https://images.unsplash.com/photo-1597047084897-51e81819a499?w=800&q=80&auto=format&fit=crop", category: "HVAC",
     description: "Refer homeowners needing AC/heating installation, replacement, or major repairs. All brands serviced.",
     payout: 250, payoutType: "flat", currency: "USD", country: "US", location: "Phoenix, AZ", state: "AZ", city: "Phoenix",
     rating: 4.5, totalReferrals: 210, successRate: 59, featured: false,
