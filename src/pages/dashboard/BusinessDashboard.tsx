@@ -371,7 +371,7 @@ const OffersTab = ({ offers }: { offers: OfferRow[] }) => {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Button variant="ghost" size="sm" asChild>
-                      <Link to={`/dashboard/offers/${o.id}/edit`}>Edit</Link>
+                      <Link to={`/dashboard/edit-offer/${o.id}`}>Edit</Link>
                     </Button>
                   </td>
                 </tr>
