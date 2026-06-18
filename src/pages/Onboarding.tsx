@@ -28,6 +28,9 @@ const Onboarding = () => {
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
+  const [checkoutFailed, setCheckoutFailed] = useState(false);
+  const [retryingCheckout, setRetryingCheckout] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
 
   // Form state
   const [name, setName] = useState("");
@@ -58,6 +61,7 @@ const Onboarding = () => {
       if (b) {
         setBizId(b.id);
         setLaunchPackageStatus(b.launch_package_status || null);
+        setSubscriptionStatus(b.subscription_status || null);
         // Funnel guard: if this business is authenticated but has not paid yet,
         // and they did NOT just come back from a successful checkout, send
         // them straight to Stripe checkout. This keeps the ad-funnel intact
@@ -80,8 +84,15 @@ const Onboarding = () => {
               window.location.href = co.url;
               return;
             }
+            console.warn("[onboarding] checkout returned no url", coErr);
+            setCheckoutFailed(true);
+            setLoading(false);
+            return;
           } catch (err) {
             console.warn("[onboarding] auto-checkout failed", err);
+            setCheckoutFailed(true);
+            setLoading(false);
+            return;
           }
         }
         setName(b.name || "");
@@ -139,6 +150,24 @@ const Onboarding = () => {
 
   const finalize = async () => {
     if (!bizId || !slug || !slugAvailable) return;
+    // Re-check subscription status server-side before publishing.
+    const { data: bizRows } = await supabase
+      .from("businesses")
+      .select("subscription_status")
+      .eq("id", bizId)
+      .limit(1);
+    const liveStatus = bizRows?.[0]?.subscription_status || "";
+    const paidStatuses = ["active", "trialing", "paid", "past_due"];
+    if (!paidStatuses.includes(liveStatus)) {
+      setSubscriptionStatus(liveStatus || null);
+      setCheckoutFailed(true);
+      toast({
+        title: "Subscription required",
+        description: "Complete checkout before publishing your referral page.",
+        variant: "destructive",
+      });
+      return;
+    }
     setSaving(true);
     const { error } = await supabase
       .from("businesses")
@@ -155,6 +184,56 @@ const Onboarding = () => {
 
   if (loading || !user) {
     return <div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  }
+
+  if (checkoutFailed) {
+    const retry = async () => {
+      setRetryingCheckout(true);
+      try {
+        const includeLaunchPackage =
+          typeof window !== "undefined" &&
+          window.sessionStorage.getItem("revvin_addon_launch") === "1";
+        const { data: co, error: coErr } = await supabase.functions.invoke(
+          "create-business-checkout",
+          { body: { includeLaunchPackage } }
+        );
+        if (coErr || !co?.url) throw new Error(coErr?.message || "Checkout unavailable");
+        if (typeof window !== "undefined")
+          window.sessionStorage.removeItem("revvin_addon_launch");
+        window.location.href = co.url;
+      } catch (err: any) {
+        toast({
+          title: "Still could not start checkout",
+          description: err?.message || "Please try again in a moment.",
+          variant: "destructive",
+        });
+        setRetryingCheckout(false);
+      }
+    };
+    return (
+      <>
+        <SEOHead title="Finish checkout — Revvin" description="Complete checkout to activate your Revvin account." path="/welcome" noindex />
+        <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-background p-8 shadow-sm text-center">
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">We could not start checkout</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Your account is created, but billing is not active yet. You need an active subscription before your referral page can go live.
+            </p>
+            {subscriptionStatus && (
+              <p className="mt-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+                Current status: {subscriptionStatus}
+              </p>
+            )}
+            <Button onClick={retry} disabled={retryingCheckout} className="mt-6 w-full h-11">
+              {retryingCheckout ? <Loader2 className="h-4 w-4 animate-spin" /> : "Try checkout again"}
+            </Button>
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              Still stuck? Email <a className="underline" href="mailto:info@revvin.co">info@revvin.co</a>.
+            </p>
+          </div>
+        </div>
+      </>
+    );
   }
 
   return (
