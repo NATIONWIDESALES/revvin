@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
-import { ArrowRight, Check, Bell, Pencil, Smartphone, CreditCard, BarChart3, Zap, Users, Search } from "lucide-react";
+import { ArrowRight, Check, Bell, Pencil, Smartphone, CreditCard, BarChart3, Zap, Users, Search, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Accordion,
@@ -43,9 +43,15 @@ const businessHue = (name: string) => {
 const Index = () => {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [activeLocation, setActiveLocation] = useState("All");
 
   const featuredCategories = useMemo(
     () => ["All", ...Array.from(new Set(FEATURED_OFFERS.map((o) => o.category)))],
+    []
+  );
+
+  const featuredLocations = useMemo(
+    () => ["All", ...Array.from(new Set(FEATURED_OFFERS.map((o) => `${o.city}, ${o.state}`)))],
     []
   );
 
@@ -53,7 +59,8 @@ const Index = () => {
     const q = search.trim().toLowerCase();
     return FEATURED_OFFERS.filter((o) => {
       const matchesCat = activeCategory === "All" || o.category === activeCategory;
-      if (!matchesCat) return false;
+      const matchesLoc = activeLocation === "All" || `${o.city}, ${o.state}` === activeLocation;
+      if (!matchesCat || !matchesLoc) return false;
       if (!q) return true;
       return (
         o.business.toLowerCase().includes(q) ||
@@ -63,7 +70,7 @@ const Index = () => {
         o.desc.toLowerCase().includes(q)
       );
     });
-  }, [search, activeCategory]);
+  }, [search, activeCategory, activeLocation]);
 
   return (
     <>
@@ -190,7 +197,7 @@ const Index = () => {
             </p>
           </div>
 
-          {/* Search + category filter toolbar (sticky on mobile) */}
+          {/* Search + category + location filter toolbar (sticky on mobile) */}
           <div className="sticky top-14 z-30 -mx-4 mb-6 border-y border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none sm:mb-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="relative flex-1">
@@ -219,6 +226,28 @@ const Index = () => {
                       }`}
                     >
                       {c}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <div className="flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+                {featuredLocations.map((loc) => {
+                  const active = loc === activeLocation;
+                  return (
+                    <button
+                      key={loc}
+                      type="button"
+                      onClick={() => setActiveLocation(loc)}
+                      className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        active
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-card text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {loc}
                     </button>
                   );
                 })}
