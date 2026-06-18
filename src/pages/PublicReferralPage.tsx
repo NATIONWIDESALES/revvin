@@ -176,13 +176,30 @@ const PublicReferralPage = () => {
   }
 
   const initial = biz.name.charAt(0).toUpperCase();
-  const hue = brandHueFromName(biz.name);
-  const brand = `hsl(${hue} 70% 38%)`;
-  const brandSoft = `hsl(${hue} 70% 96%)`;
-  const brandBorder = `hsl(${hue} 60% 88%)`;
-  const brandInk = `hsl(${hue} 75% 22%)`;
+  const customBrand = isValidHex(biz.brand_color) ? biz.brand_color.trim() : null;
+  let brand: string;
+  let brandSoft: string;
+  let brandBorder: string;
+  let brandInk: string;
+  if (customBrand) {
+    brand = customBrand;
+    brandSoft = tint(customBrand, "soft");
+    brandBorder = tint(customBrand, "border");
+    brandInk = tint(customBrand, "ink");
+  } else {
+    const hue = brandHueFromName(biz.name);
+    brand = `hsl(${hue} 70% 38%)`;
+    brandSoft = `hsl(${hue} 70% 96%)`;
+    brandBorder = `hsl(${hue} 60% 88%)`;
+    brandInk = `hsl(${hue} 75% 22%)`;
+  }
   const locationLabel = [biz.city, biz.state].filter(Boolean).join(", ") || biz.service_area || null;
   const websiteUrl = biz.website ? normalizeWebsite(biz.website) : null;
+  const testimonials = Array.isArray(biz.testimonials)
+    ? biz.testimonials.filter((t) => t && typeof t.quote === "string" && t.quote.trim().length > 0)
+    : [];
+  const ctaLabel = (biz.referral_cta_label ?? "").trim() || "Submit a referral";
+  const hasCover = !!(biz.cover_image_url && biz.cover_image_url.trim().length > 0);
 
   return (
     <>
