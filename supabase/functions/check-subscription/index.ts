@@ -66,11 +66,12 @@ serve(async (req) => {
     const subscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
 
     // Sync tier to businesses table
-    const { data: biz } = await supabaseClient
+    const { data: bizRows } = await supabaseClient
       .from("businesses")
       .select("id, pricing_tier, stripe_subscription_id")
       .eq("user_id", user.id)
-      .single();
+      .limit(1);
+    const biz = bizRows?.[0];
 
     if (biz && (biz.pricing_tier !== tier || biz.stripe_subscription_id !== sub.id)) {
       await supabaseClient

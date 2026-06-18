@@ -47,9 +47,21 @@ const Signup = () => {
 
   // If already authenticated, kick off checkout immediately.
   useEffect(() => {
-    if (!authLoading && user && searchParams.get("checkout") !== "canceled") {
+    if (authLoading || !user || searchParams.get("checkout") === "canceled") return;
+    (async () => {
+      // Don't re-charge an already-paying business — send them to the dashboard.
+      const { data: bizRows } = await supabase
+        .from("businesses")
+        .select("subscription_status")
+        .eq("user_id", user.id)
+        .limit(1);
+      const status = bizRows?.[0]?.subscription_status || "";
+      if (["active", "trialing", "past_due"].includes(status)) {
+        navigate("/dashboard", { replace: true });
+        return;
+      }
       startCheckout();
-    }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading]);
 
