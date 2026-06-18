@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Copy, ExternalLink, Download, Inbox, AlertCircle, Check } from "lucide-react";
+import { Loader2, Copy, ExternalLink, Download, Inbox, AlertCircle, Check, Plus, Lock } from "lucide-react";
 import QRCodeStyling from "qr-code-styling";
 import { useRef } from "react";
 import CustomersTab from "@/components/dashboard/CustomersTab";
@@ -69,6 +70,16 @@ interface MarketplaceReferral {
   deal_value?: number | null;
 }
 
+interface OfferRow {
+  id: string;
+  title: string;
+  status: string | null;
+  approval_status: string | null;
+  payout: number | string | null;
+  category: string | null;
+  created_at: string;
+}
+
 const STATUSES = ["new", "contacted", "in_progress", "closed_won", "closed_lost", "invalid"];
 const STATUS_LABEL: Record<string, string> = {
   new: "New", contacted: "Contacted", in_progress: "In Progress",
@@ -87,6 +98,7 @@ const BusinessDashboard = () => {
   const [biz, setBiz] = useState<Business | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
+  const [offers, setOffers] = useState<OfferRow[]>([]);
   const [contactStats, setContactStats] = useState<{ total: number; sent: number }>({ total: 0, sent: 0 });
   const [qrPrinted, setQrPrinted] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("customers");
@@ -111,16 +123,21 @@ const BusinessDashboard = () => {
     const b = (bizData?.[0] as Business) ?? null;
     setBiz(b);
     if (b) {
-      const [leadRes, refRes, contactRes] = await Promise.all([
+      const [leadRes, refRes, contactRes, offerRes] = await Promise.all([
         supabase.from("leads").select("*").eq("business_id", b.id).order("created_at", { ascending: false }),
         supabase.from("referrals")
           .select("id, created_at, customer_name, customer_email, customer_phone, notes, status, payment_status, payout_amount, deal_value, offers(title)")
           .eq("business_id", b.id)
           .order("created_at", { ascending: false }),
         (supabase as any).from("referral_contacts").select("id, status").eq("business_id", b.id),
+        supabase.from("offers")
+          .select("id, title, status, approval_status, payout, category, created_at")
+          .eq("business_id", b.id)
+          .order("created_at", { ascending: false }),
       ]);
       setLeads((leadRes.data as Lead[]) ?? []);
       setMarketplaceReferrals((refRes.data as any[] as MarketplaceReferral[]) ?? []);
+      setOffers((offerRes.data as OfferRow[]) ?? []);
       const cdata = (contactRes as any).data as Array<{ id: string; status: string }> | null;
       setContactStats({
         total: cdata?.length ?? 0,
@@ -140,6 +157,14 @@ const BusinessDashboard = () => {
         <p className="text-muted-foreground">No business found.</p>
       </div>
     );
+  }
+
+  // Subscription lock: anything outside active/trialing/past_due is locked out
+  // of the full dashboard with a Reactivate screen.
+  const subStatus = (biz.subscription_status || "").toLowerCase();
+  const subscriptionUnlocked = ["active", "trialing", "past_due"].includes(subStatus);
+  if (!subscriptionUnlocked) {
+    return <SubscriptionLockScreen biz={biz} />;
   }
 
   // Not yet onboarded
@@ -176,6 +201,12 @@ const BusinessDashboard = () => {
       actionLabel: "Upload logo",
     },
     {
+      label: "Create a marketplace offer to attract outside referrers",
+      done: offers.length > 0,
+      href: "/dashboard/create-offer",
+      actionLabel: "Create offer",
+    },
+    {
       label: "Import your customers",
       done: contactStats.total > 0,
     },
@@ -198,7 +229,10 @@ const BusinessDashboard = () => {
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">{biz.name}</h1>
           <p className="text-sm text-muted-foreground mt-1">Your referral program dashboard</p>
         </div>
-        <Button variant="outline" asChild><a href={publicUrl} target="_blank" rel="noopener noreferrer">View public page <ExternalLink className="ml-2 h-3.5 w-3.5" /></a></Button>
+        <div className="flex items-center gap-2">
+          <Button asChild><Link to="/dashboard/create-offer"><Plus className="mr-2 h-3.5 w-3.5" /> Create offer</Link></Button>
+          <Button variant="outline" asChild><a href={publicUrl} target="_blank" rel="noopener noreferrer">View public page <ExternalLink className="ml-2 h-3.5 w-3.5" /></a></Button>
+        </div>
       </div>
 
       <ActivationChecklist steps={activationSteps} />
@@ -209,6 +243,7 @@ const BusinessDashboard = () => {
         <TabsList className="mb-6">
           <TabsTrigger value="customers">Customers {contactStats.total > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{contactStats.total}</span>}</TabsTrigger>
           <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
+          <TabsTrigger value="offers">Offers {offers.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{offers.length}</span>}</TabsTrigger>
           <TabsTrigger value="referrals">Marketplace Referrals {marketplaceReferrals.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{marketplaceReferrals.length}</span>}</TabsTrigger>
           <TabsTrigger value="page">My Page</TabsTrigger>
           <TabsTrigger value="share">Share Tools</TabsTrigger>
@@ -219,11 +254,132 @@ const BusinessDashboard = () => {
           <CustomersTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger }} publicUrl={publicUrl} />
         </TabsContent>
         <TabsContent value="leads"><LeadsTab leads={leads} reload={loadAll} /></TabsContent>
+        <TabsContent value="offers"><OffersTab offers={offers} /></TabsContent>
         <TabsContent value="referrals"><MarketplaceReferralsTab referrals={marketplaceReferrals} reload={loadAll} /></TabsContent>
         <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} /></TabsContent>
         <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} /></TabsContent>
         <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
       </Tabs>
+    </div>
+  );
+};
+
+// ============= SUBSCRIPTION LOCK SCREEN =============
+const SubscriptionLockScreen = ({ biz }: { biz: Business }) => {
+  const { toast } = useToast();
+  const [busy, setBusy] = useState<"checkout" | "portal" | null>(null);
+
+  const startCheckout = async () => {
+    setBusy("checkout");
+    const { data, error } = await supabase.functions.invoke("create-business-checkout", {
+      body: { includeLaunchPackage: false },
+    });
+    if (error || !data?.url) {
+      setBusy(null);
+      toast({ title: "Could not start checkout", description: error?.message, variant: "destructive" });
+      return;
+    }
+    window.location.href = data.url;
+  };
+
+  const openPortal = async () => {
+    setBusy("portal");
+    const { data, error } = await supabase.functions.invoke("customer-portal");
+    setBusy(null);
+    if (error || !data?.url) {
+      toast({ title: "Could not open billing portal", description: error?.message, variant: "destructive" });
+      return;
+    }
+    window.open(data.url, "_blank");
+  };
+
+  const status = biz.subscription_status || "none";
+  const hasStripeCustomer = !!biz.stripe_customer_id;
+
+  return (
+    <div className="container max-w-xl py-16">
+      <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+          <Lock className="h-5 w-5" />
+        </div>
+        <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">Reactivate your subscription</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Your Revvin dashboard is locked because your subscription is not active. Reactivate to restore your referral page, leads, and marketplace offers.
+        </p>
+        <p className="mt-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+          Current status: {status}
+        </p>
+        <div className="mt-6 flex flex-col gap-2">
+          <Button size="lg" className="h-11" onClick={startCheckout} disabled={busy !== null}>
+            {busy === "checkout" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Reactivate ($49/month)"}
+          </Button>
+          {hasStripeCustomer && (
+            <Button variant="outline" onClick={openPortal} disabled={busy !== null}>
+              {busy === "portal" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing in customer portal"}
+            </Button>
+          )}
+        </div>
+        <p className="mt-4 text-[11px] text-muted-foreground">
+          Need help? Email <a className="underline" href="mailto:info@revvin.co">info@revvin.co</a>.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// ============= OFFERS TAB =============
+const OffersTab = ({ offers }: { offers: OfferRow[] }) => {
+  if (offers.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-border p-16 text-center">
+        <Inbox className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
+        <h2 className="text-lg font-semibold text-foreground">No marketplace offers yet</h2>
+        <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+          Create a public offer so outside referrers on the Revvin marketplace can find you and submit referrals.
+        </p>
+        <Button asChild className="mt-6"><Link to="/dashboard/create-offer"><Plus className="mr-2 h-3.5 w-3.5" /> Create your first offer</Link></Button>
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button asChild size="sm"><Link to="/dashboard/create-offer"><Plus className="mr-2 h-3.5 w-3.5" /> Create offer</Link></Button>
+      </div>
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+              <tr>
+                <th className="text-left px-4 py-3 font-medium">Offer</th>
+                <th className="text-left px-4 py-3 font-medium">Category</th>
+                <th className="text-left px-4 py-3 font-medium">Payout</th>
+                <th className="text-left px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {offers.map((o) => (
+                <tr key={o.id} className="border-t border-border hover:bg-muted/30">
+                  <td className="px-4 py-3 font-medium text-foreground">{o.title}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{o.category || "—"}</td>
+                  <td className="px-4 py-3 text-foreground">{o.payout ? `$${o.payout}` : "—"}</td>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex rounded-full bg-muted px-2 py-0.5 text-xs capitalize text-muted-foreground">
+                      {o.approval_status === "approved" ? (o.status || "active") : (o.approval_status || "pending")}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to={`/dashboard/edit-offer/${o.id}`}>Edit</Link>
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
@@ -309,8 +465,8 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
             </thead>
             <tbody>
               {leads.map((l) => (
-                <>
-                  <tr key={l.id} className="border-t border-border hover:bg-muted/30">
+                <React.Fragment key={l.id}>
+                  <tr className="border-t border-border hover:bg-muted/30">
                     <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{new Date(l.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-3"><div className="font-medium text-foreground">{l.lead_name}</div><div className="text-xs text-muted-foreground">{l.lead_phone}</div></td>
                     <td className="px-4 py-3"><div className="text-foreground">{l.referrer_name}</div><div className="text-xs text-muted-foreground">{l.referrer_email}</div></td>
@@ -371,7 +527,7 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                       </td>
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>
@@ -444,8 +600,8 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
           </thead>
           <tbody>
             {referrals.map((r) => (
-              <>
-                <tr key={r.id} className="border-t border-border hover:bg-muted/30">
+              <React.Fragment key={r.id}>
+                <tr className="border-t border-border hover:bg-muted/30">
                   <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{new Date(r.created_at).toLocaleDateString()}</td>
                   <td className="px-4 py-3">
                     <div className="font-medium text-foreground">{r.customer_name}</div>
@@ -517,7 +673,7 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
                     </td>
                   </tr>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </table>
