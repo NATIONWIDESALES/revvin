@@ -15,7 +15,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-roofing-1",
     title: "Residential Roof Replacement Referrals",
     business: "Peak Roofing Solutions",
-    businessLogo: "https://images.unsplash.com/photo-1632823469850-2f77dd9c7d93?w=800&q=80&auto=format&fit=crop",
+    businessLogo: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=800&q=80&auto=format&fit=crop",
     category: "Roofing",
     description:
       "Family-owned roofing company serving Greater Vancouver since 2015. Specializing in residential roof replacements, repairs, and inspections. Licensed, bonded, and insured. BBB A+ rated. Over 500 completed projects.",
@@ -42,7 +42,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-roofing-2",
     title: "Full Roof Replacement Leads",
     business: "Summit Roofing Co.",
-    businessLogo: "https://images.unsplash.com/photo-1632823469850-2f77dd9c7d93?w=800&q=80&auto=format&fit=crop",
+    businessLogo: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=800&q=80&auto=format&fit=crop",
     category: "Roofing",
     description:
       "Toronto's premier roofing contractor. Full replacements, emergency repairs, and annual maintenance programs. GAF Master Elite certified. Free estimates.",
@@ -240,7 +240,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-hvac-1",
     title: "Furnace & AC Installation Referrals",
     business: "AirFlow Comfort Systems",
-    businessLogo: "https://images.unsplash.com/photo-1631545806609-cb47f3e87a3a?w=800&q=80&auto=format&fit=crop",
+    businessLogo: "https://images.unsplash.com/photo-1597047084897-51e81819a499?w=800&q=80&auto=format&fit=crop",
     category: "HVAC",
     description:
       "Licensed HVAC contractor serving the Greater Toronto Area. Furnace installs, central air, heat pumps, and ductless mini-splits. Lennox Premier Dealer. 24/7 emergency service available.",
@@ -267,7 +267,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-hvac-2",
     title: "Home AC & Heating Leads",
     business: "Desert Breeze HVAC",
-    businessLogo: "https://images.unsplash.com/photo-1631545806609-cb47f3e87a3a?w=800&q=80&auto=format&fit=crop",
+    businessLogo: "https://images.unsplash.com/photo-1597047084897-51e81819a499?w=800&q=80&auto=format&fit=crop",
     category: "HVAC",
     description:
       "Phoenix's top-rated HVAC specialists. Central AC, heat pump, and ductwork for residential and light commercial. ROC licensed. Same-day service on most calls.",
@@ -494,7 +494,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-pest-1",
     title: "Residential Pest Control Leads",
     business: "ProShield Pest Control",
-    businessLogo: "https://images.unsplash.com/photo-1632944968416-ac0ac2fbc6e1?w=800&q=80&auto=format&fit=crop",
+    businessLogo: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=800&q=80&auto=format&fit=crop",
     category: "Services",
     description:
       "Houston's trusted pest control specialists. Residential and commercial treatments for termites, rodents, ants, mosquitoes, and wildlife. EPA-certified products. Satisfaction guaranteed.",
