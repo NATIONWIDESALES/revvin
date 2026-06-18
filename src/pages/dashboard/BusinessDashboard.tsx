@@ -465,8 +465,8 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
             </thead>
             <tbody>
               {leads.map((l) => (
-                <>
-                  <tr key={l.id} className="border-t border-border hover:bg-muted/30">
+                <React.Fragment key={l.id}>
+                  <tr className="border-t border-border hover:bg-muted/30">
                     <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{new Date(l.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-3"><div className="font-medium text-foreground">{l.lead_name}</div><div className="text-xs text-muted-foreground">{l.lead_phone}</div></td>
                     <td className="px-4 py-3"><div className="text-foreground">{l.referrer_name}</div><div className="text-xs text-muted-foreground">{l.referrer_email}</div></td>
@@ -527,7 +527,7 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                       </td>
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>
@@ -600,8 +600,8 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
           </thead>
           <tbody>
             {referrals.map((r) => (
-              <>
-                <tr key={r.id} className="border-t border-border hover:bg-muted/30">
+              <React.Fragment key={r.id}>
+                <tr className="border-t border-border hover:bg-muted/30">
                   <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{new Date(r.created_at).toLocaleDateString()}</td>
                   <td className="px-4 py-3">
                     <div className="font-medium text-foreground">{r.customer_name}</div>
@@ -673,7 +673,7 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
                     </td>
                   </tr>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </table>
