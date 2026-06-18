@@ -15,7 +15,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-roofing-1",
     title: "Residential Roof Replacement Referrals",
     business: "Peak Roofing Solutions",
-    businessLogo: "🏠",
+    businessLogo: "https://images.unsplash.com/photo-1632823469850-2f77dd9c7d93?w=800&q=80&auto=format&fit=crop",
     category: "Roofing",
     description:
       "Family-owned roofing company serving Greater Vancouver since 2015. Specializing in residential roof replacements, repairs, and inspections. Licensed, bonded, and insured. BBB A+ rated. Over 500 completed projects.",
@@ -42,7 +42,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-roofing-2",
     title: "Full Roof Replacement Leads",
     business: "Summit Roofing Co.",
-    businessLogo: "🏗️",
+    businessLogo: "https://images.unsplash.com/photo-1632823469850-2f77dd9c7d93?w=800&q=80&auto=format&fit=crop",
     category: "Roofing",
     description:
       "Toronto's premier roofing contractor. Full replacements, emergency repairs, and annual maintenance programs. GAF Master Elite certified. Free estimates.",
@@ -71,7 +71,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-solar-1",
     title: "Residential Solar Panel Installation",
     business: "BrightPath Solar",
-    businessLogo: "☀️",
+    businessLogo: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80&auto=format&fit=crop",
     category: "Energy",
     description:
       "Making solar accessible for California homeowners. We design, install, and maintain residential solar systems with 25-year warranties. Tesla Powerwall certified installer. Financing available.",
@@ -98,7 +98,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-solar-2",
     title: "Solar Panel Systems for Homeowners",
     business: "Northern Sun Energy",
-    businessLogo: "🌞",
+    businessLogo: "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=800&q=80&auto=format&fit=crop",
     category: "Energy",
     description:
       "Alberta's leading residential solar installer. We handle everything from design to permitting to installation. Grid-tied and off-grid systems. Micro-generation credits applied.",
@@ -127,7 +127,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-realestate-1",
     title: "Buyer & Seller Referrals — Greater Vancouver",
     business: "Westside Realty Group",
-    businessLogo: "🏡",
+    businessLogo: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80&auto=format&fit=crop",
     category: "Real Estate",
     description:
       "Full-service real estate brokerage covering Greater Vancouver. Our team of 12 agents has collectively closed over $200M in transactions. Specializing in residential sales, first-time buyers, and luxury properties.",
@@ -154,7 +154,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-realestate-2",
     title: "Residential Buyers & Sellers — GTA",
     business: "Maple Leaf Properties",
-    businessLogo: "🍁",
+    businessLogo: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80&auto=format&fit=crop",
     category: "Real Estate",
     description:
       "Boutique real estate brokerage in the GTA. Personalized service for buyers and sellers in Toronto, Mississauga, Brampton, and surrounding areas. Over $150M in career sales.",
@@ -183,7 +183,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-mortgage-1",
     title: "First-Time Homebuyer Mortgage Referrals",
     business: "TrueNorth Mortgage",
-    businessLogo: "🏦",
+    businessLogo: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80&auto=format&fit=crop",
     category: "Mortgage",
     description:
       "Canada's trusted mortgage brokerage. We work with 30+ lenders to find the best rates for first-time buyers, renewals, and refinances. Licensed across all provinces.",
@@ -211,7 +211,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-mortgage-2",
     title: "Purchase & Refinance Mortgage Leads",
     business: "Pacific Coast Lending",
-    businessLogo: "💰",
+    businessLogo: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80&auto=format&fit=crop",
     category: "Mortgage",
     description:
       "California-based mortgage lender specializing in purchase and refinance loans. Competitive rates, fast approvals, and dedicated loan officers. Licensed by the DFPI.",
@@ -240,7 +240,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-hvac-1",
     title: "Furnace & AC Installation Referrals",
     business: "AirFlow Comfort Systems",
-    businessLogo: "❄️",
+    businessLogo: "https://images.unsplash.com/photo-1631545806609-cb47f3e87a3a?w=800&q=80&auto=format&fit=crop",
     category: "HVAC",
     description:
       "Licensed HVAC contractor serving the Greater Toronto Area. Furnace installs, central air, heat pumps, and ductless mini-splits. Lennox Premier Dealer. 24/7 emergency service available.",
@@ -267,7 +267,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-hvac-2",
     title: "Home AC & Heating Leads",
     business: "Desert Breeze HVAC",
-    businessLogo: "🌡️",
+    businessLogo: "https://images.unsplash.com/photo-1631545806609-cb47f3e87a3a?w=800&q=80&auto=format&fit=crop",
     category: "HVAC",
     description:
       "Phoenix's top-rated HVAC specialists. Central AC, heat pump, and ductwork for residential and light commercial. ROC licensed. Same-day service on most calls.",
@@ -296,7 +296,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-plumbing-1",
     title: "Residential Plumbing Service Referrals",
     business: "Clearwater Plumbing",
-    businessLogo: "🔧",
+    businessLogo: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800&q=80&auto=format&fit=crop",
     category: "Plumbing",
     description:
       "Full-service residential plumbing in the Dallas–Fort Worth metroplex. Water heaters, re-pipes, sewer lines, and fixture installs. Licensed master plumber on every job. 5-star Google rating.",
@@ -323,7 +323,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-plumbing-2",
     title: "Emergency & Renovation Plumbing Leads",
     business: "PipePro Plumbing",
-    businessLogo: "🚿",
+    businessLogo: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800&q=80&auto=format&fit=crop",
     category: "Plumbing",
     description:
       "Vancouver-based plumbing company. Kitchen and bath renovations, drain cleaning, hot water tank replacement, and 24/7 emergency service. WorkSafeBC compliant.",
@@ -352,7 +352,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-insurance-1",
     title: "Home & Auto Insurance Referrals",
     business: "TrueGuard Insurance",
-    businessLogo: "🛡️",
+    businessLogo: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80&auto=format&fit=crop",
     category: "Insurance",
     description:
       "Independent insurance brokerage representing 20+ carriers. We shop rates for home, auto, and umbrella policies. Licensed in all 50 states. Average client saves $600/year.",
@@ -382,7 +382,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-legal-1",
     title: "Personal Injury Case Referrals",
     business: "Hargrove & Associates",
-    businessLogo: "⚖️",
+    businessLogo: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&q=80&auto=format&fit=crop",
     category: "Legal",
     description:
       "Personal injury law firm handling auto accidents, slip and fall, and workplace injuries. No win, no fee. Over $50M recovered for clients. Licensed in California.",
@@ -411,7 +411,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-landscaping-1",
     title: "Seasonal Landscaping Contract Referrals",
     business: "CleanSlate Landscaping",
-    businessLogo: "🌿",
+    businessLogo: "https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&q=80&auto=format&fit=crop",
     category: "Landscaping",
     description:
       "Full-service landscaping and property maintenance for residential and commercial clients in Surrey and surrounding areas. Design, installation, and seasonal maintenance packages.",
@@ -440,7 +440,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-fitness-1",
     title: "Annual Gym Membership Referrals",
     business: "IronWorks Gym",
-    businessLogo: "💪",
+    businessLogo: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80&auto=format&fit=crop",
     category: "Services",
     description:
       "Premium strength and conditioning facility in Maple Ridge. Olympic lifting platforms, powerlifting equipment, personal training, and group classes. Open 5am–11pm daily.",
@@ -466,7 +466,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-fitness-2",
     title: "New Fitness Membership Leads",
     business: "CoreFit Studios",
-    businessLogo: "🏋️",
+    businessLogo: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800&q=80&auto=format&fit=crop",
     category: "Services",
     description:
       "Austin's boutique fitness destination. HIIT, yoga, cycling, and strength classes in a community-focused environment. First class free for all new members.",
@@ -494,7 +494,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-pest-1",
     title: "Residential Pest Control Leads",
     business: "ProShield Pest Control",
-    businessLogo: "🐛",
+    businessLogo: "https://images.unsplash.com/photo-1632944968416-ac0ac2fbc6e1?w=800&q=80&auto=format&fit=crop",
     category: "Services",
     description:
       "Houston's trusted pest control specialists. Residential and commercial treatments for termites, rodents, ants, mosquitoes, and wildlife. EPA-certified products. Satisfaction guaranteed.",
@@ -523,7 +523,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-inspection-1",
     title: "Pre-Purchase Home Inspection Referrals",
     business: "NorthStar Home Inspections",
-    businessLogo: "🔍",
+    businessLogo: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&q=80&auto=format&fit=crop",
     category: "Home Inspection",
     description:
       "Certified home inspectors (CAHPI) serving Greater Vancouver. Pre-purchase, pre-listing, and new build inspections. Detailed same-day reports with thermal imaging.",
@@ -552,7 +552,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
     id: "sample-paving-1",
     title: "Driveway & Parking Lot Paving Leads",
     business: "SmoothRoad Paving",
-    businessLogo: "🛤️",
+    businessLogo: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80&auto=format&fit=crop",
     category: "Paving",
     description:
       "Commercial and residential asphalt paving across the Greater Seattle area. Driveways, parking lots, sealcoating, and patching. Licensed, bonded, and insured.",
