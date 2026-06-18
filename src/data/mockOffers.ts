@@ -3,7 +3,7 @@ import { Offer } from "@/types/offer";
 export const mockOffers: Offer[] = [
   // ===== CANADA =====
   {
-    id: "ca1", title: "Residential Roofing Replacement", business: "NorthShield Roofing", businessLogo: "🏠", category: "Roofing",
+    id: "ca1", title: "Residential Roofing Replacement", business: "NorthShield Roofing", businessLogo: "https://images.unsplash.com/photo-1632823469850-2f77dd9c7d93?w=800&q=80&auto=format&fit=crop", category: "Roofing",
     description: "Refer homeowners needing full roof replacements or storm damage repair across Metro Vancouver.",
     payout: 600, payoutType: "flat", currency: "CAD", country: "CA", location: "Vancouver, BC", state: "BC", city: "Vancouver",
     rating: 4.7, totalReferrals: 142, successRate: 64, featured: true,
@@ -12,7 +12,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 15, verified: true, serviceRadius: "50 km",
   },
   {
-    id: "ca2", title: "Plumbing & Drain Services", business: "AquaFlow Plumbing", businessLogo: "🔧", category: "Plumbing",
+    id: "ca2", title: "Plumbing & Drain Services", business: "AquaFlow Plumbing", businessLogo: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800&q=80&auto=format&fit=crop", category: "Plumbing",
     description: "Refer homeowners or businesses with plumbing emergencies, renovations, or drain issues in Surrey & Langley.",
     payout: 175, payoutType: "flat", currency: "CAD", country: "CA", location: "Surrey, BC", state: "BC", city: "Surrey",
     rating: 4.5, totalReferrals: 98, successRate: 71, featured: false,
@@ -21,7 +21,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 20, verified: true, serviceRadius: "30 km",
   },
   {
-    id: "ca3", title: "HVAC Installation & Repair", business: "ComfortAir Systems", businessLogo: "❄️", category: "HVAC",
+    id: "ca3", title: "HVAC Installation & Repair", business: "ComfortAir Systems", businessLogo: "https://images.unsplash.com/photo-1631545806609-cb47f3e87a3a?w=800&q=80&auto=format&fit=crop", category: "HVAC",
     description: "Refer homeowners needing furnace replacement, AC installation, or heat pump upgrades in Burnaby & Coquitlam.",
     payout: 400, payoutType: "flat", currency: "CAD", country: "CA", location: "Burnaby, BC", state: "BC", city: "Burnaby",
     rating: 4.6, totalReferrals: 76, successRate: 58, featured: true,
@@ -30,7 +30,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 12, verified: true, serviceRadius: "25 km",
   },
   {
-    id: "ca4", title: "Landscaping & Hardscaping", business: "PacificGreen Landscapes", businessLogo: "🌿", category: "Landscaping",
+    id: "ca4", title: "Landscaping & Hardscaping", business: "PacificGreen Landscapes", businessLogo: "https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&q=80&auto=format&fit=crop", category: "Landscaping",
     description: "Refer residential clients for landscape design, lawn care, retaining walls, and patio installations.",
     payout: 200, payoutType: "flat", currency: "CAD", country: "CA", location: "Richmond, BC", state: "BC", city: "Richmond",
     rating: 4.4, totalReferrals: 113, successRate: 52, featured: false,
@@ -39,7 +39,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 18, verified: true, serviceRadius: "40 km",
   },
   {
-    id: "ca5", title: "Asphalt Driveway Paving", business: "Blacktop Pro", businessLogo: "🛣️", category: "Paving",
+    id: "ca5", title: "Asphalt Driveway Paving", business: "Blacktop Pro", businessLogo: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80&auto=format&fit=crop", category: "Paving",
     description: "Refer homeowners needing driveway repaving, sealing, or new asphalt installations in the Fraser Valley.",
     payout: 450, payoutType: "flat", currency: "CAD", country: "CA", location: "Langley, BC", state: "BC", city: "Langley",
     rating: 4.5, totalReferrals: 67, successRate: 60, featured: false,
@@ -48,7 +48,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 8, verified: true, serviceRadius: "60 km",
   },
   {
-    id: "ca6", title: "Home Inspection Services", business: "TrueView Inspections", businessLogo: "🔍", category: "Home Inspection",
+    id: "ca6", title: "Home Inspection Services", business: "TrueView Inspections", businessLogo: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&q=80&auto=format&fit=crop", category: "Home Inspection",
     description: "Refer home buyers or sellers needing professional pre-purchase or pre-listing inspections in Abbotsford.",
     payout: 75, payoutType: "flat", currency: "CAD", country: "CA", location: "Abbotsford, BC", state: "BC", city: "Abbotsford",
     rating: 4.8, totalReferrals: 210, successRate: 82, featured: false,
@@ -57,7 +57,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 30, verified: true, serviceRadius: "50 km",
   },
   {
-    id: "ca7", title: "Mortgage Broker Referrals", business: "Maple Mortgage Group", businessLogo: "🏦", category: "Mortgage",
+    id: "ca7", title: "Mortgage Broker Referrals", business: "Maple Mortgage Group", businessLogo: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80&auto=format&fit=crop", category: "Mortgage",
     description: "Refer first-time buyers or refinance clients to licensed mortgage brokers. Compliance note: FSRA-regulated.",
     payout: 10, payoutType: "flat", currency: "CAD", country: "CA", location: "Toronto, ON", state: "ON", city: "Toronto",
     rating: 4.7, totalReferrals: 289, successRate: 38, featured: true,
@@ -66,7 +66,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net30", monthlyCapacity: 40, verified: true, serviceRadius: "Province-wide",
   },
   {
-    id: "ca8", title: "Insurance Broker — Home & Auto", business: "ShieldNorth Insurance", businessLogo: "🛡️", category: "Insurance",
+    id: "ca8", title: "Insurance Broker — Home & Auto", business: "ShieldNorth Insurance", businessLogo: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80&auto=format&fit=crop", category: "Insurance",
     description: "Refer individuals or families looking for competitive home & auto insurance packages in Ontario.",
     payout: 12, payoutType: "flat", currency: "CAD", country: "CA", location: "Toronto, ON", state: "ON", city: "Toronto",
     rating: 4.5, totalReferrals: 345, successRate: 44, featured: false,
@@ -75,7 +75,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 50, verified: true, serviceRadius: "Province-wide",
   },
   {
-    id: "ca9", title: "Commercial Roofing & Maintenance", business: "Prairie Roofing Co.", businessLogo: "🏗️", category: "Roofing",
+    id: "ca9", title: "Commercial Roofing & Maintenance", business: "Prairie Roofing Co.", businessLogo: "https://images.unsplash.com/photo-1632823469850-2f77dd9c7d93?w=800&q=80&auto=format&fit=crop", category: "Roofing",
     description: "Refer commercial property owners or managers needing flat roof repairs, replacements, or maintenance in Calgary.",
     payout: 800, payoutType: "flat", currency: "CAD", country: "CA", location: "Calgary, AB", state: "AB", city: "Calgary",
     rating: 4.6, totalReferrals: 54, successRate: 55, featured: true,
@@ -84,7 +84,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 6, verified: true, serviceRadius: "80 km",
   },
   {
-    id: "ca10", title: "Residential HVAC — Furnace & AC", business: "FlameGuard Heating", businessLogo: "🔥", category: "HVAC",
+    id: "ca10", title: "Residential HVAC — Furnace & AC", business: "FlameGuard Heating", businessLogo: "https://images.unsplash.com/photo-1631545806609-cb47f3e87a3a?w=800&q=80&auto=format&fit=crop", category: "HVAC",
     description: "Refer Calgary homeowners needing furnace replacements, AC units, or ductwork repairs before winter.",
     payout: 350, payoutType: "flat", currency: "CAD", country: "CA", location: "Calgary, AB", state: "AB", city: "Calgary",
     rating: 4.4, totalReferrals: 89, successRate: 62, featured: false,
@@ -93,7 +93,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 15, verified: true, serviceRadius: "50 km",
   },
   {
-    id: "ca11", title: "Real Estate Photography & Staging", business: "ShowReady Media", businessLogo: "📸", category: "Real Estate",
+    id: "ca11", title: "Real Estate Photography & Staging", business: "ShowReady Media", businessLogo: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80&auto=format&fit=crop", category: "Real Estate",
     description: "Refer real estate agents needing listing photography, drone shots, and virtual staging in Coquitlam area.",
     payout: 100, payoutType: "flat", currency: "CAD", country: "CA", location: "Coquitlam, BC", state: "BC", city: "Coquitlam",
     rating: 4.7, totalReferrals: 178, successRate: 68, featured: false,
@@ -102,7 +102,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 25, verified: true, serviceRadius: "30 km",
   },
   {
-    id: "ca12", title: "Residential Electrician Services", business: "VoltWorks Electrical", businessLogo: "⚡", category: "Services",
+    id: "ca12", title: "Residential Electrician Services", business: "VoltWorks Electrical", businessLogo: "https://images.unsplash.com/photo-1565608087341-404b25492fee?w=800&q=80&auto=format&fit=crop", category: "Services",
     description: "Refer homeowners needing panel upgrades, EV charger installation, or rewiring in Toronto & GTA.",
     payout: 225, payoutType: "flat", currency: "CAD", country: "CA", location: "Toronto, ON", state: "ON", city: "Toronto",
     rating: 4.6, totalReferrals: 112, successRate: 59, featured: false,
@@ -111,7 +111,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 20, verified: true, serviceRadius: "60 km",
   },
   {
-    id: "ca13", title: "Window & Door Replacement", business: "ClearView Windows", businessLogo: "🪟", category: "Services",
+    id: "ca13", title: "Window & Door Replacement", business: "ClearView Windows", businessLogo: "https://images.unsplash.com/photo-1503594384566-461fe158e797?w=800&q=80&auto=format&fit=crop", category: "Services",
     description: "Refer homeowners needing energy-efficient window or door replacements across Calgary & Edmonton.",
     payout: 300, payoutType: "flat", currency: "CAD", country: "CA", location: "Calgary, AB", state: "AB", city: "Calgary",
     rating: 4.5, totalReferrals: 65, successRate: 54, featured: false,
@@ -120,7 +120,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 10, verified: true, serviceRadius: "100 km",
   },
   {
-    id: "ca14", title: "Property Management Leads", business: "UrbanNest Property Mgmt", businessLogo: "🏢", category: "Real Estate",
+    id: "ca14", title: "Property Management Leads", business: "UrbanNest Property Mgmt", businessLogo: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80&auto=format&fit=crop", category: "Real Estate",
     description: "Refer landlords or property investors looking for professional property management in Vancouver.",
     payout: 8, payoutType: "flat", currency: "CAD", country: "CA", location: "Vancouver, BC", state: "BC", city: "Vancouver",
     rating: 4.3, totalReferrals: 47, successRate: 41, featured: false,
@@ -129,7 +129,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net30", monthlyCapacity: 12, verified: true, serviceRadius: "40 km",
   },
   {
-    id: "ca15", title: "Commercial Cleaning — Offices", business: "SparkleNorth Cleaning", businessLogo: "✨", category: "Services",
+    id: "ca15", title: "Commercial Cleaning — Offices", business: "SparkleNorth Cleaning", businessLogo: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=80&auto=format&fit=crop", category: "Services",
     description: "Refer office managers or building owners needing commercial cleaning services in Toronto.",
     payout: 150, payoutType: "flat", currency: "CAD", country: "CA", location: "Toronto, ON", state: "ON", city: "Toronto",
     rating: 4.4, totalReferrals: 88, successRate: 63, featured: false,
@@ -138,7 +138,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 15, verified: true, serviceRadius: "50 km",
   },
   {
-    id: "ca16", title: "Pest Control Services", business: "BugShield Canada", businessLogo: "🐛", category: "Services",
+    id: "ca16", title: "Pest Control Services", business: "BugShield Canada", businessLogo: "https://images.unsplash.com/photo-1632944968416-ac0ac2fbc6e1?w=800&q=80&auto=format&fit=crop", category: "Services",
     description: "Refer homeowners or businesses needing pest inspection, removal, or prevention in Metro Vancouver.",
     payout: 80, payoutType: "flat", currency: "CAD", country: "CA", location: "Vancouver, BC", state: "BC", city: "Vancouver",
     rating: 4.6, totalReferrals: 134, successRate: 75, featured: false,
@@ -149,7 +149,7 @@ export const mockOffers: Offer[] = [
 
   // ===== UNITED STATES =====
   {
-    id: "us1", title: "Home Solar Installation", business: "SunPower Solutions", businessLogo: "☀️", category: "Energy",
+    id: "us1", title: "Home Solar Installation", business: "SunPower Solutions", businessLogo: "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800&q=80&auto=format&fit=crop", category: "Energy",
     description: "Refer homeowners interested in solar panel installation. We handle everything from consultation to installation.",
     payout: 500, payoutType: "flat", currency: "USD", country: "US", location: "Los Angeles, CA", state: "CA", city: "Los Angeles",
     rating: 4.8, totalReferrals: 234, successRate: 72, featured: true,
@@ -158,7 +158,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 20, verified: true, serviceRadius: "100 mi",
   },
   {
-    id: "us2", title: "Roof Replacement & Repair", business: "TopShield Roofing", businessLogo: "🏠", category: "Roofing",
+    id: "us2", title: "Roof Replacement & Repair", business: "TopShield Roofing", businessLogo: "https://images.unsplash.com/photo-1632823469850-2f77dd9c7d93?w=800&q=80&auto=format&fit=crop", category: "Roofing",
     description: "Refer homeowners needing roof repairs or full replacements. All major materials available.",
     payout: 350, payoutType: "flat", currency: "USD", country: "US", location: "Dallas, TX", state: "TX", city: "Dallas",
     rating: 4.6, totalReferrals: 189, successRate: 61, featured: true,
@@ -167,7 +167,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 12, verified: true, serviceRadius: "75 mi",
   },
   {
-    id: "us3", title: "Emergency Plumbing Services", business: "FlowFix Plumbing", businessLogo: "🔧", category: "Plumbing",
+    id: "us3", title: "Emergency Plumbing Services", business: "FlowFix Plumbing", businessLogo: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800&q=80&auto=format&fit=crop", category: "Plumbing",
     description: "Refer homeowners or businesses with plumbing emergencies or renovation projects. 24/7 service available.",
     payout: 125, payoutType: "flat", currency: "USD", country: "US", location: "Seattle, WA", state: "WA", city: "Seattle",
     rating: 4.4, totalReferrals: 167, successRate: 70, featured: false,
@@ -176,7 +176,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 25, verified: true, serviceRadius: "40 mi",
   },
   {
-    id: "us4", title: "HVAC Installation & Repair", business: "CoolBreeze HVAC", businessLogo: "❄️", category: "HVAC",
+    id: "us4", title: "HVAC Installation & Repair", business: "CoolBreeze HVAC", businessLogo: "https://images.unsplash.com/photo-1631545806609-cb47f3e87a3a?w=800&q=80&auto=format&fit=crop", category: "HVAC",
     description: "Refer homeowners needing AC/heating installation, replacement, or major repairs. All brands serviced.",
     payout: 250, payoutType: "flat", currency: "USD", country: "US", location: "Phoenix, AZ", state: "AZ", city: "Phoenix",
     rating: 4.5, totalReferrals: 210, successRate: 59, featured: false,
@@ -185,7 +185,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 15, verified: true, serviceRadius: "60 mi",
   },
   {
-    id: "us5", title: "Landscaping & Lawn Care", business: "GreenScape Design", businessLogo: "🌿", category: "Landscaping",
+    id: "us5", title: "Landscaping & Lawn Care", business: "GreenScape Design", businessLogo: "https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&q=80&auto=format&fit=crop", category: "Landscaping",
     description: "Refer residential and commercial clients for landscaping design, lawn care, and hardscaping.",
     payout: 100, payoutType: "flat", currency: "USD", country: "US", location: "Los Angeles, CA", state: "CA", city: "Los Angeles",
     rating: 4.3, totalReferrals: 156, successRate: 55, featured: false,
@@ -194,7 +194,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 20, verified: true, serviceRadius: "50 mi",
   },
   {
-    id: "us6", title: "Driveway & Patio Paving", business: "StonePath Paving", businessLogo: "🧱", category: "Paving",
+    id: "us6", title: "Driveway & Patio Paving", business: "StonePath Paving", businessLogo: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&q=80&auto=format&fit=crop", category: "Paving",
     description: "Refer homeowners looking for driveway replacements, patio installations, or commercial paving projects.",
     payout: 300, payoutType: "flat", currency: "USD", country: "US", location: "Seattle, WA", state: "WA", city: "Seattle",
     rating: 4.6, totalReferrals: 89, successRate: 52, featured: false,
@@ -203,7 +203,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 10, verified: true, serviceRadius: "60 mi",
   },
   {
-    id: "us7", title: "Business Insurance Quote", business: "ShieldCorp Insurance", businessLogo: "🛡️", category: "Insurance",
+    id: "us7", title: "Business Insurance Quote", business: "ShieldCorp Insurance", businessLogo: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80&auto=format&fit=crop", category: "Insurance",
     description: "Refer small businesses looking for comprehensive insurance packages. Quick approval process.",
     payout: 15, payoutType: "flat", currency: "USD", country: "US", location: "New York, NY", state: "NY", city: "New York",
     rating: 4.6, totalReferrals: 567, successRate: 45, featured: true,
@@ -212,7 +212,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 50, verified: true, serviceRadius: "Nationwide",
   },
   {
-    id: "us8", title: "Mortgage Refinance Leads", business: "PrimeLend Mortgage", businessLogo: "🏦", category: "Mortgage",
+    id: "us8", title: "Mortgage Refinance Leads", business: "PrimeLend Mortgage", businessLogo: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80&auto=format&fit=crop", category: "Mortgage",
     description: "Refer homeowners looking to refinance or first-time buyers needing mortgage pre-approval. NMLS-licensed.",
     payout: 12, payoutType: "flat", currency: "USD", country: "US", location: "Dallas, TX", state: "TX", city: "Dallas",
     rating: 4.7, totalReferrals: 312, successRate: 35, featured: true,
@@ -221,7 +221,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net30", monthlyCapacity: 40, verified: true, serviceRadius: "Statewide",
   },
   {
-    id: "us9", title: "Home Inspection Services", business: "ClearView Inspections", businessLogo: "🔍", category: "Home Inspection",
+    id: "us9", title: "Home Inspection Services", business: "ClearView Inspections", businessLogo: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&q=80&auto=format&fit=crop", category: "Home Inspection",
     description: "Refer home buyers or sellers needing ASHI-certified professional inspections in the Phoenix metro.",
     payout: 60, payoutType: "flat", currency: "USD", country: "US", location: "Phoenix, AZ", state: "AZ", city: "Phoenix",
     rating: 4.8, totalReferrals: 198, successRate: 80, featured: false,
@@ -230,7 +230,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 35, verified: true, serviceRadius: "50 mi",
   },
   {
-    id: "us10", title: "Personal Injury Consultation", business: "JusticeFirst Legal", businessLogo: "⚖️", category: "Legal",
+    id: "us10", title: "Personal Injury Consultation", business: "JusticeFirst Legal", businessLogo: "https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=800&q=80&auto=format&fit=crop", category: "Legal",
     description: "Refer individuals who have suffered personal injury and need legal representation. Free consultations.",
     payout: 500, payoutType: "flat", currency: "USD", country: "US", location: "New York, NY", state: "NY", city: "New York",
     rating: 4.8, totalReferrals: 145, successRate: 40, featured: false,
@@ -239,7 +239,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net30", monthlyCapacity: 15, verified: true, serviceRadius: "Statewide",
   },
   {
-    id: "us11", title: "Premium CRM Software", business: "CloudFlow CRM", businessLogo: "☁️", category: "SaaS",
+    id: "us11", title: "Premium CRM Software", business: "CloudFlow CRM", businessLogo: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80&auto=format&fit=crop", category: "SaaS",
     description: "Refer companies looking for a CRM that scales with their team. Recurring commission on annual contracts.",
     payout: 200, payoutType: "flat", currency: "USD", country: "US", location: "San Francisco, CA", state: "CA", city: "San Francisco",
     rating: 4.9, totalReferrals: 891, successRate: 38, featured: false,
@@ -248,7 +248,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 30, verified: true, serviceRadius: "Nationwide",
   },
   {
-    id: "us12", title: "Commercial Cleaning Services", business: "SparkleClean Pro", businessLogo: "✨", category: "Services",
+    id: "us12", title: "Commercial Cleaning Services", business: "SparkleClean Pro", businessLogo: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=80&auto=format&fit=crop", category: "Services",
     description: "Refer offices and commercial spaces needing regular cleaning services. Long-term contracts available.",
     payout: 150, payoutType: "flat", currency: "USD", country: "US", location: "Dallas, TX", state: "TX", city: "Dallas",
     rating: 4.5, totalReferrals: 123, successRate: 65, featured: false,
@@ -257,7 +257,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 15, verified: true, serviceRadius: "40 mi",
   },
   {
-    id: "us13", title: "Financial Planning Consultation", business: "WealthBridge Advisors", businessLogo: "💰", category: "Finance",
+    id: "us13", title: "Financial Planning Consultation", business: "WealthBridge Advisors", businessLogo: "https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=800&q=80&auto=format&fit=crop", category: "Finance",
     description: "Refer individuals or business owners to certified financial planners. High-value clients preferred.",
     payout: 20, payoutType: "flat", currency: "USD", country: "US", location: "New York, NY", state: "NY", city: "New York",
     rating: 4.8, totalReferrals: 92, successRate: 48, featured: false,
@@ -266,7 +266,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net30", monthlyCapacity: 8, verified: true, serviceRadius: "Tri-State area",
   },
   {
-    id: "us14", title: "IT Managed Services", business: "TechVault Systems", businessLogo: "💻", category: "Technology",
+    id: "us14", title: "IT Managed Services", business: "TechVault Systems", businessLogo: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80&auto=format&fit=crop", category: "Technology",
     description: "Refer businesses looking for managed IT support. Monthly recurring referral bonus.",
     payout: 10, payoutType: "flat", currency: "USD", country: "US", location: "Seattle, WA", state: "WA", city: "Seattle",
     rating: 4.4, totalReferrals: 78, successRate: 42, featured: false,
@@ -275,7 +275,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 10, verified: false, serviceRadius: "Pacific NW",
   },
   {
-    id: "us15", title: "Garage Door Installation & Repair", business: "LiftMaster Doors", businessLogo: "🚪", category: "Services",
+    id: "us15", title: "Garage Door Installation & Repair", business: "LiftMaster Doors", businessLogo: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80&auto=format&fit=crop", category: "Services",
     description: "Refer homeowners needing new garage doors, opener installations, or spring repairs in the Dallas-Fort Worth area.",
     payout: 175, payoutType: "flat", currency: "USD", country: "US", location: "Dallas, TX", state: "TX", city: "Dallas",
     rating: 4.5, totalReferrals: 93, successRate: 67, featured: false,
@@ -284,7 +284,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 20, verified: true, serviceRadius: "50 mi",
   },
   {
-    id: "us16", title: "Bathroom & Kitchen Remodel", business: "DesignBuild Renovations", businessLogo: "🛁", category: "Services",
+    id: "us16", title: "Bathroom & Kitchen Remodel", business: "DesignBuild Renovations", businessLogo: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800&q=80&auto=format&fit=crop", category: "Services",
     description: "Refer homeowners planning bathroom or kitchen renovations. Full design-build service in LA metro.",
     payout: 400, payoutType: "flat", currency: "USD", country: "US", location: "Los Angeles, CA", state: "CA", city: "Los Angeles",
     rating: 4.7, totalReferrals: 68, successRate: 50, featured: false,
@@ -293,7 +293,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 8, verified: true, serviceRadius: "40 mi",
   },
   {
-    id: "us17", title: "Pool Installation & Maintenance", business: "AquaBuild Pools", businessLogo: "🏊", category: "Services",
+    id: "us17", title: "Pool Installation & Maintenance", business: "AquaBuild Pools", businessLogo: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=800&q=80&auto=format&fit=crop", category: "Services",
     description: "Refer homeowners looking for pool installation, renovation, or weekly maintenance in Phoenix metro.",
     payout: 600, payoutType: "flat", currency: "USD", country: "US", location: "Phoenix, AZ", state: "AZ", city: "Phoenix",
     rating: 4.6, totalReferrals: 45, successRate: 58, featured: true,
@@ -302,7 +302,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 5, verified: true, serviceRadius: "50 mi",
   },
   {
-    id: "us18", title: "Moving & Relocation Services", business: "SwiftMove Logistics", businessLogo: "📦", category: "Services",
+    id: "us18", title: "Moving & Relocation Services", business: "SwiftMove Logistics", businessLogo: "https://images.unsplash.com/photo-1600518464441-9154a4dea21b?w=800&q=80&auto=format&fit=crop", category: "Services",
     description: "Refer families or businesses planning local or long-distance moves in the Seattle area.",
     payout: 100, payoutType: "flat", currency: "USD", country: "US", location: "Seattle, WA", state: "WA", city: "Seattle",
     rating: 4.3, totalReferrals: 201, successRate: 72, featured: false,
@@ -311,7 +311,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 25, verified: true, serviceRadius: "80 mi",
   },
   {
-    id: "us19", title: "Auto Body & Collision Repair", business: "PrecisionBody Works", businessLogo: "🚗", category: "Services",
+    id: "us19", title: "Auto Body & Collision Repair", business: "PrecisionBody Works", businessLogo: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&q=80&auto=format&fit=crop", category: "Services",
     description: "Refer vehicle owners needing collision repair, paintwork, or dent removal in the New York metro area.",
     payout: 200, payoutType: "flat", currency: "USD", country: "US", location: "New York, NY", state: "NY", city: "New York",
     rating: 4.4, totalReferrals: 110, successRate: 60, featured: false,
@@ -320,7 +320,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net7", monthlyCapacity: 15, verified: true, serviceRadius: "30 mi",
   },
   {
-    id: "us20", title: "Tax Preparation & Advisory", business: "TrueBooks Accounting", businessLogo: "📊", category: "Finance",
+    id: "us20", title: "Tax Preparation & Advisory", business: "TrueBooks Accounting", businessLogo: "https://images.unsplash.com/photo-1554224155-1696413565d3?w=800&q=80&auto=format&fit=crop", category: "Finance",
     description: "Refer small business owners or high-net-worth individuals needing tax preparation and advisory services.",
     payout: 250, payoutType: "flat", currency: "USD", country: "US", location: "San Francisco, CA", state: "CA", city: "San Francisco",
     rating: 4.7, totalReferrals: 156, successRate: 55, featured: false,
