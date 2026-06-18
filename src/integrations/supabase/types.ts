@@ -71,12 +71,15 @@ export type Database = {
       businesses: {
         Row: {
           account_status: string
+          brand_color: string | null
           business_email: string | null
           category: string | null
           city: string | null
+          cover_image_url: string | null
           created_at: string
           current_period_end: string | null
           description: string | null
+          headline: string | null
           id: string
           industry: string | null
           is_disabled: boolean
@@ -96,6 +99,7 @@ export type Database = {
           offer_fine_print: string | null
           offer_trigger: string | null
           phone: string | null
+          referral_cta_label: string | null
           service_area: string | null
           slug: string | null
           state: string | null
@@ -104,6 +108,7 @@ export type Database = {
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           subscription_status: string | null
+          testimonials: Json | null
           trigger_delay_hours: number
           trigger_email_enabled: boolean
           trigger_sms_enabled: boolean
@@ -113,15 +118,19 @@ export type Database = {
           user_id: string
           verified: boolean | null
           website: string | null
+          welcome_message: string | null
         }
         Insert: {
           account_status?: string
+          brand_color?: string | null
           business_email?: string | null
           category?: string | null
           city?: string | null
+          cover_image_url?: string | null
           created_at?: string
           current_period_end?: string | null
           description?: string | null
+          headline?: string | null
           id?: string
           industry?: string | null
           is_disabled?: boolean
@@ -141,6 +150,7 @@ export type Database = {
           offer_fine_print?: string | null
           offer_trigger?: string | null
           phone?: string | null
+          referral_cta_label?: string | null
           service_area?: string | null
           slug?: string | null
           state?: string | null
@@ -149,6 +159,7 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
+          testimonials?: Json | null
           trigger_delay_hours?: number
           trigger_email_enabled?: boolean
           trigger_sms_enabled?: boolean
@@ -158,15 +169,19 @@ export type Database = {
           user_id: string
           verified?: boolean | null
           website?: string | null
+          welcome_message?: string | null
         }
         Update: {
           account_status?: string
+          brand_color?: string | null
           business_email?: string | null
           category?: string | null
           city?: string | null
+          cover_image_url?: string | null
           created_at?: string
           current_period_end?: string | null
           description?: string | null
+          headline?: string | null
           id?: string
           industry?: string | null
           is_disabled?: boolean
@@ -186,6 +201,7 @@ export type Database = {
           offer_fine_print?: string | null
           offer_trigger?: string | null
           phone?: string | null
+          referral_cta_label?: string | null
           service_area?: string | null
           slug?: string | null
           state?: string | null
@@ -194,6 +210,7 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: string | null
+          testimonials?: Json | null
           trigger_delay_hours?: number
           trigger_email_enabled?: boolean
           trigger_sms_enabled?: boolean
@@ -203,6 +220,7 @@ export type Database = {
           user_id?: string
           verified?: boolean | null
           website?: string | null
+          welcome_message?: string | null
         }
         Relationships: []
       }
@@ -1594,10 +1612,13 @@ export type Database = {
       businesses_public: {
         Row: {
           account_status: string | null
+          brand_color: string | null
           category: string | null
           city: string | null
+          cover_image_url: string | null
           created_at: string | null
           description: string | null
+          headline: string | null
           id: string | null
           industry: string | null
           is_disabled: boolean | null
@@ -1609,21 +1630,27 @@ export type Database = {
           offer_amount: string | null
           offer_fine_print: string | null
           offer_trigger: string | null
+          referral_cta_label: string | null
           service_area: string | null
           slug: string | null
           state: string | null
           subscription_status: string | null
+          testimonials: Json | null
           updated_at: string | null
           user_id: string | null
           verified: boolean | null
           website: string | null
+          welcome_message: string | null
         }
         Insert: {
           account_status?: string | null
+          brand_color?: string | null
           category?: string | null
           city?: string | null
+          cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
+          headline?: string | null
           id?: string | null
           industry?: string | null
           is_disabled?: boolean | null
@@ -1635,21 +1662,27 @@ export type Database = {
           offer_amount?: string | null
           offer_fine_print?: string | null
           offer_trigger?: string | null
+          referral_cta_label?: string | null
           service_area?: string | null
           slug?: string | null
           state?: string | null
           subscription_status?: string | null
+          testimonials?: Json | null
           updated_at?: string | null
           user_id?: string | null
           verified?: boolean | null
           website?: string | null
+          welcome_message?: string | null
         }
         Update: {
           account_status?: string | null
+          brand_color?: string | null
           category?: string | null
           city?: string | null
+          cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
+          headline?: string | null
           id?: string | null
           industry?: string | null
           is_disabled?: boolean | null
@@ -1661,14 +1694,17 @@ export type Database = {
           offer_amount?: string | null
           offer_fine_print?: string | null
           offer_trigger?: string | null
+          referral_cta_label?: string | null
           service_area?: string | null
           slug?: string | null
           state?: string | null
           subscription_status?: string | null
+          testimonials?: Json | null
           updated_at?: string | null
           user_id?: string | null
           verified?: boolean | null
           website?: string | null
+          welcome_message?: string | null
         }
         Relationships: []
       }
