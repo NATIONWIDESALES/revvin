@@ -47,7 +47,7 @@ const FORBIDDEN: ForbiddenPattern[] = [
   { label: "wallet", pattern: /\bwallet\b/i },
   { label: "tremendous", pattern: /\btremendous\b/i },
   { label: "escrow", pattern: /\bescrow/i },
-  { label: "platform fee", pattern: /\bplatform\s+fees?\b/i },
+  { label: "platform fee", pattern: /(?<!no\s)\bplatform\s+fees?\b/i },
   { label: "Starter tier", pattern: /\bstarter\b/i },
   { label: "Enterprise tier", pattern: /\benterprise\b/i },
   // Additional deprecated pricing models — flat $49/mo only, no tiers.

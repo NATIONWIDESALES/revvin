@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import SEOHead from "@/components/SEOHead";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, Wallet, Quote } from "lucide-react";
+import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, HandCoins, Quote } from "lucide-react";
 
 interface Business {
   id: string;
@@ -363,7 +363,7 @@ const PublicReferralPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               { icon: Handshake, label: "Paid directly", sub: `By ${biz.name}, not a middleman` },
-              { icon: Wallet, label: "No fees taken out", sub: "100% of the reward is yours" },
+              { icon: HandCoins, label: "No fees taken out", sub: "100% of the reward is yours" },
               { icon: ShieldCheck, label: "Your info stays private", sub: "Only shared with the business" },
             ].map(({ icon: Icon, label, sub }) => (
               <div
