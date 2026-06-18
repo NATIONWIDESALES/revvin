@@ -406,6 +406,34 @@ const PublicReferralPage = () => {
             </ol>
           </div>
 
+          {/* Testimonials */}
+          {testimonials.length > 0 && (
+            <div className="mt-8">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-3">
+                What customers say
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {testimonials.map((t, i) => (
+                  <figure
+                    key={i}
+                    className="rounded-xl border bg-white p-4"
+                    style={{ borderColor: "hsl(var(--border))" }}
+                  >
+                    <Quote className="h-4 w-4 mb-2" style={{ color: brand }} />
+                    <blockquote className="text-sm text-foreground/85 leading-relaxed">
+                      "{t.quote}"
+                    </blockquote>
+                    {(t.author || t.role) && (
+                      <figcaption className="mt-2 text-xs text-muted-foreground">
+                        {[t.author, t.role].filter(Boolean).join(" · ")}
+                      </figcaption>
+                    )}
+                  </figure>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Form card */}
           <div
             className="mt-8 rounded-2xl bg-white border shadow-sm overflow-hidden"
@@ -466,7 +494,7 @@ const PublicReferralPage = () => {
                 {submitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <>Send referral to {biz.name}</>
+                  <>{ctaLabel}</>
                 )}
               </Button>
             </form>
