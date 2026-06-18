@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import BusinessLogoUpload from "@/components/BusinessLogoUpload";
 import AvatarUpload from "@/components/AvatarUpload";
+import PageBrandingEditor from "@/components/dashboard/PageBrandingEditor";
 import {
   Select,
   SelectContent,
@@ -244,6 +245,22 @@ const ProfileEdit = () => {
                   <Textarea value={bizForm.description} onChange={(e) => updateBiz("description", e.target.value)} placeholder="Tell potential referrers about your business..." rows={3} className="mt-1" />
                 </div>
               </div>
+            )}
+
+            {/* Branded referral landing page */}
+            {isBusiness && business && (
+              <PageBrandingEditor
+                businessId={business.id}
+                slug={business.slug ?? null}
+                initial={{
+                  brand_color: business.brand_color ?? null,
+                  cover_image_url: business.cover_image_url ?? null,
+                  headline: business.headline ?? null,
+                  welcome_message: business.welcome_message ?? null,
+                  referral_cta_label: business.referral_cta_label ?? null,
+                  testimonials: (business.testimonials as any) ?? null,
+                }}
+              />
             )}
 
             <Button type="submit" size="lg" className="w-full gap-2" disabled={saving}>

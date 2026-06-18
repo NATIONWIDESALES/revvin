@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import SEOHead from "@/components/SEOHead";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, Wallet } from "lucide-react";
+import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, Wallet, Quote } from "lucide-react";
 
 interface Business {
   id: string;
@@ -25,12 +25,51 @@ interface Business {
   state?: string | null;
   website?: string | null;
   verified?: boolean | null;
+  brand_color?: string | null;
+  cover_image_url?: string | null;
+  headline?: string | null;
+  welcome_message?: string | null;
+  referral_cta_label?: string | null;
+  testimonials?: Testimonial[] | null;
+}
+
+export interface Testimonial {
+  quote: string;
+  author?: string;
+  role?: string;
 }
 
 function brandHueFromName(name: string): number {
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return Math.abs(hash) % 360;
+}
+
+/** Lighten or darken a hex/hsl color to derive soft/border/ink variants. */
+function tint(hex: string, mode: "soft" | "border" | "ink"): string {
+  // accept #rrggbb or hsl()
+  const m = hex.trim().match(/^#?([0-9a-f]{6})$/i);
+  if (m) {
+    const r = parseInt(m[1].slice(0, 2), 16);
+    const g = parseInt(m[1].slice(2, 4), 16);
+    const b = parseInt(m[1].slice(4, 6), 16);
+    const mix = (c: number, t: number, amt: number) => Math.round(c + (t - c) * amt);
+    if (mode === "soft") {
+      const rr = mix(r, 255, 0.92), gg = mix(g, 255, 0.92), bb = mix(b, 255, 0.92);
+      return `rgb(${rr} ${gg} ${bb})`;
+    }
+    if (mode === "border") {
+      const rr = mix(r, 255, 0.78), gg = mix(g, 255, 0.78), bb = mix(b, 255, 0.78);
+      return `rgb(${rr} ${gg} ${bb})`;
+    }
+    const rr = mix(r, 0, 0.45), gg = mix(g, 0, 0.45), bb = mix(b, 0, 0.45);
+    return `rgb(${rr} ${gg} ${bb})`;
+  }
+  return hex;
+}
+
+function isValidHex(v: string | null | undefined): v is string {
+  return !!v && /^#[0-9a-f]{6}$/i.test(v.trim());
 }
 
 function normalizeWebsite(url: string): string {
@@ -65,7 +104,7 @@ const PublicReferralPage = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses_public" as any)
-        .select("id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,verified")
+        .select("id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,verified,brand_color,cover_image_url,headline,welcome_message,referral_cta_label,testimonials")
         .eq("slug", slug)
         .limit(1);
       setBiz(((data?.[0] as unknown) as Business) ?? null);
@@ -137,13 +176,30 @@ const PublicReferralPage = () => {
   }
 
   const initial = biz.name.charAt(0).toUpperCase();
-  const hue = brandHueFromName(biz.name);
-  const brand = `hsl(${hue} 70% 38%)`;
-  const brandSoft = `hsl(${hue} 70% 96%)`;
-  const brandBorder = `hsl(${hue} 60% 88%)`;
-  const brandInk = `hsl(${hue} 75% 22%)`;
+  const customBrand = isValidHex(biz.brand_color) ? biz.brand_color.trim() : null;
+  let brand: string;
+  let brandSoft: string;
+  let brandBorder: string;
+  let brandInk: string;
+  if (customBrand) {
+    brand = customBrand;
+    brandSoft = tint(customBrand, "soft");
+    brandBorder = tint(customBrand, "border");
+    brandInk = tint(customBrand, "ink");
+  } else {
+    const hue = brandHueFromName(biz.name);
+    brand = `hsl(${hue} 70% 38%)`;
+    brandSoft = `hsl(${hue} 70% 96%)`;
+    brandBorder = `hsl(${hue} 60% 88%)`;
+    brandInk = `hsl(${hue} 75% 22%)`;
+  }
   const locationLabel = [biz.city, biz.state].filter(Boolean).join(", ") || biz.service_area || null;
   const websiteUrl = biz.website ? normalizeWebsite(biz.website) : null;
+  const testimonials = Array.isArray(biz.testimonials)
+    ? biz.testimonials.filter((t) => t && typeof t.quote === "string" && t.quote.trim().length > 0)
+    : [];
+  const ctaLabel = (biz.referral_cta_label ?? "").trim() || "Submit a referral";
+  const hasCover = !!(biz.cover_image_url && biz.cover_image_url.trim().length > 0);
 
   return (
     <>
@@ -166,14 +222,35 @@ const PublicReferralPage = () => {
         {/* Branded hero */}
         <div
           className="relative overflow-hidden"
-          style={{
-            background: `linear-gradient(135deg, ${brandSoft} 0%, #ffffff 65%)`,
-            borderBottom: `1px solid ${brandBorder}`,
-          }}
+          style={
+            hasCover
+              ? { borderBottom: `1px solid ${brandBorder}` }
+              : {
+                  background: `linear-gradient(135deg, ${brandSoft} 0%, #ffffff 65%)`,
+                  borderBottom: `1px solid ${brandBorder}`,
+                }
+          }
         >
+          {hasCover && (
+            <>
+              <img
+                src={biz.cover_image_url!}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(255,255,255,0.92) 70%, #ffffff 100%)`,
+                }}
+              />
+            </>
+          )}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-[0.07]"
+            className={`pointer-events-none absolute inset-0 ${hasCover ? "opacity-0" : "opacity-[0.07]"}`}
             style={{
               backgroundImage: `radial-gradient(${brand} 1px, transparent 1px)`,
               backgroundSize: "22px 22px",
@@ -231,11 +308,21 @@ const PublicReferralPage = () => {
               </div>
             </div>
 
-            {biz.description && (
+            {biz.headline && (
+              <p className="mt-6 text-[22px] md:text-[26px] font-semibold leading-[1.2] tracking-tight text-foreground max-w-xl">
+                {biz.headline}
+              </p>
+            )}
+
+            {biz.welcome_message ? (
+              <p className="mt-4 text-[15px] leading-relaxed text-foreground/80 max-w-xl whitespace-pre-line">
+                {biz.welcome_message}
+              </p>
+            ) : biz.description ? (
               <p className="mt-5 text-[15px] leading-relaxed text-foreground/80 max-w-xl">
                 {biz.description}
               </p>
-            )}
+            ) : null}
 
             {/* Offer */}
             {biz.offer_amount && (
@@ -319,6 +406,34 @@ const PublicReferralPage = () => {
             </ol>
           </div>
 
+          {/* Testimonials */}
+          {testimonials.length > 0 && (
+            <div className="mt-8">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-3">
+                What customers say
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {testimonials.map((t, i) => (
+                  <figure
+                    key={i}
+                    className="rounded-xl border bg-white p-4"
+                    style={{ borderColor: "hsl(var(--border))" }}
+                  >
+                    <Quote className="h-4 w-4 mb-2" style={{ color: brand }} />
+                    <blockquote className="text-sm text-foreground/85 leading-relaxed">
+                      "{t.quote}"
+                    </blockquote>
+                    {(t.author || t.role) && (
+                      <figcaption className="mt-2 text-xs text-muted-foreground">
+                        {[t.author, t.role].filter(Boolean).join(" · ")}
+                      </figcaption>
+                    )}
+                  </figure>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Form card */}
           <div
             className="mt-8 rounded-2xl bg-white border shadow-sm overflow-hidden"
@@ -379,7 +494,7 @@ const PublicReferralPage = () => {
                 {submitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <>Send referral to {biz.name}</>
+                  <>{ctaLabel}</>
                 )}
               </Button>
             </form>
