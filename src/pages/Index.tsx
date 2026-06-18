@@ -197,7 +197,7 @@ const Index = () => {
             </p>
           </div>
 
-          {/* Search + category filter toolbar (sticky on mobile) */}
+          {/* Search + category + location filter toolbar (sticky on mobile) */}
           <div className="sticky top-14 z-30 -mx-4 mb-6 border-y border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none sm:mb-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="relative flex-1">
@@ -226,6 +226,28 @@ const Index = () => {
                       }`}
                     >
                       {c}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <div className="flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+                {featuredLocations.map((loc) => {
+                  const active = loc === activeLocation;
+                  return (
+                    <button
+                      key={loc}
+                      type="button"
+                      onClick={() => setActiveLocation(loc)}
+                      className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        active
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-card text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {loc}
                     </button>
                   );
                 })}
