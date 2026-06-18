@@ -6,6 +6,7 @@ import { useCountry } from "@/contexts/CountryContext";
 import { toSlug } from "@/lib/utils";
 import { useSavedOffers } from "@/hooks/useSavedOffers";
 import { toast } from "sonner";
+import { useState } from "react";
 
 interface OfferCardProps {
   offer: Offer;
@@ -45,7 +46,8 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
   const { formatPayout } = useCountry();
   const { isSaved, toggle } = useSavedOffers();
   const saved = isSaved(offer.id);
-  const isLogoUrl = offer.businessLogo.startsWith("http");
+  const [imgFailed, setImgFailed] = useState(false);
+  const isLogoUrl = offer.businessLogo.startsWith("http") && !imgFailed;
   const color = getBusinessColor(offer.business);
   const monogram = offer.business
     .split(/\s+/)
@@ -70,6 +72,7 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
               src={offer.businessLogo}
               alt={offer.business}
               className="h-full w-full object-cover transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105"
+              onError={() => setImgFailed(true)}
             />
           ) : isSample ? (
             /* Gradient + monogram for sample offers */
