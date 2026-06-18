@@ -222,14 +222,35 @@ const PublicReferralPage = () => {
         {/* Branded hero */}
         <div
           className="relative overflow-hidden"
-          style={{
-            background: `linear-gradient(135deg, ${brandSoft} 0%, #ffffff 65%)`,
-            borderBottom: `1px solid ${brandBorder}`,
-          }}
+          style={
+            hasCover
+              ? { borderBottom: `1px solid ${brandBorder}` }
+              : {
+                  background: `linear-gradient(135deg, ${brandSoft} 0%, #ffffff 65%)`,
+                  borderBottom: `1px solid ${brandBorder}`,
+                }
+          }
         >
+          {hasCover && (
+            <>
+              <img
+                src={biz.cover_image_url!}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(255,255,255,0.92) 70%, #ffffff 100%)`,
+                }}
+              />
+            </>
+          )}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-[0.07]"
+            className={`pointer-events-none absolute inset-0 ${hasCover ? "opacity-0" : "opacity-[0.07]"}`}
             style={{
               backgroundImage: `radial-gradient(${brand} 1px, transparent 1px)`,
               backgroundSize: "22px 22px",
@@ -287,11 +308,21 @@ const PublicReferralPage = () => {
               </div>
             </div>
 
-            {biz.description && (
+            {biz.headline && (
+              <p className="mt-6 text-[22px] md:text-[26px] font-semibold leading-[1.2] tracking-tight text-foreground max-w-xl">
+                {biz.headline}
+              </p>
+            )}
+
+            {biz.welcome_message ? (
+              <p className="mt-4 text-[15px] leading-relaxed text-foreground/80 max-w-xl whitespace-pre-line">
+                {biz.welcome_message}
+              </p>
+            ) : biz.description ? (
               <p className="mt-5 text-[15px] leading-relaxed text-foreground/80 max-w-xl">
                 {biz.description}
               </p>
-            )}
+            ) : null}
 
             {/* Offer */}
             {biz.offer_amount && (
