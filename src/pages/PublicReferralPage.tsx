@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import SEOHead from "@/components/SEOHead";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, Wallet } from "lucide-react";
 
 interface Business {
   id: string;
@@ -21,6 +21,21 @@ interface Business {
   offer_amount: string | null;
   offer_trigger: string | null;
   offer_fine_print: string | null;
+  city?: string | null;
+  state?: string | null;
+  website?: string | null;
+  verified?: boolean | null;
+}
+
+function brandHueFromName(name: string): number {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return Math.abs(hash) % 360;
+}
+
+function normalizeWebsite(url: string): string {
+  if (!url) return "";
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }
 
 const PublicReferralPage = () => {
