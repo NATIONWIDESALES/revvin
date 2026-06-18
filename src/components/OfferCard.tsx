@@ -63,8 +63,8 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
       aria-label={`${offer.business} — ${offer.title}`}
     >
       <div className="rounded-xl border border-border bg-card overflow-hidden transition-all duration-250 ease-out hover:shadow-card-hover hover:-translate-y-1 group-focus-visible:shadow-card-hover group-focus-visible:-translate-y-1 h-full flex flex-col" style={{ borderTopColor: color, borderTopWidth: '3px' }}>
-        {/* Image / Logo area */}
-        <div className="relative aspect-[4/3] bg-surface flex items-center justify-center overflow-hidden">
+        {/* Image / Logo area — shorter on mobile so card content fits */}
+        <div className="relative aspect-[16/10] sm:aspect-[4/3] bg-surface flex items-center justify-center overflow-hidden">
           {isLogoUrl ? (
             <img
               src={offer.businessLogo}
@@ -130,9 +130,9 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
                 description: offer.title,
               });
             }}
-            className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm shadow-sm transform-gpu transition-transform duration-200 hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+            className="absolute top-2.5 right-2.5 z-10 flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-background/85 backdrop-blur-sm shadow-sm transform-gpu transition-transform duration-200 hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
           >
-            <Heart className={`h-4 w-4 transition-all duration-200 ${saved ? "fill-destructive text-destructive" : "text-foreground"}`} />
+            <Heart className={`h-[18px] w-[18px] sm:h-4 sm:w-4 transition-all duration-200 ${saved ? "fill-destructive text-destructive" : "text-foreground"}`} />
           </button>
           {offer.featured && (
             <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs shadow-sm">
