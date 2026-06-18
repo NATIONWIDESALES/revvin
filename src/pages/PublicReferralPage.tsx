@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import SEOHead from "@/components/SEOHead";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, Wallet } from "lucide-react";
 
 interface Business {
   id: string;
@@ -21,6 +21,21 @@ interface Business {
   offer_amount: string | null;
   offer_trigger: string | null;
   offer_fine_print: string | null;
+  city?: string | null;
+  state?: string | null;
+  website?: string | null;
+  verified?: boolean | null;
+}
+
+function brandHueFromName(name: string): number {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return Math.abs(hash) % 360;
+}
+
+function normalizeWebsite(url: string): string {
+  if (!url) return "";
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }
 
 const PublicReferralPage = () => {
@@ -50,7 +65,7 @@ const PublicReferralPage = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses_public" as any)
-        .select("id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print")
+        .select("id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,verified")
         .eq("slug", slug)
         .limit(1);
       setBiz(((data?.[0] as unknown) as Business) ?? null);
@@ -122,6 +137,13 @@ const PublicReferralPage = () => {
   }
 
   const initial = biz.name.charAt(0).toUpperCase();
+  const hue = brandHueFromName(biz.name);
+  const brand = `hsl(${hue} 70% 38%)`;
+  const brandSoft = `hsl(${hue} 70% 96%)`;
+  const brandBorder = `hsl(${hue} 60% 88%)`;
+  const brandInk = `hsl(${hue} 75% 22%)`;
+  const locationLabel = [biz.city, biz.state].filter(Boolean).join(", ") || biz.service_area || null;
+  const websiteUrl = biz.website ? normalizeWebsite(biz.website) : null;
 
   return (
     <>
@@ -140,51 +162,194 @@ const PublicReferralPage = () => {
           url: `https://revvin.co/r/${biz.slug}`,
         }}
       />
-      <div className="min-h-screen bg-muted/30 py-8 px-4">
-        <div className="mx-auto max-w-md rounded-3xl border border-border bg-background p-6 md:p-8 shadow-sm">
-          {/* Header */}
-          <div className="flex items-center gap-4">
-            {biz.logo_url ? (
-              <img src={biz.logo_url} alt={`${biz.name} logo`} className="h-14 w-14 rounded-xl object-cover border border-border" />
-            ) : (
-              <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-semibold text-xl">{initial}</div>
-            )}
-            <div>
-              <h1 className="text-xl font-semibold text-foreground leading-tight">{biz.name}</h1>
-              {biz.description && <p className="text-sm text-muted-foreground">{biz.description}</p>}
+      <div className="min-h-screen bg-[#FAFAF7]">
+        {/* Branded hero */}
+        <div
+          className="relative overflow-hidden"
+          style={{
+            background: `linear-gradient(135deg, ${brandSoft} 0%, #ffffff 65%)`,
+            borderBottom: `1px solid ${brandBorder}`,
+          }}
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-[0.07]"
+            style={{
+              backgroundImage: `radial-gradient(${brand} 1px, transparent 1px)`,
+              backgroundSize: "22px 22px",
+            }}
+          />
+          <div className="relative mx-auto max-w-2xl px-5 pt-10 pb-8 md:pt-14 md:pb-10">
+            <div className="flex items-center gap-4">
+              {biz.logo_url ? (
+                <img
+                  src={biz.logo_url}
+                  alt={`${biz.name} logo`}
+                  className="h-16 w-16 rounded-2xl object-cover border bg-white"
+                  style={{ borderColor: brandBorder }}
+                />
+              ) : (
+                <div
+                  className="h-16 w-16 rounded-2xl flex items-center justify-center font-semibold text-2xl text-white shadow-sm"
+                  style={{ background: brand }}
+                >
+                  {initial}
+                </div>
+              )}
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl md:text-3xl font-semibold text-foreground leading-tight tracking-tight">
+                    {biz.name}
+                  </h1>
+                  {biz.verified && (
+                    <span
+                      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                      style={{ background: brandSoft, color: brandInk, border: `1px solid ${brandBorder}` }}
+                    >
+                      <BadgeCheck className="h-3 w-3" /> Verified
+                    </span>
+                  )}
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  {biz.category && <span>{biz.category}</span>}
+                  {locationLabel && (
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-3 w-3" /> {locationLabel}
+                    </span>
+                  )}
+                  {websiteUrl && (
+                    <a
+                      href={websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 hover:text-foreground"
+                    >
+                      <Globe className="h-3 w-3" /> Website
+                    </a>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-          {(biz.service_area || biz.category) && (
-            <p className="mt-3 text-xs text-muted-foreground">
-              {[biz.category, biz.service_area].filter(Boolean).join(" · ")}
-            </p>
-          )}
 
-          {/* Offer */}
-          {biz.offer_amount && (
-            <div className="mt-6 rounded-xl bg-primary/5 border border-primary/20 p-5">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-primary mb-1">Referral offer</p>
-              <p className="text-2xl font-semibold text-foreground leading-tight">Refer a customer, earn {biz.offer_amount}</p>
-              {biz.offer_trigger && <p className="text-sm text-muted-foreground mt-1">{biz.offer_trigger}</p>}
-              {biz.offer_fine_print && <p className="text-[11px] text-muted-foreground mt-2 italic">{biz.offer_fine_print}</p>}
-            </div>
-          )}
+            {biz.description && (
+              <p className="mt-5 text-[15px] leading-relaxed text-foreground/80 max-w-xl">
+                {biz.description}
+              </p>
+            )}
+
+            {/* Offer */}
+            {biz.offer_amount && (
+              <div
+                className="mt-6 rounded-2xl p-6 shadow-sm"
+                style={{
+                  background: "white",
+                  border: `1px solid ${brandBorder}`,
+                  borderTop: `3px solid ${brand}`,
+                }}
+              >
+                <p
+                  className="text-[10px] font-semibold uppercase tracking-[0.14em] mb-2"
+                  style={{ color: brand }}
+                >
+                  {biz.name} referral program
+                </p>
+                <p className="text-[28px] md:text-3xl font-semibold text-foreground leading-[1.15] tracking-tight">
+                  Refer a customer and earn{" "}
+                  <span style={{ color: brand }}>{biz.offer_amount}</span>
+                </p>
+                {biz.offer_trigger && (
+                  <p className="text-sm text-muted-foreground mt-2">{biz.offer_trigger}</p>
+                )}
+                {biz.offer_fine_print && (
+                  <p className="text-[11px] text-muted-foreground mt-3 italic">
+                    {biz.offer_fine_print}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="mx-auto max-w-2xl px-5 py-8 md:py-10">
+          {/* Trust strip */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              { icon: Handshake, label: "Paid directly", sub: `By ${biz.name}, not a middleman` },
+              { icon: Wallet, label: "No fees taken out", sub: "100% of the reward is yours" },
+              { icon: ShieldCheck, label: "Your info stays private", sub: "Only shared with the business" },
+            ].map(({ icon: Icon, label, sub }) => (
+              <div
+                key={label}
+                className="rounded-xl border border-border bg-white p-3.5"
+              >
+                <div
+                  className="h-7 w-7 rounded-md flex items-center justify-center mb-2"
+                  style={{ background: brandSoft, color: brand }}
+                >
+                  <Icon className="h-4 w-4" />
+                </div>
+                <p className="text-[13px] font-semibold text-foreground leading-tight">{label}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>
+              </div>
+            ))}
+          </div>
 
           {/* How it works */}
-          <div className="mt-6 space-y-2 text-sm text-foreground">
-            <p>1. Submit the referral below.</p>
-            <p>2. {biz.name} contacts the lead.</p>
-            <p>3. When the deal closes, {biz.name} pays you directly.</p>
+          <div className="mt-8">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-3">
+              How it works
+            </p>
+            <ol className="space-y-3">
+              {[
+                `Submit your referral using the form below.`,
+                `${biz.name} reaches out to the lead directly.`,
+                `When the deal closes, ${biz.name} pays you${biz.offer_amount ? ` ${biz.offer_amount}` : ""} directly.`,
+              ].map((step, i) => (
+                <li key={i} className="flex gap-3 items-start">
+                  <span
+                    className="flex-shrink-0 h-6 w-6 rounded-full flex items-center justify-center text-[11px] font-semibold"
+                    style={{ background: brand, color: "white" }}
+                  >
+                    {i + 1}
+                  </span>
+                  <span className="text-sm text-foreground/85 leading-relaxed pt-0.5">{step}</span>
+                </li>
+              ))}
+            </ol>
           </div>
 
+          {/* Form card */}
+          <div
+            className="mt-8 rounded-2xl bg-white border shadow-sm overflow-hidden"
+            style={{ borderColor: "hsl(var(--border))" }}
+          >
+            <div
+              className="h-1 w-full"
+              style={{ background: brand }}
+            />
+            <div className="p-6 md:p-8">
           {submitted ? (
-            <div className="mt-8 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center">
-              <CheckCircle2 className="h-10 w-10 mx-auto text-primary mb-3" />
+            <div className="text-center py-4">
+              <div
+                className="h-12 w-12 mx-auto rounded-full flex items-center justify-center mb-3"
+                style={{ background: brandSoft }}
+              >
+                <CheckCircle2 className="h-7 w-7" style={{ color: brand }} />
+              </div>
               <h2 className="text-lg font-semibold text-foreground">Referral submitted</h2>
-              <p className="text-sm text-muted-foreground mt-1">{biz.name} will be in touch with your lead soon. You'll hear from them directly when the deal closes.</p>
+              <p className="text-sm text-muted-foreground mt-1.5 max-w-sm mx-auto">
+                {biz.name} will be in touch with your lead soon. You'll hear from them directly when the deal closes.
+              </p>
             </div>
           ) : (
-            <form onSubmit={submit} className="mt-8 space-y-4">
+            <form onSubmit={submit} className="space-y-4">
+              <h2 className="text-lg font-semibold text-foreground leading-tight">
+                Submit a referral
+              </h2>
+              <p className="text-sm text-muted-foreground -mt-2">
+                Takes about 30 seconds.
+              </p>
               <input type="text" name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => update("website", e.target.value)} className="hidden" />
 
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">About you</div>
@@ -204,14 +369,31 @@ const PublicReferralPage = () => {
                 <span>I confirm I have permission to share this lead's contact information.</span>
               </label>
 
-              <Button type="submit" size="lg" className="w-full h-12" disabled={submitting}>
-                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit referral"}
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full h-12 text-white hover:opacity-90 transition-opacity"
+                style={{ background: brand }}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>Send referral to {biz.name}</>
+                )}
               </Button>
             </form>
           )}
+            </div>
+          </div>
 
           <div className="mt-8 text-center">
-            <Link to="/" className="text-[10px] text-muted-foreground hover:text-foreground">Powered by REVVIN.CO</Link>
+            <Link
+              to="/"
+              className="text-[10px] tracking-[0.16em] uppercase text-muted-foreground/70 hover:text-foreground"
+            >
+              Powered by Revvin
+            </Link>
           </div>
         </div>
       </div>
