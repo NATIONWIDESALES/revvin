@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
-import { ArrowRight, Check, Bell, Pencil, Smartphone, CreditCard, BarChart3, Zap, Users } from "lucide-react";
+import { ArrowRight, Check, Bell, Pencil, Smartphone, CreditCard, BarChart3, Zap, Users, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import {
   Accordion,
   AccordionContent,
@@ -39,6 +41,30 @@ const businessHue = (name: string) => {
 };
 
 const Index = () => {
+  const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  const featuredCategories = useMemo(
+    () => ["All", ...Array.from(new Set(FEATURED_OFFERS.map((o) => o.category)))],
+    []
+  );
+
+  const filteredFeatured = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return FEATURED_OFFERS.filter((o) => {
+      const matchesCat = activeCategory === "All" || o.category === activeCategory;
+      if (!matchesCat) return false;
+      if (!q) return true;
+      return (
+        o.business.toLowerCase().includes(q) ||
+        o.category.toLowerCase().includes(q) ||
+        o.city.toLowerCase().includes(q) ||
+        o.state.toLowerCase().includes(q) ||
+        o.desc.toLowerCase().includes(q)
+      );
+    });
+  }, [search, activeCategory]);
+
   return (
     <>
       <SEOHead
