@@ -1722,6 +1722,23 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      fn_business_privileged_unchanged: {
+        Args: {
+          p_account_status: string
+          p_current_period_end: string
+          p_id: string
+          p_is_disabled: boolean
+          p_is_published: boolean
+          p_launch_package_status: string
+          p_stripe_connect_status: string
+          p_stripe_connected_account_id: string
+          p_stripe_customer_id: string
+          p_stripe_subscription_id: string
+          p_subscription_status: string
+          p_verified: boolean
+        }
+        Returns: boolean
+      }
       fn_check_duplicate_referral: {
         Args: {
           p_business_id: string
