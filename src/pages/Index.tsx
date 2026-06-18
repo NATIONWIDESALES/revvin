@@ -43,9 +43,15 @@ const businessHue = (name: string) => {
 const Index = () => {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [activeLocation, setActiveLocation] = useState("All");
 
   const featuredCategories = useMemo(
     () => ["All", ...Array.from(new Set(FEATURED_OFFERS.map((o) => o.category)))],
+    []
+  );
+
+  const featuredLocations = useMemo(
+    () => ["All", ...Array.from(new Set(FEATURED_OFFERS.map((o) => `${o.city}, ${o.state}`)))],
     []
   );
 
@@ -53,7 +59,8 @@ const Index = () => {
     const q = search.trim().toLowerCase();
     return FEATURED_OFFERS.filter((o) => {
       const matchesCat = activeCategory === "All" || o.category === activeCategory;
-      if (!matchesCat) return false;
+      const matchesLoc = activeLocation === "All" || `${o.city}, ${o.state}` === activeLocation;
+      if (!matchesCat || !matchesLoc) return false;
       if (!q) return true;
       return (
         o.business.toLowerCase().includes(q) ||
@@ -63,7 +70,7 @@ const Index = () => {
         o.desc.toLowerCase().includes(q)
       );
     });
-  }, [search, activeCategory]);
+  }, [search, activeCategory, activeLocation]);
 
   return (
     <>
