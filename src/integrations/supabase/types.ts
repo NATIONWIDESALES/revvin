@@ -1791,6 +1791,23 @@ export type Database = {
         Returns: boolean
       }
       fn_platform_counts: { Args: never; Returns: Json }
+      fn_referral_privileged_unchanged: {
+        Args: {
+          p_business_id: string
+          p_deal_value: number
+          p_id: string
+          p_offer_id: string
+          p_payment_marked_at: string
+          p_payment_status: string
+          p_payout_amount: number
+          p_payout_snapshot: number
+          p_payout_status: string
+          p_payout_type_snapshot: string
+          p_referrer_id: string
+          p_status: string
+        }
+        Returns: boolean
+      }
       fn_slug_available: { Args: { p_slug: string }; Returns: boolean }
       has_role: {
         Args: {
