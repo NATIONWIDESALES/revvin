@@ -65,7 +65,7 @@ const PublicReferralPage = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses_public" as any)
-        .select("id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print")
+        .select("id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,verified")
         .eq("slug", slug)
         .limit(1);
       setBiz(((data?.[0] as unknown) as Business) ?? null);
