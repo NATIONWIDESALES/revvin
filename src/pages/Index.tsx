@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
-import { ArrowRight, Check, Bell, Pencil, Smartphone, CreditCard, BarChart3, Zap, Users, Search } from "lucide-react";
+import { ArrowRight, Check, Bell, Pencil, Smartphone, CreditCard, BarChart3, Zap, Users, Search, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Accordion,
