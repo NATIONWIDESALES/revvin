@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CountryProvider } from "@/contexts/CountryContext";
 import Layout from "@/components/Layout";
@@ -83,6 +83,16 @@ const App = () => (
                   <Route path="/dashboard/profile" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
                   <Route path="/dashboard/settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
                 </Route>
+                {/*
+                  Legacy URLs from prior uses of the revvin.co domain.
+                  Client-side redirect to "/" is a fallback for JS-executing
+                  crawlers; a true server-side 301 (en-usd) and 410 (products)
+                  must be configured at the hosting layer. See FOUNDER TODOs.
+                */}
+                <Route path="/en-usd" element={<Navigate to="/" replace />} />
+                <Route path="/en-usd/*" element={<Navigate to="/" replace />} />
+                <Route path="/en-cad" element={<Navigate to="/" replace />} />
+                <Route path="/en-cad/*" element={<Navigate to="/" replace />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </CountryProvider>
