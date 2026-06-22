@@ -636,7 +636,12 @@ const Index = () => {
       </section>
 
       {/* Final CTA — dark */}
-      <LiveTicker variant="dark" />
+      {/*
+        LiveTicker hidden for launch: it rendered fabricated activity events
+        and named companies. Do NOT re-enable until it is wired to real,
+        consented activity data.
+        <LiveTicker variant="dark" />
+      */}
       <section className="relative overflow-hidden bg-ink text-white">
         <div aria-hidden className="aurora opacity-80" />
         <div aria-hidden className="grain opacity-[0.08]" />
