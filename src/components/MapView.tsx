@@ -16,8 +16,16 @@ interface MapViewProps {
 
 /* ── helpers ─────────────────────────────────────────────── */
 
-/** Group nearby offers into visual clusters */
-function clusterOffers(offers: Offer[], radiusDeg = 0.6) {
+/**
+ * Group nearby offers into visual clusters.
+ *
+ * Uses a tight ~3–5 km radius (0.05°) so offers in *different* cities
+ * (e.g. Dallas vs. Fort Worth, NYC vs. Brooklyn, LA vs. Long Beach) do
+ * NOT get merged. The cluster's anchor point is the first member's
+ * coordinates — never an average — so the marker always sits on a real
+ * offer location instead of drifting into empty space between cities.
+ */
+function clusterOffers(offers: Offer[], radiusDeg = 0.05) {
   const clusters: { lat: number; lng: number; offers: Offer[] }[] = [];
   for (const offer of offers) {
     if (offer.latitude == null || offer.longitude == null) continue;
@@ -28,13 +36,7 @@ function clusterOffers(offers: Offer[], radiusDeg = 0.6) {
     );
     if (match) {
       match.offers.push(offer);
-      // keep centroid stable — average all points
-      match.lat =
-        match.offers.reduce((s, o) => s + (o.latitude ?? 0), 0) /
-        match.offers.length;
-      match.lng =
-        match.offers.reduce((s, o) => s + (o.longitude ?? 0), 0) /
-        match.offers.length;
+      // Anchor stays on the first member's true coordinates — do not average.
     } else {
       clusters.push({
         lat: offer.latitude,
