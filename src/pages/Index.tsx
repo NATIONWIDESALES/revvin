@@ -434,7 +434,7 @@ const Index = () => {
             <div className="bento-tile md:col-span-3">
               <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Your custom URL</p>
               <div className="flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-2.5">
-                <span className="font-mono text-sm text-foreground">apex-roofing.revvin.co</span>
+                <span className="font-mono text-sm text-foreground">your-business.revvin.co</span>
                 <span className="rounded-md bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">COPY</span>
               </div>
               <p className="mt-3 text-xs text-muted-foreground">Branded. Shareable. Memorable.</p>
