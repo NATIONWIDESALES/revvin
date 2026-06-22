@@ -323,6 +323,21 @@ const Index = () => {
             <Button size="lg" className="h-12 px-6 shadow-product hover:bg-primary-deep" asChild>
               <Link to="/signup">List your business here</Link>
             </Button>
+            {/*
+              FOUNDER-CONFIRMED TODO: confirm where the marketplace waitlist
+              CTA should submit. Currently falls back to a mailto so no new
+              backend or RLS change is introduced.
+            */}
+            <Button
+              variant="ghost"
+              size="lg"
+              asChild
+              className="h-12 px-6 text-primary hover:bg-primary/10"
+            >
+              <a href="mailto:info@revvin.co?subject=Marketplace%20waitlist">
+                Join the marketplace waitlist
+              </a>
+            </Button>
           </div>
         </div>
       </section>
