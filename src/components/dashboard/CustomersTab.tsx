@@ -261,7 +261,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
         await markSent(c, "share");
       }
     } catch {
-      // user cancelled share sheet — do not mark sent
+      // user cancelled share sheet, do not mark sent
     } finally {
       setSendingId(null);
     }
@@ -350,8 +350,8 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                 {dedupedPreview.slice(0, 50).map((p, i) => (
                   <tr key={i} className="border-t border-border">
                     <td className="px-3 py-2 text-foreground">{p.name}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{p.phone || "—"}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{p.email || "—"}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{p.phone || "·"}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{p.email || "·"}</td>
                   </tr>
                 ))}
               </tbody>

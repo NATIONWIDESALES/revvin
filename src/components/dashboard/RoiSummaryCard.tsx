@@ -129,7 +129,7 @@ const RoiSummaryCard = ({ businessId }: Props) => {
         <div className="px-5 py-3 border-t border-border bg-muted/30 text-xs text-muted-foreground flex flex-wrap items-center justify-between gap-2">
           <span>
             Latest recap: <span className="text-foreground font-medium">{recap.summary.period_label}</span>
-            {" "}— {recap.summary.closed_count} closed, {fmtUsd(recap.summary.revenue)} revenue
+            {" "}, {recap.summary.closed_count} closed, {fmtUsd(recap.summary.revenue)} revenue
             {recap.summary.top_referrer ? <> · Top referrer: <span className="text-foreground">{recap.summary.top_referrer}</span></> : null}
           </span>
           <span className="text-muted-foreground/70">Sent {new Date(recap.sent_at).toLocaleDateString()}</span>

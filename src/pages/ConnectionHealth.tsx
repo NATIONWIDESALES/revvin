@@ -95,7 +95,7 @@ export default function ConnectionHealth() {
           >
             {allGood
               ? `✓ Connected to Lovable Cloud project ${EXPECTED_PROJECT_REF}`
-              : "⚠ One or more checks failed — review above."}
+              : "⚠ One or more checks failed, review above."}
           </div>
         )}
       </div>

@@ -73,7 +73,7 @@ const BusinessScreen = () => (
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-semibold text-black">Residential Roofing</p>
-            <p className="text-[11px] text-gray-500 mt-0.5">Sarah M. — referred by James K.</p>
+            <p className="text-[11px] text-gray-500 mt-0.5">Sarah M., referred by James K.</p>
           </div>
         </div>
         <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
@@ -91,7 +91,7 @@ const BusinessScreen = () => (
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-semibold text-black">Roof Repair</p>
-            <p className="text-[11px] text-gray-500 mt-0.5">Mike T. — referred by Dana R.</p>
+            <p className="text-[11px] text-gray-500 mt-0.5">Mike T., referred by Dana R.</p>
           </div>
         </div>
         <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
@@ -109,7 +109,7 @@ const BusinessScreen = () => (
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-semibold text-black">New Roof Quote</p>
-            <p className="text-[11px] text-gray-500 mt-0.5">Chris L. — referred by Alex P.</p>
+            <p className="text-[11px] text-gray-500 mt-0.5">Chris L., referred by Alex P.</p>
           </div>
         </div>
         <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">

@@ -138,7 +138,7 @@ const Browse = () => {
             "position": i + 1,
             "item": {
               "@type": "Offer",
-              "name": `${offer.business} — ${offer.title}`,
+              "name": `${offer.business}, ${offer.title}`,
               "description": offer.description,
               "price": String(offer.payout),
               "priceCurrency": offer.currency,
@@ -176,7 +176,7 @@ const Browse = () => {
           </div>
         )}
 
-        {/* Search bar — sticky on mobile so controls stay reachable while scrolling */}
+        {/* Search bar, sticky on mobile so controls stay reachable while scrolling */}
         <div className="mb-5 sticky top-14 z-30 -mx-4 px-4 py-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border/60 sm:static sm:mx-0 sm:px-0 sm:py-0 sm:bg-transparent sm:backdrop-blur-none sm:border-0 flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1 min-w-0">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />

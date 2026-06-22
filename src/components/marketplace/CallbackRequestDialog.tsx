@@ -50,7 +50,7 @@ export default function CallbackRequestDialog({ trigger }: Props) {
         {done ? (
           <div className="py-6 text-center">
             <CheckCircle2 className="mx-auto h-12 w-12 text-primary" />
-            <h3 className="mt-4 text-xl font-bold text-foreground">Thanks — we'll be in touch</h3>
+            <h3 className="mt-4 text-xl font-bold text-foreground">Thanks, we'll be in touch</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               We typically respond within 1 business day.
             </p>

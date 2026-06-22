@@ -130,9 +130,9 @@ const ForBusinesses = () => (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
               { icon: DollarSign, title: "Flat monthly price", desc: "$49/month flat. No per-referral fee from Revvin; you decide what to pay your own referrers when deals close." },
-              { icon: Users, title: "Warm introductions", desc: "Referrals come from people who know your next customer — not algorithms guessing from cookie data." },
+              { icon: Users, title: "Warm introductions", desc: "Referrals come from people who know your next customer, not algorithms guessing from cookie data." },
               { icon: Shield, title: "Clean records", desc: "Tracked referrals and a clear pipeline. No more informal deals and missing follow-ups." },
-              { icon: Zap, title: "Launch in minutes", desc: "List your business, build your offer, and start sharing your branded referral page the same day — no setup fee." },
+              { icon: Zap, title: "Launch in minutes", desc: "List your business, build your offer, and start sharing your branded referral page the same day, no setup fee." },
               { icon: BarChart3, title: "Full visibility", desc: "Track referrals, see pipeline activity, and manage payouts all from your dashboard." },
               { icon: CheckCircle2, title: "You set the terms", desc: "Choose your payout amount, define qualification criteria, and control your referral program." },
             ].map((item, i) => (

@@ -66,7 +66,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net30", monthlyCapacity: 40, verified: true, serviceRadius: "Province-wide",
   },
   {
-    id: "ca8", title: "Insurance Broker — Home & Auto", business: "ShieldNorth Insurance", businessLogo: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80&auto=format&fit=crop", category: "Insurance",
+    id: "ca8", title: "Insurance Broker, Home & Auto", business: "ShieldNorth Insurance", businessLogo: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80&auto=format&fit=crop", category: "Insurance",
     description: "Refer individuals or families looking for competitive home & auto insurance packages in Ontario.",
     payout: 12, payoutType: "flat", currency: "CAD", country: "CA", location: "Toronto, ON", state: "ON", city: "Toronto",
     rating: 4.5, totalReferrals: 345, successRate: 44, featured: false,
@@ -84,7 +84,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net14", monthlyCapacity: 6, verified: true, serviceRadius: "80 km",
   },
   {
-    id: "ca10", title: "Residential HVAC — Furnace & AC", business: "FlameGuard Heating", businessLogo: "https://images.unsplash.com/photo-1597047084897-51e81819a499?w=800&q=80&auto=format&fit=crop", category: "HVAC",
+    id: "ca10", title: "Residential HVAC, Furnace & AC", business: "FlameGuard Heating", businessLogo: "https://images.unsplash.com/photo-1597047084897-51e81819a499?w=800&q=80&auto=format&fit=crop", category: "HVAC",
     description: "Refer Calgary homeowners needing furnace replacements, AC units, or ductwork repairs before winter.",
     payout: 350, payoutType: "flat", currency: "CAD", country: "CA", location: "Calgary, AB", state: "AB", city: "Calgary",
     rating: 4.4, totalReferrals: 89, successRate: 62, featured: false,
@@ -129,7 +129,7 @@ export const mockOffers: Offer[] = [
     payoutTimeline: "net30", monthlyCapacity: 12, verified: true, serviceRadius: "40 km",
   },
   {
-    id: "ca15", title: "Commercial Cleaning — Offices", business: "SparkleNorth Cleaning", businessLogo: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=80&auto=format&fit=crop", category: "Services",
+    id: "ca15", title: "Commercial Cleaning, Offices", business: "SparkleNorth Cleaning", businessLogo: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=80&auto=format&fit=crop", category: "Services",
     description: "Refer office managers or building owners needing commercial cleaning services in Toronto.",
     payout: 150, payoutType: "flat", currency: "CAD", country: "CA", location: "Toronto, ON", state: "ON", city: "Toronto",
     rating: 4.4, totalReferrals: 88, successRate: 63, featured: false,

@@ -17,7 +17,7 @@ export default function MarketplaceListingCard({ listing, compact }: Props) {
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
         <img
           src={listing.hero_image}
-          alt={`${listing.name} — ${listing.category} in ${listing.city}`}
+          alt={`${listing.name}, ${listing.category} in ${listing.city}`}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
         />

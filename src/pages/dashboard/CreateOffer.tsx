@@ -299,7 +299,7 @@ const CreateOffer = () => {
                 <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">How payouts work</p>
-                  <p className="text-xs text-muted-foreground mt-1">You set the reward amount. When a deal closes, you pay the referrer directly — Revvin doesn't take a cut.</p>
+                  <p className="text-xs text-muted-foreground mt-1">You set the reward amount. When a deal closes, you pay the referrer directly · Revvin doesn't take a cut.</p>
                 </div>
               </div>
             </motion.div>
@@ -345,7 +345,7 @@ const CreateOffer = () => {
                 <div className="rounded-xl bg-earnings/5 border border-earnings/20 p-4 mb-4">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-semibold text-earnings uppercase tracking-wide">Earn per referral</span>
-                    <span className="earnings-badge rounded-full px-4 py-1.5 text-sm font-bold shadow-sm">${payoutNum || "—"}</span>
+                    <span className="earnings-badge rounded-full px-4 py-1.5 text-sm font-bold shadow-sm">${payoutNum || "·"}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">

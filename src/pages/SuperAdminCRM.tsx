@@ -404,7 +404,7 @@ const SuperAdminCRM = () => {
                         <div key={biz.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-3">
                           <div>
                             <p className="text-sm font-medium">{biz.name}</p>
-                            <p className="text-xs text-muted-foreground">{biz.industry ?? "—"} • {biz.city ?? "—"}</p>
+                            <p className="text-xs text-muted-foreground">{biz.industry ?? "·"} • {biz.city ?? "·"}</p>
                           </div>
                           <Badge variant={biz.verified ? "default" : "secondary"}>{biz.verified ? "Verified" : "Pending"}</Badge>
                         </div>
@@ -421,7 +421,7 @@ const SuperAdminCRM = () => {
                           <div key={p.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-3">
                             <div>
                               <p className="text-sm font-medium">{p.full_name ?? "Unnamed"}</p>
-                              <p className="text-xs text-muted-foreground">{p.city ?? "—"}</p>
+                              <p className="text-xs text-muted-foreground">{p.city ?? "·"}</p>
                             </div>
                             <Badge variant={role?.role === "business" ? "default" : "secondary"}>{role?.role ?? "unknown"}</Badge>
                           </div>
@@ -449,11 +449,11 @@ const SuperAdminCRM = () => {
                           const sc = statusConfig[ref.status] ?? statusConfig.submitted;
                           return (
                             <tr key={ref.id} className="border-b border-border last:border-0 hover:bg-muted/30">
-                              <td className="p-3"><p className="font-medium">{ref.customer_name}</p><p className="text-xs text-muted-foreground">{ref.customer_email ?? "—"}</p></td>
-                              <td className="p-3 text-muted-foreground">{ref.offers?.title ?? "—"}</td>
-                              <td className="p-3 text-muted-foreground">{ref.businesses?.name ?? "—"}</td>
+                              <td className="p-3"><p className="font-medium">{ref.customer_name}</p><p className="text-xs text-muted-foreground">{ref.customer_email ?? "·"}</p></td>
+                              <td className="p-3 text-muted-foreground">{ref.offers?.title ?? "·"}</td>
+                              <td className="p-3 text-muted-foreground">{ref.businesses?.name ?? "·"}</td>
                               <td className="p-3"><Badge className={`${sc.bg} ${sc.text} border-0`}>{sc.label}</Badge></td>
-                              <td className="p-3 font-medium">{ref.payout_amount ? `$${ref.payout_amount}` : "—"}</td>
+                              <td className="p-3 font-medium">{ref.payout_amount ? `$${ref.payout_amount}` : "·"}</td>
                               <td className="p-3 text-muted-foreground">{new Date(ref.created_at).toLocaleDateString()}</td>
                             </tr>
                           );
@@ -478,7 +478,7 @@ const SuperAdminCRM = () => {
                       <div key={biz.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-4">
                         <div className="flex-1">
                           <p className="font-medium">{biz.name}</p>
-                          <p className="text-xs text-muted-foreground">{biz.industry ?? "—"} • {biz.city ?? "No location"} • {(biz as any).phone ? `📞 ${(biz as any).phone} • ` : ""}Joined {new Date(biz.created_at).toLocaleDateString()}</p>
+                          <p className="text-xs text-muted-foreground">{biz.industry ?? "·"} • {biz.city ?? "No location"} • {(biz as any).phone ? `📞 ${(biz as any).phone} • ` : ""}Joined {new Date(biz.created_at).toLocaleDateString()}</p>
                           <div className="flex items-center gap-2 mt-2">
                             <Badge variant={biz.verified ? "default" : "secondary"}>{biz.verified ? "Verified" : "Unverified"}</Badge>
                             <Badge variant={accountStatus === "approved" ? "default" : accountStatus === "rejected" ? "destructive" : "secondary"}>
@@ -566,7 +566,7 @@ const SuperAdminCRM = () => {
                 </div>
               </TabsContent>
 
-              {/* PAYMENTS TAB — Revvin v1: businesses pay referrers directly */}
+              {/* PAYMENTS TAB · Revvin v1: businesses pay referrers directly */}
               <TabsContent value="payments">
                 <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
                   <h2 className="text-base font-bold mb-2 flex items-center gap-2"><DollarSign className="h-4 w-4 text-earnings" /> Payments</h2>
@@ -651,7 +651,7 @@ const SuperAdminCRM = () => {
                 <Field label="Phone" value={selectedReferral.customer_phone} />
                 <Field label="Status" value={<Badge className={stageConfig[selectedReferral.status]?.color}>{stageConfig[selectedReferral.status]?.label || selectedReferral.status}</Badge>} />
                 <Field label="Offer" value={selectedReferral.offers?.title} />
-                <Field label="Payout" value={selectedReferral.offers ? `$${selectedReferral.offers.payout} (${selectedReferral.offers.payout_type})` : "—"} />
+                <Field label="Payout" value={selectedReferral.offers ? `$${selectedReferral.offers.payout} (${selectedReferral.offers.payout_type})` : "·"} />
                 <Field label="Payout Status" value={selectedReferral.payout_status} />
                 <Field label="Referrer" value={profileMap[selectedReferral.referrer_id] || selectedReferral.referrer_id.slice(0, 8)} />
                 <Field label="Submitted" value={format(new Date(selectedReferral.created_at), "MMM d, yyyy")} />
@@ -691,7 +691,7 @@ const SuperAdminCRM = () => {
 const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div>
     <div className="text-xs text-muted-foreground">{label}</div>
-    <div className="text-sm font-medium text-foreground">{value || "—"}</div>
+    <div className="text-sm font-medium text-foreground">{value || "·"}</div>
   </div>
 );
 

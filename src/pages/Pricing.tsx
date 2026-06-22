@@ -67,7 +67,7 @@ const Pricing = () => {
   return (
     <>
       <SEOHead
-        title="Pricing — Revvin"
+        title="Pricing · Revvin"
         description="$49/month, cancel anytime. No contract, no setup fee. Free for referrers."
         path="/pricing"
       />
@@ -112,7 +112,7 @@ const Pricing = () => {
               </ul>
             </div>
 
-            {/* Pro — featured */}
+            {/* Pro, featured */}
             <div className="relative flex flex-col rounded-2xl border-2 border-primary bg-card p-8 shadow-product md:-mt-4">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                 <span className="inline-flex items-center rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground">
@@ -219,7 +219,7 @@ const Pricing = () => {
             <AccordionItem value="p1">
               <AccordionTrigger>Is there really no contract?</AccordionTrigger>
               <AccordionContent>
-                Correct. Pro is $49/month, billed monthly. Cancel anytime from your billing portal — your page stays live through the end of the period you've already paid for.
+                Correct. Pro is $49/month, billed monthly. Cancel anytime from your billing portal, your page stays live through the end of the period you've already paid for.
               </AccordionContent>
             </AccordionItem>
             {LAUNCH_PACKAGE_ENABLED && (
@@ -233,7 +233,7 @@ const Pricing = () => {
             <AccordionItem value="p3">
               <AccordionTrigger>Is the Free tier really free?</AccordionTrigger>
               <AccordionContent>
-                Yes. The Free tier is for referrers — people who want to send leads to businesses on Revvin and earn payouts directly. No card required.
+                Yes. The Free tier is for referrers, people who want to send leads to businesses on Revvin and earn payouts directly. No card required.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">

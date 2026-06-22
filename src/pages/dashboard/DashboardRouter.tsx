@@ -81,7 +81,7 @@ const DashboardRouter = () => {
     );
   }
 
-  // No role assigned (e.g. Google OAuth first login) — show role selector
+  // No role assigned (e.g. Google OAuth first login), show role selector
   if (!userRole) return <RoleSelector />;
 
   if (userRole === "admin") return <AdminDashboard />;
