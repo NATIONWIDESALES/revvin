@@ -103,7 +103,7 @@ const Index = () => {
               { "@type": "Question", name: "Does Revvin pay the referrers for me?", acceptedAnswer: { "@type": "Answer", text: "No. Revvin gives you the referral infrastructure: a branded referral page, a shareable link, a QR code, and a lead inbox. You pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman." } },
               { "@type": "Question", name: "How does billing work?", acceptedAnswer: { "@type": "Answer", text: "Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for." } },
               { "@type": "Question", name: "Is there a free tier?", acceptedAnswer: { "@type": "Answer", text: "Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with no trial and no setup fee." } },
-              { "@type": "Question", name: "Do you have a marketplace where I can browse offers?", acceptedAnswer: { "@type": "Answer", text: "A public Revvin marketplace is coming. Today, every business gets a branded referral page and a shareable link or QR code that works on its own. Listing on the public marketplace will be optional when it opens." } },
+              { "@type": "Question", name: "Do you have a marketplace where I can browse offers?", acceptedAnswer: { "@type": "Answer", text: "Yes. The Revvin marketplace is live, and every business also gets a branded referral page and shareable link or QR code that works on its own. Listing on the public marketplace is optional." } },
               { "@type": "Question", name: "What kind of businesses is Revvin for?", acceptedAnswer: { "@type": "Answer", text: "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more." } },
             ],
           },
@@ -611,7 +611,7 @@ const Index = () => {
             <AccordionItem value="q4">
               <AccordionTrigger className="text-left">Do you have a marketplace where I can browse offers?</AccordionTrigger>
               <AccordionContent className="text-muted-foreground leading-relaxed">
-                A public Revvin marketplace is coming. Today, every business gets a branded referral page and a shareable link or QR code that works on its own. Listing on the public marketplace will be optional when it opens.
+                Yes. The Revvin marketplace is live, and every business also gets a branded referral page and shareable link or QR code that works on its own. Listing on the public marketplace is optional.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q5">
