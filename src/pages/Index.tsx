@@ -174,7 +174,7 @@ const Index = () => {
                 <span className="absolute -top-2 right-2 rounded-full bg-muted px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Example</span>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Deal closed</p>
                 <p className="mt-1 text-xl font-extrabold tracking-tight text-foreground">+$8,400</p>
-                <p className="text-[10px] text-muted-foreground">Apex Roofing · paid Carlos R.</p>
+                <p className="text-[10px] text-muted-foreground">Example referral payout</p>
                 <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-muted">
                   <div className="h-full w-3/4 bg-gradient-to-r from-primary to-accent" />
                 </div>
@@ -188,14 +188,14 @@ const Index = () => {
       <section className="border-b border-border bg-background">
         <div className="container py-16 md:py-24">
           <div className="mx-auto mb-12 max-w-2xl text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-3">
-              The Revvin.co marketplace
-            </p>
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary mb-4">
+              Preview · upcoming public marketplace
+            </span>
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
               Your offer, seen by referrers nationwide.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              Businesses on Revvin can opt into our public marketplace, where motivated referrers browse offers and submit real customers. The cards below are example offers to show how listings appear.
+              The public marketplace is opening soon. The cards below are illustrative examples only, not real businesses, shown to preview how listings will appear.
             </p>
           </div>
 
