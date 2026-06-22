@@ -297,7 +297,7 @@ const Index = () => {
                     <h3 className="mt-3 text-sm font-bold leading-tight text-foreground">{o.business}</h3>
                     <p className="mt-1 text-xs leading-snug text-muted-foreground">{o.desc}</p>
                     <p className="mt-2 text-[11px] text-muted-foreground">
-                      {o.city}, {o.state}
+                      {o.state ? `${o.city}, ${o.state}` : o.city}
                     </p>
                     <div className="mt-auto flex items-center gap-2 border-t border-border pt-3">
                       <div
