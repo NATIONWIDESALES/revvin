@@ -52,7 +52,7 @@ const Index = () => {
   );
 
   const featuredLocations = useMemo(
-    () => ["All", ...Array.from(new Set(FEATURED_OFFERS.map((o) => `${o.city}, ${o.state}`)))],
+    () => ["All", ...Array.from(new Set(FEATURED_OFFERS.map((o) => (o.state ? `${o.city}, ${o.state}` : o.city))))],
     []
   );
 
@@ -60,7 +60,8 @@ const Index = () => {
     const q = search.trim().toLowerCase();
     return FEATURED_OFFERS.filter((o) => {
       const matchesCat = activeCategory === "All" || o.category === activeCategory;
-      const matchesLoc = activeLocation === "All" || `${o.city}, ${o.state}` === activeLocation;
+      const locKey = o.state ? `${o.city}, ${o.state}` : o.city;
+      const matchesLoc = activeLocation === "All" || locKey === activeLocation;
       if (!matchesCat || !matchesLoc) return false;
       if (!q) return true;
       return (
