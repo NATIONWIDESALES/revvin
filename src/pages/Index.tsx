@@ -77,7 +77,7 @@ const Index = () => {
   return (
     <>
       <SEOHead
-        title="Revvin — Launch a referral program in minutes"
+        title="Revvin · Launch a referral program in minutes"
         description="Branded referral page, shareable link and QR code, and a simple lead inbox. $49/month, cancel anytime. No contract."
         path="/"
         jsonLd={[
@@ -99,13 +99,12 @@ const Index = () => {
             "@context": "https://schema.org",
             "@type": "FAQPage",
             mainEntity: [
-              { "@type": "Question", name: "What if I don't get any referrals?", acceptedAnswer: { "@type": "Answer", text: "Revvin is built so you can prime the pump on day one: text your existing client list with your branded page link, drop the QR on invoices, and add it to your email signature. Your page stays live, you can edit your offer anytime, and any leads you do get cost a fraction of an ad-driven lead." } },
-              { "@type": "Question", name: "Does Revvin pay the referrers for me?", acceptedAnswer: { "@type": "Answer", text: "No. Revvin is the infrastructure — your branded page, lead capture, and dashboard. You pay referrers directly when the deal closes, in whatever way works for your business." } },
+              { "@type": "Question", name: "What if I do not get any referrals?", acceptedAnswer: { "@type": "Answer", text: "Referrals come from putting your link in front of happy customers, so results depend on you making the ask. Revvin is built to make that ask easy: a ready to share page, link, and QR code you can send right after a job, plus a lead inbox so nothing slips through the cracks. It is month to month, so you can cancel anytime." } },
+              { "@type": "Question", name: "Does Revvin pay the referrers for me?", acceptedAnswer: { "@type": "Answer", text: "No. Revvin gives you the referral infrastructure: a branded referral page, a shareable link, a QR code, and a lead inbox. You pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman." } },
               { "@type": "Question", name: "How does billing work?", acceptedAnswer: { "@type": "Answer", text: "Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for." } },
               { "@type": "Question", name: "Is there a free tier?", acceptedAnswer: { "@type": "Answer", text: "Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with no trial and no setup fee." } },
-              { "@type": "Question", name: "Do you have a marketplace where I can browse offers?", acceptedAnswer: { "@type": "Answer", text: "Yes. Listing on the public Revvin marketplace is live and optional — toggle it on in your dashboard so motivated referrers can find your offer. Your own branded referral page works either way." } },
-              { "@type": "Question", name: "What if I cancel?", acceptedAnswer: { "@type": "Answer", text: "You can cancel from your Stripe customer portal anytime. Your referral page stays live until the end of the paid period." } },
-              { "@type": "Question", name: "What kind of businesses is Revvin for?", acceptedAnswer: { "@type": "Answer", text: "Service businesses where one new customer is worth real money — roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more." } },
+              { "@type": "Question", name: "Do you have a marketplace where I can browse offers?", acceptedAnswer: { "@type": "Answer", text: "A public Revvin marketplace is coming. Today, every business gets a branded referral page and a shareable link or QR code that works on its own. Listing on the public marketplace will be optional when it opens." } },
+              { "@type": "Question", name: "What kind of businesses is Revvin for?", acceptedAnswer: { "@type": "Answer", text: "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more." } },
             ],
           },
         ]}
@@ -137,8 +136,8 @@ const Index = () => {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
                   <Link to="/signup">
-                    <span className="sm:hidden">Start your program — $49/mo</span>
-                    <span className="hidden sm:inline">Start your referral program — $49/month</span>
+                    <span className="sm:hidden">Start your program · $49/mo</span>
+                    <span className="hidden sm:inline">Start your referral program · $49/month</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -388,7 +387,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* What you get — bento */}
+      {/* What you get · bento */}
       <section className="border-b border-border">
         <div className="container py-24">
           <div className="mb-12 max-w-2xl">
@@ -397,7 +396,7 @@ const Index = () => {
               Everything you need to run a referral program.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              Track leads, get instant alerts, and see your monthly ROI — all in one place.
+              Track leads, get instant alerts, and see your monthly ROI, all in one place.
             </p>
           </div>
 
@@ -635,7 +634,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Final CTA — dark */}
+      {/* Final CTA · dark */}
       {/*
         LiveTicker hidden for launch: it rendered fabricated activity events
         and named companies. Do NOT re-enable until it is wired to real,
