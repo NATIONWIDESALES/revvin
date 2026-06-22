@@ -52,7 +52,7 @@ const SEOHead = ({ title, description, path = "", canonicalUrl, ogImage, jsonLd,
     setMeta("property", "og:type", "website");
     setMeta("property", "og:site_name", "Revvin");
     setMeta("property", "og:image", ogImage || DEFAULT_OG_IMAGE);
-    setMeta("property", "og:locale", "en_CA");
+    setMeta("property", "og:locale", "en_US");
 
     // Twitter tags
     setMeta("name", "twitter:card", "summary_large_image");

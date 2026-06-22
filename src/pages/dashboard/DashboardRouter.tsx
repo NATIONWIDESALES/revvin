@@ -20,7 +20,7 @@ const RoleSelector = () => {
       // Insert role
       await supabase.from("user_roles").insert({ user_id: user.id, role });
 
-      // If business, create business row and wallet
+      // If business, create business row
       if (role === "business") {
         const name = user.user_metadata?.full_name || user.email?.split("@")[0] || "My Business";
         await supabase.from("businesses").insert({
