@@ -7,7 +7,7 @@ const ease = [0.16, 1, 0.3, 1] as const;
 const messages = [
   { side: "left" as const, text: "Hey do you know a good roofer? Our shingles are shot 😩", delay: 0, time: "2:15 PM" },
   { side: "right" as const, text: "Actually yeah! I know a great one", delay: 0.4, time: "2:16 PM" },
-  { side: "right" as const, text: "Just sent you their link through Revvin — they'll take good care of you", delay: 0.8, time: "2:16 PM" },
+  { side: "right" as const, text: "Just sent you their link through Revvin, they'll take good care of you", delay: 0.8, time: "2:16 PM" },
   { side: "left" as const, text: "Amazing, just submitted a request. Thanks!! 🙏", delay: 1.2, time: "2:18 PM" },
 ];
 

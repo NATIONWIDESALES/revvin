@@ -159,7 +159,7 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
         <div className="min-w-0">
           <h2 className="text-lg font-bold text-foreground leading-tight">Page branding</h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            This is your own branded referral landing page — share it anywhere to bring in warm leads.
+            This is your own branded referral landing page, share it anywhere to bring in warm leads.
             Make it look like <em>your</em> business, not a template.
           </p>
         </div>
@@ -257,7 +257,7 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
                 <p className="text-sm text-muted-foreground">
                   {uploading ? "Uploading..." : "Click to upload a cover image"}
                 </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">PNG or JPG — max 5 MB</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">PNG or JPG, max 5 MB</p>
               </div>
             </div>
           )}
@@ -295,7 +295,7 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
         <Textarea
           value={welcomeMessage}
           onChange={(e) => setWelcomeMessage(e.target.value)}
-          placeholder="Hi — thanks for sending us a referral. We treat every lead you send like family and pay you fast when the deal closes."
+          placeholder="Hi, thanks for sending us a referral. We treat every lead you send like family and pay you fast when the deal closes."
           rows={4}
           className="mt-1.5"
           maxLength={600}

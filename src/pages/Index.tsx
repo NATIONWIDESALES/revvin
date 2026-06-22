@@ -103,7 +103,7 @@ const Index = () => {
               { "@type": "Question", name: "Does Revvin pay the referrers for me?", acceptedAnswer: { "@type": "Answer", text: "No. Revvin gives you the referral infrastructure: a branded referral page, a shareable link, a QR code, and a lead inbox. You pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman." } },
               { "@type": "Question", name: "How does billing work?", acceptedAnswer: { "@type": "Answer", text: "Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for." } },
               { "@type": "Question", name: "Is there a free tier?", acceptedAnswer: { "@type": "Answer", text: "Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with no trial and no setup fee." } },
-              { "@type": "Question", name: "Do you have a marketplace where I can browse offers?", acceptedAnswer: { "@type": "Answer", text: "A public Revvin marketplace is coming. Today, every business gets a branded referral page and a shareable link or QR code that works on its own. Listing on the public marketplace will be optional when it opens." } },
+              { "@type": "Question", name: "Do you have a marketplace where I can browse offers?", acceptedAnswer: { "@type": "Answer", text: "Yes. The Revvin marketplace is live, and every business also gets a branded referral page and shareable link or QR code that works on its own. Listing on the public marketplace is optional." } },
               { "@type": "Question", name: "What kind of businesses is Revvin for?", acceptedAnswer: { "@type": "Answer", text: "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more." } },
             ],
           },
@@ -187,14 +187,11 @@ const Index = () => {
       <section className="border-b border-border bg-background">
         <div className="container py-16 md:py-24">
           <div className="mx-auto mb-12 max-w-2xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary mb-4">
-              Preview · upcoming public marketplace
-            </span>
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
               Your offer, seen by referrers nationwide.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              The public marketplace is opening soon. The cards below are illustrative examples only, not real businesses, shown to preview how listings will appear.
+              The Revvin marketplace is live. The cards below are illustrative examples of how a listing appears, swapped in for real businesses on this page. Browse the live marketplace to see active offers in your area.
             </p>
           </div>
 
@@ -323,9 +320,9 @@ const Index = () => {
               <Link to="/signup">List your business here</Link>
             </Button>
             {/*
-              FOUNDER-CONFIRMED TODO: confirm where the marketplace waitlist
-              CTA should submit. Currently falls back to a mailto so no new
-              backend or RLS change is introduced.
+              FOUNDER-CONFIRMED TODO: marketplace is now live, so "waitlist"
+              wording is stale. Keeping mailto as-is until founder confirms
+              the destination and the replacement label.
             */}
             <Button
               variant="ghost"
@@ -614,7 +611,7 @@ const Index = () => {
             <AccordionItem value="q4">
               <AccordionTrigger className="text-left">Do you have a marketplace where I can browse offers?</AccordionTrigger>
               <AccordionContent className="text-muted-foreground leading-relaxed">
-                A public Revvin marketplace is coming. Today, every business gets a branded referral page and a shareable link or QR code that works on its own. Listing on the public marketplace will be optional when it opens.
+                Yes. The Revvin marketplace is live, and every business also gets a branded referral page and shareable link or QR code that works on its own. Listing on the public marketplace is optional.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q5">

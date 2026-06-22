@@ -34,7 +34,7 @@ const ForReferrers = () => (
         "mainEntity": [
           { "@type": "Question", "name": "How do I get paid as a referrer?", "acceptedAnswer": { "@type": "Answer", "text": "When the business confirms the referred customer closed a deal, the business pays you directly for the full advertised amount, in whatever way they specified on the offer." } },
           { "@type": "Question", "name": "Does Revvin take a cut of my earnings?", "acceptedAnswer": { "@type": "Answer", "text": "No. You always receive 100% of the advertised payout, directly from the business. Revvin only charges the business a flat monthly subscription." } },
-          { "@type": "Question", "name": "Do I need to be a professional to refer?", "acceptedAnswer": { "@type": "Answer", "text": "No. Anyone with a network — friends, family, neighbors, clients — can submit referrals and earn." } },
+          { "@type": "Question", "name": "Do I need to be a professional to refer?", "acceptedAnswer": { "@type": "Answer", "text": "No. Anyone with a network, friends, family, neighbors, clients, can submit referrals and earn." } },
           { "@type": "Question", "name": "What if someone else refers the same customer first?", "acceptedAnswer": { "@type": "Answer", "text": "Revvin uses a first-in-wins policy. The first valid referral submitted for a given customer receives credit for the close." } }
         ]
       }}
@@ -115,12 +115,11 @@ const ForReferrers = () => (
           </motion.h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: DollarSign, title: "Earn the full payout", desc: "The full advertised payout goes to you. Revvin charges a separate fee to the business — you keep every dollar." },
-              { icon: BadgeCheck, title: "Verified businesses", desc: "Every business on Revvin is reviewed and approved. You're referring people to legitimate companies." },
-              { icon: Shield, title: "Platform protection", desc: "No chasing businesses for payment. Revvin handles the payout process so you always get paid." },
-              { icon: Trophy, title: "Build your reputation", desc: "Earn badges, climb leaderboards, and build a track record as a top referrer." },
+              { icon: DollarSign, title: "100% of the payout is yours", desc: "Paid directly by the business. Revvin charges the business a flat $49/month and takes no cut of your reward." },
+              { icon: BadgeCheck, title: "Real businesses", desc: "You are referring to active, subscribed businesses with a live public page and contact details." },
+              { icon: Shield, title: "A clear record", desc: "Every referral is timestamped in your dashboard, so there is always a record of who referred whom and when." },
               { icon: Search, title: "Browse real opportunities", desc: "Filter by category, city, and payout amount. Find offers that match your network." },
-              { icon: CheckCircle2, title: "Works for anyone", desc: "Whether you're a professional connector or just know the right people — Revvin works for you." },
+              { icon: CheckCircle2, title: "Works for anyone", desc: "Whether you're a professional connector or just know the right people, Revvin works for you." },
             ].map((item, i) => (
               <motion.div key={item.title} variants={fadeUp} custom={i + 1} className="rounded-xl border bg-card p-6">
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-earnings/5">

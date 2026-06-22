@@ -362,8 +362,8 @@ const OffersTab = ({ offers }: { offers: OfferRow[] }) => {
               {offers.map((o) => (
                 <tr key={o.id} className="border-t border-border hover:bg-muted/30">
                   <td className="px-4 py-3 font-medium text-foreground">{o.title}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{o.category || "—"}</td>
-                  <td className="px-4 py-3 text-foreground">{o.payout ? `$${o.payout}` : "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{o.category || "·"}</td>
+                  <td className="px-4 py-3 text-foreground">{o.payout ? `$${o.payout}` : "·"}</td>
                   <td className="px-4 py-3">
                     <span className="inline-flex rounded-full bg-muted px-2 py-0.5 text-xs capitalize text-muted-foreground">
                       {o.approval_status === "approved" ? (o.status || "active") : (o.approval_status || "pending")}
@@ -485,10 +485,10 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                       <td colSpan={5} className="px-4 py-5">
                         <div className="grid gap-4 md:grid-cols-2">
                           <div className="space-y-2 text-sm">
-                            <div><span className="text-muted-foreground">Lead email:</span> {l.lead_email || "—"}</div>
+                            <div><span className="text-muted-foreground">Lead email:</span> {l.lead_email || "·"}</div>
                             <div><span className="text-muted-foreground">What they need:</span> {l.lead_need}</div>
-                            <div><span className="text-muted-foreground">Referrer phone:</span> {l.referrer_phone || "—"}</div>
-                            <div><span className="text-muted-foreground">Relationship:</span> {l.relationship_to_lead || "—"}</div>
+                            <div><span className="text-muted-foreground">Referrer phone:</span> {l.referrer_phone || "·"}</div>
+                            <div><span className="text-muted-foreground">Relationship:</span> {l.relationship_to_lead || "·"}</div>
                             {l.status === "closed_won" && (
                               <div className="pt-2">
                                 <Label className="text-xs">Deal value (optional)</Label>
@@ -605,9 +605,9 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
                   <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{new Date(r.created_at).toLocaleDateString()}</td>
                   <td className="px-4 py-3">
                     <div className="font-medium text-foreground">{r.customer_name}</div>
-                    <div className="text-xs text-muted-foreground">{r.customer_phone || r.customer_email || "—"}</div>
+                    <div className="text-xs text-muted-foreground">{r.customer_phone || r.customer_email || "·"}</div>
                   </td>
-                  <td className="px-4 py-3 text-foreground">{r.offers?.title ?? "—"}</td>
+                  <td className="px-4 py-3 text-foreground">{r.offers?.title ?? "·"}</td>
                   <td className="px-4 py-3">
                     <Select value={r.status} onValueChange={(v) => updateStatus(r.id, v)}>
                       <SelectTrigger className="h-8 w-32 text-xs"><SelectValue /></SelectTrigger>
@@ -630,7 +630,7 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
                         </Button>
                       )
                     ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
+                      <span className="text-xs text-muted-foreground">,</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -642,9 +642,9 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
                     <td colSpan={6} className="px-4 py-5">
                       <div className="grid gap-4 md:grid-cols-2 text-sm">
                         <div className="space-y-2">
-                          <div><span className="text-muted-foreground">Customer email:</span> {r.customer_email || "—"}</div>
-                          <div><span className="text-muted-foreground">Customer phone:</span> {r.customer_phone || "—"}</div>
-                          <div><span className="text-muted-foreground">Payout owed:</span> {r.payout_amount ? `$${r.payout_amount}` : "—"}</div>
+                          <div><span className="text-muted-foreground">Customer email:</span> {r.customer_email || "·"}</div>
+                          <div><span className="text-muted-foreground">Customer phone:</span> {r.customer_phone || "·"}</div>
+                          <div><span className="text-muted-foreground">Payout owed:</span> {r.payout_amount ? `$${r.payout_amount}` : "·"}</div>
                           {r.status === "won" && (
                             <div className="pt-2">
                               <Label className="text-xs">Deal value (optional)</Label>
@@ -667,7 +667,7 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
                         </div>
                         <div>
                           <Label className="text-xs">Notes from referrer</Label>
-                          <p className="mt-1.5 text-foreground">{r.notes || "—"}</p>
+                          <p className="mt-1.5 text-foreground">{r.notes || "·"}</p>
                         </div>
                       </div>
                     </td>
@@ -764,12 +764,12 @@ const ShareTab = ({ biz, publicUrl }: { biz: Business; publicUrl: string }) => {
     const dataUrl = canvas.toDataURL("image/png");
     const w = window.open("", "_blank");
     if (!w) return;
-    w.document.write(`<html><head><title>${biz.name} — Referral QR</title><style>body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;text-align:center}img{width:400px;height:400px}h1{font-size:24px;margin:24px 0 8px}p{color:#64748b;font-size:14px}@media print{body{padding:0}}</style></head><body><h1>${biz.name}</h1><p>Refer a customer, earn ${biz.offer_amount || ""}</p><img src="${dataUrl}" /><p style="margin-top:16px;font-size:12px;word-break:break-all">${publicUrl}</p><script>window.onload=()=>window.print()</script></body></html>`);
+    w.document.write(`<html><head><title>${biz.name}, Referral QR</title><style>body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;text-align:center}img{width:400px;height:400px}h1{font-size:24px;margin:24px 0 8px}p{color:#64748b;font-size:14px}@media print{body{padding:0}}</style></head><body><h1>${biz.name}</h1><p>Refer a customer, earn ${biz.offer_amount || ""}</p><img src="${dataUrl}" /><p style="margin-top:16px;font-size:12px;word-break:break-all">${publicUrl}</p><script>window.onload=()=>window.print()</script></body></html>`);
     w.document.close();
   };
 
   const emailTemplate = `Hey [name], we've launched a referral program. If you know someone who could use our services, send them through this link: ${publicUrl}`;
-  const smsTemplate = `Hey — quick favor: if you know anyone who needs ${biz.category || "our services"}, send them here: ${publicUrl}`;
+  const smsTemplate = `Hey, quick favor: if you know anyone who needs ${biz.category || "our services"}, send them here: ${publicUrl}`;
 
   const copy = (s: string, label: string) => { navigator.clipboard.writeText(s); toast({ title: `${label} copied` }); };
 
@@ -918,7 +918,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
         <h3 className="text-sm font-semibold text-foreground mb-1">Subscription</h3>
         <p className="text-xs text-muted-foreground mb-4">Pro · $49/month · cancel anytime.</p>
         <div className="space-y-2 text-sm">
-          <div className="flex justify-between"><span className="text-muted-foreground">Status</span><span className="text-foreground font-medium capitalize">{biz.subscription_status || "—"}</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Status</span><span className="text-foreground font-medium capitalize">{biz.subscription_status || "·"}</span></div>
           {periodEnd && <div className="flex justify-between"><span className="text-muted-foreground">Next billing</span><span className="text-foreground">{periodEnd}</span></div>}
           <div className="flex justify-between">
             <span className="text-muted-foreground">Launch Package</span>

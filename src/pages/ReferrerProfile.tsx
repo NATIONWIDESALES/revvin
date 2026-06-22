@@ -55,7 +55,7 @@ const ReferrerProfile = () => {
 
   return (
     <div className="py-8">
-      <SEOHead title={`${profile.full_name || "Referrer"} — Revvin Profile`} description={`View ${profile.full_name || "this referrer"}'s profile, stats, and badges on Revvin.`} path={`/referrer/${userId}`} />
+      <SEOHead title={`${profile.full_name || "Referrer"} · Revvin Profile`} description={`View ${profile.full_name || "this referrer"}'s profile, stats, and badges on Revvin.`} path={`/referrer/${userId}`} />
       <div className="container max-w-3xl">
         <Button variant="ghost" size="sm" className="mb-6 gap-1" asChild>
           <Link to="/browse"><ArrowLeft className="h-4 w-4" /> Back</Link>

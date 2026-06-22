@@ -123,7 +123,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
     }
     setSubmitting(true);
     try {
-      // Use the offer's real DB id directly — look up business_id from the offer
+      // Use the offer's real DB id directly, look up business_id from the offer
       const { data: dbOffer } = await supabase
         .from("offers")
         .select("id, business_id")

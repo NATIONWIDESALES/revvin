@@ -175,7 +175,7 @@ const AdminDashboard = () => {
               <h1 className="font-display text-3xl font-bold text-foreground">Admin Console</h1>
               <Badge variant="secondary" className="gap-1"><Shield className="h-3 w-3" /> Platform Operator</Badge>
             </div>
-            <p className="text-muted-foreground">Full platform oversight — verification, payouts, and audit</p>
+            <p className="text-muted-foreground">Full platform oversight, verification, payouts, and audit</p>
           </motion.div>
 
           {/* Stats */}
@@ -227,7 +227,7 @@ const AdminDashboard = () => {
                       <div key={biz.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-3">
                         <div>
                           <p className="text-sm font-medium">{biz.name}</p>
-                          <p className="text-xs text-muted-foreground">{biz.industry ?? "—"} • {biz.city ?? "—"}</p>
+                          <p className="text-xs text-muted-foreground">{biz.industry ?? "·"} • {biz.city ?? "·"}</p>
                         </div>
                         <Badge variant={biz.verified ? "default" : "secondary"}>{biz.verified ? "Verified" : "Pending"}</Badge>
                       </div>
@@ -244,7 +244,7 @@ const AdminDashboard = () => {
                         <div key={p.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-3">
                           <div>
                             <p className="text-sm font-medium">{p.full_name ?? "Unnamed"}</p>
-                            <p className="text-xs text-muted-foreground">{p.city ?? "—"}</p>
+                            <p className="text-xs text-muted-foreground">{p.city ?? "·"}</p>
                           </div>
                           <Badge variant={role?.role === "business" ? "default" : "secondary"}>{role?.role ?? "unknown"}</Badge>
                         </div>
@@ -272,11 +272,11 @@ const AdminDashboard = () => {
                         const sc = statusConfig[ref.status] ?? statusConfig.submitted;
                         return (
                           <tr key={ref.id} className="border-b border-border last:border-0 hover:bg-muted/30">
-                            <td className="p-3"><p className="font-medium">{ref.customer_name}</p><p className="text-xs text-muted-foreground">{ref.customer_email ?? "—"}</p></td>
-                            <td className="p-3 text-muted-foreground">{ref.offers?.title ?? "—"}</td>
-                            <td className="p-3 text-muted-foreground">{ref.businesses?.name ?? "—"}</td>
+                            <td className="p-3"><p className="font-medium">{ref.customer_name}</p><p className="text-xs text-muted-foreground">{ref.customer_email ?? "·"}</p></td>
+                            <td className="p-3 text-muted-foreground">{ref.offers?.title ?? "·"}</td>
+                            <td className="p-3 text-muted-foreground">{ref.businesses?.name ?? "·"}</td>
                             <td className="p-3"><Badge className={`${sc.bg} ${sc.text} border-0`}>{sc.label}</Badge></td>
-                            <td className="p-3 font-medium">{ref.payout_amount ? `$${ref.payout_amount}` : "—"}</td>
+                            <td className="p-3 font-medium">{ref.payout_amount ? `$${ref.payout_amount}` : "·"}</td>
                             <td className="p-3 text-muted-foreground">{new Date(ref.created_at).toLocaleDateString()}</td>
                           </tr>
                         );
@@ -355,7 +355,7 @@ const AdminDashboard = () => {
                         <div className="flex items-start justify-between mb-3">
                           <div>
                             <p className="font-medium">{ref.customer_name}</p>
-                            <p className="text-xs text-muted-foreground">{ref.offers?.title ?? "—"} • {ref.businesses?.name ?? "—"}</p>
+                            <p className="text-xs text-muted-foreground">{ref.offers?.title ?? "·"} • {ref.businesses?.name ?? "·"}</p>
                             <Badge className="mt-2 bg-accent/10 text-accent-foreground border-0">Disputed</Badge>
                           </div>
                           <div className="text-right text-xs text-muted-foreground">
@@ -401,7 +401,7 @@ const AdminDashboard = () => {
                     <div key={biz.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-4">
                       <div className="flex-1">
                         <p className="font-medium">{biz.name}</p>
-                        <p className="text-xs text-muted-foreground">{biz.industry ?? "—"} • {biz.city ?? "No location"} • {(biz as any).phone ? `📞 ${(biz as any).phone} • ` : ""}Joined {new Date(biz.created_at).toLocaleDateString()}</p>
+                        <p className="text-xs text-muted-foreground">{biz.industry ?? "·"} • {biz.city ?? "No location"} • {(biz as any).phone ? `📞 ${(biz as any).phone} • ` : ""}Joined {new Date(biz.created_at).toLocaleDateString()}</p>
                         <div className="flex items-center gap-2 mt-2">
                           <Badge variant={biz.verified ? "default" : "secondary"}>{biz.verified ? "Verified" : "Unverified"}</Badge>
                           <Badge variant={accountStatus === "approved" ? "default" : accountStatus === "rejected" ? "destructive" : "secondary"}>

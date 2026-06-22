@@ -61,7 +61,7 @@ const OfferQRCode = ({ offerId, businessName, offerTitle, payoutAmount, payoutCu
     const dataUrl = qrCanvas.toDataURL("image/png");
     const w = window.open("", "_blank");
     if (!w) return;
-    w.document.write(`<!DOCTYPE html><html><head><title>QR — ${businessName}</title><style>body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;text-align:center}img{width:400px;height:400px}h1{font-size:24px;margin:24px 0 8px}p{color:#64748b;font-size:14px;margin:4px 0}@media print{body{padding:0}}</style></head><body><h1>${businessName}</h1><p>Scan to refer a customer</p><img src="${dataUrl}" /><p style="margin-top:16px;font-size:12px;word-break:break-all">${offerUrl}</p><script>window.onload=()=>window.print()</script></body></html>`);
+    w.document.write(`<!DOCTYPE html><html><head><title>QR, ${businessName}</title><style>body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;text-align:center}img{width:400px;height:400px}h1{font-size:24px;margin:24px 0 8px}p{color:#64748b;font-size:14px;margin:4px 0}@media print{body{padding:0}}</style></head><body><h1>${businessName}</h1><p>Scan to refer a customer</p><img src="${dataUrl}" /><p style="margin-top:16px;font-size:12px;word-break:break-all">${offerUrl}</p><script>window.onload=()=>window.print()</script></body></html>`);
     w.document.close();
   };
 

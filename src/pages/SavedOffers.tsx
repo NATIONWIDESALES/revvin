@@ -188,7 +188,7 @@ const SavedOffers = () => {
       withDist.sort((a, b) => a.d - b.d);
       return withDist.map(({ offer, distanceLabel }) => ({ offer, distanceLabel }));
     }
-    // "recent" — already in save order
+    // "recent", already in save order
     return list;
   }, [savedInSaveOrder, sort, coords]);
 
@@ -197,13 +197,13 @@ const SavedOffers = () => {
   return (
     <>
       <SEOHead
-        title="Saved Offers — Revvin"
+        title="Saved Offers · Revvin"
         description="Your private list of bookmarked referral opportunities on Revvin. Open any saved offer to review the details and submit a warm lead."
         path="/saved"
         noindex
       />
       <div className="container py-8 md:py-12">
-        {/* Mobile-only sticky sort bar — sits flush under the app navbar (h-14) */}
+        {/* Mobile-only sticky sort bar, sits flush under the app navbar (h-14) */}
         {hasSaved && (
           <div
             className="sticky top-14 z-30 -mx-4 mb-4 border-b border-border bg-background/85 px-4 py-2 backdrop-blur-md sm:hidden"
@@ -249,7 +249,7 @@ const SavedOffers = () => {
                 {isSynced ? (
                   <>
                     <Cloud className="h-3.5 w-3.5 text-primary" />
-                    Synced to your account — available on every device.
+                    Synced to your account, available on every device.
                   </>
                 ) : (
                   <>
@@ -271,7 +271,7 @@ const SavedOffers = () => {
               <label htmlFor="saved-sort" className="sr-only">
                 Sort saved offers
               </label>
-              {/* Inline sort: desktop only — mobile uses the sticky bar above */}
+              {/* Inline sort: desktop only, mobile uses the sticky bar above */}
               <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
                 <SelectTrigger
                   id="saved-sort"

@@ -10,7 +10,7 @@ interface MapViewProps {
   offers: Offer[];
   /** When set, the map pans to highlight this offer's marker */
   highlightOfferId?: string | null;
-  /** Called when a user clicks a marker — parent can scroll to card */
+  /** Called when a user clicks a marker, parent can scroll to card */
   onMarkerClick?: (offerId: string) => void;
 }
 
@@ -22,7 +22,7 @@ interface MapViewProps {
  * Uses a tight ~3–5 km radius (0.05°) so offers in *different* cities
  * (e.g. Dallas vs. Fort Worth, NYC vs. Brooklyn, LA vs. Long Beach) do
  * NOT get merged. The cluster's anchor point is the first member's
- * coordinates — never an average — so the marker always sits on a real
+ * coordinates, never an average, so the marker always sits on a real
  * offer location instead of drifting into empty space between cities.
  */
 function clusterOffers(offers: Offer[], radiusDeg = 0.05) {
@@ -36,7 +36,7 @@ function clusterOffers(offers: Offer[], radiusDeg = 0.05) {
     );
     if (match) {
       match.offers.push(offer);
-      // Anchor stays on the first member's true coordinates — do not average.
+      // Anchor stays on the first member's true coordinates, do not average.
     } else {
       clusters.push({
         lat: offer.latitude,

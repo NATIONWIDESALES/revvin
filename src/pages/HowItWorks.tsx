@@ -30,7 +30,7 @@ const HowItWorks = () => {
   return (
     <>
       <SEOHead
-        title="How Revvin works — referral page in 3 steps"
+        title="How Revvin works, referral page in 3 steps"
         description="Create a branded referral page, share your link or QR code, manage every lead from a simple dashboard. Pay referrers directly when deals close."
         path="/how-it-works"
       />

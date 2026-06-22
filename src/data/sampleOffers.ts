@@ -125,7 +125,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
   // ── REAL ESTATE ──────────────────────────────────────────
   {
     id: "sample-realestate-1",
-    title: "Buyer & Seller Referrals — Greater Vancouver",
+    title: "Buyer & Seller Referrals, Greater Vancouver",
     business: "Westside Realty Group",
     businessLogo: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80&auto=format&fit=crop",
     category: "Real Estate",
@@ -152,7 +152,7 @@ export const sampleOffers: (Offer & { isSample: true })[] = [
   },
   {
     id: "sample-realestate-2",
-    title: "Residential Buyers & Sellers — GTA",
+    title: "Residential Buyers & Sellers, GTA",
     business: "Maple Leaf Properties",
     businessLogo: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80&auto=format&fit=crop",
     category: "Real Estate",

@@ -212,7 +212,7 @@ const Onboarding = () => {
     };
     return (
       <>
-        <SEOHead title="Finish checkout — Revvin" description="Complete checkout to activate your Revvin account." path="/welcome" noindex />
+        <SEOHead title="Finish checkout · Revvin" description="Complete checkout to activate your Revvin account." path="/welcome" noindex />
         <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
           <div className="w-full max-w-md rounded-2xl border border-border bg-background p-8 shadow-sm text-center">
             <h1 className="text-xl font-semibold tracking-tight text-foreground">We could not start checkout</h1>
@@ -238,7 +238,7 @@ const Onboarding = () => {
 
   return (
     <>
-      <SEOHead title="Set up your referral page — Revvin" description="Onboarding wizard" path="/welcome" noindex />
+      <SEOHead title="Set up your referral page · Revvin" description="Onboarding wizard" path="/welcome" noindex />
       <div className="min-h-screen bg-muted/30 py-12 px-4">
         <div className="mx-auto max-w-2xl">
           {params.get("checkout") === "success" && step === 1 && (
@@ -247,7 +247,7 @@ const Onboarding = () => {
                 <div className="flex items-start gap-3">
                   <Check className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-semibold text-foreground">Payment received — Pro + Launch Package ✨</p>
+                    <p className="font-semibold text-foreground">Payment received, Pro + Launch Package ✨</p>
                     <p className="mt-1 text-muted-foreground">
                       Our team will reach out within 1 business day to schedule your 1:1 onboarding call.
                       In the meantime, get a head start by filling in the basics below.
@@ -264,9 +264,9 @@ const Onboarding = () => {
               <div className="mb-6 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm text-foreground flex items-start gap-3">
                 <Check className="h-4 w-4 text-primary mt-0.5" />
                 <div>
-                  <p className="font-semibold text-foreground">Payment received — subscription active</p>
+                  <p className="font-semibold text-foreground">Payment received, subscription active</p>
                   <p className="mt-1 text-muted-foreground">
-                    Let's set up your referral page — takes about 3 minutes. Want hands-on help?{" "}
+                    Let's set up your referral page, takes about 3 minutes. Want hands-on help?{" "}
                     <Link to="/pricing" className="underline text-foreground">Add the Launch Package</Link>.
                   </p>
                 </div>

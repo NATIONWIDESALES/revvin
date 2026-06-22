@@ -275,10 +275,10 @@ const OfferDetail = () => {
             {/* Trust Signals */}
             <motion.div variants={fadeUp} custom={5.5} className="space-y-2">
               {[
-                "Business verified by Revvin",
-                "Payout terms locked when referral is accepted",
-                "Paid directly by the business — 100% of the payout goes to you",
-                "Dispute resolution if anything goes wrong",
+                "Subscribed business with a live public page",
+                "Payout terms shown on the offer at the time you refer",
+                "Paid directly by the business · 100% of the payout goes to you",
+                "Every referral is timestamped in your dashboard",
               ].map((signal) => (
                 <div key={signal} className="flex items-center gap-2 text-sm text-muted-foreground">
                   <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />

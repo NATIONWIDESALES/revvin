@@ -204,7 +204,7 @@ const PublicReferralPage = () => {
   return (
     <>
       <SEOHead
-        title={`Refer a customer to ${biz.name}${biz.offer_amount ? ` — earn ${biz.offer_amount}` : ""}`}
+        title={`Refer a customer to ${biz.name}${biz.offer_amount ? `, earn ${biz.offer_amount}` : ""}`}
         description={`${biz.name} pays for warm referrals.${biz.offer_amount ? ` Earn ${biz.offer_amount}${biz.offer_trigger ? " " + biz.offer_trigger : ""}.` : ""}`}
         path={`/r/${biz.slug}`}
         jsonLd={{

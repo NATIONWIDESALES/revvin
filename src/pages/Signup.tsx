@@ -49,7 +49,7 @@ const Signup = () => {
   useEffect(() => {
     if (authLoading || !user || searchParams.get("checkout") === "canceled") return;
     (async () => {
-      // Don't re-charge an already-paying business — send them to the dashboard.
+      // Don't re-charge an already-paying business, send them to the dashboard.
       const { data: bizRows } = await supabase
         .from("businesses")
         .select("subscription_status")
@@ -124,7 +124,7 @@ const Signup = () => {
   return (
     <>
       <SEOHead
-        title="Start your referral program — Revvin"
+        title="Start your referral program · Revvin"
         description="Create your Revvin account and launch a branded referral page for your business. $49/month, cancel anytime."
         path="/signup"
         noindex

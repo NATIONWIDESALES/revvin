@@ -62,10 +62,10 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
     <Link
       to={`/offer/${toSlug(offer.business)}/${offer.id}`}
       className="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-      aria-label={`${offer.business} — ${offer.title}`}
+      aria-label={`${offer.business}, ${offer.title}`}
     >
       <div className="rounded-xl border border-border bg-card overflow-hidden transition-all duration-250 ease-out hover:shadow-card-hover hover:-translate-y-1 group-focus-visible:shadow-card-hover group-focus-visible:-translate-y-1 h-full flex flex-col" style={{ borderTopColor: color, borderTopWidth: '3px' }}>
-        {/* Image / Logo area — shorter on mobile so card content fits */}
+        {/* Image / Logo area, shorter on mobile so card content fits */}
         <div className="relative aspect-[16/10] sm:aspect-[4/3] bg-surface flex items-center justify-center overflow-hidden">
           {isLogoUrl ? (
             <img
@@ -142,7 +142,7 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
               Featured
             </Badge>
           )}
-          {/* Showcase offers blend in — no badge label */}
+          {/* Showcase offers blend in, no badge label */}
           {isNew && !isSample && (
             <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground text-xs shadow-sm">
               New on Revvin
