@@ -21,14 +21,15 @@ import StatsMarquee from "@/components/marketing/StatsMarquee";
 import Wordmark from "@/components/brand/Wordmark";
 
 const FEATURED_OFFERS = [
-  { id: "apex", business: "Apex Roofing", category: "Roofing", city: "Denver", state: "CO", payout: 500, desc: "Refer a closed roofing job", owner: "Mike Doyle" },
-  { id: "northair", business: "NorthAir HVAC", category: "HVAC", city: "Calgary", state: "AB", payout: 300, desc: "Refer a furnace or AC install", owner: "Sarah Lin" },
-  { id: "greenscape", business: "GreenScape Landscaping", category: "Landscaping", city: "Vancouver", state: "BC", payout: 400, desc: "Refer a full backyard project", owner: "Tom Patel" },
-  { id: "bcmortgage", business: "BC Mortgage Pros", category: "Mortgage", city: "Surrey", state: "BC", payout: 250, desc: "Refer a funded mortgage", owner: "Priya Shah" },
-  { id: "volt", business: "Volt Solar", category: "Solar", city: "Phoenix", state: "AZ", payout: 750, desc: "Refer a solar installation", owner: "Diego Ramos" },
-  { id: "proshine", business: "ProShine Detailing", category: "Auto", city: "Toronto", state: "ON", payout: 150, desc: "Refer a ceramic coating", owner: "Alex Chen" },
-  { id: "clearview", business: "ClearView Windows", category: "Home Services", city: "Seattle", state: "WA", payout: 350, desc: "Refer a window replacement", owner: "Jamie Roy" },
-  { id: "summit", business: "Summit Real Estate", category: "Real Estate", city: "Calgary", state: "AB", payout: 1000, desc: "Refer a buyer or seller", owner: "Erin Walsh" },
+  // Illustrative placeholders only. Do NOT use real or invented company names here.
+  { id: "ex-roofing", business: "A roofing company near you", category: "Roofing", city: "Your city", state: "", payout: 500, desc: "Example offer · refer a closed roofing job", owner: "Local business owner" },
+  { id: "ex-hvac", business: "An HVAC company near you", category: "HVAC", city: "Your city", state: "", payout: 300, desc: "Example offer · refer a furnace or AC install", owner: "Local business owner" },
+  { id: "ex-landscape", business: "A landscaping company near you", category: "Landscaping", city: "Your city", state: "", payout: 400, desc: "Example offer · refer a full backyard project", owner: "Local business owner" },
+  { id: "ex-mortgage", business: "A mortgage broker near you", category: "Mortgage", city: "Your city", state: "", payout: 250, desc: "Example offer · refer a funded mortgage", owner: "Local business owner" },
+  { id: "ex-solar", business: "A solar installer near you", category: "Solar", city: "Your city", state: "", payout: 750, desc: "Example offer · refer a solar installation", owner: "Local business owner" },
+  { id: "ex-auto", business: "An auto detailer near you", category: "Auto", city: "Your city", state: "", payout: 150, desc: "Example offer · refer a ceramic coating", owner: "Local business owner" },
+  { id: "ex-windows", business: "A window company near you", category: "Home Services", city: "Your city", state: "", payout: 350, desc: "Example offer · refer a window replacement", owner: "Local business owner" },
+  { id: "ex-realestate", business: "A real estate agent near you", category: "Real Estate", city: "Your city", state: "", payout: 1000, desc: "Example offer · refer a buyer or seller", owner: "Local business owner" },
 ];
 
 const initials = (name: string) =>
