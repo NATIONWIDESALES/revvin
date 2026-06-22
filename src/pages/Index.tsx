@@ -589,45 +589,46 @@ const Index = () => {
           </h2>
           <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="q0">
-              <AccordionTrigger>What if I don't get any referrals?</AccordionTrigger>
-              <AccordionContent>
-                Revvin is built so you can prime the pump on day one: text your existing client list with your branded page link, drop the QR code on invoices, and add it to your email signature. Your page stays live, you can edit your offer anytime, and any leads you do get cost a fraction of an ad-driven lead.
+              <AccordionTrigger className="text-left">What if I do not get any referrals?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Referrals come from putting your link in front of happy customers, so results depend on you making the ask. Revvin is built to make that ask easy: a ready to share page, link, and QR code you can send right after a job, plus a lead inbox so nothing slips through the cracks. It is month to month, so you can cancel anytime.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q1">
-              <AccordionTrigger>Does Revvin pay the referrers for me?</AccordionTrigger>
-              <AccordionContent>
-                No. Revvin is the infrastructure — your branded page, lead capture, and dashboard. You pay referrers directly when the deal closes, in whatever way works for your business.
+              <AccordionTrigger className="text-left">Does Revvin pay the referrers for me?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                No. Revvin gives you the referral infrastructure: a branded referral page, a shareable link, a QR code, and a lead inbox. You pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q2">
-              <AccordionTrigger>How does billing work?</AccordionTrigger>
-              <AccordionContent>
+              <AccordionTrigger className="text-left">How does billing work?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
                 Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q3">
-              <AccordionTrigger>Is there a free tier?</AccordionTrigger>
-              <AccordionContent>
+              <AccordionTrigger className="text-left">Is there a free tier?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
                 Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with no trial and no setup fee.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q4">
-              <AccordionTrigger>Do you have a marketplace where I can browse offers?</AccordionTrigger>
-              <AccordionContent>
-                Yes — the Revvin marketplace is live. Listing your offer is optional and toggleable in your dashboard. When on, motivated referrers browsing the marketplace can find your offer and submit leads; when off, your branded referral page still works for your own network.
+              <AccordionTrigger className="text-left">Do you have a marketplace where I can browse offers?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                A public Revvin marketplace is coming. Today, every business gets a branded referral page and a shareable link or QR code that works on its own. Listing on the public marketplace will be optional when it opens.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q5">
-              <AccordionTrigger>What if I cancel?</AccordionTrigger>
-              <AccordionContent>
-                You can cancel from your Stripe customer portal anytime. Your referral page stays live until the end of the paid period.
+              <AccordionTrigger className="text-left">What if I cancel?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                {/* FOUNDER-CONFIRMED TODO: confirm exact cancellation terms and what happens to the referral page after the paid period ends. */}
+                FOUNDER-CONFIRMED TODO: answer pending.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q6">
-              <AccordionTrigger>What kind of businesses is Revvin for?</AccordionTrigger>
-              <AccordionContent>
-                Service businesses where one new customer is worth real money — roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more.
+              <AccordionTrigger className="text-left">What kind of businesses is Revvin for?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
