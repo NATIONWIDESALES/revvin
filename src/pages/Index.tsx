@@ -187,14 +187,11 @@ const Index = () => {
       <section className="border-b border-border bg-background">
         <div className="container py-16 md:py-24">
           <div className="mx-auto mb-12 max-w-2xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary mb-4">
-              Preview · upcoming public marketplace
-            </span>
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
               Your offer, seen by referrers nationwide.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              The public marketplace is opening soon. The cards below are illustrative examples only, not real businesses, shown to preview how listings will appear.
+              The Revvin marketplace is live. The cards below are illustrative examples of how a listing appears, swapped in for real businesses on this page. Browse the live marketplace to see active offers in your area.
             </p>
           </div>
 
@@ -323,9 +320,9 @@ const Index = () => {
               <Link to="/signup">List your business here</Link>
             </Button>
             {/*
-              FOUNDER-CONFIRMED TODO: confirm where the marketplace waitlist
-              CTA should submit. Currently falls back to a mailto so no new
-              backend or RLS change is introduced.
+              FOUNDER-CONFIRMED TODO: marketplace is now live, so "waitlist"
+              wording is stale. Keeping mailto as-is until founder confirms
+              the destination and the replacement label.
             */}
             <Button
               variant="ghost"
