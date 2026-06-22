@@ -21,14 +21,15 @@ import StatsMarquee from "@/components/marketing/StatsMarquee";
 import Wordmark from "@/components/brand/Wordmark";
 
 const FEATURED_OFFERS = [
-  { id: "apex", business: "Apex Roofing", category: "Roofing", city: "Denver", state: "CO", payout: 500, desc: "Refer a closed roofing job", owner: "Mike Doyle" },
-  { id: "northair", business: "NorthAir HVAC", category: "HVAC", city: "Calgary", state: "AB", payout: 300, desc: "Refer a furnace or AC install", owner: "Sarah Lin" },
-  { id: "greenscape", business: "GreenScape Landscaping", category: "Landscaping", city: "Vancouver", state: "BC", payout: 400, desc: "Refer a full backyard project", owner: "Tom Patel" },
-  { id: "bcmortgage", business: "BC Mortgage Pros", category: "Mortgage", city: "Surrey", state: "BC", payout: 250, desc: "Refer a funded mortgage", owner: "Priya Shah" },
-  { id: "volt", business: "Volt Solar", category: "Solar", city: "Phoenix", state: "AZ", payout: 750, desc: "Refer a solar installation", owner: "Diego Ramos" },
-  { id: "proshine", business: "ProShine Detailing", category: "Auto", city: "Toronto", state: "ON", payout: 150, desc: "Refer a ceramic coating", owner: "Alex Chen" },
-  { id: "clearview", business: "ClearView Windows", category: "Home Services", city: "Seattle", state: "WA", payout: 350, desc: "Refer a window replacement", owner: "Jamie Roy" },
-  { id: "summit", business: "Summit Real Estate", category: "Real Estate", city: "Calgary", state: "AB", payout: 1000, desc: "Refer a buyer or seller", owner: "Erin Walsh" },
+  // Illustrative placeholders only. Do NOT use real or invented company names here.
+  { id: "ex-roofing", business: "A roofing company near you", category: "Roofing", city: "Your city", state: "", payout: 500, desc: "Example offer · refer a closed roofing job", owner: "Local business owner" },
+  { id: "ex-hvac", business: "An HVAC company near you", category: "HVAC", city: "Your city", state: "", payout: 300, desc: "Example offer · refer a furnace or AC install", owner: "Local business owner" },
+  { id: "ex-landscape", business: "A landscaping company near you", category: "Landscaping", city: "Your city", state: "", payout: 400, desc: "Example offer · refer a full backyard project", owner: "Local business owner" },
+  { id: "ex-mortgage", business: "A mortgage broker near you", category: "Mortgage", city: "Your city", state: "", payout: 250, desc: "Example offer · refer a funded mortgage", owner: "Local business owner" },
+  { id: "ex-solar", business: "A solar installer near you", category: "Solar", city: "Your city", state: "", payout: 750, desc: "Example offer · refer a solar installation", owner: "Local business owner" },
+  { id: "ex-auto", business: "An auto detailer near you", category: "Auto", city: "Your city", state: "", payout: 150, desc: "Example offer · refer a ceramic coating", owner: "Local business owner" },
+  { id: "ex-windows", business: "A window company near you", category: "Home Services", city: "Your city", state: "", payout: 350, desc: "Example offer · refer a window replacement", owner: "Local business owner" },
+  { id: "ex-realestate", business: "A real estate agent near you", category: "Real Estate", city: "Your city", state: "", payout: 1000, desc: "Example offer · refer a buyer or seller", owner: "Local business owner" },
 ];
 
 const initials = (name: string) =>
@@ -51,7 +52,7 @@ const Index = () => {
   );
 
   const featuredLocations = useMemo(
-    () => ["All", ...Array.from(new Set(FEATURED_OFFERS.map((o) => `${o.city}, ${o.state}`)))],
+    () => ["All", ...Array.from(new Set(FEATURED_OFFERS.map((o) => (o.state ? `${o.city}, ${o.state}` : o.city))))],
     []
   );
 
@@ -59,7 +60,8 @@ const Index = () => {
     const q = search.trim().toLowerCase();
     return FEATURED_OFFERS.filter((o) => {
       const matchesCat = activeCategory === "All" || o.category === activeCategory;
-      const matchesLoc = activeLocation === "All" || `${o.city}, ${o.state}` === activeLocation;
+      const locKey = o.state ? `${o.city}, ${o.state}` : o.city;
+      const matchesLoc = activeLocation === "All" || locKey === activeLocation;
       if (!matchesCat || !matchesLoc) return false;
       if (!q) return true;
       return (
@@ -75,7 +77,7 @@ const Index = () => {
   return (
     <>
       <SEOHead
-        title="Revvin — Launch a referral program in minutes"
+        title="Revvin · Launch a referral program in minutes"
         description="Branded referral page, shareable link and QR code, and a simple lead inbox. $49/month, cancel anytime. No contract."
         path="/"
         jsonLd={[
@@ -97,13 +99,12 @@ const Index = () => {
             "@context": "https://schema.org",
             "@type": "FAQPage",
             mainEntity: [
-              { "@type": "Question", name: "What if I don't get any referrals?", acceptedAnswer: { "@type": "Answer", text: "Revvin is built so you can prime the pump on day one: text your existing client list with your branded page link, drop the QR on invoices, and add it to your email signature. Your page stays live, you can edit your offer anytime, and any leads you do get cost a fraction of an ad-driven lead." } },
-              { "@type": "Question", name: "Does Revvin pay the referrers for me?", acceptedAnswer: { "@type": "Answer", text: "No. Revvin is the infrastructure — your branded page, lead capture, and dashboard. You pay referrers directly when the deal closes, in whatever way works for your business." } },
+              { "@type": "Question", name: "What if I do not get any referrals?", acceptedAnswer: { "@type": "Answer", text: "Referrals come from putting your link in front of happy customers, so results depend on you making the ask. Revvin is built to make that ask easy: a ready to share page, link, and QR code you can send right after a job, plus a lead inbox so nothing slips through the cracks. It is month to month, so you can cancel anytime." } },
+              { "@type": "Question", name: "Does Revvin pay the referrers for me?", acceptedAnswer: { "@type": "Answer", text: "No. Revvin gives you the referral infrastructure: a branded referral page, a shareable link, a QR code, and a lead inbox. You pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman." } },
               { "@type": "Question", name: "How does billing work?", acceptedAnswer: { "@type": "Answer", text: "Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for." } },
               { "@type": "Question", name: "Is there a free tier?", acceptedAnswer: { "@type": "Answer", text: "Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with no trial and no setup fee." } },
-              { "@type": "Question", name: "Do you have a marketplace where I can browse offers?", acceptedAnswer: { "@type": "Answer", text: "Yes. Listing on the public Revvin marketplace is live and optional — toggle it on in your dashboard so motivated referrers can find your offer. Your own branded referral page works either way." } },
-              { "@type": "Question", name: "What if I cancel?", acceptedAnswer: { "@type": "Answer", text: "You can cancel from your Stripe customer portal anytime. Your referral page stays live until the end of the paid period." } },
-              { "@type": "Question", name: "What kind of businesses is Revvin for?", acceptedAnswer: { "@type": "Answer", text: "Service businesses where one new customer is worth real money — roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more." } },
+              { "@type": "Question", name: "Do you have a marketplace where I can browse offers?", acceptedAnswer: { "@type": "Answer", text: "A public Revvin marketplace is coming. Today, every business gets a branded referral page and a shareable link or QR code that works on its own. Listing on the public marketplace will be optional when it opens." } },
+              { "@type": "Question", name: "What kind of businesses is Revvin for?", acceptedAnswer: { "@type": "Answer", text: "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more." } },
             ],
           },
         ]}
@@ -135,8 +136,8 @@ const Index = () => {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
                   <Link to="/signup">
-                    <span className="sm:hidden">Start your program — $49/mo</span>
-                    <span className="hidden sm:inline">Start your referral program — $49/month</span>
+                    <span className="sm:hidden">Start your program · $49/mo</span>
+                    <span className="hidden sm:inline">Start your referral program · $49/month</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -172,7 +173,7 @@ const Index = () => {
                 <span className="absolute -top-2 right-2 rounded-full bg-muted px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Example</span>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Deal closed</p>
                 <p className="mt-1 text-xl font-extrabold tracking-tight text-foreground">+$8,400</p>
-                <p className="text-[10px] text-muted-foreground">Apex Roofing · paid Carlos R.</p>
+                <p className="text-[10px] text-muted-foreground">Example referral payout</p>
                 <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-muted">
                   <div className="h-full w-3/4 bg-gradient-to-r from-primary to-accent" />
                 </div>
@@ -186,14 +187,14 @@ const Index = () => {
       <section className="border-b border-border bg-background">
         <div className="container py-16 md:py-24">
           <div className="mx-auto mb-12 max-w-2xl text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-3">
-              The Revvin.co marketplace
-            </p>
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary mb-4">
+              Preview · upcoming public marketplace
+            </span>
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
               Your offer, seen by referrers nationwide.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              Businesses on Revvin can opt into our public marketplace, where motivated referrers browse offers and submit real customers. The cards below are example offers to show how listings appear.
+              The public marketplace is opening soon. The cards below are illustrative examples only, not real businesses, shown to preview how listings will appear.
             </p>
           </div>
 
@@ -296,7 +297,7 @@ const Index = () => {
                     <h3 className="mt-3 text-sm font-bold leading-tight text-foreground">{o.business}</h3>
                     <p className="mt-1 text-xs leading-snug text-muted-foreground">{o.desc}</p>
                     <p className="mt-2 text-[11px] text-muted-foreground">
-                      {o.city}, {o.state}
+                      {o.state ? `${o.city}, ${o.state}` : o.city}
                     </p>
                     <div className="mt-auto flex items-center gap-2 border-t border-border pt-3">
                       <div
@@ -320,6 +321,21 @@ const Index = () => {
             </Button>
             <Button size="lg" className="h-12 px-6 shadow-product hover:bg-primary-deep" asChild>
               <Link to="/signup">List your business here</Link>
+            </Button>
+            {/*
+              FOUNDER-CONFIRMED TODO: confirm where the marketplace waitlist
+              CTA should submit. Currently falls back to a mailto so no new
+              backend or RLS change is introduced.
+            */}
+            <Button
+              variant="ghost"
+              size="lg"
+              asChild
+              className="h-12 px-6 text-primary hover:bg-primary/10"
+            >
+              <a href="mailto:info@revvin.co?subject=Marketplace%20waitlist">
+                Join the marketplace waitlist
+              </a>
             </Button>
           </div>
         </div>
@@ -371,7 +387,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* What you get — bento */}
+      {/* What you get · bento */}
       <section className="border-b border-border">
         <div className="container py-24">
           <div className="mb-12 max-w-2xl">
@@ -380,7 +396,7 @@ const Index = () => {
               Everything you need to run a referral program.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              Track leads, get instant alerts, and see your monthly ROI — all in one place.
+              Track leads, get instant alerts, and see your monthly ROI, all in one place.
             </p>
           </div>
 
@@ -417,7 +433,7 @@ const Index = () => {
             <div className="bento-tile md:col-span-3">
               <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Your custom URL</p>
               <div className="flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-2.5">
-                <span className="font-mono text-sm text-foreground">apex-roofing.revvin.co</span>
+                <span className="font-mono text-sm text-foreground">your-business.revvin.co</span>
                 <span className="rounded-md bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">COPY</span>
               </div>
               <p className="mt-3 text-xs text-muted-foreground">Branded. Shareable. Memorable.</p>
@@ -572,53 +588,59 @@ const Index = () => {
           </h2>
           <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="q0">
-              <AccordionTrigger>What if I don't get any referrals?</AccordionTrigger>
-              <AccordionContent>
-                Revvin is built so you can prime the pump on day one: text your existing client list with your branded page link, drop the QR code on invoices, and add it to your email signature. Your page stays live, you can edit your offer anytime, and any leads you do get cost a fraction of an ad-driven lead.
+              <AccordionTrigger className="text-left">What if I do not get any referrals?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Referrals come from putting your link in front of happy customers, so results depend on you making the ask. Revvin is built to make that ask easy: a ready to share page, link, and QR code you can send right after a job, plus a lead inbox so nothing slips through the cracks. It is month to month, so you can cancel anytime.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q1">
-              <AccordionTrigger>Does Revvin pay the referrers for me?</AccordionTrigger>
-              <AccordionContent>
-                No. Revvin is the infrastructure — your branded page, lead capture, and dashboard. You pay referrers directly when the deal closes, in whatever way works for your business.
+              <AccordionTrigger className="text-left">Does Revvin pay the referrers for me?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                No. Revvin gives you the referral infrastructure: a branded referral page, a shareable link, a QR code, and a lead inbox. You pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q2">
-              <AccordionTrigger>How does billing work?</AccordionTrigger>
-              <AccordionContent>
+              <AccordionTrigger className="text-left">How does billing work?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
                 Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q3">
-              <AccordionTrigger>Is there a free tier?</AccordionTrigger>
-              <AccordionContent>
+              <AccordionTrigger className="text-left">Is there a free tier?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
                 Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with no trial and no setup fee.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q4">
-              <AccordionTrigger>Do you have a marketplace where I can browse offers?</AccordionTrigger>
-              <AccordionContent>
-                Yes — the Revvin marketplace is live. Listing your offer is optional and toggleable in your dashboard. When on, motivated referrers browsing the marketplace can find your offer and submit leads; when off, your branded referral page still works for your own network.
+              <AccordionTrigger className="text-left">Do you have a marketplace where I can browse offers?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                A public Revvin marketplace is coming. Today, every business gets a branded referral page and a shareable link or QR code that works on its own. Listing on the public marketplace will be optional when it opens.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q5">
-              <AccordionTrigger>What if I cancel?</AccordionTrigger>
-              <AccordionContent>
-                You can cancel from your Stripe customer portal anytime. Your referral page stays live until the end of the paid period.
+              <AccordionTrigger className="text-left">What if I cancel?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                {/* FOUNDER-CONFIRMED TODO: confirm exact cancellation terms and what happens to the referral page after the paid period ends. */}
+                FOUNDER-CONFIRMED TODO: answer pending.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q6">
-              <AccordionTrigger>What kind of businesses is Revvin for?</AccordionTrigger>
-              <AccordionContent>
-                Service businesses where one new customer is worth real money — roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more.
+              <AccordionTrigger className="text-left">What kind of businesses is Revvin for?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
         </div>
       </section>
 
-      {/* Final CTA — dark */}
-      <LiveTicker variant="dark" />
+      {/* Final CTA · dark */}
+      {/*
+        LiveTicker hidden for launch: it rendered fabricated activity events
+        and named companies. Do NOT re-enable until it is wired to real,
+        consented activity data.
+        <LiveTicker variant="dark" />
+      */}
       <section className="relative overflow-hidden bg-ink text-white">
         <div aria-hidden className="aurora opacity-80" />
         <div aria-hidden className="grain opacity-[0.08]" />

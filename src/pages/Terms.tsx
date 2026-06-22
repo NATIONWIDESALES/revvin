@@ -15,6 +15,17 @@ const Terms = () => {
         <h1 className="text-3xl font-bold mb-2">Terms of Service</h1>
         <p className="text-sm text-muted-foreground mb-8">Last updated: April 1, 2026</p>
 
+        <div
+          role="note"
+          className="mb-8 rounded-lg border-2 border-amber-500/40 bg-amber-50 p-4 text-sm text-amber-900"
+        >
+          <p className="font-bold uppercase tracking-wider text-xs mb-1">Draft, pending final legal copy</p>
+          <p>
+            FOUNDER-CONFIRMED TODO: replace the content below with finalized Terms of Service before live traffic or paid advertising. The current text is a working scaffold only and is not legal advice. Paste finalized copy into the single content slot below.
+          </p>
+        </div>
+
+        {/* CONTENT SLOT: replace everything below with finalized Terms of Service. */}
         <div className="prose prose-sm max-w-none space-y-6 text-muted-foreground">
           <section>
             <h2 className="text-lg font-bold text-foreground">1. Acceptance of Terms</h2>
