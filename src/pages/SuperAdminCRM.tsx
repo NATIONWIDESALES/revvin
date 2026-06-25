@@ -154,7 +154,7 @@ const SuperAdminCRM = () => {
         const d = data as any;
         if (error || d?.error) {
           failed++;
-          entry.status = d?.geocode_status ?? "error";
+          entry.status = d?.geocode_status ?? d?.status ?? "error";
           entry.error = error?.message ?? d?.error ?? "Unknown error";
         } else {
           ok++;
