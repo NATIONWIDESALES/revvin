@@ -319,20 +319,13 @@ const Index = () => {
             <Button size="lg" className="h-12 px-6 shadow-product hover:bg-primary-deep" asChild>
               <Link to="/signup">List your business here</Link>
             </Button>
-            {/*
-              FOUNDER-CONFIRMED TODO: marketplace is now live, so "waitlist"
-              wording is stale. Keeping mailto as-is until founder confirms
-              the destination and the replacement label.
-            */}
             <Button
               variant="ghost"
               size="lg"
               asChild
               className="h-12 px-6 text-primary hover:bg-primary/10"
             >
-              <a href="mailto:info@revvin.co?subject=Marketplace%20waitlist">
-                Join the marketplace waitlist
-              </a>
+              <Link to="/browse">Browse the marketplace</Link>
             </Button>
           </div>
         </div>

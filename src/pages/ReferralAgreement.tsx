@@ -28,7 +28,7 @@ const ReferralAgreement = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">3. Business Response Timeline</h2>
-            <p>Upon accepting a referral, the Business commits to contacting the referred individual within 48 hours and providing status updates at least every 7 days. Failure to respond within 14 days of acceptance may trigger automatic dispute resolution in the Referrer's favor.</p>
+            <p>Upon accepting a referral, the Business commits to contacting the referred individual within 48 hours and keeping its status current in the dashboard. Repeated failure to respond or to update referral status may result in account suspension at Revvin's discretion. Revvin does not act as an agent for either party.</p>
           </section>
 
           <section>
@@ -42,8 +42,8 @@ const ReferralAgreement = () => {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-foreground">6. Dispute Process</h2>
-            <p>If a Referrer believes a deal outcome was misreported, they may file a dispute within 14 days of the status change. Revvin will review supporting evidence from both parties and render a decision within 5 business days. The resolution is final and may result in payout release, denial, or a split decision.</p>
+            <h2 className="text-lg font-bold text-foreground">6. Disputes and Non-Payment</h2>
+            <p>Disputes over deal outcomes or payment are between the Business and the Referrer. Revvin maintains the timestamped record of the referral and any status changes, and a Referrer may flag a closed referral as unpaid after 30 days. Revvin may, at its sole discretion, review flags and suspend a Business's account for a pattern of non-payment or dishonest reporting, but Revvin does not arbitrate disputes, does not collect or hold funds, and does not guarantee payment.</p>
           </section>
 
           <section>

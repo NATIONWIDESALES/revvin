@@ -99,15 +99,15 @@ const TrustCenter = () => {
       <section className="border-y border-border bg-muted/30 py-20">
         <div className="container max-w-5xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-            <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-3">Business Verification Levels</motion.h2>
+            <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-3">Business Approval</motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-muted-foreground mb-10 max-w-xl">
-              Every business on Revvin goes through a verification process before their offers are visible to referrers.
+              New businesses are reviewed by a Revvin admin before their offers appear in the marketplace. Revvin does not vouch for the quality, licensing, or insurance of any business · referrers should do their own diligence before sending leads.
             </motion.p>
             <div className="grid gap-6 md:grid-cols-3">
               {[
-                { level: "Unverified", icon: AlertTriangle, color: "text-muted-foreground", bg: "bg-muted", desc: "Account created, but business details not yet reviewed. Limited visibility in marketplace." },
-                { level: "Verified Email & Domain", icon: BadgeCheck, color: "text-primary", bg: "bg-primary/10", desc: "Email domain verified against business website. Offers visible but marked as 'Basic Verified'." },
-                { level: "Fully Verified Business", icon: Shield, color: "text-earnings", bg: "bg-earnings/10", desc: "Business license, insurance, and contact information reviewed. Priority placement in search results." },
+                { level: "Pending Review", icon: AlertTriangle, color: "text-muted-foreground", bg: "bg-muted", desc: "Account created but not yet reviewed. The business's branded referral page works, but offers are not listed in the public marketplace." },
+                { level: "Approved", icon: BadgeCheck, color: "text-primary", bg: "bg-primary/10", desc: "An admin has done a basic review of the business profile. Offers are eligible to appear in the marketplace once the business activates a subscription and publishes." },
+                { level: "Suspended", icon: Shield, color: "text-earnings", bg: "bg-earnings/10", desc: "Removed from the marketplace due to a pattern of unpaid referrals, dishonest status reporting, or terms violations." },
               ].map((item, i) => (
                 <motion.div key={item.level} variants={fadeUp} custom={i + 2} className="rounded-xl border border-border bg-card p-6">
                   <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${item.bg}`}>
@@ -181,16 +181,16 @@ const TrustCenter = () => {
       <section className="border-y border-border bg-muted/30 py-20">
         <div className="container max-w-5xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-            <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-3">Dispute Resolution</motion.h2>
+            <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-3">Disputes and Non-Payment</motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-muted-foreground mb-10 max-w-xl">
-              Disagreements happen. Here's how we handle them fairly.
+              Revvin keeps the timestamped record of every referral and status change so both sides have the same source of truth. Disputes over outcomes or payment are between the business and the referrer · Revvin does not arbitrate, does not hold funds, and does not guarantee payment.
             </motion.p>
             <motion.div variants={fadeUp} custom={2} className="grid gap-4 md:grid-cols-2">
               {[
-                { title: "Referrer Disputes Outcome", desc: "If a referrer believes their referral resulted in a deal but was marked as 'lost', they can file a dispute. Revvin reviews the timeline and evidence." },
-                { title: "Business Disputes Lead Quality", desc: "If a business believes the lead didn't meet qualification criteria, they can provide a reason. The referrer is notified and can respond." },
-                { title: "Duplicate Lead Disputes", desc: "If two referrers submit the same lead, the first timestamped submission wins. In contested cases, Revvin reviews the evidence and makes a determination." },
-                { title: "Resolution Timeline", desc: "All disputes are reviewed within 5 business days. Both parties are notified of the outcome. Appeals can be submitted once." },
+                { title: "Flagged Non-Payment", desc: "If a referrer hasn't been paid 30 days after a deal is marked closed, they can flag the referral. The business is notified and asked to respond." },
+                { title: "Disputed Outcomes", desc: "If a referrer believes their referral was incorrectly marked as lost or declined, they can record their objection. Both sides keep their own evidence outside the platform." },
+                { title: "Duplicate Leads", desc: "When two referrers submit the same lead, the first timestamped submission has the claim. The timestamp is preserved in the record." },
+                { title: "What Revvin Will Do", desc: "Revvin may suspend a business's account for a pattern of unpaid referrals or dishonest reporting. Revvin does not collect payment, transfer funds, or render legal judgments." },
               ].map((item, i) => (
                 <motion.div key={item.title} variants={fadeUp} custom={i + 3} className="rounded-xl border border-border bg-card p-6">
                   <Scale className="mb-3 h-5 w-5 text-primary" />
