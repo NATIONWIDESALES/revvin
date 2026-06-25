@@ -437,6 +437,34 @@ const SuperAdminCRM = () => {
 
               {/* OVERVIEW TAB */}
               <TabsContent value="overview">
+                <div className="mb-4 rounded-xl border border-border bg-card p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-primary" /> Map geocoding
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {(() => {
+                        const missing = businesses.filter(
+                          (b) => (b.latitude == null || b.longitude == null) && (b.street_address || b.city || b.postal_code),
+                        ).length;
+                        return missing === 0
+                          ? "All businesses with an address are on the map."
+                          : `${missing} business${missing === 1 ? "" : "es"} with an address are missing map coordinates.`;
+                      })()}
+                      {geoProgress && backfillingGeo && (
+                        <span className="ml-2 text-foreground">
+                          {geoProgress.done}/{geoProgress.total} processed
+                          {geoProgress.failed > 0 ? ` · ${geoProgress.failed} failed` : ""}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <Button size="sm" onClick={runGeocodeBackfill} disabled={backfillingGeo} className="gap-2">
+                    {backfillingGeo ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MapPin className="h-3.5 w-3.5" />}
+                    {backfillingGeo ? "Geocoding…" : "Backfill geocoding"}
+                  </Button>
+                </div>
+
                 <div className="grid gap-6 lg:grid-cols-2">
                   <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
                     <h2 className="text-base font-bold mb-3 flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /> Businesses ({businesses.length})</h2>
