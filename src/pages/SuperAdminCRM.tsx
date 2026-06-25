@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Search, CheckCircle2, Clock, AlertTriangle, XCircle, Shield, Building2, Users, DollarSign, Activity, BadgeCheck, History, FileText, Pause, Play, TrendingUp, BarChart3, Send, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronRight, Search, CheckCircle2, Clock, AlertTriangle, XCircle, Shield, Building2, Users, DollarSign, Activity, BadgeCheck, History, FileText, Pause, Play, TrendingUp, BarChart3, Send, Loader2, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -105,6 +105,47 @@ const SuperAdminCRM = () => {
   const [editingNotes, setEditingNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [approvingBiz, setApprovingBiz] = useState<string | null>(null);
+  const [backfillingGeo, setBackfillingGeo] = useState(false);
+  const [geoProgress, setGeoProgress] = useState<{ done: number; total: number; ok: number; failed: number } | null>(null);
+
+  const runGeocodeBackfill = useCallback(async () => {
+    const candidates = businesses.filter(
+      (b) =>
+        (b.latitude == null || b.longitude == null) &&
+        (b.street_address || b.city || b.postal_code),
+    );
+    if (candidates.length === 0) {
+      toast({ title: "Nothing to backfill", description: "All businesses with an address already have map coordinates." });
+      return;
+    }
+    setBackfillingGeo(true);
+    setGeoProgress({ done: 0, total: candidates.length, ok: 0, failed: 0 });
+    let ok = 0;
+    let failed = 0;
+    for (let i = 0; i < candidates.length; i++) {
+      const biz = candidates[i];
+      try {
+        const { data, error } = await supabase.functions.invoke("geocode-business", {
+          body: { business_id: biz.id },
+        });
+        if (error || (data as any)?.error) failed++; else ok++;
+      } catch {
+        failed++;
+      }
+      setGeoProgress({ done: i + 1, total: candidates.length, ok, failed });
+    }
+    // Refresh the business list to pick up new lat/lng.
+    const { data: refreshed } = await supabase
+      .from("businesses")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (refreshed) setBusinesses(refreshed);
+    setBackfillingGeo(false);
+    toast({
+      title: "Geocoding backfill complete",
+      description: `${ok} placed on the map, ${failed} could not be geocoded.`,
+    });
+  }, [businesses, toast]);
 
   // SEO: noindex
   useEffect(() => {
@@ -396,6 +437,34 @@ const SuperAdminCRM = () => {
 
               {/* OVERVIEW TAB */}
               <TabsContent value="overview">
+                <div className="mb-4 rounded-xl border border-border bg-card p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-primary" /> Map geocoding
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {(() => {
+                        const missing = businesses.filter(
+                          (b) => (b.latitude == null || b.longitude == null) && (b.street_address || b.city || b.postal_code),
+                        ).length;
+                        return missing === 0
+                          ? "All businesses with an address are on the map."
+                          : `${missing} business${missing === 1 ? "" : "es"} with an address are missing map coordinates.`;
+                      })()}
+                      {geoProgress && backfillingGeo && (
+                        <span className="ml-2 text-foreground">
+                          {geoProgress.done}/{geoProgress.total} processed
+                          {geoProgress.failed > 0 ? ` · ${geoProgress.failed} failed` : ""}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <Button size="sm" onClick={runGeocodeBackfill} disabled={backfillingGeo} className="gap-2">
+                    {backfillingGeo ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MapPin className="h-3.5 w-3.5" />}
+                    {backfillingGeo ? "Geocoding…" : "Backfill geocoding"}
+                  </Button>
+                </div>
+
                 <div className="grid gap-6 lg:grid-cols-2">
                   <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
                     <h2 className="text-base font-bold mb-3 flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /> Businesses ({businesses.length})</h2>
