@@ -271,11 +271,6 @@ const ProfileEdit = () => {
                   </Select>
                 </div>
 
-                <div>
-                  <Label>Service Area</Label>
-                  <Input value={bizForm.city} onChange={(e) => updateBiz("city", e.target.value)} placeholder="e.g. Metro Vancouver, BC" className="mt-1" />
-                </div>
-
                 <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
                   <div>
                     <p className="text-sm font-semibold text-foreground">Map address</p>
