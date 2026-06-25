@@ -109,6 +109,9 @@ const Terms = () => {
             <p>For questions about these Terms, contact us at <span className="text-primary font-medium">info@revvin.co</span>.</p>
           </section>
         </div>
+        <p className="mt-8 text-sm text-muted-foreground">
+          See also our <Link to="/privacy" className="text-primary font-medium hover:underline">Privacy Policy</Link>.
+        </p>
       </div>
     </div>
   );
