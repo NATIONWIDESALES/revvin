@@ -105,6 +105,47 @@ const SuperAdminCRM = () => {
   const [editingNotes, setEditingNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [approvingBiz, setApprovingBiz] = useState<string | null>(null);
+  const [backfillingGeo, setBackfillingGeo] = useState(false);
+  const [geoProgress, setGeoProgress] = useState<{ done: number; total: number; ok: number; failed: number } | null>(null);
+
+  const runGeocodeBackfill = useCallback(async () => {
+    const candidates = businesses.filter(
+      (b) =>
+        (b.latitude == null || b.longitude == null) &&
+        (b.street_address || b.city || b.postal_code),
+    );
+    if (candidates.length === 0) {
+      toast({ title: "Nothing to backfill", description: "All businesses with an address already have map coordinates." });
+      return;
+    }
+    setBackfillingGeo(true);
+    setGeoProgress({ done: 0, total: candidates.length, ok: 0, failed: 0 });
+    let ok = 0;
+    let failed = 0;
+    for (let i = 0; i < candidates.length; i++) {
+      const biz = candidates[i];
+      try {
+        const { data, error } = await supabase.functions.invoke("geocode-business", {
+          body: { business_id: biz.id },
+        });
+        if (error || (data as any)?.error) failed++; else ok++;
+      } catch {
+        failed++;
+      }
+      setGeoProgress({ done: i + 1, total: candidates.length, ok, failed });
+    }
+    // Refresh the business list to pick up new lat/lng.
+    const { data: refreshed } = await supabase
+      .from("businesses")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (refreshed) setBusinesses(refreshed);
+    setBackfillingGeo(false);
+    toast({
+      title: "Geocoding backfill complete",
+      description: `${ok} placed on the map, ${failed} could not be geocoded.`,
+    });
+  }, [businesses, toast]);
 
   // SEO: noindex
   useEffect(() => {
