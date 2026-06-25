@@ -107,6 +107,15 @@ const SuperAdminCRM = () => {
   const [approvingBiz, setApprovingBiz] = useState<string | null>(null);
   const [backfillingGeo, setBackfillingGeo] = useState(false);
   const [geoProgress, setGeoProgress] = useState<{ done: number; total: number; ok: number; failed: number } | null>(null);
+  const [geoResults, setGeoResults] = useState<Array<{
+    business_id: string;
+    name: string;
+    address: string;
+    status: string;
+    latitude: number | null;
+    longitude: number | null;
+    error?: string;
+  }>>([]);
 
   const runGeocodeBackfill = useCallback(async () => {
     const candidates = businesses.filter(
@@ -120,19 +129,46 @@ const SuperAdminCRM = () => {
     }
     setBackfillingGeo(true);
     setGeoProgress({ done: 0, total: candidates.length, ok: 0, failed: 0 });
+    setGeoResults([]);
     let ok = 0;
     let failed = 0;
+    const results: typeof geoResults = [];
     for (let i = 0; i < candidates.length; i++) {
       const biz = candidates[i];
+      const address = [biz.street_address, biz.city, biz.state, biz.postal_code, biz.country]
+        .filter(Boolean)
+        .join(", ");
+      let entry = {
+        business_id: biz.id,
+        name: biz.name ?? "",
+        address,
+        status: "error",
+        latitude: null as number | null,
+        longitude: null as number | null,
+        error: undefined as string | undefined,
+      };
       try {
         const { data, error } = await supabase.functions.invoke("geocode-business", {
           body: { business_id: biz.id },
         });
-        if (error || (data as any)?.error) failed++; else ok++;
-      } catch {
+        const d = data as any;
+        if (error || d?.error) {
+          failed++;
+          entry.status = d?.geocode_status ?? d?.status ?? "error";
+          entry.error = error?.message ?? d?.error ?? "Unknown error";
+        } else {
+          ok++;
+          entry.status = d?.geocode_status ?? "ok";
+          entry.latitude = d?.latitude ?? null;
+          entry.longitude = d?.longitude ?? null;
+        }
+      } catch (e: any) {
         failed++;
+        entry.error = e?.message ?? "Request failed";
       }
+      results.push(entry);
       setGeoProgress({ done: i + 1, total: candidates.length, ok, failed });
+      setGeoResults([...results]);
     }
     // Refresh the business list to pick up new lat/lng.
     const { data: refreshed } = await supabase
@@ -464,6 +500,51 @@ const SuperAdminCRM = () => {
                     {backfillingGeo ? "Geocoding…" : "Backfill geocoding"}
                   </Button>
                 </div>
+
+                {geoResults.length > 0 && (
+                  <div className="mb-4 rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+                    <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                      <p className="text-sm font-semibold">Backfill results ({geoResults.length})</p>
+                      <p className="text-xs text-muted-foreground">
+                        {geoResults.filter((r) => r.latitude != null).length} matched ·{" "}
+                        {geoResults.filter((r) => r.latitude == null).length} failed
+                      </p>
+                    </div>
+                    <div className="max-h-80 overflow-auto">
+                      <table className="w-full text-xs">
+                        <thead className="bg-muted/40 text-muted-foreground">
+                          <tr>
+                            <th className="text-left font-medium px-3 py-2">Business</th>
+                            <th className="text-left font-medium px-3 py-2">Input address</th>
+                            <th className="text-left font-medium px-3 py-2">Status</th>
+                            <th className="text-left font-medium px-3 py-2">Lat, Lng</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {geoResults.map((r) => {
+                            const matched = r.latitude != null && r.longitude != null;
+                            return (
+                              <tr key={r.business_id} className="border-t border-border align-top">
+                                <td className="px-3 py-2">
+                                  <div className="font-medium text-foreground">{r.name || "—"}</div>
+                                  <div className="font-mono text-[10px] text-muted-foreground">{r.business_id.slice(0, 8)}</div>
+                                </td>
+                                <td className="px-3 py-2 text-muted-foreground max-w-sm">{r.address || "—"}</td>
+                                <td className="px-3 py-2">
+                                  <Badge variant={matched ? "default" : "destructive"}>{r.status}</Badge>
+                                  {r.error && <div className="text-[10px] text-destructive mt-1">{r.error}</div>}
+                                </td>
+                                <td className="px-3 py-2 font-mono">
+                                  {matched ? `${r.latitude?.toFixed(5)}, ${r.longitude?.toFixed(5)}` : "—"}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid gap-6 lg:grid-cols-2">
                   <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
