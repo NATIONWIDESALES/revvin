@@ -39,6 +39,10 @@ const ProfileEdit = () => {
     description: "",
     industry: "",
     city: "",
+    state: "",
+    street_address: "",
+    postal_code: "",
+    country: "",
   });
   const [business, setBusiness] = useState<any>(null);
 
@@ -77,6 +81,10 @@ const ProfileEdit = () => {
             description: biz.description ?? "",
             industry: biz.industry ?? "",
             city: biz.city ?? "",
+            state: biz.state ?? "",
+            street_address: biz.street_address ?? "",
+            postal_code: biz.postal_code ?? "",
+            country: biz.country ?? "",
           });
         }
       }
@@ -104,7 +112,7 @@ const ProfileEdit = () => {
       .eq("user_id", user.id);
 
     if (isBusiness && business) {
-      await supabase
+      const { error: bizErr } = await supabase
         .from("businesses")
         .update({
           name: bizForm.name || business.name,
@@ -112,8 +120,36 @@ const ProfileEdit = () => {
           description: bizForm.description || null,
           industry: bizForm.industry || null,
           city: bizForm.city || null,
+          state: bizForm.state || null,
+          street_address: bizForm.street_address || null,
+          postal_code: bizForm.postal_code || null,
+          country: bizForm.country || null,
         })
         .eq("id", business.id);
+
+      // Trigger geocoding if an address is provided and any address field changed.
+      const addressChanged =
+        (bizForm.street_address || "") !== (business.street_address || "") ||
+        (bizForm.city || "") !== (business.city || "") ||
+        (bizForm.state || "") !== (business.state || "") ||
+        (bizForm.postal_code || "") !== (business.postal_code || "") ||
+        (bizForm.country || "") !== (business.country || "");
+      const hasAnyAddress = !!(bizForm.street_address || bizForm.city || bizForm.postal_code);
+      if (!bizErr && addressChanged && hasAnyAddress) {
+        try {
+          const { data, error: geoErr } = await supabase.functions.invoke("geocode-business", {
+            body: { business_id: business.id },
+          });
+          if (geoErr || (data as any)?.error) {
+            toast({
+              title: "Saved, but address could not be placed on the map",
+              description: "Double-check the street address, city, and postal code.",
+            });
+          }
+        } catch (e) {
+          console.warn("[profile-edit] geocode failed", e);
+        }
+      }
     }
 
     setSaving(false);
@@ -238,6 +274,62 @@ const ProfileEdit = () => {
                 <div>
                   <Label>Service Area</Label>
                   <Input value={bizForm.city} onChange={(e) => updateBiz("city", e.target.value)} placeholder="e.g. Metro Vancouver, BC" className="mt-1" />
+                </div>
+
+                <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Map address</p>
+                    <p className="text-xs text-muted-foreground">
+                      Used to pin your business on the marketplace map. Not shown publicly as a street address.
+                    </p>
+                  </div>
+                  <div>
+                    <Label>Street address</Label>
+                    <Input
+                      value={bizForm.street_address}
+                      onChange={(e) => updateBiz("street_address", e.target.value)}
+                      placeholder="123 Main St"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <Label>City</Label>
+                      <Input
+                        value={bizForm.city}
+                        onChange={(e) => updateBiz("city", e.target.value)}
+                        placeholder="Vancouver"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label>Province / State</Label>
+                      <Input
+                        value={bizForm.state}
+                        onChange={(e) => updateBiz("state", e.target.value)}
+                        placeholder="BC"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label>Postal / ZIP code</Label>
+                      <Input
+                        value={bizForm.postal_code}
+                        onChange={(e) => updateBiz("postal_code", e.target.value)}
+                        placeholder="V5K 0A1"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label>Country</Label>
+                      <Input
+                        value={bizForm.country}
+                        onChange={(e) => updateBiz("country", e.target.value)}
+                        placeholder="Canada"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
