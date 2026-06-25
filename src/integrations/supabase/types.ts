@@ -75,10 +75,13 @@ export type Database = {
           business_email: string | null
           category: string | null
           city: string | null
+          country: string | null
           cover_image_url: string | null
           created_at: string
           current_period_end: string | null
           description: string | null
+          geocode_status: string | null
+          geocoded_at: string | null
           headline: string | null
           id: string
           industry: string | null
@@ -99,10 +102,12 @@ export type Database = {
           offer_fine_print: string | null
           offer_trigger: string | null
           phone: string | null
+          postal_code: string | null
           referral_cta_label: string | null
           service_area: string | null
           slug: string | null
           state: string | null
+          street_address: string | null
           stripe_connect_status: string | null
           stripe_connected_account_id: string | null
           stripe_customer_id: string | null
@@ -126,10 +131,13 @@ export type Database = {
           business_email?: string | null
           category?: string | null
           city?: string | null
+          country?: string | null
           cover_image_url?: string | null
           created_at?: string
           current_period_end?: string | null
           description?: string | null
+          geocode_status?: string | null
+          geocoded_at?: string | null
           headline?: string | null
           id?: string
           industry?: string | null
@@ -150,10 +158,12 @@ export type Database = {
           offer_fine_print?: string | null
           offer_trigger?: string | null
           phone?: string | null
+          postal_code?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
           slug?: string | null
           state?: string | null
+          street_address?: string | null
           stripe_connect_status?: string | null
           stripe_connected_account_id?: string | null
           stripe_customer_id?: string | null
@@ -177,10 +187,13 @@ export type Database = {
           business_email?: string | null
           category?: string | null
           city?: string | null
+          country?: string | null
           cover_image_url?: string | null
           created_at?: string
           current_period_end?: string | null
           description?: string | null
+          geocode_status?: string | null
+          geocoded_at?: string | null
           headline?: string | null
           id?: string
           industry?: string | null
@@ -201,10 +214,12 @@ export type Database = {
           offer_fine_print?: string | null
           offer_trigger?: string | null
           phone?: string | null
+          postal_code?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
           slug?: string | null
           state?: string | null
+          street_address?: string | null
           stripe_connect_status?: string | null
           stripe_connected_account_id?: string | null
           stripe_customer_id?: string | null
