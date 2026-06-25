@@ -74,13 +74,13 @@ const Terms = () => {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-foreground">8. Disputes</h2>
-            <p>Referrers may file a dispute if they believe a referral was incorrectly marked as lost or declined. Disputes are reviewed by Revvin's operations team within 5 business days. Revvin's dispute resolution decision is final and binding. Repeated frivolous disputes may result in account suspension.</p>
+            <h2 className="text-lg font-bold text-foreground">8. Disputes and Non-Payment</h2>
+            <p>Disputes over deal outcomes or payment are between the Business and the Referrer. Revvin maintains the timestamped record of each referral and any status changes. A Referrer may flag a closed referral as unpaid after 30 days. Revvin may, at its sole discretion, review flags and suspend a Business's account for a pattern of non-payment or dishonest reporting, but Revvin does not arbitrate disputes, does not collect or hold funds, and does not guarantee payment.</p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-foreground">9. Verification</h2>
-            <p>Businesses may apply for Verified or Verified+ status. Verification involves identity confirmation, business license review, and insurance validation. Verified status does not constitute an endorsement by Revvin. Revvin reserves the right to revoke verification at any time.</p>
+            <h2 className="text-lg font-bold text-foreground">9. Business Approval</h2>
+            <p>New Businesses are subject to a basic admin review before their offers are listed in the public marketplace. This review is not a license, insurance, or quality endorsement, and Revvin does not vouch for any Business's services. Revvin may revoke marketplace listing at any time.</p>
           </section>
 
           <section>
