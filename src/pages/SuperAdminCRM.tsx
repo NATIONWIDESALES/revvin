@@ -107,6 +107,15 @@ const SuperAdminCRM = () => {
   const [approvingBiz, setApprovingBiz] = useState<string | null>(null);
   const [backfillingGeo, setBackfillingGeo] = useState(false);
   const [geoProgress, setGeoProgress] = useState<{ done: number; total: number; ok: number; failed: number } | null>(null);
+  const [geoResults, setGeoResults] = useState<Array<{
+    business_id: string;
+    name: string;
+    address: string;
+    status: string;
+    latitude: number | null;
+    longitude: number | null;
+    error?: string;
+  }>>([]);
 
   const runGeocodeBackfill = useCallback(async () => {
     const candidates = businesses.filter(
@@ -120,19 +129,46 @@ const SuperAdminCRM = () => {
     }
     setBackfillingGeo(true);
     setGeoProgress({ done: 0, total: candidates.length, ok: 0, failed: 0 });
+    setGeoResults([]);
     let ok = 0;
     let failed = 0;
+    const results: typeof geoResults = [];
     for (let i = 0; i < candidates.length; i++) {
       const biz = candidates[i];
+      const address = [biz.street_address, biz.city, biz.state, biz.postal_code, biz.country]
+        .filter(Boolean)
+        .join(", ");
+      let entry = {
+        business_id: biz.id,
+        name: biz.name ?? "",
+        address,
+        status: "error",
+        latitude: null as number | null,
+        longitude: null as number | null,
+        error: undefined as string | undefined,
+      };
       try {
         const { data, error } = await supabase.functions.invoke("geocode-business", {
           body: { business_id: biz.id },
         });
-        if (error || (data as any)?.error) failed++; else ok++;
-      } catch {
+        const d = data as any;
+        if (error || d?.error) {
+          failed++;
+          entry.status = d?.geocode_status ?? "error";
+          entry.error = error?.message ?? d?.error ?? "Unknown error";
+        } else {
+          ok++;
+          entry.status = d?.geocode_status ?? "ok";
+          entry.latitude = d?.latitude ?? null;
+          entry.longitude = d?.longitude ?? null;
+        }
+      } catch (e: any) {
         failed++;
+        entry.error = e?.message ?? "Request failed";
       }
+      results.push(entry);
       setGeoProgress({ done: i + 1, total: candidates.length, ok, failed });
+      setGeoResults([...results]);
     }
     // Refresh the business list to pick up new lat/lng.
     const { data: refreshed } = await supabase
