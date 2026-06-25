@@ -501,6 +501,51 @@ const SuperAdminCRM = () => {
                   </Button>
                 </div>
 
+                {geoResults.length > 0 && (
+                  <div className="mb-4 rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+                    <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                      <p className="text-sm font-semibold">Backfill results ({geoResults.length})</p>
+                      <p className="text-xs text-muted-foreground">
+                        {geoResults.filter((r) => r.latitude != null).length} matched ·{" "}
+                        {geoResults.filter((r) => r.latitude == null).length} failed
+                      </p>
+                    </div>
+                    <div className="max-h-80 overflow-auto">
+                      <table className="w-full text-xs">
+                        <thead className="bg-muted/40 text-muted-foreground">
+                          <tr>
+                            <th className="text-left font-medium px-3 py-2">Business</th>
+                            <th className="text-left font-medium px-3 py-2">Input address</th>
+                            <th className="text-left font-medium px-3 py-2">Status</th>
+                            <th className="text-left font-medium px-3 py-2">Lat, Lng</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {geoResults.map((r) => {
+                            const matched = r.latitude != null && r.longitude != null;
+                            return (
+                              <tr key={r.business_id} className="border-t border-border align-top">
+                                <td className="px-3 py-2">
+                                  <div className="font-medium text-foreground">{r.name || "—"}</div>
+                                  <div className="font-mono text-[10px] text-muted-foreground">{r.business_id.slice(0, 8)}</div>
+                                </td>
+                                <td className="px-3 py-2 text-muted-foreground max-w-sm">{r.address || "—"}</td>
+                                <td className="px-3 py-2">
+                                  <Badge variant={matched ? "default" : "destructive"}>{r.status}</Badge>
+                                  {r.error && <div className="text-[10px] text-destructive mt-1">{r.error}</div>}
+                                </td>
+                                <td className="px-3 py-2 font-mono">
+                                  {matched ? `${r.latitude?.toFixed(5)}, ${r.longitude?.toFixed(5)}` : "—"}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid gap-6 lg:grid-cols-2">
                   <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
                     <h2 className="text-base font-bold mb-3 flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /> Businesses ({businesses.length})</h2>
