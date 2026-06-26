@@ -6,7 +6,7 @@ export default function MockPageBuilder({ className }: { className?: string }) {
     <div className={cn("rounded-xl border border-border bg-card p-5 shadow-soft", className)}>
       <div className="mb-3 flex items-center justify-between">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Step 2 of 4 · Your offer
+          Step 1 of 3 · Your offer
         </p>
         <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary">
           <Check className="h-3 w-3" /> Saved

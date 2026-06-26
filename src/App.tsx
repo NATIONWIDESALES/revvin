@@ -34,6 +34,7 @@ import NotFound from "./pages/NotFound";
 import PublicReferralPage from "./pages/PublicReferralPage";
 import Onboarding from "./pages/Onboarding";
 import Sample from "./pages/Sample";
+import Analytics from "@/components/Analytics";
 
 import { lazy, Suspense } from "react";
 
@@ -51,6 +52,7 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <CountryProvider>
+              <Analytics />
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/signup" element={<Signup />} />

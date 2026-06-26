@@ -20,6 +20,9 @@ import StatsMarquee from "@/components/marketing/StatsMarquee";
 import Wordmark from "@/components/brand/Wordmark";
 import RoiCalculator from "@/components/marketing/RoiCalculator";
 import PlaybookEmailCapture from "@/components/marketing/PlaybookEmailCapture";
+import Testimonials from "@/components/marketing/Testimonials";
+import FounderNote from "@/components/marketing/FounderNote";
+import RiskReversalStrip from "@/components/marketing/RiskReversalStrip";
 
 const FEATURED_OFFERS = [
   // Illustrative placeholders only. Do NOT use real or invented company names here.
@@ -58,7 +61,7 @@ const FAQS: { question: string; answer: string }[] = [
   {
     question: "Do you have a marketplace where I can browse offers?",
     answer:
-      "Yes. The Revvin marketplace is live, and every business also gets a branded referral page and shareable link or QR code that works on its own. Listing on the public marketplace is optional.",
+      "The Revvin marketplace is launching — we're onboarding founding businesses now. Every business also gets a branded referral page and shareable link or QR code that works on its own, so your program isn't dependent on the marketplace. Listing publicly is optional, and early listings are seen by every referrer who lands on the site while it's still small.",
   },
   {
     question: "What if I cancel?",
@@ -174,7 +177,7 @@ const Index = () => {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
                 </span>
-                Now live
+                Now open for service businesses
               </span>
               <h1 className="mt-5 text-[2.5rem] font-extrabold tracking-tight text-foreground leading-[1.02] sm:text-5xl md:text-7xl">
                 The complete{" "}
@@ -196,10 +199,10 @@ const Index = () => {
                   <Link to="/how-it-works">See how it works</Link>
                 </Button>
               </div>
-              <p className="mt-4 text-sm text-muted-foreground">
+            <p className="mt-4 text-sm text-muted-foreground">
                 Just browsing?{" "}
                 <Link to="/sample" className="font-medium text-foreground underline-offset-4 hover:underline">
-                  See a live sample referral page
+                  See a sample referral page
                 </Link>
               </p>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
@@ -245,10 +248,13 @@ const Index = () => {
         <div className="container py-16 md:py-24">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
-              Your offer, seen by referrers nationwide.
+              Your offer, in front of motivated referrers.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              The Revvin marketplace is live. The cards below are illustrative examples of how a listing appears, swapped in for real businesses on this page. Browse the live marketplace to see active offers in your area.
+              The Revvin marketplace is launching. List your business now and be one of the first offers referrers see.
+            </p>
+            <p className="mx-auto mt-4 inline-flex max-w-fit items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              Illustrative examples · not real businesses
             </p>
           </div>
 
@@ -541,6 +547,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Testimonials / founding-customer CTA */}
+      <Testimonials />
+
       {/* Pricing teaser */}
       <section className="border-b border-border bg-surface-warm">
         <div className="container py-24">
@@ -579,6 +588,9 @@ const Index = () => {
               <p className="mt-6 text-center text-xs text-muted-foreground">
                 Cancel anytime &middot; <Link to="/pricing" className="underline hover:text-foreground">Full plan details</Link>
               </p>
+            </div>
+            <div className="mt-6">
+              <RiskReversalStrip />
             </div>
           </div>
         </div>
@@ -657,6 +669,8 @@ const Index = () => {
       */}
       <PlaybookEmailCapture />
 
+      <FounderNote />
+
       <section className="relative overflow-hidden bg-ink text-white">
         <div aria-hidden className="aurora opacity-80" />
         <div aria-hidden className="grain opacity-[0.08]" />
@@ -674,7 +688,7 @@ const Index = () => {
           <p className="mt-5 text-sm text-white/70">
             Not ready?{" "}
             <Link to="/sample" className="font-medium text-white underline-offset-4 hover:underline">
-              See a live sample referral page
+              See a sample referral page
             </Link>
           </p>
         </div>

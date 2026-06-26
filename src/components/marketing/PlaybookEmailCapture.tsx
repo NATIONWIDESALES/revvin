@@ -3,7 +3,7 @@ import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Check, Mail } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { submitEmailLead, type EmailLeadSource } from "@/lib/emailLeads";
 
 const emailSchema = z
   .string()
@@ -14,7 +14,36 @@ const emailSchema = z
 
 type Status = "idle" | "submitting" | "success" | "error";
 
-const PlaybookEmailCapture = () => {
+interface PlaybookEmailCaptureProps {
+  /** Differentiates the capture surface for admin segmentation. */
+  source?: EmailLeadSource;
+  /** Section eyebrow above the headline. */
+  eyebrow?: string;
+  /** Main headline. */
+  headline?: string;
+  /** Subhead under the headline. */
+  subhead?: string;
+  /** Submit-button label. */
+  ctaLabel?: string;
+  /** Success-state confirmation copy. */
+  successCopy?: string;
+  /** Fine-print disclaimer below the form. */
+  disclaimer?: string;
+  /** Wrap in the full surface-warm section (default true) or render plain (false). */
+  withSection?: boolean;
+}
+
+const PlaybookEmailCapture = ({
+  source = "playbook",
+  eyebrow = "No commitment",
+  headline = "Not ready yet? Get the 1-page referral playbook.",
+  subhead = "A short, practical guide on turning customers into a referral pipeline. We're putting it together now — drop your email and we'll send it as soon as it's ready.",
+  ctaLabel = "Notify me when it's ready",
+  // Honest copy: no PDF exists yet, so we don't claim it's already in their inbox.
+  successCopy = "Thanks — we'll email you the playbook the moment it's ready.",
+  disclaimer = "One email when the playbook is ready. No drip campaign, no spam.",
+  withSection = true,
+}: PlaybookEmailCaptureProps = {}) => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -31,40 +60,30 @@ const PlaybookEmailCapture = () => {
     }
 
     setStatus("submitting");
-    try {
-      const { error } = await supabase.from("email_leads").insert({
-        email: parsed.data.toLowerCase(),
-        source: "landing",
-        user_agent: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : null,
-        referrer: typeof document !== "undefined" ? document.referrer.slice(0, 500) : null,
-      });
-      if (error) throw error;
+    const result = await submitEmailLead(parsed.data, source);
+    if (result.ok) {
       setStatus("success");
       setEmail("");
-    } catch (err) {
-      console.error("[PlaybookEmailCapture] insert failed", err);
+    } else {
       setStatus("error");
-      setErrorMsg("Something went wrong. Please try again.");
+      setErrorMsg(("error" in result ? result.error : null) || "Something went wrong. Please try again.");
     }
   };
 
-  return (
-    <section className="border-b border-border bg-surface-warm">
-      <div className="container py-16 md:py-20">
-        <div className="mx-auto max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-soft md:p-10">
+  const card = (
+    <div className="mx-auto max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-soft md:p-10">
           <div className="text-center">
             <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Mail className="h-5 w-5" aria-hidden="true" />
             </div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-              No commitment
+              {eyebrow}
             </p>
             <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
-              Not ready yet? Get the 1-page referral playbook.
+              {headline}
             </h2>
             <p className="mt-3 text-sm text-muted-foreground md:text-base">
-              A short, practical guide on turning customers into a referral pipeline. We'll send
-              it once — no drip campaign, unsubscribe anytime.
+              {subhead}
             </p>
           </div>
 
@@ -75,7 +94,7 @@ const PlaybookEmailCapture = () => {
               className="mt-6 flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm font-medium text-foreground"
             >
               <Check className="h-4 w-4 text-primary" aria-hidden="true" />
-              Check your inbox — it's on the way.
+              {successCopy}
             </div>
           ) : (
             <form
@@ -111,7 +130,7 @@ const PlaybookEmailCapture = () => {
                 disabled={status === "submitting"}
                 className="h-11 sm:w-auto"
               >
-                {status === "submitting" ? "Sending..." : "Send it to me"}
+                {status === "submitting" ? "Saving..." : ctaLabel}
               </Button>
             </form>
           )}
@@ -127,9 +146,17 @@ const PlaybookEmailCapture = () => {
           )}
 
           <p className="mt-3 text-center text-[11px] text-muted-foreground">
-            We'll only email you the playbook. No spam, no sales blast.
+            {disclaimer}
           </p>
-        </div>
+    </div>
+  );
+
+  if (!withSection) return card;
+
+  return (
+    <section className="border-b border-border bg-surface-warm">
+      <div className="container py-16 md:py-20">
+        {card}
       </div>
     </section>
   );

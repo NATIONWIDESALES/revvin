@@ -489,11 +489,11 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           <div className="rounded-xl border border-border bg-muted/30 p-4">
             <p className="text-sm font-semibold text-foreground mb-2">This is an example offer</p>
             <p className="text-xs text-muted-foreground mb-3">
-              This offer shows how Revvin works. Browse our live offers to start earning, or invite a business you know.
+              This offer shows how Revvin works. Browse the marketplace to find real offers, or invite a business you know to list on Revvin.
             </p>
             <div className="flex flex-col sm:flex-row gap-2">
               <Button variant="outline" size="sm" className="flex-1 whitespace-nowrap" asChild>
-                <Link to="/browse">Browse Live Offers</Link>
+                <Link to="/browse">Browse Marketplace</Link>
               </Button>
               <Button size="sm" className="flex-1 whitespace-nowrap" asChild>
                 <Link to="/dashboard">Invite a Business</Link>
