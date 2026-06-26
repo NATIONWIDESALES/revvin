@@ -16,20 +16,58 @@ import MockLeadsTable from "@/components/marketing/MockLeadsTable";
 import MockQRCard from "@/components/marketing/MockQRCard";
 import MockPageBuilder from "@/components/marketing/MockPageBuilder";
 import TrustBar from "@/components/marketing/TrustBar";
-import LiveTicker from "@/components/marketing/LiveTicker";
 import StatsMarquee from "@/components/marketing/StatsMarquee";
 import Wordmark from "@/components/brand/Wordmark";
 
 const FEATURED_OFFERS = [
   // Illustrative placeholders only. Do NOT use real or invented company names here.
-  { id: "ex-roofing", business: "A roofing company near you", category: "Roofing", city: "Your city", state: "", payout: 500, desc: "Example offer · refer a closed roofing job", owner: "Local business owner" },
-  { id: "ex-hvac", business: "An HVAC company near you", category: "HVAC", city: "Your city", state: "", payout: 300, desc: "Example offer · refer a furnace or AC install", owner: "Local business owner" },
-  { id: "ex-landscape", business: "A landscaping company near you", category: "Landscaping", city: "Your city", state: "", payout: 400, desc: "Example offer · refer a full backyard project", owner: "Local business owner" },
-  { id: "ex-mortgage", business: "A mortgage broker near you", category: "Mortgage", city: "Your city", state: "", payout: 250, desc: "Example offer · refer a funded mortgage", owner: "Local business owner" },
-  { id: "ex-solar", business: "A solar installer near you", category: "Solar", city: "Your city", state: "", payout: 750, desc: "Example offer · refer a solar installation", owner: "Local business owner" },
-  { id: "ex-auto", business: "An auto detailer near you", category: "Auto", city: "Your city", state: "", payout: 150, desc: "Example offer · refer a ceramic coating", owner: "Local business owner" },
-  { id: "ex-windows", business: "A window company near you", category: "Home Services", city: "Your city", state: "", payout: 350, desc: "Example offer · refer a window replacement", owner: "Local business owner" },
-  { id: "ex-realestate", business: "A real estate agent near you", category: "Real Estate", city: "Your city", state: "", payout: 1000, desc: "Example offer · refer a buyer or seller", owner: "Local business owner" },
+  { id: "ex-roofing", business: "A roofing company near you", category: "Roofing", city: "Denver", state: "CO", payout: 500, desc: "Example offer · refer a closed roofing job", owner: "Local business owner" },
+  { id: "ex-hvac", business: "An HVAC company near you", category: "HVAC", city: "Phoenix", state: "AZ", payout: 300, desc: "Example offer · refer a furnace or AC install", owner: "Local business owner" },
+  { id: "ex-landscape", business: "A landscaping company near you", category: "Landscaping", city: "Austin", state: "TX", payout: 400, desc: "Example offer · refer a full backyard project", owner: "Local business owner" },
+  { id: "ex-mortgage", business: "A mortgage broker near you", category: "Mortgage", city: "Charlotte", state: "NC", payout: 250, desc: "Example offer · refer a funded mortgage", owner: "Local business owner" },
+  { id: "ex-solar", business: "A solar installer near you", category: "Solar", city: "San Diego", state: "CA", payout: 750, desc: "Example offer · refer a solar installation", owner: "Local business owner" },
+  { id: "ex-auto", business: "An auto detailer near you", category: "Auto", city: "Miami", state: "FL", payout: 150, desc: "Example offer · refer a ceramic coating", owner: "Local business owner" },
+  { id: "ex-windows", business: "A window company near you", category: "Home Services", city: "Chicago", state: "IL", payout: 350, desc: "Example offer · refer a window replacement", owner: "Local business owner" },
+  { id: "ex-realestate", business: "A real estate agent near you", category: "Real Estate", city: "Seattle", state: "WA", payout: 1000, desc: "Example offer · refer a buyer or seller", owner: "Local business owner" },
+];
+
+// Single source of truth for FAQ — drives both the visible accordion and the FAQPage JSON-LD.
+const FAQS: { question: string; answer: string }[] = [
+  {
+    question: "What if I do not get any referrals?",
+    answer:
+      "Referrals come from putting your link in front of happy customers, so results depend on you making the ask. Revvin is built to make that ask easy: a ready to share page, link, and QR code you can send right after a job, plus a lead inbox so nothing slips through the cracks. It is month to month, so you can cancel anytime.",
+  },
+  {
+    question: "Does Revvin pay the referrers for me?",
+    answer:
+      "No. Revvin gives you the referral infrastructure: a branded referral page, a shareable link, a QR code, and a lead inbox. You pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman.",
+  },
+  {
+    question: "How does billing work?",
+    answer:
+      "Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.",
+  },
+  {
+    question: "Is there a free tier?",
+    answer:
+      "Businesses run on the flat $49/month plan — there's no free business tier and no trial. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.",
+  },
+  {
+    question: "Do you have a marketplace where I can browse offers?",
+    answer:
+      "Yes. The Revvin marketplace is live, and every business also gets a branded referral page and shareable link or QR code that works on its own. Listing on the public marketplace is optional.",
+  },
+  {
+    question: "What if I cancel?",
+    answer:
+      "You can cancel anytime from your Stripe billing portal — no contract and no cancellation fee. Your referral page and link stay live until the end of the billing period you've already paid for, then they're paused. Your lead history isn't deleted, so if you come back later your data is still there.",
+  },
+  {
+    question: "What kind of businesses is Revvin for?",
+    answer:
+      "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more.",
+  },
 ];
 
 // Category → free Unsplash stock photo (public CDN URLs). Sized for card thumbnails.
