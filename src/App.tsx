@@ -33,6 +33,7 @@ import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 import PublicReferralPage from "./pages/PublicReferralPage";
 import Onboarding from "./pages/Onboarding";
+import Sample from "./pages/Sample";
 
 import { lazy, Suspense } from "react";
 
