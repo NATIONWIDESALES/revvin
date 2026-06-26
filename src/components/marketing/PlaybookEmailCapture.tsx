@@ -66,7 +66,7 @@ const PlaybookEmailCapture = ({
       setEmail("");
     } else {
       setStatus("error");
-      setErrorMsg(result.error || "Something went wrong. Please try again.");
+      setErrorMsg(("error" in result ? result.error : null) || "Something went wrong. Please try again.");
     }
   };
 
