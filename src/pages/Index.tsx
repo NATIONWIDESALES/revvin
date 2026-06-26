@@ -655,6 +655,8 @@ const Index = () => {
         companies. Do NOT re-import or re-enable it until it is wired to real,
         consented activity data.
       */}
+      <PlaybookEmailCapture />
+
       <section className="relative overflow-hidden bg-ink text-white">
         <div aria-hidden className="aurora opacity-80" />
         <div aria-hidden className="grain opacity-[0.08]" />
@@ -669,6 +671,12 @@ const Index = () => {
           <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
             <Link to="/signup">Start your referral program</Link>
           </Button>
+          <p className="mt-5 text-sm text-white/70">
+            Not ready?{" "}
+            <Link to="/sample" className="font-medium text-white underline-offset-4 hover:underline">
+              See a live sample referral page
+            </Link>
+          </p>
         </div>
       </section>
     </>
