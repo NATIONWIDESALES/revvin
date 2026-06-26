@@ -103,6 +103,15 @@ const Browse = () => {
       .slice(0, 4);
   }, [allOffers]);
 
+  // Featured row shows only when there are no search/category filters applied.
+  const showFeaturedRow = featuredOffers.length > 0 && !search && activeCategory === "All";
+  const featuredIds = useMemo(
+    () => new Set(showFeaturedRow ? featuredOffers.map((o) => o.id) : []),
+    [featuredOffers, showFeaturedRow],
+  );
+  // De-duplicate: when Featured is visible, exclude those offers from the main grid/map.
+  const gridOffers = showFeaturedRow ? filtered.filter((o) => !featuredIds.has(o.id)) : filtered;
+
   const clearFilters = () => {
     setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]);
     setVerifiedOnly(false); setRemoteOnly(false); setStateFilter(""); setCityFilter("");
@@ -159,7 +168,7 @@ const Browse = () => {
       />
       <div className="container">
         {/* Featured Offers */}
-        {featuredOffers.length > 0 && !search && activeCategory === "All" && (
+        {showFeaturedRow && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-5 w-5 text-primary" />
@@ -314,7 +323,7 @@ const Browse = () => {
 
         {/* Sort + count */}
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">{filtered.length} opportunities</p>
+          <p className="text-sm text-muted-foreground">{gridOffers.length} opportunities</p>
           <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
             <SelectTrigger className="w-44 h-9 text-sm">
               <SelectValue />
@@ -329,15 +338,15 @@ const Browse = () => {
 
         {/* Content */}
         {viewMode === "map" ? (
-          <MapView offers={filtered} />
-        ) : filtered.length > 0 ? (
+          <MapView offers={gridOffers} />
+        ) : gridOffers.length > 0 ? (
           <motion.div
             className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
             initial="hidden"
             animate="visible"
             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
           >
-            {filtered.map((offer) => (
+            {gridOffers.map((offer) => (
               <motion.div
                 key={offer.id}
                 variants={{
