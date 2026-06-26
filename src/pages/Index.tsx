@@ -19,6 +19,7 @@ import TrustBar from "@/components/marketing/TrustBar";
 import StatsMarquee from "@/components/marketing/StatsMarquee";
 import Wordmark from "@/components/brand/Wordmark";
 import RoiCalculator from "@/components/marketing/RoiCalculator";
+import PlaybookEmailCapture from "@/components/marketing/PlaybookEmailCapture";
 
 const FEATURED_OFFERS = [
   // Illustrative placeholders only. Do NOT use real or invented company names here.
@@ -195,7 +196,13 @@ const Index = () => {
                   <Link to="/how-it-works">See how it works</Link>
                 </Button>
               </div>
-              <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-4 text-sm text-muted-foreground">
+                Just browsing?{" "}
+                <Link to="/sample" className="font-medium text-foreground underline-offset-4 hover:underline">
+                  See a live sample referral page
+                </Link>
+              </p>
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                 $49/month. Cancel anytime. No contract, no setup fee.
               </p>
             </div>
