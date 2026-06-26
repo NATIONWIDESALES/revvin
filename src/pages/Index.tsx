@@ -35,7 +35,7 @@ const FEATURED_OFFERS = [
 // Category → free Unsplash stock photo (public CDN URLs). Sized for card thumbnails.
 const CATEGORY_IMAGE: Record<string, string> = {
   Roofing: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=800&q=60",
-  HVAC: "https://images.unsplash.com/photo-1568869839266-adc10460d4bb?auto=format&fit=crop&w=800&q=60",
+  HVAC: "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=800&q=60",
   Landscaping: "https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=800&q=60",
   Mortgage: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=60",
   Solar: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=60",
