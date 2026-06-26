@@ -38,7 +38,7 @@ const CATEGORY_GRADIENTS: Record<string, string> = {
 // hasn't uploaded a logo/image yet. Keeps the marketplace cards consistent.
 const CATEGORY_IMAGE: Record<string, string> = {
   Roofing: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=800&q=60",
-  HVAC: "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=800&q=60",
+  HVAC: "https://images.unsplash.com/photo-1568869839266-adc10460d4bb?auto=format&fit=crop&w=800&q=60",
   Landscaping: "https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=800&q=70",
   Mortgage: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=70",
   Finance: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=70",
