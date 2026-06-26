@@ -431,37 +431,13 @@ const Browse = () => {
         ) : (
           <div className="py-16 text-center">
             <Building2 className="mx-auto mb-6 h-12 w-12 text-muted-foreground/30" />
-            <h2 className="text-xl font-bold text-foreground mb-2">
-              {dbOffers.length === 0 ? "The marketplace is warming up" : "No offers match your filters"}
-            </h2>
+            <h2 className="text-xl font-bold text-foreground mb-2">No offers match your filters</h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
-              {dbOffers.length === 0
-                ? "Businesses are being onboarded right now. New referral opportunities from realtors, contractors, gyms, and more will appear here soon."
-                : "Try adjusting your search or filter criteria to find more opportunities."}
+              Try adjusting your search or filter criteria to find more opportunities.
             </p>
-            {dbOffers.length === 0 ? (
-              <div className="max-w-2xl mx-auto">
-                <p className="text-xs text-muted-foreground mb-4 font-medium uppercase tracking-wider">Categories coming soon</p>
-                <div className="flex flex-wrap justify-center gap-2">
-                  {["Real Estate", "Home Services", "Automotive", "Fitness", "Financial Services", "Solar & Energy", "Contractors", "Legal"].map(cat => (
-                    <span key={cat} className="rounded-full border border-border bg-surface px-4 py-2 text-xs font-medium text-muted-foreground">
-                      {cat}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-8">
-                  <Button asChild>
-                    <Link to="/signup">
-                      <PlusCircle className="mr-2 h-4 w-4" /> Be the first to list
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <Button variant="outline" onClick={clearFilters}>
-                Clear All Filters
-              </Button>
-            )}
+            <Button variant="outline" onClick={clearFilters}>
+              Clear All Filters
+            </Button>
           </div>
         )}
 
