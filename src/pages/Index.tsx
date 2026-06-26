@@ -19,6 +19,7 @@ import TrustBar from "@/components/marketing/TrustBar";
 import StatsMarquee from "@/components/marketing/StatsMarquee";
 import Wordmark from "@/components/brand/Wordmark";
 import RoiCalculator from "@/components/marketing/RoiCalculator";
+import PlaybookEmailCapture from "@/components/marketing/PlaybookEmailCapture";
 
 const FEATURED_OFFERS = [
   // Illustrative placeholders only. Do NOT use real or invented company names here.
@@ -195,7 +196,13 @@ const Index = () => {
                   <Link to="/how-it-works">See how it works</Link>
                 </Button>
               </div>
-              <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-4 text-sm text-muted-foreground">
+                Just browsing?{" "}
+                <Link to="/sample" className="font-medium text-foreground underline-offset-4 hover:underline">
+                  See a live sample referral page
+                </Link>
+              </p>
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                 $49/month. Cancel anytime. No contract, no setup fee.
               </p>
             </div>
@@ -648,6 +655,8 @@ const Index = () => {
         companies. Do NOT re-import or re-enable it until it is wired to real,
         consented activity data.
       */}
+      <PlaybookEmailCapture />
+
       <section className="relative overflow-hidden bg-ink text-white">
         <div aria-hidden className="aurora opacity-80" />
         <div aria-hidden className="grain opacity-[0.08]" />
@@ -662,6 +671,12 @@ const Index = () => {
           <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
             <Link to="/signup">Start your referral program</Link>
           </Button>
+          <p className="mt-5 text-sm text-white/70">
+            Not ready?{" "}
+            <Link to="/sample" className="font-medium text-white underline-offset-4 hover:underline">
+              See a live sample referral page
+            </Link>
+          </p>
         </div>
       </section>
     </>

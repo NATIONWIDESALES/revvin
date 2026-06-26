@@ -33,6 +33,7 @@ import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 import PublicReferralPage from "./pages/PublicReferralPage";
 import Onboarding from "./pages/Onboarding";
+import Sample from "./pages/Sample";
 
 import { lazy, Suspense } from "react";
 
@@ -67,6 +68,7 @@ const App = () => (
                   <Route path="/r/:slug" element={<PublicReferralPage />} />
                   <Route path="/welcome" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
                   <Route path="/how-it-works" element={<HowItWorks />} />
+                  <Route path="/sample" element={<Sample />} />
                   <Route path="/pricing" element={<Pricing />} />
                   <Route path="/trust" element={<TrustCenter />} />
                   <Route path="/for-businesses" element={<ForBusinesses />} />
