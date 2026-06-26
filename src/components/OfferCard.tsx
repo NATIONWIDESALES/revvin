@@ -98,16 +98,13 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
               onError={() => setImgFailed(true)}
             />
           ) : isSample ? (
-            /* Gradient + monogram for sample offers */
-            <div
-              className={`h-full w-full bg-gradient-to-br ${gradientClass} flex items-center justify-center transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105`}
-            >
-              <div
-                className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-white/20 bg-white/10 backdrop-blur-sm"
-              >
-                <span className="text-3xl font-bold text-white/90 leading-none">{offer.business.split(' ').map(w => w[0]).join('').slice(0, 2)}</span>
-              </div>
-            </div>
+            /* Category-appropriate stock photo for sample offers */
+            <img
+              src={CATEGORY_IMAGE[offer.category] || DEFAULT_CATEGORY_IMAGE}
+              alt={`${offer.category} example`}
+              loading="lazy"
+              className="h-full w-full object-cover transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105"
+            />
           ) : (
             /* Polished initials avatar for real businesses without a logo */
             <div
