@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import SEOHead from "@/components/SEOHead";
-import { Check } from "lucide-react";
+import { Check, Lock } from "lucide-react";
+import RiskReversalStrip from "@/components/marketing/RiskReversalStrip";
 import {
   Accordion,
   AccordionContent,
@@ -209,6 +210,15 @@ const Pricing = () => {
           <p className="mt-10 text-center text-xs text-muted-foreground">
             Revvin does not pay referrers for you. You pay referrers directly when the deal closes.
           </p>
+
+          <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+            <Lock className="h-3 w-3" aria-hidden="true" />
+            Secure checkout powered by Stripe.
+          </p>
+
+          <div className="mx-auto mt-8 max-w-3xl">
+            <RiskReversalStrip />
+          </div>
         </div>
       </section>
 
