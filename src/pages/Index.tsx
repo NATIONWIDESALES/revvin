@@ -32,6 +32,20 @@ const FEATURED_OFFERS = [
   { id: "ex-realestate", business: "A real estate agent near you", category: "Real Estate", city: "Your city", state: "", payout: 1000, desc: "Example offer · refer a buyer or seller", owner: "Local business owner" },
 ];
 
+// Category → free Unsplash stock photo (public CDN URLs). Sized for card thumbnails.
+const CATEGORY_IMAGE: Record<string, string> = {
+  Roofing: "https://images.unsplash.com/photo-1632759145355-8b8f3ab1c3a6?auto=format&fit=crop&w=800&q=70",
+  HVAC: "https://images.unsplash.com/photo-1631545308456-c8b6e0b8e2a8?auto=format&fit=crop&w=800&q=70",
+  Landscaping: "https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=800&q=70",
+  Mortgage: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=70",
+  Solar: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=70",
+  Auto: "https://images.unsplash.com/photo-1605618826115-fb9e0c4d3baf?auto=format&fit=crop&w=800&q=70",
+  "Home Services": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=70",
+  "Real Estate": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=70",
+};
+const DEFAULT_CATEGORY_IMAGE =
+  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=70";
+
 const initials = (name: string) =>
   name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
 
@@ -271,13 +285,13 @@ const Index = () => {
                     className="absolute inset-x-0 top-0 h-[3px]"
                     style={{ background: `hsl(${hue} 65% 45%)` }}
                   />
-                  <div className="relative flex h-32 items-center justify-center" style={{ background: `hsl(${hue} 30% 96%)` }}>
-                    <div
-                      className="flex h-14 w-14 items-center justify-center rounded-xl text-sm font-bold text-white shadow-soft"
-                      style={{ background: `hsl(${hue} 60% 40%)` }}
-                    >
-                      {initials(o.business)}
-                    </div>
+                  <div className="relative h-32 overflow-hidden rounded-t-2xl bg-muted">
+                    <img
+                      src={CATEGORY_IMAGE[o.category] || DEFAULT_CATEGORY_IMAGE}
+                      alt={`${o.category} example`}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                     <span className="absolute left-3 top-3 rounded-full bg-foreground/85 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-background">
                       {o.category}
                     </span>
