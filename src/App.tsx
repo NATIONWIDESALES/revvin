@@ -68,6 +68,7 @@ const App = () => (
                   <Route path="/r/:slug" element={<PublicReferralPage />} />
                   <Route path="/welcome" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
                   <Route path="/how-it-works" element={<HowItWorks />} />
+                  <Route path="/sample" element={<Sample />} />
                   <Route path="/pricing" element={<Pricing />} />
                   <Route path="/trust" element={<TrustCenter />} />
                   <Route path="/for-businesses" element={<ForBusinesses />} />
