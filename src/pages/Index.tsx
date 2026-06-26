@@ -376,14 +376,6 @@ const Index = () => {
             <Button size="lg" className="h-12 px-6 shadow-product hover:bg-primary-deep" asChild>
               <Link to="/signup">List your business here</Link>
             </Button>
-            <Button
-              variant="ghost"
-              size="lg"
-              asChild
-              className="h-12 px-6 text-primary hover:bg-primary/10"
-            >
-              <Link to="/browse">Browse the marketplace</Link>
-            </Button>
           </div>
         </div>
       </section>
