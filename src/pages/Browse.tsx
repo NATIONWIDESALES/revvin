@@ -10,7 +10,7 @@ import MapView from "@/components/MapView";
 import SEOHead from "@/components/SEOHead";
 import { categories } from "@/lib/offerUtils";
 import { useDbOffers } from "@/hooks/useDbOffers";
-import { sampleOffers } from "@/data/sampleOffers";
+import PlaybookEmailCapture from "@/components/marketing/PlaybookEmailCapture";
 import { Slider } from "@/components/ui/slider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCountry } from "@/contexts/CountryContext";
@@ -54,13 +54,13 @@ const Browse = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
-  // Merge DB offers with sample offers (real offers first)
-  const allOffers: (Offer & { isSample?: boolean })[] = useMemo(() => {
-    const real = dbOffers.map(o => ({ ...o, isSample: false as const }));
-    // Only show samples if < 10 real offers
-    if (real.length >= 10) return real;
-    return [...real, ...sampleOffers];
-  }, [dbOffers]);
+  // Real DB offers only. Until businesses publish real listings, the page
+  // shows a designed launching/empty state instead of seeded sample data so
+  // referrers never see fake offers presented as real.
+  const allOffers: (Offer & { isSample?: boolean })[] = useMemo(
+    () => dbOffers.map((o) => ({ ...o, isSample: false as const })),
+    [dbOffers],
+  );
 
   const availableStates = useMemo(() => {
     const countryOffers = country === "ALL" ? allOffers : allOffers.filter(o => o.country === country);
@@ -127,6 +127,76 @@ const Browse = () => {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Zero real listings → render the launching empty state (no filters,
+  // no fake offers, no broken-looking grid).
+  if (dbOffers.length === 0) {
+    return (
+      <div className="py-6">
+        <SEOHead
+          title="Browse referral offers | Revvin"
+          description="The Revvin marketplace is launching. Be one of the first businesses to list, or get notified when offers go live in your area."
+          path="/browse"
+        />
+        <div className="container">
+          <div className="mx-auto max-w-3xl rounded-2xl border border-border bg-card p-8 text-center shadow-soft md:p-12">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Sparkles className="h-6 w-6" aria-hidden="true" />
+            </div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              Marketplace · launching
+            </p>
+            <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
+              The marketplace is just getting started.
+            </h1>
+            <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
+              We're onboarding our first businesses now. List your business to
+              be one of the first offers referrers see, or drop your email and
+              we'll let you know the moment offers go live in your area.
+            </p>
+            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button size="lg" className="h-11 px-6 shadow-soft hover:bg-primary-deep" asChild>
+                <Link to="/signup">
+                  <PlusCircle className="mr-2 h-4 w-4" /> List your business
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" className="h-11 px-6" asChild>
+                <Link to="/how-it-works">How Revvin works</Link>
+              </Button>
+            </div>
+            <div className="mt-10">
+              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Categories we expect first
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {["Real Estate", "Roofing", "HVAC", "Solar", "Mortgage", "Home Services", "Auto", "Fitness"].map((cat) => (
+                  <span
+                    key={cat}
+                    className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-muted-foreground"
+                  >
+                    {cat}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10">
+            <PlaybookEmailCapture
+              source="sample"
+              eyebrow="Get notified"
+              headline="Tell me when offers go live in my area."
+              subhead="We'll email you once when the marketplace has live offers worth browsing. No drip campaign."
+              ctaLabel="Notify me"
+              successCopy="Thanks — we'll email you when there's something worth a click."
+              disclaimer="One email when offers go live near you. No spam."
+              withSection={false}
+            />
+          </div>
+        </div>
       </div>
     );
   }
