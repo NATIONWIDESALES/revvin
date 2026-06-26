@@ -98,13 +98,20 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
               onError={() => setImgFailed(true)}
             />
           ) : isSample ? (
-            /* Category-appropriate stock photo for sample offers */
-            <img
-              src={CATEGORY_IMAGE[offer.category] || DEFAULT_CATEGORY_IMAGE}
-              alt={`${offer.category} example`}
-              loading="lazy"
-              className="h-full w-full object-cover transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105"
-            />
+            /* Category-appropriate stock photo for sample offers, with neutral fallback if it fails */
+            <div
+              className={`relative h-full w-full bg-gradient-to-br ${gradientClass}`}
+            >
+              <img
+                src={CATEGORY_IMAGE[offer.category] || DEFAULT_CATEGORY_IMAGE}
+                alt={`${offer.category} example`}
+                loading="lazy"
+                className="h-full w-full object-cover transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
+            </div>
           ) : (
             /* Polished initials avatar for real businesses without a logo */
             <div
