@@ -266,6 +266,7 @@ const Index = () => {
                       key={c}
                       type="button"
                       onClick={() => setActiveCategory(c)}
+                      aria-pressed={active}
                       className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
                         active
                           ? "border-primary bg-primary text-primary-foreground"
@@ -288,6 +289,7 @@ const Index = () => {
                       key={loc}
                       type="button"
                       onClick={() => setActiveLocation(loc)}
+                      aria-pressed={active}
                       className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
                         active
                           ? "border-primary bg-primary text-primary-foreground"
