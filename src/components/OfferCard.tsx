@@ -37,14 +37,14 @@ const CATEGORY_GRADIENTS: Record<string, string> = {
 // Free Unsplash stock photos used as a thumbnail fallback when a business
 // hasn't uploaded a logo/image yet. Keeps the marketplace cards consistent.
 const CATEGORY_IMAGE: Record<string, string> = {
-  Roofing: "https://images.unsplash.com/photo-1632759145355-8b8f3ab1c3a6?auto=format&fit=crop&w=800&q=70",
-  HVAC: "https://images.unsplash.com/photo-1631545308456-c8b6e0b8e2a8?auto=format&fit=crop&w=800&q=70",
+  Roofing: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=800&q=60",
+  HVAC: "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=800&q=60",
   Landscaping: "https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=800&q=70",
   Mortgage: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=70",
   Finance: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=70",
   Solar: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=70",
   Energy: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=70",
-  Auto: "https://images.unsplash.com/photo-1605618826115-fb9e0c4d3baf?auto=format&fit=crop&w=800&q=70",
+  Auto: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=60",
   "Home Services": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=70",
   Services: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=70",
   "Real Estate": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=70",
