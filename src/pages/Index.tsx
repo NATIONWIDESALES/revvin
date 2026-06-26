@@ -18,6 +18,7 @@ import MockPageBuilder from "@/components/marketing/MockPageBuilder";
 import TrustBar from "@/components/marketing/TrustBar";
 import StatsMarquee from "@/components/marketing/StatsMarquee";
 import Wordmark from "@/components/brand/Wordmark";
+import RoiCalculator from "@/components/marketing/RoiCalculator";
 
 const FEATURED_OFFERS = [
   // Illustrative placeholders only. Do NOT use real or invented company names here.
