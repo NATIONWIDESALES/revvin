@@ -612,6 +612,8 @@ const Index = () => {
             </div>
           </div>
 
+          <RoiCalculator />
+
           <p className="mx-auto mt-12 max-w-3xl text-center text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
             Most leads cost <span className="highlight-underline">$200–$600</span>. Most referrals cost{" "}
             <span className="shimmer-text">a handshake</span>.
