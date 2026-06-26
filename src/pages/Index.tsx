@@ -34,17 +34,17 @@ const FEATURED_OFFERS = [
 
 // Category → free Unsplash stock photo (public CDN URLs). Sized for card thumbnails.
 const CATEGORY_IMAGE: Record<string, string> = {
-  Roofing: "https://images.unsplash.com/photo-1632759145355-8b8f3ab1c3a6?auto=format&fit=crop&w=800&q=70",
-  HVAC: "https://images.unsplash.com/photo-1631545308456-c8b6e0b8e2a8?auto=format&fit=crop&w=800&q=70",
-  Landscaping: "https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=800&q=70",
-  Mortgage: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=70",
-  Solar: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=70",
-  Auto: "https://images.unsplash.com/photo-1605618826115-fb9e0c4d3baf?auto=format&fit=crop&w=800&q=70",
-  "Home Services": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=70",
-  "Real Estate": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=70",
+  Roofing: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=800&q=60",
+  HVAC: "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=800&q=60",
+  Landscaping: "https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=800&q=60",
+  Mortgage: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=60",
+  Solar: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=60",
+  Auto: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=60",
+  "Home Services": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=60",
+  "Real Estate": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=60",
 };
 const DEFAULT_CATEGORY_IMAGE =
-  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=70";
+  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=60";
 
 const initials = (name: string) =>
   name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
@@ -285,12 +285,18 @@ const Index = () => {
                     className="absolute inset-x-0 top-0 h-[3px]"
                     style={{ background: `hsl(${hue} 65% 45%)` }}
                   />
-                  <div className="relative h-32 overflow-hidden rounded-t-2xl bg-muted">
+                  <div
+                    className="relative h-32 overflow-hidden rounded-t-2xl bg-muted"
+                    style={{ backgroundColor: `hsl(${hue} 30% 92%)` }}
+                  >
                     <img
                       src={CATEGORY_IMAGE[o.category] || DEFAULT_CATEGORY_IMAGE}
                       alt={`${o.category} example`}
                       loading="lazy"
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = "none";
+                      }}
                     />
                     <span className="absolute left-3 top-3 rounded-full bg-foreground/85 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-background">
                       {o.category}
