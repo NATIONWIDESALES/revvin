@@ -16,20 +16,58 @@ import MockLeadsTable from "@/components/marketing/MockLeadsTable";
 import MockQRCard from "@/components/marketing/MockQRCard";
 import MockPageBuilder from "@/components/marketing/MockPageBuilder";
 import TrustBar from "@/components/marketing/TrustBar";
-import LiveTicker from "@/components/marketing/LiveTicker";
 import StatsMarquee from "@/components/marketing/StatsMarquee";
 import Wordmark from "@/components/brand/Wordmark";
 
 const FEATURED_OFFERS = [
   // Illustrative placeholders only. Do NOT use real or invented company names here.
-  { id: "ex-roofing", business: "A roofing company near you", category: "Roofing", city: "Your city", state: "", payout: 500, desc: "Example offer · refer a closed roofing job", owner: "Local business owner" },
-  { id: "ex-hvac", business: "An HVAC company near you", category: "HVAC", city: "Your city", state: "", payout: 300, desc: "Example offer · refer a furnace or AC install", owner: "Local business owner" },
-  { id: "ex-landscape", business: "A landscaping company near you", category: "Landscaping", city: "Your city", state: "", payout: 400, desc: "Example offer · refer a full backyard project", owner: "Local business owner" },
-  { id: "ex-mortgage", business: "A mortgage broker near you", category: "Mortgage", city: "Your city", state: "", payout: 250, desc: "Example offer · refer a funded mortgage", owner: "Local business owner" },
-  { id: "ex-solar", business: "A solar installer near you", category: "Solar", city: "Your city", state: "", payout: 750, desc: "Example offer · refer a solar installation", owner: "Local business owner" },
-  { id: "ex-auto", business: "An auto detailer near you", category: "Auto", city: "Your city", state: "", payout: 150, desc: "Example offer · refer a ceramic coating", owner: "Local business owner" },
-  { id: "ex-windows", business: "A window company near you", category: "Home Services", city: "Your city", state: "", payout: 350, desc: "Example offer · refer a window replacement", owner: "Local business owner" },
-  { id: "ex-realestate", business: "A real estate agent near you", category: "Real Estate", city: "Your city", state: "", payout: 1000, desc: "Example offer · refer a buyer or seller", owner: "Local business owner" },
+  { id: "ex-roofing", business: "A roofing company near you", category: "Roofing", city: "Denver", state: "CO", payout: 500, desc: "Example offer · refer a closed roofing job", owner: "Local business owner" },
+  { id: "ex-hvac", business: "An HVAC company near you", category: "HVAC", city: "Phoenix", state: "AZ", payout: 300, desc: "Example offer · refer a furnace or AC install", owner: "Local business owner" },
+  { id: "ex-landscape", business: "A landscaping company near you", category: "Landscaping", city: "Austin", state: "TX", payout: 400, desc: "Example offer · refer a full backyard project", owner: "Local business owner" },
+  { id: "ex-mortgage", business: "A mortgage broker near you", category: "Mortgage", city: "Charlotte", state: "NC", payout: 250, desc: "Example offer · refer a funded mortgage", owner: "Local business owner" },
+  { id: "ex-solar", business: "A solar installer near you", category: "Solar", city: "San Diego", state: "CA", payout: 750, desc: "Example offer · refer a solar installation", owner: "Local business owner" },
+  { id: "ex-auto", business: "An auto detailer near you", category: "Auto", city: "Miami", state: "FL", payout: 150, desc: "Example offer · refer a ceramic coating", owner: "Local business owner" },
+  { id: "ex-windows", business: "A window company near you", category: "Home Services", city: "Chicago", state: "IL", payout: 350, desc: "Example offer · refer a window replacement", owner: "Local business owner" },
+  { id: "ex-realestate", business: "A real estate agent near you", category: "Real Estate", city: "Seattle", state: "WA", payout: 1000, desc: "Example offer · refer a buyer or seller", owner: "Local business owner" },
+];
+
+// Single source of truth for FAQ — drives both the visible accordion and the FAQPage JSON-LD.
+const FAQS: { question: string; answer: string }[] = [
+  {
+    question: "What if I do not get any referrals?",
+    answer:
+      "Referrals come from putting your link in front of happy customers, so results depend on you making the ask. Revvin is built to make that ask easy: a ready to share page, link, and QR code you can send right after a job, plus a lead inbox so nothing slips through the cracks. It is month to month, so you can cancel anytime.",
+  },
+  {
+    question: "Does Revvin pay the referrers for me?",
+    answer:
+      "No. Revvin gives you the referral infrastructure: a branded referral page, a shareable link, a QR code, and a lead inbox. You pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman.",
+  },
+  {
+    question: "How does billing work?",
+    answer:
+      "Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.",
+  },
+  {
+    question: "Is there a free tier?",
+    answer:
+      "Businesses run on the flat $49/month plan — there's no free business tier and no trial. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.",
+  },
+  {
+    question: "Do you have a marketplace where I can browse offers?",
+    answer:
+      "Yes. The Revvin marketplace is live, and every business also gets a branded referral page and shareable link or QR code that works on its own. Listing on the public marketplace is optional.",
+  },
+  {
+    question: "What if I cancel?",
+    answer:
+      "You can cancel anytime from your Stripe billing portal — no contract and no cancellation fee. Your referral page and link stay live until the end of the billing period you've already paid for, then they're paused. Your lead history isn't deleted, so if you come back later your data is still there.",
+  },
+  {
+    question: "What kind of businesses is Revvin for?",
+    answer:
+      "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more.",
+  },
 ];
 
 // Category → free Unsplash stock photo (public CDN URLs). Sized for card thumbnails.
@@ -112,14 +150,11 @@ const Index = () => {
           {
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            mainEntity: [
-              { "@type": "Question", name: "What if I do not get any referrals?", acceptedAnswer: { "@type": "Answer", text: "Referrals come from putting your link in front of happy customers, so results depend on you making the ask. Revvin is built to make that ask easy: a ready to share page, link, and QR code you can send right after a job, plus a lead inbox so nothing slips through the cracks. It is month to month, so you can cancel anytime." } },
-              { "@type": "Question", name: "Does Revvin pay the referrers for me?", acceptedAnswer: { "@type": "Answer", text: "No. Revvin gives you the referral infrastructure: a branded referral page, a shareable link, a QR code, and a lead inbox. You pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman." } },
-              { "@type": "Question", name: "How does billing work?", acceptedAnswer: { "@type": "Answer", text: "Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for." } },
-              { "@type": "Question", name: "Is there a free tier?", acceptedAnswer: { "@type": "Answer", text: "Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with no trial and no setup fee." } },
-              { "@type": "Question", name: "Do you have a marketplace where I can browse offers?", acceptedAnswer: { "@type": "Answer", text: "Yes. The Revvin marketplace is live, and every business also gets a branded referral page and shareable link or QR code that works on its own. Listing on the public marketplace is optional." } },
-              { "@type": "Question", name: "What kind of businesses is Revvin for?", acceptedAnswer: { "@type": "Answer", text: "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more." } },
-            ],
+            mainEntity: FAQS.map((f) => ({
+              "@type": "Question",
+              name: f.question,
+              acceptedAnswer: { "@type": "Answer", text: f.answer },
+            })),
           },
         ]}
       />
@@ -231,6 +266,7 @@ const Index = () => {
                       key={c}
                       type="button"
                       onClick={() => setActiveCategory(c)}
+                      aria-pressed={active}
                       className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
                         active
                           ? "border-primary bg-primary text-primary-foreground"
@@ -253,6 +289,7 @@ const Index = () => {
                       key={loc}
                       type="button"
                       onClick={() => setActiveLocation(loc)}
+                      aria-pressed={active}
                       className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
                         active
                           ? "border-primary bg-primary text-primary-foreground"
@@ -338,14 +375,6 @@ const Index = () => {
             </Button>
             <Button size="lg" className="h-12 px-6 shadow-product hover:bg-primary-deep" asChild>
               <Link to="/signup">List your business here</Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="lg"
-              asChild
-              className="h-12 px-6 text-primary hover:bg-primary/10"
-            >
-              <Link to="/browse">Browse the marketplace</Link>
             </Button>
           </div>
         </div>
@@ -597,59 +626,24 @@ const Index = () => {
             Frequently asked.
           </h2>
           <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="q0">
-              <AccordionTrigger className="text-left">What if I do not get any referrals?</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed">
-                Referrals come from putting your link in front of happy customers, so results depend on you making the ask. Revvin is built to make that ask easy: a ready to share page, link, and QR code you can send right after a job, plus a lead inbox so nothing slips through the cracks. It is month to month, so you can cancel anytime.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="q1">
-              <AccordionTrigger className="text-left">Does Revvin pay the referrers for me?</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed">
-                No. Revvin gives you the referral infrastructure: a branded referral page, a shareable link, a QR code, and a lead inbox. You pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="q2">
-              <AccordionTrigger className="text-left">How does billing work?</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed">
-                Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="q3">
-              <AccordionTrigger className="text-left">Is there a free tier?</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed">
-                Referrers create a free account to send leads and get paid directly by the business. Businesses run on the flat $49/month plan with no trial and no setup fee.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="q4">
-              <AccordionTrigger className="text-left">Do you have a marketplace where I can browse offers?</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed">
-                Yes. The Revvin marketplace is live, and every business also gets a branded referral page and shareable link or QR code that works on its own. Listing on the public marketplace is optional.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="q5">
-              <AccordionTrigger className="text-left">What if I cancel?</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed">
-                {/* FOUNDER-CONFIRMED TODO: confirm exact cancellation terms and what happens to the referral page after the paid period ends. */}
-                FOUNDER-CONFIRMED TODO: answer pending.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="q6">
-              <AccordionTrigger className="text-left">What kind of businesses is Revvin for?</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed">
-                Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more.
-              </AccordionContent>
-            </AccordionItem>
+            {FAQS.map((f, i) => (
+              <AccordionItem key={i} value={`q${i}`}>
+                <AccordionTrigger className="text-left">{f.question}</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground leading-relaxed">
+                  {f.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
           </Accordion>
         </div>
       </section>
 
       {/* Final CTA · dark */}
       {/*
-        LiveTicker hidden for launch: it rendered fabricated activity events
-        and named companies. Do NOT re-enable until it is wired to real,
+        LiveTicker is intentionally NOT rendered here (and its import has been
+        removed) because it shipped fabricated activity events and named
+        companies. Do NOT re-import or re-enable it until it is wired to real,
         consented activity data.
-        <LiveTicker variant="dark" />
       */}
       <section className="relative overflow-hidden bg-ink text-white">
         <div aria-hidden className="aurora opacity-80" />
