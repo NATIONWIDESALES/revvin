@@ -547,6 +547,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Testimonials / founding-customer CTA */}
+      <Testimonials />
+
       {/* Pricing teaser */}
       <section className="border-b border-border bg-surface-warm">
         <div className="container py-24">
@@ -585,6 +588,9 @@ const Index = () => {
               <p className="mt-6 text-center text-xs text-muted-foreground">
                 Cancel anytime &middot; <Link to="/pricing" className="underline hover:text-foreground">Full plan details</Link>
               </p>
+            </div>
+            <div className="mt-6">
+              <RiskReversalStrip />
             </div>
           </div>
         </div>
@@ -663,6 +669,8 @@ const Index = () => {
       */}
       <PlaybookEmailCapture />
 
+      <FounderNote />
+
       <section className="relative overflow-hidden bg-ink text-white">
         <div aria-hidden className="aurora opacity-80" />
         <div aria-hidden className="grain opacity-[0.08]" />
@@ -680,7 +688,7 @@ const Index = () => {
           <p className="mt-5 text-sm text-white/70">
             Not ready?{" "}
             <Link to="/sample" className="font-medium text-white underline-offset-4 hover:underline">
-              See a live sample referral page
+              See a sample referral page
             </Link>
           </p>
         </div>
