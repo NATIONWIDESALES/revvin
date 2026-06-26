@@ -155,7 +155,7 @@ const OfferDetail = () => {
             "category": offer.category,
             "availability": "https://schema.org/InStock",
             "price": String(offer.payout),
-            "priceCurrency": offer.currency,
+            "priceCurrency": "USD",
             "areaServed": offer.location || offer.city || offer.state || undefined,
             "offeredBy": {
               "@type": "LocalBusiness",
@@ -240,7 +240,7 @@ const OfferDetail = () => {
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">Estimated Deal Size:</span>
-                  <span className="font-bold">{offer.currency === "CAD" ? "CA" : ""}${offer.dealSizeMin.toLocaleString()} – ${offer.dealSizeMax.toLocaleString()} {offer.currency}</span>
+                  <span className="font-bold">${offer.dealSizeMin.toLocaleString()} – ${offer.dealSizeMax.toLocaleString()}</span>
                 </div>
               </motion.div>
             )}

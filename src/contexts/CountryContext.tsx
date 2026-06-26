@@ -33,13 +33,14 @@ export const CountryProvider = ({ children }: { children: ReactNode }) => {
     else if (c === "US") setDisplayCurrency("USD");
   }, []);
 
-  const currencySymbol = useCallback((cur: Currency) => {
-    return cur === "CAD" ? "CA$" : "$";
+  // All amounts displayed as plain USD ($1,000) — currency codes/prefixes intentionally suppressed.
+  const currencySymbol = useCallback((_cur: Currency) => {
+    return "$";
   }, []);
 
-  const formatPayout = useCallback((amount: number, cur: Currency) => {
-    return `${currencySymbol(cur)}${amount.toLocaleString()}`;
-  }, [currencySymbol]);
+  const formatPayout = useCallback((amount: number, _cur: Currency) => {
+    return `$${amount.toLocaleString()}`;
+  }, []);
 
   return (
     <CountryContext.Provider value={{ country, setCountry, displayCurrency, setDisplayCurrency, currencySymbol, formatPayout }}>

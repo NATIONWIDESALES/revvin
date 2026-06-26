@@ -180,7 +180,7 @@ const MapView = ({ offers, highlightOfferId, onMarkerClick }: MapViewProps) => {
             ${verifiedHtml}
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
               <span style="background:linear-gradient(135deg,${fillColor},${borderColor});color:white;padding:4px 14px;border-radius:999px;font-weight:700;font-size:14px;">
-                ${payoutLabel} <span style="font-size:10px;opacity:0.8">${offer.currency}</span>
+                ${payoutLabel}
               </span>
               <span style="font-size:11px;color:#999;">${offer.location}</span>
             </div>
