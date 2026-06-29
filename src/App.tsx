@@ -26,6 +26,7 @@ import CreateOffer from "./pages/dashboard/CreateOffer";
 import EditOffer from "./pages/dashboard/EditOffer";
 import ProfileEdit from "./pages/dashboard/ProfileEdit";
 import AccountSettings from "./pages/dashboard/AccountSettings";
+import InviteCustomers from "./pages/dashboard/InviteCustomers";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import ReferralAgreement from "./pages/ReferralAgreement";
@@ -86,6 +87,7 @@ const App = () => (
                   <Route path="/dashboard/edit-offer/:id" element={<ProtectedRoute requiredRole="business"><EditOffer /></ProtectedRoute>} />
                   <Route path="/dashboard/profile" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
                   <Route path="/dashboard/settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
+                  <Route path="/dashboard/invite" element={<ProtectedRoute requiredRole="business"><InviteCustomers /></ProtectedRoute>} />
                 </Route>
                 {/*
                   Legacy URLs from prior uses of the revvin.co domain.

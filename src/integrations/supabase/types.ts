@@ -75,6 +75,7 @@ export type Database = {
           business_email: string | null
           category: string | null
           city: string | null
+          contact_outreach_consent_at: string | null
           country: string | null
           cover_image_url: string | null
           created_at: string
@@ -131,6 +132,7 @@ export type Database = {
           business_email?: string | null
           category?: string | null
           city?: string | null
+          contact_outreach_consent_at?: string | null
           country?: string | null
           cover_image_url?: string | null
           created_at?: string
@@ -187,6 +189,7 @@ export type Database = {
           business_email?: string | null
           category?: string | null
           city?: string | null
+          contact_outreach_consent_at?: string | null
           country?: string | null
           cover_image_url?: string | null
           created_at?: string
@@ -1135,6 +1138,52 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      referral_contact_sends: {
+        Row: {
+          business_id: string
+          channel: string
+          contact_id: string
+          id: string
+          sent_at: string
+        }
+        Insert: {
+          business_id: string
+          channel: string
+          contact_id: string
+          id?: string
+          sent_at?: string
+        }
+        Update: {
+          business_id?: string
+          channel?: string
+          contact_id?: string
+          id?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_contact_sends_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_contact_sends_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_contact_sends_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "referral_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referral_contacts: {
         Row: {
