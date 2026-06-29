@@ -212,7 +212,14 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       // revert on failure
       setContacts((cs) => cs.map((x) => (x.id === c.id ? prev : x)));
       toast({ title: "Could not save sent status", description: error.message, variant: "destructive" });
+      return;
     }
+    // Append a history row so re-asks and nudges can reason over real sends later.
+    // Each row records ONLY that the business tapped Send on a channel; Revvin never
+    // sends, so this is not proof of delivery. Failure here is non-fatal.
+    void (supabase as any)
+      .from("referral_contact_sends")
+      .insert({ business_id: c.business_id, contact_id: c.id, channel });
   };
 
   const undoSend = async () => {
