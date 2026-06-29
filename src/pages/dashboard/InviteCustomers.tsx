@@ -72,16 +72,49 @@ const InviteCustomers = () => {
   const acceptConsent = async () => {
     if (!agreed) return;
     setSaving(true);
+    const nowIso = new Date().toISOString();
     const { error } = await supabase
       .from("businesses")
-      .update({ contact_outreach_consent_at: new Date().toISOString() })
+      .update({ contact_outreach_consent_at: nowIso })
       .eq("id", biz.id);
     setSaving(false);
     if (error) {
-      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      // The database trigger guards the consent timestamp as append-only so an
+      // owner cannot clear it or move it earlier. Surface a friendly message
+      // instead of the raw Postgres error, and refresh the row so the UI
+      // reflects the already-recorded consent if that is what happened.
+      const raw = (error.message || "").toLowerCase();
+      const isAppendOnly = raw.includes("append-only") || (error as { code?: string }).code === "P0001";
+      if (isAppendOnly) {
+        const { data } = await supabase
+          .from("businesses")
+          .select("contact_outreach_consent_at")
+          .eq("id", biz.id)
+          .limit(1);
+        const existing = (data?.[0]?.contact_outreach_consent_at as string | null) ?? null;
+        if (existing) {
+          setBiz({ ...biz, contact_outreach_consent_at: existing });
+          toast({
+            title: "Already confirmed",
+            description: "You already confirmed this on " + new Date(existing).toLocaleDateString() + ". Taking you in.",
+          });
+          return;
+        }
+        toast({
+          title: "Confirmation is permanent",
+          description: "Once accepted, the confirmation timestamp cannot be cleared or moved earlier. Contact support if you need it corrected.",
+          variant: "destructive",
+        });
+        return;
+      }
+      toast({
+        title: "Could not save",
+        description: error.message || "Please try again in a moment.",
+        variant: "destructive",
+      });
       return;
     }
-    setBiz({ ...biz, contact_outreach_consent_at: new Date().toISOString() });
+    setBiz({ ...biz, contact_outreach_consent_at: nowIso });
   };
 
   const hasConsent = !!biz.contact_outreach_consent_at;
