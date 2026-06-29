@@ -423,6 +423,60 @@ const Browse = () => {
                   <label className="text-sm font-medium mb-2 block">Payout: ${payoutRange[0]} – ${payoutRange[1]}+</label>
                   <Slider value={payoutRange} onValueChange={setPayoutRange} min={0} max={1000} step={25} className="mt-3" />
                 </div>
+                {/* Distance from my location */}
+                <div className="sm:col-span-2 lg:col-span-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <label className="text-sm font-medium">
+                      {userLoc
+                        ? `Distance: within ${maxDistance} mi of my location`
+                        : "Distance from my location"}
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant={userLoc ? "default" : "outline"}
+                        onClick={requestUserLocation}
+                        disabled={locating}
+                        className="gap-1.5"
+                      >
+                        {locating ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <MapPin className="h-3.5 w-3.5" />
+                        )}
+                        {userLoc ? "Update location" : "Use my location"}
+                      </Button>
+                      {userLoc && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => { setUserLoc(null); setLocError(null); }}
+                        >
+                          Clear
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  {userLoc && (
+                    <Slider
+                      value={[maxDistance]}
+                      onValueChange={(v) => setMaxDistance(v[0])}
+                      min={5}
+                      max={500}
+                      step={5}
+                      className="mt-3"
+                      aria-label="Maximum distance in miles"
+                    />
+                  )}
+                  {locError && (
+                    <p className="mt-2 text-xs text-destructive">{locError}</p>
+                  )}
+                  {!userLoc && !locError && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      We'll only show offers within your chosen radius. Your location stays in your browser.
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="mt-4 flex gap-2 flex-wrap">
                 <Button size="sm" variant={verifiedOnly ? "default" : "outline"} onClick={() => setVerifiedOnly(!verifiedOnly)}>Verified Only</Button>
