@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Search, SlidersHorizontal, Map, List, Building2, PlusCircle, X, Sparkles
+  Search, SlidersHorizontal, Map, List, Building2, PlusCircle, X, Sparkles, MapPin, Loader2
 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import MapView from "@/components/MapView";
@@ -42,6 +42,44 @@ const Browse = () => {
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [stateFilter, setStateFilter] = useState("");
   const [cityFilter, setCityFilter] = useState("");
+
+  // Distance filter: requires a user location (browser geolocation).
+  const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
+  const [maxDistance, setMaxDistance] = useState<number>(50); // miles
+  const [locating, setLocating] = useState(false);
+  const [locError, setLocError] = useState<string | null>(null);
+
+  const requestUserLocation = () => {
+    if (!("geolocation" in navigator)) {
+      setLocError("Geolocation isn't supported in this browser.");
+      return;
+    }
+    setLocating(true);
+    setLocError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setLocating(false);
+      },
+      (err) => {
+        setLocError(err.message || "Couldn't get your location.");
+        setLocating(false);
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 },
+    );
+  };
+
+  // Haversine distance in miles.
+  const distanceMiles = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const R = 3958.8;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(a));
+  };
 
   // Keep ?q= in the URL in sync with the search box (debounced via effect).
   useEffect(() => {
@@ -83,7 +121,12 @@ const Browse = () => {
       const matchesState = !stateFilter || o.state === stateFilter;
       const matchesCity =
         !cityFilter || (o.city ?? "").toLowerCase().includes(cityFilter.toLowerCase());
-      return matchesCountry && matchesSearch && matchesCat && matchesPayout && matchesVerified && matchesRemote && matchesState && matchesCity;
+      const matchesDistance =
+        !userLoc ||
+        o.latitude == null ||
+        o.longitude == null ||
+        distanceMiles(userLoc.lat, userLoc.lng, o.latitude, o.longitude) <= maxDistance;
+      return matchesCountry && matchesSearch && matchesCat && matchesPayout && matchesVerified && matchesRemote && matchesState && matchesCity && matchesDistance;
     })
     .sort((a, b) => {
       // Real offers always sort above sample offers
@@ -115,6 +158,7 @@ const Browse = () => {
   const clearFilters = () => {
     setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]);
     setVerifiedOnly(false); setRemoteOnly(false); setStateFilter(""); setCityFilter("");
+    setUserLoc(null); setMaxDistance(50); setLocError(null);
   };
 
   // Check if offer is new (< 7 days)
