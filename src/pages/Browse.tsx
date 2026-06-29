@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Search, SlidersHorizontal, Map, List, Building2, PlusCircle, X, Sparkles
+  Search, SlidersHorizontal, Map, List, Building2, PlusCircle, X, Sparkles, MapPin, Loader2
 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import MapView from "@/components/MapView";
@@ -42,6 +42,44 @@ const Browse = () => {
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [stateFilter, setStateFilter] = useState("");
   const [cityFilter, setCityFilter] = useState("");
+
+  // Distance filter: requires a user location (browser geolocation).
+  const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
+  const [maxDistance, setMaxDistance] = useState<number>(50); // miles
+  const [locating, setLocating] = useState(false);
+  const [locError, setLocError] = useState<string | null>(null);
+
+  const requestUserLocation = () => {
+    if (!("geolocation" in navigator)) {
+      setLocError("Geolocation isn't supported in this browser.");
+      return;
+    }
+    setLocating(true);
+    setLocError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setLocating(false);
+      },
+      (err) => {
+        setLocError(err.message || "Couldn't get your location.");
+        setLocating(false);
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 },
+    );
+  };
+
+  // Haversine distance in miles.
+  const distanceMiles = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const R = 3958.8;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(a));
+  };
 
   // Keep ?q= in the URL in sync with the search box (debounced via effect).
   useEffect(() => {
@@ -83,7 +121,12 @@ const Browse = () => {
       const matchesState = !stateFilter || o.state === stateFilter;
       const matchesCity =
         !cityFilter || (o.city ?? "").toLowerCase().includes(cityFilter.toLowerCase());
-      return matchesCountry && matchesSearch && matchesCat && matchesPayout && matchesVerified && matchesRemote && matchesState && matchesCity;
+      const matchesDistance =
+        !userLoc ||
+        o.latitude == null ||
+        o.longitude == null ||
+        distanceMiles(userLoc.lat, userLoc.lng, o.latitude, o.longitude) <= maxDistance;
+      return matchesCountry && matchesSearch && matchesCat && matchesPayout && matchesVerified && matchesRemote && matchesState && matchesCity && matchesDistance;
     })
     .sort((a, b) => {
       // Real offers always sort above sample offers
@@ -115,6 +158,7 @@ const Browse = () => {
   const clearFilters = () => {
     setSearch(""); setActiveCategory("All"); setPayoutRange([0, 1000]);
     setVerifiedOnly(false); setRemoteOnly(false); setStateFilter(""); setCityFilter("");
+    setUserLoc(null); setMaxDistance(50); setLocError(null);
   };
 
   // Check if offer is new (< 7 days)
@@ -378,6 +422,60 @@ const Browse = () => {
                 <div>
                   <label className="text-sm font-medium mb-2 block">Payout: ${payoutRange[0]} – ${payoutRange[1]}+</label>
                   <Slider value={payoutRange} onValueChange={setPayoutRange} min={0} max={1000} step={25} className="mt-3" />
+                </div>
+                {/* Distance from my location */}
+                <div className="sm:col-span-2 lg:col-span-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <label className="text-sm font-medium">
+                      {userLoc
+                        ? `Distance: within ${maxDistance} mi of my location`
+                        : "Distance from my location"}
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant={userLoc ? "default" : "outline"}
+                        onClick={requestUserLocation}
+                        disabled={locating}
+                        className="gap-1.5"
+                      >
+                        {locating ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <MapPin className="h-3.5 w-3.5" />
+                        )}
+                        {userLoc ? "Update location" : "Use my location"}
+                      </Button>
+                      {userLoc && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => { setUserLoc(null); setLocError(null); }}
+                        >
+                          Clear
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  {userLoc && (
+                    <Slider
+                      value={[maxDistance]}
+                      onValueChange={(v) => setMaxDistance(v[0])}
+                      min={5}
+                      max={500}
+                      step={5}
+                      className="mt-3"
+                      aria-label="Maximum distance in miles"
+                    />
+                  )}
+                  {locError && (
+                    <p className="mt-2 text-xs text-destructive">{locError}</p>
+                  )}
+                  {!userLoc && !locError && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      We'll only show offers within your chosen radius. Your location stays in your browser.
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="mt-4 flex gap-2 flex-wrap">
