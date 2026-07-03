@@ -17,8 +17,9 @@ const RoleSelector = () => {
     if (!user) return;
     setLoading(true);
     try {
-      // Insert role
-      await supabase.from("user_roles").insert({ user_id: user.id, role });
+      // Assign role via controlled RPC (self-insert policy has been removed for safety)
+      const { error: roleErr } = await supabase.rpc("assign_self_role", { _role: role });
+      if (roleErr) throw roleErr;
 
       // If business, create business row
       if (role === "business") {
