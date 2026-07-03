@@ -1801,6 +1801,10 @@ export type Database = {
       }
     }
     Functions: {
+      assign_self_role: {
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: undefined
+      }
       award_badge_if_qualified: {
         Args: { p_badge_id: string }
         Returns: boolean
@@ -1809,6 +1813,7 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
