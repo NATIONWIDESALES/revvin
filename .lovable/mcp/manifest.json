@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "revvin-mcp",
+      "version": "0.1.0",
+      "title": "Revvin Marketplace"
+    },
+    "tools": [
+      {
+        "name": "search_offers",
+        "title": "Search referral offers",
+        "description": "Search Revvin's public marketplace of referral offers. Filter by keyword, industry/category, city, or minimum payout. Returns active, approved offers from listed businesses.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Keyword to match in offer title/description or business name."
+            },
+            "category": {
+              "type": "string",
+              "description": "Industry/category filter (e.g. 'Home Services', 'Legal')."
+            },
+            "city": {
+              "type": "string",
+              "description": "City name to filter businesses by."
+            },
+            "min_payout": {
+              "type": "number",
+              "description": "Minimum referral payout amount in the offer's currency."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "Max results (default 20)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_offer",
+        "title": "Get offer details",
+        "description": "Fetch full details for a single Revvin referral offer by its ID, including business info and payout terms.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "offer_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The offer's UUID."
+            }
+          },
+          "required": [
+            "offer_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_categories",
+        "title": "List offer categories",
+        "description": "List the distinct industry categories currently represented in the Revvin marketplace.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
