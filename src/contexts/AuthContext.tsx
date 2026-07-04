@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .eq("user_id", userId)
       .maybeSingle();
     setUserRole((data?.role as "business" | "referrer" | "admin") ?? null);
+    return (data?.role as "business" | "referrer" | "admin") ?? null;
   };
 
   // Safety net: ensure profile exists on login (recovers from partial signup failures)
@@ -54,24 +55,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
+        setLoading(true);
+        // Defer to avoid deadlocks with the auth callback; await role before
+        // clearing loading so ProtectedRoute doesn't redirect on a null role.
         setTimeout(() => {
-          fetchRole(session.user.id);
+          fetchRole(session.user.id).finally(() => setLoading(false));
           ensureProfile(session.user);
         }, 0);
       } else {
         setUserRole(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchRole(session.user.id);
+        try {
+          await fetchRole(session.user.id);
+        } finally {
+          setLoading(false);
+        }
         ensureProfile(session.user);
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
