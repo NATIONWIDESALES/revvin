@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { isPlatformAdmin } from "../_shared/admin-auth.ts";
 import { appUrl as getAppUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
+import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -78,15 +79,13 @@ Deno.serve(async (req) => {
             const businessName = biz.name || "Your Business";
 
             if (ownerEmail) {
-              const resendApiKey = Deno.env.get("RESEND_API_KEY");
-              if (resendApiKey) {
-                const isApproved = account_status === "approved";
-                const subject = isApproved
-                  ? `Your business "${businessName}" has been approved on Revvin!`
-                  : `Update on your Revvin application for "${businessName}"`;
+              const isApproved = account_status === "approved";
+              const subject = isApproved
+                ? `Your business "${businessName}" has been approved on Revvin!`
+                : `Update on your Revvin application for "${businessName}"`;
 
-                const appUrl = getAppUrl();
-                const html = `<!DOCTYPE html>
+              const appUrl = getAppUrl();
+              const html = `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background-color:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
@@ -119,35 +118,27 @@ ${isApproved ? `
 </body>
 </html>`;
 
-                const res = await fetch("https://api.resend.com/emails", {
-                  method: "POST",
-                  headers: {
-                    Authorization: `Bearer ${resendApiKey}`,
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    from: RESEND_FROM_ADDRESS,
-                    to: [ownerEmail],
-                    reply_to: RESEND_REPLY_TO,
-                    subject,
-                    html,
-                  }),
-                });
+              const result = await sendEmailViaGateway({
+                from: RESEND_FROM_ADDRESS,
+                to: ownerEmail,
+                reply_to: RESEND_REPLY_TO,
+                subject,
+                html,
+              });
 
-                const emailStatus = res.ok ? "sent" : "failed";
-                if (!res.ok) console.error("Status email failed:", await res.text());
+              const emailStatus = result.success ? "sent" : "failed";
+              if (!result.success) console.error("Status email failed:", result.error);
 
-                await admin.from("notifications_log").insert({
-                  type: `business_${account_status}`,
-                  recipient_email: ownerEmail,
-                  recipient_name: ownerName,
-                  subject,
-                  body: `Business ${account_status}: ${businessName}`,
-                  status: emailStatus,
-                });
+              await admin.from("notifications_log").insert({
+                type: `business_${account_status}`,
+                recipient_email: ownerEmail,
+                recipient_name: ownerName,
+                subject,
+                body: `Business ${account_status}: ${businessName}`,
+                status: emailStatus,
+              });
 
-                console.log(`📧 Business ${account_status} email [${emailStatus}] to ${ownerEmail}`);
-              }
+              console.log(`📧 Business ${account_status} email [${emailStatus}] to ${ownerEmail}`);
             }
           }
         } catch (emailErr) {

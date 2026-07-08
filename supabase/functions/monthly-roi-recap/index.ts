@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
+import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,7 +10,6 @@ const corsHeaders = {
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 function periodBounds(d: Date) {
   // d = "now"; compute last month [start, end)
@@ -58,24 +58,20 @@ function buildHtml(opts: {
 }
 
 async function sendEmail(to: string, subject: string, html: string) {
-  if (!RESEND_API_KEY) return { status: "logged" as const, id: null };
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: RESEND_FROM_ADDRESS,
-      to: [to],
-      reply_to: RESEND_REPLY_TO,
-      subject,
-      html,
-    }),
+  const result = await sendEmailViaGateway({
+    from: RESEND_FROM_ADDRESS,
+    to: [to],
+    reply_to: RESEND_REPLY_TO,
+    subject,
+    html,
   });
-  const body = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    console.error("resend send failed", body);
+
+  if (!result.success) {
+    console.error("resend gateway send failed", result.error);
     return { status: "failed" as const, id: null };
   }
-  return { status: "sent" as const, id: body?.id ?? null };
+
+  return { status: "sent" as const, id: result.id ?? null };
 }
 
 serve(async (req) => {

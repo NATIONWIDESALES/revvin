@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
+import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -88,34 +89,23 @@ const templates: Record<
 };
 
 async function sendWithResend(
-  apiKey: string,
   to: string,
   subject: string,
   textBody: string,
 ): Promise<{ success: boolean; id?: string; error?: string }> {
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: RESEND_FROM_ADDRESS,
-      to: [to],
-      reply_to: RESEND_REPLY_TO,
-      subject,
-      text: textBody,
-    }),
+  const result = await sendEmailViaGateway({
+    from: RESEND_FROM_ADDRESS,
+    to: [to],
+    reply_to: RESEND_REPLY_TO,
+    subject,
+    text: textBody,
   });
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    console.error("Resend API error:", JSON.stringify(data));
-    return { success: false, error: data?.message || `HTTP ${res.status}` };
+  if (!result.success) {
+    console.error("Resend gateway error:", result.error);
   }
 
-  return { success: true, id: data.id };
+  return result;
 }
 
 serve(async (req) => {
@@ -170,26 +160,14 @@ serve(async (req) => {
         });
       }
 
-      const resendApiKey = Deno.env.get("RESEND_API_KEY");
-      let emailStatus = "logged";
-      let resendId: string | undefined;
-
-      if (resendApiKey) {
-        const res = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from: RESEND_FROM_ADDRESS,
-            to: [rawPayload.to],
-            reply_to: RESEND_REPLY_TO,
-            subject: rawPayload.subject,
-            html: rawPayload.html,
-          }),
-        });
-        const data = await res.json();
-        if (res.ok) { emailStatus = "sent"; resendId = data.id; }
-        else { emailStatus = "failed"; }
-      }
+      const result = await sendEmailViaGateway({
+        from: RESEND_FROM_ADDRESS,
+        to: rawPayload.to,
+        reply_to: RESEND_REPLY_TO,
+        subject: rawPayload.subject,
+        html: rawPayload.html,
+      });
+      const emailStatus = result.success ? "sent" : "failed";
 
       const supa = createClient(supabaseUrl, serviceKey);
       await supa.from("notifications_log").insert({
@@ -264,24 +242,14 @@ serve(async (req) => {
     );
     const body = template.body(mergedData);
 
-    // Attempt to send via Resend
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    let emailStatus = "logged";
-    let resendId: string | undefined;
+    // Attempt to send via Resend connector gateway
+    const result = await sendWithResend(recipientEmail, subject, body);
 
-    if (resendApiKey) {
-      const result = await sendWithResend(resendApiKey, recipientEmail, subject, body);
-      if (result.success) {
-        emailStatus = "sent";
-        resendId = result.id;
-        console.log(`📧 Email SENT [${type}] to ${recipientEmail} (Resend ID: ${resendId})`);
-      } else {
-        emailStatus = "failed";
-        console.error(`📧 Email FAILED [${type}] to ${recipientEmail}: ${result.error}`);
-      }
+    const emailStatus = result.success ? "sent" : "failed";
+    if (result.success) {
+      console.log(`📧 Email SENT [${type}] to ${recipientEmail} (Resend ID: ${result.id})`);
     } else {
-      console.warn("⚠️ RESEND_API_KEY not set — email logged but not sent");
-      console.log(`📧 NOTIFICATION [${type}] To: ${recipientEmail} Subject: ${subject}`);
+      console.error(`📧 Email FAILED [${type}] to ${recipientEmail}: ${result.error}`);
     }
 
     // Store notification record for audit
@@ -298,7 +266,7 @@ serve(async (req) => {
       JSON.stringify({
         success: emailStatus === "sent",
         status: emailStatus,
-        ...(resendId && { resendId }),
+        ...(result.id && { resendId: result.id }),
       }),
       {
         status: 200,
