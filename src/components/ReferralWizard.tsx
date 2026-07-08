@@ -270,7 +270,14 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
   const progress = ((step + 1) / STEPS.length) * 100;
 
   return (
-    <div className="sticky top-24 rounded-2xl border border-border bg-card shadow-lg overflow-hidden">
+    <div
+      ref={wizardRef}
+      onFocusCapture={(e) => {
+        const id = (e.target as HTMLElement).id;
+        if (id) activeFieldRef.current = id;
+      }}
+      className="sticky top-24 rounded-2xl border border-border bg-card shadow-lg overflow-hidden scroll-mt-24"
+    >
       {/* Header with payout */}
       <div className="bg-gradient-to-br from-primary/10 to-earnings/10 p-5 text-center border-b border-border">
         <div className="earnings-badge mx-auto mb-2 inline-block rounded-full px-5 py-2.5 text-lg font-bold shadow-md">
@@ -506,14 +513,20 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           <div className="flex gap-2">
             <Button
               className="flex-1 gap-1.5"
-              onClick={() => navigate(`/signup?redirect=${encodeURIComponent(redirectPath)}`)}
+              onClick={() => {
+                saveFormToSession();
+                navigate(`/signup?redirect=${encodeURIComponent(redirectPath)}`);
+              }}
             >
               <UserPlus className="h-3.5 w-3.5" /> Sign Up Free
             </Button>
             <Button
               variant="outline"
               className="flex-1 gap-1.5"
-              onClick={() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`)}
+              onClick={() => {
+                saveFormToSession();
+                navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`);
+              }}
             >
               <LogIn className="h-3.5 w-3.5" /> Sign In
             </Button>
