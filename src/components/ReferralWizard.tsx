@@ -81,7 +81,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
   // and highlights the first required field until the user starts typing.
   useEffect(() => {
     const onStart = () => {
-      if (isSampleOffer) return;
+      if (offer.id.startsWith("sample-")) return;
       if (step === 0) {
         if (!user) {
           setShowAuthPrompt(true);
@@ -99,7 +99,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
     };
     window.addEventListener("revvin:start-referral", onStart);
     return () => window.removeEventListener("revvin:start-referral", onStart);
-  }, [step, user, isSampleOffer]);
+  }, [step, user, offer.id]);
 
   const saveFormToSession = () => {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
