@@ -25,8 +25,8 @@ const stagger = {
 const ForBusinesses = () => (
   <div>
     <SEOHead
-      title="Referral program software for service businesses | Revvin"
-      description="Launch a branded referral page, share a link or QR code, and manage every lead in one inbox. Flat $49/month. You pay your referrers directly when deals close."
+      title="Revvin | Referral program for service businesses"
+      description="Launch a referral program for your service business. Branded referral page, shareable link, QR code, and lead inbox. Flat $49/month USD. Cancel anytime. You pay your referrers directly."
       path="/for-businesses"
       jsonLd={[
         {
@@ -34,7 +34,7 @@ const ForBusinesses = () => (
           "@type": "Service",
           "name": "Revvin Referral Marketing for Businesses",
           "description": "Referral program software for service businesses. Flat $49/month subscription with a branded referral page, lead inbox, and dashboard. Businesses pay their referrers directly when deals close.",
-          "provider": { "@type": "Organization", "name": "Revvin", "slogan": "The Referral Marketplace" },
+          "provider": { "@type": "Organization", "name": "Revvin", "slogan": "Referral program platform for service businesses" },
           "offers": {
             "@type": "Offer",
             "price": "49",
