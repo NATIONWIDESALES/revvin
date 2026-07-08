@@ -51,27 +51,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    // Track the user id we've already loaded a role for so background auth
+    // events (TOKEN_REFRESHED, USER_UPDATED, INITIAL_SESSION with same user)
+    // don't flip `loading` back to true and unmount protected page trees —
+    // which would wipe in-progress form state (Create Offer, Referral Wizard, etc.).
+    let loadedUserId: string | null = null;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) {
-        setLoading(true);
-        // Defer to avoid deadlocks with the auth callback; await role before
-        // clearing loading so ProtectedRoute doesn't redirect on a null role.
-        setTimeout(() => {
-          fetchRole(session.user.id).finally(() => setLoading(false));
-          ensureProfile(session.user);
-        }, 0);
-      } else {
+      const nextUserId = session?.user?.id ?? null;
+
+      if (!nextUserId) {
+        loadedUserId = null;
         setUserRole(null);
         setLoading(false);
+        return;
       }
+
+      // Same user as already loaded (token refresh, user update): do NOT
+      // toggle loading or remount children. Roles rarely change; skip refetch.
+      if (nextUserId === loadedUserId) {
+        return;
+      }
+
+      loadedUserId = nextUserId;
+      setLoading(true);
+      // Defer to avoid deadlocks with the auth callback.
+      setTimeout(() => {
+        fetchRole(nextUserId).finally(() => setLoading(false));
+        ensureProfile(session!.user);
+      }, 0);
     });
 
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
+        loadedUserId = session.user.id;
         try {
           await fetchRole(session.user.id);
         } finally {
