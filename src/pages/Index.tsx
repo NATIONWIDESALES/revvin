@@ -224,73 +224,8 @@ const Index = () => {
             </p>
           </div>
 
-          {/* Search + category + location filter toolbar (sticky on mobile) */}
-          <div className="sticky top-14 z-30 -mx-4 mb-6 border-y border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none sm:mb-8">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="relative flex-1">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="search"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search offers, businesses, cities…"
-                  className="h-11 pl-9"
-                  aria-label="Search featured offers"
-                />
-              </div>
-              <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-                {featuredCategories.map((c) => {
-                  const active = c === activeCategory;
-                  return (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setActiveCategory(c)}
-                      aria-pressed={active}
-                      className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                        active
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-card text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {c}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="mt-2 flex items-center gap-2">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              <div className="flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-                {featuredLocations.map((loc) => {
-                  const active = loc === activeLocation;
-                  return (
-                    <button
-                      key={loc}
-                      type="button"
-                      onClick={() => setActiveLocation(loc)}
-                      aria-pressed={active}
-                      className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                        active
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-card text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {loc}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {filteredFeatured.length === 0 ? (
-            <p className="py-10 text-center text-sm text-muted-foreground">
-              No offers match your search. Try a different keyword or category.
-            </p>
-          ) : (
-          <div className="-mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:snap-none sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-            {filteredFeatured.map((o) => {
+          <div className="mt-8 -mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:snap-none sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+            {FEATURED_OFFERS.map((o) => {
               const hue = businessHue(o.business);
               return (
                 <article
@@ -347,7 +282,6 @@ const Index = () => {
               );
             })}
           </div>
-          )}
 
           <div className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button variant="outline" size="lg" asChild className="h-12 px-6">
