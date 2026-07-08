@@ -51,7 +51,7 @@ const FAQS: { question: string; answer: string }[] = [
   {
     question: "How does billing work?",
     answer:
-      "Pro is a flat $49/month, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.",
+      "Pro is a flat $49/month USD, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.",
   },
   {
     question: "Is there a free tier?",
@@ -185,7 +185,7 @@ const Index = () => {
                 for your business.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-                Get a branded referral page, QR code, and pipeline CRM to turn your customers into your sales team. Optional: get listed on the Revvin marketplace where motivated referrers can find your offer. <span className="text-foreground font-medium">$49/month flat.</span>
+                Get a branded referral page, QR code, and lead inbox to turn your customers into your sales team. Optional: get listed on the Revvin marketplace where motivated referrers can find your offer. <span className="text-foreground font-medium">$49/month flat.</span>
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
@@ -525,8 +525,8 @@ const Index = () => {
             <div className="bento-tile md:col-span-2 flex items-start gap-3">
               <div className="rounded-md bg-primary/10 p-2 text-primary"><BarChart3 className="h-4 w-4" /></div>
               <div>
-                <p className="text-sm font-semibold text-foreground">Monthly ROI report</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">See the revenue your referrals bring in.</p>
+                <p className="text-sm font-semibold text-foreground">Lead status tracking</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Move every referral from new to closed.</p>
               </div>
             </div>
             <div className="bento-tile md:col-span-2 flex items-start gap-3">
@@ -539,8 +539,8 @@ const Index = () => {
             <div className="bento-tile md:col-span-2 flex items-start gap-3">
               <div className="rounded-md bg-primary/10 p-2 text-primary"><Users className="h-4 w-4" /></div>
               <div>
-                <p className="text-sm font-semibold text-foreground">1-click customer import</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Invite your past customers in minutes.</p>
+                <p className="text-sm font-semibold text-foreground">Share anywhere</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Link and QR code work on invoices, texts, and social.</p>
               </div>
             </div>
           </div>
@@ -561,9 +561,9 @@ const Index = () => {
               </p>
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="text-6xl font-extrabold tracking-tight text-foreground">$49</span>
-                <span className="text-base font-medium text-muted-foreground">/month</span>
+                <span className="text-base font-medium text-muted-foreground">/month USD</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">Cancel anytime. No contract. No setup fee.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Cancel anytime. No contract. No setup fee. Billed in USD.</p>
 
               <Button size="lg" className="mt-8 h-12 w-full text-base shadow-soft hover:bg-primary-deep" asChild>
                 <Link to="/signup">Start your referral program</Link>
@@ -680,7 +680,7 @@ const Index = () => {
             Launch your referral program <span className="shimmer-text">today.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-            $49/month. Cancel anytime. No contract.
+            $49/month USD. Cancel anytime. No contract.
           </p>
           <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
             <Link to="/signup">Start your referral program</Link>
