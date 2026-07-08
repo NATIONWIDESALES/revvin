@@ -5,6 +5,7 @@ import {
   RESEND_FROM_ADDRESS,
   RESEND_REPLY_TO,
 } from "../_shared/app-config.ts";
+import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,7 +27,6 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
 
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false },
@@ -46,13 +46,6 @@ Deno.serve(async (req) => {
     if (!record) {
       console.error("notify-business-signup: no record found", payload);
       return new Response(JSON.stringify({ ok: true, skipped: true }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    if (!resendApiKey) {
-      console.error("RESEND_API_KEY not configured");
-      return new Response(JSON.stringify({ ok: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -123,35 +116,22 @@ Deno.serve(async (req) => {
 </td></tr>
 </table>
 </body>
-</html>`;
+    </html>`;
 
-    // Send via Resend
+    // Send via Resend connector gateway
     const subject = `New Business Signup: ${businessName}`;
     let emailStatus = "sent";
 
-    try {
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: RESEND_FROM_ADDRESS,
-          to: [ADMIN_NOTIFICATION_EMAIL],
-          reply_to: RESEND_REPLY_TO,
-          subject,
-          html,
-        }),
-      });
+    const result = await sendEmailViaGateway({
+      from: RESEND_FROM_ADDRESS,
+      to: ADMIN_NOTIFICATION_EMAIL,
+      reply_to: RESEND_REPLY_TO,
+      subject,
+      html,
+    });
 
-      if (!res.ok) {
-        const errBody = await res.text();
-        console.error("Resend API error:", res.status, errBody);
-        emailStatus = "failed";
-      }
-    } catch (sendErr) {
-      console.error("Resend send error:", sendErr);
+    if (!result.success) {
+      console.error("Resend gateway send error:", result.error);
       emailStatus = "failed";
     }
 

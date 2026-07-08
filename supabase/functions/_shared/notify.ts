@@ -8,6 +8,7 @@
 // All callers must pass a service-role Supabase client.
 
 import { RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "./app-config.ts";
+import { sendEmailViaGateway } from "./resend-gateway.ts";
 
 export type NotifyChannel = "new_lead" | "closed_deal";
 
@@ -95,40 +96,18 @@ export async function notify(input: NotifyInput): Promise<NotifyResult> {
     return { ok: true, emailStatus: "skipped_no_email", inAppStatus };
   }
 
-  const resendKey = Deno.env.get("RESEND_API_KEY");
-  if (!resendKey) {
-    console.warn("[notify] RESEND_API_KEY missing");
-    await supabase.from("notifications_log").insert({
-      type: channel,
-      recipient_email: toEmail,
-      recipient_name: biz.name,
-      subject: email.subject,
-      body: email.html,
-      status: "logged",
-    });
-    return { ok: true, emailStatus: "skipped_no_resend", inAppStatus };
-  }
-
   const idempotencyKey = email.idempotencyKey ?? `${channel}-${businessId}-${Date.now()}`;
 
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendKey}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": idempotencyKey,
-    },
-    body: JSON.stringify({
-      from: RESEND_FROM_ADDRESS,
-      to: toEmail,
-      reply_to: email.replyTo || RESEND_REPLY_TO,
-      subject: email.subject,
-      html: email.html,
-    }),
+  const result = await sendEmailViaGateway({
+    from: RESEND_FROM_ADDRESS,
+    to: toEmail,
+    reply_to: email.replyTo || RESEND_REPLY_TO,
+    subject: email.subject,
+    html: email.html,
+    idempotencyKey,
   });
 
-  const payload = await res.json().catch(() => ({}));
-  const status = res.ok ? "sent" : "failed";
+  const status = result.success ? "sent" : "failed";
 
   await supabase.from("notifications_log").insert({
     type: channel,
@@ -139,11 +118,11 @@ export async function notify(input: NotifyInput): Promise<NotifyResult> {
     status,
   });
 
-  if (!res.ok) console.error("[notify] resend failed", payload);
+  if (!result.success) console.error("[notify] gateway send failed", result.error);
 
   return {
-    ok: res.ok,
-    emailStatus: status === "sent" ? "sent" : "failed",
+    ok: result.success,
+    emailStatus: result.success ? "sent" : "failed",
     inAppStatus,
   };
 }

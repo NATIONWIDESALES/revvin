@@ -1,9 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import {
-  RESEND_FROM_ADDRESS,
-  RESEND_REPLY_TO,
-  appUrl,
-} from "../_shared/app-config.ts";
+import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
+import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,14 +24,6 @@ Deno.serve(async (req) => {
     if (!lead_id) {
       return new Response(JSON.stringify({ error: "lead_id required" }), {
         status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendApiKey) {
-      console.warn("[notify-new-lead] RESEND_API_KEY not set; skipping");
-      return new Response(JSON.stringify({ ok: true, skipped: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -149,35 +138,26 @@ Deno.serve(async (req) => {
       metadata: { business_id: biz.id, lead_id: lead.id },
     });
 
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
-        "Idempotency-Key": idempotencyKey,
-      },
-      body: JSON.stringify({
-        from: RESEND_FROM_ADDRESS,
-        to: toEmail,
-        reply_to: lead.referrer_email || RESEND_REPLY_TO,
-        subject,
-        html,
-      }),
+    const result = await sendEmailViaGateway({
+      from: RESEND_FROM_ADDRESS,
+      to: toEmail,
+      reply_to: lead.referrer_email || RESEND_REPLY_TO,
+      subject,
+      html,
+      idempotencyKey,
     });
-
-    const result = await res.json().catch(() => ({}));
 
     await supabase.from("email_send_log").insert({
       message_id: idempotencyKey,
       template_name: "new-lead",
       recipient_email: toEmail,
-      status: res.ok ? "sent" : "failed",
-      error_message: res.ok ? null : JSON.stringify(result).slice(0, 500),
+      status: result.success ? "sent" : "failed",
+      error_message: result.success ? null : result.error?.slice(0, 500),
       metadata: { business_id: biz.id, lead_id: lead.id },
     });
 
-    return new Response(JSON.stringify({ ok: res.ok, result }), {
-      status: res.ok ? 200 : 500,
+    return new Response(JSON.stringify({ ok: result.success, result: result.success ? { id: result.id } : { error: result.error } }), {
+      status: result.success ? 200 : 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {

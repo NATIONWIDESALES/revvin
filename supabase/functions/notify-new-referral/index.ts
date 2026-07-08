@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
+import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -45,12 +46,6 @@ Deno.serve(async (req) => {
     }
 
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-
-    if (!resendApiKey) {
-      console.error("RESEND_API_KEY not configured");
-      return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false },
@@ -165,33 +160,20 @@ ${detailRows.join("\n")}
 </body>
 </html>`;
 
-    // 6. Send via Resend
+    // 6. Send via Resend connector gateway
     const subject = `New referral: ${customerFirstName}`;
     let emailStatus = "sent";
 
-    try {
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: RESEND_FROM_ADDRESS,
-          to: [ownerUser.email],
-          reply_to: RESEND_REPLY_TO,
-          subject,
-          html,
-        }),
-      });
+    const result = await sendEmailViaGateway({
+      from: RESEND_FROM_ADDRESS,
+      to: ownerUser.email,
+      reply_to: RESEND_REPLY_TO,
+      subject,
+      html,
+    });
 
-      if (!res.ok) {
-        const errBody = await res.text();
-        console.error("Resend API error:", res.status, errBody);
-        emailStatus = "failed";
-      }
-    } catch (sendErr) {
-      console.error("Resend send error:", sendErr);
+    if (!result.success) {
+      console.error("Resend gateway send error:", result.error);
       emailStatus = "failed";
     }
 

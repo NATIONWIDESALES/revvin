@@ -7,6 +7,7 @@ import {
   RESEND_REPLY_TO,
   appUrl,
 } from "../_shared/app-config.ts";
+import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { PRICE_LAUNCH_PACKAGE_297 } from "../_shared/stripe-prices.ts";
 
 const corsHeaders = {
@@ -219,26 +220,24 @@ serve(async (req) => {
 
           // 💰 Admin alert: new paying customer
           try {
-            const resendApiKey = Deno.env.get("RESEND_API_KEY");
-            if (resendApiKey) {
-              const { data: { user: ownerUser } } =
-                await admin.auth.admin.getUserById(userId);
-              const ownerEmail = ownerUser?.email || "Unknown";
-              const ownerName =
-                ownerUser?.user_metadata?.full_name || ownerEmail.split("@")[0];
-              const { data: bizRow } = await admin
-                .from("businesses")
-                .select("name, industry, city, state")
-                .eq("user_id", userId)
-                .limit(1);
-              const biz = bizRow?.[0];
-              const businessName = biz?.name || "New Business";
-              const total = (s.amount_total ?? 0) / 100;
-              const currency = (s.currency || "usd").toUpperCase();
-              const items: string[] = ["$49/mo Pro subscription"];
-              if (launchPackagePurchased) items.push("$297 Launch Package");
+            const { data: { user: ownerUser } } =
+              await admin.auth.admin.getUserById(userId);
+            const ownerEmail = ownerUser?.email || "Unknown";
+            const ownerName =
+              ownerUser?.user_metadata?.full_name || ownerEmail.split("@")[0];
+            const { data: bizRow } = await admin
+              .from("businesses")
+              .select("name, industry, city, state")
+              .eq("user_id", userId)
+              .limit(1);
+            const biz = bizRow?.[0];
+            const businessName = biz?.name || "New Business";
+            const total = (s.amount_total ?? 0) / 100;
+            const currency = (s.currency || "usd").toUpperCase();
+            const items: string[] = ["$49/mo Pro subscription"];
+            if (launchPackagePurchased) items.push("$297 Launch Package");
 
-              const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+            const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#F9FAFB;"><tr><td align="center" style="padding:40px 16px;">
 <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border-radius:12px;overflow:hidden;"><tr><td style="padding:24px;">
 <p style="margin:0 0 24px;font-size:14px;font-weight:700;color:#15803D;text-transform:lowercase;">revvin</p>
@@ -258,29 +257,21 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
 </td></tr></table>
 </td></tr></table></td></tr></table></body></html>`;
 
-              const subject = launchPackagePurchased
-                ? `💰 New paying customer + Launch Package: ${businessName}`
-                : `💰 New paying customer: ${businessName}`;
+            const subject = launchPackagePurchased
+              ? `💰 New paying customer + Launch Package: ${businessName}`
+              : `💰 New paying customer: ${businessName}`;
 
-              const res = await fetch("https://api.resend.com/emails", {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${resendApiKey}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  from: RESEND_FROM_ADDRESS,
-                  to: [ADMIN_NOTIFICATION_EMAIL],
-                  reply_to: RESEND_REPLY_TO,
-                  subject,
-                  html,
-                }),
-              });
-              if (!res.ok) {
-                console.error("[stripe-business-webhook] payment alert email failed", res.status, await res.text());
-              } else {
-                console.log("[stripe-business-webhook] 💰 payment alert sent for", businessName);
-              }
+            const result = await sendEmailViaGateway({
+              from: RESEND_FROM_ADDRESS,
+              to: ADMIN_NOTIFICATION_EMAIL,
+              reply_to: RESEND_REPLY_TO,
+              subject,
+              html,
+            });
+            if (!result.success) {
+              console.error("[stripe-business-webhook] payment alert email failed", result.error);
+            } else {
+              console.log("[stripe-business-webhook] 💰 payment alert sent for", businessName);
             }
           } catch (e) {
             console.error("[stripe-business-webhook] payment alert error", e);
