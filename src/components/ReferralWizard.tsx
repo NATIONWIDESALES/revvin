@@ -76,6 +76,31 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
     } catch {}
   }, [offer.id]);
 
+  // Listen for the "start referral" event dispatched by the sticky mobile CTA.
+  // Advances to the first form step (or triggers auth prompt), then focuses
+  // and highlights the first required field until the user starts typing.
+  useEffect(() => {
+    const onStart = () => {
+      if (isSampleOffer) return;
+      if (step === 0) {
+        if (!user) {
+          setShowAuthPrompt(true);
+          return;
+        }
+        setDirection(1);
+        setStep(1);
+      }
+      setHighlightFirst(true);
+      // Wait for the step transition to render before focusing.
+      window.setTimeout(() => {
+        const el = document.getElementById("referral-first-field") as HTMLInputElement | null;
+        el?.focus({ preventScroll: true });
+      }, 350);
+    };
+    window.addEventListener("revvin:start-referral", onStart);
+    return () => window.removeEventListener("revvin:start-referral", onStart);
+  }, [step, user, isSampleOffer]);
+
   const saveFormToSession = () => {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
       offerId: offer.id,
