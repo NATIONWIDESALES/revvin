@@ -36,8 +36,8 @@ const Auth = () => {
   return (
     <div className="flex min-h-screen">
       <SEOHead
-        title="Log In · Revvin"
-        description="Log in to your Revvin account to manage your referral program, leads, and payouts."
+        title="Revvin | Sign in or create your account"
+        description="Sign in to your Revvin dashboard or create an account. Businesses run on a flat $49/month USD plan. Referrers join free."
         path="/auth"
         noindex
       />
