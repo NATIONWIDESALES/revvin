@@ -14,12 +14,12 @@ const AboutRevvinLLM = () => (
         "@context": "https://schema.org",
         "@type": "AboutPage",
         "name": "About Revvin",
-        "description": "Structured factsheet about Revvin's referral marketplace.",
+        "description": "Structured factsheet about Revvin's referral program platform for service businesses.",
         "mainEntity": {
           "@type": "Organization",
           "name": "Revvin",
           "url": "https://revvin.co",
-          "slogan": "The Referral Marketplace",
+          "slogan": "Referral program platform for service businesses",
           "description": "Referral program platform for service businesses. Flat $49/month subscription that gives a business a branded referral page, lead inbox, and dashboard, with an optional public marketplace listing. No trial and no platform fees. Businesses pay referrers directly off-platform. Revvin is the infrastructure."
         }
       }}

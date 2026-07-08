@@ -181,8 +181,8 @@ const Browse = () => {
     return (
       <div className="py-6">
         <SEOHead
-          title="Browse referral offers | Revvin"
-          description="The Revvin marketplace is launching. Be one of the first businesses to list, or get notified when offers go live in your area."
+          title="Revvin | Browse referral offers"
+          description="Launch a referral program for your service business. Branded referral page, shareable link, QR code, and lead inbox. Flat $49/month USD. Cancel anytime. You pay your referrers directly."
           path="/browse"
         />
         <div className="container">
@@ -248,8 +248,8 @@ const Browse = () => {
   return (
     <div className="py-6">
       <SEOHead
-        title="Browse referral offers | Revvin"
-        description="Explore high-paying referral offers from verified businesses. Find opportunities in real estate, roofing, solar, and financial services."
+        title="Revvin | Browse referral offers"
+        description="Browse referral offers from verified service businesses on Revvin. Refer a customer, earn the full advertised payout when the deal closes. Free to join as a referrer."
         path="/browse"
         jsonLd={filtered.length > 0 ? {
           "@context": "https://schema.org",
