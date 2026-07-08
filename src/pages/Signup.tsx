@@ -124,8 +124,8 @@ const Signup = () => {
   return (
     <>
       <SEOHead
-        title="Start your referral program · Revvin"
-        description="Create your Revvin account and launch a branded referral page for your business. $49/month, cancel anytime."
+        title="Revvin | Start your referral program"
+        description="Launch a referral program for your service business. Branded referral page, shareable link, QR code, and lead inbox. Flat $49/month USD. Cancel anytime. You pay your referrers directly."
         path="/signup"
         noindex
       />

@@ -9,8 +9,8 @@ const Sample = () => {
   return (
     <>
       <SEOHead
-        title="See a sample referral page · Revvin"
-        description="Preview an example Revvin referral page. This is what your customers and referrers will see when you launch your own."
+        title="Revvin | Sample referral page"
+        description="Preview an example Revvin referral page. Branded referral page, shareable link, QR code, and lead inbox for service businesses. Flat $49/month USD."
       />
 
       <section className="border-b border-border bg-surface-warm">

@@ -68,8 +68,8 @@ const Pricing = () => {
   return (
     <>
       <SEOHead
-        title="Pricing · Revvin"
-        description="$49/month, cancel anytime. No contract, no setup fee. Free for referrers."
+        title="Revvin | Pricing"
+        description="Flat $49/month USD. Cancel anytime. No contract, no setup fee, no trial. Referrers join free. You pay your referrers directly."
         path="/pricing"
       />
 
