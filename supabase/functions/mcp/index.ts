@@ -3,7 +3,7 @@
 // supabase function: mcp
 // Bundled from src/lib/mcp/index.ts by @lovable.dev/mcp-js.
 // src/lib/mcp/index.ts
-import { defineMcp } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { defineMcp, auth } from "npm:@lovable.dev/mcp-js@0.20.0";
 
 // src/lib/mcp/tools/search-offers.ts
 import { createClient } from "npm:@supabase/supabase-js@^2.97.0";
@@ -128,6 +128,11 @@ var mcp_default = defineMcp({
   title: "Revvin Marketplace",
   version: "0.1.0",
   instructions: "Tools for browsing Revvin's public marketplace of referral offers. Use `search_offers` to find offers by keyword, category, city, or minimum payout; `get_offer` to fetch full details for a specific offer; and `list_categories` to discover available industry categories. All tools return public marketplace data \u2014 no authentication required.",
+  auth: auth.oauth.issuer({
+    issuer: "https://olmpplfgzegzqdcznlrp.supabase.co/auth/v1",
+    acceptedAudiences: "authenticated",
+    resourceName: "Revvin Marketplace MCP"
+  }),
   tools: [search_offers_default, get_offer_default, list_categories_default]
 });
 
