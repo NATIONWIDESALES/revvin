@@ -342,8 +342,22 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
               <div className="space-y-4">
                 <h3 className="font-display font-semibold text-sm">Step 2: Customer Information</h3>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium">Full Name *</label>
-                  <Input placeholder="Jane Smith" required value={formData.name} onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))} />
+                  <label htmlFor="referral-first-field" className="mb-1.5 block text-xs font-medium">Full Name *</label>
+                  <Input
+                    id="referral-first-field"
+                    placeholder="Jane Smith"
+                    required
+                    value={formData.name}
+                    onChange={(e) => {
+                      if (highlightFirst) setHighlightFirst(false);
+                      setFormData((f) => ({ ...f, name: e.target.value }));
+                    }}
+                    className={
+                      highlightFirst
+                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background animate-pulse transition-shadow"
+                        : "transition-shadow"
+                    }
+                  />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium">Email *</label>
