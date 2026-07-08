@@ -370,10 +370,21 @@ const OfferDetail = () => {
               {formatPayout(offer.payout, offer.currency)}
             </p>
           </div>
-          <Button asChild size="lg" className="shrink-0 shadow-soft hover:bg-primary-deep">
-            <a href="#referral-wizard">
-              <Send className="mr-2 h-4 w-4" /> Submit a referral
-            </a>
+          <Button
+            size="lg"
+            className="shrink-0 shadow-soft hover:bg-primary-deep"
+            onClick={() => {
+              document
+                .getElementById("referral-wizard")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              // Fire after the smooth scroll starts so the wizard listener
+              // advances to step 1 and highlights the first required field.
+              window.setTimeout(() => {
+                window.dispatchEvent(new CustomEvent("revvin:start-referral"));
+              }, 250);
+            }}
+          >
+            <Send className="mr-2 h-4 w-4" /> Submit a referral
           </Button>
         </div>
       </div>
