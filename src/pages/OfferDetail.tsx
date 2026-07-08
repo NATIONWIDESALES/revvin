@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, DollarSign, CheckCircle2, Clock, FileCheck, BadgeCheck, AlertTriangle, Loader2, Send, ArrowRight } from "lucide-react";
+import { ArrowLeft, MapPin, DollarSign, CheckCircle2, Clock, FileCheck, BadgeCheck, AlertTriangle, Loader2, Send, ArrowRight, Globe2 } from "lucide-react";
 import { toSlug } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useCountry } from "@/contexts/CountryContext";
@@ -96,6 +96,9 @@ const OfferDetail = () => {
     "Located within the business service area",
   ];
   const payoutTimelineLabel = offer.payoutTimeline === "net7" ? "Net 7" : offer.payoutTimeline === "net14" ? "Net 14" : offer.payoutTimeline === "net30" ? "Net 30" : `~${offer.closeTimeDays} days`;
+  const serviceAreaLabel = offer.remoteEligible
+    ? "Remote friendly · works anywhere in country"
+    : offer.location || [offer.city, offer.state].filter(Boolean).join(", ") || "Local service area";
 
   // ---- SEO helpers ----
   const offerPath = `/offer/${toSlug(offer.business)}/${offer.id}`;
@@ -228,6 +231,28 @@ const OfferDetail = () => {
               </div>
             </motion.div>
 
+            {/* Service Area */}
+            <motion.div variants={fadeUp} custom={1.5} className="rounded-xl border border-border bg-card p-4">
+              <div className="flex items-start gap-3">
+                {offer.remoteEligible ? (
+                  <Globe2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                ) : (
+                  <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                )}
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Service Area
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-foreground">
+                    {serviceAreaLabel}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Refer leads that fit this area so {offer.business} can service them.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
             {/* Description */}
             <motion.div variants={fadeUp} custom={2}>
               <h2 className="text-lg font-semibold mb-3">About This Opportunity</h2>
@@ -330,9 +355,26 @@ const OfferDetail = () => {
           </motion.div>
 
           {/* Referral Wizard Sidebar */}
-          <div className="lg:col-span-2">
+          <div id="referral-wizard" className="lg:col-span-2 scroll-mt-20">
             <ReferralWizard offer={offer} />
           </div>
+        </div>
+      </div>
+
+      {/* Sticky mobile CTA — hidden on lg where the wizard is always visible in the sidebar */}
+      <div className="sticky bottom-0 z-30 mt-8 border-t border-border bg-background/95 px-4 py-3 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/80 lg:hidden">
+        <div className="container flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">Earn per closed deal</p>
+            <p className="text-base font-bold text-foreground">
+              {formatPayout(offer.payout, offer.currency)}
+            </p>
+          </div>
+          <Button asChild size="lg" className="shrink-0 shadow-soft hover:bg-primary-deep">
+            <a href="#referral-wizard">
+              <Send className="mr-2 h-4 w-4" /> Submit a referral
+            </a>
+          </Button>
         </div>
       </div>
     </div>
