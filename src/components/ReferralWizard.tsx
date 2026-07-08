@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -59,6 +59,11 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
   const [consent, setConsent] = useState(false);
   const [termsAck, setTermsAck] = useState(false);
 
+  // Track the id of the last focused field inside the wizard so we can
+  // restore focus after an auth round-trip.
+  const wizardRef = useRef<HTMLDivElement>(null);
+  const activeFieldRef = useRef<string | null>(null);
+
   // Restore form data from sessionStorage after auth redirect
   useEffect(() => {
     try {
@@ -69,8 +74,17 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           setFormData(parsed.formData);
           setConsent(parsed.consent ?? false);
           setTermsAck(parsed.termsAck ?? false);
-          setStep(parsed.step ?? 3);
+          setStep(parsed.step ?? 1);
           sessionStorage.removeItem(STORAGE_KEY);
+          const fieldId: string | null = parsed.activeFieldId ?? "referral-first-field";
+          window.setTimeout(() => {
+            wizardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            window.setTimeout(() => {
+              const el = fieldId ? (document.getElementById(fieldId) as HTMLElement | null) : null;
+              if (el && "focus" in el) (el as HTMLInputElement).focus({ preventScroll: true });
+              setHighlightFirst(true);
+            }, 400);
+          }, 50);
         }
       }
     } catch {}
@@ -107,7 +121,12 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
       formData,
       consent,
       termsAck,
-      step: 3,
+      step: Math.max(step, 1),
+      activeFieldId:
+        activeFieldRef.current ||
+        (typeof document !== "undefined" && document.activeElement
+          ? (document.activeElement as HTMLElement).id || null
+          : null),
     }));
   };
 
@@ -251,7 +270,14 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
   const progress = ((step + 1) / STEPS.length) * 100;
 
   return (
-    <div className="sticky top-24 rounded-2xl border border-border bg-card shadow-lg overflow-hidden">
+    <div
+      ref={wizardRef}
+      onFocusCapture={(e) => {
+        const id = (e.target as HTMLElement).id;
+        if (id) activeFieldRef.current = id;
+      }}
+      className="sticky top-24 rounded-2xl border border-border bg-card shadow-lg overflow-hidden scroll-mt-24"
+    >
       {/* Header with payout */}
       <div className="bg-gradient-to-br from-primary/10 to-earnings/10 p-5 text-center border-b border-border">
         <div className="earnings-badge mx-auto mb-2 inline-block rounded-full px-5 py-2.5 text-lg font-bold shadow-md">
@@ -487,14 +513,20 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           <div className="flex gap-2">
             <Button
               className="flex-1 gap-1.5"
-              onClick={() => navigate(`/signup?redirect=${encodeURIComponent(redirectPath)}`)}
+              onClick={() => {
+                saveFormToSession();
+                navigate(`/signup?redirect=${encodeURIComponent(redirectPath)}`);
+              }}
             >
               <UserPlus className="h-3.5 w-3.5" /> Sign Up Free
             </Button>
             <Button
               variant="outline"
               className="flex-1 gap-1.5"
-              onClick={() => navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`)}
+              onClick={() => {
+                saveFormToSession();
+                navigate(`/login?redirect=${encodeURIComponent(redirectPath)}`);
+              }}
             >
               <LogIn className="h-3.5 w-3.5" /> Sign In
             </Button>
