@@ -76,6 +76,31 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
     } catch {}
   }, [offer.id]);
 
+  // Listen for the "start referral" event dispatched by the sticky mobile CTA.
+  // Advances to the first form step (or triggers auth prompt), then focuses
+  // and highlights the first required field until the user starts typing.
+  useEffect(() => {
+    const onStart = () => {
+      if (offer.id.startsWith("sample-")) return;
+      if (step === 0) {
+        if (!user) {
+          setShowAuthPrompt(true);
+          return;
+        }
+        setDirection(1);
+        setStep(1);
+      }
+      setHighlightFirst(true);
+      // Wait for the step transition to render before focusing.
+      window.setTimeout(() => {
+        const el = document.getElementById("referral-first-field") as HTMLInputElement | null;
+        el?.focus({ preventScroll: true });
+      }, 350);
+    };
+    window.addEventListener("revvin:start-referral", onStart);
+    return () => window.removeEventListener("revvin:start-referral", onStart);
+  }, [step, user, offer.id]);
+
   const saveFormToSession = () => {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
       offerId: offer.id,
@@ -87,6 +112,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
   };
 
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [highlightFirst, setHighlightFirst] = useState(false);
 
   const isSampleOffer = offer.id.startsWith("sample-");
   const isLogoUrl = offer.businessLogo.startsWith("http");
@@ -316,8 +342,22 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
               <div className="space-y-4">
                 <h3 className="font-display font-semibold text-sm">Step 2: Customer Information</h3>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium">Full Name *</label>
-                  <Input placeholder="Jane Smith" required value={formData.name} onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))} />
+                  <label htmlFor="referral-first-field" className="mb-1.5 block text-xs font-medium">Full Name *</label>
+                  <Input
+                    id="referral-first-field"
+                    placeholder="Jane Smith"
+                    required
+                    value={formData.name}
+                    onChange={(e) => {
+                      if (highlightFirst) setHighlightFirst(false);
+                      setFormData((f) => ({ ...f, name: e.target.value }));
+                    }}
+                    className={
+                      highlightFirst
+                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background animate-pulse transition-shadow"
+                        : "transition-shadow"
+                    }
+                  />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium">Email *</label>
