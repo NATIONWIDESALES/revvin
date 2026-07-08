@@ -38,22 +38,19 @@ const Testimonials = () => {
               <Sparkles className="h-5 w-5" aria-hidden="true" />
             </div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-              Founding members
+              Founding businesses
             </p>
             <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
-              We're onboarding our first businesses.
+              Be one of the first businesses on Revvin.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
-              Be one of the first to launch a referral program on Revvin. Your
-              story (and your offer) gets seen by every referrer who lands here
-              while the marketplace is still small.
+              We are onboarding our founding group now. Founding businesses get
+              direct access to the founder and their feedback shapes what we
+              build next.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button size="lg" className="h-11 px-6 shadow-soft hover:bg-primary-deep" asChild>
-                <Link to="/signup">Become a founding business</Link>
-              </Button>
-              <Button size="lg" variant="outline" className="h-11 px-6" asChild>
-                <Link to="/how-it-works">See how it works</Link>
+                <Link to="/signup">Start your referral program</Link>
               </Button>
             </div>
           </div>
