@@ -3,7 +3,6 @@ Allow: /
 Disallow: /dashboard
 Disallow: /dashboard/
 Disallow: /welcome
-Disallow: /auth
 Disallow: /login
 Disallow: /signup
 Disallow: /reset-password
