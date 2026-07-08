@@ -6,14 +6,14 @@ import SEOHead from "@/components/SEOHead";
 const Privacy = () => {
   return (
     <div className="py-12">
-      <SEOHead title="Privacy Policy | Revvin" description="Learn how Revvin collects, uses, and protects your personal information." path="/privacy" />
+      <SEOHead title="Revvin | Privacy Policy" description="How Revvin collects, uses, and protects personal information across business accounts, referrer accounts, and leads submitted through referral pages." path="/privacy" />
       <div className="container max-w-3xl">
         <Button variant="ghost" size="sm" className="gap-1 mb-6" asChild>
           <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>
         </Button>
 
         <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last updated: June 25, 2026</p>
+        <p className="text-sm text-muted-foreground mb-8">Last updated: July 8, 2026</p>
 
         <div className="prose prose-sm max-w-none space-y-6 text-muted-foreground">
           <section>
