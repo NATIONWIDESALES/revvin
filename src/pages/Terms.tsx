@@ -6,107 +6,119 @@ import SEOHead from "@/components/SEOHead";
 const Terms = () => {
   return (
     <div className="py-12">
-      <SEOHead title="Terms of Service | Revvin" description="Read Revvin's Terms of Service covering platform usage, referral obligations, payout structure, and dispute resolution for businesses and referrers." path="/terms" />
+      <SEOHead title="Revvin | Terms of Service" description="Revvin's Terms of Service: flat $49/month subscription, referral program infrastructure, and how businesses, referrers, and Revvin each fit in." path="/terms" />
       <div className="container max-w-3xl">
         <Button variant="ghost" size="sm" className="gap-1 mb-6" asChild>
           <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>
         </Button>
 
         <h1 className="text-3xl font-bold mb-2">Terms of Service</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last updated: April 1, 2026</p>
+        <p className="text-sm text-muted-foreground mb-8">Last updated: July 8, 2026</p>
 
-        <div
-          role="note"
-          className="mb-8 rounded-lg border-2 border-amber-500/40 bg-amber-50 p-4 text-sm text-amber-900"
-        >
-          <p className="font-bold uppercase tracking-wider text-xs mb-1">Draft, pending final legal copy</p>
-          <p>
-            FOUNDER-CONFIRMED TODO: replace the content below with finalized Terms of Service before live traffic or paid advertising. The current text is a working scaffold only and is not legal advice. Paste finalized copy into the single content slot below.
-          </p>
-        </div>
-
-        {/* CONTENT SLOT: replace everything below with finalized Terms of Service. */}
         <div className="prose prose-sm max-w-none space-y-6 text-muted-foreground">
           <section>
-            <h2 className="text-lg font-bold text-foreground">1. Acceptance of Terms</h2>
-            <p>By accessing or using the Revvin platform ("Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service. Revvin reserves the right to modify these terms at any time with 30 days' notice via email or in-platform notification.</p>
+            <p>
+              Welcome to Revvin. These Terms of Service ("Terms") are a plain-language agreement between you and Revvin ("Revvin", "we", "us") covering revvin.co, the branded referral pages we host for businesses, and related services (the "Service"). By creating an account or using the Service you agree to these Terms. If you do not agree, do not use the Service.
+            </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-foreground">2. Platform Overview</h2>
-            <p>Revvin is a referral program platform that connects businesses seeking customer acquisition ("Businesses") with individuals who provide qualified introductions ("Referrers"). Businesses subscribe for a flat monthly fee and receive a branded referral page, lead capture, and dashboard. The platform facilitates referral submissions, tracks deal outcomes, and provides administrative oversight. Revvin does not process referrer payouts; Businesses pay Referrers directly when deals close.</p>
+            <h2 className="text-lg font-bold text-foreground">1. What Revvin is</h2>
+            <p>Revvin provides referral program infrastructure for service businesses: a branded referral page, a shareable link, a QR code, and a lead inbox with a dashboard. Revvin is a tool. We do not perform the services businesses sell, we do not vet or verify leads, referrers, or businesses, and we do not guarantee any volume of referrals, leads, or revenue.</p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-foreground">3. User Accounts</h2>
-            <p>You must register for an account to use the Service. You are responsible for maintaining the confidentiality of your login credentials. You agree to provide accurate, current, and complete information during registration and to update your information as necessary. Users must be at least 18 years of age.</p>
+            <h2 className="text-lg font-bold text-foreground">2. Who can use the Service</h2>
+            <p>The Service is offered to businesses located in the United States and Canada, and to referrers submitting leads to those businesses. You must be at least 18 years old and able to enter a binding contract. You are responsible for keeping your login credentials confidential and for activity on your account.</p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-foreground">4. Business Obligations</h2>
+            <h2 className="text-lg font-bold text-foreground">3. Subscription and billing</h2>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Businesses are responsible for the payout amount advertised in their offers.</li>
-              <li>When a referral is accepted, the payout terms are locked for that referral.</li>
-              <li>Businesses must act on submitted referrals within 14 days of acceptance.</li>
-              <li>Deal outcomes (won, lost, declined) must be reported honestly and promptly.</li>
-              <li>Businesses may not contact referrers' leads outside the Revvin platform for deals submitted through the platform.</li>
+              <li>Business subscriptions are a flat $49 per month in US dollars, billed monthly through Stripe. Pricing is in USD for all customers, including customers in Canada.</li>
+              <li>There is no free trial, no contract, and no setup fee. Billing starts on the day you subscribe.</li>
+              <li>You can cancel anytime through the Stripe billing portal linked from your account. On cancellation your access continues until the end of the current paid period and does not renew.</li>
+              <li>We retain your lead history after cancellation so you can return to it if you resubscribe.</li>
+              <li>Referrers use Revvin for free.</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-foreground">5. Referrer Obligations</h2>
+            <h2 className="text-lg font-bold text-foreground">4. Referrer rewards are between the business and the referrer</h2>
+            <p>Businesses set their own referral reward and pay their referrers directly, off platform, on the terms the business publishes. Revvin is not a party to any referral reward. We do not process reward payouts, we do not hold or transmit reward funds, we do not guarantee payment of any reward, and we take no fee on rewards. Any dispute about whether a reward is owed or paid is between the business and the referrer.</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-foreground">5. Contacting your own customers</h2>
+            <p>When a business uses Revvin to announce or promote its referral program to its own customers, the business is solely responsible for having the right to contact those people and for complying with applicable communications and marketing laws, including the US Telephone Consumer Protection Act (TCPA) and Canada's Anti-Spam Legislation (CASL). Sends happen from the business's own devices and accounts, using the business's own SMS and email apps. Revvin does not send SMS or email to your customers on your behalf.</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-foreground">6. Referrer conduct</h2>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Referrals must be genuine introductions, not fabricated, purchased, or recycled leads.</li>
-              <li>Referrers must have the consent of the referred individual before submitting their information.</li>
-              <li>Duplicate submissions are not permitted. First submission wins, timestamped.</li>
-              <li>Referrers may not misrepresent the business's services or pricing to the referred individual.</li>
+              <li>Only submit real introductions for people who have agreed to be contacted by the business.</li>
+              <li>Do not fabricate, purchase, scrape, or recycle leads.</li>
+              <li>Do not misrepresent a business's services or pricing.</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-foreground">6. Payout Structure</h2>
-            <p>Referrers receive the full advertised referral fee upon a verified closed deal, paid directly by the business per the timeline specified on the offer (Net 7, Net 14, or Net 30). Revvin does not deduct any amount from the referrer's payout.</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-bold text-foreground">7. Payouts</h2>
-            <p>When a referral is accepted, payout terms are snapshotted. Upon a verified deal closure, the business pays the referrer directly. If a deal is lost or declined, no payout is due. Referrers may flag a closed deal as unpaid after 30 days; Revvin will review and may suspend the business's account for unresolved non-payment.</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-bold text-foreground">8. Disputes and Non-Payment</h2>
-            <p>Disputes over deal outcomes or payment are between the Business and the Referrer. Revvin maintains the timestamped record of each referral and any status changes. A Referrer may flag a closed referral as unpaid after 30 days. Revvin may, at its sole discretion, review flags and suspend a Business's account for a pattern of non-payment or dishonest reporting, but Revvin does not arbitrate disputes, does not collect or hold funds, and does not guarantee payment.</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-bold text-foreground">9. Business Approval</h2>
-            <p>New Businesses are subject to a basic admin review before their offers are listed in the public marketplace. This review is not a license, insurance, or quality endorsement, and Revvin does not vouch for any Business's services. Revvin may revoke marketplace listing at any time.</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-bold text-foreground">10. Prohibited Conduct</h2>
+            <h2 className="text-lg font-bold text-foreground">7. Business conduct</h2>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Submitting fraudulent, misleading, or spam referrals.</li>
-              <li>Creating multiple accounts to circumvent platform limits.</li>
-              <li>Attempting to transact outside the platform for referrals discovered through Revvin.</li>
-              <li>Harassing, threatening, or abusing other users.</li>
-              <li>Reverse-engineering, scraping, or interfering with the platform infrastructure.</li>
+              <li>Be accurate about your business, offer, and reward terms.</li>
+              <li>Handle leads and referrer information lawfully and respectfully.</li>
+              <li>Pay referrers what you promised, on the timeline you promised.</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-foreground">11. Limitation of Liability</h2>
-            <p>Revvin provides the platform "as is" without warranty. Revvin is not liable for the quality of services provided by businesses, the outcome of referrals, or any indirect, incidental, or consequential damages arising from the use of the platform. Total liability is limited to fees paid in the preceding 12 months.</p>
+            <h2 className="text-lg font-bold text-foreground">8. Acceptable use</h2>
+            <p>Do not use the Service to break the law, harm others, interfere with the platform, reverse engineer it, or attempt to gain unauthorized access. We may suspend or terminate accounts that violate these Terms.</p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-foreground">12. Governing Law</h2>
-            <p>These Terms are governed by applicable laws, without regard to conflict of law principles. Any disputes shall be resolved through binding arbitration.</p>
+            <h2 className="text-lg font-bold text-foreground">9. Your content</h2>
+            <p>You keep ownership of the content you put into Revvin, including your business details, logo, offer copy, and lead notes. You grant Revvin a limited license to host, display, and process that content as needed to operate the Service for you.</p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-foreground">13. Contact</h2>
-            <p>For questions about these Terms, contact us at <span className="text-primary font-medium">info@revvin.co</span>.</p>
+            <h2 className="text-lg font-bold text-foreground">10. Service availability and changes</h2>
+            <p>We work to keep the Service available, but we do not promise uninterrupted or error-free operation. We may add, change, or remove features. If a change materially reduces the Service, we will make a reasonable effort to give notice.</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-foreground">11. Disclaimers</h2>
+            <p>The Service is provided "as is" and "as available" without warranties of any kind, whether express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement. Revvin does not warrant the quality, safety, licensing, or performance of any business listed on the platform, and does not warrant the accuracy of any lead submitted by a referrer.</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-foreground">12. Limitation of liability</h2>
+            <p>To the maximum extent permitted by law, Revvin will not be liable for any indirect, incidental, special, consequential, or punitive damages, or for lost profits, revenue, data, or business opportunities, arising out of or related to your use of the Service. Revvin's total liability for any claim relating to the Service is limited to the fees you paid Revvin in the twelve months before the event that gave rise to the claim.</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-foreground">13. Indemnification</h2>
+            <p>You agree to defend and indemnify Revvin from claims arising out of your use of the Service, your content, your referral rewards, or your communications with customers, including any claim that your outreach violated TCPA, CASL, or another communications or privacy law.</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-foreground">14. Termination</h2>
+            <p>You can stop using the Service at any time by cancelling your subscription. We may suspend or terminate an account for a violation of these Terms or for conduct that puts other users, our vendors, or the platform at risk. Sections that by their nature should survive termination will survive, including payment obligations already incurred, disclaimers, limitations of liability, and indemnification.</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-foreground">15. Changes to these Terms</h2>
+            <p>We may update these Terms from time to time. When we do, we will update the "Last updated" date above and, for material changes, give reasonable notice. Continued use of the Service after an update means you accept the updated Terms.</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-foreground">16. Governing law</h2>
+            <p>These Terms are governed by the laws of the jurisdiction where Revvin is established, without regard to conflict-of-law rules. Disputes will be handled in the courts serving that jurisdiction, unless applicable consumer protection law grants you rights in your home jurisdiction.</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-foreground">17. Contact</h2>
+            <p>For any question about these Terms, or for support, privacy, or legal matters, contact <span className="text-primary font-medium">info@revvin.co</span>. This is the only contact address for Revvin.</p>
           </section>
         </div>
         <p className="mt-8 text-sm text-muted-foreground">
