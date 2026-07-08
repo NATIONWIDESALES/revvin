@@ -121,7 +121,12 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
       formData,
       consent,
       termsAck,
-      step: 3,
+      step: Math.max(step, 1),
+      activeFieldId:
+        activeFieldRef.current ||
+        (typeof document !== "undefined" && document.activeElement
+          ? (document.activeElement as HTMLElement).id || null
+          : null),
     }));
   };
 
