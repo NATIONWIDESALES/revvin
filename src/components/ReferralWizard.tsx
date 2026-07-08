@@ -59,6 +59,11 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
   const [consent, setConsent] = useState(false);
   const [termsAck, setTermsAck] = useState(false);
 
+  // Track the id of the last focused field inside the wizard so we can
+  // restore focus after an auth round-trip.
+  const wizardRef = useRef<HTMLDivElement>(null);
+  const activeFieldRef = useRef<string | null>(null);
+
   // Restore form data from sessionStorage after auth redirect
   useEffect(() => {
     try {
@@ -69,8 +74,17 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
           setFormData(parsed.formData);
           setConsent(parsed.consent ?? false);
           setTermsAck(parsed.termsAck ?? false);
-          setStep(parsed.step ?? 3);
+          setStep(parsed.step ?? 1);
           sessionStorage.removeItem(STORAGE_KEY);
+          const fieldId: string | null = parsed.activeFieldId ?? "referral-first-field";
+          window.setTimeout(() => {
+            wizardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            window.setTimeout(() => {
+              const el = fieldId ? (document.getElementById(fieldId) as HTMLElement | null) : null;
+              if (el && "focus" in el) (el as HTMLInputElement).focus({ preventScroll: true });
+              setHighlightFirst(true);
+            }, 400);
+          }, 50);
         }
       }
     } catch {}
