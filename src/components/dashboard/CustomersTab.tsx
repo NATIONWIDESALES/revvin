@@ -316,6 +316,43 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     setContacts((cs) => cs.filter((c) => c.id !== id));
   };
 
+  // Manual add of a single contact. Requires name plus at least one of email/phone.
+  // Deduped against existing rows the same way the paste importer dedupes.
+  const addManual = async () => {
+    const name = manualName.trim();
+    const email = manualEmail.trim();
+    const phone = manualPhone.trim();
+    if (!name) {
+      toast({ title: "Name is required", variant: "destructive" });
+      return;
+    }
+    if (!email && !phone) {
+      toast({ title: "Add an email or phone", description: "At least one is required so you can reach them.", variant: "destructive" });
+      return;
+    }
+    const dupEmail = email && existingKey.has("e:" + email.toLowerCase());
+    const dupPhone = phone && existingKey.has("p:" + phone.replace(/\D/g, ""));
+    if (dupEmail || dupPhone) {
+      toast({ title: "Already in your list", description: "This contact matches one you already added.", variant: "destructive" });
+      return;
+    }
+    setManualSaving(true);
+    const { error } = await (supabase as any).from("referral_contacts").insert({
+      business_id: biz.id,
+      name,
+      email: email || null,
+      phone: phone || null,
+    });
+    setManualSaving(false);
+    if (error) {
+      toast({ title: "Could not add", description: error.message, variant: "destructive" });
+      return;
+    }
+    setManualName(""); setManualEmail(""); setManualPhone("");
+    toast({ title: "Contact added" });
+    load();
+  };
+
   const saveTemplate = () => {
     localStorage.setItem(TEMPLATE_STORAGE_KEY, template);
     toast({ title: "Default message saved" });
@@ -328,6 +365,26 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
 
   const pending = contacts.filter((c) => c.status === "pending");
   const sent = contacts.filter((c) => c.status === "sent");
+
+  // Tap-through: walk the pending list one at a time. When the current index
+  // moves past the last pending row, close the dialog.
+  const tapCurrent = pending[tapIndex];
+  const openTapThrough = () => {
+    if (pending.length === 0) {
+      toast({ title: "No pending contacts", description: "All caught up." });
+      return;
+    }
+    setTapIndex(0);
+    setTapOpen(true);
+  };
+  const tapNext = () => {
+    if (tapIndex + 1 >= pending.length) {
+      setTapOpen(false);
+      toast({ title: "Done", description: "You've been through every pending contact." });
+      return;
+    }
+    setTapIndex((i) => i + 1);
+  };
 
   return (
     <div className="space-y-6">
