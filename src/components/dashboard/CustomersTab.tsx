@@ -514,7 +514,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
             <button
               key={p.id}
               type="button"
-              onClick={() => setTemplate(p.body)}
+              onClick={() => setTemplate(hasReward ? p.withReward : p.noReward)}
               className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
             >
               {p.label}
