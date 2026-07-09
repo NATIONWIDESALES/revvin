@@ -557,7 +557,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
           <div>
             <h3 className="text-sm font-semibold text-foreground">Your customers</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {pending.length} pending · {sent.length} sent
+              {pending.length} pending · {sent.length} invite{sent.length === 1 ? "" : "s"} opened
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -593,7 +593,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                       <span className="font-medium text-sm text-foreground truncate">{c.name}</span>
                       {c.status === "sent" ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                          <Check className="h-3 w-3" /> Sent
+                          <Check className="h-3 w-3" /> Invite opened
                         </span>
                       ) : (
                         <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
@@ -605,7 +605,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                       {[c.phone, c.email].filter(Boolean).join(" · ") || "No contact info"}
                       {c.last_sent_at && (
                         <span className="ml-2">
-                          · {c.send_channel || "sent"} {new Date(c.last_sent_at).toLocaleDateString()}
+                          · {c.send_channel || "invite"} opened {new Date(c.last_sent_at).toLocaleDateString()}
                         </span>
                       )}
                     </div>
@@ -626,6 +626,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                         <Share2 className="h-3.5 w-3.5" /> Share
                       </Button>
                     )}
+                    <Button size="sm" variant="ghost" onClick={() => copyMessage(c)} disabled={isSending} className="h-8 w-8 p-0" aria-label="Copy message">
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
                     {(c.phone || c.email) && (
                       <Button size="sm" variant="ghost" onClick={() => sendShare(c)} disabled={isSending} className="h-8 w-8 p-0" aria-label="Share">
                         <Share2 className="h-3.5 w-3.5" />
@@ -643,8 +646,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       </div>
 
       <p className="text-[11px] text-muted-foreground">
-        Note: each invite opens in your own Messages or Mail app. Revvin never sends messages on your behalf.
-        You review and send each one from your phone.
+        Note: each invite opens in your own Messages or Mail app, or copies the message so you can paste it.
+        Revvin never sends messages on your behalf, and cannot confirm delivery. Status shows "Invite opened",
+        not "Sent".
       </p>
 
       {/* Tap-through composer: step through pending contacts one at a time. */}
@@ -677,6 +681,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                 )}
                 <Button size="sm" variant="outline" onClick={() => sendShare(tapCurrent)} className="gap-1.5">
                   <Share2 className="h-3.5 w-3.5" /> Share
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => copyMessage(tapCurrent)} className="gap-1.5">
+                  <Copy className="h-3.5 w-3.5" /> Copy
                 </Button>
               </div>
               <p className="text-[11px] text-muted-foreground">
