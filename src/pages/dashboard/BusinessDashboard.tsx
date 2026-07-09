@@ -11,7 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Copy, ExternalLink, Download, Inbox, AlertCircle, Check, Plus, Lock } from "lucide-react";
+import { Loader2, Copy, ExternalLink, Download, Inbox, AlertCircle, Check, Plus, Lock, Clock } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import QRCodeStyling from "qr-code-styling";
 import { useRef } from "react";
 import CustomersTab from "@/components/dashboard/CustomersTab";
@@ -401,6 +402,27 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
   const { toast } = useToast();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [editingNotes, setEditingNotes] = useState<Record<string, string>>({});
+  // Status filter for the inbox. "all" preserves the original behavior; other
+  // values map 1:1 to the STATUSES enum so existing rows keep working.
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  // A lead is "stale" when it's still `new` more than 24h after arrival. We
+  // use created_at because a row that's still in `new` hasn't been touched,
+  // so created_at is the correct age reference.
+  const STALE_MS = 24 * 60 * 60 * 1000;
+  const ageLabel = (iso: string) => {
+    const diff = Date.now() - new Date(iso).getTime();
+    if (diff < 60_000) return "just now";
+    if (diff < 60 * 60_000) return `${Math.floor(diff / 60_000)}m ago`;
+    if (diff < 24 * 60 * 60_000) return `${Math.floor(diff / (60 * 60_000))}h ago`;
+    return `${Math.floor(diff / (24 * 60 * 60_000))}d ago`;
+  };
+
+  const filteredLeads = statusFilter === "all"
+    ? leads
+    : leads.filter((l) => l.status === statusFilter);
+
+  const statusCount = (s: string) => leads.filter((l) => l.status === s).length;
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("leads").update({ status }).eq("id", id);
@@ -460,7 +482,26 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
 
   return (
     <div>
-      <div className="flex justify-end mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="inline-flex flex-wrap gap-1 rounded-lg border border-border p-1 text-xs">
+          {[
+            { id: "all", label: `All (${leads.length})` },
+            { id: "new", label: `New (${statusCount("new")})` },
+            { id: "contacted", label: `Contacted (${statusCount("contacted")})` },
+            { id: "in_progress", label: `In progress (${statusCount("in_progress")})` },
+            { id: "closed_won", label: `Closed won (${statusCount("closed_won")})` },
+            { id: "closed_lost", label: `Closed lost (${statusCount("closed_lost")})` },
+          ].map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => setStatusFilter(f.id)}
+              className={`px-2.5 py-1 rounded-md transition ${statusFilter === f.id ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
         <Button variant="outline" size="sm" onClick={exportCsv}><Download className="mr-2 h-3.5 w-3.5" /> Export CSV</Button>
       </div>
       <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -476,10 +517,37 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
               </tr>
             </thead>
             <tbody>
-              {leads.map((l) => (
+              {filteredLeads.length === 0 && (
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-sm text-muted-foreground">No leads match this filter.</td></tr>
+              )}
+              {filteredLeads.map((l) => {
+                const age = Date.now() - new Date(l.created_at).getTime();
+                const isStaleNew = l.status === "new" && age > STALE_MS;
+                return (
                 <React.Fragment key={l.id}>
                   <tr className="border-t border-border hover:bg-muted/30">
-                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{new Date(l.created_at).toLocaleDateString()}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="text-muted-foreground">{new Date(l.created_at).toLocaleDateString()}</div>
+                      {l.status === "new" && (
+                        <TooltipProvider delayDuration={100}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                isStaleNew
+                                  ? "bg-destructive/10 text-destructive"
+                                  : "bg-muted text-muted-foreground"
+                              }`}>
+                                <Clock className="h-2.5 w-2.5" />
+                                {ageLabel(l.created_at)}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              Fast responses close more referral jobs. Reach out soon.
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </td>
                     <td className="px-4 py-3"><div className="font-medium text-foreground">{l.lead_name}</div><div className="text-xs text-muted-foreground">{l.lead_phone}</div></td>
                     <td className="px-4 py-3"><div className="text-foreground">{l.referrer_name}</div><div className="text-xs text-muted-foreground">{l.referrer_email}</div></td>
                     <td className="px-4 py-3">
@@ -503,7 +571,7 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                             <div><span className="text-muted-foreground">Relationship:</span> {l.relationship_to_lead || "·"}</div>
                             {l.status === "closed_won" && (
                               <div className="pt-2">
-                                <Label className="text-xs">Deal value (optional)</Label>
+                                <Label className="text-xs">Job value (optional)</Label>
                                 <div className="mt-1.5 flex items-center gap-2">
                                   <span className="text-sm text-muted-foreground">$</span>
                                   <Input
@@ -521,7 +589,7 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                                     }}
                                   />
                                 </div>
-                                <p className="mt-1 text-xs text-muted-foreground">Powers your monthly Revvin ROI recap.</p>
+                                <p className="mt-1 text-xs text-muted-foreground">Used only to show your ROI. Never shared.</p>
                               </div>
                             )}
                           </div>
@@ -540,7 +608,8 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                     </tr>
                   )}
                 </React.Fragment>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
