@@ -3,8 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
-  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2,
+  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2, UserPlus, PlayCircle, ChevronRight,
 } from "lucide-react";
 
 export interface CustomersTabBusiness {
@@ -31,6 +33,29 @@ export interface ReferralContact {
 // No em dashes (project rule).
 const DEFAULT_TEMPLATE =
   "Hi {firstName}, {businessName} here. I'm paying {reward} for referrals right now. If you know anyone who needs {offer}, share my link and you get paid when the deal closes: {referralLink}";
+
+// Three short, plain, first-person templates the business can pick as a starting point.
+// No hype, no em dashes. Placeholders fill in from real business data.
+const TEMPLATE_PRESETS: Array<{ id: string; label: string; body: string }> = [
+  {
+    id: "short",
+    label: "Short and direct",
+    body:
+      "Hi {firstName}, {businessName} here. If you know anyone who needs {offer}, send them my link and I'll pay you {reward} when the job closes: {referralLink}",
+  },
+  {
+    id: "thanks",
+    label: "Thank you first",
+    body:
+      "Hi {firstName}, thanks for being a customer. If someone you know needs {offer}, share this link and you get {reward} when the deal closes: {referralLink}",
+  },
+  {
+    id: "casual",
+    label: "Casual heads up",
+    body:
+      "Hey {firstName}, quick heads up from {businessName}. I'm paying {reward} per referral right now. If anyone comes to mind for {offer}, here's the link: {referralLink}",
+  },
+];
 
 const TEMPLATE_STORAGE_KEY = "revvin_customer_msg_template_v1";
 
