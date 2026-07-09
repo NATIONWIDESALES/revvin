@@ -3,8 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
-  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2,
+  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2, UserPlus, PlayCircle, ChevronRight,
 } from "lucide-react";
 
 export interface CustomersTabBusiness {
@@ -31,6 +33,29 @@ export interface ReferralContact {
 // No em dashes (project rule).
 const DEFAULT_TEMPLATE =
   "Hi {firstName}, {businessName} here. I'm paying {reward} for referrals right now. If you know anyone who needs {offer}, share my link and you get paid when the deal closes: {referralLink}";
+
+// Three short, plain, first-person templates the business can pick as a starting point.
+// No hype, no em dashes. Placeholders fill in from real business data.
+const TEMPLATE_PRESETS: Array<{ id: string; label: string; body: string }> = [
+  {
+    id: "short",
+    label: "Short and direct",
+    body:
+      "Hi {firstName}, {businessName} here. If you know anyone who needs {offer}, send them my link and I'll pay you {reward} when the job closes: {referralLink}",
+  },
+  {
+    id: "thanks",
+    label: "Thank you first",
+    body:
+      "Hi {firstName}, thanks for being a customer. If someone you know needs {offer}, share this link and you get {reward} when the deal closes: {referralLink}",
+  },
+  {
+    id: "casual",
+    label: "Casual heads up",
+    body:
+      "Hey {firstName}, quick heads up from {businessName}. I'm paying {reward} per referral right now. If anyone comes to mind for {offer}, here's the link: {referralLink}",
+  },
+];
 
 const TEMPLATE_STORAGE_KEY = "revvin_customer_msg_template_v1";
 
@@ -106,6 +131,14 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   );
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [lastSent, setLastSent] = useState<{ id: string; prev: ReferralContact } | null>(null);
+  // Manual add form state.
+  const [manualName, setManualName] = useState("");
+  const [manualEmail, setManualEmail] = useState("");
+  const [manualPhone, setManualPhone] = useState("");
+  const [manualSaving, setManualSaving] = useState(false);
+  // Tap-through composer: step through pending contacts one at a time.
+  const [tapOpen, setTapOpen] = useState(false);
+  const [tapIndex, setTapIndex] = useState(0);
 
   const reward = biz.offer_amount?.trim() || "a reward";
   const offer = biz.offer_trigger?.trim() || "our service";
@@ -283,6 +316,43 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     setContacts((cs) => cs.filter((c) => c.id !== id));
   };
 
+  // Manual add of a single contact. Requires name plus at least one of email/phone.
+  // Deduped against existing rows the same way the paste importer dedupes.
+  const addManual = async () => {
+    const name = manualName.trim();
+    const email = manualEmail.trim();
+    const phone = manualPhone.trim();
+    if (!name) {
+      toast({ title: "Name is required", variant: "destructive" });
+      return;
+    }
+    if (!email && !phone) {
+      toast({ title: "Add an email or phone", description: "At least one is required so you can reach them.", variant: "destructive" });
+      return;
+    }
+    const dupEmail = email && existingKey.has("e:" + email.toLowerCase());
+    const dupPhone = phone && existingKey.has("p:" + phone.replace(/\D/g, ""));
+    if (dupEmail || dupPhone) {
+      toast({ title: "Already in your list", description: "This contact matches one you already added.", variant: "destructive" });
+      return;
+    }
+    setManualSaving(true);
+    const { error } = await (supabase as any).from("referral_contacts").insert({
+      business_id: biz.id,
+      name,
+      email: email || null,
+      phone: phone || null,
+    });
+    setManualSaving(false);
+    if (error) {
+      toast({ title: "Could not add", description: error.message, variant: "destructive" });
+      return;
+    }
+    setManualName(""); setManualEmail(""); setManualPhone("");
+    toast({ title: "Contact added" });
+    load();
+  };
+
   const saveTemplate = () => {
     localStorage.setItem(TEMPLATE_STORAGE_KEY, template);
     toast({ title: "Default message saved" });
@@ -296,8 +366,50 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const pending = contacts.filter((c) => c.status === "pending");
   const sent = contacts.filter((c) => c.status === "sent");
 
+  // Tap-through: walk the pending list one at a time. When the current index
+  // moves past the last pending row, close the dialog.
+  const tapCurrent = pending[tapIndex];
+  const openTapThrough = () => {
+    if (pending.length === 0) {
+      toast({ title: "No pending contacts", description: "All caught up." });
+      return;
+    }
+    setTapIndex(0);
+    setTapOpen(true);
+  };
+  const tapNext = () => {
+    if (tapIndex + 1 >= pending.length) {
+      setTapOpen(false);
+      toast({ title: "Done", description: "You've been through every pending contact." });
+      return;
+    }
+    setTapIndex((i) => i + 1);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Manual add */}
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="flex items-center gap-2">
+          <UserPlus className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold text-foreground">Add a customer</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">
+          Add one at a time. Name plus email or phone.
+        </p>
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <Input value={manualName} onChange={(e) => setManualName(e.target.value)} placeholder="Name" className="text-sm" />
+          <Input value={manualEmail} onChange={(e) => setManualEmail(e.target.value)} placeholder="Email (optional)" type="email" className="text-sm" />
+          <Input value={manualPhone} onChange={(e) => setManualPhone(e.target.value)} placeholder="Phone (optional)" type="tel" className="text-sm" />
+        </div>
+        <div className="mt-3">
+          <Button size="sm" onClick={addManual} disabled={manualSaving}>
+            {manualSaving ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
+            Add contact
+          </Button>
+        </div>
+      </div>
+
       {/* Import */}
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground">Import customers</h3>
@@ -386,6 +498,18 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
             <Button size="sm" onClick={saveTemplate}>Save as default</Button>
           </div>
         </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {TEMPLATE_PRESETS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => setTemplate(p.body)}
+              className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
         <Textarea
           value={template}
           onChange={(e) => setTemplate(e.target.value)}
@@ -409,11 +533,18 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
               {pending.length} pending · {sent.length} sent
             </p>
           </div>
-          {lastSent && (
-            <Button size="sm" variant="ghost" onClick={undoSend} className="gap-1.5">
-              <Undo2 className="h-3.5 w-3.5" /> Undo
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {pending.length > 0 && (
+              <Button size="sm" variant="outline" onClick={openTapThrough} className="gap-1.5">
+                <PlayCircle className="h-3.5 w-3.5" /> Send one by one
+              </Button>
+            )}
+            {lastSent && (
+              <Button size="sm" variant="ghost" onClick={undoSend} className="gap-1.5">
+                <Undo2 className="h-3.5 w-3.5" /> Undo
+              </Button>
+            )}
+          </div>
         </div>
 
         {loading ? (
@@ -488,6 +619,52 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
         Note: each invite opens in your own Messages or Mail app. Revvin never sends messages on your behalf.
         You review and send each one from your phone.
       </p>
+
+      {/* Tap-through composer: step through pending contacts one at a time. */}
+      <Dialog open={tapOpen} onOpenChange={setTapOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              Invite {tapCurrent ? firstName(tapCurrent.name) : ""}{" "}
+              <span className="text-xs font-normal text-muted-foreground">
+                {tapCurrent ? `(${tapIndex + 1} of ${pending.length})` : ""}
+              </span>
+            </DialogTitle>
+          </DialogHeader>
+          {tapCurrent && (
+            <div className="space-y-3">
+              <div className="text-xs text-muted-foreground">
+                {[tapCurrent.phone, tapCurrent.email].filter(Boolean).join(" · ") || "No contact info"}
+              </div>
+              <Textarea readOnly rows={5} value={messageFor(tapCurrent)} className="text-xs" />
+              <div className="flex flex-wrap gap-2">
+                {tapCurrent.phone && (
+                  <Button size="sm" onClick={() => sendSms(tapCurrent)} className="gap-1.5">
+                    <MessageSquare className="h-3.5 w-3.5" /> Text
+                  </Button>
+                )}
+                {tapCurrent.email && (
+                  <Button size="sm" variant="outline" onClick={() => sendEmail(tapCurrent)} className="gap-1.5">
+                    <Mail className="h-3.5 w-3.5" /> Email
+                  </Button>
+                )}
+                <Button size="sm" variant="outline" onClick={() => sendShare(tapCurrent)} className="gap-1.5">
+                  <Share2 className="h-3.5 w-3.5" /> Share
+                </Button>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Opens in your own app. Come back and tap Next when you're done.
+              </p>
+            </div>
+          )}
+          <DialogFooter className="flex-row justify-between sm:justify-between gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setTapOpen(false)}>Close</Button>
+            <Button size="sm" onClick={tapNext} className="gap-1.5">
+              Next <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

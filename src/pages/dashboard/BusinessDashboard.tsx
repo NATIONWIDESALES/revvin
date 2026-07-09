@@ -209,10 +209,14 @@ const BusinessDashboard = () => {
     {
       label: "Import your customers",
       done: contactStats.total > 0,
+      href: "/dashboard/invite-customers",
+      actionLabel: "Add customers",
     },
     {
       label: "Send your first batch",
       done: contactStats.sent > 0,
+      href: "/dashboard/invite-customers",
+      actionLabel: "Open composer",
     },
     {
       label: "Print your QR code",
