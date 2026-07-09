@@ -15,6 +15,7 @@ import { Loader2, Copy, ExternalLink, Download, Inbox, AlertCircle, Check, Plus,
 import QRCodeStyling from "qr-code-styling";
 import { useRef } from "react";
 import CustomersTab from "@/components/dashboard/CustomersTab";
+import AttestationGate from "@/components/dashboard/AttestationGate";
 import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 
@@ -38,6 +39,7 @@ interface Business {
   stripe_customer_id: string | null;
   launch_package_status: string | null;
   marketplace_listed?: boolean | null;
+  contact_outreach_consent_at?: string | null;
 }
 
 interface Lead {
@@ -255,7 +257,13 @@ const BusinessDashboard = () => {
         </TabsList>
 
         <TabsContent value="customers">
-          <CustomersTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger }} publicUrl={publicUrl} />
+          <AttestationGate
+            businessId={biz.id}
+            consentedAt={biz.contact_outreach_consent_at ?? null}
+            onConsented={() => loadAll()}
+          >
+            <CustomersTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger }} publicUrl={publicUrl} />
+          </AttestationGate>
         </TabsContent>
         <TabsContent value="leads"><LeadsTab leads={leads} reload={loadAll} /></TabsContent>
         <TabsContent value="offers"><OffersTab offers={offers} /></TabsContent>

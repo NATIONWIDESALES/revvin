@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import CustomersTab from "@/components/dashboard/CustomersTab";
+import AttestationGate from "@/components/dashboard/AttestationGate";
 
 // Standalone Invite Customers area. Wraps the existing CustomersTab (which already
 // owns the import + template + device-native send UX) with a one-time consent gate.
@@ -24,11 +23,8 @@ interface BizRow {
 
 const InviteCustomers = () => {
   const { user, userRole } = useAuth();
-  const { toast } = useToast();
   const [biz, setBiz] = useState<BizRow | null>(null);
   const [loading, setLoading] = useState(true);
-  const [agreed, setAgreed] = useState(false);
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -69,56 +65,6 @@ const InviteCustomers = () => {
 
   const publicUrl = biz.slug ? `${window.location.origin}/r/${biz.slug}` : "";
 
-  const acceptConsent = async () => {
-    if (!agreed) return;
-    setSaving(true);
-    const nowIso = new Date().toISOString();
-    const { error } = await supabase
-      .from("businesses")
-      .update({ contact_outreach_consent_at: nowIso })
-      .eq("id", biz.id);
-    setSaving(false);
-    if (error) {
-      // The database trigger guards the consent timestamp as append-only so an
-      // owner cannot clear it or move it earlier. Surface a friendly message
-      // instead of the raw Postgres error, and refresh the row so the UI
-      // reflects the already-recorded consent if that is what happened.
-      const raw = (error.message || "").toLowerCase();
-      const isAppendOnly = raw.includes("append-only") || (error as { code?: string }).code === "P0001";
-      if (isAppendOnly) {
-        const { data } = await supabase
-          .from("businesses")
-          .select("contact_outreach_consent_at")
-          .eq("id", biz.id)
-          .limit(1);
-        const existing = (data?.[0]?.contact_outreach_consent_at as string | null) ?? null;
-        if (existing) {
-          setBiz({ ...biz, contact_outreach_consent_at: existing });
-          toast({
-            title: "Already confirmed",
-            description: "You already confirmed this on " + new Date(existing).toLocaleDateString() + ". Taking you in.",
-          });
-          return;
-        }
-        toast({
-          title: "Confirmation is permanent",
-          description: "Once accepted, the confirmation timestamp cannot be cleared or moved earlier. Contact support if you need it corrected.",
-          variant: "destructive",
-        });
-        return;
-      }
-      toast({
-        title: "Could not save",
-        description: error.message || "Please try again in a moment.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setBiz({ ...biz, contact_outreach_consent_at: nowIso });
-  };
-
-  const hasConsent = !!biz.contact_outreach_consent_at;
-
   return (
     <div className="py-8">
       <div className="container max-w-3xl">
@@ -136,45 +82,11 @@ const InviteCustomers = () => {
           </p>
         </div>
 
-        {!hasConsent ? (
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                <ShieldCheck className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-base font-semibold text-foreground">One quick confirmation</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Before importing, please confirm that these are people you already have a
-                  relationship with. Every message you send leaves your own device through
-                  your own Messages or Mail app. Revvin does not transmit anything on your
-                  behalf.
-                </p>
-                {/* FOUNDER-CONFIRMED TODO: confirm exact attestation wording with counsel. */}
-                <label className="mt-4 flex items-start gap-3 cursor-pointer">
-                  <Checkbox
-                    checked={agreed}
-                    onCheckedChange={(v) => setAgreed(v === true)}
-                    className="mt-0.5"
-                  />
-                  <span className="text-sm text-foreground">
-                    These are my own past or current customers, and I have an existing
-                    relationship with them.
-                  </span>
-                </label>
-                <Button
-                  className="mt-4"
-                  size="sm"
-                  onClick={acceptConsent}
-                  disabled={!agreed || saving}
-                >
-                  {saving ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
-                  Continue
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : (
+        <AttestationGate
+          businessId={biz.id}
+          consentedAt={biz.contact_outreach_consent_at}
+          onConsented={(iso) => setBiz({ ...biz, contact_outreach_consent_at: iso })}
+        >
           <CustomersTab
             biz={{
               id: biz.id,
@@ -184,7 +96,7 @@ const InviteCustomers = () => {
             }}
             publicUrl={publicUrl}
           />
-        )}
+        </AttestationGate>
       </div>
     </div>
   );

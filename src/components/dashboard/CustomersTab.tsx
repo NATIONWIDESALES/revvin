@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
-  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2, UserPlus, PlayCircle, ChevronRight,
+  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2, UserPlus, PlayCircle, ChevronRight, Copy,
 } from "lucide-react";
 
 export interface CustomersTabBusiness {
@@ -31,29 +31,38 @@ export interface ReferralContact {
 
 // Default editable message template. Placeholders are filled from real business data.
 // No em dashes (project rule).
-const DEFAULT_TEMPLATE =
+const DEFAULT_TEMPLATE_WITH_REWARD =
   "Hi {firstName}, {businessName} here. I'm paying {reward} for referrals right now. If you know anyone who needs {offer}, share my link and you get paid when the deal closes: {referralLink}";
+const DEFAULT_TEMPLATE_NO_REWARD =
+  "Hi {firstName}, {businessName} here. If you know anyone who needs {offer}, share my link and I'll take great care of them: {referralLink}";
 
-// Three short, plain, first-person templates the business can pick as a starting point.
-// No hype, no em dashes. Placeholders fill in from real business data.
-const TEMPLATE_PRESETS: Array<{ id: string; label: string; body: string }> = [
+// Three short, plain, first-person templates. Each has a with-reward and a
+// no-reward body so businesses without a configured reward amount don't render
+// a blank or placeholder like "a reward" in customer-facing text.
+const TEMPLATE_PRESETS: Array<{ id: string; label: string; withReward: string; noReward: string }> = [
   {
     id: "short",
     label: "Short and direct",
-    body:
+    withReward:
       "Hi {firstName}, {businessName} here. If you know anyone who needs {offer}, send them my link and I'll pay you {reward} when the job closes: {referralLink}",
+    noReward:
+      "Hi {firstName}, {businessName} here. If you know anyone who needs {offer}, send them my link: {referralLink}",
   },
   {
     id: "thanks",
     label: "Thank you first",
-    body:
+    withReward:
       "Hi {firstName}, thanks for being a customer. If someone you know needs {offer}, share this link and you get {reward} when the deal closes: {referralLink}",
+    noReward:
+      "Hi {firstName}, thanks for being a customer. If someone you know needs {offer}, please share this link: {referralLink}",
   },
   {
     id: "casual",
     label: "Casual heads up",
-    body:
+    withReward:
       "Hey {firstName}, quick heads up from {businessName}. I'm paying {reward} per referral right now. If anyone comes to mind for {offer}, here's the link: {referralLink}",
+    noReward:
+      "Hey {firstName}, quick heads up from {businessName}. If anyone comes to mind for {offer}, here's the link: {referralLink}",
   },
 ];
 
@@ -126,8 +135,10 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const [paste, setPaste] = useState("");
   const [preview, setPreview] = useState<Array<{ name: string; email?: string; phone?: string }>>([]);
   const [importing, setImporting] = useState(false);
+  const hasReward = !!biz.offer_amount?.trim();
+  const defaultTemplate = hasReward ? DEFAULT_TEMPLATE_WITH_REWARD : DEFAULT_TEMPLATE_NO_REWARD;
   const [template, setTemplate] = useState<string>(
-    () => (typeof window !== "undefined" && localStorage.getItem(TEMPLATE_STORAGE_KEY)) || DEFAULT_TEMPLATE,
+    () => (typeof window !== "undefined" && localStorage.getItem(TEMPLATE_STORAGE_KEY)) || defaultTemplate,
   );
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [lastSent, setLastSent] = useState<{ id: string; prev: ReferralContact } | null>(null);
@@ -140,7 +151,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const [tapOpen, setTapOpen] = useState(false);
   const [tapIndex, setTapIndex] = useState(0);
 
-  const reward = biz.offer_amount?.trim() || "a reward";
+  const reward = biz.offer_amount?.trim() || "";
   const offer = biz.offer_trigger?.trim() || "our service";
 
   const load = async () => {
@@ -297,11 +308,27 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
         await markSent(c, "share");
       } else {
         await navigator.clipboard.writeText(text);
-        toast({ title: "Message copied", description: "Paste it wherever you want to send it." });
+        toast({ title: "Message copied", description: "Paste it into any app to send." });
         await markSent(c, "share");
       }
     } catch {
       // user cancelled share sheet, do not mark sent
+    } finally {
+      setSendingId(null);
+    }
+  };
+
+  // Explicit copy-to-clipboard action. Useful on desktop where sms: and Web
+  // Share are not available. Marks the contact as invited under the "share"
+  // channel because that is the closest match to a device-native handoff.
+  const copyMessage = async (c: ReferralContact) => {
+    setSendingId(c.id);
+    try {
+      await navigator.clipboard.writeText(messageFor(c));
+      toast({ title: "Message copied", description: "Paste it into any app to send." });
+      await markSent(c, "share");
+    } catch {
+      toast({ title: "Could not copy", description: "Copy the text manually.", variant: "destructive" });
     } finally {
       setSendingId(null);
     }
@@ -359,7 +386,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   };
 
   const resetTemplate = () => {
-    setTemplate(DEFAULT_TEMPLATE);
+    setTemplate(defaultTemplate);
     localStorage.removeItem(TEMPLATE_STORAGE_KEY);
   };
 
@@ -503,7 +530,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
             <button
               key={p.id}
               type="button"
-              onClick={() => setTemplate(p.body)}
+              onClick={() => setTemplate(hasReward ? p.withReward : p.noReward)}
               className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
             >
               {p.label}
@@ -530,7 +557,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
           <div>
             <h3 className="text-sm font-semibold text-foreground">Your customers</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {pending.length} pending · {sent.length} sent
+              {pending.length} pending · {sent.length} invite{sent.length === 1 ? "" : "s"} opened
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -566,7 +593,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                       <span className="font-medium text-sm text-foreground truncate">{c.name}</span>
                       {c.status === "sent" ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                          <Check className="h-3 w-3" /> Sent
+                          <Check className="h-3 w-3" /> Invite opened
                         </span>
                       ) : (
                         <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
@@ -578,7 +605,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                       {[c.phone, c.email].filter(Boolean).join(" · ") || "No contact info"}
                       {c.last_sent_at && (
                         <span className="ml-2">
-                          · {c.send_channel || "sent"} {new Date(c.last_sent_at).toLocaleDateString()}
+                          · {c.send_channel || "invite"} opened {new Date(c.last_sent_at).toLocaleDateString()}
                         </span>
                       )}
                     </div>
@@ -599,6 +626,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                         <Share2 className="h-3.5 w-3.5" /> Share
                       </Button>
                     )}
+                    <Button size="sm" variant="ghost" onClick={() => copyMessage(c)} disabled={isSending} className="h-8 w-8 p-0" aria-label="Copy message">
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
                     {(c.phone || c.email) && (
                       <Button size="sm" variant="ghost" onClick={() => sendShare(c)} disabled={isSending} className="h-8 w-8 p-0" aria-label="Share">
                         <Share2 className="h-3.5 w-3.5" />
@@ -616,8 +646,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       </div>
 
       <p className="text-[11px] text-muted-foreground">
-        Note: each invite opens in your own Messages or Mail app. Revvin never sends messages on your behalf.
-        You review and send each one from your phone.
+        Note: each invite opens in your own Messages or Mail app, or copies the message so you can paste it.
+        Revvin never sends messages on your behalf, and cannot confirm delivery. Status shows "Invite opened",
+        not "Sent".
       </p>
 
       {/* Tap-through composer: step through pending contacts one at a time. */}
@@ -650,6 +681,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                 )}
                 <Button size="sm" variant="outline" onClick={() => sendShare(tapCurrent)} className="gap-1.5">
                   <Share2 className="h-3.5 w-3.5" /> Share
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => copyMessage(tapCurrent)} className="gap-1.5">
+                  <Copy className="h-3.5 w-3.5" /> Copy
                 </Button>
               </div>
               <p className="text-[11px] text-muted-foreground">
