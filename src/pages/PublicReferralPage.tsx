@@ -461,6 +461,26 @@ const PublicReferralPage = () => {
               <p className="text-sm text-muted-foreground mt-1.5 max-w-sm mx-auto">
                 {biz.name} will be in touch with your lead soon. You'll hear from them directly when the deal closes.
               </p>
+              {statusUrl && (
+                <div className="mt-5 mx-auto max-w-sm rounded-xl border border-border bg-muted/30 p-4 text-left">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Track this referral</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Bookmark this private link to check the stage and reward status anytime.</p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <input readOnly value={statusUrl} className="flex-1 rounded-md border border-border bg-background px-2 py-1.5 text-xs text-foreground" />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(statusUrl);
+                        toast({ title: "Link copied" });
+                      }}
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-4">
