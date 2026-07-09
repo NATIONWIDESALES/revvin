@@ -561,7 +561,22 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                       </Select>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <Button variant="ghost" size="sm" onClick={() => setExpanded(expanded === l.id ? null : l.id)}>{expanded === l.id ? "Hide" : "Details"}</Button>
+                      <div className="flex items-center gap-1 justify-end">
+                        {l.status_token && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const url = `${window.location.origin}/r/status/${l.status_token}`;
+                              navigator.clipboard.writeText(url);
+                              toast({ title: "Status link copied", description: "Share with your referrer so they can check progress." });
+                            }}
+                          >
+                            <Copy className="mr-1.5 h-3.5 w-3.5" /> Status link
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={() => setExpanded(expanded === l.id ? null : l.id)}>{expanded === l.id ? "Hide" : "Details"}</Button>
+                      </div>
                     </td>
                   </tr>
                   {expanded === l.id && (
