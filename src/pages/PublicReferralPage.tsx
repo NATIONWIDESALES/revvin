@@ -84,6 +84,7 @@ const PublicReferralPage = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [statusUrl, setStatusUrl] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     referrer_name: "",
@@ -142,7 +143,7 @@ const PublicReferralPage = () => {
         status: "new",
         referrer_user_id: referrerUserId,
       } as any))
-      .select("id")
+      .select("id, status_token")
       .limit(1);
     setSubmitting(false);
     if (error) {
@@ -150,6 +151,10 @@ const PublicReferralPage = () => {
       return;
     }
     const newLeadId = inserted?.[0]?.id;
+    const token = (inserted?.[0] as any)?.status_token as string | undefined;
+    if (token) {
+      setStatusUrl(`${window.location.origin}/r/status/${token}`);
+    }
     if (newLeadId) {
       // Fire-and-forget email notification to business owner
       supabase.functions
