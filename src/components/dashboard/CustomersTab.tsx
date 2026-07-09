@@ -131,6 +131,14 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   );
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [lastSent, setLastSent] = useState<{ id: string; prev: ReferralContact } | null>(null);
+  // Manual add form state.
+  const [manualName, setManualName] = useState("");
+  const [manualEmail, setManualEmail] = useState("");
+  const [manualPhone, setManualPhone] = useState("");
+  const [manualSaving, setManualSaving] = useState(false);
+  // Tap-through composer: step through pending contacts one at a time.
+  const [tapOpen, setTapOpen] = useState(false);
+  const [tapIndex, setTapIndex] = useState(0);
 
   const reward = biz.offer_amount?.trim() || "a reward";
   const offer = biz.offer_trigger?.trim() || "our service";
