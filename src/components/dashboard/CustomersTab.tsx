@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
-  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2, UserPlus, PlayCircle, ChevronRight,
+  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2, UserPlus, PlayCircle, ChevronRight, Copy,
 } from "lucide-react";
 
 export interface CustomersTabBusiness {
@@ -31,29 +31,38 @@ export interface ReferralContact {
 
 // Default editable message template. Placeholders are filled from real business data.
 // No em dashes (project rule).
-const DEFAULT_TEMPLATE =
+const DEFAULT_TEMPLATE_WITH_REWARD =
   "Hi {firstName}, {businessName} here. I'm paying {reward} for referrals right now. If you know anyone who needs {offer}, share my link and you get paid when the deal closes: {referralLink}";
+const DEFAULT_TEMPLATE_NO_REWARD =
+  "Hi {firstName}, {businessName} here. If you know anyone who needs {offer}, share my link and I'll take great care of them: {referralLink}";
 
-// Three short, plain, first-person templates the business can pick as a starting point.
-// No hype, no em dashes. Placeholders fill in from real business data.
-const TEMPLATE_PRESETS: Array<{ id: string; label: string; body: string }> = [
+// Three short, plain, first-person templates. Each has a with-reward and a
+// no-reward body so businesses without a configured reward amount don't render
+// a blank or placeholder like "a reward" in customer-facing text.
+const TEMPLATE_PRESETS: Array<{ id: string; label: string; withReward: string; noReward: string }> = [
   {
     id: "short",
     label: "Short and direct",
-    body:
+    withReward:
       "Hi {firstName}, {businessName} here. If you know anyone who needs {offer}, send them my link and I'll pay you {reward} when the job closes: {referralLink}",
+    noReward:
+      "Hi {firstName}, {businessName} here. If you know anyone who needs {offer}, send them my link: {referralLink}",
   },
   {
     id: "thanks",
     label: "Thank you first",
-    body:
+    withReward:
       "Hi {firstName}, thanks for being a customer. If someone you know needs {offer}, share this link and you get {reward} when the deal closes: {referralLink}",
+    noReward:
+      "Hi {firstName}, thanks for being a customer. If someone you know needs {offer}, please share this link: {referralLink}",
   },
   {
     id: "casual",
     label: "Casual heads up",
-    body:
+    withReward:
       "Hey {firstName}, quick heads up from {businessName}. I'm paying {reward} per referral right now. If anyone comes to mind for {offer}, here's the link: {referralLink}",
+    noReward:
+      "Hey {firstName}, quick heads up from {businessName}. If anyone comes to mind for {offer}, here's the link: {referralLink}",
   },
 ];
 
@@ -126,8 +135,10 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const [paste, setPaste] = useState("");
   const [preview, setPreview] = useState<Array<{ name: string; email?: string; phone?: string }>>([]);
   const [importing, setImporting] = useState(false);
+  const hasReward = !!biz.offer_amount?.trim();
+  const defaultTemplate = hasReward ? DEFAULT_TEMPLATE_WITH_REWARD : DEFAULT_TEMPLATE_NO_REWARD;
   const [template, setTemplate] = useState<string>(
-    () => (typeof window !== "undefined" && localStorage.getItem(TEMPLATE_STORAGE_KEY)) || DEFAULT_TEMPLATE,
+    () => (typeof window !== "undefined" && localStorage.getItem(TEMPLATE_STORAGE_KEY)) || defaultTemplate,
   );
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [lastSent, setLastSent] = useState<{ id: string; prev: ReferralContact } | null>(null);
@@ -140,7 +151,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const [tapOpen, setTapOpen] = useState(false);
   const [tapIndex, setTapIndex] = useState(0);
 
-  const reward = biz.offer_amount?.trim() || "a reward";
+  const reward = biz.offer_amount?.trim() || "";
   const offer = biz.offer_trigger?.trim() || "our service";
 
   const load = async () => {
@@ -359,7 +370,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   };
 
   const resetTemplate = () => {
-    setTemplate(DEFAULT_TEMPLATE);
+    setTemplate(defaultTemplate);
     localStorage.removeItem(TEMPLATE_STORAGE_KEY);
   };
 
