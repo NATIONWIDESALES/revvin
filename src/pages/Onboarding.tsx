@@ -333,6 +333,11 @@ const Onboarding = () => {
                 <p className="mt-1 text-sm text-muted-foreground">What do you pay for a closed referral?</p>
                 <div className="mt-6 space-y-4">
                   <div><Label>Payout amount</Label><Input value={offerAmount} onChange={(e) => setOfferAmount(e.target.value)} className="mt-1.5" placeholder="$500 or 10%" /></div>
+                  {!offerAmount && (
+                    <p className="-mt-2 text-xs text-muted-foreground">
+                      A common starting point is a flat amount per closed job, for example 100 dollars. You can change this anytime.
+                    </p>
+                  )}
                   <div><Label>Payout trigger</Label><Input value={offerTrigger} onChange={(e) => setOfferTrigger(e.target.value)} className="mt-1.5" placeholder="per closed roofing job" /></div>
                   <div><Label>Fine print <span className="text-muted-foreground text-xs">(optional)</span></Label><Textarea value={offerFinePrint} onChange={(e) => setOfferFinePrint(e.target.value)} className="mt-1.5" rows={2} /></div>
                   {offerAmount && (

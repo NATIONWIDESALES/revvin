@@ -84,6 +84,7 @@ const PublicReferralPage = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [statusUrl, setStatusUrl] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     referrer_name: "",
@@ -142,7 +143,7 @@ const PublicReferralPage = () => {
         status: "new",
         referrer_user_id: referrerUserId,
       } as any))
-      .select("id")
+      .select("id, status_token")
       .limit(1);
     setSubmitting(false);
     if (error) {
@@ -150,6 +151,10 @@ const PublicReferralPage = () => {
       return;
     }
     const newLeadId = inserted?.[0]?.id;
+    const token = (inserted?.[0] as any)?.status_token as string | undefined;
+    if (token) {
+      setStatusUrl(`${window.location.origin}/r/status/${token}`);
+    }
     if (newLeadId) {
       // Fire-and-forget email notification to business owner
       supabase.functions
@@ -456,6 +461,26 @@ const PublicReferralPage = () => {
               <p className="text-sm text-muted-foreground mt-1.5 max-w-sm mx-auto">
                 {biz.name} will be in touch with your lead soon. You'll hear from them directly when the deal closes.
               </p>
+              {statusUrl && (
+                <div className="mt-5 mx-auto max-w-sm rounded-xl border border-border bg-muted/30 p-4 text-left">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Track this referral</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Bookmark this private link to check the stage and reward status anytime.</p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <input readOnly value={statusUrl} className="flex-1 rounded-md border border-border bg-background px-2 py-1.5 text-xs text-foreground" />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(statusUrl);
+                        toast({ title: "Link copied" });
+                      }}
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-4">

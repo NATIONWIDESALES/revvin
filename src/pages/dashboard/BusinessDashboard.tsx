@@ -19,6 +19,7 @@ import CustomersTab from "@/components/dashboard/CustomersTab";
 import AttestationGate from "@/components/dashboard/AttestationGate";
 import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
+import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 
 interface Business {
   id: string;
@@ -57,6 +58,7 @@ interface Lead {
   status: string;
   notes: string | null;
   deal_value?: number | null;
+  status_token?: string | null;
 }
 
 interface MarketplaceReferral {
@@ -252,6 +254,7 @@ const BusinessDashboard = () => {
           <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
           <TabsTrigger value="offers">Offers {offers.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{offers.length}</span>}</TabsTrigger>
           <TabsTrigger value="referrals">Marketplace Referrals {marketplaceReferrals.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{marketplaceReferrals.length}</span>}</TabsTrigger>
+          <TabsTrigger value="payouts">Payouts</TabsTrigger>
           <TabsTrigger value="page">My Page</TabsTrigger>
           <TabsTrigger value="share">Share Tools</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
@@ -269,6 +272,7 @@ const BusinessDashboard = () => {
         <TabsContent value="leads"><LeadsTab leads={leads} reload={loadAll} /></TabsContent>
         <TabsContent value="offers"><OffersTab offers={offers} /></TabsContent>
         <TabsContent value="referrals"><MarketplaceReferralsTab referrals={marketplaceReferrals} reload={loadAll} /></TabsContent>
+        <TabsContent value="payouts"><PayoutsPage businessId={biz.id} /></TabsContent>
         <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} /></TabsContent>
         <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} /></TabsContent>
         <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
@@ -557,7 +561,22 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                       </Select>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <Button variant="ghost" size="sm" onClick={() => setExpanded(expanded === l.id ? null : l.id)}>{expanded === l.id ? "Hide" : "Details"}</Button>
+                      <div className="flex items-center gap-1 justify-end">
+                        {l.status_token && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const url = `${window.location.origin}/r/status/${l.status_token}`;
+                              navigator.clipboard.writeText(url);
+                              toast({ title: "Status link copied", description: "Share with your referrer so they can check progress." });
+                            }}
+                          >
+                            <Copy className="mr-1.5 h-3.5 w-3.5" /> Status link
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={() => setExpanded(expanded === l.id ? null : l.id)}>{expanded === l.id ? "Hide" : "Details"}</Button>
+                      </div>
                     </td>
                   </tr>
                   {expanded === l.id && (
