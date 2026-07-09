@@ -308,11 +308,27 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
         await markSent(c, "share");
       } else {
         await navigator.clipboard.writeText(text);
-        toast({ title: "Message copied", description: "Paste it wherever you want to send it." });
+        toast({ title: "Message copied", description: "Paste it into any app to send." });
         await markSent(c, "share");
       }
     } catch {
       // user cancelled share sheet, do not mark sent
+    } finally {
+      setSendingId(null);
+    }
+  };
+
+  // Explicit copy-to-clipboard action. Useful on desktop where sms: and Web
+  // Share are not available. Marks the contact as invited under the "share"
+  // channel because that is the closest match to a device-native handoff.
+  const copyMessage = async (c: ReferralContact) => {
+    setSendingId(c.id);
+    try {
+      await navigator.clipboard.writeText(messageFor(c));
+      toast({ title: "Message copied", description: "Paste it into any app to send." });
+      await markSent(c, "share");
+    } catch {
+      toast({ title: "Could not copy", description: "Copy the text manually.", variant: "destructive" });
     } finally {
       setSendingId(null);
     }
