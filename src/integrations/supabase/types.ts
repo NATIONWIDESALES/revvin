@@ -649,6 +649,7 @@ export type Database = {
           relationship_to_lead: string | null
           stale_nudge_sent_at: string | null
           status: string
+          status_token: string
           updated_at: string
         }
         Insert: {
@@ -670,6 +671,7 @@ export type Database = {
           relationship_to_lead?: string | null
           stale_nudge_sent_at?: string | null
           status?: string
+          status_token?: string
           updated_at?: string
         }
         Update: {
@@ -691,6 +693,7 @@ export type Database = {
           relationship_to_lead?: string | null
           stale_nudge_sent_at?: string | null
           status?: string
+          status_token?: string
           updated_at?: string
         }
         Relationships: [
@@ -1423,6 +1426,64 @@ export type Database = {
         }
         Relationships: []
       }
+      rewards: {
+        Row: {
+          amount: number
+          business_id: string
+          created_at: string
+          id: string
+          lead_id: string
+          marked_paid_at: string | null
+          referrer_contact: string | null
+          referrer_name: string | null
+          status: string
+        }
+        Insert: {
+          amount?: number
+          business_id: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          marked_paid_at?: string | null
+          referrer_contact?: string | null
+          referrer_name?: string | null
+          status?: string
+        }
+        Update: {
+          amount?: number
+          business_id?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          marked_paid_at?: string | null
+          referrer_contact?: string | null
+          referrer_name?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rewards_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rewards_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rewards_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: true
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_offers: {
         Row: {
           created_at: string
@@ -1881,6 +1942,7 @@ export type Database = {
         Args: { p_business_id: string; p_from?: string; p_to?: string }
         Returns: Json
       }
+      fn_get_referral_status: { Args: { p_token: string }; Returns: Json }
       fn_is_suppressed: {
         Args: {
           p_business_id: string
