@@ -647,6 +647,7 @@ export type Database = {
           referrer_phone: string | null
           referrer_user_id: string | null
           relationship_to_lead: string | null
+          stale_nudge_sent_at: string | null
           status: string
           updated_at: string
         }
@@ -667,6 +668,7 @@ export type Database = {
           referrer_phone?: string | null
           referrer_user_id?: string | null
           relationship_to_lead?: string | null
+          stale_nudge_sent_at?: string | null
           status?: string
           updated_at?: string
         }
@@ -687,6 +689,7 @@ export type Database = {
           referrer_phone?: string | null
           referrer_user_id?: string | null
           relationship_to_lead?: string | null
+          stale_nudge_sent_at?: string | null
           status?: string
           updated_at?: string
         }

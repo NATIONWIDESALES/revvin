@@ -70,10 +70,17 @@ const RoiSummaryCard = ({ businessId }: Props) => {
     const revenue =
       closedL.reduce((s, x) => s + (Number(x.deal_value) || 0), 0) +
       closedR.reduce((s, x) => s + (Number(x.deal_value) || 0), 0);
+    // Last 30 days count is independent of the This month / All time toggle
+    // because the spec calls for it as a fixed tertiary line.
+    const cutoff30 = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    const last30 =
+      leads.filter((x) => new Date(x.created_at).getTime() >= cutoff30).length +
+      refs.filter((x) => new Date(x.created_at).getTime() >= cutoff30).length;
     return {
       total: l.length + r.length,
       closed: closedL.length + closedR.length,
       revenue,
+      last30,
     };
   }, [leads, refs, mode]);
 
@@ -114,15 +121,23 @@ const RoiSummaryCard = ({ businessId }: Props) => {
           <Inbox className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
           <p className="text-sm text-foreground font-medium">No revenue tracked yet</p>
           <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-            When you mark a referral as closed and add a deal value, it shows up here. Your first month's recap arrives by email.
+            Mark leads as Won and add a job value to see what your referrals are worth.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border">
-          <Stat icon={<Inbox className="h-4 w-4" />} label="Referral leads" value={loading ? "…" : String(stats.total)} />
-          <Stat icon={<Target className="h-4 w-4" />} label="Closed deals" value={loading ? "…" : String(stats.closed)} />
-          <Stat icon={<DollarSign className="h-4 w-4" />} label="Attributed revenue" value={loading ? "…" : fmtUsd(stats.revenue)} emphasis />
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border">
+            <Stat icon={<Inbox className="h-4 w-4" />} label="Referral leads" value={loading ? "…" : String(stats.total)} />
+            <Stat icon={<Target className="h-4 w-4" />} label="Closed deals" value={loading ? "…" : String(stats.closed)} />
+            <Stat icon={<DollarSign className="h-4 w-4" />} label="Attributed revenue" value={loading ? "…" : fmtUsd(stats.revenue)} emphasis />
+          </div>
+          <div className="px-5 py-3 border-t border-border text-xs text-muted-foreground flex flex-wrap items-center justify-between gap-2">
+            <span>Last 30 days: <span className="text-foreground font-medium">{loading ? "…" : stats.last30}</span> new lead{stats.last30 === 1 ? "" : "s"}</span>
+            {stats.revenue > 0 && (
+              <span>Your referrals have generated <span className="text-foreground font-medium">{fmtUsd(stats.revenue)}</span> in tracked work.</span>
+            )}
+          </div>
+        </>
       )}
 
       {recap && (
