@@ -1,6 +1,14 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { createHmac } from 'node:crypto';
 
+// INBOUND-ONLY BY DESIGN.
+// Revvin's compliance model prohibits platform-originated outbound SMS to
+// customers. All customer outreach must be device-native (sms:, mailto:,
+// Web Share API) so TCPA/CASL/10DLC obligations stay with the business.
+// This webhook only receives inbound messages (STOP/START keywords) to
+// maintain suppression state. Do NOT add outbound send code here or wire
+// this project to a platform-side SMS sender.
+
 // Twilio posts application/x-www-form-urlencoded. We honor STOP/UNSUBSCRIBE/QUIT
 // keywords by adding the sender's number to suppressed_contacts for the matching
 // business (looked up via TWILIO_FROM_NUMBER -> business mapping is 1:1 for now).
