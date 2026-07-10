@@ -216,7 +216,7 @@ const Browse = () => {
                 Categories we expect first
               </p>
               <div className="flex flex-wrap justify-center gap-2">
-                {["Real Estate", "Roofing", "HVAC", "Solar", "Mortgage", "Home Services", "Auto", "Fitness"].map((cat) => (
+                {["Roofing", "HVAC", "Plumbing", "Electrical", "Solar", "Landscaping", "Painting", "Home Services"].map((cat) => (
                   <span
                     key={cat}
                     className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-muted-foreground"
@@ -350,7 +350,7 @@ const Browse = () => {
         {/* Category pill filters */}
         <div className="mb-5 -mx-4 px-4 overflow-x-auto">
           <div className="flex gap-2 pb-2 min-w-max">
-            {categories.map((cat) => {
+            {categories.filter(c => !["Real Estate", "Mortgage", "Insurance"].includes(c)).map((cat) => {
               const isActive = activeCategory === cat;
               return (
                 <button

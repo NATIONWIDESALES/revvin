@@ -7,10 +7,10 @@ const events = [
   "New referral · Northstar Solar · Calgary, AB",
   "Deal closed · $14,200 contract · Ironclad Contracting",
   "Page launched · Bluewater Pools · Tampa, FL",
-  "New referral · Maple Mortgage · Toronto, ON",
+  "New referral · Ridgeline Painting · Toronto, ON",
   "Deal closed · $3,900 install · BrightSpark Electrical",
   "Page launched · True North Roofing · Edmonton, AB",
-  "New referral · Coastal Real Estate · San Diego, CA",
+  "New referral · Coastal Landscaping · San Diego, CA",
 ];
 
 export default function LiveTicker({
