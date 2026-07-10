@@ -15,9 +15,9 @@ export interface Offer {
   location: string;
   state: string;
   city: string;
-  rating: number;
-  totalReferrals: number;
-  successRate: number;
+  rating?: number;
+  totalReferrals?: number;
+  successRate?: number;
   featured: boolean;
   dealSizeMin?: number;
   dealSizeMax?: number;
