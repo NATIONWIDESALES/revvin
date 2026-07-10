@@ -12,7 +12,7 @@ import BusinessLogoUpload from "@/components/BusinessLogoUpload";
 import SEOHead from "@/components/SEOHead";
 import { Loader2, ArrowRight, Check } from "lucide-react";
 
-const CATEGORIES = ["Roofing","HVAC","Plumbing","Electrical","Landscaping","Real Estate","Mortgage","Insurance","Auto","Solar","Home Services","Other"];
+const CATEGORIES = ["Roofing","HVAC","Plumbing","Electrical","Landscaping","Painting","Auto","Solar","Home Services","Other"];
 
 const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);

@@ -149,7 +149,7 @@ const ForReferrers = () => (
           <motion.div variants={fadeUp} custom={2} className="mt-10 space-y-4">
             <p className="text-sm font-semibold text-foreground text-center mb-4">Real-world examples</p>
             {[
-              { name: "Sarah", role: "realtor", desc: "Refers buyers to mortgage brokers and home inspectors.", refs: 3, payout: 500 },
+              { name: "Sarah", role: "property manager", desc: "Refers tenants to roofers, plumbers, and HVAC techs.", refs: 3, payout: 500 },
               { name: "Mike", role: "condo manager", desc: "Refers residents to movers, cleaners, and contractors.", refs: 5, payout: 200 },
               { name: "Lisa", role: "gym member", desc: "Refers friends to her personal trainer.", refs: 2, payout: 100 },
             ].map((p) => (
@@ -176,9 +176,9 @@ const ForReferrers = () => (
           </motion.h2>
           <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
             {[
-              "Real estate agents",
-              "Insurance brokers",
-              "Financial advisors",
+              "Property managers",
+              "Home service pros",
+              "Handymen",
               "Car salespeople",
               "Community leaders",
               "Content creators",

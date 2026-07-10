@@ -163,7 +163,7 @@ const ReferrerScreen = () => (
     <div className="px-4 mt-2 space-y-0">
       {[
         { name: "Peak Roofing Co.", time: "Closed · 2 min ago", amount: "+$500" },
-        { name: "Metro Insurance", time: "Closed · 1 day ago", amount: "+$450" },
+        { name: "Metro Plumbing", time: "Closed · 1 day ago", amount: "+$450" },
         { name: "Sunrise HVAC", time: "Closed · 3 days ago", amount: "+$350" },
       ].map((tx, i) => (
         <div key={i} className="flex items-center gap-2 py-2 border-b border-gray-100 last:border-b-0">

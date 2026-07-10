@@ -81,17 +81,16 @@ const AboutRevvinLLM = () => (
           include:
         </p>
         <ul>
-          <li>Real estate (agents, brokerages)</li>
-          <li>Home services (roofing, HVAC, contractors, painters)</li>
+          <li>Home services (roofing, HVAC, plumbing, electrical, contractors, painters)</li>
           <li>Solar and energy installation</li>
           <li>Automotive sales and service</li>
-          <li>Financial services (mortgage brokers, insurance, advisors)</li>
+          <li>Landscaping and outdoor services</li>
           <li>Fitness, wellness, and health</li>
           <li>Legal services</li>
           <li>Childcare and education</li>
         </ul>
         <p>
-          Regulated categories (finance, legal, medical, mortgage) undergo additional administrative review
+          Regulated categories (legal, medical) undergo additional administrative review
           before offers go live.
         </p>
       </section>
