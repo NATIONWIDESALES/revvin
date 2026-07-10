@@ -27,11 +27,11 @@ const FEATURED_OFFERS = [
   { id: "ex-roofing", business: "A roofing company near you", category: "Roofing", city: "Denver", state: "CO", payout: 500, desc: "Example offer · refer a closed roofing job", owner: "Local business owner" },
   { id: "ex-hvac", business: "An HVAC company near you", category: "HVAC", city: "Phoenix", state: "AZ", payout: 300, desc: "Example offer · refer a furnace or AC install", owner: "Local business owner" },
   { id: "ex-landscape", business: "A landscaping company near you", category: "Landscaping", city: "Austin", state: "TX", payout: 400, desc: "Example offer · refer a full backyard project", owner: "Local business owner" },
-  { id: "ex-mortgage", business: "A mortgage broker near you", category: "Mortgage", city: "Charlotte", state: "NC", payout: 250, desc: "Example offer · refer a funded mortgage", owner: "Local business owner" },
+  { id: "ex-plumbing", business: "A plumbing company near you", category: "Plumbing", city: "Charlotte", state: "NC", payout: 250, desc: "Example offer · refer a repipe or water heater job", owner: "Local business owner" },
   { id: "ex-solar", business: "A solar installer near you", category: "Solar", city: "San Diego", state: "CA", payout: 750, desc: "Example offer · refer a solar installation", owner: "Local business owner" },
   { id: "ex-auto", business: "An auto detailer near you", category: "Auto", city: "Miami", state: "FL", payout: 150, desc: "Example offer · refer a ceramic coating", owner: "Local business owner" },
   { id: "ex-windows", business: "A window company near you", category: "Home Services", city: "Chicago", state: "IL", payout: 350, desc: "Example offer · refer a window replacement", owner: "Local business owner" },
-  { id: "ex-realestate", business: "A real estate agent near you", category: "Real Estate", city: "Seattle", state: "WA", payout: 1000, desc: "Example offer · refer a buyer or seller", owner: "Local business owner" },
+  { id: "ex-electrical", business: "An electrician near you", category: "Electrical", city: "Seattle", state: "WA", payout: 350, desc: "Example offer · refer a panel upgrade or rewire", owner: "Local business owner" },
 ];
 
 // Single source of truth for FAQ — drives both the visible accordion and the FAQPage JSON-LD.
@@ -69,7 +69,7 @@ const FAQS: { question: string; answer: string }[] = [
   {
     question: "What kind of businesses is Revvin for?",
     answer:
-      "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, real estate, mortgage, insurance, solar, home services, and more.",
+      "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, electricians, landscapers, painters, solar installers, auto detailers, and other home services.",
   },
 ];
 
@@ -78,11 +78,11 @@ const CATEGORY_IMAGE: Record<string, string> = {
   Roofing: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=800&q=60",
   HVAC: "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=800&q=60",
   Landscaping: "https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=800&q=60",
-  Mortgage: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=60",
+  Plumbing: "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=60",
   Solar: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=60",
   Auto: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=60",
   "Home Services": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=60",
-  "Real Estate": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=60",
+  Electrical: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=60",
 };
 const DEFAULT_CATEGORY_IMAGE =
   "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=60";
