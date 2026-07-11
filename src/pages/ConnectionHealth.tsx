@@ -29,6 +29,19 @@ type LogRow = {
   created_at: string;
 };
 
+type ResendStatus = {
+  checkedAt: string;
+  hasLovableKey: boolean;
+  hasResendKey: boolean;
+  fromAddress: string;
+  sendingDomain: string | null;
+  gatewayOk: boolean;
+  latencyMs?: number;
+  domain: { name: string; status: string; region?: string; createdAt?: string } | null;
+  allDomains?: Array<{ name: string; status: string }>;
+  error?: string | null;
+};
+
 export default function ConnectionHealth() {
   const { user, userRole, loading } = useAuth();
   const isAdmin = userRole === "admin";
@@ -37,6 +50,24 @@ export default function ConnectionHealth() {
   const [emailResult, setEmailResult] = useState<EmailResult | null>(null);
   const [sendingTest, setSendingTest] = useState(false);
   const [recentLogs, setRecentLogs] = useState<LogRow[]>([]);
+  const [resendStatus, setResendStatus] = useState<ResendStatus | null>(null);
+  const [checkingResend, setCheckingResend] = useState(false);
+  const [resendError, setResendError] = useState<string | null>(null);
+
+  const refreshResendStatus = async () => {
+    setCheckingResend(true);
+    setResendError(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("resend-status");
+      if (error) {
+        setResendError(error.message);
+      } else {
+        setResendStatus(data as ResendStatus);
+      }
+    } finally {
+      setCheckingResend(false);
+    }
+  };
 
   const loadRecentLogs = async () => {
     const { data } = await supabase
@@ -98,6 +129,7 @@ export default function ConnectionHealth() {
       setChecks(next);
       setRunning(false);
       await loadRecentLogs();
+      await refreshResendStatus();
     })();
   }, [loading, isAdmin]);
 
