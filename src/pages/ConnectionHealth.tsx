@@ -5,6 +5,24 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const EXPECTED_PROJECT_REF = "olmpplfgzegzqdcznlrp";
 
+function Row({ label, value, ok }: { label: string; value: string; ok: boolean }) {
+  return (
+    <div className="p-4 flex items-start justify-between gap-4">
+      <div className="min-w-0">
+        <div className="text-sm font-medium text-foreground">{label}</div>
+        <div className="mt-1 text-xs font-mono break-all text-muted-foreground">{value}</div>
+      </div>
+      <span
+        className={`shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+          ok ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+        }`}
+      >
+        {ok ? "OK" : "FAIL"}
+      </span>
+    </div>
+  );
+}
+
 type Check = { label: string; value: string; ok: boolean };
 
 type EmailResult = {
