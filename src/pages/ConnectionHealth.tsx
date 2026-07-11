@@ -183,6 +183,94 @@ export default function ConnectionHealth() {
         )}
 
         <div className="mt-10">
+          <h2 className="text-xl font-bold text-foreground tracking-tight">Resend configuration</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Verifies the Resend API key is present and the sending domain is verified.
+          </p>
+
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              onClick={refreshResendStatus}
+              disabled={checkingResend}
+              className="inline-flex items-center rounded-md border border-border bg-card px-4 py-2 text-sm font-medium text-foreground disabled:opacity-50"
+            >
+              {checkingResend ? "Checking…" : "Recheck"}
+            </button>
+            {resendStatus && (
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                  resendStatus.hasResendKey && resendStatus.gatewayOk && resendStatus.domain?.status === "verified"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {resendStatus.hasResendKey && resendStatus.gatewayOk && resendStatus.domain?.status === "verified"
+                  ? "Ready to send"
+                  : "Attention needed"}
+              </span>
+            )}
+          </div>
+
+          {(resendStatus || resendError) && (
+            <div className="mt-4 rounded-lg border border-border bg-card divide-y divide-border">
+              {resendStatus && (
+                <>
+                  <Row
+                    label="RESEND_API_KEY"
+                    value={resendStatus.hasResendKey ? "present" : "missing"}
+                    ok={resendStatus.hasResendKey}
+                  />
+                  <Row
+                    label="LOVABLE_API_KEY"
+                    value={resendStatus.hasLovableKey ? "present" : "missing"}
+                    ok={resendStatus.hasLovableKey}
+                  />
+                  <Row label="From address" value={resendStatus.fromAddress} ok={!!resendStatus.fromAddress} />
+                  <Row
+                    label="Sending domain"
+                    value={resendStatus.sendingDomain || "(not parsed)"}
+                    ok={!!resendStatus.sendingDomain}
+                  />
+                  <Row
+                    label="Resend gateway reachable"
+                    value={
+                      resendStatus.gatewayOk
+                        ? `ok${typeof resendStatus.latencyMs === "number" ? ` (${resendStatus.latencyMs}ms)` : ""}`
+                        : "failed"
+                    }
+                    ok={resendStatus.gatewayOk}
+                  />
+                  <Row
+                    label="Domain verification"
+                    value={
+                      resendStatus.domain
+                        ? `${resendStatus.domain.name} · ${resendStatus.domain.status}${
+                            resendStatus.domain.region ? ` · ${resendStatus.domain.region}` : ""
+                          }`
+                        : "not found in Resend account"
+                    }
+                    ok={resendStatus.domain?.status === "verified"}
+                  />
+                  <Row
+                    label="Last checked"
+                    value={new Date(resendStatus.checkedAt).toLocaleString()}
+                    ok={true}
+                  />
+                </>
+              )}
+              {(resendStatus?.error || resendError) && (
+                <div className="p-4">
+                  <div className="text-sm font-medium text-red-700">Error</div>
+                  <div className="mt-1 text-xs font-mono whitespace-pre-wrap break-all text-red-700">
+                    {resendError || resendStatus?.error}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-10">
           <h2 className="text-xl font-bold text-foreground tracking-tight">Email delivery health</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Sends a real message through the Resend gateway to the admin inbox and logs the outcome.
