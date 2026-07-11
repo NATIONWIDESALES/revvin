@@ -7,11 +7,61 @@ const EXPECTED_PROJECT_REF = "olmpplfgzegzqdcznlrp";
 
 type Check = { label: string; value: string; ok: boolean };
 
+type EmailResult = {
+  ok: boolean;
+  step?: string;
+  hasLovableKey?: boolean;
+  hasResendKey?: boolean;
+  from?: string;
+  to?: string;
+  latencyMs?: number;
+  messageId?: string;
+  subject?: string;
+  error?: string;
+};
+
+type LogRow = {
+  id: string;
+  type: string;
+  recipient_email: string;
+  subject: string;
+  status: string;
+  created_at: string;
+};
+
 export default function ConnectionHealth() {
   const { user, userRole, loading } = useAuth();
   const isAdmin = userRole === "admin";
   const [checks, setChecks] = useState<Check[]>([]);
   const [running, setRunning] = useState(true);
+  const [emailResult, setEmailResult] = useState<EmailResult | null>(null);
+  const [sendingTest, setSendingTest] = useState(false);
+  const [recentLogs, setRecentLogs] = useState<LogRow[]>([]);
+
+  const loadRecentLogs = async () => {
+    const { data } = await supabase
+      .from("notifications_log")
+      .select("id,type,recipient_email,subject,status,created_at")
+      .order("created_at", { ascending: false })
+      .limit(10);
+    setRecentLogs((data as LogRow[]) || []);
+  };
+
+  const sendTestEmail = async () => {
+    setSendingTest(true);
+    setEmailResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("email-health-check");
+      if (error) {
+        setEmailResult({ ok: false, error: error.message });
+      } else {
+        setEmailResult(data as EmailResult);
+      }
+      await loadRecentLogs();
+    } finally {
+      setSendingTest(false);
+    }
+  };
 
   useEffect(() => {
     if (loading || !isAdmin) return;
@@ -47,6 +97,7 @@ export default function ConnectionHealth() {
 
       setChecks(next);
       setRunning(false);
+      await loadRecentLogs();
     })();
   }, [loading, isAdmin]);
 
@@ -98,6 +149,76 @@ export default function ConnectionHealth() {
               : "⚠ One or more checks failed, review above."}
           </div>
         )}
+
+        <div className="mt-10">
+          <h2 className="text-xl font-bold text-foreground tracking-tight">Email delivery health</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Sends a real message through the Resend gateway to the admin inbox and logs the outcome.
+          </p>
+
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              onClick={sendTestEmail}
+              disabled={sendingTest}
+              className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+            >
+              {sendingTest ? "Sending test email…" : "Send test email"}
+            </button>
+            {emailResult && (
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                  emailResult.ok
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {emailResult.ok ? "Delivered to Resend" : "Failed"}
+              </span>
+            )}
+          </div>
+
+          {emailResult && (
+            <div className="mt-4 rounded-lg border border-border bg-card p-4 text-xs font-mono space-y-1 text-muted-foreground">
+              <div>from: {emailResult.from}</div>
+              <div>to: {emailResult.to}</div>
+              {typeof emailResult.latencyMs === "number" && <div>latency: {emailResult.latencyMs}ms</div>}
+              {emailResult.messageId && <div>message id: {emailResult.messageId}</div>}
+              <div>LOVABLE_API_KEY: {emailResult.hasLovableKey ? "present" : "missing"}</div>
+              <div>RESEND_API_KEY: {emailResult.hasResendKey ? "present" : "missing"}</div>
+              {emailResult.error && <div className="text-red-700 whitespace-pre-wrap break-all">error: {emailResult.error}</div>}
+            </div>
+          )}
+
+          <div className="mt-6 rounded-lg border border-border bg-card">
+            <div className="p-3 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Recent notifications (last 10)
+            </div>
+            {recentLogs.length === 0 && (
+              <div className="p-4 text-sm text-muted-foreground">No entries yet.</div>
+            )}
+            {recentLogs.map((row) => (
+              <div key={row.id} className="p-3 border-b border-border last:border-b-0 flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-foreground truncate">{row.subject || row.type}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground truncate">
+                    {row.type} · {row.recipient_email} · {new Date(row.created_at).toLocaleString()}
+                  </div>
+                </div>
+                <span
+                  className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                    row.status === "sent"
+                      ? "bg-green-100 text-green-800"
+                      : row.status === "failed"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  {row.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
