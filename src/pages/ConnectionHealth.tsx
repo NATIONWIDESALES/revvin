@@ -5,6 +5,24 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const EXPECTED_PROJECT_REF = "olmpplfgzegzqdcznlrp";
 
+function Row({ label, value, ok }: { label: string; value: string; ok: boolean }) {
+  return (
+    <div className="p-4 flex items-start justify-between gap-4">
+      <div className="min-w-0">
+        <div className="text-sm font-medium text-foreground">{label}</div>
+        <div className="mt-1 text-xs font-mono break-all text-muted-foreground">{value}</div>
+      </div>
+      <span
+        className={`shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+          ok ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+        }`}
+      >
+        {ok ? "OK" : "FAIL"}
+      </span>
+    </div>
+  );
+}
+
 type Check = { label: string; value: string; ok: boolean };
 
 type EmailResult = {
@@ -29,6 +47,19 @@ type LogRow = {
   created_at: string;
 };
 
+type ResendStatus = {
+  checkedAt: string;
+  hasLovableKey: boolean;
+  hasResendKey: boolean;
+  fromAddress: string;
+  sendingDomain: string | null;
+  gatewayOk: boolean;
+  latencyMs?: number;
+  domain: { name: string; status: string; region?: string; createdAt?: string } | null;
+  allDomains?: Array<{ name: string; status: string }>;
+  error?: string | null;
+};
+
 export default function ConnectionHealth() {
   const { user, userRole, loading } = useAuth();
   const isAdmin = userRole === "admin";
@@ -37,6 +68,24 @@ export default function ConnectionHealth() {
   const [emailResult, setEmailResult] = useState<EmailResult | null>(null);
   const [sendingTest, setSendingTest] = useState(false);
   const [recentLogs, setRecentLogs] = useState<LogRow[]>([]);
+  const [resendStatus, setResendStatus] = useState<ResendStatus | null>(null);
+  const [checkingResend, setCheckingResend] = useState(false);
+  const [resendError, setResendError] = useState<string | null>(null);
+
+  const refreshResendStatus = async () => {
+    setCheckingResend(true);
+    setResendError(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("resend-status");
+      if (error) {
+        setResendError(error.message);
+      } else {
+        setResendStatus(data as ResendStatus);
+      }
+    } finally {
+      setCheckingResend(false);
+    }
+  };
 
   const loadRecentLogs = async () => {
     const { data } = await supabase
@@ -98,6 +147,7 @@ export default function ConnectionHealth() {
       setChecks(next);
       setRunning(false);
       await loadRecentLogs();
+      await refreshResendStatus();
     })();
   }, [loading, isAdmin]);
 
@@ -149,6 +199,94 @@ export default function ConnectionHealth() {
               : "⚠ One or more checks failed, review above."}
           </div>
         )}
+
+        <div className="mt-10">
+          <h2 className="text-xl font-bold text-foreground tracking-tight">Resend configuration</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Verifies the Resend API key is present and the sending domain is verified.
+          </p>
+
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              onClick={refreshResendStatus}
+              disabled={checkingResend}
+              className="inline-flex items-center rounded-md border border-border bg-card px-4 py-2 text-sm font-medium text-foreground disabled:opacity-50"
+            >
+              {checkingResend ? "Checking…" : "Recheck"}
+            </button>
+            {resendStatus && (
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                  resendStatus.hasResendKey && resendStatus.gatewayOk && resendStatus.domain?.status === "verified"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {resendStatus.hasResendKey && resendStatus.gatewayOk && resendStatus.domain?.status === "verified"
+                  ? "Ready to send"
+                  : "Attention needed"}
+              </span>
+            )}
+          </div>
+
+          {(resendStatus || resendError) && (
+            <div className="mt-4 rounded-lg border border-border bg-card divide-y divide-border">
+              {resendStatus && (
+                <>
+                  <Row
+                    label="RESEND_API_KEY"
+                    value={resendStatus.hasResendKey ? "present" : "missing"}
+                    ok={resendStatus.hasResendKey}
+                  />
+                  <Row
+                    label="LOVABLE_API_KEY"
+                    value={resendStatus.hasLovableKey ? "present" : "missing"}
+                    ok={resendStatus.hasLovableKey}
+                  />
+                  <Row label="From address" value={resendStatus.fromAddress} ok={!!resendStatus.fromAddress} />
+                  <Row
+                    label="Sending domain"
+                    value={resendStatus.sendingDomain || "(not parsed)"}
+                    ok={!!resendStatus.sendingDomain}
+                  />
+                  <Row
+                    label="Resend gateway reachable"
+                    value={
+                      resendStatus.gatewayOk
+                        ? `ok${typeof resendStatus.latencyMs === "number" ? ` (${resendStatus.latencyMs}ms)` : ""}`
+                        : "failed"
+                    }
+                    ok={resendStatus.gatewayOk}
+                  />
+                  <Row
+                    label="Domain verification"
+                    value={
+                      resendStatus.domain
+                        ? `${resendStatus.domain.name} · ${resendStatus.domain.status}${
+                            resendStatus.domain.region ? ` · ${resendStatus.domain.region}` : ""
+                          }`
+                        : "not found in Resend account"
+                    }
+                    ok={resendStatus.domain?.status === "verified"}
+                  />
+                  <Row
+                    label="Last checked"
+                    value={new Date(resendStatus.checkedAt).toLocaleString()}
+                    ok={true}
+                  />
+                </>
+              )}
+              {(resendStatus?.error || resendError) && (
+                <div className="p-4">
+                  <div className="text-sm font-medium text-red-700">Error</div>
+                  <div className="mt-1 text-xs font-mono whitespace-pre-wrap break-all text-red-700">
+                    {resendError || resendStatus?.error}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="mt-10">
           <h2 className="text-xl font-bold text-foreground tracking-tight">Email delivery health</h2>
