@@ -802,6 +802,58 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk BCC email composer: opens the mail app with up to 50 addresses per draft. */}
+      <Dialog open={bulkOpen} onOpenChange={setBulkOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              Bulk email draft{" "}
+              <span className="text-xs font-normal text-muted-foreground">
+                {bulkCurrent
+                  ? `(${bulkCurrent.length} recipient${bulkCurrent.length === 1 ? "" : "s"} · ${pendingEmails.length} pending)`
+                  : ""}
+              </span>
+            </DialogTitle>
+          </DialogHeader>
+          {bulkCurrent && bulkCurrent.length > 0 ? (
+            <div className="space-y-3">
+              <div className="rounded-md border border-border bg-muted/40 p-2 text-[11px] text-muted-foreground max-h-24 overflow-y-auto break-all">
+                <span className="font-medium text-foreground">BCC:</span>{" "}
+                {bulkCurrent.map((c) => c.email).join(", ")}
+              </div>
+              <div>
+                <div className="text-[11px] font-medium text-foreground mb-1">Subject</div>
+                <Input readOnly value={bulkSubject} className="text-xs" />
+              </div>
+              <div>
+                <div className="text-[11px] font-medium text-foreground mb-1">Message</div>
+                <Textarea readOnly rows={5} value={bulkBody} className="text-xs" />
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Tap Open draft to launch your mail app with everyone in BCC. Because one email
+                goes to many people, {"{firstName}"} is replaced with "there". You send it from
+                your own mail app.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={sendBulkChunk} disabled={bulkSending} className="gap-1.5">
+                  <Mail className="h-3.5 w-3.5" /> Open draft
+                </Button>
+                <Button size="sm" variant="outline" onClick={copyBulkBcc} className="gap-1.5">
+                  <Copy className="h-3.5 w-3.5" /> Copy addresses
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="py-6 text-center text-sm text-muted-foreground">
+              All pending emails have been drafted.
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" size="sm" onClick={() => setBulkOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
