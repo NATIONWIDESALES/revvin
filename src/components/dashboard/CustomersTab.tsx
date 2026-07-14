@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
-  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2, UserPlus, PlayCircle, ChevronRight, Copy,
+  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2, UserPlus, PlayCircle, ChevronRight, Copy, Users,
 } from "lucide-react";
 
 export interface CustomersTabBusiness {
@@ -150,6 +150,11 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   // Tap-through composer: step through pending contacts one at a time.
   const [tapOpen, setTapOpen] = useState(false);
   const [tapIndex, setTapIndex] = useState(0);
+  // Bulk BCC email composer: step through 50-address chunks of pending emails.
+  const BULK_CHUNK_SIZE = 50;
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkIndex, setBulkIndex] = useState(0);
+  const [bulkSending, setBulkSending] = useState(false);
 
   const reward = biz.offer_amount?.trim() || "";
   const offer = biz.offer_trigger?.trim() || "our service";
@@ -393,6 +398,99 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const pending = contacts.filter((c) => c.status === "pending");
   const sent = contacts.filter((c) => c.status === "sent");
 
+  // Only pending contacts with a valid email are eligible for BCC batching.
+  // SMS BCC does not exist reliably across iOS/Android, so this flow is email only.
+  const pendingEmails = useMemo(
+    () => pending.filter((c) => !!c.email),
+    [pending],
+  );
+  const bulkChunks = useMemo(() => {
+    const out: ReferralContact[][] = [];
+    for (let i = 0; i < pendingEmails.length; i += BULK_CHUNK_SIZE) {
+      out.push(pendingEmails.slice(i, i + BULK_CHUNK_SIZE));
+    }
+    return out;
+  }, [pendingEmails]);
+  const bulkCurrent = bulkChunks[bulkIndex];
+
+  // Generic (non-personalized) body for BCC: {firstName} becomes "there" because
+  // one email goes to many recipients. All other placeholders still resolve.
+  const bulkBody = useMemo(
+    () =>
+      renderTemplate(template, {
+        firstName: "there",
+        businessName: biz.name,
+        reward,
+        offer,
+        referralLink: publicUrl,
+      }),
+    [template, biz.name, reward, offer, publicUrl],
+  );
+  const bulkSubject = `A referral opportunity from ${biz.name}`;
+
+  const openBulk = () => {
+    if (pendingEmails.length === 0) {
+      toast({ title: "No pending emails", description: "Import contacts with email addresses first." });
+      return;
+    }
+    setBulkIndex(0);
+    setBulkOpen(true);
+  };
+
+  // Open the user's mail app with the current chunk in BCC, then mark every
+  // contact in that chunk as invited (email channel). Revvin does not send.
+  const sendBulkChunk = async () => {
+    if (!bulkCurrent || bulkCurrent.length === 0) return;
+    setBulkSending(true);
+    const bcc = bulkCurrent.map((c) => c.email).filter(Boolean).join(",");
+    const href = `mailto:?bcc=${encodeURIComponent(bcc)}&subject=${encodeURIComponent(bulkSubject)}&body=${encodeURIComponent(bulkBody)}`;
+    window.location.href = href;
+
+    const nowIso = new Date().toISOString();
+    const ids = bulkCurrent.map((c) => c.id);
+    // Optimistic update.
+    setContacts((cs) =>
+      cs.map((x) =>
+        ids.includes(x.id)
+          ? { ...x, status: "sent", last_sent_at: nowIso, send_channel: "email" }
+          : x,
+      ),
+    );
+    const { error } = await (supabase as any)
+      .from("referral_contacts")
+      .update({ status: "sent", last_sent_at: nowIso, send_channel: "email" })
+      .in("id", ids);
+    if (error) {
+      toast({ title: "Could not save sent status", description: error.message, variant: "destructive" });
+    } else {
+      void (supabase as any)
+        .from("referral_contact_sends")
+        .insert(ids.map((cid) => ({ business_id: biz.id, contact_id: cid, channel: "email" })));
+    }
+    setBulkSending(false);
+    // Advance to next chunk, or close when done. Chunks recompute from pending.
+    if (bulkIndex + 1 >= bulkChunks.length - 1) {
+      // After marking this chunk sent, remaining pending shrinks; if nothing left, close.
+      setTimeout(() => {
+        setBulkOpen(false);
+        toast({ title: "Done", description: "You've opened a draft for every pending email." });
+      }, 300);
+    }
+    // bulkIndex stays 0 because pending list shrinks after marking sent; the
+    // next chunk becomes chunk 0. No manual increment needed.
+  };
+
+  const copyBulkBcc = async () => {
+    if (!bulkCurrent) return;
+    const bcc = bulkCurrent.map((c) => c.email).filter(Boolean).join(", ");
+    try {
+      await navigator.clipboard.writeText(bcc);
+      toast({ title: "Addresses copied", description: "Paste into the BCC field of your mail app." });
+    } catch {
+      toast({ title: "Could not copy", variant: "destructive" });
+    }
+  };
+
   // Tap-through: walk the pending list one at a time. When the current index
   // moves past the last pending row, close the dialog.
   const tapCurrent = pending[tapIndex];
@@ -566,6 +664,11 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                 <PlayCircle className="h-3.5 w-3.5" /> Send one by one
               </Button>
             )}
+            {pendingEmails.length > 0 && (
+              <Button size="sm" variant="default" onClick={openBulk} className="gap-1.5">
+                <Users className="h-3.5 w-3.5" /> Bulk email ({pendingEmails.length})
+              </Button>
+            )}
             {lastSent && (
               <Button size="sm" variant="ghost" onClick={undoSend} className="gap-1.5">
                 <Undo2 className="h-3.5 w-3.5" /> Undo
@@ -696,6 +799,58 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
             <Button size="sm" onClick={tapNext} className="gap-1.5">
               Next <ChevronRight className="h-3.5 w-3.5" />
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk BCC email composer: opens the mail app with up to 50 addresses per draft. */}
+      <Dialog open={bulkOpen} onOpenChange={setBulkOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              Bulk email draft{" "}
+              <span className="text-xs font-normal text-muted-foreground">
+                {bulkCurrent
+                  ? `(${bulkCurrent.length} recipient${bulkCurrent.length === 1 ? "" : "s"} · ${pendingEmails.length} pending)`
+                  : ""}
+              </span>
+            </DialogTitle>
+          </DialogHeader>
+          {bulkCurrent && bulkCurrent.length > 0 ? (
+            <div className="space-y-3">
+              <div className="rounded-md border border-border bg-muted/40 p-2 text-[11px] text-muted-foreground max-h-24 overflow-y-auto break-all">
+                <span className="font-medium text-foreground">BCC:</span>{" "}
+                {bulkCurrent.map((c) => c.email).join(", ")}
+              </div>
+              <div>
+                <div className="text-[11px] font-medium text-foreground mb-1">Subject</div>
+                <Input readOnly value={bulkSubject} className="text-xs" />
+              </div>
+              <div>
+                <div className="text-[11px] font-medium text-foreground mb-1">Message</div>
+                <Textarea readOnly rows={5} value={bulkBody} className="text-xs" />
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Tap Open draft to launch your mail app with everyone in BCC. Because one email
+                goes to many people, {"{firstName}"} is replaced with "there". You send it from
+                your own mail app.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={sendBulkChunk} disabled={bulkSending} className="gap-1.5">
+                  <Mail className="h-3.5 w-3.5" /> Open draft
+                </Button>
+                <Button size="sm" variant="outline" onClick={copyBulkBcc} className="gap-1.5">
+                  <Copy className="h-3.5 w-3.5" /> Copy addresses
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="py-6 text-center text-sm text-muted-foreground">
+              All pending emails have been drafted.
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" size="sm" onClick={() => setBulkOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
