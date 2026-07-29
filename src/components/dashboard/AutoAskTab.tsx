@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CheckCircle2, Clock, XCircle, MessageSquare } from "lucide-react";
+import { Loader2, CheckCircle2, Clock, XCircle, MessageSquare, Star, ThumbsUp } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // "Job done" auto-ask. The owner logs a finished job, we schedule a single
 // personalised referral ask about two hours later.
@@ -155,6 +156,21 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
     load();
   };
 
+  // Owner-observed signal only. This records that the owner marked the customer
+  // happy, which is a real observation. It is never inferred from a review.
+  const markHappy = async (id: string) => {
+    const { error } = await supabase
+      .from("referral_triggers")
+      .update({ satisfaction_signal: "happy", satisfaction_at: new Date().toISOString() })
+      .eq("id", id)
+      .is("satisfaction_signal", null);
+    if (error) {
+      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      return;
+    }
+    load();
+  };
+
   const smsHref = (row: TriggerRow) => {
     const num = (row.customer_phone || "").replace(/[^\d+]/g, "");
     const body = encodeURIComponent(
@@ -206,6 +222,46 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
           </div>
         </div>
 
+        <div className="mt-5 rounded-xl border border-border bg-muted/20 p-4">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <Checkbox
+              checked={form.review_request}
+              disabled={!biz.google_review_url}
+              onCheckedChange={(v) => setForm((f) => ({ ...f, review_request: v === true }))}
+              className="mt-0.5"
+            />
+            <span className="text-sm text-foreground">
+              Also ask for a review
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                Every customer gets the same request and the same public review link. We never filter who gets
+                asked based on how they feel about the job.
+              </span>
+            </span>
+          </label>
+          {!biz.google_review_url && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Add your Google review link under My Page first.
+            </p>
+          )}
+          {form.review_request && (
+            <label className="mt-3 flex items-start gap-3 cursor-pointer border-t border-border pt-3">
+              <Checkbox
+                checked={form.gate_referral}
+                onCheckedChange={(v) => setForm((f) => ({ ...f, gate_referral: v === true }))}
+                className="mt-0.5"
+              />
+              <span className="text-sm text-foreground">
+                Hold the referral ask until they say they were happy
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  The referral follow-up goes out about two days after the review request. With this on, it only
+                  sends if the customer clicks "I was happy" or you mark them happy here. Revvin does not read
+                  your reviews and cannot tell you what anyone rated you.
+                </span>
+              </span>
+            </label>
+          )}
+        </div>
+
         <Button className="mt-5" onClick={submit} disabled={saving}>
           {saving ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
           Schedule the ask
@@ -230,7 +286,8 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
                 <tr>
                   <th className="px-4 py-3 text-left font-medium">Customer</th>
                   <th className="px-4 py-3 text-left font-medium">Service</th>
-                  <th className="px-4 py-3 text-left font-medium">Status</th>
+                  <th className="px-4 py-3 text-left font-medium">Review ask</th>
+                  <th className="px-4 py-3 text-left font-medium">Referral ask</th>
                   <th className="px-4 py-3 text-left font-medium">When</th>
                   <th className="px-4 py-3"></th>
                 </tr>
@@ -248,6 +305,28 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
                       <td className="px-4 py-3 text-muted-foreground">
                         {r.service_description || "·"}
                         {r.technician_name ? <div className="text-xs">by {r.technician_name}</div> : null}
+                      </td>
+                      <td className="px-4 py-3">
+                        {r.review_request_status === "off" ? (
+                          <span className="text-xs text-muted-foreground">Not asked</span>
+                        ) : (
+                          <div className="space-y-1">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                              <Star className="h-3 w-3" />
+                              {r.review_request_status === "sent" ? "Review request sent" : r.review_request_status === "scheduled" || r.review_request_status === "sending" ? "Scheduled" : r.review_request_status}
+                            </span>
+                            {r.review_failure_reason ? (
+                              <div className="text-[11px] text-muted-foreground">{r.review_failure_reason}</div>
+                            ) : null}
+                            <div className="text-[11px] text-muted-foreground">
+                              {r.satisfaction_signal === "happy"
+                                ? "Customer said they were happy"
+                                : r.satisfaction_signal === "unhappy"
+                                  ? "Customer said something was not right"
+                                  : "No answer yet"}
+                            </div>
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${meta.className}`}>
@@ -270,6 +349,11 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
                               <a href={smsHref(r)}>
                                 <MessageSquare className="mr-1.5 h-3.5 w-3.5" /> Text from my phone
                               </a>
+                            </Button>
+                          )}
+                          {r.referral_requires_positive_signal && !r.satisfaction_signal && pending && (
+                            <Button variant="ghost" size="sm" onClick={() => markHappy(r.id)}>
+                              <ThumbsUp className="mr-1.5 h-3.5 w-3.5" /> Mark happy
                             </Button>
                           )}
                           {pending && (
