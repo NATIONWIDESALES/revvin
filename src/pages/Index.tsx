@@ -468,10 +468,10 @@ const Index = () => {
           <div className="mb-12 max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-3">What you get</p>
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
-              Everything you need to run a referral program.
+              Everything the three loops need, in one place.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              Track leads, get instant alerts, and see your monthly ROI, all in one place.
+              The asks fire on their own, the leads land in one inbox, the rewards get tracked to paid, and the scoreboard tells you what it all returned.
             </p>
           </div>
 
@@ -493,15 +493,17 @@ const Index = () => {
               <MockQRCard className="border-0 p-0 shadow-none" />
             </div>
 
-            {/* Offer headline tile */}
+            {/* Auto-ask tile */}
             <div className="bento-tile md:col-span-2 flex flex-col justify-between">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Your offer</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Job done auto-ask</p>
               <div className="py-2">
-                <p className="text-2xl font-extrabold leading-tight tracking-tight text-foreground">
-                  Refer a customer,<br />earn <span className="text-primary">$500</span>
+                <p className="text-lg font-bold leading-snug tracking-tight text-foreground">
+                  Mark the job done. The ask sends itself.
                 </p>
               </div>
-              <p className="text-xs text-muted-foreground">Set, edit, and publish in seconds.</p>
+              <p className="text-xs text-muted-foreground">
+                Personalised with the customer name, technician name, and service, then sent on a delay.
+              </p>
             </div>
 
             {/* URL tile */}
@@ -514,7 +516,63 @@ const Index = () => {
               <p className="mt-3 text-xs text-muted-foreground">Branded. Shareable. Memorable.</p>
             </div>
 
-            {/* Small feature tiles */}
+            {/* Reactivation campaigns */}
+            <div className="bento-tile md:col-span-3 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><CalendarClock className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Reactivation campaigns</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Segment past customers by time since their last job, send from a template, and see the results.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-3 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><MessageSquare className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Review requests</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Ask for a review after the job, then follow up asking happy customers to refer someone.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-3 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Wallet className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Reward tracking, pending to paid</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Your referrer is notified when the deal closes and again when you mark the reward paid. You pay them directly.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-3 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><BarChart3 className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">ROI scoreboard</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">See what the loops returned against what you spent, right on your dashboard.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Printer className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Print pack</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Yard signs, door hangers, invoice inserts, business cards, and truck magnets.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Webhook className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Webhooks and API</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Job complete in another tool can fire the auto-ask in Revvin.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Zap className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">One-tap text or call back</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Reply to a new referral from your phone the moment it lands.</p>
+              </div>
+            </div>
+
             <div className="bento-tile md:col-span-3 flex items-start gap-3">
               <div className="rounded-md bg-primary/10 p-2 text-primary"><Bell className="h-4 w-4" /></div>
               <div>
@@ -523,46 +581,11 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="bento-tile md:col-span-2 flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 text-primary"><Pencil className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Edit anytime</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Change your offer in one click.</p>
-              </div>
-            </div>
-            <div className="bento-tile md:col-span-2 flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 text-primary"><Smartphone className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Mobile-friendly</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Looks right on every device.</p>
-              </div>
-            </div>
-            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+            <div className="bento-tile md:col-span-3 flex items-start gap-3">
               <div className="rounded-md bg-primary/10 p-2 text-primary"><CreditCard className="h-4 w-4" /></div>
               <div>
                 <p className="text-sm font-semibold text-foreground">Stripe billing portal</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Cancel or update card anytime.</p>
-              </div>
-            </div>
-            <div className="bento-tile md:col-span-2 flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 text-primary"><BarChart3 className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Lead status tracking</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Move every referral from new to closed.</p>
-              </div>
-            </div>
-            <div className="bento-tile md:col-span-2 flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 text-primary"><Zap className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Instant lead alerts</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Know the moment a referral comes in.</p>
-              </div>
-            </div>
-            <div className="bento-tile md:col-span-2 flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 text-primary"><Users className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Share anywhere</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Link and QR code work on invoices, texts, and social.</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Cancel or update your card anytime.</p>
               </div>
             </div>
           </div>
