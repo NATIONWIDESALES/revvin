@@ -535,6 +535,14 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
   // use created_at because a row that's still in `new` hasn't been touched,
   // so created_at is the correct age reference.
   const STALE_MS = 24 * 60 * 60 * 1000;
+  // Device-native one-tap contact. The owner's own phone sends the text or
+  // places the call, so Revvin never originates a message to a referred lead.
+  const cleanNumber = (n: string) => String(n || "").replace(/[^\d+]/g, "");
+  const telHref = (l: Lead) => `tel:${cleanNumber(l.lead_phone)}`;
+  const smsHref = (l: Lead) =>
+    `sms:${cleanNumber(l.lead_phone)}?&body=${encodeURIComponent(
+      `Hi ${l.lead_name.split(" ")[0]}, ${l.referrer_name} passed your details along about ${l.lead_need}. Is now a good time?`,
+    )}`;
   const ageLabel = (iso: string) => {
     const diff = Date.now() - new Date(iso).getTime();
     if (diff < 60_000) return "just now";
@@ -674,7 +682,6 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                       )}
                     </td>
                     <td className="px-4 py-3"><div className="font-medium text-foreground">{l.lead_name}</div><div className="text-xs text-muted-foreground">{l.lead_phone}</div></td>
-                    {null}
                     <td className="px-4 py-3"><div className="text-foreground">{l.referrer_name}</div><div className="text-xs text-muted-foreground">{l.referrer_email}</div></td>
                     <td className="px-4 py-3">
                       <Select value={l.status} onValueChange={(v) => updateStatus(l.id, v)}>
