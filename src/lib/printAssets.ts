@@ -10,6 +10,9 @@ export interface PrintAsset {
   heightIn: number;
   /** QR module area in inches, excluding the quiet zone we add around it. */
   qrIn: number;
+  /** Headline cap height in inches. Set per piece rather than derived, because
+   *  what reads well on a 24 inch sign is not a scaled version of a card. */
+  headlineIn: number;
   /** Roughly how far away the code gets scanned, used to explain the sizing. */
   scanDistance: string;
   where: string;
@@ -24,6 +27,7 @@ export const PRINT_ASSETS: PrintAsset[] = [
     widthIn: 24,
     heightIn: 18,
     qrIn: 5,
+    headlineIn: 2.4,
     scanDistance: "6 to 10 feet, from the pavement",
     where:
       "In the front yard while you are on site, and for a week after if the customer is happy to leave it. Face it at the footpath, not the house.",
@@ -38,6 +42,7 @@ export const PRINT_ASSETS: PrintAsset[] = [
     widthIn: 4.25,
     heightIn: 11,
     qrIn: 2,
+    headlineIn: 0.42,
     scanDistance: "arm's length, at the door",
     where:
       "The four or five houses either side of a job you are already on. That street has just watched your van sit there all morning.",
@@ -52,6 +57,7 @@ export const PRINT_ASSETS: PrintAsset[] = [
     widthIn: 8.5,
     heightIn: 11,
     qrIn: 3,
+    headlineIn: 0.8,
     scanDistance: "held in the hand",
     where:
       "In the envelope with a paper invoice, in the folder you leave behind, or on the counter at the end of the job.",
@@ -65,6 +71,7 @@ export const PRINT_ASSETS: PrintAsset[] = [
     widthIn: 3.5,
     heightIn: 2,
     qrIn: 1,
+    headlineIn: 0.17,
     scanDistance: "close up, in the hand",
     where:
       "The back of the cards you already hand out. Front stays as it is, this replaces the empty side.",
@@ -79,6 +86,7 @@ export const PRINT_ASSETS: PrintAsset[] = [
     widthIn: 12,
     heightIn: 12,
     qrIn: 6,
+    headlineIn: 1.15,
     scanDistance: "10 feet or more, often from another vehicle",
     where:
       "Rear door or tailgate, not the side. People scan you at the lights and in car parks, and that means they are behind you.",

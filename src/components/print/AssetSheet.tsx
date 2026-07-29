@@ -38,10 +38,9 @@ const AssetSheet = ({ asset, biz, url, scale = 1 }: Props) => {
   const tiny = asset.widthIn <= 4; // card back and door hanger get shorter copy
   const pad = Math.max(0.2, asset.widthIn * 0.05);
   const quiet = Math.max(0.12, asset.qrIn * 0.08);
-  // Type scale keys off the *smaller* dimension. Keying off height blows the
-  // headline out of a tall narrow piece like the door hanger and pushes the QR
-  // off the card.
-  const base = Math.min(asset.widthIn, asset.heightIn) * 0.14;
+  // Headline size is set per piece in the spec, not derived from the sheet.
+  // Everything else is a ratio of it.
+  const base = asset.headlineIn;
   const headline = biz.offer_amount?.trim()
     ? `Earn ${biz.offer_amount.trim()} for a referral`
     : "Refer someone, get rewarded";
