@@ -545,11 +545,12 @@ const PublicReferralPage = () => {
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-4">
+              <fieldset disabled={ownerPreview} className={ownerPreview ? "space-y-4 opacity-60" : "space-y-4"}>
               <h2 className="text-lg font-semibold text-foreground leading-tight">
                 Submit a referral
               </h2>
               <p className="text-sm text-muted-foreground -mt-2">
-                Takes about 30 seconds.
+                {ownerPreview ? "This is how the form will look to your customers." : "Takes about 30 seconds."}
               </p>
               <input type="text" name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => update("website", e.target.value)} className="hidden" />
 
@@ -583,6 +584,7 @@ const PublicReferralPage = () => {
                   <>{ctaLabel}</>
                 )}
               </Button>
+              </fieldset>
             </form>
           )}
             </div>
