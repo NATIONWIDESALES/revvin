@@ -279,12 +279,59 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Offers from the Revvin Marketplace */}
+      {/* The three loops — primary explainer */}
       <section className="border-b border-border bg-background">
-        <div className="hidden" />
+        <div className="container py-20 md:py-28">
+          <div className="mx-auto mb-14 max-w-2xl text-center">
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              The three loops
+            </p>
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
+              One list. Three ways it pays you back.
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
+              Every service business is sitting on the list of people who already paid them, and never touches it again. Revvin runs three loops off that one list. Referrals are the wedge, and they are loop one of three.
+            </p>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-3">
+            {LOOPS.map((loop) => (
+              <article
+                key={loop.n}
+                className="relative flex flex-col rounded-2xl border border-border bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-product"
+              >
+                <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] rounded-t-2xl bg-primary/70" />
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <loop.icon className="h-4.5 w-4.5" aria-hidden="true" />
+                  </div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Loop {loop.n} · <span className="text-primary">{loop.label}</span>
+                  </p>
+                </div>
+                <h3 className="mt-5 text-xl font-bold leading-tight tracking-tight text-foreground">
+                  {loop.headline}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{loop.body}</p>
+                <ul className="mt-6 space-y-2.5 border-t border-border pt-5">
+                  {loop.points.map((p) => (
+                    <li key={p} className="flex items-start gap-2.5 text-sm text-foreground">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+
+          <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-muted-foreground">
+            All three loops are included in the one $49/month USD price. You pay your referrers directly; Revvin never handles reward money.
+          </p>
+        </div>
       </section>
 
-      {/* Placeholder anchor removed */}
+      {/* Featured Offers from the Revvin Marketplace */}
       <section className="border-b border-border bg-background">
         <div className="container py-16 md:py-24">
           <div className="mx-auto mb-12 max-w-2xl text-center">
