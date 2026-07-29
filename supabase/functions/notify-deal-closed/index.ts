@@ -65,12 +65,35 @@ Deno.serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
+    // Authenticate: caller must be a signed-in user.
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+    if (!token) {
+      return new Response(JSON.stringify({ error: "unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const anonClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!
+    );
+    const { data: userRes } = await anonClient.auth.getUser(token);
+    const user = userRes?.user;
+    if (!user) {
+      return new Response(JSON.stringify({ error: "unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     let businessId: string | null = null;
     let customerName = "";
     let dealValue: number | null = null;
     let source = "";
     let referralIdForNotif: string | null = null;
     let idempotencyKey = "";
+    let statusSkip: string | null = null;
 
     if (lead_id) {
       const { data: rows } = await supabase
@@ -80,11 +103,9 @@ Deno.serve(async (req) => {
         .limit(1);
       const lead = rows?.[0];
       if (!lead) return new Response(JSON.stringify({ error: "lead not found" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      if (lead.status !== "closed_won") {
-        return new Response(JSON.stringify({ ok: true, skipped: "status_not_closed_won" }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      // Authorization is checked before acting on status, so an unauthorized
+      // caller cannot probe deal status through the skip response.
+      if (lead.status !== "closed_won") statusSkip = "status_not_closed_won";
       businessId = lead.business_id;
       customerName = lead.lead_name;
       dealValue = lead.deal_value == null ? null : Number(lead.deal_value);
@@ -98,11 +119,7 @@ Deno.serve(async (req) => {
         .limit(1);
       const ref = rows?.[0];
       if (!ref) return new Response(JSON.stringify({ error: "referral not found" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      if (ref.status !== "won") {
-        return new Response(JSON.stringify({ ok: true, skipped: "status_not_won" }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      if (ref.status !== "won") statusSkip = "status_not_won";
       businessId = ref.business_id;
       customerName = ref.customer_name;
       dealValue = ref.deal_value == null ? null : Number(ref.deal_value);
@@ -119,10 +136,40 @@ Deno.serve(async (req) => {
 
     const { data: bizRows } = await supabase
       .from("businesses")
-      .select("name")
+      .select("name, user_id")
       .eq("id", businessId)
       .limit(1);
-    const businessName = bizRows?.[0]?.name ?? "your business";
+    const bizRow = bizRows?.[0];
+    if (!bizRow) {
+      return new Response(JSON.stringify({ error: "business not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Authorize: caller must own the business, or be a platform admin.
+    if (bizRow.user_id !== user.id) {
+      const { data: roleRow } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .limit(1);
+      if (!roleRow?.length) {
+        return new Response(JSON.stringify({ error: "forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    const businessName = bizRow.name ?? "your business";
+
+    if (statusSkip) {
+      return new Response(JSON.stringify({ ok: true, skipped: statusSkip }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const inAppTitle =
       dealValue && dealValue > 0

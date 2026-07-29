@@ -50,6 +50,22 @@ Deno.serve(async (req) => {
       });
     }
 
+    // At-most-once claim. Called right after signUp when a session may not yet
+    // exist, so it cannot require a JWT. Repeatability is the real risk, and a
+    // single conditional UPDATE closes it even under concurrent calls.
+    const { data: claimed } = await supabase
+      .from("businesses")
+      .update({ signup_notified_at: new Date().toISOString() })
+      .eq("id", record.id)
+      .is("signup_notified_at", null)
+      .select("id");
+    if (!claimed?.length) {
+      return new Response(
+        JSON.stringify({ ok: true, skipped: "already_notified" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     // Look up the business owner's email and name
     const { data: { user: ownerUser }, error: userErr } =
       await supabase.auth.admin.getUserById(record.user_id);
