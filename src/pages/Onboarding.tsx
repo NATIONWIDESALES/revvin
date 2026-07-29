@@ -285,8 +285,13 @@ const Onboarding = () => {
                 <div className="mt-8 flex justify-between">
                   <Button variant="ghost" onClick={() => setStep(3)}>Back</Button>
                   <Button onClick={finalize} disabled={!slug || slugAvailable !== true || saving}>
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Publish my referral page"}
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Finish setup"}
                   </Button>
+                </div>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Your page stays in draft until you go live. You can preview it any time from your dashboard.
+                </p>
+                <div className="hidden">
                 </div>
               </>
             )}
