@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import SEOHead from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 
 const PROJECT = import.meta.env.VITE_SUPABASE_PROJECT_ID;
@@ -12,14 +12,11 @@ const Code = ({ children }: { children: string }) => (
 
 const ZapierDocs = () => (
   <div className="min-h-screen bg-background">
-    <Helmet>
-      <title>Zapier and webhooks guide | Revvin</title>
-      <meta
-        name="description"
-        content="Connect Revvin to Jobber, Housecall Pro or any other tool with Webhooks by Zapier. API URLs, auth headers and payload shapes."
-      />
-      <link rel="canonical" href="https://revvin.co/docs/zapier" />
-    </Helmet>
+    <SEOHead
+      title="Zapier and webhooks guide | Revvin"
+      description="Connect Revvin to Jobber, Housecall Pro or any tool with Webhooks by Zapier. API URLs, auth headers, payload shapes and signature verification."
+      path="/docs/zapier"
+    />
 
     <article className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="text-3xl font-semibold tracking-tight text-foreground">Zapier and webhooks</h1>
