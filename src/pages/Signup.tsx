@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
 import Wordmark from "@/components/brand/Wordmark";
 import { Loader2, MailCheck } from "lucide-react";
+import { track } from "@/lib/track";
 
 const Signup = () => {
   const { user, loading: authLoading } = useAuth();
@@ -22,6 +23,10 @@ const Signup = () => {
   const [busy, setBusy] = useState(false);
   const [confirmPending, setConfirmPending] = useState(false);
   const [resending, setResending] = useState(false);
+
+  useEffect(() => {
+    track("signup_viewed");
+  }, []);
 
   // Signup never touches Stripe. An already-authenticated visitor belongs in
   // the app, not on this form.
@@ -57,6 +62,7 @@ const Signup = () => {
       return;
     }
     setBusy(true);
+    track("signup_submitted");
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -71,9 +77,11 @@ const Signup = () => {
     });
     if (error) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
+      track("signup_failed");
       setBusy(false);
       return;
     }
+    track("signup_succeeded");
     // Fire admin notification (info@revvin.co). Non-blocking.
     if (data.user?.id) {
       supabase.functions
