@@ -6,9 +6,9 @@ const DEFAULT_OG_IMAGE = "https://revvin.co/og-image.png";
 // Default fallback head values, used only if a route forgets to pass props.
 // These mirror the static shell in index.html so prerender, runtime, and
 // fallback all describe the same free-to-build, $49/month-to-publish model.
-export const DEFAULT_TITLE = "Revvin · Launch a referral program in minutes";
+export const DEFAULT_TITLE = "Revvin · Your customer list, working for you";
 export const DEFAULT_DESCRIPTION =
-  "Build your branded referral page, shareable link, QR code, and lead inbox free. Pay $49/month only when you go live. No platform fees. You pay your referrers directly.";
+  "Turn your past customers into referrals, repeat work, and reviews. Build free, pay $49/month USD only when you publish. No platform fees. You pay your referrers directly.";
 
 interface SEOHeadProps {
   title: string;

@@ -1,7 +1,22 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
-import { ArrowRight, Check, Bell, Pencil, Smartphone, CreditCard, BarChart3, Zap, Users } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  Bell,
+  CreditCard,
+  BarChart3,
+  Zap,
+  Repeat,
+  Star,
+  Share2,
+  Printer,
+  Webhook,
+  HandCoins,
+  CalendarClock,
+  MessageSquare,
+} from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -37,24 +52,34 @@ const FEATURED_OFFERS = [
 // Single source of truth for FAQ — drives both the visible accordion and the FAQPage JSON-LD.
 const FAQS: { question: string; answer: string }[] = [
   {
+    question: "What are the three loops?",
+    answer:
+      "Three ways Revvin puts your existing customer list back to work. Loop one is referrals: a branded referral page, a shareable link and QR code, a lead inbox, and an auto-ask that fires a personalised request a couple of hours after a job is done. Loop two is repeat work: segment past customers by how long since their last job and send seasonal or maintenance campaigns. Loop three is reviews: request a review after a job, then follow up asking happy customers to refer someone. Same list, three revenue loops.",
+  },
+  {
     question: "What if I do not get any referrals?",
     answer:
-      "Referrals come from putting your link in front of happy customers, so results depend on you making the ask. Revvin is built to make that ask easy: a ready to share page, link, and QR code you can send right after a job, plus a lead inbox so nothing slips through the cracks. It is month to month, so you can cancel anytime.",
+      "Referrals come from making the ask, so Revvin makes the ask automatic. Mark a job done and Revvin sends a personalised request a couple of hours later, using the customer name, the technician name, and the service. Every reply lands in your lead inbox where you can text or call back in one tap. And referrals are only loop one: the same customer list also drives reactivation campaigns and review requests. It is month to month, so you can cancel anytime.",
   },
   {
     question: "Does Revvin pay the referrers for me?",
     answer:
-      "No. Revvin gives you the referral infrastructure: a branded referral page, a shareable link, a QR code, and a lead inbox. You pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman.",
+      "No. Revvin tracks the reward from pending to paid and notifies your referrer at both moments, but you pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman.",
   },
   {
     question: "How does billing work?",
     answer:
-      "Building your referral page is free. You are only charged when you publish it. Publishing costs a flat $49/month USD, billed monthly, with no contract, no setup fee, and no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.",
+      "Building your page is free. You are only charged when you publish it. Publishing costs a flat $49/month USD, billed monthly, with no contract, no setup fee, and no platform fees, and it includes all three loops. Cancel anytime from your Stripe billing portal; your page stays live until the end of the period you've already paid for.",
   },
   {
     question: "What is free and what costs money?",
     answer:
-      "Creating your account and building your referral page, offer, and QR code is free. This is not a trial and not a free plan with usage limits: your page cannot receive referrals until you publish it, and publishing costs $49/month USD. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.",
+      "Creating your account and building your page, offer, and QR code is free, and you can preview it before you commit. This is not a trial and not a free plan with usage limits: your page cannot receive referrals until you publish it, and publishing costs $49/month USD. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.",
+  },
+  {
+    question: "Can Revvin fire the ask from the tools I already use?",
+    answer:
+      "Yes. Revvin has webhooks and an API, so marking a job complete in another tool can trigger the auto-ask in Revvin, and lead, deal, and payout events can be pushed back out to your own systems or to a generic webhook step in a tool like Zapier.",
   },
   {
     question: "Do you have a marketplace where I can browse offers?",
@@ -64,12 +89,55 @@ const FAQS: { question: string; answer: string }[] = [
   {
     question: "What if I cancel?",
     answer:
-      "You can cancel anytime from your Stripe billing portal — no contract and no cancellation fee. Your referral page and link stay live until the end of the billing period you've already paid for, then they're paused. Your lead history isn't deleted, so if you come back later your data is still there.",
+      "You can cancel anytime from your Stripe billing portal — no contract and no cancellation fee. Your page and link stay live until the end of the billing period you've already paid for, then they're paused. Your lead and customer history isn't deleted, so if you come back later your data is still there.",
   },
   {
     question: "What kind of businesses is Revvin for?",
     answer:
       "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, electricians, landscapers, painters, solar installers, auto detailers, and other home services.",
+  },
+];
+
+// The three revenue loops — the primary explainer for the page.
+const LOOPS = [
+  {
+    n: "01",
+    label: "Referrals",
+    icon: Share2,
+    headline: "Turn a finished job into the next one.",
+    body:
+      "A branded referral page on your own custom URL, with a shareable link and QR code. Mark a job done and Revvin sends a personalised ask a couple of hours later, using the customer name, the technician name, and the service. Replies land in a lead inbox where you can text or call back in one tap.",
+    points: [
+      "Branded referral page, custom URL, link and QR code",
+      "Lead inbox with status tracking and one-tap text or call back",
+      "Job done auto-ask, personalised and sent on a delay",
+    ],
+  },
+  {
+    n: "02",
+    label: "Repeat work",
+    icon: Repeat,
+    headline: "Rebook the customers you already have.",
+    body:
+      "Segment your past customers by how long it has been since their last job, then send a seasonal or maintenance campaign to that segment. Start from a template, send it, and see what came back. The same list that referred you also rebooks you.",
+    points: [
+      "Segment by time since last job",
+      "Seasonal and maintenance campaign templates",
+      "Results reporting on what each campaign brought in",
+    ],
+  },
+  {
+    n: "03",
+    label: "Reviews",
+    icon: Star,
+    headline: "Ask for the review, then ask for the referral.",
+    body:
+      "After a job, Revvin requests a review. Everyone gets asked, not just the happy ones. Then it follows up with the customers who told you they were happy and asks them to refer someone, which feeds straight back into loop one.",
+    points: [
+      "Review request after every job",
+      "Follow-up referral ask for happy customers",
+      "Feeds new referrals back into loop one",
+    ],
   },
 ];
 
@@ -100,15 +168,16 @@ const Index = () => {
   return (
     <>
       <SEOHead
-        title="Revvin · Launch a referral program in minutes"
-        description="Build your branded referral page, shareable link, QR code, and lead inbox for free. Pay $49/month only when you go live. Cancel anytime."
+        title="Revvin · Your customer list, working for you"
+        description="Turn your past customers into referrals, repeat work, and reviews. Build free, pay $49/month USD only when you publish. Cancel anytime."
         path="/"
         jsonLd={[
           {
             "@context": "https://schema.org",
             "@type": "Product",
-            name: "Revvin Business Referral Page",
-            description: "Referral program software for service businesses.",
+            name: "Revvin",
+            description:
+              "Customer retention and referral software for service businesses. Turns one past-customer list into three revenue loops: referrals with a branded referral page, link, QR code, lead inbox and job-done auto-ask; repeat work with reactivation campaigns segmented by time since last job; and review requests with a follow-up referral ask. Includes reward tracking, an ROI scoreboard, a print pack, and webhooks with an API. Building your page is free; publishing costs a flat $49/month. Businesses pay their referrers directly off-platform.",
             brand: { "@type": "Brand", name: "Revvin" },
             offers: {
               "@type": "Offer",
@@ -143,26 +212,26 @@ const Index = () => {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
                 </span>
-                Now open for service businesses
+                Referrals · Repeat work · Reviews
               </span>
               <h1 className="mt-5 text-[2.5rem] font-extrabold tracking-tight text-foreground leading-[1.02] sm:text-5xl md:text-7xl">
-                The complete{" "}
-                <span className="highlight-underline text-gradient-green">referral system</span>{" "}
-                for your business.
+                Your{" "}
+                <span className="highlight-underline text-gradient-green">customer list</span>,
+                working for you.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-                Build your branded referral page, QR code, and lead inbox for free, then turn your customers into your sales team. <span className="text-foreground font-medium">$49/month when you go live.</span> Optional: get listed on the Revvin marketplace where motivated referrers can find your offer.
+                You already have a list of people who paid you and never heard from you again. Revvin turns that one list into three revenue loops: <span className="text-foreground font-medium">referrals, repeat work, and reviews.</span> Build it free. $49/month USD when you publish.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
                   <Link to="/signup">
                     <span className="sm:hidden">Build your page — free</span>
-                    <span className="hidden sm:inline">Build your referral page — free</span>
+                    <span className="hidden sm:inline">Build your page — free</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" className="h-12 w-full px-6 text-base sm:w-auto" asChild>
-                  <Link to="/how-it-works">See how it works</Link>
+                  <Link to="/how-it-works">See the three loops</Link>
                 </Button>
               </div>
             <p className="mt-4 text-sm text-muted-foreground">
@@ -172,7 +241,7 @@ const Index = () => {
                 </Link>
               </p>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                Free to build your page. $49/month when you go live. Cancel anytime.
+                Free to build and preview. $49/month USD when you publish. Cancel anytime.
               </p>
             </div>
 
@@ -206,6 +275,58 @@ const Index = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* The three loops — primary explainer */}
+      <section className="border-b border-border bg-background">
+        <div className="container py-20 md:py-28">
+          <div className="mx-auto mb-14 max-w-2xl text-center">
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              The three loops
+            </p>
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
+              One list. Three ways it pays you back.
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
+              Every service business is sitting on the list of people who already paid them, and never touches it again. Revvin runs three loops off that one list. Referrals are the wedge, and they are loop one of three.
+            </p>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-3">
+            {LOOPS.map((loop) => (
+              <article
+                key={loop.n}
+                className="relative flex flex-col rounded-2xl border border-border bg-card p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-product"
+              >
+                <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] rounded-t-2xl bg-primary/70" />
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <loop.icon className="h-4.5 w-4.5" aria-hidden="true" />
+                  </div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Loop {loop.n} · <span className="text-primary">{loop.label}</span>
+                  </p>
+                </div>
+                <h3 className="mt-5 text-xl font-bold leading-tight tracking-tight text-foreground">
+                  {loop.headline}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{loop.body}</p>
+                <ul className="mt-6 space-y-2.5 border-t border-border pt-5">
+                  {loop.points.map((p) => (
+                    <li key={p} className="flex items-start gap-2.5 text-sm text-foreground">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+
+          <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-muted-foreground">
+            All three loops are included in the one $49/month USD price. You pay your referrers directly; Revvin never handles reward money.
+          </p>
         </div>
       </section>
 
@@ -304,15 +425,15 @@ const Index = () => {
           <div className="mb-16 max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-3">How it works</p>
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
-              From signup to referrals in under 10 minutes.
+              Set it up once. Then it runs off your jobs.
             </h2>
           </div>
 
           <div className="space-y-20">
             {[
-              { n: "01", t: "Build your referral page", d: "Add your logo, write your offer, and pick a custom URL. We do the rest.", visual: <MockPageBuilder /> },
-              { n: "02", t: "Share your link or QR code", d: "Email it to past customers. Stick the QR on invoices, jobsites, business cards.", visual: <MockQRCard /> },
-              { n: "03", t: "Receive and manage leads", d: "Every referral lands in your dashboard. Track status. Pay your referrer directly when the deal closes.", visual: <MockLeadsTable /> },
+              { n: "01", t: "Build your page and load your customers", d: "Add your logo, write your offer, pick a custom URL, and import the customers you already have.", visual: <MockPageBuilder /> },
+              { n: "02", t: "Mark jobs done and let the asks fire", d: "Revvin sends the review request and the referral ask on a delay, and campaigns go to the customers who have not booked in a while. Share the link or QR code yourself anytime.", visual: <MockQRCard /> },
+              { n: "03", t: "Work the leads and pay your referrers", d: "Every referral lands in your inbox. Text or call back in one tap, move it to closed, and pay your referrer directly. They get notified at pending and at paid.", visual: <MockLeadsTable /> },
             ].map((s, i) => (
               <div key={s.n} className="relative grid items-center gap-10 md:grid-cols-12">
                 <span className="watermark-num pointer-events-none absolute -top-10 left-0 hidden text-[180px] md:block">
@@ -346,10 +467,10 @@ const Index = () => {
           <div className="mb-12 max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-3">What you get</p>
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
-              Everything you need to run a referral program.
+              Everything the three loops need, in one place.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              Track leads, get instant alerts, and see your monthly ROI, all in one place.
+              The asks fire on their own, the leads land in one inbox, the rewards get tracked to paid, and the scoreboard tells you what it all returned.
             </p>
           </div>
 
@@ -371,15 +492,17 @@ const Index = () => {
               <MockQRCard className="border-0 p-0 shadow-none" />
             </div>
 
-            {/* Offer headline tile */}
+            {/* Auto-ask tile */}
             <div className="bento-tile md:col-span-2 flex flex-col justify-between">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Your offer</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Job done auto-ask</p>
               <div className="py-2">
-                <p className="text-2xl font-extrabold leading-tight tracking-tight text-foreground">
-                  Refer a customer,<br />earn <span className="text-primary">$500</span>
+                <p className="text-lg font-bold leading-snug tracking-tight text-foreground">
+                  Mark the job done. The ask sends itself.
                 </p>
               </div>
-              <p className="text-xs text-muted-foreground">Set, edit, and publish in seconds.</p>
+              <p className="text-xs text-muted-foreground">
+                Personalised with the customer name, technician name, and service, then sent on a delay.
+              </p>
             </div>
 
             {/* URL tile */}
@@ -392,7 +515,63 @@ const Index = () => {
               <p className="mt-3 text-xs text-muted-foreground">Branded. Shareable. Memorable.</p>
             </div>
 
-            {/* Small feature tiles */}
+            {/* Reactivation campaigns */}
+            <div className="bento-tile md:col-span-3 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><CalendarClock className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Reactivation campaigns</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Segment past customers by time since their last job, send from a template, and see the results.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-3 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><MessageSquare className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Review requests</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Ask for a review after the job, then follow up asking happy customers to refer someone.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-3 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><HandCoins className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Reward tracking, pending to paid</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Your referrer is notified when the deal closes and again when you mark the reward paid. You pay them directly.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-3 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><BarChart3 className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">ROI scoreboard</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">See what the loops returned against what you spent, right on your dashboard.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Printer className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Print pack</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Yard signs, door hangers, invoice inserts, business cards, and truck magnets.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Webhook className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Webhooks and API</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Job complete in another tool can fire the auto-ask in Revvin.</p>
+              </div>
+            </div>
+
+            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Zap className="h-4 w-4" /></div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">One-tap text or call back</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Reply to a new referral from your phone the moment it lands.</p>
+              </div>
+            </div>
+
             <div className="bento-tile md:col-span-3 flex items-start gap-3">
               <div className="rounded-md bg-primary/10 p-2 text-primary"><Bell className="h-4 w-4" /></div>
               <div>
@@ -401,46 +580,11 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="bento-tile md:col-span-2 flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 text-primary"><Pencil className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Edit anytime</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Change your offer in one click.</p>
-              </div>
-            </div>
-            <div className="bento-tile md:col-span-2 flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 text-primary"><Smartphone className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Mobile-friendly</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Looks right on every device.</p>
-              </div>
-            </div>
-            <div className="bento-tile md:col-span-2 flex items-start gap-3">
+            <div className="bento-tile md:col-span-3 flex items-start gap-3">
               <div className="rounded-md bg-primary/10 p-2 text-primary"><CreditCard className="h-4 w-4" /></div>
               <div>
                 <p className="text-sm font-semibold text-foreground">Stripe billing portal</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Cancel or update card anytime.</p>
-              </div>
-            </div>
-            <div className="bento-tile md:col-span-2 flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 text-primary"><BarChart3 className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Lead status tracking</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Move every referral from new to closed.</p>
-              </div>
-            </div>
-            <div className="bento-tile md:col-span-2 flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 text-primary"><Zap className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Instant lead alerts</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Know the moment a referral comes in.</p>
-              </div>
-            </div>
-            <div className="bento-tile md:col-span-2 flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 text-primary"><Users className="h-4 w-4" /></div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Share anywhere</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Link and QR code work on invoices, texts, and social.</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Cancel or update your card anytime.</p>
               </div>
             </div>
           </div>
@@ -457,13 +601,13 @@ const Index = () => {
             <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-10 shadow-product md:p-12">
               <span className="absolute left-0 top-0 h-full w-[3px] bg-primary" />
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-4">
-                Pro · Business Referral Page
+                Pro · All three loops
               </p>
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="text-6xl font-extrabold tracking-tight text-foreground">$49</span>
                 <span className="text-base font-medium text-muted-foreground">/month USD</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">Free to build your page. Billing starts when you publish it. Cancel anytime. No contract, no setup fee. Billed in USD.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Free to build and preview your page. Billing starts when you publish it. Cancel anytime. No contract, no setup fee. Billed in USD.</p>
 
               <Button size="lg" className="mt-8 h-12 w-full text-base shadow-soft hover:bg-primary-deep" asChild>
                 <Link to="/signup">Build your page free</Link>
@@ -471,12 +615,14 @@ const Index = () => {
 
               <div className="mt-8 grid grid-cols-1 gap-y-2.5 border-t border-border pt-6 sm:grid-cols-2 sm:gap-x-8">
                 {[
-                  "Branded referral page",
-                  "Offer builder",
-                  "Lead inbox & dashboard",
-                  "QR code (PNG + print)",
-                  "Email and in-app notifications",
-                  "Stripe billing portal",
+                  "Branded referral page, link and QR code",
+                  "Lead inbox with one-tap text or call back",
+                  "Job done auto-ask",
+                  "Reactivation campaigns",
+                  "Review requests with referral follow-up",
+                  "Reward tracking and ROI scoreboard",
+                  "Print pack",
+                  "Webhooks and API",
                 ].map((f) => (
                   <div key={f} className="flex items-start gap-2.5">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
@@ -521,11 +667,11 @@ const Index = () => {
             </div>
             <div className="rounded-2xl border-2 border-primary bg-card p-8 shadow-product">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">With Revvin</p>
-              <h3 className="mt-1 text-xl font-bold text-foreground">Your own referral engine</h3>
+              <h3 className="mt-1 text-xl font-bold text-foreground">Working the list you already have</h3>
               <ul className="mt-6 space-y-3 text-sm text-foreground">
-                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />One flat price, your own referral page</li>
-                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />Customers share your link with people they trust</li>
-                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />Leads arrive pre-warmed and in your dashboard</li>
+                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />One flat price for all three loops</li>
+                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />The ask fires automatically after every finished job</li>
+                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />Past customers rebook through reactivation campaigns</li>
                 <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />You decide what to pay referrers when deals close</li>
               </ul>
             </div>
@@ -571,13 +717,13 @@ const Index = () => {
         <div className="container relative py-24 text-center">
           <Wordmark size="xl" variant="white" />
           <h2 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold tracking-tight md:text-6xl">
-            Launch your referral program <span className="shimmer-text">today.</span>
+            Put your customer list <span className="shimmer-text">to work.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-            Build your page free. $49/month USD when you go live. Cancel anytime.
+            Referrals, repeat work, and reviews from one list. Build free. $49/month USD when you publish. Cancel anytime.
           </p>
           <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
-            <Link to="/signup">Build your referral page — free</Link>
+            <Link to="/signup">Build your page — free</Link>
           </Button>
           <p className="mt-5 text-sm text-white/70">
             Not ready?{" "}

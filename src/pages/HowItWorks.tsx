@@ -8,20 +8,20 @@ import MockLeadsTable from "@/components/marketing/MockLeadsTable";
 const steps = [
   {
     n: "01",
-    t: "Create your business referral page",
-    d: "Add your business name, logo, service area, and offer. Pick your custom Revvin URL. Done in under 10 minutes.",
+    t: "Set up your page and load your customer list",
+    d: "Add your business name, logo, service area, and referral offer, then pick your custom Revvin URL. Import the customers who have already paid you. That one list is what the whole engine runs on. Building and previewing is free; you publish when you are ready.",
     visual: <MockPageBuilder />,
   },
   {
     n: "02",
-    t: "Share it with customers, partners, and your network",
-    d: "Send the link by email or text. Drop the QR code on invoices, business cards, jobsite signs, or your shop counter. Every scan goes to your referral page.",
+    t: "Mark jobs done and let the asks fire",
+    d: "When a job is finished, mark it done. Revvin sends a review request, then follows up with the customers who said they were happy and asks them to refer someone. Separately, a personalised referral ask goes out a couple of hours after the job, using the customer name, the technician name, and the service. Customers who have not booked in a while get a reactivation campaign. If your job data lives in another tool, a webhook or API call can fire all of this for you.",
     visual: <MockQRCard />,
   },
   {
     n: "03",
-    t: "Manage leads and pay referrers directly",
-    d: "Every referral lands in your dashboard with the lead's name, contact, and what they need. When a deal closes, you pay the referrer directly. Revvin doesn't touch the money. You set the terms with whoever you trust.",
+    t: "Work the leads and pay your referrers",
+    d: "Every referral lands in your inbox with the lead's name, contact, and what they need, and you can text or call back in one tap. Move it through your statuses to closed. Revvin tracks the reward from pending to paid and notifies your referrer at both moments, but you pay them directly. Revvin never touches the money. The ROI scoreboard on your dashboard shows what the loops returned.",
     visual: <MockLeadsTable />,
   },
 ];
@@ -31,7 +31,7 @@ const HowItWorks = () => {
     <>
       <SEOHead
         title="Revvin | How it works"
-        description="Launch a referral program for your service business. Build your branded referral page, link, QR code, and lead inbox free. Pay $49/month USD only when you go live. Cancel anytime. You pay your referrers directly."
+        description="See how Revvin turns your past-customer list into referrals, repeat work, and reviews. Set up your page, mark jobs done, work the leads. Build free, $49/month USD when you publish."
         path="/how-it-works"
       />
 
@@ -40,10 +40,10 @@ const HowItWorks = () => {
         <div className="container relative max-w-3xl py-24">
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">How it works</p>
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
-            Three steps to a referral program that runs itself.
+            Three steps to an engine that runs off your jobs.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            Revvin gives your business the referral infrastructure. You handle the relationship.
+            Set up your page once, then every finished job triggers the asks. Referrals, repeat work, and reviews from the customer list you already have. You handle the relationship.
           </p>
         </div>
       </section>
@@ -72,10 +72,10 @@ const HowItWorks = () => {
         <div className="container max-w-2xl py-24 text-center">
           <h2 className="text-3xl font-extrabold tracking-tight md:text-5xl">Ready in minutes.</h2>
           <p className="mt-4 text-lg text-white/70">
-            Free to build. $49/month when you go live. Cancel anytime, no contract.
+            Free to build and preview. $49/month USD when you publish. Cancel anytime, no contract.
           </p>
           <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
-            <Link to="/signup">Build your referral page — free</Link>
+            <Link to="/signup">Build your page — free</Link>
           </Button>
         </div>
       </section>
