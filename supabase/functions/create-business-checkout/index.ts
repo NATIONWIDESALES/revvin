@@ -69,8 +69,8 @@ serve(async (req) => {
         ...(includeLaunchPackage ? { product_type: "launch_package" } : {}),
       },
       allow_promotion_codes: true,
-      success_url: `${origin}/welcome?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/signup?checkout=canceled`,
+      success_url: `${origin}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/dashboard?checkout=canceled`,
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
