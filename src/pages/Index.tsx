@@ -1,7 +1,23 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
-import { ArrowRight, Check, Bell, Pencil, Smartphone, CreditCard, BarChart3, Zap, Users } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  Bell,
+  CreditCard,
+  BarChart3,
+  Zap,
+  Users,
+  Repeat,
+  Star,
+  Share2,
+  Printer,
+  Webhook,
+  Wallet,
+  CalendarClock,
+  MessageSquare,
+} from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -37,24 +53,34 @@ const FEATURED_OFFERS = [
 // Single source of truth for FAQ — drives both the visible accordion and the FAQPage JSON-LD.
 const FAQS: { question: string; answer: string }[] = [
   {
+    question: "What are the three loops?",
+    answer:
+      "Three ways Revvin puts your existing customer list back to work. Loop one is referrals: a branded referral page, a shareable link and QR code, a lead inbox, and an auto-ask that fires a personalised request a couple of hours after a job is done. Loop two is repeat work: segment past customers by how long since their last job and send seasonal or maintenance campaigns. Loop three is reviews: request a review after a job, then follow up asking happy customers to refer someone. Same list, three revenue loops.",
+  },
+  {
     question: "What if I do not get any referrals?",
     answer:
-      "Referrals come from putting your link in front of happy customers, so results depend on you making the ask. Revvin is built to make that ask easy: a ready to share page, link, and QR code you can send right after a job, plus a lead inbox so nothing slips through the cracks. It is month to month, so you can cancel anytime.",
+      "Referrals come from making the ask, so Revvin makes the ask automatic. Mark a job done and Revvin sends a personalised request a couple of hours later, using the customer name, the technician name, and the service. Every reply lands in your lead inbox where you can text or call back in one tap. And referrals are only loop one: the same customer list also drives reactivation campaigns and review requests. It is month to month, so you can cancel anytime.",
   },
   {
     question: "Does Revvin pay the referrers for me?",
     answer:
-      "No. Revvin gives you the referral infrastructure: a branded referral page, a shareable link, a QR code, and a lead inbox. You pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman.",
+      "No. Revvin tracks the reward from pending to paid and notifies your referrer at both moments, but you pay your referrers directly, on whatever reward and terms you choose. There are no platform fees on your rewards and no payout middleman.",
   },
   {
     question: "How does billing work?",
     answer:
-      "Building your referral page is free. You are only charged when you publish it. Publishing costs a flat $49/month USD, billed monthly, with no contract, no setup fee, and no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.",
+      "Building your page is free. You are only charged when you publish it. Publishing costs a flat $49/month USD, billed monthly, with no contract, no setup fee, and no platform fees, and it includes all three loops. Cancel anytime from your Stripe billing portal; your page stays live until the end of the period you've already paid for.",
   },
   {
     question: "What is free and what costs money?",
     answer:
-      "Creating your account and building your referral page, offer, and QR code is free. This is not a trial and not a free plan with usage limits: your page cannot receive referrals until you publish it, and publishing costs $49/month USD. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.",
+      "Creating your account and building your page, offer, and QR code is free, and you can preview it before you commit. This is not a trial and not a free plan with usage limits: your page cannot receive referrals until you publish it, and publishing costs $49/month USD. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.",
+  },
+  {
+    question: "Can Revvin fire the ask from the tools I already use?",
+    answer:
+      "Yes. Revvin has webhooks and an API, so marking a job complete in another tool can trigger the auto-ask in Revvin, and lead, deal, and payout events can be pushed back out to your own systems or to a generic webhook step in a tool like Zapier.",
   },
   {
     question: "Do you have a marketplace where I can browse offers?",
@@ -64,12 +90,55 @@ const FAQS: { question: string; answer: string }[] = [
   {
     question: "What if I cancel?",
     answer:
-      "You can cancel anytime from your Stripe billing portal — no contract and no cancellation fee. Your referral page and link stay live until the end of the billing period you've already paid for, then they're paused. Your lead history isn't deleted, so if you come back later your data is still there.",
+      "You can cancel anytime from your Stripe billing portal — no contract and no cancellation fee. Your page and link stay live until the end of the billing period you've already paid for, then they're paused. Your lead and customer history isn't deleted, so if you come back later your data is still there.",
   },
   {
     question: "What kind of businesses is Revvin for?",
     answer:
       "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, electricians, landscapers, painters, solar installers, auto detailers, and other home services.",
+  },
+];
+
+// The three revenue loops — the primary explainer for the page.
+const LOOPS = [
+  {
+    n: "01",
+    label: "Referrals",
+    icon: Share2,
+    headline: "Turn a finished job into the next one.",
+    body:
+      "A branded referral page on your own custom URL, with a shareable link and QR code. Mark a job done and Revvin sends a personalised ask a couple of hours later, using the customer name, the technician name, and the service. Replies land in a lead inbox where you can text or call back in one tap.",
+    points: [
+      "Branded referral page, custom URL, link and QR code",
+      "Lead inbox with status tracking and one-tap text or call back",
+      "Job done auto-ask, personalised and sent on a delay",
+    ],
+  },
+  {
+    n: "02",
+    label: "Repeat work",
+    icon: Repeat,
+    headline: "Rebook the customers you already have.",
+    body:
+      "Segment your past customers by how long it has been since their last job, then send a seasonal or maintenance campaign to that segment. Start from a template, send it, and see what came back. The same list that referred you also rebooks you.",
+    points: [
+      "Segment by time since last job",
+      "Seasonal and maintenance campaign templates",
+      "Results reporting on what each campaign brought in",
+    ],
+  },
+  {
+    n: "03",
+    label: "Reviews",
+    icon: Star,
+    headline: "Ask for the review, then ask for the referral.",
+    body:
+      "After a job, Revvin requests a review. Everyone gets asked, not just the happy ones. Then it follows up with the customers who told you they were happy and asks them to refer someone, which feeds straight back into loop one.",
+    points: [
+      "Review request after every job",
+      "Follow-up referral ask for happy customers",
+      "Feeds new referrals back into loop one",
+    ],
   },
 ];
 
