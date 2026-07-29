@@ -95,10 +95,7 @@ const Browse = () => {
   // Real DB offers only. Until businesses publish real listings, the page
   // shows a designed launching/empty state instead of seeded sample data so
   // referrers never see fake offers presented as real.
-  const allOffers: (Offer & { isSample?: boolean })[] = useMemo(
-    () => dbOffers.map((o) => ({ ...o, isSample: false as const })),
-    [dbOffers],
-  );
+  const allOffers: Offer[] = useMemo(() => dbOffers, [dbOffers]);
 
   const availableStates = useMemo(() => {
     const countryOffers = country === "ALL" ? allOffers : allOffers.filter(o => o.country === country);
@@ -129,8 +126,6 @@ const Browse = () => {
       return matchesCountry && matchesSearch && matchesCat && matchesPayout && matchesVerified && matchesRemote && matchesState && matchesCity && matchesDistance;
     })
     .sort((a, b) => {
-      // Real offers always sort above sample offers
-      if (a.isSample !== b.isSample) return a.isSample ? 1 : -1;
       if (sortBy === "payout") return b.payout - a.payout;
       if (sortBy === "fastest") return (a.closeTimeDays ?? 99) - (b.closeTimeDays ?? 99);
       return new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime();
@@ -139,10 +134,7 @@ const Browse = () => {
   // Featured: top 4 highest-payout offers
   const featuredOffers = useMemo(() => {
     return [...allOffers]
-      .sort((a, b) => {
-        if (a.isSample !== b.isSample) return a.isSample ? 1 : -1;
-        return b.payout - a.payout;
-      })
+      .sort((a, b) => b.payout - a.payout)
       .slice(0, 4);
   }, [allOffers]);
 
@@ -256,7 +248,7 @@ const Browse = () => {
           "@type": "ItemList",
           "name": "Referral Offers on Revvin",
           "description": "Browse active referral opportunities from verified businesses",
-          "itemListElement": filtered.filter(o => !o.isSample).slice(0, 20).map((offer, i) => ({
+          "itemListElement": filtered.slice(0, 20).map((offer, i) => ({
             "@type": "ListItem",
             "position": i + 1,
             "item": {
@@ -292,7 +284,7 @@ const Browse = () => {
             <div className="-mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:snap-none sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
               {featuredOffers.map((offer) => (
                 <div key={offer.id} className="snap-start shrink-0 w-[78%] sm:w-auto sm:shrink">
-                  <OfferCard offer={offer} isSample={offer.isSample} isNew={isNewOffer(offer.createdAt)} />
+                  <OfferCard offer={offer} isNew={isNewOffer(offer.createdAt)} />
                 </div>
               ))}
             </div>
@@ -522,7 +514,7 @@ const Browse = () => {
                   visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
                 }}
               >
-                <OfferCard offer={offer} isSample={offer.isSample} isNew={isNewOffer(offer.createdAt)} />
+                <OfferCard offer={offer} isNew={isNewOffer(offer.createdAt)} />
               </motion.div>
             ))}
           </motion.div>
