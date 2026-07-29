@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { track } from "@/lib/track";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import PhoneMockup from "@/components/marketing/PhoneMockup";
@@ -6,6 +8,10 @@ import MockReferralPage from "@/components/marketing/MockReferralPage";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const Sample = () => {
+  useEffect(() => {
+    track("sample_page_viewed");
+  }, []);
+
   return (
     <>
       <SEOHead

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/track";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -194,6 +195,7 @@ const PublicReferralPage = () => {
         .invoke("notify-new-lead", { body: { lead_id: newLeadId } })
         .catch((err) => console.warn("[notify-new-lead] failed", err));
     }
+    track("referral_submitted");
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -280,7 +282,9 @@ const PublicReferralPage = () => {
                 </span>
               </p>
               <Button asChild size="sm" className="shrink-0">
-                <Link to="/dashboard">Go live</Link>
+                <Link to="/dashboard" onClick={() => track("go_live_clicked")}>
+                  Go live
+                </Link>
               </Button>
             </div>
           </div>
