@@ -8,7 +8,6 @@ import {
   CreditCard,
   BarChart3,
   Zap,
-  Users,
   Repeat,
   Star,
   Share2,
@@ -426,15 +425,15 @@ const Index = () => {
           <div className="mb-16 max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-3">How it works</p>
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
-              From signup to referrals in under 10 minutes.
+              Set it up once. Then it runs off your jobs.
             </h2>
           </div>
 
           <div className="space-y-20">
             {[
-              { n: "01", t: "Build your referral page", d: "Add your logo, write your offer, and pick a custom URL. We do the rest.", visual: <MockPageBuilder /> },
-              { n: "02", t: "Share your link or QR code", d: "Email it to past customers. Stick the QR on invoices, jobsites, business cards.", visual: <MockQRCard /> },
-              { n: "03", t: "Receive and manage leads", d: "Every referral lands in your dashboard. Track status. Pay your referrer directly when the deal closes.", visual: <MockLeadsTable /> },
+              { n: "01", t: "Build your page and load your customers", d: "Add your logo, write your offer, pick a custom URL, and import the customers you already have.", visual: <MockPageBuilder /> },
+              { n: "02", t: "Mark jobs done and let the asks fire", d: "Revvin sends the review request and the referral ask on a delay, and campaigns go to the customers who have not booked in a while. Share the link or QR code yourself anytime.", visual: <MockQRCard /> },
+              { n: "03", t: "Work the leads and pay your referrers", d: "Every referral lands in your inbox. Text or call back in one tap, move it to closed, and pay your referrer directly. They get notified at pending and at paid.", visual: <MockLeadsTable /> },
             ].map((s, i) => (
               <div key={s.n} className="relative grid items-center gap-10 md:grid-cols-12">
                 <span className="watermark-num pointer-events-none absolute -top-10 left-0 hidden text-[180px] md:block">
