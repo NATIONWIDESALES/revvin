@@ -35,8 +35,9 @@ const Terms = () => {
           <section>
             <h2 className="text-lg font-bold text-foreground">3. Subscription and billing</h2>
             <ul className="list-disc pl-5 space-y-1">
+              <li>Creating an account, building your referral page, and previewing it are free. No payment details are required to build.</li>
               <li>Business subscriptions are a flat $49 per month in US dollars, billed monthly through Stripe. Pricing is in USD for all customers, including customers in Canada.</li>
-              <li>There is no free trial, no contract, and no setup fee. Billing starts on the day you subscribe.</li>
+              <li>There is no contract and no setup fee. Billing starts when you publish your page and does not start before that. Until you publish, your page is a private draft that is not visible to the public.</li>
               <li>You can cancel anytime through the Stripe billing portal linked from your account. On cancellation your access continues until the end of the current paid period and does not renew.</li>
               <li>We retain your lead history after cancellation so you can return to it if you resubscribe.</li>
               <li>Referrers use Revvin for free.</li>

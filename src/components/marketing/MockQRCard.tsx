@@ -3,8 +3,8 @@ import QRCodeStyling from "qr-code-styling";
 import { cn } from "@/lib/utils";
 
 export default function MockQRCard({
-  url = "https://apex-roofing.revvin.co",
-  label = "apex-roofing.revvin.co",
+  url = "https://your-business.revvin.co",
+  label = "your-business.revvin.co",
   className,
 }: {
   url?: string;

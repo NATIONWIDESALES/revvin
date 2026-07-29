@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import React from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/track";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -110,6 +111,15 @@ const BusinessDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { if (user) loadAll(); }, [user]);
+
+  // Stripe returns to the dashboard with ?checkout=success|cancel.
+  useEffect(() => {
+    const outcome = new URLSearchParams(window.location.search).get("checkout");
+    if (outcome === "success") track("checkout_succeeded");
+    else if (outcome === "cancel" || outcome === "canceled" || outcome === "cancelled") {
+      track("checkout_canceled");
+    }
+  }, []);
 
   useEffect(() => {
     if (biz?.id) {
@@ -345,6 +355,7 @@ const GoLiveBanner = ({
   const [busy, setBusy] = useState(false);
 
   const goLive = async () => {
+    track("go_live_clicked");
     setBusy(true);
     // Already paying, publishing is a single flag flip.
     if (subscribed) {
@@ -366,6 +377,7 @@ const GoLiveBanner = ({
       toast({ title: "Could not start checkout", description: error?.message, variant: "destructive" });
       return;
     }
+    track("checkout_redirected");
     window.location.href = data.url;
   };
 
@@ -1038,6 +1050,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
   };
 
   const startSubscription = async () => {
+    track("go_live_clicked");
     setBusy(true);
     const { data, error } = await supabase.functions.invoke("create-business-checkout", {
       body: { includeLaunchPackage: false },
@@ -1047,6 +1060,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
       toast({ title: "Could not start checkout", description: error?.message, variant: "destructive" });
       return;
     }
+    track("checkout_redirected");
     window.location.href = data.url;
   };
 

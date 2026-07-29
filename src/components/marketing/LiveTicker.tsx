@@ -1,16 +1,16 @@
 import { useReducedMotion } from "framer-motion";
 
 const events = [
-  "New referral · Apex Roofing · Denver, CO",
-  "Deal closed · $8,400 job · Summit HVAC",
-  "Page launched · Cascade Plumbing · Portland, OR",
-  "New referral · Northstar Solar · Calgary, AB",
-  "Deal closed · $14,200 contract · Ironclad Contracting",
-  "Page launched · Bluewater Pools · Tampa, FL",
-  "New referral · Ridgeline Painting · Toronto, ON",
-  "Deal closed · $3,900 install · BrightSpark Electrical",
-  "Page launched · True North Roofing · Edmonton, AB",
-  "New referral · Coastal Landscaping · San Diego, CA",
+  "New referral · Your Business Name · Your city",
+  "Deal closed · Roofing job · Example business",
+  "Page launched · HVAC company · Example business",
+  "New referral · Solar installer · Example business",
+  "Deal closed · Contracting job · Example business",
+  "Page launched · Pool company · Example business",
+  "New referral · Painting company · Example business",
+  "Deal closed · Electrical install · Example business",
+  "Page launched · Roofing company · Example business",
+  "New referral · Landscaping company · Example business",
 ];
 
 export default function LiveTicker({

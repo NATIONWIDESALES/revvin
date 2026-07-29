@@ -6,13 +6,13 @@ export default function MockReferralPage() {
       <div className="flex-1 overflow-hidden px-5 pt-2">
         {/* logo + name */}
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-base font-bold text-primary">
-          A
+          Y
         </div>
         <h3 className="mt-3 text-[17px] font-semibold tracking-tight text-foreground">
-          Apex Roofing
+          Your Business Name
         </h3>
         <p className="text-[11px] text-muted-foreground">
-          Residential roofing · Denver, CO
+          Your service · Your city
         </p>
 
         {/* offer */}

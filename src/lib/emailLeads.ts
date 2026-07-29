@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/track";
 
 /**
  * Centralized writer for the email_leads table. Use a distinct `source`
@@ -7,7 +8,11 @@ import { supabase } from "@/integrations/supabase/client";
  * Allowed sources are enforced server-side by an RLS WITH CHECK clause —
  * keep this union in sync with the migration's allowed list.
  */
-export type EmailLeadSource = "landing" | "playbook" | "sample";
+export type EmailLeadSource =
+  | "landing"
+  | "playbook"
+  | "sample"
+  | "marketplace_notify";
 
 export async function submitEmailLead(
   email: string,
@@ -26,6 +31,7 @@ export async function submitEmailLead(
       console.error("[submitEmailLead] insert failed", error);
       return { ok: false, error: error.message };
     }
+    track("email_lead_submitted", { source });
     return { ok: true };
   } catch (err) {
     console.error("[submitEmailLead] unexpected error", err);

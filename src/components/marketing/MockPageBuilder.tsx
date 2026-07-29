@@ -19,7 +19,7 @@ export default function MockPageBuilder({ className }: { className?: string }) {
             Business name
           </p>
           <div className="flex h-9 items-center rounded-md border border-border bg-background px-3 text-[13px] text-foreground">
-            Apex Roofing
+            Your Business Name
           </div>
         </div>
         <div>
@@ -28,9 +28,9 @@ export default function MockPageBuilder({ className }: { className?: string }) {
           </p>
           <div className="flex items-center gap-3 rounded-md border border-dashed border-border bg-muted/40 p-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-sm font-bold text-primary">
-              A
+              Y
             </div>
-            <p className="text-[11px] text-muted-foreground">apex-logo.png · uploaded</p>
+            <p className="text-[11px] text-muted-foreground">your-logo.png · uploaded</p>
           </div>
         </div>
         <div>

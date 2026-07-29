@@ -18,8 +18,8 @@ export default function MockLeadsTable({ className }: { className?: string }) {
     <div className={cn("overflow-hidden rounded-xl border border-border bg-card shadow-soft", className)}>
       <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-2.5">
         <p className="text-xs font-semibold text-foreground">Leads</p>
-        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-          4 new
+        <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Example
         </span>
       </div>
       <table className="w-full text-left text-[12px]">
