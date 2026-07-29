@@ -69,7 +69,7 @@ const Pricing = () => {
     <>
       <SEOHead
         title="Revvin | Pricing"
-        description="Flat $49/month USD. Cancel anytime. No contract, no setup fee, no trial. Referrers join free. You pay your referrers directly."
+        description="Build your referral page free. Pay $49/month USD only when you publish it. Cancel anytime. No contract, no setup fee. Referrers join free. You pay your referrers directly."
         path="/pricing"
       />
 
@@ -78,10 +78,10 @@ const Pricing = () => {
         <div className="container relative max-w-3xl py-24 text-center">
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pricing</p>
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
-            $49/month. Cancel anytime.
+            Build free. Pay $49/month to go live.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            Billed monthly. No contract, no setup fee, no trial, no platform fees. Businesses are billed from day one. Referrers are free.
+            Building your referral page, offer, and QR code costs nothing. Publishing it costs a flat $49/month USD, billed monthly. No contract, no setup fee, no platform fees. Referrers are free.
           </p>
         </div>
       </section>
@@ -127,11 +127,11 @@ const Pricing = () => {
                 <span className="text-sm text-muted-foreground">/month</span>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                Cancel anytime. No contract, no setup fee.
+                Billing starts when you publish your page. Cancel anytime. No contract, no setup fee.
               </p>
               <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
                 <Link to="/signup">
-                  {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Start program + Launch Package" : "Start your referral program"}
+                  {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Build free + Launch Package" : "Build your page free"}
                 </Link>
               </Button>
               {LAUNCH_PACKAGE_ENABLED && (
@@ -229,7 +229,7 @@ const Pricing = () => {
             <AccordionItem value="p1">
               <AccordionTrigger>Is there really no contract?</AccordionTrigger>
               <AccordionContent>
-                Correct. Pro is $49/month, billed monthly. Cancel anytime from your billing portal, your page stays live through the end of the period you've already paid for.
+                Correct. Publishing is $49/month, billed monthly. Cancel anytime from your billing portal, your page stays live through the end of the period you've already paid for.
               </AccordionContent>
             </AccordionItem>
             {LAUNCH_PACKAGE_ENABLED && (
@@ -241,9 +241,9 @@ const Pricing = () => {
               </AccordionItem>
             )}
             <AccordionItem value="p3">
-              <AccordionTrigger>Is the Free tier really free?</AccordionTrigger>
+              <AccordionTrigger>What exactly is free?</AccordionTrigger>
               <AccordionContent>
-                Yes. The Free tier is for referrers, people who want to send leads to businesses on Revvin and earn payouts directly. No card required.
+                Two things. Referrer accounts are always free: send leads to businesses on Revvin and get paid directly, no card required. And for businesses, the builder is free: create your account, set up your offer, page, and QR code without paying. This is not a trial and not a limited plan. Your page cannot receive referrals until you publish it, and publishing costs $49/month.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">
