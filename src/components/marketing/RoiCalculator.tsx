@@ -8,16 +8,18 @@ const clamp = (n: number, min: number, max: number) =>
   Math.min(max, Math.max(min, n));
 
 const RoiCalculator = () => {
-  const [dealValue, setDealValue] = useState(8000);
-  const [reward, setReward] = useState(500);
-  const [referrals, setReferrals] = useState(3);
+  const [dealValue, setDealValue] = useState(2500);
+  const [reward, setReward] = useState(250);
+  const [referrals, setReferrals] = useState(2);
 
-  const { revenue, payouts, net, multiple } = useMemo(() => {
+  const { revenue, payouts, net, monthsCovered } = useMemo(() => {
     const revenue = dealValue * referrals;
     const payouts = reward * referrals;
     const net = revenue - payouts - 49;
-    const multiple = net > 0 ? net / 49 : 0;
-    return { revenue, payouts, net, multiple };
+    // Honest grounding: profit from a single closed referral, against $49/month.
+    const perDealNet = dealValue - reward;
+    const monthsCovered = perDealNet > 0 ? Math.floor(perDealNet / 49) : 0;
+    return { revenue, payouts, net, monthsCovered };
   }, [dealValue, reward, referrals]);
 
   return (
