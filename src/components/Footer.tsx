@@ -11,10 +11,10 @@ const Footer = () => {
               <Wordmark size="lg" variant="white" />
             </Link>
             <p className="mt-5 max-w-md text-sm leading-relaxed text-white/60">
-              Revvin gives your business the referral infrastructure. You handle the relationship.
+              Your customer list, working for you. Revvin turns the people who already paid you into referrals, repeat work, and reviews. You handle the relationship.
             </p>
             <p className="mt-5 text-xs uppercase tracking-[0.18em] text-white/40">
-              Free to build. $49/month to go live.
+              Free to build. $49/month to publish.
             </p>
           </div>
 
@@ -25,7 +25,7 @@ const Footer = () => {
             <div className="space-y-3">
               <Link to="/how-it-works" className="block text-sm text-white/80 transition-colors hover:text-white">How it works</Link>
               <Link to="/pricing" className="block text-sm text-white/80 transition-colors hover:text-white">Pricing</Link>
-              <Link to="/signup" className="block text-sm text-white/80 transition-colors hover:text-white">Build your referral page free</Link>
+              <Link to="/signup" className="block text-sm text-white/80 transition-colors hover:text-white">Build your page free</Link>
               <Link to="/auth" className="block text-sm text-white/80 transition-colors hover:text-white">Log in</Link>
             </div>
           </div>
@@ -44,7 +44,7 @@ const Footer = () => {
 
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center">
           <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} Revvin. All rights reserved.</p>
-          <p className="text-xs text-white/40">free to build · $49/month when you go live · referrers join free</p>
+          <p className="text-xs text-white/40">free to build · $49/month when you publish · referrers join free</p>
         </div>
       </div>
     </footer>

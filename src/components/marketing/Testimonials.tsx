@@ -44,13 +44,14 @@ const Testimonials = () => {
               Be one of the first businesses on Revvin.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
-              We are onboarding our founding group now. Founding businesses get
-              direct access to the founder and their feedback shapes what we
-              build next.
+              We are onboarding our founding group now. You get all three loops
+              from day one: referrals, repeat work, and reviews. Founding
+              businesses also get direct access to the founder, and their
+              feedback shapes what we build next.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button size="lg" className="h-11 px-6 shadow-soft hover:bg-primary-deep" asChild>
-                <Link to="/signup">Build your referral page — free</Link>
+                <Link to="/signup">Build your page — free</Link>
               </Button>
             </div>
           </div>
