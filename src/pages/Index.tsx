@@ -281,6 +281,11 @@ const Index = () => {
 
       {/* Featured Offers from the Revvin Marketplace */}
       <section className="border-b border-border bg-background">
+        <div className="hidden" />
+      </section>
+
+      {/* Placeholder anchor removed */}
+      <section className="border-b border-border bg-background">
         <div className="container py-16 md:py-24">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
