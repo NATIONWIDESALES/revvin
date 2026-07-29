@@ -129,10 +129,14 @@ const RoiCalculator = () => {
           <p className="mt-2 text-5xl font-extrabold tracking-tight text-foreground md:text-6xl">
             {fmt(net)}
           </p>
-          {net > 0 && (
+          {monthsCovered > 0 && (
             <p className="mt-3 text-sm font-semibold text-foreground">
-              That's <span className="text-primary">{Math.round(multiple).toLocaleString("en-US")}x</span>{" "}
-              your $49 Revvin cost.
+              One closed referral covers about{" "}
+              <span className="text-primary">
+                {monthsCovered.toLocaleString("en-US")} month
+                {monthsCovered === 1 ? "" : "s"}
+              </span>{" "}
+              of Revvin.
             </p>
           )}
 
@@ -151,8 +155,12 @@ const RoiCalculator = () => {
             </div>
           </dl>
 
-          <p className="mt-5 text-xs text-muted-foreground">
-            Estimates only — actual results depend on your referrals.
+          <p className="mt-5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground">
+            Estimates only. Actual results depend on your referrals.
+          </p>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Building and previewing your referral page is free. The $49/month
+            starts only when you publish.
           </p>
         </div>
       </div>
