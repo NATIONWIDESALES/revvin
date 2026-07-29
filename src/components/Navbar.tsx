@@ -165,7 +165,7 @@ const Navbar = () => {
                   Log In
                 </Link>
                 <Button size="sm" className="px-5" asChild>
-                  <Link to="/signup">List your business</Link>
+                  <Link to="/signup">Build your page free</Link>
                 </Button>
               </>
             )}
@@ -229,7 +229,7 @@ const Navbar = () => {
                       <Link to="/auth" onClick={() => setOpen(false)}>Log In</Link>
                     </Button>
                     <Button size="sm" className="flex-1" asChild>
-                      <Link to="/signup" onClick={() => setOpen(false)}>List your business</Link>
+                      <Link to="/signup" onClick={() => setOpen(false)}>Build your page free</Link>
                     </Button>
                   </>
                 )}
