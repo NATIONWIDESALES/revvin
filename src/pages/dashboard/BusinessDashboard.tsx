@@ -18,6 +18,7 @@ import QRCodeStyling from "qr-code-styling";
 import { useRef } from "react";
 import CustomersTab from "@/components/dashboard/CustomersTab";
 import AutoAskTab from "@/components/dashboard/AutoAskTab";
+import CampaignsTab from "@/components/dashboard/CampaignsTab";
 import AttestationGate from "@/components/dashboard/AttestationGate";
 import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
@@ -45,6 +46,7 @@ interface Business {
   launch_package_status: string | null;
   marketplace_listed?: boolean | null;
   contact_outreach_consent_at?: string | null;
+  google_review_url?: string | null;
 }
 
 interface Lead {
@@ -115,7 +117,7 @@ const BusinessDashboard = () => {
 
   // ?tab= lets other surfaces (the scoreboard empty state, emails) deep link
   // straight to the action they are recommending.
-  const VALID_TABS = ["customers", "jobdone", "leads", "offers", "referrals", "payouts", "page", "share", "account"];
+  const VALID_TABS = ["customers", "jobdone", "campaigns", "leads", "offers", "referrals", "payouts", "page", "share", "account"];
   useEffect(() => {
     const t = searchParams.get("tab");
     if (t && VALID_TABS.includes(t)) setActiveTab(t);
@@ -298,6 +300,7 @@ const BusinessDashboard = () => {
         <TabsList className="mb-6">
           <TabsTrigger value="customers">Customers {contactStats.total > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{contactStats.total}</span>}</TabsTrigger>
           <TabsTrigger value="jobdone">Job done</TabsTrigger>
+          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
           <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
           <TabsTrigger value="offers">Offers {offers.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{offers.length}</span>}</TabsTrigger>
           <TabsTrigger value="referrals">Marketplace Referrals {marketplaceReferrals.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{marketplaceReferrals.length}</span>}</TabsTrigger>
@@ -335,7 +338,23 @@ const BusinessDashboard = () => {
               consentedAt={biz.contact_outreach_consent_at ?? null}
               onConsented={() => loadAll()}
             >
-              <AutoAskTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount }} publicUrl={publicUrl} />
+              <AutoAskTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, google_review_url: biz.google_review_url ?? null }} publicUrl={publicUrl} />
+            </AttestationGate>
+          )}
+        </TabsContent>
+        <TabsContent value="campaigns">
+          {!isLive ? (
+            <LockedTab
+              title="Go live to run a campaign"
+              body="Reactivation campaigns point people back at your referral page, so it has to be live first. Your customer list is saved either way."
+            />
+          ) : (
+            <AttestationGate
+              businessId={biz.id}
+              consentedAt={biz.contact_outreach_consent_at ?? null}
+              onConsented={() => loadAll()}
+            >
+              <CampaignsTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount }} publicUrl={publicUrl} />
             </AttestationGate>
           )}
         </TabsContent>
