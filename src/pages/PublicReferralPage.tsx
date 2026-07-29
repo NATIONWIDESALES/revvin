@@ -256,6 +256,7 @@ const PublicReferralPage = () => {
         title={`Refer a customer to ${biz.name}${biz.offer_amount ? `, earn ${biz.offer_amount}` : ""}`}
         description={`${biz.name} pays for warm referrals.${biz.offer_amount ? ` Earn ${biz.offer_amount}${biz.offer_trigger ? " " + biz.offer_trigger : ""}.` : ""}`}
         path={`/r/${biz.slug}`}
+        noindex={ownerPreview}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
@@ -268,6 +269,22 @@ const PublicReferralPage = () => {
         }}
       />
       <div className="min-h-screen bg-[#FAFAF7]">
+        {ownerPreview && (
+          <div className="sticky top-0 z-50 border-b border-amber-300 bg-amber-50 px-4 py-3">
+            <div className="mx-auto flex max-w-3xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="flex items-start gap-2 text-sm text-amber-900">
+                <Eye className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>
+                  <strong className="font-semibold">Preview only.</strong> This page is in draft, so nobody else can
+                  see it and the form does not accept referrals yet.
+                </span>
+              </p>
+              <Button asChild size="sm" className="shrink-0">
+                <Link to="/dashboard">Go live</Link>
+              </Button>
+            </div>
+          </div>
+        )}
         {/* Branded hero */}
         <div
           className="relative overflow-hidden"
