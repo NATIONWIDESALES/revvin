@@ -13,6 +13,12 @@ import { Loader2, CheckCircle2, Clock, XCircle, MessageSquare } from "lucide-rea
 // Compliance: automatic sending is EMAIL ONLY. SMS here is device-native only
 // (the owner taps and their own Messages app sends it), because referral texts
 // are marketing under the TCPA.
+//
+// Review requests go to EVERY customer with the same public review link. There
+// is no survey in front of it and no routing based on how someone feels: review
+// gating breaks Google's policies and is an FTC deception risk. Only the
+// referral follow-up may be conditioned on a positive signal, and that signal
+// has to be one we actually observed (the customer said so, or you marked it).
 
 const DELAY_HOURS = 2;
 
@@ -28,6 +34,11 @@ interface TriggerRow {
   scheduled_send_at: string;
   sent_at: string | null;
   failure_reason: string | null;
+  review_request_status: string;
+  review_requested_at: string | null;
+  review_failure_reason: string | null;
+  satisfaction_signal: string | null;
+  referral_requires_positive_signal: boolean;
 }
 
 const STATUS_META: Record<string, { label: string; className: string }> = {
@@ -42,7 +53,7 @@ const STATUS_META: Record<string, { label: string; className: string }> = {
 };
 
 interface Props {
-  biz: { id: string; name: string; offer_amount: string | null };
+  biz: { id: string; name: string; offer_amount: string | null; google_review_url: string | null };
   publicUrl: string;
 }
 
@@ -58,6 +69,8 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
     service: "",
     technician: "",
     amount: "",
+    review_request: false,
+    gate_referral: false,
   });
 
   const load = useCallback(async () => {
@@ -65,7 +78,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
     const { data } = await supabase
       .from("referral_triggers")
       .select(
-        "id, customer_first_name, customer_email, customer_phone, service_description, technician_name, amount_paid, status, scheduled_send_at, sent_at, failure_reason",
+        "id, customer_first_name, customer_email, customer_phone, service_description, technician_name, amount_paid, status, scheduled_send_at, sent_at, failure_reason, review_request_status, review_requested_at, review_failure_reason, satisfaction_signal, referral_requires_positive_signal",
       )
       .eq("business_id", biz.id)
       .order("created_at", { ascending: false })
@@ -77,7 +90,10 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
   useEffect(() => { load(); }, [load]);
 
   const reset = () =>
-    setForm({ first_name: "", email: "", phone: "", service: "", technician: "", amount: "" });
+    setForm((f) => ({
+      first_name: "", email: "", phone: "", service: "", technician: "", amount: "",
+      review_request: f.review_request, gate_referral: f.gate_referral,
+    }));
 
   const submit = async () => {
     const first = form.first_name.trim();
@@ -104,6 +120,8 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
       service_description: form.service.trim() || null,
       technician_name: form.technician.trim() || null,
       amount_paid: amount != null && !Number.isNaN(amount) ? amount : null,
+      review_request_status: email && form.review_request && biz.google_review_url ? "scheduled" : "off",
+      referral_requires_positive_signal: form.review_request && form.gate_referral,
       status: email ? "scheduled" : "canceled",
       channel: email ? "email" : null,
       failure_reason: email ? null : "no_email_send_by_text_from_your_phone",
