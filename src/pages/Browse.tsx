@@ -230,7 +230,7 @@ const Browse = () => {
 
           <div className="mt-10">
             <PlaybookEmailCapture
-              source="sample"
+              source="marketplace_notify"
               eyebrow="Get notified"
               headline="Tell me when offers go live in my area."
               subhead="We'll email you once when the marketplace has live offers worth browsing. No drip campaign."
