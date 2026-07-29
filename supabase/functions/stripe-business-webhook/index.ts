@@ -334,10 +334,64 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
         const inv = event.data.object as Stripe.Invoice;
         const subId = typeof inv.subscription === "string" ? inv.subscription : inv.subscription?.id;
         if (subId) {
+          // Keep the page live. A bank decline is recoverable; taking the
+          // customer's page down turns it into a cancellation.
           await admin
             .from("businesses")
             .update({ subscription_status: "past_due" })
             .eq("stripe_subscription_id", subId);
+
+          // At-most-once dunning email per billing period: atomically claim
+          // dunning_notified_at (same conditional-UPDATE pattern as notify-new-lead).
+          const { data: claimed, error: claimErr } = await admin
+            .from("businesses")
+            .update({ dunning_notified_at: new Date().toISOString() })
+            .eq("stripe_subscription_id", subId)
+            .is("dunning_notified_at", null)
+            .select("id, name, user_id, business_email")
+            .limit(1);
+          if (claimErr) console.error("[stripe-business-webhook] dunning claim failed", claimErr);
+
+          const biz = claimed?.[0];
+          if (biz) {
+            try {
+              const { data: { user: ownerUser } } =
+                await admin.auth.admin.getUserById(biz.user_id as string);
+              const to = (biz.business_email as string) || ownerUser?.email || "";
+              if (!to) {
+                console.warn("[stripe-business-webhook] dunning: no recipient", { business: biz.id });
+              } else {
+                const businessName = (biz.name as string) || "your business";
+                const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F9FAFB;"><tr><td align="center" style="padding:40px 16px;">
+<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border-radius:12px;overflow:hidden;"><tr><td style="padding:24px;">
+<p style="margin:0 0 24px;font-size:14px;font-weight:700;color:#15803D;text-transform:lowercase;">revvin</p>
+<p style="margin:0 0 8px;font-size:16px;color:#111827;font-weight:600;">Your card was declined</p>
+<p style="margin:0 0 16px;font-size:15px;color:#374151;line-height:1.6;">Your bank declined the latest payment for <strong>${escapeHtml(businessName)}</strong>. This happens often and it is usually a quick fix, such as an expired card or a new card number.</p>
+<p style="margin:0 0 24px;font-size:15px;color:#374151;line-height:1.6;"><strong>Your referral page is still live.</strong> Nothing has been switched off. Updating your card keeps everything running.</p>
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 0;">
+<a href="${appUrl("/dashboard?billing=update")}" style="display:inline-block;background:#15803D;color:#FFF;font-size:15px;font-weight:500;text-decoration:none;padding:12px 28px;border-radius:8px;">Update payment method</a>
+</td></tr></table>
+<p style="margin:24px 0 0;font-size:13px;color:#6B7280;line-height:1.6;">Reply to this email if anything looks wrong and we will sort it out with you.</p>
+</td></tr></table></td></tr></table></body></html>`;
+
+                const result = await sendEmailViaGateway({
+                  from: RESEND_FROM_ADDRESS,
+                  to,
+                  reply_to: RESEND_REPLY_TO,
+                  subject: "Your card was declined, your page is still live",
+                  html,
+                });
+                if (!result.success) {
+                  console.error("[stripe-business-webhook] dunning email failed", result.error);
+                } else {
+                  console.log("[stripe-business-webhook] dunning email sent", { business: biz.id });
+                }
+              }
+            } catch (e) {
+              console.error("[stripe-business-webhook] dunning email error", e);
+            }
+          }
         }
         break;
       }
@@ -357,6 +411,8 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
               current_period_end: periodEnd,
               is_published: true,
               account_status: "approved",
+              // Reset dunning so the next failed period can notify again.
+              dunning_notified_at: null,
             })
             .eq("stripe_subscription_id", subId);
         }

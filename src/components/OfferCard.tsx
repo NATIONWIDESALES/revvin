@@ -10,7 +10,6 @@ import { useState } from "react";
 
 interface OfferCardProps {
   offer: Offer;
-  isSample?: boolean;
   isNew?: boolean;
   /** Optional pre-formatted distance label (e.g. "12 km away") shown next to the location. */
   distanceLabel?: string;
@@ -34,29 +33,6 @@ const CATEGORY_GRADIENTS: Record<string, string> = {
   "Paving": "from-zinc-600 to-zinc-800",
 };
 
-// Free Unsplash stock photos used as a thumbnail fallback when a business
-// hasn't uploaded a logo/image yet. Keeps the marketplace cards consistent.
-const CATEGORY_IMAGE: Record<string, string> = {
-  Roofing: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=800&q=60",
-  HVAC: "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=800&q=60",
-  Landscaping: "https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=800&q=70",
-  Mortgage: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=70",
-  Finance: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=70",
-  Solar: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=70",
-  Energy: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=70",
-  Auto: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=60",
-  "Home Services": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=70",
-  Services: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=70",
-  "Real Estate": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=70",
-  Plumbing: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=800&q=70",
-  Insurance: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=800&q=70",
-  Legal: "https://images.unsplash.com/photo-1589994965851-a8f479c573a9?auto=format&fit=crop&w=800&q=70",
-  "Home Inspection": "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&w=800&q=70",
-  Paving: "https://images.unsplash.com/photo-1597844808175-3a4d938e1a6f?auto=format&fit=crop&w=800&q=70",
-};
-const DEFAULT_CATEGORY_IMAGE =
-  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=70";
-
 function getBusinessColor(name: string): string {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
@@ -65,7 +41,7 @@ function getBusinessColor(name: string): string {
   return INITIAL_COLORS[Math.abs(hash) % INITIAL_COLORS.length];
 }
 
-const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) => {
+const OfferCard = ({ offer, isNew, distanceLabel }: OfferCardProps) => {
   const { formatPayout } = useCountry();
   const { isSaved, toggle } = useSavedOffers();
   const saved = isSaved(offer.id);
@@ -97,21 +73,6 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
               className="h-full w-full object-cover transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105"
               onError={() => setImgFailed(true)}
             />
-          ) : isSample ? (
-            /* Category-appropriate stock photo for sample offers, with neutral fallback if it fails */
-            <div
-              className={`relative h-full w-full bg-gradient-to-br ${gradientClass}`}
-            >
-              <img
-                src={CATEGORY_IMAGE[offer.category] || DEFAULT_CATEGORY_IMAGE}
-                alt={`${offer.category} example`}
-                loading="lazy"
-                className="h-full w-full object-cover transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                }}
-              />
-            </div>
           ) : (
             /* Polished initials avatar for real businesses without a logo */
             <div
@@ -169,8 +130,7 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
               Featured
             </Badge>
           )}
-          {/* Showcase offers blend in, no badge label */}
-          {isNew && !isSample && (
+          {isNew && (
             <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground text-xs shadow-sm">
               New on Revvin
             </Badge>

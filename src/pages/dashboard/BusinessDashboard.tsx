@@ -267,6 +267,8 @@ const BusinessDashboard = () => {
         </div>
       </div>
 
+      {subStatus === "past_due" && <PastDueBanner />}
+
       {!isLive && <GoLiveBanner biz={biz} subscribed={subscribed} onUpdate={loadAll} />}
 
       <ActivationChecklist steps={activationSteps} />
@@ -341,6 +343,42 @@ const LockedTab = ({ title, body }: { title: string; body: string }) => (
     <p className="mx-auto mt-1.5 max-w-sm text-sm text-muted-foreground">{body}</p>
   </div>
 );
+
+/**
+ * Failed payment recovery. The customer is paying and wants to keep paying,
+ * so the tone stays calm and the page stays live.
+ */
+const PastDueBanner = () => {
+  const { toast } = useToast();
+  const [busy, setBusy] = useState(false);
+
+  const openPortal = async () => {
+    setBusy(true);
+    const { data, error } = await supabase.functions.invoke("customer-portal");
+    setBusy(false);
+    if (error || !data?.url) {
+      toast({ title: "Could not open billing portal", description: error?.message, variant: "destructive" });
+      return;
+    }
+    window.open(data.url, "_blank");
+  };
+
+  return (
+    <div className="mb-6 rounded-2xl border border-amber-500/40 bg-amber-500/5 p-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-base font-semibold text-foreground">Your last payment did not go through</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your bank declined the charge. Your referral page is still live and nothing has been switched off. Updating your card takes about a minute.
+          </p>
+        </div>
+        <Button onClick={openPortal} disabled={busy} size="lg" className="shrink-0">
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Update payment method"}
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 const GoLiveBanner = ({
   biz,

@@ -14,7 +14,6 @@ import OfferCard from "@/components/OfferCard";
 import SEOHead from "@/components/SEOHead";
 import { useDbOffers } from "@/hooks/useDbOffers";
 import { useSavedOffers } from "@/hooks/useSavedOffers";
-import { sampleOffers } from "@/data/sampleOffers";
 import type { Offer } from "@/types/offer";
 
 type SortKey = "recent" | "payout" | "nearest";
@@ -100,20 +99,11 @@ const SavedOffers = () => {
 
   // Build the same merged catalogue Browse uses, preserving save order
   // (most recent saves first) before any sort is applied.
+  // Real DB offers only. Saved ids that no longer resolve to a live offer
+  // (including legacy sample ids) are dropped rather than rendered.
   const savedInSaveOrder = useMemo(() => {
-    const real: (Offer & { isSample?: boolean })[] = dbOffers.map((o) => ({
-      ...o,
-      isSample: false as const,
-    }));
-    const samples: (Offer & { isSample?: boolean })[] = sampleOffers.map((o) => ({
-      ...o,
-      isSample: true as const,
-    }));
-    const all = [...real, ...samples];
-    const byId = new Map(all.map((o) => [o.id, o] as const));
-    return ids
-      .map((id) => byId.get(id))
-      .filter((o): o is Offer & { isSample?: boolean } => Boolean(o));
+    const byId = new Map(dbOffers.map((o) => [o.id, o] as const));
+    return ids.map((id) => byId.get(id)).filter((o): o is Offer => Boolean(o));
   }, [dbOffers, ids]);
 
   const requestLocation = (opts: { force?: boolean } = {}) => {
@@ -345,12 +335,7 @@ const SavedOffers = () => {
         ) : hasSaved ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {saved.map(({ offer, distanceLabel }) => (
-              <OfferCard
-                key={offer.id}
-                offer={offer}
-                isSample={offer.isSample}
-                distanceLabel={distanceLabel}
-              />
+              <OfferCard key={offer.id} offer={offer} distanceLabel={distanceLabel} />
             ))}
           </div>
         ) : (

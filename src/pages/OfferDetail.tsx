@@ -11,7 +11,6 @@ import ShareOfferLink from "@/components/ShareOfferLink";
 import ReferralWizard from "@/components/ReferralWizard";
 import SEOHead from "@/components/SEOHead";
 import type { Offer } from "@/types/offer";
-import { sampleOffers } from "@/data/sampleOffers";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -65,9 +64,9 @@ const OfferDetail = () => {
         };
       }
       
-      // If not in database, check sample offers
-      const sampleOffer = sampleOffers.find(o => o.id === id);
-      return sampleOffer || null;
+      // No database match: never fall back to fabricated data. The caller
+      // renders the "offer isn't live" state instead.
+      return null;
     },
     enabled: !!id,
   });
@@ -82,10 +81,26 @@ const OfferDetail = () => {
 
   if (!offer) {
     return (
-      <div className="container py-20 text-center">
-        <p className="text-muted-foreground">Offer not found.</p>
-        <Button variant="ghost" className="mt-4" asChild><Link to="/browse">Back to Browse</Link></Button>
-      </div>
+      <>
+        <SEOHead
+          title="Offer not available · Revvin"
+          description="This referral offer is no longer live on Revvin. Browse active referral opportunities instead."
+          path="/browse"
+          noindex
+        />
+        <div className="container py-20">
+          <div className="mx-auto max-w-md rounded-2xl border border-dashed border-border bg-card p-10 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <AlertTriangle className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <h1 className="text-lg font-semibold text-foreground">This offer isn't live</h1>
+            <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
+              The offer you're looking for has been removed or was never published. Browse the marketplace for active referral opportunities.
+            </p>
+            <Button asChild className="mt-5"><Link to="/browse">Browse referral offers</Link></Button>
+          </div>
+        </div>
+      </>
     );
   }
 
