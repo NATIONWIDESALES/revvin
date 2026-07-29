@@ -668,11 +668,11 @@ const Index = () => {
             </div>
             <div className="rounded-2xl border-2 border-primary bg-card p-8 shadow-product">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">With Revvin</p>
-              <h3 className="mt-1 text-xl font-bold text-foreground">Your own referral engine</h3>
+              <h3 className="mt-1 text-xl font-bold text-foreground">Working the list you already have</h3>
               <ul className="mt-6 space-y-3 text-sm text-foreground">
-                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />One flat price, your own referral page</li>
-                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />Customers share your link with people they trust</li>
-                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />Leads arrive pre-warmed and in your dashboard</li>
+                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />One flat price for all three loops</li>
+                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />The ask fires automatically after every finished job</li>
+                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />Past customers rebook through reactivation campaigns</li>
                 <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />You decide what to pay referrers when deals close</li>
               </ul>
             </div>
@@ -718,13 +718,13 @@ const Index = () => {
         <div className="container relative py-24 text-center">
           <Wordmark size="xl" variant="white" />
           <h2 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold tracking-tight md:text-6xl">
-            Launch your referral program <span className="shimmer-text">today.</span>
+            Put your customer list <span className="shimmer-text">to work.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-            Build your page free. $49/month USD when you go live. Cancel anytime.
+            Referrals, repeat work, and reviews from one list. Build free. $49/month USD when you publish. Cancel anytime.
           </p>
           <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
-            <Link to="/signup">Build your referral page — free</Link>
+            <Link to="/signup">Build your page — free</Link>
           </Button>
           <p className="mt-5 text-sm text-white/70">
             Not ready?{" "}
