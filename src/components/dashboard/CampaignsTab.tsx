@@ -297,7 +297,7 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
           <div className="md:col-span-2">
             <Label className="text-xs">Start from a template</Label>
             <Select onValueChange={applyTemplate}>
-              <SelectTrigger className="mt-1.5"><SelectValue placeholder="Choose a starter template" /></SelectTrigger>
+              <SelectTrigger className="mt-1.5"><SelectValue placeholder="Choose a template" /></SelectTrigger>
               <SelectContent>
                 {templates.map((t) => (
                   <SelectItem key={t.id} value={t.id}>{t.name}{t.is_system ? "" : " (yours)"}</SelectItem>
