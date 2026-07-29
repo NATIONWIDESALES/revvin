@@ -122,6 +122,11 @@ Deno.serve(async (req) => {
 
     const dashboardUrl = appUrl("/dashboard");
     const subject = `New referral for ${biz.name}: ${lead.lead_name}`;
+    // Device-native one-tap actions for the owner. Their own phone sends these.
+    const leadNumber = String(lead.lead_phone || "").replace(/[^\d+]/g, "");
+    const smsBody = encodeURIComponent(
+      `Hi ${String(lead.lead_name || "").split(" ")[0]}, ${lead.referrer_name} passed your details along about ${lead.lead_need}. Is now a good time?`,
+    );
     const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f6f7f9;font-family:-apple-system,BlinkMacSystemFont,'Inter',Segoe UI,Roboto,sans-serif;color:#0f172a">
   <div style="max-width:560px;margin:0 auto;padding:32px 24px">
     <div style="font-size:13px;color:#15803d;font-weight:600;letter-spacing:.04em;text-transform:uppercase">Revvin</div>
@@ -132,6 +137,10 @@ Deno.serve(async (req) => {
       <div style="font-size:16px;font-weight:600">${esc(lead.lead_name)}</div>
       <div style="font-size:14px;color:#334155;margin-top:4px">${esc(lead.lead_phone)}${lead.lead_email ? ` · ${esc(lead.lead_email)}` : ""}</div>
       <div style="font-size:14px;color:#334155;margin-top:12px;white-space:pre-wrap">${esc(lead.lead_need)}</div>
+      ${leadNumber ? `<div style="margin-top:16px">
+        <a href="sms:${leadNumber}?&body=${smsBody}" style="display:inline-block;background:#15803d;color:#fff;text-decoration:none;padding:10px 18px;border-radius:10px;font-weight:600;font-size:13px;margin-right:8px">Text them now</a>
+        <a href="tel:${leadNumber}" style="display:inline-block;border:1px solid #cbd5e1;color:#0f172a;text-decoration:none;padding:10px 18px;border-radius:10px;font-weight:600;font-size:13px">Call now</a>
+      </div>` : ""}
     </div>
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;margin-bottom:24px">
       <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:10px">Referred by</div>

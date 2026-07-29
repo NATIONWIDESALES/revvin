@@ -1,0 +1,274 @@
+import { useCallback, useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, CheckCircle2, Clock, XCircle, MessageSquare } from "lucide-react";
+
+// "Job done" auto-ask. The owner logs a finished job, we schedule a single
+// personalised referral ask about two hours later.
+//
+// Compliance: automatic sending is EMAIL ONLY. SMS here is device-native only
+// (the owner taps and their own Messages app sends it), because referral texts
+// are marketing under the TCPA.
+
+const DELAY_HOURS = 2;
+
+interface TriggerRow {
+  id: string;
+  customer_first_name: string | null;
+  customer_email: string | null;
+  customer_phone: string | null;
+  service_description: string | null;
+  technician_name: string | null;
+  amount_paid: number | null;
+  status: string;
+  scheduled_send_at: string;
+  sent_at: string | null;
+  failure_reason: string | null;
+}
+
+const STATUS_META: Record<string, { label: string; className: string }> = {
+  scheduled: { label: "Scheduled", className: "bg-muted text-muted-foreground" },
+  queued: { label: "Scheduled", className: "bg-muted text-muted-foreground" },
+  sending: { label: "Sending", className: "bg-muted text-muted-foreground" },
+  sent: { label: "Sent", className: "bg-primary/10 text-primary" },
+  failed: { label: "Failed", className: "bg-destructive/10 text-destructive" },
+  suppressed: { label: "Unsubscribed", className: "bg-muted text-muted-foreground" },
+  canceled: { label: "Canceled", className: "bg-muted text-muted-foreground" },
+  duplicate: { label: "Duplicate", className: "bg-muted text-muted-foreground" },
+};
+
+interface Props {
+  biz: { id: string; name: string; offer_amount: string | null };
+  publicUrl: string;
+}
+
+const AutoAskTab = ({ biz, publicUrl }: Props) => {
+  const { toast } = useToast();
+  const [rows, setRows] = useState<TriggerRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    first_name: "",
+    email: "",
+    phone: "",
+    service: "",
+    technician: "",
+    amount: "",
+  });
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("referral_triggers")
+      .select(
+        "id, customer_first_name, customer_email, customer_phone, service_description, technician_name, amount_paid, status, scheduled_send_at, sent_at, failure_reason",
+      )
+      .eq("business_id", biz.id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    setRows((data as TriggerRow[]) ?? []);
+    setLoading(false);
+  }, [biz.id]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const reset = () =>
+    setForm({ first_name: "", email: "", phone: "", service: "", technician: "", amount: "" });
+
+  const submit = async () => {
+    const first = form.first_name.trim();
+    const email = form.email.trim().toLowerCase();
+    const phone = form.phone.trim();
+    if (!first) {
+      toast({ title: "Add a first name", description: "The ask is personalised, so we need it.", variant: "destructive" });
+      return;
+    }
+    if (!email && !phone) {
+      toast({ title: "Add an email or phone", description: "We need at least one way to reach them.", variant: "destructive" });
+      return;
+    }
+    setSaving(true);
+    const scheduledAt = new Date(Date.now() + DELAY_HOURS * 60 * 60 * 1000).toISOString();
+    const amount = form.amount.trim() ? Number(form.amount.trim()) : null;
+    const { error } = await supabase.from("referral_triggers").insert({
+      business_id: biz.id,
+      source: "manual",
+      source_event_id: crypto.randomUUID(),
+      customer_first_name: first,
+      customer_email: email || null,
+      customer_phone: phone || null,
+      service_description: form.service.trim() || null,
+      technician_name: form.technician.trim() || null,
+      amount_paid: amount != null && !Number.isNaN(amount) ? amount : null,
+      status: email ? "scheduled" : "canceled",
+      channel: email ? "email" : null,
+      failure_reason: email ? null : "no_email_send_by_text_from_your_phone",
+      scheduled_send_at: scheduledAt,
+    });
+    setSaving(false);
+    if (error) {
+      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({
+      title: email ? "Ask scheduled" : "Job logged",
+      description: email
+        ? `We will email ${first} in about ${DELAY_HOURS} hours.`
+        : `No email on file, so use Text from my phone below to ask ${first}.`,
+    });
+    reset();
+    load();
+  };
+
+  const cancel = async (id: string) => {
+    const { error } = await supabase
+      .from("referral_triggers")
+      .update({ status: "canceled" })
+      .eq("id", id)
+      .in("status", ["scheduled", "queued"]);
+    if (error) {
+      toast({ title: "Could not cancel", description: error.message, variant: "destructive" });
+      return;
+    }
+    load();
+  };
+
+  const smsHref = (row: TriggerRow) => {
+    const num = (row.customer_phone || "").replace(/[^\d+]/g, "");
+    const body = encodeURIComponent(
+      `Hi ${row.customer_first_name || "there"}, thanks again for your business${row.service_description ? ` with your ${row.service_description}` : ""}. If you know anyone else who needs the same, you can send them here: ${publicUrl}`,
+    );
+    return `sms:${num}?&body=${body}`;
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+        <h2 className="text-base font-semibold text-foreground">Job done</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Log a finished job and we send that customer one personalised referral ask about {DELAY_HOURS} hours
+          later, using their first name, the service and who did the work. Automatic asks go by email only.
+          Texts are sent from your own phone.
+        </p>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <div>
+            <Label htmlFor="ja-first" className="text-xs">Customer first name</Label>
+            <Input id="ja-first" className="mt-1.5" value={form.first_name}
+              onChange={(e) => setForm((f) => ({ ...f, first_name: e.target.value }))} />
+          </div>
+          <div>
+            <Label htmlFor="ja-service" className="text-xs">What was the service</Label>
+            <Input id="ja-service" className="mt-1.5" placeholder="e.g. water heater replacement" value={form.service}
+              onChange={(e) => setForm((f) => ({ ...f, service: e.target.value }))} />
+          </div>
+          <div>
+            <Label htmlFor="ja-email" className="text-xs">Customer email</Label>
+            <Input id="ja-email" type="email" className="mt-1.5" value={form.email}
+              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+          </div>
+          <div>
+            <Label htmlFor="ja-phone" className="text-xs">Customer phone (optional)</Label>
+            <Input id="ja-phone" type="tel" className="mt-1.5" value={form.phone}
+              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
+          </div>
+          <div>
+            <Label htmlFor="ja-tech" className="text-xs">Who did the work (optional)</Label>
+            <Input id="ja-tech" className="mt-1.5" value={form.technician}
+              onChange={(e) => setForm((f) => ({ ...f, technician: e.target.value }))} />
+          </div>
+          <div>
+            <Label htmlFor="ja-amount" className="text-xs">Amount paid (optional)</Label>
+            <Input id="ja-amount" type="number" min="0" step="0.01" inputMode="decimal" className="mt-1.5"
+              value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} />
+          </div>
+        </div>
+
+        <Button className="mt-5" onClick={submit} disabled={saving}>
+          {saving ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
+          Schedule the ask
+        </Button>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Every automatic email carries an unsubscribe link, and we skip anyone who has unsubscribed or bounced.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        <div className="border-b border-border px-5 py-3 text-sm font-medium text-foreground">Recent asks</div>
+        {loading ? (
+          <div className="p-8 text-center text-sm text-muted-foreground">Loading…</div>
+        ) : rows.length === 0 ? (
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            Nothing scheduled yet. Log a finished job above.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">Customer</th>
+                  <th className="px-4 py-3 text-left font-medium">Service</th>
+                  <th className="px-4 py-3 text-left font-medium">Status</th>
+                  <th className="px-4 py-3 text-left font-medium">When</th>
+                  <th className="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => {
+                  const meta = STATUS_META[r.status] ?? { label: r.status, className: "bg-muted text-muted-foreground" };
+                  const pending = r.status === "scheduled" || r.status === "queued";
+                  return (
+                    <tr key={r.id} className="border-t border-border">
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-foreground">{r.customer_first_name || "Customer"}</div>
+                        <div className="text-xs text-muted-foreground">{r.customer_email || r.customer_phone || "·"}</div>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {r.service_description || "·"}
+                        {r.technician_name ? <div className="text-xs">by {r.technician_name}</div> : null}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${meta.className}`}>
+                          {r.status === "sent" ? <CheckCircle2 className="h-3 w-3" /> : r.status === "failed" ? <XCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                          {meta.label}
+                        </span>
+                        {r.failure_reason ? (
+                          <div className="mt-1 text-[11px] text-muted-foreground">{r.failure_reason}</div>
+                        ) : null}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">
+                        {r.sent_at
+                          ? new Date(r.sent_at).toLocaleString()
+                          : new Date(r.scheduled_send_at).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          {r.customer_phone && (
+                            <Button variant="ghost" size="sm" asChild>
+                              <a href={smsHref(r)}>
+                                <MessageSquare className="mr-1.5 h-3.5 w-3.5" /> Text from my phone
+                              </a>
+                            </Button>
+                          )}
+                          {pending && (
+                            <Button variant="ghost" size="sm" onClick={() => cancel(r.id)}>Cancel</Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AutoAskTab;

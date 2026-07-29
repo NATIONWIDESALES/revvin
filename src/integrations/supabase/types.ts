@@ -674,6 +674,7 @@ export type Database = {
           consent_given: boolean
           created_at: string
           deal_value: number | null
+          fast_nudge_sent_at: string | null
           id: string
           lead_email: string | null
           lead_name: string
@@ -697,6 +698,7 @@ export type Database = {
           consent_given?: boolean
           created_at?: string
           deal_value?: number | null
+          fast_nudge_sent_at?: string | null
           id?: string
           lead_email?: string | null
           lead_name: string
@@ -720,6 +722,7 @@ export type Database = {
           consent_given?: boolean
           created_at?: string
           deal_value?: number | null
+          fast_nudge_sent_at?: string | null
           id?: string
           lead_email?: string | null
           lead_name?: string
@@ -1308,6 +1311,7 @@ export type Database = {
           source: string
           source_event_id: string | null
           status: string
+          technician_name: string | null
         }
         Insert: {
           amount_paid?: number | null
@@ -1326,6 +1330,7 @@ export type Database = {
           source: string
           source_event_id?: string | null
           status?: string
+          technician_name?: string | null
         }
         Update: {
           amount_paid?: number | null
@@ -1344,6 +1349,7 @@ export type Database = {
           source?: string
           source_event_id?: string | null
           status?: string
+          technician_name?: string | null
         }
         Relationships: []
       }
