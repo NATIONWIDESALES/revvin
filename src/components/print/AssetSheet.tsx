@@ -45,7 +45,10 @@ const AssetSheet = ({ asset, biz, url, scale = 1 }: Props) => {
     ? `Earn ${biz.offer_amount.trim()} for a referral`
     : "Refer someone, get rewarded";
   const trigger = biz.offer_trigger?.trim();
-  const stacked = asset.heightIn / asset.widthIn > 1.3; // door hanger, flyer
+  // Stack when the piece is tall, or when the QR is big enough relative to the
+  // width that a side-by-side layout would squeeze the copy into a column.
+  const stacked =
+    asset.heightIn / asset.widthIn > 1.25 || asset.qrIn > asset.widthIn * 0.4;
 
   return (
     <div
