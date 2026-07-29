@@ -86,6 +86,8 @@ const PublicReferralPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [statusUrl, setStatusUrl] = useState<string | null>(null);
+  /** True when the viewer is the owner looking at their own unpublished page. */
+  const [ownerPreview, setOwnerPreview] = useState(false);
 
   const [form, setForm] = useState({
     referrer_name: "",
@@ -104,12 +106,41 @@ const PublicReferralPage = () => {
   useEffect(() => {
     if (!slug) return;
     (async () => {
+      const COLS =
+        "id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,verified,brand_color,cover_image_url,headline,welcome_message,referral_cta_label,testimonials";
+
       const { data } = await supabase
         .from("businesses_public" as any)
-        .select("id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,verified,brand_color,cover_image_url,headline,welcome_message,referral_cta_label,testimonials")
+        .select(COLS)
         .eq("slug", slug)
         .limit(1);
-      setBiz(((data?.[0] as unknown) as Business) ?? null);
+
+      if (data?.[0]) {
+        setBiz((data[0] as unknown) as Business);
+        setLoading(false);
+        return;
+      }
+
+      // Not live. If the signed-in viewer owns this page, show it in preview
+      // mode so they can see exactly what customers will see once they go live.
+      const { data: sess } = await supabase.auth.getSession();
+      const uid = sess.session?.user?.id;
+      if (uid) {
+        const { data: own } = await supabase
+          .from("businesses")
+          .select(`${COLS},user_id`)
+          .eq("slug", slug)
+          .eq("user_id", uid)
+          .limit(1);
+        if (own?.[0]) {
+          setBiz((own[0] as unknown) as Business);
+          setOwnerPreview(true);
+          setLoading(false);
+          return;
+        }
+      }
+
+      setBiz(null);
       setLoading(false);
     })();
   }, [slug]);
@@ -119,6 +150,7 @@ const PublicReferralPage = () => {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!biz) return;
+    if (ownerPreview) return; // preview only, never writes a lead
     if (form.website) return; // honeypot
     if (!form.consent_given) {
       toast({ title: "Consent required", description: "Please confirm you have permission to share this lead's info.", variant: "destructive" });
