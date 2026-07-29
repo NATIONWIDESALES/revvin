@@ -26,30 +26,30 @@ const ForBusinesses = () => (
   <div>
     <SEOHead
       title="Revvin | Referral program for service businesses"
-      description="Launch a referral program for your service business. Branded referral page, shareable link, QR code, and lead inbox. Flat $49/month USD. Cancel anytime. You pay your referrers directly."
+      description="Launch a referral program for your service business. Build your branded referral page, link, QR code, and lead inbox free. Pay $49/month USD only when you go live. Cancel anytime. You pay your referrers directly."
       path="/for-businesses"
       jsonLd={[
         {
           "@context": "https://schema.org",
           "@type": "Service",
           "name": "Revvin Referral Marketing for Businesses",
-          "description": "Referral program software for service businesses. Flat $49/month subscription with a branded referral page, lead inbox, and dashboard. Businesses pay their referrers directly when deals close.",
+          "description": "Referral program software for service businesses. Building your referral page is free; publishing it costs a flat $49/month. Includes a branded referral page, lead inbox, and dashboard. Businesses pay their referrers directly when deals close.",
           "provider": { "@type": "Organization", "name": "Revvin", "slogan": "Referral program platform for service businesses" },
           "offers": {
             "@type": "Offer",
             "price": "49",
             "priceCurrency": "USD",
-            "description": "$49/month. Cancel anytime. No contract."
+            "description": "Free to build your page. $49/month when you publish it. Cancel anytime. No contract."
           }
         },
         {
           "@context": "https://schema.org",
           "@type": "FAQPage",
           "mainEntity": [
-            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "A flat $49/month. Cancel anytime, no trial, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close." } },
+            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "Building your referral page is free. Publishing it costs a flat $49/month. Cancel anytime, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close." } },
             { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay your referrer nothing because they only earn when a deal closes. Your only cost to Revvin is the flat $49/month subscription." } },
             { "@type": "Question", "name": "Who decides the referral payout amount?", "acceptedAnswer": { "@type": "Answer", "text": "The business sets the payout based on what a closed customer is worth. Referrers receive 100% of that advertised amount." } },
-            { "@type": "Question", "name": "How is this different from Google Ads or Facebook Ads?", "acceptedAnswer": { "@type": "Answer", "text": "Ads charge per click or impression with no guarantee of conversion. Revvin is a flat $49/month subscription, no platform fees. You pay your referrers directly when deals close." } }
+            { "@type": "Question", "name": "How is this different from Google Ads or Facebook Ads?", "acceptedAnswer": { "@type": "Answer", "text": "Ads charge per click or impression with no guarantee of conversion. Revvin is a flat $49/month subscription once you publish your page, with no platform fees. You pay your referrers directly when deals close." } }
           ]
         }
       ]}
@@ -71,18 +71,18 @@ const ForBusinesses = () => (
             <span className="text-primary">Start paying for customers.</span>
           </motion.h1>
           <motion.p variants={fadeUp} custom={2} className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Launch a branded referral page, share a link or QR code, and manage every lead in one inbox. Flat $49/month. You pay your referrers directly when deals close.
+            Build a branded referral page, link, and QR code for free, then manage every lead in one inbox. $49/month when you go live. You pay your referrers directly when deals close.
           </motion.p>
           <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/signup">Start your referral program <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/signup">Build your referral page — free <ArrowRight className="h-4 w-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" className="h-12 px-8 text-sm" asChild>
               <Link to="/how-it-works">How It Works</Link>
             </Button>
           </motion.div>
           <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
-            $49/month · Cancel anytime · No contract
+            Free to build · $49/month when you go live · Cancel anytime
           </motion.p>
         </motion.div>
       </div>
@@ -90,7 +90,7 @@ const ForBusinesses = () => (
 
     {/* Social proof ticker */}
     <section className="py-3 bg-muted/30 border-y border-border overflow-hidden">
-      <MarqueeTicker items={["$49/month flat", "You set the referrer payout", "Pay referrers directly", "Cancel anytime"]} />
+      <MarqueeTicker items={["Free to build your page", "$49/month when you go live", "You set the referrer payout", "Pay referrers directly", "Cancel anytime"]} />
     </section>
     <section className="py-24 lg:py-32 bg-surface">
       <div className="container">
@@ -170,13 +170,13 @@ const ForBusinesses = () => (
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-2xl mx-auto text-center">
           <motion.p variants={fadeUp} custom={0} className="section-label mb-3">Simple economics</motion.p>
           <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-            $49/month. Cancel anytime.
+            Build free. $49/month to go live.
           </motion.h2>
           <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-sm mb-8 max-w-lg mx-auto">
-            One flat price, billed monthly for every customer. No contract, no setup fee, no per-referral cut. Create your page, publish your offer, and pay referrers directly when deals close.
+            Create your page and offer at no cost. Publishing it costs one flat $49/month, billed monthly. No contract, no setup fee, no per-referral cut. You pay referrers directly when deals close.
           </motion.p>
           <motion.div variants={fadeUp} custom={2} className="inline-flex flex-wrap items-center justify-center gap-4">
-            {["$49/month flat", "You set the payout", "Cancel anytime", "Pay referrers directly"].map(item => (
+            {["Free to build", "$49/month to publish", "You set the payout", "Cancel anytime", "Pay referrers directly"].map(item => (
               <span key={item} className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                 <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                 {item}
@@ -185,9 +185,9 @@ const ForBusinesses = () => (
           </motion.div>
           <motion.div variants={fadeUp} custom={3} className="mt-10">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/signup">Start your referral program <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/signup">Build your referral page — free <ArrowRight className="h-4 w-4" /></Link>
             </Button>
-            <p className="mt-3 text-xs text-muted-foreground">Free tier available for referrers.</p>
+            <p className="mt-3 text-xs text-muted-foreground">Referrer accounts are always free.</p>
           </motion.div>
         </motion.div>
       </div>
@@ -204,11 +204,11 @@ const ForBusinesses = () => (
           className="max-w-xl mx-auto"
         >
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Start acquiring customers today</h2>
-          <p className="text-muted-foreground mb-8">Create your business account, set your referral payout, and let your network do the selling.</p>
+          <p className="text-muted-foreground mb-8">Create your business account for free, set your referral payout, and go live when you are ready.</p>
           <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-            <Link to="/signup">Start your referral program <ArrowRight className="h-4 w-4" /></Link>
+            <Link to="/signup">Build your referral page — free <ArrowRight className="h-4 w-4" /></Link>
           </Button>
-          <p className="mt-4 text-xs text-muted-foreground">$49/month. Cancel anytime. No contract.</p>
+          <p className="mt-4 text-xs text-muted-foreground">Free to build. $49/month when you go live. Cancel anytime.</p>
         </motion.div>
       </div>
     </section>
