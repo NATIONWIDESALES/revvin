@@ -8,13 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import SEOHead from "@/components/SEOHead";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, HandCoins, Quote } from "lucide-react";
+import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, HandCoins, Quote, Eye, Lock } from "lucide-react";
 
 interface Business {
   id: string;
   name: string;
   slug: string;
   description: string | null;
+  user_id?: string | null;
   category: string | null;
   service_area: string | null;
   logo_url: string | null;
@@ -85,6 +86,8 @@ const PublicReferralPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [statusUrl, setStatusUrl] = useState<string | null>(null);
+  /** True when the viewer is the owner looking at their own unpublished page. */
+  const [ownerPreview, setOwnerPreview] = useState(false);
 
   const [form, setForm] = useState({
     referrer_name: "",
@@ -103,12 +106,41 @@ const PublicReferralPage = () => {
   useEffect(() => {
     if (!slug) return;
     (async () => {
+      const COLS =
+        "id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,verified,brand_color,cover_image_url,headline,welcome_message,referral_cta_label,testimonials";
+
       const { data } = await supabase
         .from("businesses_public" as any)
-        .select("id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,verified,brand_color,cover_image_url,headline,welcome_message,referral_cta_label,testimonials")
+        .select(COLS)
         .eq("slug", slug)
         .limit(1);
-      setBiz(((data?.[0] as unknown) as Business) ?? null);
+
+      if (data?.[0]) {
+        setBiz((data[0] as unknown) as Business);
+        setLoading(false);
+        return;
+      }
+
+      // Not live. If the signed-in viewer owns this page, show it in preview
+      // mode so they can see exactly what customers will see once they go live.
+      const { data: sess } = await supabase.auth.getSession();
+      const uid = sess.session?.user?.id;
+      if (uid) {
+        const { data: own } = await supabase
+          .from("businesses")
+          .select(`${COLS},user_id`)
+          .eq("slug", slug)
+          .eq("user_id", uid)
+          .limit(1);
+        if (own?.[0]) {
+          setBiz((own[0] as unknown) as Business);
+          setOwnerPreview(true);
+          setLoading(false);
+          return;
+        }
+      }
+
+      setBiz(null);
       setLoading(false);
     })();
   }, [slug]);
@@ -118,6 +150,7 @@ const PublicReferralPage = () => {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!biz) return;
+    if (ownerPreview) return; // preview only, never writes a lead
     if (form.website) return; // honeypot
     if (!form.consent_given) {
       toast({ title: "Consent required", description: "Please confirm you have permission to share this lead's info.", variant: "destructive" });
@@ -171,12 +204,23 @@ const PublicReferralPage = () => {
 
   if (!biz) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-6 text-center">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">Page not found</h1>
-          <p className="mt-2 text-sm text-muted-foreground">This referral page is not available.</p>
+      <>
+        <SEOHead title="Referral page unavailable · Revvin" description="This referral page is not live." noindex />
+        <div className="flex min-h-screen items-center justify-center p-6 text-center">
+          <div className="max-w-sm">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+              <Lock className="h-5 w-5" />
+            </div>
+            <h1 className="mt-4 text-2xl font-semibold text-foreground">This referral page is not live</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              It may not have launched yet, or the link may be wrong. Double-check the address with the business.
+            </p>
+            <Link to="/" className="mt-6 inline-block text-sm font-medium text-foreground underline">
+              Go to Revvin
+            </Link>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -212,6 +256,7 @@ const PublicReferralPage = () => {
         title={`Refer a customer to ${biz.name}${biz.offer_amount ? `, earn ${biz.offer_amount}` : ""}`}
         description={`${biz.name} pays for warm referrals.${biz.offer_amount ? ` Earn ${biz.offer_amount}${biz.offer_trigger ? " " + biz.offer_trigger : ""}.` : ""}`}
         path={`/r/${biz.slug}`}
+        noindex={ownerPreview}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
@@ -224,6 +269,22 @@ const PublicReferralPage = () => {
         }}
       />
       <div className="min-h-screen bg-[#FAFAF7]">
+        {ownerPreview && (
+          <div className="sticky top-0 z-50 border-b border-amber-300 bg-amber-50 px-4 py-3">
+            <div className="mx-auto flex max-w-3xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="flex items-start gap-2 text-sm text-amber-900">
+                <Eye className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>
+                  <strong className="font-semibold">Preview only.</strong> This page is in draft, so nobody else can
+                  see it and the form does not accept referrals yet.
+                </span>
+              </p>
+              <Button asChild size="sm" className="shrink-0">
+                <Link to="/dashboard">Go live</Link>
+              </Button>
+            </div>
+          </div>
+        )}
         {/* Branded hero */}
         <div
           className="relative overflow-hidden"
@@ -484,11 +545,12 @@ const PublicReferralPage = () => {
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-4">
+              <fieldset disabled={ownerPreview} className={ownerPreview ? "space-y-4 opacity-60" : "space-y-4"}>
               <h2 className="text-lg font-semibold text-foreground leading-tight">
                 Submit a referral
               </h2>
               <p className="text-sm text-muted-foreground -mt-2">
-                Takes about 30 seconds.
+                {ownerPreview ? "This is how the form will look to your customers." : "Takes about 30 seconds."}
               </p>
               <input type="text" name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => update("website", e.target.value)} className="hidden" />
 
@@ -522,6 +584,7 @@ const PublicReferralPage = () => {
                   <>{ctaLabel}</>
                 )}
               </Button>
+              </fieldset>
             </form>
           )}
             </div>

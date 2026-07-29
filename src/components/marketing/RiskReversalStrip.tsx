@@ -1,9 +1,9 @@
-import { ShieldCheck, XCircle, Wallet, Database } from "lucide-react";
+import { ShieldCheck, XCircle, CircleDollarSign, Database } from "lucide-react";
 
 const items = [
   { icon: XCircle, label: "Cancel anytime" },
   { icon: ShieldCheck, label: "No contract" },
-  { icon: Wallet, label: "No setup fee" },
+  { icon: CircleDollarSign, label: "No setup fee" },
   { icon: Database, label: "Your data is kept if you cancel" },
 ];
 

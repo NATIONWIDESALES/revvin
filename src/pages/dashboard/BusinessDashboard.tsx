@@ -164,20 +164,20 @@ const BusinessDashboard = () => {
     );
   }
 
-  // Subscription lock: anything outside active/trialing/past_due is locked out
-  // of the full dashboard with a Reactivate screen.
+  // Free to build, pay to publish. Businesses without an active subscription
+  // keep full access to page building and share tools, and see a Go live
+  // banner. Only the live-traffic surfaces are gated.
   const subStatus = (biz.subscription_status || "").toLowerCase();
-  const subscriptionUnlocked = ["active", "trialing", "past_due"].includes(subStatus);
-  if (!subscriptionUnlocked) {
-    return <SubscriptionLockScreen biz={biz} />;
-  }
+  const subscribed = ["active", "trialing", "past_due"].includes(subStatus);
+  const isLive = subscribed && biz.is_published && !biz.is_disabled;
+  const everSubscribed = ["canceled", "cancelled", "unpaid", "incomplete_expired"].includes(subStatus);
 
-  // Not yet onboarded
-  if (!biz.slug || !biz.is_published) {
+  // Setup has not produced a URL yet, there is nothing to show or preview.
+  if (!biz.slug) {
     return (
       <div className="container py-16 max-w-xl text-center">
         <h1 className="text-2xl font-semibold text-foreground">Finish setting up your referral page</h1>
-        <p className="mt-2 text-sm text-muted-foreground">You're almost there.</p>
+        <p className="mt-2 text-sm text-muted-foreground">You're almost there. It's free to build.</p>
         <Button asChild className="mt-6"><Link to="/welcome">Continue setup</Link></Button>
       </div>
     );
@@ -235,14 +235,29 @@ const BusinessDashboard = () => {
     <div className="container py-10 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">{biz.name}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">{biz.name}</h1>
+            <span
+              className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${
+                isLive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {isLive ? "Live" : everSubscribed ? "Canceled" : "Draft"}
+            </span>
+          </div>
           <p className="text-sm text-muted-foreground mt-1">Your referral program dashboard</p>
         </div>
         <div className="flex items-center gap-2">
           <Button asChild><Link to="/dashboard/create-offer"><Plus className="mr-2 h-3.5 w-3.5" /> Create offer</Link></Button>
-          <Button variant="outline" asChild><a href={publicUrl} target="_blank" rel="noopener noreferrer">View public page <ExternalLink className="ml-2 h-3.5 w-3.5" /></a></Button>
+          <Button variant="outline" asChild>
+            <a href={publicUrl} target="_blank" rel="noopener noreferrer">
+              {isLive ? "View public page" : "Preview page"} <ExternalLink className="ml-2 h-3.5 w-3.5" />
+            </a>
+          </Button>
         </div>
       </div>
+
+      {!isLive && <GoLiveBanner biz={biz} subscribed={subscribed} onUpdate={loadAll} />}
 
       <ActivationChecklist steps={activationSteps} />
 
@@ -261,6 +276,12 @@ const BusinessDashboard = () => {
         </TabsList>
 
         <TabsContent value="customers">
+          {!isLive ? (
+            <LockedTab
+              title="Go live to invite your customers"
+              body="Your referral page has to be live before you send customers to it. Everything you build here is saved."
+            />
+          ) : (
           <AttestationGate
             businessId={biz.id}
             consentedAt={biz.contact_outreach_consent_at ?? null}
@@ -268,77 +289,109 @@ const BusinessDashboard = () => {
           >
             <CustomersTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger }} publicUrl={publicUrl} />
           </AttestationGate>
+          )}
         </TabsContent>
-        <TabsContent value="leads"><LeadsTab leads={leads} reload={loadAll} /></TabsContent>
+        <TabsContent value="leads">
+          {!isLive && leads.length === 0 ? (
+            <LockedTab
+              title="No leads yet"
+              body="Referrals land here once your page is live and customers start sending people your way."
+            />
+          ) : (
+            <LeadsTab leads={leads} reload={loadAll} />
+          )}
+        </TabsContent>
         <TabsContent value="offers"><OffersTab offers={offers} /></TabsContent>
-        <TabsContent value="referrals"><MarketplaceReferralsTab referrals={marketplaceReferrals} reload={loadAll} /></TabsContent>
+        <TabsContent value="referrals">
+          {!isLive && marketplaceReferrals.length === 0 ? (
+            <LockedTab
+              title="Go live to appear in the marketplace"
+              body="Outside referrers can only find and submit to businesses with a live referral page."
+            />
+          ) : (
+            <MarketplaceReferralsTab referrals={marketplaceReferrals} reload={loadAll} />
+          )}
+        </TabsContent>
         <TabsContent value="payouts"><PayoutsPage businessId={biz.id} /></TabsContent>
         <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} /></TabsContent>
-        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} /></TabsContent>
+        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} /></TabsContent>
         <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
       </Tabs>
     </div>
   );
 };
 
-// ============= SUBSCRIPTION LOCK SCREEN =============
-const SubscriptionLockScreen = ({ biz }: { biz: Business }) => {
-  const { toast } = useToast();
-  const [busy, setBusy] = useState<"checkout" | "portal" | null>(null);
+// ============= DRAFT MODE HELPERS =============
+const LockedTab = ({ title, body }: { title: string; body: string }) => (
+  <div className="rounded-2xl border border-dashed border-border bg-muted/20 p-10 text-center">
+    <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-muted text-muted-foreground">
+      <Lock className="h-4 w-4" />
+    </div>
+    <h3 className="mt-4 text-base font-semibold text-foreground">{title}</h3>
+    <p className="mx-auto mt-1.5 max-w-sm text-sm text-muted-foreground">{body}</p>
+  </div>
+);
 
-  const startCheckout = async () => {
-    setBusy("checkout");
+const GoLiveBanner = ({
+  biz,
+  subscribed,
+  onUpdate,
+}: {
+  biz: Business;
+  subscribed: boolean;
+  onUpdate: () => void;
+}) => {
+  const { toast } = useToast();
+  const [busy, setBusy] = useState(false);
+
+  const goLive = async () => {
+    setBusy(true);
+    // Already paying, publishing is a single flag flip.
+    if (subscribed) {
+      const { error } = await supabase.from("businesses").update({ is_published: true }).eq("id", biz.id);
+      setBusy(false);
+      if (error) {
+        toast({ title: "Could not go live", description: error.message, variant: "destructive" });
+        return;
+      }
+      toast({ title: "Your referral page is live" });
+      onUpdate();
+      return;
+    }
     const { data, error } = await supabase.functions.invoke("create-business-checkout", {
       body: { includeLaunchPackage: false },
     });
     if (error || !data?.url) {
-      setBusy(null);
+      setBusy(false);
       toast({ title: "Could not start checkout", description: error?.message, variant: "destructive" });
       return;
     }
     window.location.href = data.url;
   };
 
-  const openPortal = async () => {
-    setBusy("portal");
-    const { data, error } = await supabase.functions.invoke("customer-portal");
-    setBusy(null);
-    if (error || !data?.url) {
-      toast({ title: "Could not open billing portal", description: error?.message, variant: "destructive" });
-      return;
-    }
-    window.open(data.url, "_blank");
-  };
-
-  const status = biz.subscription_status || "none";
-  const hasStripeCustomer = !!biz.stripe_customer_id;
+  const ready = !!(biz.slug && biz.offer_amount && biz.offer_trigger);
 
   return (
-    <div className="container max-w-xl py-16">
-      <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-          <Lock className="h-5 w-5" />
-        </div>
-        <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">Reactivate your subscription</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Your Revvin dashboard is locked because your subscription is not active. Reactivate to restore your referral page, leads, and marketplace offers.
-        </p>
-        <p className="mt-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-          Current status: {status}
-        </p>
-        <div className="mt-6 flex flex-col gap-2">
-          <Button size="lg" className="h-11" onClick={startCheckout} disabled={busy !== null}>
-            {busy === "checkout" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Reactivate ($49/month)"}
-          </Button>
-          {hasStripeCustomer && (
-            <Button variant="outline" onClick={openPortal} disabled={busy !== null}>
-              {busy === "portal" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing in customer portal"}
-            </Button>
+    <div className="mb-6 rounded-2xl border border-primary/30 bg-primary/5 p-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-base font-semibold text-foreground">
+            {subscribed ? "Your page is ready to publish" : "Your referral page is in draft"}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {subscribed
+              ? "Publish it so customers and referrers can reach it."
+              : "Building is free. Go live for $49/month USD to open your page to customers and the marketplace. Cancel anytime."}
+          </p>
+          {!ready && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Tip: add your reward amount and when it pays out first so referrers know the deal.
+            </p>
           )}
         </div>
-        <p className="mt-4 text-[11px] text-muted-foreground">
-          Need help? Email <a className="underline" href="mailto:info@revvin.co">info@revvin.co</a>.
-        </p>
+        <Button onClick={goLive} disabled={busy} size="lg" className="shrink-0">
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : subscribed ? "Publish page" : "Go live, $49/month"}
+        </Button>
       </div>
     </div>
   );
@@ -828,7 +881,7 @@ const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: strin
 };
 
 // ============= SHARE TAB =============
-const ShareTab = ({ biz, publicUrl }: { biz: Business; publicUrl: string }) => {
+const ShareTab = ({ biz, publicUrl, isLive }: { biz: Business; publicUrl: string; isLive: boolean }) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -874,6 +927,12 @@ const ShareTab = ({ biz, publicUrl }: { biz: Business; publicUrl: string }) => {
   const copy = (s: string, label: string) => { navigator.clipboard.writeText(s); toast({ title: `${label} copied` }); };
 
   return (
+    <>
+    {!isLive && (
+      <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        Your page is in draft, so this link and QR code will not work for anyone else yet. Go live to activate them.
+      </div>
+    )}
     <div className="grid gap-6 md:grid-cols-2">
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-4">QR code</h3>
@@ -903,6 +962,7 @@ const ShareTab = ({ biz, publicUrl }: { biz: Business; publicUrl: string }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

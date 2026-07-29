@@ -21,17 +21,19 @@ const RoleSelector = () => {
       const { error: roleErr } = await supabase.rpc("assign_self_role", { _role: role });
       if (roleErr) throw roleErr;
 
-      // If business, create business row
+      // If business, create business row. The INSERT RLS policy requires
+      // account_status = 'pending_approval', so anything else is rejected.
       if (role === "business") {
         const name = user.user_metadata?.full_name || user.email?.split("@")[0] || "My Business";
-        await supabase.from("businesses").insert({
+        const { error: bizErr } = await supabase.from("businesses").insert({
           user_id: user.id,
           name: name + "'s Business",
-          account_status: "approved",
+          account_status: "pending_approval",
         });
+        if (bizErr) throw bizErr;
       }
 
-      // Reload to pick up the new role
+      // Reload to pick up the new role (only on success)
       window.location.reload();
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to set role", variant: "destructive" });
