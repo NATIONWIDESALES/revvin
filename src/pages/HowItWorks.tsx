@@ -31,7 +31,7 @@ const HowItWorks = () => {
     <>
       <SEOHead
         title="Revvin | How it works"
-        description="Launch a referral program for your service business. Branded referral page, shareable link, QR code, and lead inbox. Flat $49/month USD. Cancel anytime. You pay your referrers directly."
+        description="Launch a referral program for your service business. Build your branded referral page, link, QR code, and lead inbox free. Pay $49/month USD only when you go live. Cancel anytime. You pay your referrers directly."
         path="/how-it-works"
       />
 
@@ -72,10 +72,10 @@ const HowItWorks = () => {
         <div className="container max-w-2xl py-24 text-center">
           <h2 className="text-3xl font-extrabold tracking-tight md:text-5xl">Ready in minutes.</h2>
           <p className="mt-4 text-lg text-white/70">
-            $49/month. Cancel anytime. No contract.
+            Free to build. $49/month when you go live. Cancel anytime, no contract.
           </p>
           <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
-            <Link to="/signup">Start your referral program</Link>
+            <Link to="/signup">Build your referral page — free</Link>
           </Button>
         </div>
       </section>

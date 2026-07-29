@@ -49,12 +49,12 @@ const FAQS: { question: string; answer: string }[] = [
   {
     question: "How does billing work?",
     answer:
-      "Pro is a flat $49/month USD, billed monthly. No trial, no contract, no setup fee, no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.",
+      "Building your referral page is free. You are only charged when you publish it. Publishing costs a flat $49/month USD, billed monthly, with no contract, no setup fee, and no platform fees. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.",
   },
   {
-    question: "Is there a free tier?",
+    question: "What is free and what costs money?",
     answer:
-      "Businesses run on the flat $49/month plan — there's no free business tier and no trial. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.",
+      "Creating your account and building your referral page, offer, and QR code is free. This is not a trial and not a free plan with usage limits: your page cannot receive referrals until you publish it, and publishing costs $49/month USD. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.",
   },
   {
     question: "Do you have a marketplace where I can browse offers?",
@@ -101,7 +101,7 @@ const Index = () => {
     <>
       <SEOHead
         title="Revvin · Launch a referral program in minutes"
-        description="Branded referral page, shareable link and QR code, and a simple lead inbox. $49/month, cancel anytime. No contract."
+        description="Build your branded referral page, shareable link, QR code, and lead inbox for free. Pay $49/month only when you go live. Cancel anytime."
         path="/"
         jsonLd={[
           {
@@ -151,13 +151,13 @@ const Index = () => {
                 for your business.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-                Get a branded referral page, QR code, and lead inbox to turn your customers into your sales team. Optional: get listed on the Revvin marketplace where motivated referrers can find your offer. <span className="text-foreground font-medium">$49/month flat.</span>
+                Build your branded referral page, QR code, and lead inbox for free, then turn your customers into your sales team. <span className="text-foreground font-medium">$49/month when you go live.</span> Optional: get listed on the Revvin marketplace where motivated referrers can find your offer.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
                   <Link to="/signup">
-                    <span className="sm:hidden">Start your program · $49/mo</span>
-                    <span className="hidden sm:inline">Start your referral program · $49/month</span>
+                    <span className="sm:hidden">Build your page — free</span>
+                    <span className="hidden sm:inline">Build your referral page — free</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -172,7 +172,7 @@ const Index = () => {
                 </Link>
               </p>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                $49/month. Cancel anytime. No contract, no setup fee.
+                Free to build your page. $49/month when you go live. Cancel anytime.
               </p>
             </div>
 
@@ -217,7 +217,7 @@ const Index = () => {
               Your offer, in front of motivated referrers.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              The Revvin marketplace is launching. List your business now and be one of the first offers referrers see.
+              The Revvin marketplace is launching. Build your listing free and be one of the first offers referrers see when you go live.
             </p>
             <p className="mx-auto mt-4 inline-flex max-w-fit items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               Illustrative examples · not real businesses
@@ -288,7 +288,7 @@ const Index = () => {
               <Link to="/browse">Browse the marketplace <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
             <Button size="lg" className="h-12 px-6 shadow-product hover:bg-primary-deep" asChild>
-              <Link to="/signup">List your business here</Link>
+              <Link to="/signup">Build your listing — free</Link>
             </Button>
           </div>
         </div>
@@ -463,10 +463,10 @@ const Index = () => {
                 <span className="text-6xl font-extrabold tracking-tight text-foreground">$49</span>
                 <span className="text-base font-medium text-muted-foreground">/month USD</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">Cancel anytime. No contract. No setup fee. Billed in USD.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Free to build your page. Billing starts when you publish it. Cancel anytime. No contract, no setup fee. Billed in USD.</p>
 
               <Button size="lg" className="mt-8 h-12 w-full text-base shadow-soft hover:bg-primary-deep" asChild>
-                <Link to="/signup">Start your referral program</Link>
+                <Link to="/signup">Build your page free</Link>
               </Button>
 
               <div className="mt-8 grid grid-cols-1 gap-y-2.5 border-t border-border pt-6 sm:grid-cols-2 sm:gap-x-8">
@@ -580,10 +580,10 @@ const Index = () => {
             Launch your referral program <span className="shimmer-text">today.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-            $49/month USD. Cancel anytime. No contract.
+            Build your page free. $49/month USD when you go live. Cancel anytime.
           </p>
           <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
-            <Link to="/signup">Start your referral program</Link>
+            <Link to="/signup">Build your referral page — free</Link>
           </Button>
           <p className="mt-5 text-sm text-white/70">
             Not ready?{" "}

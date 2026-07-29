@@ -50,7 +50,7 @@ const Testimonials = () => {
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button size="lg" className="h-11 px-6 shadow-soft hover:bg-primary-deep" asChild>
-                <Link to="/signup">Start your referral program</Link>
+                <Link to="/signup">Build your referral page — free</Link>
               </Button>
             </div>
           </div>

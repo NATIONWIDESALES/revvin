@@ -37,7 +37,7 @@ const Auth = () => {
     <div className="flex min-h-screen">
       <SEOHead
         title="Revvin | Sign in or create your account"
-        description="Sign in to your Revvin dashboard or create an account. Businesses run on a flat $49/month USD plan. Referrers join free."
+        description="Sign in to your Revvin dashboard or create an account. Businesses build their referral page free and pay $49/month USD when they go live. Referrers join free."
         path="/auth"
         noindex
       />
@@ -64,7 +64,7 @@ const Auth = () => {
           <p className="mt-2 text-muted-foreground text-sm">
             Don't have an account?{" "}
             <Link to="/signup" className="text-primary font-medium hover:underline inline-flex items-center gap-1">
-              Start your referral program <ArrowRight className="h-3.5 w-3.5" />
+              Build your referral page — free <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </p>
 

@@ -150,6 +150,8 @@ serve(async (req) => {
             current_period_end: currentPeriodEnd,
             is_published: publishedStatuses.has(status),
           };
+          // Payment is approval: a completed Stripe checkout approves the account.
+          if (publishedStatuses.has(status)) patch.account_status = "approved";
           if (launchPackagePurchased) patch.launch_package_status = "purchased";
           await setBiz(userId, patch);
 
@@ -299,6 +301,9 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
               status === "canceled"
                 ? false
                 : publishedStatuses.has(status) && (periodEnd ? new Date(periodEnd) > new Date() : true),
+            ...(status !== "canceled" && publishedStatuses.has(status)
+              ? { account_status: "approved" }
+              : {}),
           });
         } else {
           // Fall back to customer email lookup
@@ -317,6 +322,7 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
                   subscription_status: status,
                   current_period_end: periodEnd,
                   is_published: publishedStatuses.has(status),
+                  ...(publishedStatuses.has(status) ? { account_status: "approved" } : {}),
                 })
                 .eq("user_id", match.id);
             }
@@ -350,6 +356,7 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
               subscription_status: "active",
               current_period_end: periodEnd,
               is_published: true,
+              account_status: "approved",
             })
             .eq("stripe_subscription_id", subId);
         }

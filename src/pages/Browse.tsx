@@ -182,7 +182,7 @@ const Browse = () => {
       <div className="py-6">
         <SEOHead
           title="Revvin | Browse referral offers"
-          description="Launch a referral program for your service business. Branded referral page, shareable link, QR code, and lead inbox. Flat $49/month USD. Cancel anytime. You pay your referrers directly."
+          description="Launch a referral program for your service business. Branded referral page, shareable link, QR code, and lead inbox. Free to build your page. $49/month USD when you go live. Cancel anytime. You pay your referrers directly."
           path="/browse"
         />
         <div className="container">
@@ -197,14 +197,14 @@ const Browse = () => {
               The marketplace is just getting started.
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
-              We're onboarding our first businesses now. List your business to
+              We're onboarding our first businesses now. Build your listing free to
               be one of the first offers referrers see, or drop your email and
               we'll let you know the moment offers go live in your area.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button size="lg" className="h-11 px-6 shadow-soft hover:bg-primary-deep" asChild>
                 <Link to="/signup">
-                  <PlusCircle className="mr-2 h-4 w-4" /> List your business
+                  <PlusCircle className="mr-2 h-4 w-4" /> Build your listing free
                 </Link>
               </Button>
               <Button size="lg" variant="outline" className="h-11 px-6" asChild>

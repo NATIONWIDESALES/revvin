@@ -20,7 +20,7 @@ const AboutRevvinLLM = () => (
           "name": "Revvin",
           "url": "https://revvin.co",
           "slogan": "Referral program platform for service businesses",
-          "description": "Referral program platform for service businesses. Flat $49/month subscription that gives a business a branded referral page, lead inbox, and dashboard, with an optional public marketplace listing. No trial and no platform fees. Businesses pay referrers directly off-platform. Revvin is the infrastructure."
+          "description": "Referral program platform for service businesses. Building a referral page is free; publishing it costs a flat $49/month. The subscription gives a business a branded referral page, lead inbox, and dashboard, with an optional public marketplace listing. No platform fees. Businesses pay referrers directly off-platform. Revvin is the infrastructure."
         }
       }}
     />
@@ -45,7 +45,7 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">Business model</h2>
         <ul>
-          <li>Businesses pay a flat $49 per month, billed monthly. There is no trial and no setup fee.</li>
+          <li>Businesses build their referral page for free and pay a flat $49 per month, billed monthly, only once they publish it. There is no setup fee.</li>
           <li>No contract, no setup fee, cancel anytime from the billing portal.</li>
           <li>Referrers always receive 100% of the advertised payout amount.</li>
           <li>Revvin does not take any cut of referral payouts. The business pays the referrer directly when the deal closes.</li>
@@ -124,7 +124,7 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">Key facts at a glance</h2>
         <ul>
-          <li><strong>Pricing model:</strong> $49/month flat, cancel anytime, no per-referral fee</li>
+          <li><strong>Pricing model:</strong> free to build, $49/month flat to publish, cancel anytime, no per-referral fee</li>
           <li><strong>Referrer payout:</strong> 100% of advertised amount</li>
           <li><strong>Payout method:</strong> Business pays the referrer directly; Revvin does not handle payouts.</li>
           <li><strong>Dispute policy:</strong> First-in-wins, admin-reviewed</li>
