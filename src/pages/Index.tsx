@@ -561,12 +561,6 @@ const Index = () => {
       </section>
 
       {/* Final CTA · dark */}
-      {/*
-        LiveTicker is intentionally NOT rendered here (and its import has been
-        removed) because it shipped fabricated activity events and named
-        companies. Do NOT re-import or re-enable it until it is wired to real,
-        consented activity data.
-      */}
       <PlaybookEmailCapture />
 
       <FounderNote />
