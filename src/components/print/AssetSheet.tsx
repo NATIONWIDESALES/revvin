@@ -38,7 +38,10 @@ const AssetSheet = ({ asset, biz, url, scale = 1 }: Props) => {
   const tiny = asset.widthIn <= 4; // card back and door hanger get shorter copy
   const pad = Math.max(0.2, asset.widthIn * 0.05);
   const quiet = Math.max(0.12, asset.qrIn * 0.08);
-  const base = asset.heightIn * 0.055; // type scale tied to the physical size
+  // Type scale keys off the *smaller* dimension. Keying off height blows the
+  // headline out of a tall narrow piece like the door hanger and pushes the QR
+  // off the card.
+  const base = Math.min(asset.widthIn, asset.heightIn) * 0.14;
   const headline = biz.offer_amount?.trim()
     ? `Earn ${biz.offer_amount.trim()} for a referral`
     : "Refer someone, get rewarded";
@@ -70,7 +73,8 @@ const AssetSheet = ({ asset, biz, url, scale = 1 }: Props) => {
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: `${base * 0.22}in`,
+          gap: `${base * 0.16}in`,
+          justifyContent: "center",
           textAlign: stacked ? "center" : "left",
           alignItems: stacked ? "center" : "flex-start",
           flex: 1,
@@ -81,31 +85,31 @@ const AssetSheet = ({ asset, biz, url, scale = 1 }: Props) => {
           <img
             src={biz.logo_url}
             alt=""
-            style={{ height: `${base * 1.1}in`, objectFit: "contain", maxWidth: "100%" }}
+            style={{ height: `${base * 0.7}in`, objectFit: "contain", maxWidth: "100%" }}
           />
         ) : null}
-        <div style={{ fontSize: `${base * 0.62}in`, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.05 }}>
+        <div style={{ fontSize: `${base * 0.4}in`, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.05 }}>
           {biz.name}
         </div>
         <div style={{ fontSize: `${base}in`, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.02 }}>
           {headline}
         </div>
         {!tiny && trigger ? (
-          <div style={{ fontSize: `${base * 0.42}in`, color: "#475569", lineHeight: 1.25, maxWidth: "9in" }}>
+          <div style={{ fontSize: `${base * 0.3}in`, color: "#475569", lineHeight: 1.25, maxWidth: "9in" }}>
             Paid when {trigger}
           </div>
         ) : null}
-        <div style={{ fontSize: `${base * 0.4}in`, color: "#0F172A", fontWeight: 600, lineHeight: 1.2 }}>
+        <div style={{ fontSize: `${base * 0.3}in`, color: "#0F172A", fontWeight: 600, lineHeight: 1.2 }}>
           Scan the code to send someone over
         </div>
         {!tiny ? (
-          <div style={{ fontSize: `${base * 0.3}in`, color: "#64748B", wordBreak: "break-all", maxWidth: "8in" }}>
+          <div style={{ fontSize: `${base * 0.2}in`, color: "#64748B", wordBreak: "break-all", maxWidth: "8in" }}>
             {url}
             {biz.phone ? `  ·  ${biz.phone}` : ""}
           </div>
         ) : null}
         {!tiny && biz.offer_fine_print?.trim() ? (
-          <div style={{ fontSize: `${base * 0.24}in`, color: "#94A3B8", lineHeight: 1.3, maxWidth: "8in" }}>
+          <div style={{ fontSize: `${base * 0.16}in`, color: "#94A3B8", lineHeight: 1.3, maxWidth: "8in" }}>
             {biz.offer_fine_print.trim()}
           </div>
         ) : null}
