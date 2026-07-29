@@ -84,6 +84,7 @@ export type Database = {
           dunning_notified_at: string | null
           geocode_status: string | null
           geocoded_at: string | null
+          google_review_url: string | null
           headline: string | null
           id: string
           industry: string | null
@@ -143,6 +144,7 @@ export type Database = {
           dunning_notified_at?: string | null
           geocode_status?: string | null
           geocoded_at?: string | null
+          google_review_url?: string | null
           headline?: string | null
           id?: string
           industry?: string | null
@@ -202,6 +204,7 @@ export type Database = {
           dunning_notified_at?: string | null
           geocode_status?: string | null
           geocoded_at?: string | null
+          google_review_url?: string | null
           headline?: string | null
           id?: string
           industry?: string | null
@@ -419,10 +422,13 @@ export type Database = {
           created_by: string
           failed_count: number
           id: string
+          last_batch_at: string | null
           name: string
           opened_count: number
           opted_out_count: number
           scheduled_at: string | null
+          segment_key: string | null
+          segment_label: string | null
           sent_count: number
           started_at: string | null
           status: string
@@ -441,10 +447,13 @@ export type Database = {
           created_by: string
           failed_count?: number
           id?: string
+          last_batch_at?: string | null
           name: string
           opened_count?: number
           opted_out_count?: number
           scheduled_at?: string | null
+          segment_key?: string | null
+          segment_label?: string | null
           sent_count?: number
           started_at?: string | null
           status?: string
@@ -463,10 +472,13 @@ export type Database = {
           created_by?: string
           failed_count?: number
           id?: string
+          last_batch_at?: string | null
           name?: string
           opened_count?: number
           opted_out_count?: number
           scheduled_at?: string | null
+          segment_key?: string | null
+          segment_label?: string | null
           sent_count?: number
           started_at?: string | null
           status?: string
@@ -1243,6 +1255,7 @@ export type Database = {
           email: string | null
           id: string
           is_mock: boolean
+          last_job_at: string | null
           last_sent_at: string | null
           name: string
           phone: string | null
@@ -1256,6 +1269,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_mock?: boolean
+          last_job_at?: string | null
           last_sent_at?: string | null
           name: string
           phone?: string | null
@@ -1269,6 +1283,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_mock?: boolean
+          last_job_at?: string | null
           last_sent_at?: string | null
           name?: string
           phone?: string | null
@@ -1305,6 +1320,13 @@ export type Database = {
           customer_phone: string | null
           failure_reason: string | null
           id: string
+          referral_requires_positive_signal: boolean
+          review_failure_reason: string | null
+          review_request_status: string
+          review_requested_at: string | null
+          satisfaction_at: string | null
+          satisfaction_signal: string | null
+          satisfaction_token: string
           scheduled_send_at: string
           sent_at: string | null
           service_description: string | null
@@ -1324,6 +1346,13 @@ export type Database = {
           customer_phone?: string | null
           failure_reason?: string | null
           id?: string
+          referral_requires_positive_signal?: boolean
+          review_failure_reason?: string | null
+          review_request_status?: string
+          review_requested_at?: string | null
+          satisfaction_at?: string | null
+          satisfaction_signal?: string | null
+          satisfaction_token?: string
           scheduled_send_at?: string
           sent_at?: string | null
           service_description?: string | null
@@ -1343,6 +1372,13 @@ export type Database = {
           customer_phone?: string | null
           failure_reason?: string | null
           id?: string
+          referral_requires_positive_signal?: boolean
+          review_failure_reason?: string | null
+          review_request_status?: string
+          review_requested_at?: string | null
+          satisfaction_at?: string | null
+          satisfaction_signal?: string | null
+          satisfaction_token?: string
           scheduled_send_at?: string
           sent_at?: string | null
           service_description?: string | null
@@ -2006,6 +2042,10 @@ export type Database = {
         Returns: boolean
       }
       fn_platform_counts: { Args: never; Returns: Json }
+      fn_record_satisfaction: {
+        Args: { p_happy: boolean; p_token: string }
+        Returns: Json
+      }
       fn_referral_privileged_unchanged: {
         Args: {
           p_business_id: string

@@ -36,6 +36,7 @@ import PublicReferralPage from "./pages/PublicReferralPage";
 import Onboarding from "./pages/Onboarding";
 import Sample from "./pages/Sample";
 import ReferralStatus from "./pages/ReferralStatus";
+import Feedback from "./pages/Feedback";
 import Analytics from "@/components/Analytics";
 
 import { lazy, Suspense } from "react";
@@ -71,6 +72,7 @@ const App = () => (
                   <Route path="/offer/:id" element={<OfferDetail />} />
                   <Route path="/r/:slug" element={<PublicReferralPage />} />
                   <Route path="/r/status/:token" element={<ReferralStatus />} />
+                  <Route path="/feedback/:token" element={<Feedback />} />
                   <Route path="/welcome" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
                   <Route path="/how-it-works" element={<HowItWorks />} />
                   <Route path="/sample" element={<Sample />} />
