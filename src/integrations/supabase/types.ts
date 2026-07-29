@@ -1479,9 +1479,11 @@ export type Database = {
           amount: number
           business_id: string
           created_at: string
+          created_notified_at: string | null
           id: string
           lead_id: string
           marked_paid_at: string | null
+          paid_notified_at: string | null
           referrer_contact: string | null
           referrer_name: string | null
           status: string
@@ -1490,9 +1492,11 @@ export type Database = {
           amount?: number
           business_id: string
           created_at?: string
+          created_notified_at?: string | null
           id?: string
           lead_id: string
           marked_paid_at?: string | null
+          paid_notified_at?: string | null
           referrer_contact?: string | null
           referrer_name?: string | null
           status?: string
@@ -1501,9 +1505,11 @@ export type Database = {
           amount?: number
           business_id?: string
           created_at?: string
+          created_notified_at?: string | null
           id?: string
           lead_id?: string
           marked_paid_at?: string | null
+          paid_notified_at?: string | null
           referrer_contact?: string | null
           referrer_name?: string | null
           status?: string

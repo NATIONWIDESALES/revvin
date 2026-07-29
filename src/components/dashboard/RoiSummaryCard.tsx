@@ -1,166 +1,274 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { TrendingUp, DollarSign, Target, Inbox } from "lucide-react";
+import { TrendingUp, DollarSign, Target, Inbox, HandCoins, CreditCard, ArrowRight } from "lucide-react";
+
+// The scoreboard that answers "is this worth $49?". Every number here comes
+// from real rows: fn_get_business_roi for lead/close/revenue counts, the
+// rewards table for payouts, and the business subscription state for cost.
+// Nothing is estimated or projected. If a figure cannot be known honestly the
+// tile is omitted rather than filled with a placeholder.
 
 interface Props {
   businessId: string;
 }
 
-type Mode = "month" | "all";
+type Period = "month" | "30d" | "all";
 
-interface LeadRow { created_at: string; status: string; deal_value: number | null; }
-interface RefRow  { created_at: string; status: string; deal_value: number | null; }
+const PERIOD_LABEL: Record<Period, string> = {
+  month: "This month",
+  "30d": "Last 30 days",
+  all: "All time",
+};
 
-interface RecapRow {
-  period_month: string;
-  summary: {
-    leads_total: number;
-    closed_count: number;
-    revenue: number;
-    top_referrer: string | null;
-    period_label: string;
-  };
-  sent_at: string;
-}
+const MONTHLY_PRICE = 49;
+const PAID_STATUSES = ["active", "trialing", "paid", "past_due"];
 
 const fmtUsd = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
+interface RoiResult {
+  leads_total: number;
+  closed_count: number;
+  revenue: number;
+}
+
+function periodRange(period: Period): { from: string | null; to: string | null } {
+  if (period === "all") return { from: null, to: null };
+  const now = new Date();
+  if (period === "month") {
+    return { from: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(), to: null };
+  }
+  return { from: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(), to: null };
+}
+
 const RoiSummaryCard = ({ businessId }: Props) => {
-  const [mode, setMode] = useState<Mode>("all");
+  const [period, setPeriod] = useState<Period>("month");
   const [loading, setLoading] = useState(true);
-  const [leads, setLeads] = useState<LeadRow[]>([]);
-  const [refs, setRefs] = useState<RefRow[]>([]);
-  const [recap, setRecap] = useState<RecapRow | null>(null);
+  const [roi, setRoi] = useState<RoiResult | null>(null);
+  const [rewardsPaid, setRewardsPaid] = useState<number | null>(null);
+  const [subscribed, setSubscribed] = useState<boolean | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { from, to } = periodRange(period);
+
+    const rewardsQuery = supabase
+      .from("rewards")
+      .select("amount, marked_paid_at")
+      .eq("business_id", businessId)
+      .eq("status", "paid");
+    if (from) rewardsQuery.gte("marked_paid_at", from);
+    if (to) rewardsQuery.lt("marked_paid_at", to);
+
+    const [roiRes, rewardsRes, bizRes] = await Promise.all([
+      supabase.rpc("fn_get_business_roi", {
+        p_business_id: businessId,
+        p_from: from,
+        p_to: to,
+      }),
+      rewardsQuery,
+      supabase.from("businesses").select("subscription_status").eq("id", businessId).limit(1),
+    ]);
+
+    const r = roiRes.data as unknown as RoiResult | null;
+    setRoi(
+      r
+        ? {
+            leads_total: Number(r.leads_total || 0),
+            closed_count: Number(r.closed_count || 0),
+            revenue: Number(r.revenue || 0),
+          }
+        : null,
+    );
+
+    const paidRows = (rewardsRes.data as { amount: number | null }[] | null) ?? null;
+    setRewardsPaid(
+      rewardsRes.error ? null : (paidRows ?? []).reduce((s, x) => s + Number(x.amount || 0), 0),
+    );
+
+    const status = (bizRes.data as { subscription_status: string | null }[] | null)?.[0]
+      ?.subscription_status;
+    setSubscribed(status ? PAID_STATUSES.includes(status) : false);
+
+    setLoading(false);
+  }, [businessId, period]);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      const [leadRes, refRes, recapRes] = await Promise.all([
-        supabase.from("leads").select("created_at, status, deal_value").eq("business_id", businessId),
-        supabase.from("referrals").select("created_at, status, deal_value").eq("business_id", businessId),
-        supabase
-          .from("monthly_recap_log")
-          .select("period_month, summary, sent_at")
-          .eq("business_id", businessId)
-          .order("period_month", { ascending: false })
-          .limit(1),
-      ]);
-      if (cancelled) return;
-      setLeads((leadRes.data as LeadRow[]) ?? []);
-      setRefs((refRes.data as RefRow[]) ?? []);
-      const r = (recapRes.data as RecapRow[] | null)?.[0] ?? null;
-      setRecap(r);
-      setLoading(false);
-    })();
-    return () => { cancelled = true; };
-  }, [businessId]);
+    load();
+  }, [load]);
 
-  const stats = useMemo(() => {
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const inRange = (iso: string) => mode === "all" || new Date(iso) >= monthStart;
+  // Revvin cost. A draft account pays nothing, so $0 is the true figure. For a
+  // subscribed account one billing period is one month, which we can state for
+  // the month and 30 day views. For all time we do not know how many periods
+  // have been billed, so that tile is omitted rather than guessed.
+  let cost: number | null = null;
+  if (subscribed === false) cost = 0;
+  else if (subscribed === true && period !== "all") cost = MONTHLY_PRICE;
 
-    const l = leads.filter((r) => inRange(r.created_at));
-    const r = refs.filter((r) => inRange(r.created_at));
-    const closedL = l.filter((x) => x.status === "closed_won");
-    const closedR = r.filter((x) => x.status === "won");
-    const revenue =
-      closedL.reduce((s, x) => s + (Number(x.deal_value) || 0), 0) +
-      closedR.reduce((s, x) => s + (Number(x.deal_value) || 0), 0);
-    // Last 30 days count is independent of the This month / All time toggle
-    // because the spec calls for it as a fixed tertiary line.
-    const cutoff30 = Date.now() - 30 * 24 * 60 * 60 * 1000;
-    const last30 =
-      leads.filter((x) => new Date(x.created_at).getTime() >= cutoff30).length +
-      refs.filter((x) => new Date(x.created_at).getTime() >= cutoff30).length;
-    return {
-      total: l.length + r.length,
-      closed: closedL.length + closedR.length,
-      revenue,
-      last30,
-    };
-  }, [leads, refs, mode]);
-
-  const isEmpty = !loading && stats.total === 0 && stats.revenue === 0;
+  const revenue = roi?.revenue ?? 0;
+  const isEmpty = !loading && (roi?.leads_total ?? 0) === 0 && revenue === 0;
 
   return (
     <section className="mb-8 rounded-2xl border border-border bg-card overflow-hidden">
-      <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-border">
         <div>
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-primary" />
-            Revvin ROI
+            Your Revvin scoreboard
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Revenue your referral program has produced.
+            Real numbers from your referrals. {PERIOD_LABEL[period]}.
           </p>
         </div>
         <div className="inline-flex rounded-lg border border-border p-0.5 text-xs">
-          <button
-            type="button"
-            onClick={() => setMode("month")}
-            className={`px-3 py-1 rounded-md transition ${mode === "month" ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
-          >
-            This month
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("all")}
-            className={`px-3 py-1 rounded-md transition ${mode === "all" ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
-          >
-            All time
-          </button>
+          {(["month", "30d", "all"] as const).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setPeriod(p)}
+              className={`px-3 py-1 rounded-md transition ${
+                period === p
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {PERIOD_LABEL[p]}
+            </button>
+          ))}
         </div>
       </div>
 
       {isEmpty ? (
-        <div className="px-5 py-8 text-center">
-          <Inbox className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-          <p className="text-sm text-foreground font-medium">No revenue tracked yet</p>
-          <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-            Mark leads as Won and add a job value to see what your referrals are worth.
-          </p>
-        </div>
+        <EmptyState />
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border">
-            <Stat icon={<Inbox className="h-4 w-4" />} label="Referral leads" value={loading ? "…" : String(stats.total)} />
-            <Stat icon={<Target className="h-4 w-4" />} label="Closed deals" value={loading ? "…" : String(stats.closed)} />
-            <Stat icon={<DollarSign className="h-4 w-4" />} label="Attributed revenue" value={loading ? "…" : fmtUsd(stats.revenue)} emphasis />
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y divide-border border-b border-border">
+            <Stat
+              icon={<Inbox className="h-4 w-4" />}
+              label="Referrals received"
+              value={loading ? "…" : String(roi?.leads_total ?? 0)}
+            />
+            <Stat
+              icon={<Target className="h-4 w-4" />}
+              label="Deals closed"
+              value={loading ? "…" : String(roi?.closed_count ?? 0)}
+            />
+            <Stat
+              icon={<DollarSign className="h-4 w-4" />}
+              label="Revenue attributed"
+              value={loading ? "…" : fmtUsd(revenue)}
+              emphasis
+            />
+            {rewardsPaid !== null && (
+              <Stat
+                icon={<HandCoins className="h-4 w-4" />}
+                label="Rewards paid out"
+                value={loading ? "…" : fmtUsd(rewardsPaid)}
+              />
+            )}
+            {cost !== null && (
+              <Stat
+                icon={<CreditCard className="h-4 w-4" />}
+                label="Revvin cost"
+                value={loading ? "…" : fmtUsd(cost)}
+              />
+            )}
           </div>
-          <div className="px-5 py-3 border-t border-border text-xs text-muted-foreground flex flex-wrap items-center justify-between gap-2">
-            <span>Last 30 days: <span className="text-foreground font-medium">{loading ? "…" : stats.last30}</span> new lead{stats.last30 === 1 ? "" : "s"}</span>
-            {stats.revenue > 0 && (
-              <span>Your referrals have generated <span className="text-foreground font-medium">{fmtUsd(stats.revenue)}</span> in tracked work.</span>
+
+          <div className="px-5 py-3 text-xs text-muted-foreground">
+            {loading ? null : cost === null ? (
+              <span>
+                {revenue > 0 ? (
+                  <>
+                    <span className="text-foreground font-medium">{fmtUsd(revenue)}</span> in tracked
+                    work came from referrals.
+                  </>
+                ) : (
+                  "No revenue attributed to referrals in this period yet."
+                )}
+              </span>
+            ) : revenue > 0 ? (
+              <span>
+                <span className="text-foreground font-medium">{fmtUsd(revenue)}</span> in tracked work
+                against <span className="text-foreground font-medium">{fmtUsd(cost)}</span> paid to
+                Revvin.
+              </span>
+            ) : (
+              <span>
+                No revenue attributed yet this period. You have paid Revvin{" "}
+                <span className="text-foreground font-medium">{fmtUsd(cost)}</span>.
+              </span>
             )}
           </div>
         </>
-      )}
-
-      {recap && (
-        <div className="px-5 py-3 border-t border-border bg-muted/30 text-xs text-muted-foreground flex flex-wrap items-center justify-between gap-2">
-          <span>
-            Latest recap: <span className="text-foreground font-medium">{recap.summary.period_label}</span>
-            {" "}, {recap.summary.closed_count} closed, {fmtUsd(recap.summary.revenue)} revenue
-            {recap.summary.top_referrer ? <> · Top referrer: <span className="text-foreground">{recap.summary.top_referrer}</span></> : null}
-          </span>
-          <span className="text-muted-foreground/70">Sent {new Date(recap.sent_at).toLocaleDateString()}</span>
-        </div>
       )}
     </section>
   );
 };
 
-const Stat = ({ icon, label, value, emphasis }: { icon: React.ReactNode; label: string; value: string; emphasis?: boolean }) => (
+// Zero is shown honestly, with the three things that actually move the number.
+const EmptyState = () => (
+  <div className="px-5 py-8">
+    <div className="text-center">
+      <Inbox className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+      <p className="text-sm text-foreground font-medium">Nothing tracked in this period yet</p>
+      <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+        This board fills in on its own once referrals start arriving. Here is what starts that.
+      </p>
+    </div>
+    <div className="mt-5 grid gap-2 sm:grid-cols-3">
+      <NextStep
+        to="/dashboard?tab=jobdone"
+        title="Mark a job done"
+        body="We ask that customer for a referral two hours later."
+      />
+      <NextStep
+        to="/dashboard?tab=share"
+        title="Share your link"
+        body="Put it in your invoices, texts and email signature."
+      />
+      <NextStep
+        to="/dashboard?tab=customers"
+        title="Invite past customers"
+        body="Add the people who already know your work."
+      />
+    </div>
+  </div>
+);
+
+const NextStep = ({ to, title, body }: { to: string; title: string; body: string }) => (
+  <Link
+    to={to}
+    className="group rounded-xl border border-border p-3 transition hover:border-primary/40 hover:bg-primary/5"
+  >
+    <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+      {title}
+      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
+    </div>
+    <p className="mt-1 text-xs text-muted-foreground">{body}</p>
+  </Link>
+);
+
+const Stat = ({
+  icon,
+  label,
+  value,
+  emphasis,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  emphasis?: boolean;
+}) => (
   <div className="px-5 py-5">
     <div className="flex items-center gap-1.5 text-xs text-muted-foreground uppercase tracking-wider">
       {icon}
       {label}
     </div>
-    <div className={`mt-2 text-2xl font-semibold ${emphasis ? "text-primary" : "text-foreground"}`}>{value}</div>
+    <div className={`mt-2 text-2xl font-semibold ${emphasis ? "text-primary" : "text-foreground"}`}>
+      {value}
+    </div>
   </div>
 );
 
