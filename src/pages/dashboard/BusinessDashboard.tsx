@@ -22,6 +22,7 @@ import AttestationGate from "@/components/dashboard/AttestationGate";
 import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 import PayoutsPage from "@/pages/dashboard/PayoutsPage";
+import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
 
 interface Business {
   id: string;
