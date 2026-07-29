@@ -106,6 +106,7 @@ export type Database = {
           postal_code: string | null
           referral_cta_label: string | null
           service_area: string | null
+          signup_notified_at: string | null
           slug: string | null
           state: string | null
           street_address: string | null
@@ -163,6 +164,7 @@ export type Database = {
           postal_code?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
+          signup_notified_at?: string | null
           slug?: string | null
           state?: string | null
           street_address?: string | null
@@ -220,6 +222,7 @@ export type Database = {
           postal_code?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
+          signup_notified_at?: string | null
           slug?: string | null
           state?: string | null
           street_address?: string | null
@@ -675,6 +678,7 @@ export type Database = {
           lead_phone: string
           lead_source: string | null
           notes: string | null
+          owner_notified_at: string | null
           referrer_email: string
           referrer_name: string
           referrer_phone: string | null
@@ -697,6 +701,7 @@ export type Database = {
           lead_phone: string
           lead_source?: string | null
           notes?: string | null
+          owner_notified_at?: string | null
           referrer_email: string
           referrer_name: string
           referrer_phone?: string | null
@@ -719,6 +724,7 @@ export type Database = {
           lead_phone?: string
           lead_source?: string | null
           notes?: string | null
+          owner_notified_at?: string | null
           referrer_email?: string
           referrer_name?: string
           referrer_phone?: string | null
