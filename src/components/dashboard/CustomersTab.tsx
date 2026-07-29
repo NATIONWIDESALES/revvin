@@ -468,8 +468,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
         .insert(ids.map((cid) => ({ business_id: biz.id, contact_id: cid, channel: "email" })));
     }
     setBulkSending(false);
-    // Advance to next chunk, or close when done. Chunks recompute from pending.
-    if (bulkIndex + 1 >= bulkChunks.length - 1) {
+    // Advance to next chunk, or close when done. Chunks recompute from pending,
+    // so this was the last chunk only when no others remain.
+    if (bulkChunks.length <= 1) {
       // After marking this chunk sent, remaining pending shrinks; if nothing left, close.
       setTimeout(() => {
         setBulkOpen(false);
