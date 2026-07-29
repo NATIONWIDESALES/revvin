@@ -563,6 +563,8 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
     else {
       if (status === "closed_won") {
         supabase.functions.invoke("notify-deal-closed", { body: { lead_id: id } }).catch(() => {});
+        // Tell the referrer their reward is now owed. At-most-once server side.
+        notifyRewardCreatedForLead(id);
       }
       reload();
     }
