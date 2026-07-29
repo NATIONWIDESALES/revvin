@@ -12,11 +12,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Copy, ExternalLink, Download, Inbox, AlertCircle, Check, Plus, Lock, Clock } from "lucide-react";
+import { Loader2, Copy, ExternalLink, Download, Inbox, AlertCircle, Check, Plus, Lock, Clock, MessageSquare, Phone } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import QRCodeStyling from "qr-code-styling";
 import { useRef } from "react";
 import CustomersTab from "@/components/dashboard/CustomersTab";
+import AutoAskTab from "@/components/dashboard/AutoAskTab";
 import AttestationGate from "@/components/dashboard/AttestationGate";
 import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
@@ -278,6 +279,7 @@ const BusinessDashboard = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
           <TabsTrigger value="customers">Customers {contactStats.total > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{contactStats.total}</span>}</TabsTrigger>
+          <TabsTrigger value="jobdone">Job done</TabsTrigger>
           <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
           <TabsTrigger value="offers">Offers {offers.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{offers.length}</span>}</TabsTrigger>
           <TabsTrigger value="referrals">Marketplace Referrals {marketplaceReferrals.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{marketplaceReferrals.length}</span>}</TabsTrigger>
@@ -301,6 +303,22 @@ const BusinessDashboard = () => {
           >
             <CustomersTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger }} publicUrl={publicUrl} />
           </AttestationGate>
+          )}
+        </TabsContent>
+        <TabsContent value="jobdone">
+          {!isLive ? (
+            <LockedTab
+              title="Go live to run the auto-ask"
+              body="Once your referral page is live, logging a finished job schedules a personalised referral ask to that customer."
+            />
+          ) : (
+            <AttestationGate
+              businessId={biz.id}
+              consentedAt={biz.contact_outreach_consent_at ?? null}
+              onConsented={() => loadAll()}
+            >
+              <AutoAskTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount }} publicUrl={publicUrl} />
+            </AttestationGate>
           )}
         </TabsContent>
         <TabsContent value="leads">
