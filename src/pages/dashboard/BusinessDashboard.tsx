@@ -19,6 +19,8 @@ import { useRef } from "react";
 import CustomersTab from "@/components/dashboard/CustomersTab";
 import AutoAskTab from "@/components/dashboard/AutoAskTab";
 import CampaignsTab from "@/components/dashboard/CampaignsTab";
+import IntegrationsTab from "@/components/dashboard/IntegrationsTab";
+import PrintPack from "@/components/dashboard/PrintPack";
 import AttestationGate from "@/components/dashboard/AttestationGate";
 import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
@@ -117,7 +119,7 @@ const BusinessDashboard = () => {
 
   // ?tab= lets other surfaces (the scoreboard empty state, emails) deep link
   // straight to the action they are recommending.
-  const VALID_TABS = ["customers", "jobdone", "campaigns", "leads", "offers", "referrals", "payouts", "page", "share", "account"];
+  const VALID_TABS = ["customers", "jobdone", "campaigns", "leads", "offers", "referrals", "payouts", "page", "share", "integrations", "account"];
   useEffect(() => {
     const t = searchParams.get("tab");
     if (t && VALID_TABS.includes(t)) setActiveTab(t);
@@ -307,6 +309,7 @@ const BusinessDashboard = () => {
           <TabsTrigger value="payouts">Payouts</TabsTrigger>
           <TabsTrigger value="page">My Page</TabsTrigger>
           <TabsTrigger value="share">Share Tools</TabsTrigger>
+          <TabsTrigger value="integrations">Integrations</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
 
@@ -382,6 +385,7 @@ const BusinessDashboard = () => {
         <TabsContent value="payouts"><PayoutsPage businessId={biz.id} /></TabsContent>
         <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} /></TabsContent>
         <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} /></TabsContent>
+        <TabsContent value="integrations"><IntegrationsTab biz={{ id: biz.id, contact_outreach_consent_at: biz.contact_outreach_consent_at ?? null }} /></TabsContent>
         <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
       </Tabs>
     </div>
@@ -1132,6 +1136,21 @@ const ShareTab = ({ biz, publicUrl, isLive }: { biz: Business; publicUrl: string
           <Textarea readOnly value={smsTemplate} rows={2} className="text-xs" />
           <Button size="sm" variant="outline" className="mt-2" onClick={() => copy(smsTemplate, "SMS")}><Copy className="mr-2 h-3.5 w-3.5" /> Copy</Button>
         </div>
+      </div>
+
+      <div className="md:col-span-2">
+        <PrintPack
+          biz={{
+            name: biz.name,
+            slug: biz.slug,
+            logo_url: biz.logo_url,
+            offer_amount: biz.offer_amount,
+            offer_trigger: biz.offer_trigger,
+            offer_fine_print: biz.offer_fine_print,
+            phone: biz.phone,
+          }}
+          publicUrl={publicUrl}
+        />
       </div>
     </div>
     </>
