@@ -8,13 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import SEOHead from "@/components/SEOHead";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, HandCoins, Quote } from "lucide-react";
+import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, HandCoins, Quote, Eye, Lock } from "lucide-react";
 
 interface Business {
   id: string;
   name: string;
   slug: string;
   description: string | null;
+  user_id?: string | null;
   category: string | null;
   service_area: string | null;
   logo_url: string | null;
