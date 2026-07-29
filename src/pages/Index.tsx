@@ -213,26 +213,26 @@ const Index = () => {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
                 </span>
-                Now open for service businesses
+                Referrals · Repeat work · Reviews
               </span>
               <h1 className="mt-5 text-[2.5rem] font-extrabold tracking-tight text-foreground leading-[1.02] sm:text-5xl md:text-7xl">
-                The complete{" "}
-                <span className="highlight-underline text-gradient-green">referral system</span>{" "}
-                for your business.
+                Your{" "}
+                <span className="highlight-underline text-gradient-green">customer list</span>,
+                working for you.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-                Build your branded referral page, QR code, and lead inbox for free, then turn your customers into your sales team. <span className="text-foreground font-medium">$49/month when you go live.</span> Optional: get listed on the Revvin marketplace where motivated referrers can find your offer.
+                You already have a list of people who paid you and never heard from you again. Revvin turns that one list into three revenue loops: <span className="text-foreground font-medium">referrals, repeat work, and reviews.</span> Build it free. $49/month USD when you publish.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
                   <Link to="/signup">
                     <span className="sm:hidden">Build your page — free</span>
-                    <span className="hidden sm:inline">Build your referral page — free</span>
+                    <span className="hidden sm:inline">Build your page — free</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" className="h-12 w-full px-6 text-base sm:w-auto" asChild>
-                  <Link to="/how-it-works">See how it works</Link>
+                  <Link to="/how-it-works">See the three loops</Link>
                 </Button>
               </div>
             <p className="mt-4 text-sm text-muted-foreground">
@@ -242,7 +242,7 @@ const Index = () => {
                 </Link>
               </p>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                Free to build your page. $49/month when you go live. Cancel anytime.
+                Free to build and preview. $49/month USD when you publish. Cancel anytime.
               </p>
             </div>
 
