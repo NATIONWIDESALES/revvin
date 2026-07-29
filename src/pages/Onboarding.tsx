@@ -291,8 +291,6 @@ const Onboarding = () => {
                 <p className="mt-3 text-xs text-muted-foreground">
                   Your page stays in draft until you go live. You can preview it any time from your dashboard.
                 </p>
-                <div className="hidden">
-                </div>
               </>
             )}
           </div>
