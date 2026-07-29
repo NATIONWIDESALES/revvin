@@ -28,8 +28,6 @@ const Onboarding = () => {
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
-  const [checkoutFailed, setCheckoutFailed] = useState(false);
-  const [retryingCheckout, setRetryingCheckout] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
 
   // Form state
@@ -62,39 +60,8 @@ const Onboarding = () => {
         setBizId(b.id);
         setLaunchPackageStatus(b.launch_package_status || null);
         setSubscriptionStatus(b.subscription_status || null);
-        // Funnel guard: if this business is authenticated but has not paid yet,
-        // and they did NOT just come back from a successful checkout, send
-        // them straight to Stripe checkout. This keeps the ad-funnel intact
-        // when email confirmation is enabled (the confirm link lands on
-        // /welcome rather than /signup).
-        const paidStatuses = ["active", "trialing", "paid", "past_due"];
-        const justCheckedOut = params.get("checkout") === "success";
-        if (!paidStatuses.includes(b.subscription_status || "") && !justCheckedOut) {
-          try {
-            const includeLaunchPackage =
-              typeof window !== "undefined" &&
-              window.sessionStorage.getItem("revvin_addon_launch") === "1";
-            const { data: co, error: coErr } = await supabase.functions.invoke(
-              "create-business-checkout",
-              { body: { includeLaunchPackage } }
-            );
-            if (!coErr && co?.url) {
-              if (typeof window !== "undefined")
-                window.sessionStorage.removeItem("revvin_addon_launch");
-              window.location.href = co.url;
-              return;
-            }
-            console.warn("[onboarding] checkout returned no url", coErr);
-            setCheckoutFailed(true);
-            setLoading(false);
-            return;
-          } catch (err) {
-            console.warn("[onboarding] auto-checkout failed", err);
-            setCheckoutFailed(true);
-            setLoading(false);
-            return;
-          }
-        }
+        // No billing gate here. Onboarding is free: businesses build their
+        // page first and only pay when they choose to go live.
         setName(b.name || "");
         setDescription(b.description || "");
         setCategory(b.category || "");
