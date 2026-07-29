@@ -25,28 +25,29 @@ const stagger = {
 const ForBusinesses = () => (
   <div>
     <SEOHead
-      title="Revvin | Referral program for service businesses"
-      description="Launch a referral program for your service business. Build your branded referral page, link, QR code, and lead inbox free. Pay $49/month USD only when you go live. Cancel anytime. You pay your referrers directly."
+      title="Revvin | Referrals, repeat work and reviews for service businesses"
+      description="Turn your past-customer list into referrals, repeat work, and reviews. Build free, pay $49/month USD only when you publish. Cancel anytime. You pay your referrers directly."
       path="/for-businesses"
       jsonLd={[
         {
           "@context": "https://schema.org",
           "@type": "Service",
-          "name": "Revvin Referral Marketing for Businesses",
-          "description": "Referral program software for service businesses. Building your referral page is free; publishing it costs a flat $49/month. Includes a branded referral page, lead inbox, and dashboard. Businesses pay their referrers directly when deals close.",
-          "provider": { "@type": "Organization", "name": "Revvin", "slogan": "Referral program platform for service businesses" },
+          "name": "Revvin for Service Businesses",
+          "description": "Customer retention and referral software for service businesses. Turns one past-customer list into three revenue loops: referrals with a branded referral page, link, QR code, lead inbox and job-done auto-ask; repeat work with reactivation campaigns segmented by time since last job; and review requests with a follow-up referral ask. Also includes reward tracking, an ROI scoreboard, a print pack, and webhooks with an API. Building your page is free; publishing costs a flat $49/month. Businesses pay their referrers directly when deals close.",
+          "provider": { "@type": "Organization", "name": "Revvin", "slogan": "Your customer list, working for you" },
           "offers": {
             "@type": "Offer",
             "price": "49",
             "priceCurrency": "USD",
-            "description": "Free to build your page. $49/month when you publish it. Cancel anytime. No contract."
+            "description": "Free to build and preview your page. $49/month when you publish it, including all three loops. Cancel anytime. No contract."
           }
         },
         {
           "@context": "https://schema.org",
           "@type": "FAQPage",
           "mainEntity": [
-            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "Building your referral page is free. Publishing it costs a flat $49/month. Cancel anytime, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close." } },
+            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "Building and previewing your page is free. Publishing it costs a flat $49/month and includes all three loops: referrals, repeat work, and reviews. Cancel anytime, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close." } },
+            { "@type": "Question", "name": "What are the three loops?", "acceptedAnswer": { "@type": "Answer", "text": "Loop one is referrals: a branded referral page, shareable link and QR code, a lead inbox, and a job-done auto-ask sent on a delay. Loop two is repeat work: reactivation campaigns segmented by how long since a customer's last job. Loop three is reviews: a review request after a job, followed by a referral ask to happy customers. All three run off the same past-customer list." } },
             { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay your referrer nothing because they only earn when a deal closes. Your only cost to Revvin is the flat $49/month subscription." } },
             { "@type": "Question", "name": "Who decides the referral payout amount?", "acceptedAnswer": { "@type": "Answer", "text": "The business sets the payout based on what a closed customer is worth. Referrers receive 100% of that advertised amount." } },
             { "@type": "Question", "name": "How is this different from Google Ads or Facebook Ads?", "acceptedAnswer": { "@type": "Answer", "text": "Ads charge per click or impression with no guarantee of conversion. Revvin is a flat $49/month subscription once you publish your page, with no platform fees. You pay your referrers directly when deals close." } }
