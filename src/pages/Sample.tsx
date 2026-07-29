@@ -10,7 +10,7 @@ const Sample = () => {
     <>
       <SEOHead
         title="Revvin | Sample referral page"
-        description="Preview an example Revvin referral page. Branded referral page, shareable link, QR code, and lead inbox for service businesses. Flat $49/month USD."
+        description="Preview an example Revvin referral page. Branded referral page, shareable link, QR code, and lead inbox for service businesses. Free to build. $49/month USD when you go live."
       />
 
       <section className="border-b border-border bg-surface-warm">
@@ -19,8 +19,8 @@ const Sample = () => {
             <span className="mr-2 inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
               Example
             </span>
-            This is a sample page — start yours for{" "}
-            <span className="font-semibold">$49/month</span>.
+            This is a sample page — build yours{" "}
+            <span className="font-semibold">free</span>.
           </p>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" asChild>
@@ -64,7 +64,7 @@ const Sample = () => {
           <div className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button size="lg" asChild>
               <Link to="/signup">
-                Start your referral program · $49/month
+                Build your referral page — free
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
