@@ -81,6 +81,7 @@ export type Database = {
           created_at: string
           current_period_end: string | null
           description: string | null
+          dunning_notified_at: string | null
           geocode_status: string | null
           geocoded_at: string | null
           headline: string | null
@@ -139,6 +140,7 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           description?: string | null
+          dunning_notified_at?: string | null
           geocode_status?: string | null
           geocoded_at?: string | null
           headline?: string | null
@@ -197,6 +199,7 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           description?: string | null
+          dunning_notified_at?: string | null
           geocode_status?: string | null
           geocoded_at?: string | null
           headline?: string | null
