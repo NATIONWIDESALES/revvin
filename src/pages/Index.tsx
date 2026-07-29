@@ -169,15 +169,16 @@ const Index = () => {
   return (
     <>
       <SEOHead
-        title="Revvin · Launch a referral program in minutes"
-        description="Build your branded referral page, shareable link, QR code, and lead inbox for free. Pay $49/month only when you go live. Cancel anytime."
+        title="Revvin · Your customer list, working for you"
+        description="Turn your past customers into referrals, repeat work, and reviews. Build free, pay $49/month USD only when you publish. Cancel anytime."
         path="/"
         jsonLd={[
           {
             "@context": "https://schema.org",
             "@type": "Product",
-            name: "Revvin Business Referral Page",
-            description: "Referral program software for service businesses.",
+            name: "Revvin",
+            description:
+              "Customer retention and referral software for service businesses. Turns one past-customer list into three revenue loops: referrals with a branded referral page, link, QR code, lead inbox and job-done auto-ask; repeat work with reactivation campaigns segmented by time since last job; and review requests with a follow-up referral ask. Includes reward tracking, an ROI scoreboard, a print pack, and webhooks with an API. Building your page is free; publishing costs a flat $49/month. Businesses pay their referrers directly off-platform.",
             brand: { "@type": "Brand", name: "Revvin" },
             offers: {
               "@type": "Offer",
