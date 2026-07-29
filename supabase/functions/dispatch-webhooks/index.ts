@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
   for (const row of due ?? []) {
     const { data: eps } = await admin
       .from('webhook_endpoints')
-      .select('url, secret, active')
+      .select('url, secret, active, include_contact')
       .eq('id', row.endpoint_id)
       .limit(1)
     const ep = eps?.[0]
@@ -71,6 +71,19 @@ Deno.serve(async (req) => {
       continue
     }
 
+    // Payloads are identifiers only by default. Contact details are attached
+    // only when the owner explicitly turned that on for this endpoint, and the
+    // UI spells out what that means before they do.
+    let data = row.payload as Record<string, unknown>
+    if (ep.include_contact && typeof data?.lead_id === 'string') {
+      const { data: leads } = await admin
+        .from('leads')
+        .select('lead_name, lead_email, lead_phone, referrer_name, referrer_email')
+        .eq('id', data.lead_id)
+        .limit(1)
+      if (leads?.[0]) data = { ...data, contact: leads[0] }
+    }
+
     const attempt = (row.attempts ?? 0) + 1
     const timestamp = Math.floor(Date.now() / 1000).toString()
     const body = JSON.stringify({
@@ -78,7 +91,7 @@ Deno.serve(async (req) => {
       event: row.event,
       created_at: nowIso,
       business_id: row.business_id,
-      data: row.payload,
+      data,
     })
     const signature = await hmacHex(ep.secret, `${timestamp}.${body}`)
 
