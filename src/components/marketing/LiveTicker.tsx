@@ -1,7 +1,7 @@
 import { useReducedMotion } from "framer-motion";
 
 const events = [
-  "New referral · Apex Roofing · Denver, CO",
+  "New referral · Your Business Name · Your city",
   "Deal closed · $8,400 job · Summit HVAC",
   "Page launched · Cascade Plumbing · Portland, OR",
   "New referral · Northstar Solar · Calgary, AB",

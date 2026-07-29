@@ -6,7 +6,7 @@ const stats = [
   { v: "10 min", l: "to launch your page" },
   { v: "100%", l: "of payout goes to your referrer" },
   { v: "1 plan", l: "no upsells, no add-ons" },
-  { v: "US + CA", l: "live in both countries" },
+  { v: "Cancel anytime", l: "no contract, no lock-in" },
 ];
 
 export default function StatsMarquee() {
