@@ -944,7 +944,7 @@ const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: strin
 };
 
 // ============= SHARE TAB =============
-const ShareTab = ({ biz, publicUrl }: { biz: Business; publicUrl: string }) => {
+const ShareTab = ({ biz, publicUrl, isLive }: { biz: Business; publicUrl: string; isLive: boolean }) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -990,6 +990,12 @@ const ShareTab = ({ biz, publicUrl }: { biz: Business; publicUrl: string }) => {
   const copy = (s: string, label: string) => { navigator.clipboard.writeText(s); toast({ title: `${label} copied` }); };
 
   return (
+    <>
+    {!isLive && (
+      <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        Your page is in draft, so this link and QR code will not work for anyone else yet. Go live to activate them.
+      </div>
+    )}
     <div className="grid gap-6 md:grid-cols-2">
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-4">QR code</h3>
@@ -1019,6 +1025,7 @@ const ShareTab = ({ biz, publicUrl }: { biz: Business; publicUrl: string }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
