@@ -463,10 +463,10 @@ const Index = () => {
                 <span className="text-6xl font-extrabold tracking-tight text-foreground">$49</span>
                 <span className="text-base font-medium text-muted-foreground">/month USD</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">Cancel anytime. No contract. No setup fee. Billed in USD.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Free to build your page. Billing starts when you publish it. Cancel anytime. No contract, no setup fee. Billed in USD.</p>
 
               <Button size="lg" className="mt-8 h-12 w-full text-base shadow-soft hover:bg-primary-deep" asChild>
-                <Link to="/signup">Start your referral program</Link>
+                <Link to="/signup">Build your page free</Link>
               </Button>
 
               <div className="mt-8 grid grid-cols-1 gap-y-2.5 border-t border-border pt-6 sm:grid-cols-2 sm:gap-x-8">
@@ -580,10 +580,10 @@ const Index = () => {
             Launch your referral program <span className="shimmer-text">today.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-            $49/month USD. Cancel anytime. No contract.
+            Build your page free. $49/month USD when you go live. Cancel anytime.
           </p>
           <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
-            <Link to="/signup">Start your referral program</Link>
+            <Link to="/signup">Build your referral page — free</Link>
           </Button>
           <p className="mt-5 text-sm text-white/70">
             Not ready?{" "}
