@@ -204,12 +204,23 @@ const PublicReferralPage = () => {
 
   if (!biz) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-6 text-center">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">Page not found</h1>
-          <p className="mt-2 text-sm text-muted-foreground">This referral page is not available.</p>
+      <>
+        <SEOHead title="Referral page unavailable · Revvin" description="This referral page is not live." noindex />
+        <div className="flex min-h-screen items-center justify-center p-6 text-center">
+          <div className="max-w-sm">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+              <Lock className="h-5 w-5" />
+            </div>
+            <h1 className="mt-4 text-2xl font-semibold text-foreground">This referral page is not live</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              It may not have launched yet, or the link may be wrong. Double-check the address with the business.
+            </p>
+            <Link to="/" className="mt-6 inline-block text-sm font-medium text-foreground underline">
+              Go to Revvin
+            </Link>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
