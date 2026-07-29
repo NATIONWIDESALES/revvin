@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,11 +8,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
 import Wordmark from "@/components/brand/Wordmark";
-import { Loader2, Lock } from "lucide-react";
-import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
+import { Loader2, MailCheck } from "lucide-react";
 
 const Signup = () => {
-  const [searchParams] = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -22,48 +20,31 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [confirmPending, setConfirmPending] = useState(false);
+  const [resending, setResending] = useState(false);
 
-  const startCheckout = async () => {
-    setBusy(true);
-    try {
-      // Launch Package is gated behind a feature flag for v1 launch.
-      // When LAUNCH_PACKAGE_ENABLED is false we ignore any stale session flag
-      // so checkout always uses the clean $49/month path.
-      const includeLaunchPackage =
-        LAUNCH_PACKAGE_ENABLED &&
-        typeof window !== "undefined" &&
-        window.sessionStorage.getItem("revvin_addon_launch") === "1";
-      const { data, error } = await supabase.functions.invoke("create-business-checkout", {
-        body: { includeLaunchPackage },
-      });
-      if (error || !data?.url) throw new Error(error?.message || "Could not start checkout");
-      if (typeof window !== "undefined") window.sessionStorage.removeItem("revvin_addon_launch");
-      window.location.href = data.url;
-    } catch (err: any) {
-      toast({ title: "Checkout error", description: err.message, variant: "destructive" });
-      setBusy(false);
-    }
-  };
-
-  // If already authenticated, kick off checkout immediately.
+  // Signup never touches Stripe. An already-authenticated visitor belongs in
+  // the app, not on this form.
   useEffect(() => {
-    if (authLoading || !user || searchParams.get("checkout") === "canceled") return;
-    (async () => {
-      // Don't re-charge an already-paying business, send them to the dashboard.
-      const { data: bizRows } = await supabase
-        .from("businesses")
-        .select("subscription_status")
-        .eq("user_id", user.id)
-        .limit(1);
-      const status = bizRows?.[0]?.subscription_status || "";
-      if (["active", "trialing", "past_due"].includes(status)) {
-        navigate("/dashboard", { replace: true });
-        return;
-      }
-      startCheckout();
-    })();
+    if (authLoading || !user || confirmPending) return;
+    navigate("/welcome", { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading]);
+
+  const resendConfirmation = async () => {
+    setResending(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/welcome` },
+    });
+    setResending(false);
+    if (error) {
+      toast({ title: "Could not resend", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Confirmation email sent", description: `We sent another link to ${email}.` });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,23 +81,17 @@ const Signup = () => {
         .catch((err) => console.warn("[notify-business-signup] failed", err));
     }
     if (!data.session) {
-      toast({
-        title: "Check your email",
-        description: "Confirm your address, then log in to continue to checkout.",
-      });
+      setConfirmPending(true);
       setBusy(false);
       return;
     }
-    // session created → checkout via effect
+    navigate("/welcome", { replace: true });
   };
 
-  if (authLoading || (user && busy)) {
+  if (authLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="flex items-center gap-3 text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span>Redirecting to secure checkout…</span>
-        </div>
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -125,7 +100,7 @@ const Signup = () => {
     <>
       <SEOHead
         title="Revvin | Start your referral program"
-        description="Launch a referral program for your service business. Branded referral page, shareable link, QR code, and lead inbox. Flat $49/month USD. Cancel anytime. You pay your referrers directly."
+        description="Create a free Revvin account, build your branded referral page, QR code, and offer. Pay $49/month only when you are ready to go live. You pay your referrers directly."
         path="/signup"
         noindex
       />
@@ -135,11 +110,41 @@ const Signup = () => {
             <Wordmark size="md" />
           </Link>
           <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
+            {confirmPending ? (
+              <div className="text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <MailCheck className="h-5 w-5" />
+                </div>
+                <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+                  Check your email
+                </h1>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  We sent a confirmation link to <span className="font-medium text-foreground">{email}</span>.
+                  Open it to finish creating your free account and start building your referral page.
+                </p>
+                <div className="mt-6 flex flex-col gap-2">
+                  <Button variant="outline" onClick={resendConfirmation} disabled={resending}>
+                    {resending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Resend confirmation email"}
+                  </Button>
+                  <Button variant="ghost" asChild>
+                    <Link to="/auth">Already confirmed? Log in</Link>
+                  </Button>
+                </div>
+                <p className="mt-4 text-[11px] text-muted-foreground">
+                  Wrong address?{" "}
+                  <button type="button" className="underline" onClick={() => setConfirmPending(false)}>
+                    Go back and edit it
+                  </button>
+                  .
+                </p>
+              </div>
+            ) : (
+            <>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              Start your referral program
+              Create your free account
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Create your account, then we'll send you to secure checkout. $49/month, cancel anytime.
+              Build your referral page, offer, and QR code for free. Pay $49/month only when you are ready to go live. Cancel anytime.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -160,12 +165,8 @@ const Signup = () => {
                 <Input id="pw" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" className="mt-1.5" required />
               </div>
               <Button type="submit" size="lg" className="w-full h-11" disabled={busy}>
-                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continue to checkout"}
+                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create free account"}
               </Button>
-              <p className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-                <Lock className="h-3 w-3" aria-hidden="true" />
-                Secure checkout powered by Stripe.
-              </p>
               <p className="text-[11px] text-muted-foreground text-center">
                 By signing up you agree to our <Link to="/terms" className="underline">Terms</Link> and <Link to="/privacy" className="underline">Privacy Policy</Link>.
               </p>
@@ -174,6 +175,8 @@ const Signup = () => {
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Already have an account? <Link to="/login" className="text-foreground font-medium hover:underline">Log in</Link>
             </p>
+            </>
+            )}
           </div>
         </div>
       </div>
