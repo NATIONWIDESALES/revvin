@@ -133,13 +133,11 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [highlightFirst, setHighlightFirst] = useState(false);
 
-  const isSampleOffer = offer.id.startsWith("sample-");
   const isLogoUrl = offer.businessLogo.startsWith("http");
 
   const redirectPath = `/offer/${toSlug(offer.business)}/${offer.id}`;
 
   const goNext = () => {
-    if (isSampleOffer) return; // blocked for sample offers
     if (step === 0 && !user) {
       setShowAuthPrompt(true);
       return;
@@ -536,7 +534,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
       )}
 
       {/* Navigation buttons */}
-      {step < 4 && !showAuthPrompt && !isSampleOffer && (
+      {step < 4 && !showAuthPrompt && (
         <div className="px-5 pb-5 flex gap-2">
           {step > 0 && (
             <Button variant="outline" onClick={goBack} className="gap-1.5">
@@ -552,26 +550,6 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
               {submitting ? "Submitting..." : "Submit Referral"} {!submitting && <CheckCircle2 className="h-3.5 w-3.5" />}
             </Button>
           )}
-        </div>
-      )}
-
-      {/* Sample offer message */}
-      {isSampleOffer && (
-        <div className="px-5 pb-5 space-y-3">
-          <div className="rounded-xl border border-border bg-muted/30 p-4">
-            <p className="text-sm font-semibold text-foreground mb-2">This is an example offer</p>
-            <p className="text-xs text-muted-foreground mb-3">
-              This offer shows how Revvin works. Browse the marketplace to find real offers, or invite a business you know to list on Revvin.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button variant="outline" size="sm" className="flex-1 whitespace-nowrap" asChild>
-                <Link to="/browse">Browse Marketplace</Link>
-              </Button>
-              <Button size="sm" className="flex-1 whitespace-nowrap" asChild>
-                <Link to="/dashboard">Invite a Business</Link>
-              </Button>
-            </div>
-          </div>
         </div>
       )}
 

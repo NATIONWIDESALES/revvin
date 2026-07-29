@@ -10,7 +10,6 @@ import { useState } from "react";
 
 interface OfferCardProps {
   offer: Offer;
-  isSample?: boolean;
   isNew?: boolean;
   /** Optional pre-formatted distance label (e.g. "12 km away") shown next to the location. */
   distanceLabel?: string;
@@ -65,7 +64,7 @@ function getBusinessColor(name: string): string {
   return INITIAL_COLORS[Math.abs(hash) % INITIAL_COLORS.length];
 }
 
-const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) => {
+const OfferCard = ({ offer, isNew, distanceLabel }: OfferCardProps) => {
   const { formatPayout } = useCountry();
   const { isSaved, toggle } = useSavedOffers();
   const saved = isSaved(offer.id);
@@ -97,21 +96,6 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
               className="h-full w-full object-cover transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105"
               onError={() => setImgFailed(true)}
             />
-          ) : isSample ? (
-            /* Category-appropriate stock photo for sample offers, with neutral fallback if it fails */
-            <div
-              className={`relative h-full w-full bg-gradient-to-br ${gradientClass}`}
-            >
-              <img
-                src={CATEGORY_IMAGE[offer.category] || DEFAULT_CATEGORY_IMAGE}
-                alt={`${offer.category} example`}
-                loading="lazy"
-                className="h-full w-full object-cover transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                }}
-              />
-            </div>
           ) : (
             /* Polished initials avatar for real businesses without a logo */
             <div
@@ -169,8 +153,7 @@ const OfferCard = ({ offer, isSample, isNew, distanceLabel }: OfferCardProps) =>
               Featured
             </Badge>
           )}
-          {/* Showcase offers blend in, no badge label */}
-          {isNew && !isSample && (
+          {isNew && (
             <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground text-xs shadow-sm">
               New on Revvin
             </Badge>
