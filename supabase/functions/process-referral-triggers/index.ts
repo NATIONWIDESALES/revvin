@@ -1,5 +1,13 @@
-// Auto-ask engine. Claims due referral_triggers rows and sends ONE personalised
-// referral ask email per row.
+// Auto-ask engine. Two passes over referral_triggers:
+//   Pass A - review requests. Sent to EVERY customer on a completed job with
+//            review requests turned on, with the same public review link for
+//            everyone. There is no survey in front of it and no routing based
+//            on how the customer feels. Review gating breaks Google's policies
+//            and is an FTC deception risk, so it is not implemented here.
+//   Pass B - the referral ask. This one MAY be conditioned on the customer
+//            independently telling us they were happy (the link in the review
+//            email) or the owner marking them happy in the dashboard. Revvin
+//            does not read, scrape or infer review ratings and never claims to.
 //
 // Compliance rules baked in here (do not relax without legal review):
 //   - EMAIL ONLY. Revvin never auto-sends SMS. Referral texts are marketing
@@ -9,6 +17,8 @@
 //     suppressed_emails (platform wide) before every send.
 //   - Every send carries a working unsubscribe link backed by unsubscribe_tokens
 //     and the handle-unsubscribe function.
+//   - The business must have attested to the customer relationship
+//     (businesses.contact_outreach_consent_at) before anything goes out.
 //   - Cron-only: guarded with the same x-cron-secret / service-role check as
 //     monthly-roi-recap.
 
@@ -16,6 +26,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { checkCronAuth } from "../_shared/cron-auth.ts";
+import { button, emailShell, esc, isSuppressed, unsubscribeUrlFor } from "../_shared/outreach.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,12 +35,21 @@ const corsHeaders = {
 };
 
 const MAX_ATTEMPTS = 3;
+/** How long the referral follow-up waits after the review request goes out. */
+const FOLLOW_UP_DELAY_HOURS = 48;
+/** If a gated ask never gets a positive signal, it is dropped after this. */
+const GATED_ASK_EXPIRY_DAYS = 21;
 
-const esc = (s: string) =>
-  String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+interface Biz {
+  id: string;
+  name: string;
+  slug: string | null;
+  offer_amount: string | null;
+  google_review_url: string | null;
+  is_published: boolean;
+  is_disabled: boolean;
+  contact_outreach_consent_at: string | null;
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -48,8 +68,118 @@ Deno.serve(async (req) => {
     { auth: { persistSession: false } },
   );
 
+  const bizCache = new Map<string, Biz | null>();
+  const loadBiz = async (id: string): Promise<Biz | null> => {
+    if (bizCache.has(id)) return bizCache.get(id) ?? null;
+    const { data } = await supabase
+      .from("businesses")
+      .select(
+        "id, name, slug, offer_amount, google_review_url, is_published, is_disabled, contact_outreach_consent_at",
+      )
+      .eq("id", id)
+      .limit(1);
+    const biz = (data?.[0] as Biz | undefined) ?? null;
+    bizCache.set(id, biz);
+    return biz;
+  };
+
   try {
     const nowIso = new Date().toISOString();
+    const reviewResults: Array<Record<string, unknown>> = [];
+    const referralResults: Array<Record<string, unknown>> = [];
+
+    // ---------- Pass A: review requests ----------
+    const { data: reviewDue } = await supabase
+      .from("referral_triggers")
+      .select("*")
+      .eq("review_request_status", "scheduled")
+      .lte("scheduled_send_at", nowIso)
+      .order("scheduled_send_at", { ascending: true })
+      .limit(100);
+
+    for (const row of reviewDue ?? []) {
+      // At-most-once: one conditional claim per job row.
+      const { data: claimed } = await supabase
+        .from("referral_triggers")
+        .update({ review_request_status: "sending" })
+        .eq("id", row.id)
+        .eq("review_request_status", "scheduled")
+        .select("id");
+      if (!claimed?.length) continue;
+
+      const stop = async (status: string, reason: string) => {
+        await supabase
+          .from("referral_triggers")
+          .update({ review_request_status: status, review_failure_reason: reason.slice(0, 500) })
+          .eq("id", row.id);
+        reviewResults.push({ id: row.id, status, detail: reason });
+      };
+
+      const email = String(row.customer_email || "").trim().toLowerCase();
+      if (!email) {
+        await stop("failed", "no_email_sms_is_device_native");
+        continue;
+      }
+
+      const biz = await loadBiz(row.business_id);
+      if (!biz) { await stop("failed", "business_not_found"); continue; }
+      if (!biz.contact_outreach_consent_at) { await stop("failed", "owner_attestation_missing"); continue; }
+      if (biz.is_disabled || !biz.is_published) { await stop("failed", "business_page_not_live"); continue; }
+      if (!biz.google_review_url) { await stop("failed", "no_review_link_on_profile"); continue; }
+      if (await isSuppressed(supabase, biz.id, email)) { await stop("suppressed", "recipient_suppressed"); continue; }
+
+      const unsubscribeUrl = await unsubscribeUrlFor(supabase, biz.id, email);
+      if (!unsubscribeUrl) { await stop("scheduled", "unsubscribe_token_failed"); continue; }
+
+      const first = String(row.customer_first_name || "").trim() || "there";
+      const service = String(row.service_description || "").trim();
+      const feedbackBase = appUrl(`/feedback/${row.satisfaction_token}`);
+
+      const inner = `<h1 style="margin:8px 0 6px;font-size:22px;line-height:1.3">Hi ${esc(first)}, how did we do?</h1>
+    <p style="margin:0 0 18px;color:#475569;font-size:14px;line-height:1.6">Thank you for choosing ${esc(biz.name)}${service ? ` for your ${esc(service)}` : ""}. If you have a moment, an honest review helps other people in the area decide who to call. Good or bad, we want to hear it.</p>
+    <p style="margin:0 0 18px">${button(biz.google_review_url, "Leave a review")}</p>
+    <p style="margin:0 0 6px;color:#475569;font-size:14px">You can also just tell us directly:</p>
+    <p style="margin:0 0 18px;font-size:14px">
+      <a href="${feedbackBase}?happy=1" style="color:#15803d;font-weight:600">I was happy</a>
+      &nbsp;&nbsp;·&nbsp;&nbsp;
+      <a href="${feedbackBase}?happy=0" style="color:#64748b;font-weight:600">Something was not right</a>
+    </p>`;
+
+      const idempotencyKey = `review-request-${row.id}`;
+      const send = await sendEmailViaGateway({
+        from: RESEND_FROM_ADDRESS,
+        to: email,
+        reply_to: RESEND_REPLY_TO,
+        subject: service ? `How did your ${service} go?` : `How did we do, ${first}?`,
+        html: emailShell(biz.name, inner, unsubscribeUrl),
+        idempotencyKey,
+      });
+
+      await supabase.from("email_send_log").insert({
+        message_id: idempotencyKey,
+        template_name: "review-request",
+        recipient_email: email,
+        status: send.success ? "sent" : "failed",
+        error_message: send.success ? null : send.error?.slice(0, 500),
+        metadata: { business_id: biz.id, trigger_id: row.id },
+      });
+
+      if (send.success) {
+        await supabase
+          .from("referral_triggers")
+          .update({
+            review_request_status: "sent",
+            review_requested_at: new Date().toISOString(),
+            review_failure_reason: null,
+          })
+          .eq("id", row.id);
+        reviewResults.push({ id: row.id, status: "sent" });
+      } else {
+        await stop("failed", send.error || "send_failed");
+      }
+    }
+
+    // ---------- Pass B: referral asks ----------
     const { data: due, error: scanErr } = await supabase
       .from("referral_triggers")
       .select("*")
@@ -60,9 +190,37 @@ Deno.serve(async (req) => {
       .limit(100);
     if (scanErr) throw scanErr;
 
-    const results: Array<{ id: string; status: string; detail?: string }> = [];
-
     for (const row of due ?? []) {
+      // Wait for the review request to actually go out first.
+      if (["scheduled", "sending"].includes(row.review_request_status)) {
+        referralResults.push({ id: row.id, status: "waiting_on_review_request" });
+        continue;
+      }
+      if (row.review_request_status === "sent" && row.review_requested_at) {
+        const readyAt =
+          new Date(row.review_requested_at).getTime() + FOLLOW_UP_DELAY_HOURS * 3600_000;
+        if (Date.now() < readyAt) {
+          referralResults.push({ id: row.id, status: "waiting_follow_up_delay" });
+          continue;
+        }
+      }
+      // Conditional referral ask: only after a positive signal the customer or
+      // the owner actually gave us. We never invent one.
+      if (row.referral_requires_positive_signal && row.satisfaction_signal !== "happy") {
+        const ageDays = (Date.now() - new Date(row.created_at).getTime()) / 86_400_000;
+        if (ageDays > GATED_ASK_EXPIRY_DAYS) {
+          await supabase
+            .from("referral_triggers")
+            .update({ status: "canceled", failure_reason: "no_positive_signal_received" })
+            .eq("id", row.id)
+            .in("status", ["scheduled", "queued"]);
+          referralResults.push({ id: row.id, status: "canceled" });
+        } else {
+          referralResults.push({ id: row.id, status: "waiting_positive_signal" });
+        }
+        continue;
+      }
+
       // Single conditional UPDATE claim: only one concurrent run can move a row
       // out of its scheduled state, so a row can never be sent twice.
       const { data: claimed } = await supabase
@@ -81,90 +239,42 @@ Deno.serve(async (req) => {
             failure_reason: reason.slice(0, 500),
           })
           .eq("id", row.id);
-        results.push({ id: row.id, status: terminal ? "failed" : "retry", detail: reason });
+        referralResults.push({ id: row.id, status: terminal ? "failed" : "retry", detail: reason });
       };
 
-      const email = (row.customer_email || "").trim().toLowerCase();
+      const email = String(row.customer_email || "").trim().toLowerCase();
       if (!email) {
         // No email means nothing we may lawfully auto-send. SMS stays device-native.
         await supabase
           .from("referral_triggers")
           .update({ status: "failed", failure_reason: "no_email_sms_is_device_native" })
           .eq("id", row.id);
-        results.push({ id: row.id, status: "failed", detail: "no email on record" });
+        referralResults.push({ id: row.id, status: "failed", detail: "no email on record" });
         continue;
       }
 
-      // Suppression: per-business list and platform-wide bounce/complaint list.
-      const [{ data: bizSuppressed }, { data: platformSuppressed }] = await Promise.all([
-        supabase
-          .from("suppressed_contacts")
-          .select("id")
-          .eq("business_id", row.business_id)
-          .eq("contact_type", "email")
-          .eq("contact_value", email)
-          .limit(1),
-        supabase.from("suppressed_emails").select("id").eq("email", email).limit(1),
-      ]);
-      if (bizSuppressed?.length || platformSuppressed?.length) {
+      if (await isSuppressed(supabase, row.business_id, email)) {
         await supabase
           .from("referral_triggers")
           .update({ status: "suppressed", failure_reason: "recipient_suppressed" })
           .eq("id", row.id);
-        results.push({ id: row.id, status: "suppressed" });
+        referralResults.push({ id: row.id, status: "suppressed" });
         continue;
       }
 
-      const { data: bizRows } = await supabase
-        .from("businesses")
-        .select("id, name, slug, offer_amount, offer_trigger, is_published, is_disabled, contact_outreach_consent_at")
-        .eq("id", row.business_id)
-        .limit(1);
-      const biz = bizRows?.[0];
-      if (!biz) {
-        await fail("business_not_found");
-        continue;
-      }
-      if (!biz.contact_outreach_consent_at) {
-        await fail("owner_attestation_missing");
-        continue;
-      }
-      if (biz.is_disabled || !biz.is_published) {
-        await fail("business_page_not_live");
-        continue;
-      }
+      const biz = await loadBiz(row.business_id);
+      if (!biz) { await fail("business_not_found"); continue; }
+      if (!biz.contact_outreach_consent_at) { await fail("owner_attestation_missing"); continue; }
+      if (biz.is_disabled || !biz.is_published) { await fail("business_page_not_live"); continue; }
 
-      // Unsubscribe token, one per (business, contact). Reuse if present.
-      let token: string | null = null;
-      const { data: existingToken } = await supabase
-        .from("unsubscribe_tokens")
-        .select("token")
-        .eq("business_id", biz.id)
-        .eq("contact_type", "email")
-        .eq("contact_value", email)
-        .limit(1);
-      token = existingToken?.[0]?.token ?? null;
-      if (!token) {
-        token = crypto.randomUUID().replace(/-/g, "");
-        const { error: tokenErr } = await supabase.from("unsubscribe_tokens").insert({
-          token,
-          business_id: biz.id,
-          contact_type: "email",
-          contact_value: email,
-        });
-        if (tokenErr) {
-          await fail(`unsubscribe_token_failed: ${tokenErr.message}`, false);
-          continue;
-        }
-      }
+      const unsubscribeUrl = await unsubscribeUrlFor(supabase, biz.id, email);
+      if (!unsubscribeUrl) { await fail("unsubscribe_token_failed", false); continue; }
 
-      const unsubscribeUrl =
-        `${Deno.env.get("SUPABASE_URL")}/functions/v1/handle-unsubscribe?token=${token}`;
       const referralUrl = appUrl(`/r/${biz.slug ?? ""}`);
-      const first = (row.customer_first_name || "").trim() || "there";
-      const service = (row.service_description || "").trim();
-      const tech = (row.technician_name || "").trim();
-      const reward = (biz.offer_amount || "").trim();
+      const first = String(row.customer_first_name || "").trim() || "there";
+      const service = String(row.service_description || "").trim();
+      const tech = String(row.technician_name || "").trim();
+      const reward = String(biz.offer_amount || "").trim();
 
       const subject = service
         ? `Know anyone else who needs ${service}?`
@@ -174,16 +284,9 @@ Deno.serve(async (req) => {
         ? `${esc(tech)} finished up${service ? ` your ${esc(service)}` : ""} for you, and we hope it went well.`
         : `We hope${service ? ` your ${esc(service)}` : " the job"} went well.`;
 
-      const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f6f7f9;font-family:-apple-system,BlinkMacSystemFont,'Inter',Segoe UI,Roboto,sans-serif;color:#0f172a">
-  <div style="max-width:560px;margin:0 auto;padding:32px 24px">
-    <div style="font-size:13px;color:#15803d;font-weight:600;letter-spacing:.04em;text-transform:uppercase">${esc(biz.name)}</div>
-    <h1 style="margin:8px 0 6px;font-size:22px;line-height:1.3">Hi ${esc(first)}, thank you for your business</h1>
+      const inner = `<h1 style="margin:8px 0 6px;font-size:22px;line-height:1.3">Hi ${esc(first)}, thank you for your business</h1>
     <p style="margin:0 0 18px;color:#475569;font-size:14px">${opener} If you know someone who needs the same kind of work, you can pass them along in a few seconds.${reward ? ` We say thank you with ${esc(reward)} when a referral turns into a job.` : ""}</p>
-    <a href="${referralUrl}" style="display:inline-block;background:#15803d;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px">Refer someone</a>
-    <p style="margin:28px 0 0;font-size:12px;color:#94a3b8">You are getting this because you are a customer of ${esc(biz.name)}. <a href="${unsubscribeUrl}" style="color:#64748b">Unsubscribe</a> to stop these messages.</p>
-    <p style="margin:8px 0 0;font-size:12px;color:#94a3b8">Sent through Revvin on behalf of ${esc(biz.name)}.</p>
-  </div>
-</body></html>`;
+    ${button(referralUrl, "Refer someone")}`;
 
       const idempotencyKey = `auto-ask-${row.id}`;
       const send = await sendEmailViaGateway({
@@ -191,7 +294,7 @@ Deno.serve(async (req) => {
         to: email,
         reply_to: RESEND_REPLY_TO,
         subject,
-        html,
+        html: emailShell(biz.name, inner, unsubscribeUrl),
         idempotencyKey,
       });
 
@@ -214,16 +317,21 @@ Deno.serve(async (req) => {
             failure_reason: null,
           })
           .eq("id", row.id);
-        results.push({ id: row.id, status: "sent" });
+        referralResults.push({ id: row.id, status: "sent" });
       } else {
-        // Retry until MAX_ATTEMPTS, then stop for good.
         const exhausted = (row.attempts ?? 0) + 1 >= MAX_ATTEMPTS;
         await fail(send.error || "send_failed", exhausted);
       }
     }
 
     return new Response(
-      JSON.stringify({ ok: true, scanned: due?.length ?? 0, results }),
+      JSON.stringify({
+        ok: true,
+        reviews_scanned: reviewDue?.length ?? 0,
+        review_results: reviewResults,
+        referrals_scanned: due?.length ?? 0,
+        referral_results: referralResults,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {

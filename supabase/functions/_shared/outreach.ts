@@ -1,0 +1,105 @@
+// Shared compliance helpers for anything Revvin sends to a business's own
+// customer list.
+//
+// Rules encoded here (do not relax without legal review):
+//   - EMAIL ONLY. Revvin never auto-sends SMS to an imported list. Referral and
+//     marketing texts are TCPA marketing and need prior express written consent,
+//     so SMS in this product is device-native only.
+//   - Every recipient is checked against suppressed_contacts (per business) and
+//     suppressed_emails (platform wide) immediately before the send.
+//   - Every message carries a working unsubscribe link backed by
+//     unsubscribe_tokens and the handle-unsubscribe function.
+//
+// CAN-SPAM also requires a physical postal address in commercial email. Revvin
+// does not store one for the platform or for the business yet, so the footer
+// below deliberately leaves that gap visible rather than inventing an address.
+// FOUNDER TODO: add a verified postal address (platform and/or per business)
+// and render it in emailFooter().
+
+import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+export const esc = (s: unknown) =>
+  String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+export async function isSuppressed(
+  supabase: SupabaseClient,
+  businessId: string,
+  email: string,
+): Promise<boolean> {
+  const value = email.trim().toLowerCase();
+  if (!value) return true;
+  const [{ data: perBusiness }, { data: platform }] = await Promise.all([
+    supabase
+      .from("suppressed_contacts")
+      .select("id")
+      .eq("business_id", businessId)
+      .eq("contact_type", "email")
+      .eq("contact_value", value)
+      .limit(1),
+    supabase.from("suppressed_emails").select("id").eq("email", value).limit(1),
+  ]);
+  return Boolean(perBusiness?.length || platform?.length);
+}
+
+/** One reusable unsubscribe token per (business, email). */
+export async function unsubscribeUrlFor(
+  supabase: SupabaseClient,
+  businessId: string,
+  email: string,
+): Promise<string | null> {
+  const value = email.trim().toLowerCase();
+  const { data: existing } = await supabase
+    .from("unsubscribe_tokens")
+    .select("token")
+    .eq("business_id", businessId)
+    .eq("contact_type", "email")
+    .eq("contact_value", value)
+    .limit(1);
+  let token = existing?.[0]?.token as string | undefined;
+  if (!token) {
+    token = crypto.randomUUID().replace(/-/g, "");
+    const { error } = await supabase.from("unsubscribe_tokens").insert({
+      token,
+      business_id: businessId,
+      contact_type: "email",
+      contact_value: value,
+    });
+    if (error) return null;
+  }
+  return `${Deno.env.get("SUPABASE_URL")}/functions/v1/handle-unsubscribe?token=${token}`;
+}
+
+export function emailFooter(businessName: string, unsubscribeUrl: string) {
+  return `<p style="margin:28px 0 0;font-size:12px;color:#94a3b8">You are getting this because you are a customer of ${esc(businessName)}. <a href="${unsubscribeUrl}" style="color:#64748b">Unsubscribe</a> to stop these messages.</p>
+    <p style="margin:8px 0 0;font-size:12px;color:#94a3b8">Sent through Revvin on behalf of ${esc(businessName)}.</p>`;
+}
+
+export function emailShell(businessName: string, inner: string, unsubscribeUrl: string) {
+  return `<!doctype html><html><body style="margin:0;padding:0;background:#f6f7f9;font-family:-apple-system,BlinkMacSystemFont,'Inter',Segoe UI,Roboto,sans-serif;color:#0f172a">
+  <div style="max-width:560px;margin:0 auto;padding:32px 24px">
+    <div style="font-size:13px;color:#15803d;font-weight:600;letter-spacing:.04em;text-transform:uppercase">${esc(businessName)}</div>
+    ${inner}
+    ${emailFooter(businessName, unsubscribeUrl)}
+  </div>
+</body></html>`;
+}
+
+export function button(href: string, label: string) {
+  return `<a href="${href}" style="display:inline-block;background:#15803d;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px">${esc(label)}</a>`;
+}
+
+/** Merge tokens available to campaign and review templates. */
+export function renderTokens(
+  input: string,
+  tokens: Record<string, string>,
+  escapeHtml: boolean,
+): string {
+  return String(input ?? "").replace(/\{\{\s*([a-z_]+)\s*\}\}/gi, (_m, key: string) => {
+    const value = tokens[key.toLowerCase()] ?? "";
+    return escapeHtml ? esc(value) : value;
+  });
+}
