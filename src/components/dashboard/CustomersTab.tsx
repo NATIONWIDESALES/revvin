@@ -146,6 +146,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const [manualName, setManualName] = useState("");
   const [manualEmail, setManualEmail] = useState("");
   const [manualPhone, setManualPhone] = useState("");
+  const [manualLastJob, setManualLastJob] = useState("");
   const [manualSaving, setManualSaving] = useState(false);
   // Tap-through composer: step through pending contacts one at a time.
   const [tapOpen, setTapOpen] = useState(false);
@@ -374,13 +375,16 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       name,
       email: email || null,
       phone: phone || null,
+      // Optional. Campaign segmenting uses this when present and falls back to
+      // the date you added them when it is not.
+      last_job_at: manualLastJob ? new Date(manualLastJob).toISOString() : null,
     });
     setManualSaving(false);
     if (error) {
       toast({ title: "Could not add", description: error.message, variant: "destructive" });
       return;
     }
-    setManualName(""); setManualEmail(""); setManualPhone("");
+    setManualName(""); setManualEmail(""); setManualPhone(""); setManualLastJob("");
     toast({ title: "Contact added" });
     load();
   };
@@ -521,12 +525,14 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
           <h3 className="text-sm font-semibold text-foreground">Add a customer</h3>
         </div>
         <p className="text-xs text-muted-foreground mt-1">
-          Add one at a time. Name plus email or phone.
+          Add one at a time. Name plus email or phone. The last job date is optional, and campaigns use the
+          date you added them when it is blank.
         </p>
-        <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-4 gap-2">
           <Input value={manualName} onChange={(e) => setManualName(e.target.value)} placeholder="Name" className="text-sm" />
           <Input value={manualEmail} onChange={(e) => setManualEmail(e.target.value)} placeholder="Email (optional)" type="email" className="text-sm" />
           <Input value={manualPhone} onChange={(e) => setManualPhone(e.target.value)} placeholder="Phone (optional)" type="tel" className="text-sm" />
+          <Input value={manualLastJob} onChange={(e) => setManualLastJob(e.target.value)} placeholder="Last job date" type="date" className="text-sm" aria-label="Last job date (optional)" />
         </div>
         <div className="mt-3">
           <Button size="sm" onClick={addManual} disabled={manualSaving}>
