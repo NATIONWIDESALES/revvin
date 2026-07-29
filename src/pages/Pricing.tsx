@@ -14,19 +14,46 @@ import {
 } from "@/components/ui/accordion";
 import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
 
-const proFeatures = [
-  "Branded referral page",
-  "Referral offer builder",
-  "Lead capture form",
-  "Lead dashboard",
-  "QR code (PNG + print)",
-  "Shareable link",
-  "Email and in-app lead notifications",
-  "Edit your offer anytime",
-  "Stripe billing portal",
-  "Monthly ROI report, see the revenue your referrals bring in",
-  "Instant lead alerts, know the moment a referral comes in",
-  "1-click customer import, invite your past customers in minutes",
+// Grouped by revenue loop so the value is legible. Everything listed is shipped.
+const proFeatureGroups: { label: string; features: string[] }[] = [
+  {
+    label: "Loop 01 · Referrals",
+    features: [
+      "Branded referral page on your own custom URL",
+      "Shareable link and QR code (PNG + print)",
+      "Referral offer builder, edit anytime",
+      "Lead inbox with status tracking",
+      "One-tap text or call back on a new referral",
+      "Job done auto-ask with customer name, technician name and service, sent on a delay",
+      "Email and in-app lead notifications",
+    ],
+  },
+  {
+    label: "Loop 02 · Repeat work",
+    features: [
+      "Customer list import",
+      "Reactivation campaigns segmented by time since last job",
+      "Seasonal and maintenance campaign templates",
+      "Campaign results reporting",
+    ],
+  },
+  {
+    label: "Loop 03 · Reviews",
+    features: [
+      "Review requests sent after a job",
+      "Follow-up referral ask for happy customers",
+    ],
+  },
+  {
+    label: "Across all three",
+    features: [
+      "Reward tracking from pending to paid, with the referrer notified at both moments",
+      "ROI scoreboard on your dashboard",
+      "Print pack: yard signs, door hangers, invoice inserts, business cards, truck magnets",
+      "Webhooks and an API, so job complete in another tool fires the auto-ask",
+      "Stripe billing portal, cancel anytime",
+    ],
+  },
 ];
 
 const freeFeatures = [
@@ -69,7 +96,7 @@ const Pricing = () => {
     <>
       <SEOHead
         title="Revvin | Pricing"
-        description="Build your referral page free. Pay $49/month USD only when you publish it. Cancel anytime. No contract, no setup fee. Referrers join free. You pay your referrers directly."
+        description="Build free. Pay $49/month USD only when you publish. All three loops included: referrals, repeat work, and reviews. Cancel anytime. You pay your referrers directly."
         path="/pricing"
       />
 
@@ -81,7 +108,7 @@ const Pricing = () => {
             Build free. Pay $49/month to go live.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            Building your referral page, offer, and QR code costs nothing. Publishing it costs a flat $49/month USD, billed monthly. No contract, no setup fee, no platform fees. Referrers are free.
+            Building your page, offer, and QR code costs nothing, and you can preview it before you commit. Publishing costs a flat $49/month USD, billed monthly, and includes all three loops: referrals, repeat work, and reviews. No contract, no setup fee, no platform fees. Referrers are free.
           </p>
         </div>
       </section>
@@ -121,7 +148,7 @@ const Pricing = () => {
                 </span>
               </div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pro</p>
-              <h2 className="mt-1 text-xl font-bold text-foreground">Business Referral Page</h2>
+              <h2 className="mt-1 text-xl font-bold text-foreground">All three loops</h2>
               <div className="mt-6 flex items-baseline gap-2">
                 <span className="text-5xl font-extrabold tracking-tight text-foreground">$49</span>
                 <span className="text-sm text-muted-foreground">/month</span>
@@ -150,14 +177,23 @@ const Pricing = () => {
                   </Label>
                 </div>
               )}
-              <ul className="mt-8 space-y-2.5 border-t border-border pt-6">
-                {proFeatures.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span>{f}</span>
-                  </li>
+              <div className="mt-8 space-y-6 border-t border-border pt-6">
+                {proFeatureGroups.map((group) => (
+                  <div key={group.label}>
+                    <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                      {group.label}
+                    </p>
+                    <ul className="space-y-2.5">
+                      {group.features.map((f) => (
+                        <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
 
             {/* Launch Package add-on (gated by LAUNCH_PACKAGE_ENABLED) */}
@@ -243,7 +279,13 @@ const Pricing = () => {
             <AccordionItem value="p3">
               <AccordionTrigger>What exactly is free?</AccordionTrigger>
               <AccordionContent>
-                Two things. Referrer accounts are always free: send leads to businesses on Revvin and get paid directly, no card required. And for businesses, the builder is free: create your account, set up your offer, page, and QR code without paying. This is not a trial and not a limited plan. Your page cannot receive referrals until you publish it, and publishing costs $49/month.
+                Two things. Referrer accounts are always free: send leads to businesses on Revvin and get paid directly, no card required. And for businesses, the builder is free: create your account, set up your offer, page, and QR code, and preview the whole thing without paying. This is not a trial and not a limited plan. Your page cannot receive referrals until you publish it, and publishing costs $49/month.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="p5">
+              <AccordionTrigger>Are all three loops included in the $49?</AccordionTrigger>
+              <AccordionContent>
+                Yes. One price covers referrals, repeat work, and reviews, plus reward tracking, the ROI scoreboard, the print pack, and webhooks and the API. There are no add-on tiers and no per-send charges.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">
