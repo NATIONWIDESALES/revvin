@@ -602,13 +602,13 @@ const Index = () => {
             <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-10 shadow-product md:p-12">
               <span className="absolute left-0 top-0 h-full w-[3px] bg-primary" />
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-4">
-                Pro · Business Referral Page
+                Pro · All three loops
               </p>
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="text-6xl font-extrabold tracking-tight text-foreground">$49</span>
                 <span className="text-base font-medium text-muted-foreground">/month USD</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">Free to build your page. Billing starts when you publish it. Cancel anytime. No contract, no setup fee. Billed in USD.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Free to build and preview your page. Billing starts when you publish it. Cancel anytime. No contract, no setup fee. Billed in USD.</p>
 
               <Button size="lg" className="mt-8 h-12 w-full text-base shadow-soft hover:bg-primary-deep" asChild>
                 <Link to="/signup">Build your page free</Link>
@@ -616,12 +616,14 @@ const Index = () => {
 
               <div className="mt-8 grid grid-cols-1 gap-y-2.5 border-t border-border pt-6 sm:grid-cols-2 sm:gap-x-8">
                 {[
-                  "Branded referral page",
-                  "Offer builder",
-                  "Lead inbox & dashboard",
-                  "QR code (PNG + print)",
-                  "Email and in-app notifications",
-                  "Stripe billing portal",
+                  "Branded referral page, link and QR code",
+                  "Lead inbox with one-tap text or call back",
+                  "Job done auto-ask",
+                  "Reactivation campaigns",
+                  "Review requests with referral follow-up",
+                  "Reward tracking and ROI scoreboard",
+                  "Print pack",
+                  "Webhooks and API",
                 ].map((f) => (
                   <div key={f} className="flex items-start gap-2.5">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
