@@ -16,11 +16,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
+import { checkCronAuth } from "../_shared/cron-auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-cron-secret",
 };
 
 const esc = (s: string) =>
@@ -35,6 +36,15 @@ const firstName = (full: string) =>
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Cron-only function. Requires x-cron-secret or a service-role JWT.
+  const cronAuth = checkCronAuth(req);
+  if (!cronAuth.ok) {
+    return new Response(
+      JSON.stringify({ error: "unauthorized", reason: cronAuth.reason }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
   }
 
   const supabase = createClient(
