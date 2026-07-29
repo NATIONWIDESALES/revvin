@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import BusinessLogoUpload from "@/components/BusinessLogoUpload";
 import SEOHead from "@/components/SEOHead";
 import { Loader2, ArrowRight, Check } from "lucide-react";
+import { track } from "@/lib/track";
 
 const CATEGORIES = ["Roofing","HVAC","Plumbing","Electrical","Landscaping","Painting","Auto","Solar","Home Services","Other"];
 
@@ -22,6 +23,10 @@ const Onboarding = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { toast } = useToast();
+
+  useEffect(() => {
+    track("onboarding_started");
+  }, []);
 
   const [bizId, setBizId] = useState<string | null>(null);
   const [launchPackageStatus, setLaunchPackageStatus] = useState<string | null>(null);
@@ -133,6 +138,7 @@ const Onboarding = () => {
       title: "Your referral page is ready",
       description: "It is in draft. Go live from your dashboard whenever you're ready.",
     });
+    track("onboarding_completed");
     navigate("/dashboard");
   };
 
