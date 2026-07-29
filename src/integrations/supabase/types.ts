@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          key_hash: string
+          key_prefix: string
+          label: string
+          last_used_at: string | null
+          revoked_at: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          key_hash: string
+          key_prefix: string
+          label: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          label?: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "api_keys_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_log: {
         Row: {
           actor_id: string
@@ -1311,6 +1359,7 @@ export type Database = {
       referral_triggers: {
         Row: {
           amount_paid: number | null
+          api_key_id: string | null
           attempts: number
           business_id: string
           channel: string | null
@@ -1337,6 +1386,7 @@ export type Database = {
         }
         Insert: {
           amount_paid?: number | null
+          api_key_id?: string | null
           attempts?: number
           business_id: string
           channel?: string | null
@@ -1363,6 +1413,7 @@ export type Database = {
         }
         Update: {
           amount_paid?: number | null
+          api_key_id?: string | null
           attempts?: number
           business_id?: string
           channel?: string | null
@@ -1387,7 +1438,15 @@ export type Database = {
           status?: string
           technician_name?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "referral_triggers_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referrals: {
         Row: {
@@ -1852,6 +1911,124 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_deliveries: {
+        Row: {
+          attempts: number
+          business_id: string
+          created_at: string
+          delivered_at: string | null
+          endpoint_id: string
+          event: string
+          id: string
+          last_error: string | null
+          next_attempt_at: string
+          payload: Json
+          response_status: number | null
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          business_id: string
+          created_at?: string
+          delivered_at?: string | null
+          endpoint_id: string
+          event: string
+          id?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload: Json
+          response_status?: number | null
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          business_id?: string
+          created_at?: string
+          delivered_at?: string | null
+          endpoint_id?: string
+          event?: string
+          id?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload?: Json
+          response_status?: number | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_deliveries_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhook_deliveries_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhook_deliveries_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "webhook_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_endpoints: {
+        Row: {
+          active: boolean
+          business_id: string
+          created_at: string
+          events: string[]
+          id: string
+          include_contact: boolean
+          secret: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          business_id: string
+          created_at?: string
+          events?: string[]
+          id?: string
+          include_contact?: boolean
+          secret: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          business_id?: string
+          created_at?: string
+          events?: string[]
+          id?: string
+          include_contact?: boolean
+          secret?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_endpoints_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhook_endpoints_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       businesses_public: {
@@ -2026,6 +2203,10 @@ export type Database = {
           p_type: string
           p_user_id: string
         }
+        Returns: undefined
+      }
+      fn_enqueue_webhook: {
+        Args: { p_business_id: string; p_event: string; p_payload: Json }
         Returns: undefined
       }
       fn_get_business_roi: {
