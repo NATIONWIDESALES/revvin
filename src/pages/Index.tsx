@@ -13,7 +13,7 @@ import {
   Share2,
   Printer,
   Webhook,
-  Wallet,
+  HandCoins,
   CalendarClock,
   MessageSquare,
 } from "lucide-react";
@@ -533,7 +533,7 @@ const Index = () => {
             </div>
 
             <div className="bento-tile md:col-span-3 flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 text-primary"><Wallet className="h-4 w-4" /></div>
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><HandCoins className="h-4 w-4" /></div>
               <div>
                 <p className="text-sm font-semibold text-foreground">Reward tracking, pending to paid</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">Your referrer is notified when the deal closes and again when you mark the reward paid. You pay them directly.</p>
