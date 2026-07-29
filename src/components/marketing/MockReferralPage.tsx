@@ -24,7 +24,7 @@ export default function MockReferralPage() {
             Refer a customer,<br />earn <span className="text-primary">$500</span>
           </p>
           <p className="mt-1 text-[10px] text-muted-foreground">
-            Paid per closed roofing job.
+            Paid when the deal closes.
           </p>
         </div>
 

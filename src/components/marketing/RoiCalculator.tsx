@@ -11,16 +11,18 @@ const RoiCalculator = () => {
   const [dealValue, setDealValue] = useState(2500);
   const [reward, setReward] = useState(250);
   const [referrals, setReferrals] = useState(2);
+  const [margin, setMargin] = useState(40);
 
-  const { revenue, payouts, net, monthsCovered } = useMemo(() => {
-    const revenue = dealValue * referrals;
+  const { grossProfit, payouts, net, netPerReferral, monthsCovered } = useMemo(() => {
+    const grossProfitPerDeal = dealValue * (margin / 100);
+    const netPerReferral = grossProfitPerDeal - reward;
+    const grossProfit = grossProfitPerDeal * referrals;
     const payouts = reward * referrals;
-    const net = revenue - payouts - 49;
+    const net = netPerReferral * referrals - 49;
     // Honest grounding: profit from a single closed referral, against $49/month.
-    const perDealNet = dealValue - reward;
-    const monthsCovered = perDealNet > 0 ? Math.floor(perDealNet / 49) : 0;
-    return { revenue, payouts, net, monthsCovered };
-  }, [dealValue, reward, referrals]);
+    const monthsCovered = netPerReferral > 0 ? Math.floor(netPerReferral / 49) : 0;
+    return { grossProfit, payouts, net, netPerReferral, monthsCovered };
+  }, [dealValue, reward, referrals, margin]);
 
   return (
     <div className="mx-auto mt-10 max-w-5xl rounded-2xl border border-border bg-card p-6 shadow-product md:p-10">
@@ -92,6 +94,38 @@ const RoiCalculator = () => {
           <div>
             <div className="mb-1.5 flex items-center justify-between">
               <label
+                htmlFor="roi-margin"
+                className="block text-sm font-semibold text-foreground"
+              >
+                Your rough profit margin on a job
+              </label>
+              <span
+                aria-hidden="true"
+                className="text-sm font-bold tabular-nums text-primary"
+              >
+                {margin}%
+              </span>
+            </div>
+            <input
+              id="roi-margin"
+              type="range"
+              min={5}
+              max={90}
+              step={5}
+              value={margin}
+              aria-label={`Rough profit margin on a job: ${margin} percent`}
+              onChange={(e) => setMargin(Number(e.target.value))}
+              className="w-full accent-primary"
+            />
+            <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+              <span>5%</span>
+              <span>90%</span>
+            </div>
+          </div>
+
+          <div>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label
                 htmlFor="roi-count"
                 className="block text-sm font-semibold text-foreground"
               >
@@ -124,12 +158,30 @@ const RoiCalculator = () => {
 
         <div className="rounded-xl border border-border bg-surface-warm p-6 md:p-8">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Estimated monthly net profit
+            Estimated monthly profit from referrals
           </p>
-          <p className="mt-2 text-5xl font-extrabold tracking-tight text-foreground md:text-6xl">
-            {fmt(net)}
-          </p>
-          {monthsCovered > 0 && (
+          {netPerReferral > 0 ? (
+            <p className="mt-2 text-5xl font-extrabold tracking-tight text-foreground md:text-6xl">
+              {fmt(net)}
+            </p>
+          ) : (
+            <p className="mt-2 text-xl font-bold tracking-tight text-foreground">
+              Your payout is higher than your margin on a job
+            </p>
+          )}
+          {netPerReferral <= 0 && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Lower the referrer reward or raise your margin to see a profit
+              estimate.
+            </p>
+          )}
+          {monthsCovered > 24 ? (
+            <p className="mt-3 text-sm font-semibold text-foreground">
+              One closed referral covers{" "}
+              <span className="text-primary">more than two years</span> of
+              Revvin.
+            </p>
+          ) : monthsCovered > 0 ? (
             <p className="mt-3 text-sm font-semibold text-foreground">
               One closed referral covers about{" "}
               <span className="text-primary">
@@ -138,12 +190,12 @@ const RoiCalculator = () => {
               </span>{" "}
               of Revvin.
             </p>
-          )}
+          ) : null}
 
           <dl className="mt-6 space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">New revenue</dt>
-              <dd className="font-semibold tabular-nums text-foreground">{fmt(revenue)}</dd>
+              <dt className="text-muted-foreground">Profit on new jobs</dt>
+              <dd className="font-semibold tabular-nums text-foreground">{fmt(grossProfit)}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Referrer payouts</dt>
