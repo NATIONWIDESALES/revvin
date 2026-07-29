@@ -13,6 +13,7 @@ import {
   AlertTriangle, Pause, Play, Scale, Gavel, History, Search
 } from "lucide-react";
 import { motion } from "framer-motion";
+import FunnelPanel from "@/components/admin/FunnelPanel";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -219,6 +220,9 @@ const AdminDashboard = () => {
 
             {/* OVERVIEW TAB */}
             <TabsContent value="overview">
+              <div className="mb-6">
+                <FunnelPanel />
+              </div>
               <div className="grid gap-6 lg:grid-cols-2">
                 <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                   <h2 className="font-display text-base font-bold mb-3 flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /> Businesses ({businesses.length})</h2>
