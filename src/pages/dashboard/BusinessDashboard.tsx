@@ -397,69 +397,6 @@ const GoLiveBanner = ({
   );
 };
 
-// ============= SUBSCRIPTION LOCK SCREEN =============
-const SubscriptionLockScreen = ({ biz }: { biz: Business }) => {
-  const { toast } = useToast();
-  const [busy, setBusy] = useState<"checkout" | "portal" | null>(null);
-
-  const startCheckout = async () => {
-    setBusy("checkout");
-    const { data, error } = await supabase.functions.invoke("create-business-checkout", {
-      body: { includeLaunchPackage: false },
-    });
-    if (error || !data?.url) {
-      setBusy(null);
-      toast({ title: "Could not start checkout", description: error?.message, variant: "destructive" });
-      return;
-    }
-    window.location.href = data.url;
-  };
-
-  const openPortal = async () => {
-    setBusy("portal");
-    const { data, error } = await supabase.functions.invoke("customer-portal");
-    setBusy(null);
-    if (error || !data?.url) {
-      toast({ title: "Could not open billing portal", description: error?.message, variant: "destructive" });
-      return;
-    }
-    window.open(data.url, "_blank");
-  };
-
-  const status = biz.subscription_status || "none";
-  const hasStripeCustomer = !!biz.stripe_customer_id;
-
-  return (
-    <div className="container max-w-xl py-16">
-      <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-          <Lock className="h-5 w-5" />
-        </div>
-        <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">Reactivate your subscription</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Your Revvin dashboard is locked because your subscription is not active. Reactivate to restore your referral page, leads, and marketplace offers.
-        </p>
-        <p className="mt-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-          Current status: {status}
-        </p>
-        <div className="mt-6 flex flex-col gap-2">
-          <Button size="lg" className="h-11" onClick={startCheckout} disabled={busy !== null}>
-            {busy === "checkout" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Reactivate ($49/month)"}
-          </Button>
-          {hasStripeCustomer && (
-            <Button variant="outline" onClick={openPortal} disabled={busy !== null}>
-              {busy === "portal" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing in customer portal"}
-            </Button>
-          )}
-        </div>
-        <p className="mt-4 text-[11px] text-muted-foreground">
-          Need help? Email <a className="underline" href="mailto:info@revvin.co">info@revvin.co</a>.
-        </p>
-      </div>
-    </div>
-  );
-};
-
 // ============= OFFERS TAB =============
 const OffersTab = ({ offers }: { offers: OfferRow[] }) => {
   if (offers.length === 0) {
