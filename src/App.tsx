@@ -38,7 +38,6 @@ import Sample from "./pages/Sample";
 import ReferralStatus from "./pages/ReferralStatus";
 import Feedback from "./pages/Feedback";
 import PrintAssetPage from "./pages/PrintAsset";
-import QaPrint from "./pages/__QaPrint";
 import ZapierDocs from "./pages/docs/Zapier";
 import Analytics from "@/components/Analytics";
 
@@ -76,7 +75,6 @@ const App = () => (
                   <Route path="/r/:slug" element={<PublicReferralPage />} />
                   <Route path="/r/status/:token" element={<ReferralStatus />} />
                   <Route path="/feedback/:token" element={<Feedback />} />
-                  <Route path="/__qa-print" element={<QaPrint />} />
                   <Route path="/print/:asset" element={<PrintAssetPage />} />
                   <Route path="/docs/zapier" element={<ZapierDocs />} />
                   <Route path="/welcome" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
