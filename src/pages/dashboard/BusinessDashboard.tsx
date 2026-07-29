@@ -267,6 +267,8 @@ const BusinessDashboard = () => {
         </div>
       </div>
 
+      {subStatus === "past_due" && <PastDueBanner />}
+
       {!isLive && <GoLiveBanner biz={biz} subscribed={subscribed} onUpdate={loadAll} />}
 
       <ActivationChecklist steps={activationSteps} />
