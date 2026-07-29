@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
 import { useAuth } from "@/contexts/AuthContext";
@@ -109,8 +109,25 @@ const BusinessDashboard = () => {
   const [offers, setOffers] = useState<OfferRow[]>([]);
   const [contactStats, setContactStats] = useState<{ total: number; sent: number }>({ total: 0, sent: 0 });
   const [qrPrinted, setQrPrinted] = useState<boolean>(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<string>("customers");
   const [loading, setLoading] = useState(true);
+
+  // ?tab= lets other surfaces (the scoreboard empty state, emails) deep link
+  // straight to the action they are recommending.
+  const VALID_TABS = ["customers", "jobdone", "leads", "offers", "referrals", "payouts", "page", "share", "account"];
+  useEffect(() => {
+    const t = searchParams.get("tab");
+    if (t && VALID_TABS.includes(t)) setActiveTab(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const changeTab = (t: string) => {
+    setActiveTab(t);
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", t);
+    setSearchParams(next, { replace: true });
+  };
 
   useEffect(() => { if (user) loadAll(); }, [user]);
 
@@ -277,7 +294,7 @@ const BusinessDashboard = () => {
 
       <RoiSummaryCard businessId={biz.id} />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={changeTab}>
         <TabsList className="mb-6">
           <TabsTrigger value="customers">Customers {contactStats.total > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{contactStats.total}</span>}</TabsTrigger>
           <TabsTrigger value="jobdone">Job done</TabsTrigger>
