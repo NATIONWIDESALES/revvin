@@ -968,7 +968,29 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
 const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: string; onUpdate: () => void }) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+  const [reviewUrl, setReviewUrl] = useState(biz.google_review_url ?? "");
+  const [savingReview, setSavingReview] = useState(false);
   const copy = () => { navigator.clipboard.writeText(publicUrl); setCopied(true); setTimeout(() => setCopied(false), 1500); };
+
+  const saveReviewUrl = async () => {
+    const value = reviewUrl.trim();
+    if (value && !/^https?:\/\//i.test(value)) {
+      toast({ title: "Add the full link", description: "It should start with https://", variant: "destructive" });
+      return;
+    }
+    setSavingReview(true);
+    const { error } = await supabase
+      .from("businesses")
+      .update({ google_review_url: value || null })
+      .eq("id", biz.id);
+    setSavingReview(false);
+    if (error) {
+      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Review link saved" });
+    onUpdate();
+  };
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -985,6 +1007,27 @@ const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: strin
         <h3 className="text-sm font-semibold text-foreground mb-3">Edit your page</h3>
         <p className="text-sm text-muted-foreground mb-4">Update your business info, offer, or logo.</p>
         <Button variant="outline" asChild><Link to="/welcome">Edit setup</Link></Button>
+      </div>
+
+      <div className="md:col-span-2 rounded-2xl border border-border bg-card p-6">
+        <h3 className="text-sm font-semibold text-foreground mb-1">Google review link</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Needed before you can send review requests from the Job done tab. In your Google Business Profile,
+          open the Read reviews card and choose Get more reviews. Google gives you a short link ending in
+          g.page or maps.app.goo.gl. Paste that here. Every customer you ask gets this exact link.
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            className="max-w-md"
+            placeholder="https://g.page/r/..."
+            value={reviewUrl}
+            onChange={(e) => setReviewUrl(e.target.value)}
+          />
+          <Button variant="outline" size="sm" onClick={saveReviewUrl} disabled={savingReview}>
+            {savingReview ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
+            Save
+          </Button>
+        </div>
       </div>
 
       <div className="md:col-span-2 rounded-2xl border border-border bg-card p-6">
