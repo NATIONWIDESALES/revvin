@@ -79,6 +79,15 @@ async function sendEmail(to: string, subject: string, html: string) {
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // Cron-only function. Requires x-cron-secret or a service-role JWT.
+  const auth = checkCronAuth(req);
+  if (!auth.ok) {
+    return new Response(JSON.stringify({ error: "unauthorized", reason: auth.reason }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
