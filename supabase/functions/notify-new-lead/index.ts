@@ -47,6 +47,22 @@ Deno.serve(async (req) => {
       });
     }
 
+    // At-most-once claim. This endpoint is intentionally unauthenticated (the
+    // anonymous referrer calls it), so the abuse surface is repeatability, not
+    // identity. A single conditional UPDATE makes concurrent calls safe: only
+    // one can flip owner_notified_at from NULL and get a row back.
+    const { data: claimed } = await supabase
+      .from("leads")
+      .update({ owner_notified_at: new Date().toISOString() })
+      .eq("id", lead_id)
+      .is("owner_notified_at", null)
+      .select("id");
+    if (!claimed?.length) {
+      return new Response(JSON.stringify({ ok: true, skipped: "already_notified" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { data: bizRows } = await supabase
       .from("businesses")
       .select("id, name, user_id, business_email")
