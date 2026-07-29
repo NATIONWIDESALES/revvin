@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { notifyRewardPaid } from "@/lib/rewardNotify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Inbox, Check } from "lucide-react";
@@ -82,7 +83,12 @@ const PayoutsPage = ({ businessId }: Props) => {
       .update({ status: "paid", marked_paid_at: new Date().toISOString() })
       .eq("id", id);
     if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
-    else { toast({ title: "Marked as paid" }); load(); }
+    else {
+      // Let the referrer know. Fire and forget, at-most-once server side.
+      notifyRewardPaid(id);
+      toast({ title: "Marked as paid", description: "We let your referrer know." });
+      load();
+    }
   };
 
   if (loading) {
