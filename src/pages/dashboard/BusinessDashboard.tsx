@@ -450,6 +450,7 @@ const GoLiveBanner = ({
 }) => {
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
+  const [plan, setPlan] = useState<BillingPlan>("monthly");
 
   const goLive = async () => {
     track("go_live_clicked");
