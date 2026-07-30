@@ -325,7 +325,7 @@ const Index = () => {
           </div>
 
           <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-muted-foreground">
-            All three loops are included in the one $49/month USD price. You pay your referrers directly; Revvin never handles reward money.
+            All three loops are included in the one $49/month USD price, or $450/year billed once, which saves 23%. You pay your referrers directly; Revvin never handles reward money.
           </p>
         </div>
       </section>
