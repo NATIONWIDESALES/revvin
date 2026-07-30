@@ -26,6 +26,8 @@ import ActivationChecklist, { ActivationStep } from "@/components/dashboard/Acti
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
+import PlanPicker from "@/components/billing/PlanPicker";
+import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 
 interface Business {
   id: string;
@@ -450,6 +452,7 @@ const GoLiveBanner = ({
 }) => {
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
+  const [plan, setPlan] = useState<BillingPlan>("monthly");
 
   const goLive = async () => {
     track("go_live_clicked");
@@ -467,7 +470,7 @@ const GoLiveBanner = ({
       return;
     }
     const { data, error } = await supabase.functions.invoke("create-business-checkout", {
-      body: { includeLaunchPackage: false },
+      body: { includeLaunchPackage: false, plan },
     });
     if (error || !data?.url) {
       setBusy(false);
@@ -490,7 +493,7 @@ const GoLiveBanner = ({
           <p className="mt-1 text-sm text-muted-foreground">
             {subscribed
               ? "Publish it so customers and referrers can reach it."
-              : "Building is free. Go live for $49/month USD to open your page to customers and the marketplace. Cancel anytime."}
+              : `Building is free. Go live for ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once and save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off), to open your page to customers and the marketplace. Cancel anytime.`}
           </p>
           {!ready && (
             <p className="mt-2 text-xs text-muted-foreground">
@@ -499,9 +502,18 @@ const GoLiveBanner = ({
           )}
         </div>
         <Button onClick={goLive} disabled={busy} size="lg" className="shrink-0">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : subscribed ? "Publish page" : "Go live, $49/month"}
+          {busy ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : subscribed ? (
+            "Publish page"
+          ) : plan === "annual" ? (
+            `Go live, ${PRICE_TEXT.annualPerYear}`
+          ) : (
+            `Go live, ${PRICE_TEXT.monthlyPerMonth}`
+          )}
         </Button>
       </div>
+      {!subscribed && <PlanPicker plan={plan} onChange={setPlan} className="mt-4" />}
     </div>
   );
 };
@@ -1171,6 +1183,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
   });
   const [marketplaceListed, setMarketplaceListed] = useState<boolean>(biz.marketplace_listed ?? true);
   const [savingMarketplace, setSavingMarketplace] = useState(false);
+  const [billingPlan, setBillingPlan] = useState<BillingPlan>("monthly");
 
   const toggleMarketplace = async (next: boolean) => {
     setMarketplaceListed(next);
@@ -1232,7 +1245,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     track("go_live_clicked");
     setBusy(true);
     const { data, error } = await supabase.functions.invoke("create-business-checkout", {
-      body: { includeLaunchPackage: false },
+      body: { includeLaunchPackage: false, plan: billingPlan },
     });
     setBusy(false);
     if (error || !data?.url) {
@@ -1246,6 +1259,14 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
   const hasSubscription = !!biz.subscription_status && !["none", "canceled"].includes(biz.subscription_status);
 
   const periodEnd = biz.current_period_end ? new Date(biz.current_period_end).toLocaleDateString() : null;
+
+  // A monthly renewal is never more than ~31 days out, so a period end further
+  // away than 45 days means the subscription is on the annual price.
+  const onAnnual = (() => {
+    if (!hasSubscription || !biz.current_period_end) return false;
+    const days = (new Date(biz.current_period_end).getTime() - Date.now()) / 86_400_000;
+    return days > 45;
+  })();
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -1269,9 +1290,18 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
 
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-1">Subscription</h3>
-        <p className="text-xs text-muted-foreground mb-4">Pro · $49/month · cancel anytime.</p>
+        <p className="text-xs text-muted-foreground mb-4">
+          {hasSubscription
+            ? onAnnual
+              ? `Pro · ${PRICE_TEXT.annualPerYear} USD, billed once a year · cancel anytime.`
+              : `Pro · ${PRICE_TEXT.monthlyPerMonth} USD, billed monthly · cancel anytime.`
+            : `Pro · ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once · cancel anytime.`}
+        </p>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between"><span className="text-muted-foreground">Status</span><span className="text-foreground font-medium capitalize">{biz.subscription_status || "·"}</span></div>
+          {hasSubscription && (
+            <div className="flex justify-between"><span className="text-muted-foreground">Plan</span><span className="text-foreground font-medium">{onAnnual ? "Annual" : "Monthly"}</span></div>
+          )}
           {periodEnd && <div className="flex justify-between"><span className="text-muted-foreground">Next billing</span><span className="text-foreground">{periodEnd}</span></div>}
           <div className="flex justify-between">
             <span className="text-muted-foreground">Launch Package</span>
@@ -1290,9 +1320,28 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
           </p>
         )}
         {hasSubscription ? (
-          <Button variant="outline" className="mt-4 w-full" onClick={openPortal} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing"}</Button>
+          <>
+            <Button variant="outline" className="mt-4 w-full" onClick={openPortal} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing"}</Button>
+            {!onAnnual && (
+              <div className="mt-3 rounded-lg border border-border bg-surface-warm p-3">
+                <p className="text-xs leading-snug text-foreground">
+                  <span className="font-semibold">Switch to annual and save {PRICE_TEXT.saving}.</span>{" "}
+                  {PRICE_TEXT.annualPerYear} USD instead of {PRICE_TEXT.annualListPrice} over twelve months, {PRICE_TEXT.discount} off, which is {PRICE_TEXT.effectiveMonthly}.
+                </p>
+                <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{ANNUAL_TERMS_COPY}</p>
+                <Button variant="outline" size="sm" className="mt-3 w-full" onClick={openPortal} disabled={busy}>
+                  Switch to annual in billing portal
+                </Button>
+              </div>
+            )}
+          </>
         ) : (
-          <Button className="mt-4 w-full" onClick={startSubscription} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Start subscription · $49/month"}</Button>
+          <>
+            <PlanPicker plan={billingPlan} onChange={setBillingPlan} className="mt-4" />
+            <Button className="mt-3 w-full" onClick={startSubscription} disabled={busy}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Start subscription · ${billingPlan === "annual" ? PRICE_TEXT.annualPerYear : PRICE_TEXT.monthlyPerMonth}`}
+            </Button>
+          </>
         )}
       </div>
 

@@ -13,6 +13,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
+import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 
 // Grouped by revenue loop so the value is legible. Everything listed is shipped.
 const proFeatureGroups: { label: string; features: string[] }[] = [
@@ -81,6 +82,10 @@ const setLaunchFlag = (on: boolean) => {
 
 const Pricing = () => {
   const [addLaunch, setAddLaunch] = useState(false);
+  // Monthly stays the default: annual is the saving for someone already
+  // convinced, not the path we push a first-time visitor down.
+  const [plan, setPlan] = useState<BillingPlan>("monthly");
+  const annual = plan === "annual";
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -108,7 +113,7 @@ const Pricing = () => {
             Build free. Pay $49/month to go live.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            Building your page, offer, and QR code costs nothing, and you can preview it before you commit. Publishing costs a flat $49/month USD, billed monthly, and includes all three loops: referrals, repeat work, and reviews. No contract, no setup fee, no platform fees. Referrers are free.
+            Building your page, offer, and QR code costs nothing, and you can preview it before you commit. Publishing costs a flat {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, which saves {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off). Both include all three loops: referrals, repeat work, and reviews. No contract, no setup fee, no platform fees. Referrers are free.
           </p>
         </div>
       </section>
@@ -149,18 +154,63 @@ const Pricing = () => {
               </div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pro</p>
               <h2 className="mt-1 text-xl font-bold text-foreground">All three loops</h2>
-              <div className="mt-6 flex items-baseline gap-2">
-                <span className="text-5xl font-extrabold tracking-tight text-foreground">$49</span>
-                <span className="text-sm text-muted-foreground">/month</span>
+
+              {/* Billing period toggle */}
+              <div role="group" aria-label="Billing period" className="mt-5 grid grid-cols-2 gap-1 rounded-lg border border-border bg-surface-warm p-1">
+                <button
+                  type="button"
+                  aria-pressed={!annual}
+                  onClick={() => setPlan("monthly")}
+                  className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors ${!annual ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  Monthly
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={annual}
+                  onClick={() => setPlan("annual")}
+                  className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors ${annual ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  Annual, save {PRICE_TEXT.discount}
+                </button>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Billing starts when you publish your page. Cancel anytime. No contract, no setup fee.
-              </p>
+
+              <div className="mt-6 flex items-baseline gap-2">
+                <span className="text-5xl font-extrabold tracking-tight text-foreground">
+                  {annual ? PRICE_TEXT.annual : PRICE_TEXT.monthly}
+                </span>
+                <span className="text-sm text-muted-foreground">{annual ? "/year" : "/month"}</span>
+              </div>
+              {annual ? (
+                <div className="mt-2 space-y-1 text-sm">
+                  <p className="text-muted-foreground">
+                    <span className="line-through">{PRICE_TEXT.annualListPrice}</span>{" "}
+                    if paid monthly for twelve months. You save {PRICE_TEXT.saving}, {PRICE_TEXT.discount} off.
+                  </p>
+                  <p className="text-muted-foreground">
+                    Works out to {PRICE_TEXT.effectiveMonthly} USD.
+                  </p>
+                  <p className="text-xs text-muted-foreground">{ANNUAL_TERMS_COPY}</p>
+                </div>
+              ) : (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Billing starts when you publish your page. Cancel anytime. No contract, no setup fee.
+                </p>
+              )}
               <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
-                <Link to="/signup">
+                <Link to={`/signup?plan=${plan}`}>
                   {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Build free + Launch Package" : "Build your page free"}
                 </Link>
               </Button>
+              {!annual && (
+                <button
+                  type="button"
+                  onClick={() => setPlan("annual")}
+                  className="mt-3 text-xs font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  Pay yearly instead and save {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off)
+                </button>
+              )}
               {LAUNCH_PACKAGE_ENABLED && (
                 <div className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-surface-warm p-3">
                   <Checkbox
@@ -237,7 +287,7 @@ const Pricing = () => {
                 ))}
               </ul>
               <p className="mt-6 text-[11px] text-muted-foreground">
-                Charged once, at checkout, on top of your $49/month subscription.
+                Charged once, at checkout, on top of your Revvin subscription.
               </p>
             </div>
             )}
@@ -265,7 +315,13 @@ const Pricing = () => {
             <AccordionItem value="p1">
               <AccordionTrigger>Is there really no contract?</AccordionTrigger>
               <AccordionContent>
-                Correct. Publishing is $49/month, billed monthly. Cancel anytime from your billing portal, your page stays live through the end of the period you've already paid for.
+                Correct. Publishing is {PRICE_TEXT.monthlyPerMonth} billed monthly, or {PRICE_TEXT.annualPerYear} billed once. Cancel anytime from your billing portal, your page stays live through the end of the period you've already paid for.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="p6">
+              <AccordionTrigger>How does annual billing work if I cancel?</AccordionTrigger>
+              <AccordionContent>
+                The annual plan is {PRICE_TEXT.annual} USD charged once, up front, for twelve months. You can cancel anytime and your page stays live through the end of that paid year, then it does not renew. We do not pro-rate or refund the unused part of a year, so if you are not sure yet, start monthly at {PRICE_TEXT.monthlyPerMonth} and switch to annual later from your billing portal.
               </AccordionContent>
             </AccordionItem>
             {LAUNCH_PACKAGE_ENABLED && (
@@ -285,7 +341,7 @@ const Pricing = () => {
             <AccordionItem value="p5">
               <AccordionTrigger>Are all three loops included in the $49?</AccordionTrigger>
               <AccordionContent>
-                Yes. One price covers referrals, repeat work, and reviews, plus reward tracking, the ROI scoreboard, the print pack, and webhooks and the API. There are no add-on tiers and no per-send charges.
+                Yes, on both monthly and annual. One price covers referrals, repeat work, and reviews, plus reward tracking, the ROI scoreboard, the print pack, and webhooks and the API. There are no add-on tiers and no per-send charges.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">
