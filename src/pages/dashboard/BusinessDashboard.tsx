@@ -26,6 +26,8 @@ import ActivationChecklist, { ActivationStep } from "@/components/dashboard/Acti
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
+import PlanPicker from "@/components/billing/PlanPicker";
+import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 
 interface Business {
   id: string;
