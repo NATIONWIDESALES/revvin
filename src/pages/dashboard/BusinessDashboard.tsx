@@ -410,7 +410,6 @@ const LockedTab = ({ title, body }: { title: string; body: string }) => (
 const PastDueBanner = () => {
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
-  const [plan, setPlan] = useState<BillingPlan>("monthly");
 
   const openPortal = async () => {
     setBusy(true);
