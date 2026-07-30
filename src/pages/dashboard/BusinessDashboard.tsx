@@ -1244,7 +1244,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     track("go_live_clicked");
     setBusy(true);
     const { data, error } = await supabase.functions.invoke("create-business-checkout", {
-      body: { includeLaunchPackage: false },
+      body: { includeLaunchPackage: false, plan: billingPlan },
     });
     setBusy(false);
     if (error || !data?.url) {
@@ -1258,6 +1258,14 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
   const hasSubscription = !!biz.subscription_status && !["none", "canceled"].includes(biz.subscription_status);
 
   const periodEnd = biz.current_period_end ? new Date(biz.current_period_end).toLocaleDateString() : null;
+
+  // A monthly renewal is never more than ~31 days out, so a period end further
+  // away than 45 days means the subscription is on the annual price.
+  const onAnnual = (() => {
+    if (!hasSubscription || !biz.current_period_end) return false;
+    const days = (new Date(biz.current_period_end).getTime() - Date.now()) / 86_400_000;
+    return days > 45;
+  })();
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
