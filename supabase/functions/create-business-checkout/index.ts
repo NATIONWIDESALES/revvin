@@ -1,7 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
-import { PRICE_MONTHLY_49, PRICE_LAUNCH_PACKAGE_297 } from "../_shared/stripe-prices.ts";
+import {
+  PRICE_LAUNCH_PACKAGE_297,
+  PLAN_PRICE,
+  PLAN_METADATA,
+  type BillingPlan,
+} from "../_shared/stripe-prices.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,12 +31,18 @@ serve(async (req) => {
     const user = authData.user;
 
     let includeLaunchPackage = false;
+    // Unrecognised values fall back to monthly rather than erroring or charging
+    // something unexpected.
+    let plan: BillingPlan = "monthly";
     try {
       if (req.headers.get("content-type")?.includes("application/json")) {
         const body = await req.json();
         includeLaunchPackage = !!body?.includeLaunchPackage;
+        if (body?.plan === "annual") plan = "annual";
       }
     } catch (_) { /* no body */ }
+
+    const planMetadata = PLAN_METADATA[plan];
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -44,7 +55,7 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "https://revvin.co";
 
     const line_items: Array<{ price: string; quantity: number }> = [
-      { price: PRICE_MONTHLY_49, quantity: 1 },
+      { price: PLAN_PRICE[plan], quantity: 1 },
     ];
     if (includeLaunchPackage) {
       line_items.push({ price: PRICE_LAUNCH_PACKAGE_297, quantity: 1 });
@@ -58,13 +69,13 @@ serve(async (req) => {
       subscription_data: {
         metadata: {
           user_id: user.id,
-          plan: "pro_monthly_49",
+          plan: planMetadata,
           launch_package: includeLaunchPackage ? "1" : "0",
         },
       },
       metadata: {
         user_id: user.id,
-        plan: "pro_monthly_49",
+        plan: planMetadata,
         launch_package: includeLaunchPackage ? "1" : "0",
         ...(includeLaunchPackage ? { product_type: "launch_package" } : {}),
       },
