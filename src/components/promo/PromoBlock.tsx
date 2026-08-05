@@ -37,7 +37,7 @@ const PromoBlock = ({
   const both = plan === "both";
   const f = promoFiguresFor(both ? "monthly" : plan);
   const annual = promoFiguresFor("annual");
-  const terms = both ? PROMO_TERMS : promoTermsFor(plan);
+  const terms = plan === "both" ? PROMO_TERMS : promoTermsFor(plan);
 
   if (variant === "compact") {
     return (
