@@ -332,7 +332,7 @@ const Pricing = () => {
               <AccordionItem value="p0">
                 <AccordionTrigger>How does the {PROMO_TEXT.pricePerMonth} launch promotion work?</AccordionTrigger>
                 <AccordionContent>
-                  Publish before {PROMO_END_DATE_TEXT} and your monthly price is {PROMO_TEXT.pricePerMonth} USD instead of {PROMO_TEXT.regularPerMonth}, a saving of {PROMO_TEXT.savingPerMonth} ({PROMO_TEXT.discount} off). The discount is not a limited-time trial rate: it stays at {PROMO_TEXT.pricePerMonth} for as long as you stay subscribed. It applies to the monthly plan only, not the {PRICE_TEXT.annualPerYear} annual plan, and it is applied automatically at checkout with no code to enter. After {PROMO_END_DATE_TEXT} the regular {PRICE_TEXT.monthlyPerMonth} price applies.
+                  Publish before {PROMO_END_DATE_TEXT} and your monthly price is {PROMO_TEXT.pricePerMonth} USD instead of {PROMO_TEXT.regularPerMonth}, a saving of {PROMO_TEXT.savingPerMonth} ({PROMO_TEXT.discount} off). The annual plan is included too: {PROMO_TEXT.annualPerYear} USD instead of {PROMO_TEXT.annualRegularPerYear}, {PROMO_TEXT.annualDiscount} off, paid once. Over twelve months both come to {PROMO_TEXT.annualPrice}, so annual is not cheaper under the promotion, it simply locks the price in with a single payment. The discount is not a limited-time trial rate: it holds on renewals for as long as you stay subscribed, and it is applied automatically at checkout with no code to enter. After {PROMO_END_DATE_TEXT} the regular {PRICE_TEXT.monthlyPerMonth} and {PRICE_TEXT.annualPerYear} prices apply.
                 </AccordionContent>
               </AccordionItem>
             )}
