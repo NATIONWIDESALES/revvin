@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { captureAttribution, getAttribution } from "@/lib/attribution";
 
 /**
  * First-party funnel instrumentation.
@@ -29,6 +30,17 @@ export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];
 
 const SESSION_KEY = "revvin_session_id";
 
+/**
+ * Our events mapped onto Meta standard events so the ad platform can optimise
+ * on them. Anything not listed fires as a custom event under our own name.
+ */
+const META_STANDARD_EVENTS: Partial<Record<FunnelEvent, string>> = {
+  signup_succeeded: "CompleteRegistration",
+  checkout_redirected: "InitiateCheckout",
+  checkout_succeeded: "Purchase",
+  email_lead_submitted: "Lead",
+};
+
 function getSessionId(): string | null {
   try {
     if (typeof localStorage === "undefined") return null;
@@ -56,6 +68,25 @@ export function track(event: FunnelEvent, meta?: Record<string, unknown>): void 
     /* ignore */
   }
 
+  // Meta pixel. No PII is ever forwarded — only the event name.
+  try {
+    const standard = META_STANDARD_EVENTS[event];
+    if (standard) {
+      window.fbq?.("track", standard);
+    } else {
+      window.fbq?.("trackCustom", event);
+    }
+  } catch {
+    /* fbq may be missing or blocked by an ad blocker */
+  }
+
+  let attribution: Record<string, unknown> | null = null;
+  try {
+    attribution = captureAttribution() ?? getAttribution();
+  } catch {
+    attribution = null;
+  }
+
   try {
     void supabase
       .from("funnel_events")
@@ -69,7 +100,7 @@ export function track(event: FunnelEvent, meta?: Record<string, unknown>): void 
             : null,
         user_agent:
           typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 512) : null,
-        meta: (meta ?? {}) as never,
+        meta: { ...(meta ?? {}), ...(attribution ?? {}) } as never,
       })
       .then(
         () => undefined,

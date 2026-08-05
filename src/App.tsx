@@ -40,6 +40,7 @@ import Feedback from "./pages/Feedback";
 import PrintAssetPage from "./pages/PrintAsset";
 import ZapierDocs from "./pages/docs/Zapier";
 import Analytics from "@/components/Analytics";
+import MetaPixel from "@/components/MetaPixel";
 
 import { lazy, Suspense } from "react";
 
@@ -58,6 +59,7 @@ const App = () => (
           <AuthProvider>
             <CountryProvider>
               <Analytics />
+              <MetaPixel />
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/signup" element={<Signup />} />
