@@ -7,6 +7,7 @@ import {
   PLAN_METADATA,
   type BillingPlan,
 } from "../_shared/stripe-prices.ts";
+import { PROMO_COUPON_ID, isPromoLive } from "../_shared/promo.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -61,6 +62,11 @@ serve(async (req) => {
       line_items.push({ price: PRICE_LAUNCH_PACKAGE_297, quantity: 1 });
     }
 
+    // Launch promotion: $17/month instead of $49/month, locked forever while
+    // the subscription stays active. Monthly only, and the deadline is checked
+    // against the SERVER clock so a client cannot claim it late.
+    const promoApplies = plan === "monthly" && isPromoLive();
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -71,15 +77,22 @@ serve(async (req) => {
           user_id: user.id,
           plan: planMetadata,
           launch_package: includeLaunchPackage ? "1" : "0",
+          promo: promoApplies ? "launch_17" : "none",
         },
       },
       metadata: {
         user_id: user.id,
         plan: planMetadata,
         launch_package: includeLaunchPackage ? "1" : "0",
+        promo: promoApplies ? "launch_17" : "none",
         ...(includeLaunchPackage ? { product_type: "launch_package" } : {}),
       },
-      allow_promotion_codes: true,
+      // Stripe rejects `discounts` and `allow_promotion_codes` together, so we
+      // auto-apply the coupon when the promo is live and only expose the code
+      // field otherwise.
+      ...(promoApplies
+        ? { discounts: [{ coupon: PROMO_COUPON_ID }] }
+        : { allow_promotion_codes: true }),
       success_url: `${origin}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/dashboard?checkout=canceled`,
     });
