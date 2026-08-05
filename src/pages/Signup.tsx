@@ -12,6 +12,7 @@ import { Loader2, MailCheck } from "lucide-react";
 import { track } from "@/lib/track";
 import { PRICE_TEXT } from "@/config/pricing";
 import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
+import PromoBar from "@/components/promo/PromoBar";
 
 const Signup = () => {
   const { user, loading: authLoading } = useAuth();
@@ -119,6 +120,7 @@ const Signup = () => {
         path="/signup"
         noindex
       />
+      <PromoBar standalone />
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-md">
           <Link to="/" className="flex items-center justify-center mb-8" aria-label="Revvin home">
