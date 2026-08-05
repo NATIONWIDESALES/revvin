@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/accordion";
 import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
+import PromoBlock from "@/components/promo/PromoBlock";
+import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
 
 // Grouped by revenue loop so the value is legible. Everything listed is shipped.
 const proFeatureGroups: { label: string; features: string[] }[] = [
@@ -120,6 +122,10 @@ const Pricing = () => {
 
       <section>
         <div className="container max-w-6xl py-20">
+          {/* Launch promotion. Disappears on its own once the deadline passes.
+              The regular $49 monthly and $450 annual options below stay fully
+              visible and purchasable. */}
+          <PromoBlock variant="full" showCta className="mb-10 mx-auto max-w-3xl" />
           <div className={`grid gap-6 ${LAUNCH_PACKAGE_ENABLED ? "md:grid-cols-3" : "md:grid-cols-2 md:max-w-3xl md:mx-auto"}`}>
             {/* Free */}
             <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
