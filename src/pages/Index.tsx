@@ -232,7 +232,10 @@ const Index = () => {
                 working for you.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-                You already have a list of people who paid you and never heard from you again. Revvin turns that one list into three revenue loops: <span className="text-foreground font-medium">referrals, repeat work, and reviews.</span> Build it free. $49/month USD when you publish.
+                You already have a list of people who paid you and never heard from you again. Revvin turns that one list into three revenue loops: <span className="text-foreground font-medium">referrals, repeat work, and reviews.</span>{" "}
+                {promoLive
+                  ? `Build it free. ${PROMO_TEXT.pricePerMonth} USD when you publish, if you publish before ${PROMO_END_DATE_TEXT}. Regular price is ${PRICE_TEXT.monthlyPerMonth}.`
+                  : `Build it free. ${PRICE_TEXT.monthlyPerMonth} USD when you publish.`}
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
@@ -253,7 +256,9 @@ const Index = () => {
                 </Link>
               </p>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                Free to build and preview. $49/month USD when you publish. Cancel anytime.
+                {promoLive
+                  ? `Free to build and preview. ${PROMO_TEXT.pricePerMonth} USD when you publish, or ${PROMO_TEXT.annualPerYear} billed once, locked for as long as you stay subscribed if you publish before ${PROMO_END_DATE_TEXT}. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime.`
+                  : `Free to build and preview. ${PRICE_TEXT.monthlyPerMonth} USD when you publish. Cancel anytime.`}
               </p>
             </div>
 
