@@ -1,0 +1,87 @@
+import { Link } from "react-router-dom";
+import { Timer } from "lucide-react";
+import {
+  PROMO_TEXT,
+  PROMO_END_DATE_TEXT,
+  PROMO_TERMS,
+  isPromoLive,
+} from "@/config/promo";
+import PromoCountdown, { usePromoCountdown } from "@/components/promo/PromoCountdown";
+
+/**
+ * Shared launch-promotion block. Used on the pricing page and at the go-live
+ * moments. Renders nothing once the deadline has passed.
+ *
+ * `variant="full"` shows the headline price, the struck-through regular price,
+ * the countdown and the terms. `variant="compact"` is a one-line strip for
+ * banners that already carry their own CTA.
+ */
+const PromoBlock = ({
+  variant = "full",
+  showCta = false,
+  className = "",
+}: {
+  variant?: "full" | "compact";
+  showCta?: boolean;
+  className?: string;
+}) => {
+  const left = usePromoCountdown();
+  if (!isPromoLive() || left.expired) return null;
+
+  if (variant === "compact") {
+    return (
+      <div className={`rounded-lg border border-primary/30 bg-primary/5 p-3 ${className}`}>
+        <p className="flex flex-wrap items-baseline gap-x-2 text-sm text-foreground">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+            <Timer className="h-3.5 w-3.5" aria-hidden="true" /> Launch promotion
+          </span>
+          <span className="font-bold">{PROMO_TEXT.pricePerMonth}</span>
+          <span className="text-muted-foreground line-through">{PROMO_TEXT.regularPerMonth}</span>
+          <span className="text-muted-foreground">
+            Save {PROMO_TEXT.savingPerMonth}, {PROMO_TEXT.discount} off, if you publish before {PROMO_END_DATE_TEXT}.
+          </span>
+        </p>
+        <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">{PROMO_TERMS}</p>
+        <PromoCountdown className="mt-1 text-[11px] text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`rounded-2xl border-2 border-primary/40 bg-primary/5 p-6 ${className}`}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+          <Timer className="h-3.5 w-3.5" aria-hidden="true" /> Launch promotion, ends {PROMO_END_DATE_TEXT}
+        </p>
+        <PromoCountdown className="text-xs text-muted-foreground" />
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-baseline gap-3">
+        <span className="text-5xl font-extrabold tracking-tight text-foreground">
+          {PROMO_TEXT.price}
+        </span>
+        <span className="text-sm text-muted-foreground">/month USD</span>
+        <span className="text-2xl font-semibold text-muted-foreground line-through">
+          {PROMO_TEXT.regularPerMonth}
+        </span>
+      </div>
+
+      <p className="mt-2 text-sm font-semibold text-foreground">
+        Save {PROMO_TEXT.savingPerMonth} · {PROMO_TEXT.discount} off
+      </p>
+
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{PROMO_TERMS}</p>
+
+      {showCta && (
+        <Link
+          to="/signup?plan=monthly"
+          className="mt-5 inline-flex h-11 items-center justify-center rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-soft transition-colors hover:bg-primary-deep"
+        >
+          Build your page free
+        </Link>
+      )}
+    </div>
+  );
+};
+
+export default PromoBlock;
