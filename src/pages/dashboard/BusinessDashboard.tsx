@@ -27,6 +27,7 @@ import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
 import PlanPicker from "@/components/billing/PlanPicker";
+import PromoBlock from "@/components/promo/PromoBlock";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 
 interface Business {
@@ -513,6 +514,7 @@ const GoLiveBanner = ({
           )}
         </Button>
       </div>
+      {!subscribed && plan === "monthly" && <PromoBlock variant="compact" className="mt-4" />}
       {!subscribed && <PlanPicker plan={plan} onChange={setPlan} className="mt-4" />}
     </div>
   );
@@ -1337,6 +1339,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
           </>
         ) : (
           <>
+            {billingPlan === "monthly" && <PromoBlock variant="compact" className="mt-4" />}
             <PlanPicker plan={billingPlan} onChange={setBillingPlan} className="mt-4" />
             <Button className="mt-3 w-full" onClick={startSubscription} disabled={busy}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Start subscription · ${billingPlan === "annual" ? PRICE_TEXT.annualPerYear : PRICE_TEXT.monthlyPerMonth}`}
