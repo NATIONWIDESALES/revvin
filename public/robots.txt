@@ -10,6 +10,10 @@ Disallow: /admin/
 Disallow: /api/
 Disallow: /__sa
 Disallow: /__health
+Disallow: /print/
+Disallow: /feedback/
+Disallow: /r/status/
+Disallow: /saved
 
 # AI crawlers — explicit allow
 User-agent: GPTBot

@@ -373,7 +373,7 @@ const Browse = () => {
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base font-bold">Filters</h3>
-                <Button variant="ghost" size="sm" onClick={() => setShowFilters(false)}><X className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="sm" aria-label="Close filters" onClick={() => setShowFilters(false)}><X className="h-4 w-4" /></Button>
               </div>
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {/* Country */}
