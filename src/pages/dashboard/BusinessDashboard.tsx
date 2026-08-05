@@ -28,6 +28,7 @@ import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
 import PlanPicker from "@/components/billing/PlanPicker";
 import PromoBlock from "@/components/promo/PromoBlock";
+import { isPromoLive } from "@/config/promo";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 
 interface Business {
