@@ -28,6 +28,7 @@ import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
 import PlanPicker from "@/components/billing/PlanPicker";
 import PromoBlock from "@/components/promo/PromoBlock";
+import { isPromoLive } from "@/config/promo";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 
 interface Business {
@@ -514,7 +515,7 @@ const GoLiveBanner = ({
           )}
         </Button>
       </div>
-      {!subscribed && plan === "monthly" && <PromoBlock variant="compact" className="mt-4" />}
+      {!subscribed && <PromoBlock variant="compact" plan={plan} className="mt-4" />}
       {!subscribed && <PlanPicker plan={plan} onChange={setPlan} className="mt-4" />}
     </div>
   );
@@ -1324,7 +1325,12 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
         {hasSubscription ? (
           <>
             <Button variant="outline" className="mt-4 w-full" onClick={openPortal} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing"}</Button>
-            {!onAnnual && (
+            {/* While the launch promo is live, an existing monthly subscriber who
+                switches through the Stripe portal keeps their monthly $32-off
+                coupon, which does not produce the $204 annual promo price. The
+                upsell (and its regular-pricing saving figure) is withheld until
+                the promo ends rather than making a claim we cannot honour. */}
+            {!onAnnual && !isPromoLive() && (
               <div className="mt-3 rounded-lg border border-border bg-surface-warm p-3">
                 <p className="text-xs leading-snug text-foreground">
                   <span className="font-semibold">Switch to annual and save {PRICE_TEXT.saving}.</span>{" "}
@@ -1339,7 +1345,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
           </>
         ) : (
           <>
-            {billingPlan === "monthly" && <PromoBlock variant="compact" className="mt-4" />}
+            <PromoBlock variant="compact" plan={billingPlan} className="mt-4" />
             <PlanPicker plan={billingPlan} onChange={setBillingPlan} className="mt-4" />
             <Button className="mt-3 w-full" onClick={startSubscription} disabled={busy}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Start subscription · ${billingPlan === "annual" ? PRICE_TEXT.annualPerYear : PRICE_TEXT.monthlyPerMonth}`}

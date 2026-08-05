@@ -289,7 +289,7 @@ const PublicReferralPage = () => {
               </Button>
             </div>
             <div className="mx-auto mt-2 max-w-3xl">
-              <PromoBlock variant="compact" />
+              <PromoBlock variant="compact" plan="both" />
             </div>
           </div>
         )}
