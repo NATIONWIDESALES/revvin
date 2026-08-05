@@ -171,11 +171,17 @@ const businessHue = (name: string) => {
 };
 
 const Index = () => {
+  const promoLive = isPromoLive();
+  const faqs = buildFaqs(promoLive);
   return (
     <>
       <SEOHead
         title="Revvin · Your customer list, working for you"
-        description="Turn your past customers into referrals, repeat work, and reviews. Build free, pay $49/month USD only when you publish. Cancel anytime."
+        description={
+          promoLive
+            ? `Turn past customers into referrals, repeat work, and reviews. Build free, publish for ${PROMO_TEXT.pricePerMonth} USD before ${PROMO_END_DATE_TEXT}. Cancel anytime.`
+            : `Turn your past customers into referrals, repeat work, and reviews. Build free, pay ${PRICE_TEXT.monthlyPerMonth} USD only when you publish. Cancel anytime.`
+        }
         path="/"
         jsonLd={[
           {
