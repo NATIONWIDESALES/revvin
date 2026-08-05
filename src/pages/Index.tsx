@@ -623,10 +623,21 @@ const Index = () => {
                 Pro · All three loops
               </p>
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="text-6xl font-extrabold tracking-tight text-foreground">$49</span>
+                <span className="text-6xl font-extrabold tracking-tight text-foreground">
+                  {promoLive ? PROMO_TEXT.price : PRICE_TEXT.monthly}
+                </span>
                 <span className="text-base font-medium text-muted-foreground">/month USD</span>
+                {promoLive && (
+                  <span className="text-base font-medium text-muted-foreground line-through">
+                    {PRICE_TEXT.monthly}
+                  </span>
+                )}
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">Free to build and preview your page. Billing starts when you publish it. Cancel anytime. No contract, no setup fee. Billed in USD.</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {promoLive
+                  ? `Free to build and preview your page. Billing starts when you publish it. Publish before ${PROMO_END_DATE_TEXT} and your price stays ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, for as long as you stay subscribed. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime. No contract, no setup fee. Billed in USD.`
+                  : `Free to build and preview your page. Billing starts when you publish it. Cancel anytime. No contract, no setup fee. Billed in USD.`}
+              </p>
 
               <Button size="lg" className="mt-8 h-12 w-full text-base shadow-soft hover:bg-primary-deep" asChild>
                 <Link to="/signup">Build your page free</Link>
@@ -739,7 +750,9 @@ const Index = () => {
             Put your customer list <span className="shimmer-text">to work.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-            Referrals, repeat work, and reviews from one list. Build free. $49/month USD when you publish. Cancel anytime.
+            {promoLive
+              ? `Referrals, repeat work, and reviews from one list. Build free. ${PROMO_TEXT.pricePerMonth} USD when you publish, if you publish before ${PROMO_END_DATE_TEXT}. Regular price is ${PRICE_TEXT.monthlyPerMonth}. Cancel anytime.`
+              : `Referrals, repeat work, and reviews from one list. Build free. ${PRICE_TEXT.monthlyPerMonth} USD when you publish. Cancel anytime.`}
           </p>
           <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
             <Link to="/signup">Build your page — free</Link>
