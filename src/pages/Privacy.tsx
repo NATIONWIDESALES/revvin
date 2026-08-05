@@ -83,7 +83,8 @@ const Privacy = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">7. Cookies and Tracking</h2>
-            <p>We use cookies and similar technologies for authentication, session management, security, and basic product analytics. We do not use cross-site advertising cookies. You can control cookies through your browser settings; disabling essential cookies will prevent you from signing in.</p>
+            <p>We use cookies and similar technologies for authentication, session management, security, and basic product analytics. You can control cookies through your browser settings; disabling essential cookies will prevent you from signing in.</p>
+            <p><strong>Advertising measurement.</strong> We use the Meta (Facebook) advertising pixel on our public marketing pages to measure how our ads perform and to reach people who have visited our site. The pixel sets Meta advertising cookies and reports page views and non-personal conversion events, such as when a signup or subscription is completed. We do not share personal information with Meta: no names, email addresses, phone numbers, or lead details are sent to the pixel, and we do not use advanced matching. You can limit this tracking through your browser settings, your Meta ad preferences, or a tracking blocker.</p>
           </section>
 
           <section>

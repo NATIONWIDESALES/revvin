@@ -35,11 +35,22 @@ type Counts = Record<string, number>;
 const emptyCounts = (): Counts =>
   Object.fromEntries(FUNNEL_ORDER.map((f) => [f.event, 0]));
 
+type AttributionRow = {
+  key: string;
+  source: string;
+  campaign: string;
+  events7: number;
+  events30: number;
+  signups7: number;
+  signups30: number;
+};
+
 const FunnelPanel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [d7, setD7] = useState<Counts>(emptyCounts());
   const [d30, setD30] = useState<Counts>(emptyCounts());
+  const [attribution, setAttribution] = useState<AttributionRow[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -48,7 +59,7 @@ const FunnelPanel = () => {
       const since7 = new Date(Date.now() - 7 * 86400000).toISOString();
       const { data, error } = await supabase
         .from("funnel_events")
-        .select("event, created_at")
+        .select("event, created_at, meta")
         .gte("created_at", since30)
         .limit(50000);
       if (error) {
@@ -58,14 +69,54 @@ const FunnelPanel = () => {
       }
       const a = emptyCounts();
       const b = emptyCounts();
+      const attr = new Map<string, AttributionRow>();
       for (const row of data ?? []) {
         const e = (row as { event: string }).event;
+        const recent = (row as { created_at: string }).created_at >= since7;
+        const meta = ((row as { meta?: Record<string, unknown> | null }).meta ??
+          {}) as Record<string, unknown>;
+        const source =
+          typeof meta.utm_source === "string" && meta.utm_source
+            ? meta.utm_source
+            : meta.fbclid
+              ? "facebook (fbclid)"
+              : meta.gclid
+                ? "google (gclid)"
+                : null;
+        if (source) {
+          const campaign =
+            typeof meta.utm_campaign === "string" && meta.utm_campaign
+              ? meta.utm_campaign
+              : "(none)";
+          const key = `${source}||${campaign}`;
+          const existing =
+            attr.get(key) ??
+            {
+              key,
+              source,
+              campaign,
+              events7: 0,
+              events30: 0,
+              signups7: 0,
+              signups30: 0,
+            };
+          existing.events30 += 1;
+          if (recent) existing.events7 += 1;
+          if (e === "signup_succeeded") {
+            existing.signups30 += 1;
+            if (recent) existing.signups7 += 1;
+          }
+          attr.set(key, existing);
+        }
         if (!(e in b)) continue;
         b[e] += 1;
-        if ((row as { created_at: string }).created_at >= since7) a[e] += 1;
+        if (recent) a[e] += 1;
       }
       setD7(a);
       setD30(b);
+      setAttribution(
+        [...attr.values()].sort((x, y) => y.events30 - x.events30).slice(0, 50),
+      );
       setLoading(false);
     };
     void load();
@@ -126,6 +177,48 @@ const FunnelPanel = () => {
           </table>
         </div>
       )}
+
+      <div className="mt-8 border-t border-border pt-6">
+        <h4 className="mb-1 text-sm font-semibold text-foreground">
+          Traffic sources (first-touch)
+        </h4>
+        <p className="mb-4 text-xs text-muted-foreground">
+          Grouped by the utm_source and utm_campaign captured on the visitor's
+          first visit. Only campaign parameters are stored, never personal data.
+        </p>
+        {attribution.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No campaign-tagged traffic in the last 30 days.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-border text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  <th className="py-2 pr-4 font-medium">Source</th>
+                  <th className="py-2 pr-4 font-medium">Campaign</th>
+                  <th className="py-2 pr-4 text-right font-medium">Events 7d</th>
+                  <th className="py-2 pr-4 text-right font-medium">Events 30d</th>
+                  <th className="py-2 pr-4 text-right font-medium">Signups 7d</th>
+                  <th className="py-2 text-right font-medium">Signups 30d</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attribution.map((r) => (
+                  <tr key={r.key} className="border-b border-border/60 last:border-0">
+                    <td className="py-2 pr-4 font-medium text-foreground">{r.source}</td>
+                    <td className="py-2 pr-4 text-muted-foreground">{r.campaign}</td>
+                    <td className="py-2 pr-4 text-right tabular-nums text-muted-foreground">{r.events7}</td>
+                    <td className="py-2 pr-4 text-right tabular-nums text-muted-foreground">{r.events30}</td>
+                    <td className="py-2 pr-4 text-right tabular-nums text-foreground">{r.signups7}</td>
+                    <td className="py-2 text-right tabular-nums text-foreground">{r.signups30}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
