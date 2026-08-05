@@ -120,6 +120,7 @@ const Signup = () => {
         path="/signup"
         noindex
       />
+      <PromoBar standalone />
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-md">
           <Link to="/" className="flex items-center justify-center mb-8" aria-label="Revvin home">
