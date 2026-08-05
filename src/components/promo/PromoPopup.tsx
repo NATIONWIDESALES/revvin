@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { X, Timer } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
 import {
   PROMO_TEXT,
@@ -16,9 +17,15 @@ const DISMISS_DAYS = 7;
 const DELAY_MS = 6000;
 const SCROLL_THRESHOLD = 0.4;
 
-// Pages where the popup must never appear. A business owner's own customers
-// must never see Revvin's pricing popup on a referral page.
-const BLOCKED_PREFIXES = ["/dashboard", "/welcome", "/auth", "/login", "/signup", "/r/"];
+// Pages where the popup must never appear. `/r/` is non-negotiable: a business
+// owner's own customers must never see Revvin's pricing popup on their referral
+// page. Auth/signup stay blocked so we never interrupt someone mid-form.
+// `/dashboard` and `/welcome` are intentionally allowed: an unpublished free
+// account lives there and is the warmest promo audience we have.
+const BLOCKED_PREFIXES = ["/auth", "/login", "/signup", "/r/"];
+
+// Statuses that mean the account is already paying. Never nag these users.
+const PAYING_STATUSES = ["active", "trialing", "paid", "past_due"];
 
 const recentlyDismissed = () => {
   try {
@@ -38,12 +45,42 @@ const PromoPopup = () => {
   const { user } = useAuth();
   const left = usePromoCountdown();
   const [open, setOpen] = useState(false);
+  // null = unknown/loading. Never show the popup while unknown.
+  const [subscribed, setSubscribed] = useState<boolean | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const restoreFocusTo = useRef<Element | null>(null);
 
+  // Anonymous visitors are never "subscribed"; signed-in users need a lookup.
+  useEffect(() => {
+    if (!user) {
+      setSubscribed(false);
+      return;
+    }
+    let cancelled = false;
+    setSubscribed(null);
+    supabase
+      .from("businesses")
+      .select("subscription_status")
+      .eq("user_id", user.id)
+      .limit(1)
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          // Unknown status: fail safe and stay silent.
+          setSubscribed(true);
+          return;
+        }
+        const status = (data?.[0]?.subscription_status || "").toLowerCase();
+        setSubscribed(PAYING_STATUSES.includes(status));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   const blocked =
-    !!user ||
+    subscribed !== false ||
     !isPromoLive() ||
     left.expired ||
     BLOCKED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p));
