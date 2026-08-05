@@ -156,7 +156,7 @@ const PromoPopup = () => {
           <Timer className="h-3.5 w-3.5" aria-hidden="true" /> Launch promotion
         </p>
         <h2 id="promo-popup-title" className="mt-2 pr-6 text-2xl font-extrabold tracking-tight text-foreground">
-          Publish for {PROMO_TEXT.pricePerMonth} until {PROMO_END_DATE_TEXT}
+          Publish for {PROMO_TEXT.pricePerMonth} or {PROMO_TEXT.annualPerYear} until {PROMO_END_DATE_TEXT}
         </h2>
 
         <div className="mt-4 flex flex-wrap items-baseline gap-3">
@@ -167,6 +167,19 @@ const PromoPopup = () => {
           </span>
           <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
             {PROMO_TEXT.discount} off
+          </span>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-baseline gap-3">
+          <span className="text-2xl font-extrabold tracking-tight text-foreground">
+            {PROMO_TEXT.annualPrice}
+          </span>
+          <span className="text-sm text-muted-foreground">/year USD, paid once</span>
+          <span className="text-base font-semibold text-muted-foreground line-through">
+            {PROMO_TEXT.annualRegularPerYear}
+          </span>
+          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+            {PROMO_TEXT.annualDiscount} off
           </span>
         </div>
 
