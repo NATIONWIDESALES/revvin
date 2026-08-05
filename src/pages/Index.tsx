@@ -202,7 +202,7 @@ const Index = () => {
           {
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            mainEntity: FAQS.map((f) => ({
+            mainEntity: faqs.map((f) => ({
               "@type": "Question",
               name: f.question,
               acceptedAnswer: { "@type": "Answer", text: f.answer },
@@ -706,7 +706,7 @@ const Index = () => {
             Frequently asked.
           </h2>
           <Accordion type="single" collapsible className="w-full">
-            {FAQS.map((f, i) => (
+            {faqs.map((f, i) => (
               <AccordionItem key={i} value={`q${i}`}>
                 <AccordionTrigger className="text-left">{f.question}</AccordionTrigger>
                 <AccordionContent className="text-muted-foreground leading-relaxed">
