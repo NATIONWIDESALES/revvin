@@ -514,7 +514,7 @@ const GoLiveBanner = ({
           )}
         </Button>
       </div>
-      {!subscribed && plan === "monthly" && <PromoBlock variant="compact" className="mt-4" />}
+      {!subscribed && <PromoBlock variant="compact" plan={plan} className="mt-4" />}
       {!subscribed && <PlanPicker plan={plan} onChange={setPlan} className="mt-4" />}
     </div>
   );
@@ -1339,7 +1339,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
           </>
         ) : (
           <>
-            {billingPlan === "monthly" && <PromoBlock variant="compact" className="mt-4" />}
+            <PromoBlock variant="compact" plan={billingPlan} className="mt-4" />
             <PlanPicker plan={billingPlan} onChange={setBillingPlan} className="mt-4" />
             <Button className="mt-3 w-full" onClick={startSubscription} disabled={busy}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Start subscription · ${billingPlan === "annual" ? PRICE_TEXT.annualPerYear : PRICE_TEXT.monthlyPerMonth}`}
