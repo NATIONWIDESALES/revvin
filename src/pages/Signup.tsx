@@ -12,6 +12,7 @@ import { Loader2, MailCheck } from "lucide-react";
 import { track } from "@/lib/track";
 import { PRICE_TEXT } from "@/config/pricing";
 import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
+import PromoBar from "@/components/promo/PromoBar";
 
 const Signup = () => {
   const { user, loading: authLoading } = useAuth();
