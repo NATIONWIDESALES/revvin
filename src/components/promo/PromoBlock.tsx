@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Timer } from "lucide-react";
 import {
   PROMO_END_DATE_TEXT,
+  PROMO_TERMS,
   isPromoLive,
   promoFiguresFor,
   promoTermsFor,
