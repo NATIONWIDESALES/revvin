@@ -51,8 +51,10 @@ const FEATURED_OFFERS = [
   { id: "ex-electrical", business: "An electrician near you", category: "Electrical", city: "Seattle", state: "WA", payout: 350, desc: "Example offer · refer a panel upgrade or rewire", owner: "Local business owner" },
 ];
 
-// Single source of truth for FAQ — drives both the visible accordion and the FAQPage JSON-LD.
-const FAQS: { question: string; answer: string }[] = [
+// Single source of truth for FAQ — drives both the visible accordion and the
+// FAQPage JSON-LD. Built as a function of promoLive so that once the promotion
+// deadline passes the regular-price wording takes over with no dead references.
+const buildFaqs = (promoLive: boolean): { question: string; answer: string }[] => [
   {
     question: "What are the three loops?",
     answer:
@@ -70,13 +72,15 @@ const FAQS: { question: string; answer: string }[] = [
   },
   {
     question: "How does billing work?",
-    answer:
-      "Building your page is free. You are only charged when you publish it. Publishing costs a flat $49/month USD, billed monthly, with no contract, no setup fee, and no platform fees, and it includes all three loops. Cancel anytime from your Stripe billing portal; your page stays live until the end of the period you've already paid for.",
+    answer: promoLive
+      ? `Building your page is free. You are only charged when you publish it. Publish before ${PROMO_END_DATE_TEXT} and it is ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, locked for as long as you stay subscribed. After that the regular ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear} prices apply. There is no contract, no setup fee, and no platform fees, and all three loops are included. Cancel anytime from your Stripe billing portal; your page stays live until the end of the period you've already paid for.`
+      : `Building your page is free. You are only charged when you publish it. Publishing costs a flat ${PRICE_TEXT.monthlyPerMonth} USD, billed monthly, or ${PRICE_TEXT.annualPerYear} billed once, with no contract, no setup fee, and no platform fees, and it includes all three loops. Cancel anytime from your Stripe billing portal; your page stays live until the end of the period you've already paid for.`,
   },
   {
     question: "What is free and what costs money?",
-    answer:
-      "Creating your account and building your page, offer, and QR code is free, and you can preview it before you commit. This is not a trial and not a free plan with usage limits: your page cannot receive referrals until you publish it, and publishing costs $49/month USD. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.",
+    answer: promoLive
+      ? `Creating your account and building your page, offer, and QR code is free, and you can preview it before you commit. This is not a trial and not a free plan with usage limits: your page cannot receive referrals until you publish it, and publishing costs ${PROMO_TEXT.pricePerMonth} USD if you publish before ${PROMO_END_DATE_TEXT}, ${PRICE_TEXT.monthlyPerMonth} after that. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.`
+      : `Creating your account and building your page, offer, and QR code is free, and you can preview it before you commit. This is not a trial and not a free plan with usage limits: your page cannot receive referrals until you publish it, and publishing costs ${PRICE_TEXT.monthlyPerMonth} USD. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.`,
   },
   {
     question: "Can Revvin fire the ask from the tools I already use?",
