@@ -10,11 +10,14 @@ import SEOHead from "@/components/SEOHead";
 import Wordmark from "@/components/brand/Wordmark";
 import { Loader2, MailCheck } from "lucide-react";
 import { track } from "@/lib/track";
+import { PRICE_TEXT } from "@/config/pricing";
+import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
 
 const Signup = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const promoLive = isPromoLive();
 
   const [businessName, setBusinessName] = useState("");
   const [fullName, setFullName] = useState("");
@@ -108,7 +111,11 @@ const Signup = () => {
     <>
       <SEOHead
         title="Revvin | Start your referral program"
-        description="Create a free Revvin account, build your branded referral page, QR code, and offer. Pay $49/month only when you are ready to go live. You pay your referrers directly."
+        description={
+          promoLive
+            ? `Create a free Revvin account and build your branded referral page, QR code, and offer. Publish before ${PROMO_END_DATE_TEXT} for ${PROMO_TEXT.pricePerMonth} USD.`
+            : `Create a free Revvin account, build your branded referral page, QR code, and offer. Pay ${PRICE_TEXT.monthlyPerMonth} only when you are ready to go live.`
+        }
         path="/signup"
         noindex
       />
@@ -152,25 +159,27 @@ const Signup = () => {
               Create your free account
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Build your referral page, offer, and QR code for free. Pay $49/month only when you are ready to go live. Cancel anytime.
+              {promoLive
+                ? `Build your referral page, offer, and QR code for free. Go live before ${PROMO_END_DATE_TEXT} and it is ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, locked for as long as you stay subscribed. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime.`
+                : `Build your referral page, offer, and QR code for free. Pay ${PRICE_TEXT.monthlyPerMonth} only when you are ready to go live. Cancel anytime.`}
             </p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <div>
                 <Label htmlFor="biz">Business name</Label>
-                <Input id="biz" value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Your business name" className="mt-1.5" required />
+                <Input id="biz" autoComplete="organization" value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Your business name" className="mt-1.5" required />
               </div>
               <div>
                 <Label htmlFor="name">Your name</Label>
-                <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Jane Smith" className="mt-1.5" />
+                <Input id="name" autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Jane Smith" className="mt-1.5" />
               </div>
               <div>
                 <Label htmlFor="email">Work email</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@yourbusiness.com" className="mt-1.5" required />
+                <Input id="email" type="email" autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@yourbusiness.com" className="mt-1.5" required />
               </div>
               <div>
                 <Label htmlFor="pw">Password</Label>
-                <Input id="pw" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" className="mt-1.5" required />
+                <Input id="pw" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" className="mt-1.5" required />
               </div>
               <Button type="submit" size="lg" className="w-full h-11" disabled={busy}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create free account"}
