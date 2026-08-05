@@ -8,7 +8,7 @@ const DEFAULT_OG_IMAGE = "https://revvin.co/og-image.png";
 // fallback all describe the same free-to-build, $49/month-to-publish model.
 export const DEFAULT_TITLE = "Revvin · Your customer list, working for you";
 export const DEFAULT_DESCRIPTION =
-  "Turn your past customers into referrals, repeat work, and reviews. Build free, pay $49/month USD only when you publish. No platform fees. You pay your referrers directly.";
+  "Turn past customers into referrals, repeat work, and reviews. Build free, $49/month USD to publish. You pay your referrers directly.";
 
 interface SEOHeadProps {
   title: string;
