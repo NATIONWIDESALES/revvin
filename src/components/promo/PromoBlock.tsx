@@ -17,6 +17,8 @@ import PromoCountdown, { usePromoCountdown } from "@/components/promo/PromoCount
  * the countdown and the terms. `variant="compact"` is a one-line strip for
  * banners that already carry their own CTA.
  */
+/** `plan="both"` shows the monthly and annual promo prices side by side, for
+ *  surfaces where no plan has been chosen yet. */
 const PromoBlock = ({
   variant = "full",
   showCta = false,
@@ -25,14 +27,16 @@ const PromoBlock = ({
 }: {
   variant?: "full" | "compact";
   showCta?: boolean;
-  plan?: BillingPlan;
+  plan?: BillingPlan | "both";
   className?: string;
 }) => {
   const left = usePromoCountdown();
   if (!isPromoLive() || left.expired) return null;
 
-  const f = promoFiguresFor(plan);
-  const terms = promoTermsFor(plan);
+  const both = plan === "both";
+  const f = promoFiguresFor(both ? "monthly" : plan);
+  const annual = promoFiguresFor("annual");
+  const terms = both ? PROMO_TERMS : promoTermsFor(plan);
 
   if (variant === "compact") {
     return (
@@ -41,11 +45,25 @@ const PromoBlock = ({
           <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
             <Timer className="h-3.5 w-3.5" aria-hidden="true" /> Launch promotion
           </span>
-          <span className="font-bold">{f.priceWithPeriod}</span>
-          <span className="text-muted-foreground line-through">{f.regularWithPeriod}</span>
-          <span className="text-muted-foreground">
-            Save {f.saving}, {f.discount} off, if you publish before {PROMO_END_DATE_TEXT}.
-          </span>
+          {both ? (
+            <>
+              <span className="font-bold">{f.priceWithPeriod}</span>
+              <span className="text-muted-foreground">or</span>
+              <span className="font-bold">{annual.priceWithPeriod}</span>
+              <span className="text-muted-foreground">
+                Instead of {f.regularWithPeriod} or {annual.regularWithPeriod}, if you publish before{" "}
+                {PROMO_END_DATE_TEXT}.
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="font-bold">{f.priceWithPeriod}</span>
+              <span className="text-muted-foreground line-through">{f.regularWithPeriod}</span>
+              <span className="text-muted-foreground">
+                Save {f.saving}, {f.discount} off, if you publish before {PROMO_END_DATE_TEXT}.
+              </span>
+            </>
+          )}
         </p>
         <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">{terms}</p>
         <PromoCountdown className="mt-1 text-[11px] text-muted-foreground" />
@@ -72,15 +90,23 @@ const PromoBlock = ({
         </span>
       </div>
 
-      <p className="mt-2 text-sm font-semibold text-foreground">
-        Save {f.saving} · {f.discount} off
-      </p>
+      {both ? (
+        <p className="mt-2 flex flex-wrap items-baseline gap-2 text-sm font-semibold text-foreground">
+          <span>or {annual.priceWithPeriod}, paid once</span>
+          <span className="font-normal text-muted-foreground line-through">{annual.regularWithPeriod}</span>
+          <span className="font-normal text-muted-foreground">{annual.discount} off</span>
+        </p>
+      ) : (
+        <p className="mt-2 text-sm font-semibold text-foreground">
+          Save {f.saving} · {f.discount} off
+        </p>
+      )}
 
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{terms}</p>
 
       {showCta && (
         <Link
-          to={`/signup?plan=${plan}`}
+          to={`/signup?plan=${both ? "monthly" : plan}`}
           className="mt-5 inline-flex h-11 items-center justify-center rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-soft transition-colors hover:bg-primary-deep"
         >
           Build your page free
