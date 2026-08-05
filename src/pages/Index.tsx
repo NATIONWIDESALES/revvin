@@ -364,7 +364,7 @@ const Index = () => {
                   >
                     <img
                       src={CATEGORY_IMAGE[o.category] || DEFAULT_CATEGORY_IMAGE}
-                      alt={`${o.category} example`}
+                      alt={`${o.business} ${o.category.toLowerCase()} job, an example of the work referrers earn rewards for`}
                       loading="lazy"
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       onError={(e) => {
