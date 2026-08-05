@@ -2222,6 +2222,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      fn_offer_is_restricted_category: {
+        Args: { p_category: string }
+        Returns: boolean
+      }
       fn_platform_counts: { Args: never; Returns: Json }
       fn_record_satisfaction: {
         Args: { p_happy: boolean; p_token: string }
