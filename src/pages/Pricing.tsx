@@ -111,11 +111,25 @@ const Pricing = () => {
         <div aria-hidden className="absolute inset-0 grid-faint" />
         <div className="container relative max-w-3xl py-24 text-center">
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pricing</p>
+          {/* Headline follows the live offer. Both branches read every figure
+              from the pricing and promo configs, so once the deadline passes
+              isPromoLive() flips and the regular wording takes over with no
+              dead promo reference left behind. */}
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
-            Build free. Pay $49/month to go live.
+            {isPromoLive()
+              ? `Build free. Publish for ${PROMO_TEXT.pricePerMonth}.`
+              : `Build free. Pay ${PRICE_TEXT.monthlyPerMonth} to go live.`}
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            Building your page, offer, and QR code costs nothing, and you can preview it before you commit. Publishing costs a flat {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, which saves {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off). Both include all three loops: referrals, repeat work, and reviews. No contract, no setup fee, no platform fees. Referrers are free.
+            {isPromoLive() ? (
+              <>
+                Building your page, offer, and QR code costs nothing, and you can preview it before you commit. Publish before {PROMO_END_DATE_TEXT} and it is {PROMO_TEXT.pricePerMonth} USD, or {PROMO_TEXT.annualPerYear} billed once, locked for as long as you stay subscribed. After that the regular {PRICE_TEXT.monthlyPerMonth} and {PRICE_TEXT.annualPerYear} prices apply. Both plans include all three loops: referrals, repeat work, and reviews. No contract, no setup fee, no platform fees. Referrers are free.
+              </>
+            ) : (
+              <>
+                Building your page, offer, and QR code costs nothing, and you can preview it before you commit. Publishing costs a flat {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, which saves {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off). Both include all three loops: referrals, repeat work, and reviews. No contract, no setup fee, no platform fees. Referrers are free.
+              </>
+            )}
           </p>
         </div>
       </section>
