@@ -36,6 +36,8 @@ import PlaybookEmailCapture from "@/components/marketing/PlaybookEmailCapture";
 import Testimonials from "@/components/marketing/Testimonials";
 import FounderNote from "@/components/marketing/FounderNote";
 import RiskReversalStrip from "@/components/marketing/RiskReversalStrip";
+import { PRICE_TEXT } from "@/config/pricing";
+import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
 
 const FEATURED_OFFERS = [
   // Illustrative placeholders only. Do NOT use real or invented company names here.
