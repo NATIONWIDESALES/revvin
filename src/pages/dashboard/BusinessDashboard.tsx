@@ -28,7 +28,7 @@ import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
 import PlanPicker from "@/components/billing/PlanPicker";
 import PromoBlock from "@/components/promo/PromoBlock";
-import { isPromoLive } from "@/config/promo";
+import { isPromoLive, PROMO_TEXT } from "@/config/promo";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 
 interface Business {
@@ -495,7 +495,9 @@ const GoLiveBanner = ({
           <p className="mt-1 text-sm text-muted-foreground">
             {subscribed
               ? "Publish it so customers and referrers can reach it."
-              : `Building is free. Go live for ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once and save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off), to open your page to customers and the marketplace. Cancel anytime.`}
+              : isPromoLive()
+                ? `Building is free. Go live for ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, to open your page to customers and the marketplace. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime.`
+                : `Building is free. Go live for ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once and save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off), to open your page to customers and the marketplace. Cancel anytime.`}
           </p>
           {!ready && (
             <p className="mt-2 text-xs text-muted-foreground">
@@ -509,9 +511,9 @@ const GoLiveBanner = ({
           ) : subscribed ? (
             "Publish page"
           ) : plan === "annual" ? (
-            `Go live, ${PRICE_TEXT.annualPerYear}`
+            `Go live, ${isPromoLive() ? PROMO_TEXT.annualPerYear : PRICE_TEXT.annualPerYear}`
           ) : (
-            `Go live, ${PRICE_TEXT.monthlyPerMonth}`
+            `Go live, ${isPromoLive() ? PROMO_TEXT.pricePerMonth : PRICE_TEXT.monthlyPerMonth}`
           )}
         </Button>
       </div>
