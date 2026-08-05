@@ -125,7 +125,7 @@ const Pricing = () => {
           {/* Launch promotion. Disappears on its own once the deadline passes.
               The regular $49 monthly and $450 annual options below stay fully
               visible and purchasable. */}
-          <PromoBlock variant="full" showCta className="mb-10 mx-auto max-w-3xl" />
+          <PromoBlock variant="full" showCta plan={plan} className="mb-10 mx-auto max-w-3xl" />
           <div className={`grid gap-6 ${LAUNCH_PACKAGE_ENABLED ? "md:grid-cols-3" : "md:grid-cols-2 md:max-w-3xl md:mx-auto"}`}>
             {/* Free */}
             <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
@@ -177,7 +177,7 @@ const Pricing = () => {
                   onClick={() => setPlan("annual")}
                   className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors ${annual ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  Annual, save {PRICE_TEXT.discount}
+                  {isPromoLive() ? "Annual" : `Annual, save ${PRICE_TEXT.discount}`}
                 </button>
               </div>
 
@@ -189,13 +189,20 @@ const Pricing = () => {
               </div>
               {annual ? (
                 <div className="mt-2 space-y-1 text-sm">
-                  <p className="text-muted-foreground">
-                    <span className="line-through">{PRICE_TEXT.annualListPrice}</span>{" "}
-                    if paid monthly for twelve months. You save {PRICE_TEXT.saving}, {PRICE_TEXT.discount} off.
-                  </p>
-                  <p className="text-muted-foreground">
-                    Works out to {PRICE_TEXT.effectiveMonthly} USD.
-                  </p>
+                  {/* While the promo runs, annual and monthly cost the same over
+                      twelve months, so the regular-pricing saving comparison is
+                      not true and is withheld. */}
+                  {!isPromoLive() && (
+                    <>
+                      <p className="text-muted-foreground">
+                        <span className="line-through">{PRICE_TEXT.annualListPrice}</span>{" "}
+                        if paid monthly for twelve months. You save {PRICE_TEXT.saving}, {PRICE_TEXT.discount} off.
+                      </p>
+                      <p className="text-muted-foreground">
+                        Works out to {PRICE_TEXT.effectiveMonthly} USD.
+                      </p>
+                    </>
+                  )}
                   <p className="text-xs text-muted-foreground">{ANNUAL_TERMS_COPY}</p>
                 </div>
               ) : (
@@ -203,7 +210,7 @@ const Pricing = () => {
                   Billing starts when you publish your page. Cancel anytime. No contract, no setup fee.
                 </p>
               )}
-              {!annual && <PromoBlock variant="compact" className="mt-3" />}
+              <PromoBlock variant="compact" plan={plan} className="mt-3" />
               <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
                 <Link to={`/signup?plan=${plan}`}>
                   {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Build free + Launch Package" : "Build your page free"}
@@ -215,7 +222,9 @@ const Pricing = () => {
                   onClick={() => setPlan("annual")}
                   className="mt-3 text-xs font-medium text-primary underline-offset-2 hover:underline"
                 >
-                  Pay yearly instead and save {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off)
+                  {isPromoLive()
+                    ? `Pay yearly instead and lock ${PROMO_TEXT.annualPerYear} (${PROMO_TEXT.annualDiscount} off)`
+                    : `Pay yearly instead and save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off)`}
                 </button>
               )}
               {LAUNCH_PACKAGE_ENABLED && (
