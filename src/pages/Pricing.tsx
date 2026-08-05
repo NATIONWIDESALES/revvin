@@ -203,6 +203,7 @@ const Pricing = () => {
                   Billing starts when you publish your page. Cancel anytime. No contract, no setup fee.
                 </p>
               )}
+              {!annual && <PromoBlock variant="compact" className="mt-3" />}
               <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
                 <Link to={`/signup?plan=${plan}`}>
                   {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Build free + Launch Package" : "Build your page free"}
