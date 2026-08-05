@@ -273,6 +273,10 @@ const Browse = () => {
         } : undefined}
       />
       <div className="container">
+        <h1 className="mb-6 text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+          Referral offers from local service businesses
+        </h1>
+
         {/* Featured Offers */}
         {showFeaturedRow && (
           <div className="mb-8">
