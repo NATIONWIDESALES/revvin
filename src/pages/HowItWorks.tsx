@@ -36,8 +36,8 @@ const HowItWorks = () => {
         title="Revvin | How it works"
         description={
           promoLive
-            ? `See how Revvin turns your past-customer list into referrals, repeat work, and reviews. Build free, ${PROMO_TEXT.pricePerMonth} USD to publish before ${PROMO_END_DATE_TEXT}.`
-            : `See how Revvin turns your past-customer list into referrals, repeat work, and reviews. Build free, ${PRICE_TEXT.monthlyPerMonth} USD when you publish.`
+            ? `See how Revvin turns past customers into referrals, repeat work, and reviews. Build free, ${PROMO_TEXT.pricePerMonth} USD to publish before ${PROMO_END_DATE_TEXT}.`
+            : `See how Revvin turns past customers into referrals, repeat work, and reviews. Build free, ${PRICE_TEXT.monthlyPerMonth} USD when you publish.`
         }
         path="/how-it-works"
       />
