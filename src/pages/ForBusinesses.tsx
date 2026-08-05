@@ -25,8 +25,8 @@ const stagger = {
 const ForBusinesses = () => (
   <div>
     <SEOHead
-      title="Revvin | Referrals, repeat work and reviews for service businesses"
-      description="Turn your past-customer list into referrals, repeat work, and reviews. Build free, pay $49/month USD only when you publish. Cancel anytime. You pay your referrers directly."
+      title="Revvin | Referrals, repeat work and reviews"
+      description="Turn your past-customer list into referrals, repeat work, and reviews. Build free, pay $49/month USD when you publish. Cancel anytime."
       path="/for-businesses"
       jsonLd={[
         {
