@@ -7,7 +7,7 @@ import {
   PLAN_METADATA,
   type BillingPlan,
 } from "../_shared/stripe-prices.ts";
-import { PROMO_COUPON_ID, isPromoLive } from "../_shared/promo.ts";
+import { promoCouponFor, promoMetadataFor } from "../_shared/promo.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -62,10 +62,13 @@ serve(async (req) => {
       line_items.push({ price: PRICE_LAUNCH_PACKAGE_297, quantity: 1 });
     }
 
-    // Launch promotion: $17/month instead of $49/month, locked forever while
-    // the subscription stays active. Monthly only, and the deadline is checked
-    // against the SERVER clock so a client cannot claim it late.
-    const promoApplies = plan === "monthly" && isPromoLive();
+    // Launch promotion: $17/month instead of $49/month, or $204/year instead of
+    // $450/year, locked forever while the subscription stays active. Applies to
+    // both plans, each with its own coupon, and the deadline is checked against
+    // the SERVER clock so a client cannot claim it late.
+    const promoCoupon = promoCouponFor(plan);
+    const promoApplies = promoCoupon !== null;
+    const promoTag = promoApplies ? promoMetadataFor(plan) : "none";
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -77,21 +80,21 @@ serve(async (req) => {
           user_id: user.id,
           plan: planMetadata,
           launch_package: includeLaunchPackage ? "1" : "0",
-          promo: promoApplies ? "launch_17" : "none",
+          promo: promoTag,
         },
       },
       metadata: {
         user_id: user.id,
         plan: planMetadata,
         launch_package: includeLaunchPackage ? "1" : "0",
-        promo: promoApplies ? "launch_17" : "none",
+        promo: promoTag,
         ...(includeLaunchPackage ? { product_type: "launch_package" } : {}),
       },
       // Stripe rejects `discounts` and `allow_promotion_codes` together, so we
       // auto-apply the coupon when the promo is live and only expose the code
       // field otherwise.
-      ...(promoApplies
-        ? { discounts: [{ coupon: PROMO_COUPON_ID }] }
+      ...(promoCoupon
+        ? { discounts: [{ coupon: promoCoupon }] }
         : { allow_promotion_codes: true }),
       success_url: `${origin}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/dashboard?checkout=canceled`,
