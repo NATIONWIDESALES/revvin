@@ -1324,7 +1324,12 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
         {hasSubscription ? (
           <>
             <Button variant="outline" className="mt-4 w-full" onClick={openPortal} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing"}</Button>
-            {!onAnnual && (
+            {/* While the launch promo is live, an existing monthly subscriber who
+                switches through the Stripe portal keeps their monthly $32-off
+                coupon, which does not produce the $204 annual promo price. The
+                upsell (and its regular-pricing saving figure) is withheld until
+                the promo ends rather than making a claim we cannot honour. */}
+            {!onAnnual && !isPromoLive() && (
               <div className="mt-3 rounded-lg border border-border bg-surface-warm p-3">
                 <p className="text-xs leading-snug text-foreground">
                   <span className="font-semibold">Switch to annual and save {PRICE_TEXT.saving}.</span>{" "}
