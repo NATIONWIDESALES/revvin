@@ -21,6 +21,8 @@ export const FUNNEL_EVENTS = [
   "email_lead_submitted",
   "referral_submitted",
   "sample_page_viewed",
+  "promo_popup_shown",
+  "promo_cta_clicked",
 ] as const;
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];

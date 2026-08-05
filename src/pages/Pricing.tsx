@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/accordion";
 import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
+import PromoBlock from "@/components/promo/PromoBlock";
+import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
 
 // Grouped by revenue loop so the value is legible. Everything listed is shipped.
 const proFeatureGroups: { label: string; features: string[] }[] = [
@@ -120,6 +122,10 @@ const Pricing = () => {
 
       <section>
         <div className="container max-w-6xl py-20">
+          {/* Launch promotion. Disappears on its own once the deadline passes.
+              The regular $49 monthly and $450 annual options below stay fully
+              visible and purchasable. */}
+          <PromoBlock variant="full" showCta className="mb-10 mx-auto max-w-3xl" />
           <div className={`grid gap-6 ${LAUNCH_PACKAGE_ENABLED ? "md:grid-cols-3" : "md:grid-cols-2 md:max-w-3xl md:mx-auto"}`}>
             {/* Free */}
             <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
@@ -197,6 +203,7 @@ const Pricing = () => {
                   Billing starts when you publish your page. Cancel anytime. No contract, no setup fee.
                 </p>
               )}
+              {!annual && <PromoBlock variant="compact" className="mt-3" />}
               <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
                 <Link to={`/signup?plan=${plan}`}>
                   {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Build free + Launch Package" : "Build your page free"}
@@ -312,6 +319,14 @@ const Pricing = () => {
         <div className="container max-w-3xl py-20">
           <h2 className="mb-8 text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Common questions</h2>
           <Accordion type="single" collapsible className="w-full">
+            {isPromoLive() && (
+              <AccordionItem value="p0">
+                <AccordionTrigger>How does the {PROMO_TEXT.pricePerMonth} launch promotion work?</AccordionTrigger>
+                <AccordionContent>
+                  Publish before {PROMO_END_DATE_TEXT} and your monthly price is {PROMO_TEXT.pricePerMonth} USD instead of {PROMO_TEXT.regularPerMonth}, a saving of {PROMO_TEXT.savingPerMonth} ({PROMO_TEXT.discount} off). The discount is not a limited-time trial rate: it stays at {PROMO_TEXT.pricePerMonth} for as long as you stay subscribed. It applies to the monthly plan only, not the {PRICE_TEXT.annualPerYear} annual plan, and it is applied automatically at checkout with no code to enter. After {PROMO_END_DATE_TEXT} the regular {PRICE_TEXT.monthlyPerMonth} price applies.
+                </AccordionContent>
+              </AccordionItem>
+            )}
             <AccordionItem value="p1">
               <AccordionTrigger>Is there really no contract?</AccordionTrigger>
               <AccordionContent>
