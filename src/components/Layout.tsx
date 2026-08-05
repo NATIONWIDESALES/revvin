@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 import PageTransition from "@/components/PageTransition";
+import PromoPopup from "@/components/promo/PromoPopup";
 
 const Layout = () => {
   return (
@@ -14,6 +15,7 @@ const Layout = () => {
       </main>
       <Footer />
       <ScrollToTopButton />
+      <PromoPopup />
     </div>
   );
 };
