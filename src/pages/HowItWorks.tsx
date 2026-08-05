@@ -4,6 +4,8 @@ import SEOHead from "@/components/SEOHead";
 import MockPageBuilder from "@/components/marketing/MockPageBuilder";
 import MockQRCard from "@/components/marketing/MockQRCard";
 import MockLeadsTable from "@/components/marketing/MockLeadsTable";
+import { PRICE_TEXT } from "@/config/pricing";
+import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
 
 const steps = [
   {
@@ -27,11 +29,16 @@ const steps = [
 ];
 
 const HowItWorks = () => {
+  const promoLive = isPromoLive();
   return (
     <>
       <SEOHead
         title="Revvin | How it works"
-        description="See how Revvin turns your past-customer list into referrals, repeat work, and reviews. Set up your page, mark jobs done, work the leads. Build free, $49/month USD when you publish."
+        description={
+          promoLive
+            ? `See how Revvin turns your past-customer list into referrals, repeat work, and reviews. Build free, ${PROMO_TEXT.pricePerMonth} USD to publish before ${PROMO_END_DATE_TEXT}.`
+            : `See how Revvin turns your past-customer list into referrals, repeat work, and reviews. Build free, ${PRICE_TEXT.monthlyPerMonth} USD when you publish.`
+        }
         path="/how-it-works"
       />
 
@@ -72,7 +79,9 @@ const HowItWorks = () => {
         <div className="container max-w-2xl py-24 text-center">
           <h2 className="text-3xl font-extrabold tracking-tight md:text-5xl">Ready in minutes.</h2>
           <p className="mt-4 text-lg text-white/70">
-            Free to build and preview. $49/month USD when you publish. Cancel anytime, no contract.
+            {promoLive
+              ? `Free to build and preview. ${PROMO_TEXT.pricePerMonth} USD when you publish, or ${PROMO_TEXT.annualPerYear} billed once, if you publish before ${PROMO_END_DATE_TEXT}. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime, no contract.`
+              : `Free to build and preview. ${PRICE_TEXT.monthlyPerMonth} USD when you publish. Cancel anytime, no contract.`}
           </p>
           <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
             <Link to="/signup">Build your page — free</Link>
