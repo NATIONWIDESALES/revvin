@@ -1,0 +1,39 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  hermetic-tests:
+    name: Hermetic test suite (no production access)
+    runs-on: ubuntu-latest
+    env:
+      # Intentionally NOT setting RUN_LIVE_API_TESTS. The guard in
+      # src/test/setup.ts fails fast if any test tries to reach the
+      # production Supabase project without explicit opt-in.
+      VITE_SUPABASE_URL: https://olmpplfgzegzqdcznlrp.supabase.co
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Assert live-test opt-in is not enabled
+        run: |
+          if [ -n "$RUN_LIVE_API_TESTS" ]; then
+            echo "RUN_LIVE_API_TESTS must not be set in CI: the default run must be hermetic."
+            exit 1
+          fi
+
+      - name: Run test suite (production access must fail the build)
+        run: bunx vitest run
+
+      - name: Verify production guard is active
+        run: bunx vitest run src/test/production-guard.test.ts
