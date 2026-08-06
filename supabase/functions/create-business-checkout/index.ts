@@ -7,7 +7,7 @@ import {
   PLAN_METADATA,
   type BillingPlan,
 } from "../_shared/stripe-prices.ts";
-import { promoCouponFor, promoMetadataFor } from "../_shared/promo.ts";
+import { promoCouponFor, promoMetadataFor, PROMO_COUPON_MONTHLY } from "../_shared/promo.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -35,15 +35,48 @@ serve(async (req) => {
     // Unrecognised values fall back to monthly rather than erroring or charging
     // something unexpected.
     let plan: BillingPlan = "monthly";
+    let rawInviteCode: string | null = null;
     try {
       if (req.headers.get("content-type")?.includes("application/json")) {
         const body = await req.json();
         includeLaunchPackage = !!body?.includeLaunchPackage;
         if (body?.plan === "annual") plan = "annual";
+        if (typeof body?.invite_code === "string" && body.invite_code.trim()) {
+          rawInviteCode = body.invite_code.trim().toUpperCase().slice(0, 40);
+        }
       }
     } catch (_) { /* no body */ }
 
     const planMetadata = PLAN_METADATA[plan];
+
+    // Invite codes: monthly only, validated and CLAIMED server-side with the
+    // service role. The client's code is never trusted. A bad code must not
+    // break checkout, so failures fall through to normal pricing.
+    let invite: { id: string; code: string; trial_days: number } | null = null;
+    let inviteApplied = false;
+    let inviteRejected = false;
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+    if (rawInviteCode && plan === "monthly") {
+      // Atomic claim: a single conditional UPDATE ... RETURNING inside the
+      // function. No row back means missing, inactive, expired, or exhausted.
+      const { data: claimed, error: claimErr } = await admin.rpc("fn_claim_invite_code", {
+        p_code: rawInviteCode,
+      });
+      if (claimErr) console.error("[create-business-checkout] invite claim failed", claimErr);
+      const row = Array.isArray(claimed) ? claimed[0] : claimed;
+      if (row?.id) {
+        invite = { id: row.id, code: row.code, trial_days: row.trial_days ?? 90 };
+        inviteApplied = true;
+      } else {
+        inviteRejected = true;
+      }
+    } else if (rawInviteCode) {
+      inviteRejected = true; // invites are monthly only
+    }
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -66,9 +99,13 @@ serve(async (req) => {
     // $450/year, locked forever while the subscription stays active. Applies to
     // both plans, each with its own coupon, and the deadline is checked against
     // the SERVER clock so a client cannot claim it late.
-    const promoCoupon = promoCouponFor(plan);
+    // Invite redemptions always get the launch coupon, even after the public
+    // promo deadline: an invited business must never pay more than a stranger.
+    const promoCoupon = invite ? PROMO_COUPON_MONTHLY : promoCouponFor(plan);
     const promoApplies = promoCoupon !== null;
-    const promoTag = promoApplies ? promoMetadataFor(plan) : "none";
+    const promoTag = invite ? "invite_17_monthly" : promoApplies ? promoMetadataFor(plan) : "none";
+
+    const inviteMetadata = invite ? { invite_code: invite.code } : {};
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -76,11 +113,15 @@ serve(async (req) => {
       mode: "subscription",
       line_items,
       subscription_data: {
+        // Stripe Checkout collects the card for trials by default, so month
+        // four converts automatically instead of silently lapsing.
+        ...(invite ? { trial_period_days: invite.trial_days } : {}),
         metadata: {
           user_id: user.id,
           plan: planMetadata,
           launch_package: includeLaunchPackage ? "1" : "0",
           promo: promoTag,
+          ...inviteMetadata,
         },
       },
       metadata: {
@@ -88,6 +129,7 @@ serve(async (req) => {
         plan: planMetadata,
         launch_package: includeLaunchPackage ? "1" : "0",
         promo: promoTag,
+        ...inviteMetadata,
         ...(includeLaunchPackage ? { product_type: "launch_package" } : {}),
       },
       // Stripe rejects `discounts` and `allow_promotion_codes` together, so we
@@ -100,7 +142,27 @@ serve(async (req) => {
       cancel_url: `${origin}/dashboard?checkout=canceled`,
     });
 
-    return new Response(JSON.stringify({ url: session.url }), {
+    if (invite) {
+      const { data: bizRow } = await admin
+        .from("businesses")
+        .select("id")
+        .eq("user_id", user.id)
+        .limit(1);
+      const { error: redErr } = await admin.from("invite_redemptions").insert({
+        invite_code_id: invite.id,
+        business_id: bizRow?.[0]?.id ?? null,
+        user_id: user.id,
+        stripe_session_id: session.id,
+      });
+      if (redErr) console.error("[create-business-checkout] redemption insert failed", redErr);
+    }
+
+    return new Response(JSON.stringify({
+      url: session.url,
+      invite_applied: inviteApplied,
+      invite_rejected: inviteRejected,
+      trial_days: invite?.trial_days ?? 0,
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
