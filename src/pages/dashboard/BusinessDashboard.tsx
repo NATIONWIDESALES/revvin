@@ -30,6 +30,8 @@ import PlanPicker from "@/components/billing/PlanPicker";
 import PromoBlock from "@/components/promo/PromoBlock";
 import { isPromoLive, PROMO_TEXT } from "@/config/promo";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
+import InviteBanner from "@/components/invite/InviteBanner";
+import { getInviteCode, setInviteCode, clearInviteCode } from "@/lib/invite";
 
 interface Business {
   id: string;
