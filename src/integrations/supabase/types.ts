@@ -136,6 +136,7 @@ export type Database = {
           headline: string | null
           id: string
           industry: string | null
+          invite_code: string | null
           is_disabled: boolean
           is_published: boolean
           jobber_access_token_encrypted: string | null
@@ -196,6 +197,7 @@ export type Database = {
           headline?: string | null
           id?: string
           industry?: string | null
+          invite_code?: string | null
           is_disabled?: boolean
           is_published?: boolean
           jobber_access_token_encrypted?: string | null
@@ -256,6 +258,7 @@ export type Database = {
           headline?: string | null
           id?: string
           industry?: string | null
+          invite_code?: string | null
           is_disabled?: boolean
           is_published?: boolean
           jobber_access_token_encrypted?: string | null
@@ -682,6 +685,80 @@ export type Database = {
           user_agent?: string | null
         }
         Relationships: []
+      }
+      invite_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          label: string
+          max_uses: number | null
+          trial_days: number
+          uses: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          label?: string
+          max_uses?: number | null
+          trial_days?: number
+          uses?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          label?: string
+          max_uses?: number | null
+          trial_days?: number
+          uses?: number
+        }
+        Relationships: []
+      }
+      invite_redemptions: {
+        Row: {
+          business_id: string | null
+          id: string
+          invite_code_id: string
+          redeemed_at: string
+          stripe_session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          business_id?: string | null
+          id?: string
+          invite_code_id: string
+          redeemed_at?: string
+          stripe_session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string | null
+          id?: string
+          invite_code_id?: string
+          redeemed_at?: string
+          stripe_session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invite_redemptions_invite_code_id_fkey"
+            columns: ["invite_code_id"]
+            isOneToOne: false
+            referencedRelation: "invite_codes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       launch_tasks: {
         Row: {
@@ -2175,6 +2252,15 @@ export type Database = {
           p_window_days?: number
         }
         Returns: boolean
+      }
+      fn_claim_invite_code: {
+        Args: { p_code: string }
+        Returns: {
+          code: string
+          id: string
+          trial_days: number
+          uses: number
+        }[]
       }
       fn_claim_referrer_leads: { Args: never; Returns: number }
       fn_create_audit_entry:
