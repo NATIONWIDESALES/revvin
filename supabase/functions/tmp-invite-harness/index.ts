@@ -23,6 +23,33 @@ serve(async (req) => {
     out.error = error?.message ?? null;
   }
 
+  if (body.action === "stripe_session") {
+    const key = Deno.env.get("STRIPE_SECRET_KEY") || "";
+    const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${body.session_id}`, {
+      headers: { Authorization: `Bearer ${key}` },
+    });
+    const j = await r.json();
+    out.session = {
+      id: j.id,
+      status: j.status,
+      amount_total: j.amount_total,
+      currency: j.currency,
+      discounts: j.discounts,
+      metadata: j.metadata,
+      mode: j.mode,
+    };
+  }
+
+  if (body.action === "expire") {
+    const key = Deno.env.get("STRIPE_SECRET_KEY") || "";
+    const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${body.session_id}/expire`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}` },
+    });
+    const j = await r.json();
+    out.expire = { status: j.status, error: j.error?.message ?? null };
+  }
+
   if (body.action === "state") {
     const { data: codes } = await admin.from("invite_codes").select("*").eq("code", body.code);
     const { data: reds } = await admin.from("invite_redemptions").select("*");
