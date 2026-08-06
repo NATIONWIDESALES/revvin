@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import FunnelPanel from "@/components/admin/FunnelPanel";
+import InviteCodesPanel from "@/components/admin/InviteCodesPanel";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -222,6 +223,9 @@ const AdminDashboard = () => {
             <TabsContent value="overview">
               <div className="mb-6">
                 <FunnelPanel />
+              </div>
+              <div className="mb-6">
+                <InviteCodesPanel />
               </div>
               <div className="grid gap-6 lg:grid-cols-2">
                 <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
