@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, MapPin } from "lucide-react";
-import { categories, RESTRICTED_CATEGORIES } from "@/lib/offerUtils";
+import { categories, isRestrictedCategory } from "@/lib/offerUtils";
 
 const EditOffer = () => {
   const { id } = useParams();
@@ -96,12 +96,17 @@ const EditOffer = () => {
           close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
           remote_eligible: form.remoteEligible,
           qualification_criteria: form.qualificationCriteria.trim() || null,
-          approval_status: RESTRICTED_CATEGORIES.includes(form.category) ? "pending_approval" : "approved",
+          approval_status: isRestrictedCategory(form.category) ? "pending_approval" : "approved",
         })
         .eq("id", id);
 
       if (error) throw error;
-      toast({ title: "Offer updated", description: "Your changes are live." });
+      toast({
+        title: "Offer updated",
+        description: isRestrictedCategory(form.category)
+          ? "Offers in this category are reviewed before they appear on the public marketplace."
+          : "Your changes are live.",
+      });
       navigate("/dashboard");
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to save changes", variant: "destructive" });

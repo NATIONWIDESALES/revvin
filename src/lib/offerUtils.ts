@@ -9,7 +9,28 @@ export const categories = [
 // Note: cityJumpsCA / cityJumpsUS are retained for backward compatibility
 // but MapView now derives city chips dynamically from the filtered offers.
 
-export const RESTRICTED_CATEGORIES = ["Finance", "Insurance", "Legal", "Mortgage"];
+// Categories whose PUBLIC MARKETPLACE listings are reviewed before they appear.
+// This is a listing review, not a restriction on using Revvin: a business in
+// one of these categories can still build and use its own branded referral
+// page privately.
+//
+// Keep this list and the normalisation below in sync with the database
+// function fn_offer_is_restricted_category, which is the actual enforcement
+// point. This copy exists only so the UI can show the review notice early.
+export const RESTRICTED_CATEGORIES = ["Finance", "Insurance", "Legal", "Mortgage", "Real Estate"];
+
+const normalizeCategory = (category: string | null | undefined) =>
+  (category ?? "").toLowerCase().replace(/[^a-z]/g, "");
+
+const RESTRICTED_NORMALIZED = new Set(RESTRICTED_CATEGORIES.map(normalizeCategory));
+
+/**
+ * True when offers in this category need review before appearing on the public
+ * marketplace. Matches case-insensitively and ignores spacing and punctuation,
+ * so "Real Estate", "real-estate" and "realestate" all match.
+ */
+export const isRestrictedCategory = (category: string | null | undefined) =>
+  RESTRICTED_NORMALIZED.has(normalizeCategory(category));
 
 export const canadaProvinces = ["BC", "AB", "ON", "QC", "MB", "SK"];
 export const usStates = ["CA", "TX", "WA", "AZ", "NY", "FL", "IL", "CO", "GA", "MA"];
