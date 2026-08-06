@@ -284,6 +284,42 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
         }
         break;
       }
+      // An abandoned or failed checkout must not burn a hand-picked invite
+      // slot. Releasing here is safe because the claim happens at session
+      // creation (which keeps the race protection) and the release is gated on
+      // the redemption row still existing, so Stripe retries are no-ops.
+      case "checkout.session.expired":
+      case "checkout.session.async_payment_failed": {
+        const s = event.data.object as Stripe.Checkout.Session;
+        const inviteCode = (s.metadata?.invite_code as string) || "";
+        const subId =
+          typeof s.subscription === "string" ? s.subscription : s.subscription?.id ?? null;
+        if (!inviteCode) {
+          console.log("[stripe-business-webhook] no invite on unconverted session", { session: s.id });
+          break;
+        }
+        if (subId) {
+          // A subscription exists, so this did convert. Never release.
+          console.log("[stripe-business-webhook] invite kept: subscription exists", {
+            session: s.id,
+            subscription: subId,
+          });
+          break;
+        }
+        const { data: released, error: relErr } = await admin.rpc("fn_release_invite_code", {
+          p_session_id: s.id,
+        });
+        if (relErr) {
+          console.error("[stripe-business-webhook] invite release failed", relErr);
+        } else {
+          console.log("[stripe-business-webhook] invite release", {
+            session: s.id,
+            code: inviteCode,
+            released: released === true,
+          });
+        }
+        break;
+      }
       case "customer.subscription.created":
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {

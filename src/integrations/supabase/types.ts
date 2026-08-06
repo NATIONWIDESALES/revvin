@@ -2334,6 +2334,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      fn_release_invite_code: {
+        Args: { p_session_id: string }
+        Returns: boolean
+      }
       fn_slug_available: { Args: { p_slug: string }; Returns: boolean }
       has_role: {
         Args: {
