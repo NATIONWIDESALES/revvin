@@ -11,13 +11,19 @@ import { createClient } from "@supabase/supabase-js";
 // separately by loading revvin.co in a browser — this test does not simulate
 // that. It covers the server-side half of the smoke check.
 //
-// Skips gracefully when env vars are missing (local dev without a linked
-// Supabase project).
+// LIVE TEST: this makes a real call to the deployed smoke-maps edge function,
+// which in turn calls Google. It is therefore skipped unless you opt in with
+// RUN_LIVE_API_TESTS=1. It is read-only and writes nothing.
+//
+//   RUN_LIVE_API_TESTS=1 bunx vitest run src/test/maps-smoke.test.ts
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 
-const runIf = url && anon ? describe : describe.skip;
+const liveOptIn =
+  process.env.RUN_LIVE_API_TESTS === "1" || process.env.RUN_LIVE_API_TESTS === "true";
+
+const runIf = liveOptIn && url && anon ? describe : describe.skip;
 
 runIf("Google Maps smoke", () => {
   it("geocodes a known address and returns at least one result", async () => {
