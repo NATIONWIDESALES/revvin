@@ -287,6 +287,7 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
       case "customer.subscription.created":
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
+        // (see invite release below for abandoned-checkout handling)
         const sub = event.data.object as Stripe.Subscription;
         const userId = (sub.metadata?.user_id as string) || "";
         const status = event.type === "customer.subscription.deleted" ? "canceled" : sub.status;
