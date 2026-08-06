@@ -57,6 +57,21 @@ serve(async (req) => {
     out.redemptions = reds;
   }
 
+  if (body.action === "purge_test_users") {
+    const { data: users } = await admin.auth.admin.listUsers();
+    const targets = (users?.users ?? []).filter((u) => (u.email ?? "").endsWith("@revvin.test"));
+    const done: string[] = [];
+    for (const u of targets) {
+      await admin.from("invite_redemptions").delete().eq("user_id", u.id);
+      await admin.from("businesses").delete().eq("user_id", u.id);
+      await admin.from("profiles").delete().eq("user_id", u.id);
+      await admin.from("user_roles").delete().eq("user_id", u.id);
+      const { error } = await admin.auth.admin.deleteUser(u.id);
+      done.push(`${u.email}:${error ? error.message : "deleted"}`);
+    }
+    out.purged = done;
+  }
+
   if (body.action === "cleanup") {
     if (body.user_id) {
       await admin.from("invite_redemptions").delete().eq("user_id", body.user_id);
