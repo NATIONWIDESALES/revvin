@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info, CreditCard, Loader2, AlertTriangle } from "lucide-react";
-import { categories, RESTRICTED_CATEGORIES } from "@/lib/offerUtils";
+import { categories, isRestrictedCategory } from "@/lib/offerUtils";
 import { motion } from "framer-motion";
 import {
   Dialog,
@@ -108,7 +108,7 @@ const CreateOffer = () => {
     ensureBusinessProfile();
   }, [user, isSuperAdmin, navigate, toast]);
 
-  const isRestricted = RESTRICTED_CATEGORIES.includes(form.category);
+  const isRestricted = isRestrictedCategory(form.category);
 
   const payoutNum = parseFloat(form.payout) || 0;
 
@@ -191,7 +191,10 @@ const CreateOffer = () => {
       if (error) throw error;
 
       if (isRestricted) {
-        toast({ title: "Offer submitted for review", description: "This category requires approval before going live." });
+        toast({
+          title: "Offer sent for review",
+          description: "Offers in this category are reviewed before they appear on the public marketplace. Your branded referral page keeps working in the meantime.",
+        });
       } else {
         toast({ title: "Offer published!", description: "Your offer is now live on the marketplace." });
       }
@@ -358,8 +361,10 @@ const CreateOffer = () => {
                 <div className="rounded-xl bg-accent/10 border border-accent/20 p-4 flex items-start gap-3">
                   <Info className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-accent-foreground">Category requires approval</p>
-                    <p className="text-xs text-muted-foreground mt-1">This category ({form.category}) requires admin review before going live.</p>
+                    <p className="text-sm font-medium text-accent-foreground">Reviewed before it appears publicly</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Offers in this category ({form.category}) are reviewed before they appear on the public marketplace. Your branded referral page stays available to your own customers either way.
+                    </p>
                   </div>
                 </div>
               )}
