@@ -30,6 +30,8 @@ import PlanPicker from "@/components/billing/PlanPicker";
 import PromoBlock from "@/components/promo/PromoBlock";
 import { isPromoLive, PROMO_TEXT } from "@/config/promo";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
+import InviteBanner from "@/components/invite/InviteBanner";
+import { getInviteCode, setInviteCode, clearInviteCode } from "@/lib/invite";
 
 interface Business {
   id: string;
@@ -455,6 +457,24 @@ const GoLiveBanner = ({
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
   const [plan, setPlan] = useState<BillingPlan>("monthly");
+  // An invite may be held from an /i/:code link, or typed in here by someone
+  // who got the code verbally. Either way it is only validated at checkout.
+  const [inviteCode, setInviteCodeValue] = useState<string | null>(() => getInviteCode());
+  const [manualInvite, setManualInvite] = useState("");
+  const [showInviteField, setShowInviteField] = useState(false);
+
+  const applyManualInvite = () => {
+    const stored = setInviteCode(manualInvite);
+    if (!stored) {
+      toast({ title: "That does not look like a code", description: "Codes are letters, numbers, dashes.", variant: "destructive" });
+      return;
+    }
+    setInviteCodeValue(stored);
+    setManualInvite("");
+    setShowInviteField(false);
+    setPlan("monthly"); // invites are monthly only
+    track("invite_code_entered");
+  };
 
   const goLive = async () => {
     track("go_live_clicked");
@@ -472,12 +492,25 @@ const GoLiveBanner = ({
       return;
     }
     const { data, error } = await supabase.functions.invoke("create-business-checkout", {
-      body: { includeLaunchPackage: false, plan },
+      body: {
+        includeLaunchPackage: false,
+        plan: inviteCode ? "monthly" : plan,
+        ...(inviteCode ? { invite_code: inviteCode } : {}),
+      },
     });
     if (error || !data?.url) {
       setBusy(false);
       toast({ title: "Could not start checkout", description: error?.message, variant: "destructive" });
       return;
+    }
+    if (data.invite_rejected) {
+      toast({
+        title: "Invite code did not apply",
+        description: "That code is not valid, has expired, or is fully used. Continuing at regular pricing.",
+      });
+      clearInviteCode();
+    } else if (data.invite_applied) {
+      clearInviteCode();
     }
     track("checkout_redirected");
     window.location.href = data.url;
@@ -495,6 +528,8 @@ const GoLiveBanner = ({
           <p className="mt-1 text-sm text-muted-foreground">
             {subscribed
               ? "Publish it so customers and referrers can reach it."
+              : inviteCode
+                ? "Building is free. Your invite covers the first 3 months, then it is $17/month USD. Cancel anytime."
               : isPromoLive()
                 ? `Building is free. Go live for ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, to open your page to customers and the marketplace. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime.`
                 : `Building is free. Go live for ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once and save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off), to open your page to customers and the marketplace. Cancel anytime.`}
@@ -510,6 +545,8 @@ const GoLiveBanner = ({
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : subscribed ? (
             "Publish page"
+          ) : inviteCode ? (
+            "Go live, 3 months free"
           ) : plan === "annual" ? (
             `Go live, ${isPromoLive() ? PROMO_TEXT.annualPerYear : PRICE_TEXT.annualPerYear}`
           ) : (
@@ -517,8 +554,31 @@ const GoLiveBanner = ({
           )}
         </Button>
       </div>
-      {!subscribed && <PromoBlock variant="compact" plan={plan} className="mt-4" />}
-      {!subscribed && <PlanPicker plan={plan} onChange={setPlan} className="mt-4" />}
+      {!subscribed && inviteCode && <InviteBanner code={inviteCode} className="mt-4" />}
+      {!subscribed && !inviteCode && <PromoBlock variant="compact" plan={plan} className="mt-4" />}
+      {!subscribed && !inviteCode && <PlanPicker plan={plan} onChange={setPlan} className="mt-4" />}
+      {!subscribed && !inviteCode && (
+        showInviteField ? (
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+            <Input
+              value={manualInvite}
+              onChange={(e) => setManualInvite(e.target.value.toUpperCase())}
+              placeholder="Invite code"
+              aria-label="Invite code"
+              className="sm:max-w-[200px] font-mono"
+            />
+            <Button variant="outline" onClick={applyManualInvite}>Apply code</Button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowInviteField(true)}
+            className="mt-4 text-xs text-muted-foreground underline"
+          >
+            Have an invite code?
+          </button>
+        )
+      )}
     </div>
   );
 };

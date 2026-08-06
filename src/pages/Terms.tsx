@@ -40,6 +40,7 @@ const Terms = () => {
               <li>There is no contract and no setup fee. Billing starts when you publish your page and does not start before that. Until you publish, your page is a private draft that is not visible to the public.</li>
               <li>You can cancel anytime through the Stripe billing portal linked from your account. On cancellation your access continues until the end of the current paid period and does not renew. On the annual plan the paid period is the full twelve months you were charged for, so your page stays live through the end of that year.</li>
               <li>Fees already paid are non-refundable. We do not pro-rate or refund the unused part of a monthly or annual billing period, including when you cancel an annual subscription part way through the year.</li>
+              <li>Invite codes: if you publish using an invite code we issued you, the first three months are free and your card is collected at checkout. From month four the subscription bills automatically at $17 per month USD, and that rate stays in place for as long as the subscription remains active. You can cancel anytime during the free months and you will not be charged. Invite codes apply to monthly billing only, are not transferable, and may be limited by number of uses or an expiry date.</li>
               <li>We retain your lead history after cancellation so you can return to it if you resubscribe.</li>
               <li>Referrers use Revvin for free.</li>
             </ul>

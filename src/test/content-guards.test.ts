@@ -37,6 +37,11 @@ const SKIP_PATHS = [
   "supabase/functions/check-subscription/",
   // Legacy wallet-based lifecycle sync — being removed in follow-up pass.
   "supabase/functions/sync-offer-lifecycle/",
+  // Invite-only offer copy: "3 months free" is a real, current offer here and
+  // is never shown on public marketing pages, only to invited businesses.
+  "src/components/invite/",
+  "src/components/admin/InviteCodesPanel",
+  "src/lib/invite.ts",
 ];
 
 // To add a new guard: append one row. No other changes required.

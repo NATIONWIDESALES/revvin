@@ -150,6 +150,9 @@ serve(async (req) => {
             current_period_end: currentPeriodEnd,
             is_published: publishedStatuses.has(status),
           };
+          // Stamp the invite the business came from, for attribution.
+          const inviteCode = (s.metadata?.invite_code as string) || "";
+          if (inviteCode) patch.invite_code = inviteCode;
           // Payment is approval: a completed Stripe checkout approves the account.
           if (publishedStatuses.has(status)) patch.account_status = "approved";
           if (launchPackagePurchased) patch.launch_package_status = "purchased";
