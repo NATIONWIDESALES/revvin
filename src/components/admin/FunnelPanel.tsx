@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 
 /** Funnel order — keep in sync with src/lib/track.ts event names. */
 const FUNNEL_ORDER: { event: string; label: string }[] = [
+  { event: "page_viewed", label: "Visits (page views)" },
   { event: "sample_page_viewed", label: "Sample page viewed" },
   { event: "signup_viewed", label: "Signup viewed" },
   { event: "signup_submitted", label: "Signup submitted" },
@@ -21,6 +22,7 @@ const FUNNEL_ORDER: { event: string; label: string }[] = [
 
 /** Steps that form the actual conversion path (drop-off is computed on these). */
 const DROPOFF_CHAIN = [
+  "page_viewed",
   "signup_viewed",
   "signup_submitted",
   "signup_succeeded",
@@ -50,6 +52,7 @@ const FunnelPanel = () => {
   const [error, setError] = useState<string | null>(null);
   const [d7, setD7] = useState<Counts>(emptyCounts());
   const [d30, setD30] = useState<Counts>(emptyCounts());
+  const [visitors, setVisitors] = useState({ v7: 0, v30: 0 });
   const [attribution, setAttribution] = useState<AttributionRow[]>([]);
 
   useEffect(() => {
@@ -59,7 +62,7 @@ const FunnelPanel = () => {
       const since7 = new Date(Date.now() - 7 * 86400000).toISOString();
       const { data, error } = await supabase
         .from("funnel_events")
-        .select("event, created_at, meta")
+        .select("event, created_at, meta, session_id")
         .gte("created_at", since30)
         .limit(50000);
       if (error) {
@@ -70,9 +73,16 @@ const FunnelPanel = () => {
       const a = emptyCounts();
       const b = emptyCounts();
       const attr = new Map<string, AttributionRow>();
+      const sessions30 = new Set<string>();
+      const sessions7 = new Set<string>();
       for (const row of data ?? []) {
         const e = (row as { event: string }).event;
         const recent = (row as { created_at: string }).created_at >= since7;
+        const sid = (row as { session_id: string | null }).session_id;
+        if (sid) {
+          sessions30.add(sid);
+          if (recent) sessions7.add(sid);
+        }
         const meta = ((row as { meta?: Record<string, unknown> | null }).meta ??
           {}) as Record<string, unknown>;
         const source =
@@ -114,6 +124,7 @@ const FunnelPanel = () => {
       }
       setD7(a);
       setD30(b);
+      setVisitors({ v7: sessions7.size, v30: sessions30.size });
       setAttribution(
         [...attr.values()].sort((x, y) => y.events30 - x.events30).slice(0, 50),
       );
@@ -142,6 +153,20 @@ const FunnelPanel = () => {
         First-party event counts. Drop-off is measured against the previous step
         in the conversion path. No personal data is recorded.
       </p>
+
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          { label: "Visits (7d)", value: d7["page_viewed"] ?? 0 },
+          { label: "Unique visitors (7d)", value: visitors.v7 },
+          { label: "Signup starts (7d)", value: d7["signup_submitted"] ?? 0 },
+          { label: "Completed signups (7d)", value: d7["signup_succeeded"] ?? 0 },
+        ].map((s) => (
+          <div key={s.label} className="rounded-xl border border-border bg-background p-3">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.label}</p>
+            <p className="mt-1 text-xl font-semibold tabular-nums text-foreground">{s.value}</p>
+          </div>
+        ))}
+      </div>
 
       {error ? (
         <p className="text-sm text-destructive">Could not load funnel: {error}</p>

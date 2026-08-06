@@ -9,6 +9,7 @@ import { captureAttribution, getAttribution } from "@/lib/attribution";
  * and is not derived from anything identifying.
  */
 export const FUNNEL_EVENTS = [
+  "page_viewed",
   "signup_viewed",
   "signup_submitted",
   "signup_succeeded",
@@ -65,6 +66,12 @@ function getSessionId(): string | null {
  */
 export function track(event: FunnelEvent, meta?: Record<string, unknown>): void {
   try {
+    if (event === "page_viewed") {
+      // Pageviews are already sent to Plausible and the Meta pixel by their own
+      // components. Only record the first-party row here.
+      recordFunnelEvent(event, meta);
+      return;
+    }
     window.plausible?.(event, meta ? { props: meta } : undefined);
   } catch {
     /* ignore */
@@ -82,6 +89,10 @@ export function track(event: FunnelEvent, meta?: Record<string, unknown>): void 
     /* fbq may be missing or blocked by an ad blocker */
   }
 
+  recordFunnelEvent(event, meta);
+}
+
+function recordFunnelEvent(event: FunnelEvent, meta?: Record<string, unknown>): void {
   let attribution: Record<string, unknown> | null = null;
   try {
     attribution = captureAttribution() ?? getAttribution();

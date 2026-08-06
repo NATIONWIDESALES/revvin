@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { useRef } from "react";
+import { track } from "@/lib/track";
 
 /**
  * Privacy-friendly Plausible analytics.
@@ -43,6 +45,16 @@ const Analytics = () => {
     if (typeof window.plausible === "function") {
       window.plausible("pageview");
     }
+  }, [location.pathname, location.search]);
+
+  // First-party visit row for the in-app funnel view. Deduped per URL so a
+  // re-render never double counts.
+  const lastPath = useRef<string | null>(null);
+  useEffect(() => {
+    const key = location.pathname + location.search;
+    if (lastPath.current === key) return;
+    lastPath.current = key;
+    track("page_viewed");
   }, [location.pathname, location.search]);
 
   return null;
