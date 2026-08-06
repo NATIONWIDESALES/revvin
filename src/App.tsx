@@ -35,6 +35,7 @@ import NotFound from "./pages/NotFound";
 import PublicReferralPage from "./pages/PublicReferralPage";
 import Onboarding from "./pages/Onboarding";
 import Sample from "./pages/Sample";
+import InviteLanding from "./pages/InviteLanding";
 import ReferralStatus from "./pages/ReferralStatus";
 import Feedback from "./pages/Feedback";
 import PrintAssetPage from "./pages/PrintAsset";
@@ -65,6 +66,7 @@ const App = () => (
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Auth />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/i/:code" element={<InviteLanding />} />
                 <Route path="/__sa" element={<Suspense fallback={null}><SuperAdminCRM /></Suspense>} />
                 <Route path="/__health" element={<Suspense fallback={null}><ConnectionHealth /></Suspense>} />
                 <Route element={<Layout />}>
