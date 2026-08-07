@@ -173,11 +173,14 @@ const BusinessDashboard = () => {
   const loadAll = async () => {
     if (!user) return;
     setLoading(true);
-    const { data: bizData } = await supabase
+    const { data: bizData, error: bizError } = await supabase
       .from("businesses")
       .select("*")
       .eq("user_id", user.id)
       .limit(1);
+    // A failed load and a genuinely empty account look identical downstream,
+    // so record the difference and tell the owner which one happened.
+    setLoadError(bizError ? friendlyError(bizError, "We could not load your dashboard.") : null);
     const b = (bizData?.[0] as Business) ?? null;
     setBiz(b);
     if (b) {
@@ -212,7 +215,19 @@ const BusinessDashboard = () => {
   if (!biz) {
     return (
       <div className="container py-16 text-center">
-        <p className="text-muted-foreground">No business found.</p>
+        <p className="text-muted-foreground">
+          {loadError ?? "No business found. Finish setup to create your referral page."}
+        </p>
+        <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
+          <Button variant="outline" className="h-11 w-full sm:h-10 sm:w-auto" onClick={() => loadAll()}>
+            Try again
+          </Button>
+          {!loadError && (
+            <Button asChild className="h-11 w-full sm:h-10 sm:w-auto">
+              <a href="/welcome">Finish setup</a>
+            </Button>
+          )}
+        </div>
       </div>
     );
   }

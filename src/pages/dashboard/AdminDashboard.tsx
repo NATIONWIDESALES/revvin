@@ -161,8 +161,14 @@ const AdminDashboard = () => {
     setDisputeNotes(prev => ({ ...prev, [referralId]: "" }));
   };
 
-  const updatePayoutStatus = async (payoutId: string, status: string, method?: string, providerRef?: string) => {
-    toast({ title: "Off-platform payouts", description: "Businesses pay referrers directly on REVVIN.CO v1." });
+  // Intentionally read-only: payouts happen off-platform, so there is no payout
+  // record for an admin to move. The toast explains that rather than implying a
+  // state change that never happens.
+  const updatePayoutStatus = async () => {
+    toast({
+      title: "Payouts happen off-platform",
+      description: "Businesses pay referrers directly, so there is nothing to mark here.",
+    });
   };
 
   if (loading) {
