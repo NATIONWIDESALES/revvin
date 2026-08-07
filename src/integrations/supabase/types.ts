@@ -157,6 +157,7 @@ export type Database = {
           postal_code: string | null
           referral_cta_label: string | null
           service_area: string | null
+          service_radius_km: number | null
           signup_notified_at: string | null
           slug: string | null
           state: string | null
@@ -218,6 +219,7 @@ export type Database = {
           postal_code?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
+          service_radius_km?: number | null
           signup_notified_at?: string | null
           slug?: string | null
           state?: string | null
@@ -279,6 +281,7 @@ export type Database = {
           postal_code?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
+          service_radius_km?: number | null
           signup_notified_at?: string | null
           slug?: string | null
           state?: string | null
