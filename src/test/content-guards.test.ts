@@ -33,6 +33,8 @@ const SKIP_PATHS = [
   "src/pages/dashboard/",
   "src/pages/SuperAdminCRM",
   "src/integrations/",
+  // Slug blocklist: these words are blocked, never shown as product copy.
+  "src/lib/slugRules.ts",
   // Internal server-side Stripe price→tier mapping (legacy products).
   "supabase/functions/check-subscription/",
   // Legacy wallet-based lifecycle sync — being removed in follow-up pass.

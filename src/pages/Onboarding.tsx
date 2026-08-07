@@ -9,13 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import BusinessLogoUpload from "@/components/BusinessLogoUpload";
+import SlugField from "@/components/SlugField";
 import SEOHead from "@/components/SEOHead";
 import { Loader2, ArrowRight, Check } from "lucide-react";
 import { track } from "@/lib/track";
 import { BUSINESS_CATEGORIES, isRestrictedCategory } from "@/lib/offerUtils";
-
-const slugify = (s: string) =>
-  s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+import { suggestSlug, slugRejectionMessage, type SlugRejection } from "@/lib/slugRules";
 
 const Onboarding = () => {
   const { user } = useAuth();
@@ -47,9 +46,7 @@ const Onboarding = () => {
   const [offerTrigger, setOfferTrigger] = useState("");
   const [offerFinePrint, setOfferFinePrint] = useState("");
   const [slug, setSlug] = useState("");
-  const [slugChecking, setSlugChecking] = useState(false);
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
-  const [slugTouched, setSlugTouched] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -81,31 +78,12 @@ const Onboarding = () => {
           setSlug(b.slug);
           setSlugAvailable(true);
         } else if (b.name) {
-          setSlug(slugify(b.name));
+          setSlug(suggestSlug(b.name));
         }
       }
       setLoading(false);
     })();
   }, [user]);
-
-  // Slug availability check
-  useEffect(() => {
-    if (!slug || step !== 4) return;
-    if (!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(slug)) {
-      setSlugAvailable(false);
-      return;
-    }
-    setSlugChecking(true);
-    const t = setTimeout(async () => {
-      const { data } = await supabase.rpc("fn_slug_available", { p_slug: slug });
-      // Available if rpc returns true OR slug already belongs to this business
-      const { data: own } = await supabase.from("businesses").select("id").eq("slug", slug).limit(1);
-      const ownsSlug = own?.[0]?.id === bizId;
-      setSlugAvailable(!!data || ownsSlug);
-      setSlugChecking(false);
-    }, 350);
-    return () => clearTimeout(t);
-  }, [slug, step, bizId]);
 
   const saveStep = async (patch: Record<string, any>, nextStep?: number) => {
     if (!bizId) return;
@@ -130,7 +108,14 @@ const Onboarding = () => {
       .eq("id", bizId);
     setSaving(false);
     if (error) {
-      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      const match = /invalid_slug:(\w+)/.exec(error.message);
+      toast({
+        title: "Could not save",
+        description: match
+          ? slugRejectionMessage(match[1] as SlugRejection)
+          : error.message,
+        variant: "destructive",
+      });
       return;
     }
     toast({
@@ -278,21 +263,12 @@ const Onboarding = () => {
                 <h1 className="text-2xl font-semibold tracking-tight text-foreground">Pick your URL</h1>
                 <p className="mt-1 text-sm text-muted-foreground">This is the link you'll share with customers and partners.</p>
                 <div className="mt-6">
-                  <Label>Your referral page URL</Label>
-                  <div className="mt-1.5 flex items-center rounded-lg border border-input bg-background overflow-hidden">
-                    <span className="px-3 py-2 text-sm text-muted-foreground bg-muted/50 border-r border-border">revvin.co/r/</span>
-                    <input
-                      className="flex-1 px-3 py-2 text-sm outline-none bg-transparent"
-                      value={slug}
-                      onChange={(e) => { setSlug(slugify(e.target.value)); setSlugTouched(true); }}
-                      placeholder="your-business"
-                    />
-                  </div>
-                  <p className="mt-2 text-xs">
-                    {slugChecking ? <span className="text-muted-foreground">Checking…</span> :
-                      slug && slugAvailable === true ? <span className="text-primary">Available ✓</span> :
-                      slug && slugAvailable === false ? <span className="text-destructive">Not available or invalid (3–40 chars, lowercase, letters/numbers/hyphens)</span> : null}
-                  </p>
+                  <SlugField
+                    value={slug}
+                    onChange={setSlug}
+                    businessName={name}
+                    onValidityChange={setSlugAvailable}
+                  />
                 </div>
                 <div className="mt-8 flex justify-between">
                   <Button variant="ghost" onClick={() => setStep(3)}>Back</Button>
