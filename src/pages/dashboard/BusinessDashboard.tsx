@@ -460,7 +460,7 @@ const PastDueBanner = () => {
             Your bank declined the charge. Your referral page is still live and nothing has been switched off. Updating your card takes about a minute.
           </p>
         </div>
-        <Button onClick={openPortal} disabled={busy} size="lg" className="shrink-0">
+        <Button onClick={openPortal} disabled={busy} size="lg" className="w-full shrink-0 sm:w-auto">
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Update payment method"}
         </Button>
       </div>
@@ -563,7 +563,7 @@ const GoLiveBanner = ({
             </p>
           )}
         </div>
-        <Button onClick={goLive} disabled={busy} size="lg" className="shrink-0">
+        <Button onClick={goLive} disabled={busy} size="lg" className="w-full shrink-0 sm:w-auto">
           {busy ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : subscribed ? (
