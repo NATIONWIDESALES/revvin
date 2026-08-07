@@ -1,3 +1,4 @@
+import { copyText } from "@/lib/clipboard";
 import { useEffect, useState } from "react";
 import React from "react";
 import { Link, useSearchParams } from "react-router-dom";

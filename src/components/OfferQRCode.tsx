@@ -1,3 +1,4 @@
+import { copyText } from "@/lib/clipboard";
 import { useRef, useEffect, useState } from "react";
 import QRCodeStyling from "qr-code-styling";
 import { Button } from "@/components/ui/button";
