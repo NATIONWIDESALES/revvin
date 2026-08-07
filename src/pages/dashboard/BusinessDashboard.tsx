@@ -170,6 +170,8 @@ const BusinessDashboard = () => {
     }
   }, [biz?.id]);
 
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const loadAll = async () => {
     if (!user) return;
     setLoading(true);
