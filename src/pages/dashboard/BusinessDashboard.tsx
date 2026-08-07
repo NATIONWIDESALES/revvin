@@ -272,12 +272,16 @@ const BusinessDashboard = () => {
 
   return (
     <div className="container py-10 max-w-6xl">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">{biz.name}</h1>
+      {/* Stacks on phones: heading owns its own row, actions wrap underneath and
+          split the width. From sm: upward it returns to the side-by-side layout. */}
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground break-words sm:text-3xl">
+              {biz.name}
+            </h1>
             <span
-              className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${
+              className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${
                 isLive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
               }`}
             >
@@ -286,9 +290,11 @@ const BusinessDashboard = () => {
           </div>
           <p className="text-sm text-muted-foreground mt-1">Your referral program dashboard</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button asChild><Link to="/dashboard/create-offer"><Plus className="mr-2 h-3.5 w-3.5" /> Create offer</Link></Button>
-          <Button variant="outline" asChild>
+        <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:shrink-0">
+          <Button asChild className="h-11 flex-1 sm:h-10 sm:flex-none">
+            <Link to="/dashboard/create-offer"><Plus className="mr-2 h-3.5 w-3.5" /> Create offer</Link>
+          </Button>
+          <Button variant="outline" asChild className="h-11 flex-1 sm:h-10 sm:flex-none">
             <a href={publicUrl} target="_blank" rel="noopener noreferrer">
               {isLive ? "View public page" : "Preview page"} <ExternalLink className="ml-2 h-3.5 w-3.5" />
             </a>
@@ -305,19 +311,24 @@ const BusinessDashboard = () => {
       <RoiSummaryCard businessId={biz.id} />
 
       <Tabs value={activeTab} onValueChange={changeTab}>
-        <TabsList className="mb-6">
-          <TabsTrigger value="customers">Customers {contactStats.total > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{contactStats.total}</span>}</TabsTrigger>
-          <TabsTrigger value="jobdone">Job done</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
-          <TabsTrigger value="offers">Offers {offers.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{offers.length}</span>}</TabsTrigger>
-          <TabsTrigger value="referrals">Marketplace Referrals {marketplaceReferrals.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{marketplaceReferrals.length}</span>}</TabsTrigger>
-          <TabsTrigger value="payouts">Payouts</TabsTrigger>
-          <TabsTrigger value="page">My Page</TabsTrigger>
-          <TabsTrigger value="share">Share Tools</TabsTrigger>
-          <TabsTrigger value="integrations">Integrations</TabsTrigger>
-          <TabsTrigger value="account">Account</TabsTrigger>
-        </TabsList>
+        {/* Eleven tabs never fit a 375px viewport. The list scrolls inside its own
+            container (never wrapping into a tall stack) and the active trigger is
+            scrolled into view so the current tab is always discoverable. */}
+        <div ref={tabsBarRef} className="-mx-4 mb-6 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+          <TabsList className="w-max justify-start">
+            <TabsTrigger value="customers">Customers {contactStats.total > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{contactStats.total}</span>}</TabsTrigger>
+            <TabsTrigger value="jobdone">Job done</TabsTrigger>
+            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+            <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
+            <TabsTrigger value="offers">Offers {offers.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{offers.length}</span>}</TabsTrigger>
+            <TabsTrigger value="referrals">Marketplace Referrals {marketplaceReferrals.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{marketplaceReferrals.length}</span>}</TabsTrigger>
+            <TabsTrigger value="payouts">Payouts</TabsTrigger>
+            <TabsTrigger value="page">My Page</TabsTrigger>
+            <TabsTrigger value="share">Share Tools</TabsTrigger>
+            <TabsTrigger value="integrations">Integrations</TabsTrigger>
+            <TabsTrigger value="account">Account</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="customers">
           {!isLive ? (
