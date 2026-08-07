@@ -14,7 +14,7 @@ import SEOHead from "@/components/SEOHead";
 import { Loader2, ArrowRight, Check } from "lucide-react";
 import { track } from "@/lib/track";
 import { BUSINESS_CATEGORIES, isRestrictedCategory } from "@/lib/offerUtils";
-import { slugifyName as slugify, suggestSlug } from "@/lib/slugRules";
+import { suggestSlug, slugRejectionMessage, type SlugRejection } from "@/lib/slugRules";
 
 const Onboarding = () => {
   const { user } = useAuth();
