@@ -66,7 +66,7 @@ const FunnelPanel = () => {
         .gte("created_at", since30)
         .limit(50000);
       if (error) {
-        setError(error.message);
+        setError(friendlyError(error, "Could not load the funnel data."));
         setLoading(false);
         return;
       }
@@ -169,7 +169,7 @@ const FunnelPanel = () => {
       </div>
 
       {error ? (
-        <p className="text-sm text-destructive">Could not load funnel: {error}</p>
+        <p className="text-sm text-destructive">{error}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[520px] text-left text-sm">

@@ -59,7 +59,7 @@ const CreateOffer = () => {
         .limit(1);
 
       if (fetchError) {
-        toast({ title: "Error", description: fetchError.message, variant: "destructive" });
+        toast({ title: "Could not load your business", description: friendlyError(fetchError), variant: "destructive" });
         navigate("/dashboard");
         return;
       }
@@ -84,7 +84,7 @@ const CreateOffer = () => {
           .maybeSingle();
 
         if (createError) {
-          toast({ title: "Error", description: createError.message, variant: "destructive" });
+          toast({ title: "Could not set up your business", description: friendlyError(createError), variant: "destructive" });
           navigate("/dashboard");
           return;
         }
@@ -169,7 +169,13 @@ const CreateOffer = () => {
       return;
     }
 
+    // Suspended accounts cannot publish. Say so instead of quietly saving a
+    // draft and leaving the owner to wonder why nothing went live.
     if (isPendingApproval) {
+      toast({
+        title: "Saved as a draft",
+        description: "Your account is on hold, so offers cannot go live yet. We have saved this so you can publish it later.",
+      });
       return handleSaveDraft();
     }
 
