@@ -444,6 +444,7 @@ const isAscii = (s: string) => /^[\x00-\x7F]*$/.test(s);
 const hitsProfanity = (slug: string): boolean => {
   const flat = normalizeSlug(slug);
   const segments = normalizeSegments(slug);
+  if (ALWAYS_SUBSTRING.some((w) => flat.includes(w))) return true;
   return PROFANITY.some((word) => {
     // Short words only match a whole hyphen segment or the whole slug, so
     // legitimate names like "scunthorpe-roofing" are not false positives.
