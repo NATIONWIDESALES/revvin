@@ -197,7 +197,10 @@ const AdminDashboard = () => {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6 bg-muted/50 p-1 flex-wrap">
+            {/* Seven tabs do not fit a phone. Scroll the bar horizontally rather
+                than wrapping it into a tall stack that pushes content off screen. */}
+            <div className="-mx-4 mb-6 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            <TabsList className="w-max justify-start bg-muted/50 p-1">
               <TabsTrigger value="overview" className="gap-1"><BarChart3 className="h-3.5 w-3.5" /> Overview</TabsTrigger>
               <TabsTrigger value="verification" className="gap-1 relative">
                 <BadgeCheck className="h-3.5 w-3.5" /> Verification
