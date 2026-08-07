@@ -256,21 +256,12 @@ const Onboarding = () => {
                 <h1 className="text-2xl font-semibold tracking-tight text-foreground">Pick your URL</h1>
                 <p className="mt-1 text-sm text-muted-foreground">This is the link you'll share with customers and partners.</p>
                 <div className="mt-6">
-                  <Label>Your referral page URL</Label>
-                  <div className="mt-1.5 flex items-center rounded-lg border border-input bg-background overflow-hidden">
-                    <span className="px-3 py-2 text-sm text-muted-foreground bg-muted/50 border-r border-border">revvin.co/r/</span>
-                    <input
-                      className="flex-1 px-3 py-2 text-sm outline-none bg-transparent"
-                      value={slug}
-                      onChange={(e) => { setSlug(slugify(e.target.value)); setSlugTouched(true); }}
-                      placeholder="your-business"
-                    />
-                  </div>
-                  <p className="mt-2 text-xs">
-                    {slugChecking ? <span className="text-muted-foreground">Checking…</span> :
-                      slug && slugAvailable === true ? <span className="text-primary">Available ✓</span> :
-                      slug && slugAvailable === false ? <span className="text-destructive">Not available or invalid (3–40 chars, lowercase, letters/numbers/hyphens)</span> : null}
-                  </p>
+                  <SlugField
+                    value={slug}
+                    onChange={setSlug}
+                    businessName={name}
+                    onValidityChange={setSlugAvailable}
+                  />
                 </div>
                 <div className="mt-8 flex justify-between">
                   <Button variant="ghost" onClick={() => setStep(3)}>Back</Button>
