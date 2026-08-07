@@ -267,7 +267,7 @@ const AdminDashboard = () => {
                 <div className="p-4 border-b border-border"><h2 className="font-display text-base font-bold flex items-center gap-2"><Activity className="h-4 w-4 text-earnings" /> All Referrals ({referrals.length})</h2></div>
                 {referrals.length === 0 ? <p className="text-sm text-muted-foreground py-10 text-center">No referrals yet</p> : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full min-w-[600px] text-sm">
                       <thead><tr className="border-b border-border bg-muted/50">
                         <th className="text-left p-3 font-medium text-muted-foreground">Customer</th>
                         <th className="text-left p-3 font-medium text-muted-foreground">Offer</th>
