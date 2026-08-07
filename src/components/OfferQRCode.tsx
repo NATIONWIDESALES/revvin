@@ -50,10 +50,8 @@ const OfferQRCode = ({ offerId, businessName, offerTitle, payoutAmount, payoutCu
     // Only show the copied checkmark when the copy actually landed.
     const ok = await copyText(offerUrl);
     if (!ok) {
-      toast({
-        title: "Could not copy the link",
+      toast.error("Could not copy the link", {
         description: "Select the link and copy it manually.",
-        variant: "destructive",
       });
       return;
     }
