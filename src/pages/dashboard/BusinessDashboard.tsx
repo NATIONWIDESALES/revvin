@@ -704,7 +704,17 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
     if (error) toast({ title: "Update failed", description: friendlyError(error), variant: "destructive" });
     else {
       if (status === "closed_won") {
-        supabase.functions.invoke("notify-deal-closed", { body: { lead_id: id } }).catch(() => {});
+        // A failed notification is not a failed status change, but the business
+        // must not be left assuming the referrer was told when they were not.
+        supabase.functions
+          .invoke("notify-deal-closed", { body: { lead_id: id } })
+          .catch((e) => {
+            console.error("[dashboard] notify-deal-closed failed", e);
+            toast({
+              title: "Marked won, but the email did not send",
+              description: "The status is saved. Reach out to your referrer directly so they know.",
+            });
+          });
         // Tell the referrer their reward is now owed. At-most-once server side.
         notifyRewardCreatedForLead(id);
       }
@@ -934,7 +944,17 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
     if (error) toast({ title: "Update failed", description: friendlyError(error), variant: "destructive" });
     else {
       if (status === "won") {
-        supabase.functions.invoke("notify-deal-closed", { body: { referral_id: id } }).catch(() => {});
+        // A failed notification is not a failed status change, but the business
+        // must not be left assuming the referrer was told when they were not.
+        supabase.functions
+          .invoke("notify-deal-closed", { body: { referral_id: id } })
+          .catch((e) => {
+            console.error("[dashboard] notify-deal-closed failed", e);
+            toast({
+              title: "Marked won, but the email did not send",
+              description: "The status is saved. Reach out to your referrer directly so they know.",
+            });
+          });
       }
       reload();
     }
