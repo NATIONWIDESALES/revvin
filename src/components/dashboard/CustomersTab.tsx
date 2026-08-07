@@ -588,8 +588,8 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
         </div>
 
         {dedupedPreview.length > 0 && (
-          <div className="mt-4 rounded-xl border border-border bg-muted/30 overflow-hidden">
-            <table className="w-full text-xs">
+          <div className="mt-4 overflow-x-auto rounded-xl border border-border bg-muted/30">
+            <table className="w-full min-w-[420px] text-xs">
               <thead className="bg-muted/50 text-muted-foreground uppercase tracking-wider">
                 <tr>
                   <th className="text-left px-3 py-2 font-medium">Name</th>

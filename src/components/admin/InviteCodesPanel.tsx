@@ -146,7 +146,7 @@ const InviteCodesPanel = () => {
         <p className="mt-6 text-sm text-muted-foreground">No invite codes yet.</p>
       ) : (
         <div className="mt-6 overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[560px] text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                 <th className="py-2 pr-4">Code</th>

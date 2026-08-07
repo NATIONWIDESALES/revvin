@@ -197,7 +197,10 @@ const AdminDashboard = () => {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6 bg-muted/50 p-1 flex-wrap">
+            {/* Seven tabs do not fit a phone. Scroll the bar horizontally rather
+                than wrapping it into a tall stack that pushes content off screen. */}
+            <div className="-mx-4 mb-6 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            <TabsList className="w-max justify-start bg-muted/50 p-1">
               <TabsTrigger value="overview" className="gap-1"><BarChart3 className="h-3.5 w-3.5" /> Overview</TabsTrigger>
               <TabsTrigger value="verification" className="gap-1 relative">
                 <BadgeCheck className="h-3.5 w-3.5" /> Verification
@@ -218,6 +221,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="users" className="gap-1"><Users className="h-3.5 w-3.5" /> Users</TabsTrigger>
               <TabsTrigger value="audit" className="gap-1"><History className="h-3.5 w-3.5" /> Audit Log</TabsTrigger>
             </TabsList>
+            </div>
 
             {/* OVERVIEW TAB */}
             <TabsContent value="overview">
@@ -267,7 +271,7 @@ const AdminDashboard = () => {
                 <div className="p-4 border-b border-border"><h2 className="font-display text-base font-bold flex items-center gap-2"><Activity className="h-4 w-4 text-earnings" /> All Referrals ({referrals.length})</h2></div>
                 {referrals.length === 0 ? <p className="text-sm text-muted-foreground py-10 text-center">No referrals yet</p> : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full min-w-[600px] text-sm">
                       <thead><tr className="border-b border-border bg-muted/50">
                         <th className="text-left p-3 font-medium text-muted-foreground">Customer</th>
                         <th className="text-left p-3 font-medium text-muted-foreground">Offer</th>

@@ -172,7 +172,7 @@ const FunnelPanel = () => {
         <p className="text-sm text-destructive">Could not load funnel: {error}</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[520px] text-left text-sm">
             <thead>
               <tr className="border-b border-border text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 <th className="py-2 pr-4 font-medium">Step</th>
@@ -217,7 +217,7 @@ const FunnelPanel = () => {
           </p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full min-w-[520px] text-left text-sm">
               <thead>
                 <tr className="border-b border-border text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   <th className="py-2 pr-4 font-medium">Source</th>
