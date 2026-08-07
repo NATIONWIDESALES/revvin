@@ -139,6 +139,18 @@ const BusinessDashboard = () => {
     setSearchParams(next, { replace: true });
   };
 
+  // Keep the selected tab visible inside the horizontally scrolling tab bar on
+  // narrow screens. Scoped to the bar itself so the page never jumps.
+  const tabsBarRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const bar = tabsBarRef.current;
+    if (!bar) return;
+    const active = bar.querySelector<HTMLElement>('[data-state="active"]');
+    if (!active) return;
+    const offset = active.offsetLeft - (bar.clientWidth - active.offsetWidth) / 2;
+    bar.scrollTo({ left: Math.max(0, offset), behavior: "smooth" });
+  }, [activeTab]);
+
   useEffect(() => { if (user) loadAll(); }, [user]);
 
   // Stripe returns to the dashboard with ?checkout=success|cancel.
