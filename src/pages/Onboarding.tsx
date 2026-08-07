@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import BusinessLogoUpload from "@/components/BusinessLogoUpload";
 import SlugField from "@/components/SlugField";
 import SEOHead from "@/components/SEOHead";
+import ServiceAreaAutocomplete, { type PlaceSelection } from "@/components/ServiceAreaAutocomplete";
+import { Slider } from "@/components/ui/slider";
 import { Loader2, ArrowRight, Check } from "lucide-react";
 import { track } from "@/lib/track";
 import { BUSINESS_CATEGORIES, isRestrictedCategory } from "@/lib/offerUtils";
@@ -38,6 +40,8 @@ const Onboarding = () => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [serviceArea, setServiceArea] = useState("");
+  const [serviceRadiusKm, setServiceRadiusKm] = useState<number>(50);
+  const [placeGeo, setPlaceGeo] = useState<PlaceSelection | null>(null);
   const [phone, setPhone] = useState("");
   const [businessEmail, setBusinessEmail] = useState("");
   const [website, setWebsite] = useState("");
@@ -53,7 +57,7 @@ const Onboarding = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id,name,description,category,service_area,phone,business_email,website,logo_url,offer_amount,offer_trigger,offer_fine_print,slug,launch_package_status,subscription_status")
+        .select("id,name,description,category,service_area,service_radius_km,phone,business_email,website,logo_url,offer_amount,offer_trigger,offer_fine_print,slug,launch_package_status,subscription_status")
         .eq("user_id", user.id)
         .limit(1);
       const b = data?.[0];
@@ -67,6 +71,7 @@ const Onboarding = () => {
         setDescription(b.description || "");
         setCategory(b.category || "");
         setServiceArea(b.service_area || "");
+        setServiceRadiusKm(b.service_radius_km ?? 50);
         setPhone(b.phone || "");
         setBusinessEmail(b.business_email || user.email || "");
         setWebsite(b.website || "");
