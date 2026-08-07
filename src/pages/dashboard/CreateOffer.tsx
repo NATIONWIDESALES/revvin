@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -58,7 +59,7 @@ const CreateOffer = () => {
         .limit(1);
 
       if (fetchError) {
-        toast({ title: "Error", description: fetchError.message, variant: "destructive" });
+        toast({ title: "Could not load your business", description: friendlyError(fetchError), variant: "destructive" });
         navigate("/dashboard");
         return;
       }
@@ -83,7 +84,7 @@ const CreateOffer = () => {
           .maybeSingle();
 
         if (createError) {
-          toast({ title: "Error", description: createError.message, variant: "destructive" });
+          toast({ title: "Could not set up your business", description: friendlyError(createError), variant: "destructive" });
           navigate("/dashboard");
           return;
         }
@@ -156,7 +157,7 @@ const CreateOffer = () => {
       toast({ title: "Offer saved as draft", description: "Your offer has been saved. Publish it to go live on the marketplace." });
       navigate("/dashboard");
     } catch (err: any) {
-      toast({ title: "Error", description: err?.message || "Failed to save draft", variant: "destructive" });
+      toast({ title: "Error", description: friendlyError(err, "Failed to save draft"), variant: "destructive" });
     } finally {
       setPublishLoading(false);
     }
@@ -168,7 +169,13 @@ const CreateOffer = () => {
       return;
     }
 
+    // Suspended accounts cannot publish. Say so instead of quietly saving a
+    // draft and leaving the owner to wonder why nothing went live.
     if (isPendingApproval) {
+      toast({
+        title: "Saved as a draft",
+        description: "Your account is on hold, so offers cannot go live yet. We have saved this so you can publish it later.",
+      });
       return handleSaveDraft();
     }
 
@@ -200,7 +207,7 @@ const CreateOffer = () => {
       }
       navigate("/dashboard");
     } catch (err: any) {
-      toast({ title: "Error", description: err?.message || "Failed to publish offer", variant: "destructive" });
+      toast({ title: "Error", description: friendlyError(err, "Failed to publish offer"), variant: "destructive" });
     } finally {
       setPublishLoading(false);
     }

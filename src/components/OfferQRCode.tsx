@@ -1,7 +1,9 @@
+import { copyText } from "@/lib/clipboard";
 import { useRef, useEffect, useState } from "react";
 import QRCodeStyling from "qr-code-styling";
 import { Button } from "@/components/ui/button";
 import { toSlug } from "@/lib/utils";
+import { toast } from "sonner";
 import { Copy, Check, Download, Printer } from "lucide-react";
 
 interface OfferQRCodeProps {
@@ -44,8 +46,15 @@ const OfferQRCode = ({ offerId, businessName, offerTitle, payoutAmount, payoutCu
     };
   }, [offerUrl, compact]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(offerUrl);
+  const handleCopy = async () => {
+    // Only show the copied checkmark when the copy actually landed.
+    const ok = await copyText(offerUrl);
+    if (!ok) {
+      toast.error("Could not copy the link", {
+        description: "Select the link and copy it manually.",
+      });
+      return;
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

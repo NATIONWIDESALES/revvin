@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,6 +17,7 @@ import { Loader2, ArrowRight, Check } from "lucide-react";
 import { track } from "@/lib/track";
 import { BUSINESS_CATEGORIES, isRestrictedCategory } from "@/lib/offerUtils";
 import { suggestSlug, slugRejectionMessage, type SlugRejection } from "@/lib/slugRules";
+import { friendlyError } from "@/lib/errors";
 
 const Onboarding = () => {
   const { user } = useAuth();
@@ -51,6 +52,15 @@ const Onboarding = () => {
   const [offerFinePrint, setOfferFinePrint] = useState("");
   const [slug, setSlug] = useState("");
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+
+  // Continue buttons stay enabled so a tap always produces feedback. These flags
+  // drive the inline "what is missing" message instead of a dead disabled button.
+  const [showBasicsReason, setShowBasicsReason] = useState(false);
+  const [showOfferReason, setShowOfferReason] = useState(false);
+  const [showSlugReason, setShowSlugReason] = useState(false);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const categoryRef = useRef<HTMLButtonElement>(null);
+  const offerAmountRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -96,7 +106,7 @@ const Onboarding = () => {
     const { error } = await supabase.from("businesses").update(patch).eq("id", bizId);
     setSaving(false);
     if (error) {
-      toast({ title: "Save failed", description: error.message, variant: "destructive" });
+      toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
       return;
     }
     if (nextStep) setStep(nextStep);
@@ -109,6 +119,14 @@ const Onboarding = () => {
    * fails we simply leave the coordinates NULL.
    */
   const saveBasics = async () => {
+    if (!name.trim() || !category) {
+      setShowBasicsReason(true);
+      const target = !name.trim() ? nameRef.current : categoryRef.current;
+      target?.scrollIntoView({ behavior: "smooth", block: "center" });
+      target?.focus({ preventScroll: true });
+      return;
+    }
+    setShowBasicsReason(false);
     const trimmedArea = serviceArea.trim();
     const matchedPlace =
       placeGeo && placeGeo.label.trim().toLowerCase() === trimmedArea.toLowerCase()
@@ -141,12 +159,30 @@ const Onboarding = () => {
     if (!matchedPlace && trimmedArea) {
       supabase.functions
         .invoke("geocode-business", { body: { business_id: bizId } })
-        .catch((err) => console.error("[onboarding] geocode fallback failed", err));
+        .catch((err) => {
+          console.error("[onboarding] geocode fallback failed", err);
+          toast({
+            title: "Saved, but we could not place you on the map",
+            description: "You can fix your service area later from your dashboard.",
+          });
+        });
     }
   };
 
   const finalize = async () => {
-    if (!bizId || !slug || !slugAvailable) return;
+    if (!slug || slugAvailable !== true) {
+      setShowSlugReason(true);
+      return;
+    }
+    setShowSlugReason(false);
+    if (!bizId) {
+      toast({
+        title: "We lost track of your business",
+        description: "Refresh the page and try again. Nothing you entered is lost.",
+        variant: "destructive",
+      });
+      return;
+    }
     // Free to build: saving the slug finishes setup. The page stays in draft
     // (is_published = false) until the business subscribes and goes live.
     setSaving(true);
@@ -161,7 +197,7 @@ const Onboarding = () => {
         title: "Could not save",
         description: match
           ? slugRejectionMessage(match[1] as SlugRejection)
-          : error.message,
+          : friendlyError(error),
         variant: "destructive",
       });
       return;
@@ -230,14 +266,40 @@ const Onboarding = () => {
                 <h1 className="text-2xl font-semibold tracking-tight text-foreground">Business basics</h1>
                 <p className="mt-1 text-sm text-muted-foreground">Tell us about your business.</p>
                 <div className="mt-6 space-y-4">
-                  <div><Label>Business name</Label><Input value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5" /></div>
+                  <div>
+                    <Label htmlFor="biz-name">Business name</Label>
+                    <Input
+                      id="biz-name"
+                      ref={nameRef}
+                      value={name}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        if (e.target.value.trim()) setShowBasicsReason(false);
+                      }}
+                      aria-invalid={showBasicsReason && !name.trim()}
+                      autoComplete="organization"
+                      className="mt-1.5"
+                    />
+                    {showBasicsReason && !name.trim() && (
+                      <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">Add your business name to continue.</p>
+                    )}
+                  </div>
                   <div><Label>One-sentence description</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1.5" rows={2} placeholder="Residential roofing across Denver, CO." /></div>
                   <div>
                     <Label>Category</Label>
-                    <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger className="mt-1.5"><SelectValue placeholder="Pick one" /></SelectTrigger>
+                    <Select
+                      value={category}
+                      onValueChange={(v) => {
+                        setCategory(v);
+                        setShowBasicsReason(false);
+                      }}
+                    >
+                      <SelectTrigger ref={categoryRef} className="mt-1.5" aria-invalid={showBasicsReason && !category}><SelectValue placeholder="Pick one" /></SelectTrigger>
                       <SelectContent>{BUSINESS_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                     </Select>
+                    {showBasicsReason && !category && (
+                      <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">Pick a category to continue.</p>
+                    )}
                     {isRestrictedCategory(category) && (
                       <p className="mt-1.5 text-xs text-muted-foreground">
                         Offers in this category are reviewed before they appear on the public marketplace. Your branded referral page works either way.
@@ -289,7 +351,8 @@ const Onboarding = () => {
                   <div><Label>Website <span className="text-muted-foreground text-xs">(optional)</span></Label><Input value={website} onChange={(e) => setWebsite(e.target.value)} className="mt-1.5" placeholder="https://" /></div>
                 </div>
                 <div className="mt-8 flex justify-end">
-                  <Button onClick={saveBasics} disabled={!name || !category || saving}>
+                  <Button onClick={saveBasics} disabled={saving} className="h-11 w-full sm:h-10 sm:w-auto">
+                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Continue <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -320,7 +383,26 @@ const Onboarding = () => {
                 <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your referral offer</h1>
                 <p className="mt-1 text-sm text-muted-foreground">What do you pay for a closed referral?</p>
                 <div className="mt-6 space-y-4">
-                  <div><Label>Payout amount</Label><Input value={offerAmount} onChange={(e) => setOfferAmount(e.target.value)} className="mt-1.5" placeholder="$500 or 10%" /></div>
+                  <div>
+                    <Label htmlFor="payout-amount">Payout amount</Label>
+                    <Input
+                      id="payout-amount"
+                      ref={offerAmountRef}
+                      value={offerAmount}
+                      onChange={(e) => {
+                        setOfferAmount(e.target.value);
+                        if (e.target.value.trim()) setShowOfferReason(false);
+                      }}
+                      aria-invalid={showOfferReason && !offerAmount.trim()}
+                      className="mt-1.5"
+                      placeholder="$500 or 10%"
+                    />
+                    {showOfferReason && (
+                      <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">
+                        Enter what you pay for a closed referral, for example 100 dollars.
+                      </p>
+                    )}
+                  </div>
                   {!offerAmount && (
                     <p className="-mt-2 text-xs text-muted-foreground">
                       A common starting point is a flat amount per closed job, for example 100 dollars. You can change this anytime.
@@ -338,7 +420,21 @@ const Onboarding = () => {
                 </div>
                 <div className="mt-8 flex justify-between">
                   <Button variant="ghost" onClick={() => setStep(2)}>Back</Button>
-                  <Button onClick={() => saveStep({ offer_amount: offerAmount, offer_trigger: offerTrigger, offer_fine_print: offerFinePrint }, 4)} disabled={!offerAmount || saving}>
+                  <Button
+                    onClick={() => {
+                      if (!offerAmount.trim()) {
+                        setShowOfferReason(true);
+                        offerAmountRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                        offerAmountRef.current?.focus({ preventScroll: true });
+                        return;
+                      }
+                      setShowOfferReason(false);
+                      void saveStep({ offer_amount: offerAmount, offer_trigger: offerTrigger, offer_fine_print: offerFinePrint }, 4);
+                    }}
+                    disabled={saving}
+                    className="h-11 sm:h-10"
+                  >
+                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Continue <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -352,14 +448,26 @@ const Onboarding = () => {
                 <div className="mt-6">
                   <SlugField
                     value={slug}
-                    onChange={setSlug}
+                    onChange={(v) => {
+                      setSlug(v);
+                      setShowSlugReason(false);
+                    }}
                     businessName={name}
                     onValidityChange={setSlugAvailable}
                   />
+                  {showSlugReason && (
+                    <p role="alert" className="mt-2 text-sm font-medium text-destructive">
+                      {!slug
+                        ? "Pick a link name first."
+                        : slugAvailable === null
+                          ? "Give us a second to check that link, then tap Finish setup again."
+                          : "That link will not work. Try one of the suggestions above."}
+                    </p>
+                  )}
                 </div>
                 <div className="mt-8 flex justify-between">
                   <Button variant="ghost" onClick={() => setStep(3)}>Back</Button>
-                  <Button onClick={finalize} disabled={!slug || slugAvailable !== true || saving}>
+                  <Button onClick={finalize} disabled={saving} className="h-11 sm:h-10">
                     {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Finish setup"}
                   </Button>
                 </div>

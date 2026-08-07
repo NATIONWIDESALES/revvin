@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, CheckCircle2, Clock, XCircle, MessageSquare, Star, ThumbsUp } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { friendlyError } from "@/lib/errors";
 
 // "Job done" auto-ask. The owner logs a finished job, we schedule a single
 // personalised referral ask about two hours later.
@@ -64,6 +65,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
+  const [showReviewLinkHint, setShowReviewLinkHint] = useState(false);
     first_name: "",
     email: "",
     phone: "",
@@ -130,7 +132,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
     });
     setSaving(false);
     if (error) {
-      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      toast({ title: "Could not save", description: friendlyError(error), variant: "destructive" });
       return;
     }
     toast({
@@ -150,7 +152,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
       .eq("id", id)
       .in("status", ["scheduled", "queued"]);
     if (error) {
-      toast({ title: "Could not cancel", description: error.message, variant: "destructive" });
+      toast({ title: "Could not cancel", description: friendlyError(error), variant: "destructive" });
       return;
     }
     load();
@@ -165,7 +167,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
       .eq("id", id)
       .is("satisfaction_signal", null);
     if (error) {
-      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      toast({ title: "Could not save", description: friendlyError(error), variant: "destructive" });
       return;
     }
     load();
@@ -226,9 +228,18 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
           <label className="flex items-start gap-3 cursor-pointer">
             <Checkbox
               checked={form.review_request}
-              disabled={!biz.google_review_url}
-              onCheckedChange={(v) => setForm((f) => ({ ...f, review_request: v === true }))}
-              className="mt-0.5"
+              onCheckedChange={(v) => {
+                // Stay tappable without a review link so the tap explains itself
+                // instead of doing nothing.
+                if (v === true && !biz.google_review_url) {
+                  setShowReviewLinkHint(true);
+                  return;
+                }
+                setShowReviewLinkHint(false);
+                setForm((f) => ({ ...f, review_request: v === true }));
+              }}
+              aria-invalid={showReviewLinkHint}
+              className="mt-0.5 h-5 w-5"
             />
             <span className="text-sm text-foreground">
               Also ask for a review
@@ -239,8 +250,11 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
             </span>
           </label>
           {!biz.google_review_url && (
-            <p className="mt-2 text-xs text-muted-foreground">
-              Add your Google review link under My Page first.
+            <p
+              className={`mt-2 text-xs ${showReviewLinkHint ? "font-medium text-destructive" : "text-muted-foreground"}`}
+              role={showReviewLinkHint ? "alert" : undefined}
+            >
+              Add your Google review link under My Page first, then you can turn this on.
             </p>
           )}
           {form.review_request && (

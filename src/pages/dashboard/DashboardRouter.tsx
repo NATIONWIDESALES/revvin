@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import ReferrerDashboard from "./ReferrerDashboard";
 import BusinessDashboard from "./BusinessDashboard";
 import AdminDashboard from "./AdminDashboard";
+import { friendlyError } from "@/lib/errors";
 
 const RoleSelector = () => {
   const { user } = useAuth();
@@ -36,7 +37,7 @@ const RoleSelector = () => {
       // Reload to pick up the new role (only on success)
       window.location.reload();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to set role", variant: "destructive" });
+      toast({ title: "Error", description: friendlyError(err, "Failed to set role"), variant: "destructive" });
       setLoading(false);
     }
   };

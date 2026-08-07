@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { CheckCircle2 } from "lucide-react";
+import { friendlyError } from "@/lib/errors";
 
 interface Props {
   slug: string;
@@ -58,7 +59,7 @@ export default function ContactBusinessDialog({
     });
     setSubmitting(false);
     if (error) {
-      toast({ title: "Could not send", description: error.message, variant: "destructive" });
+      toast({ title: "Could not send", description: friendlyError(error), variant: "destructive" });
       return;
     }
     setDone(true);

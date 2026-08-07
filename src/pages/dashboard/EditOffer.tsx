@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, MapPin } from "lucide-react";
 import { categories, isRestrictedCategory } from "@/lib/offerUtils";
+import { friendlyError } from "@/lib/errors";
 
 const EditOffer = () => {
   const { id } = useParams();
@@ -109,7 +110,7 @@ const EditOffer = () => {
       });
       navigate("/dashboard");
     } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to save changes", variant: "destructive" });
+      toast({ title: "Error", description: friendlyError(err, "Failed to save changes"), variant: "destructive" });
     } finally {
       setSaving(false);
     }

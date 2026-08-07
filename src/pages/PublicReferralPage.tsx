@@ -1,3 +1,4 @@
+import { copyText } from "@/lib/clipboard";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +12,7 @@ import SEOHead from "@/components/SEOHead";
 import PromoBlock from "@/components/promo/PromoBlock";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, HandCoins, Quote, Eye, Lock } from "lucide-react";
+import { friendlyError } from "@/lib/errors";
 
 interface Business {
   id: string;
@@ -182,7 +184,7 @@ const PublicReferralPage = () => {
       .limit(1);
     setSubmitting(false);
     if (error) {
-      toast({ title: "Could not submit", description: error.message, variant: "destructive" });
+      toast({ title: "Could not submit", description: friendlyError(error), variant: "destructive" });
       return;
     }
     const newLeadId = inserted?.[0]?.id;
@@ -541,8 +543,17 @@ const PublicReferralPage = () => {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        navigator.clipboard.writeText(statusUrl);
-                        toast({ title: "Link copied" });
+                        void copyText(statusUrl).then((ok) =>
+                          toast(
+                            ok
+                              ? { title: "Link copied" }
+                              : {
+                                  title: "Could not copy the link",
+                                  description: "Select the link and copy it manually.",
+                                  variant: "destructive" as const,
+                                }
+                          )
+                        );
                       }}
                     >
                       Copy

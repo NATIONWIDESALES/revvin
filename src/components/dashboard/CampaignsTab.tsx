@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Send, Users, AlertCircle } from "lucide-react";
 import { SEGMENTS, inSegment, segmentByKey, segmentCounts, type RecencyContact } from "@/lib/campaignSegments";
+import { friendlyError } from "@/lib/errors";
 
 // Reactivation campaigns.
 //
@@ -213,7 +214,7 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
     });
     setSaving(false);
     if (error) {
-      toast({ title: "Could not create campaign", description: error.message, variant: "destructive" });
+      toast({ title: "Could not create campaign", description: friendlyError(error), variant: "destructive" });
       return;
     }
     toast({
@@ -231,7 +232,7 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
       .eq("id", id)
       .in("status", ["draft", "scheduled"]);
     if (error) {
-      toast({ title: "Could not cancel", description: error.message, variant: "destructive" });
+      toast({ title: "Could not cancel", description: friendlyError(error), variant: "destructive" });
       return;
     }
     load();

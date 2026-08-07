@@ -1,3 +1,5 @@
+import { copyText } from "@/lib/clipboard";
+import { toast } from "sonner";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link2, Check, QrCode } from "lucide-react";
@@ -15,14 +17,18 @@ interface ShareOfferLinkProps {
 const ShareOfferLink = ({ offerId, offerTitle, businessName, variant = "button" }: ShareOfferLinkProps) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = (e: React.MouseEvent) => {
+  const handleCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const slug = businessName ? toSlug(businessName) : null;
     const url = slug
       ? `${window.location.origin}/offer/${slug}/${offerId}`
       : `${window.location.origin}/offer/${offerId}`;
-    navigator.clipboard.writeText(url);
+    const ok = await copyText(url);
+    if (!ok) {
+      toast.error("Could not copy the link", { description: "Select the link and copy it manually." });
+      return;
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

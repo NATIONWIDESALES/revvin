@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -51,7 +52,7 @@ const PayoutsPage = ({ businessId }: Props) => {
       .select("*")
       .eq("business_id", businessId)
       .order("created_at", { ascending: false });
-    if (error) toast({ title: "Could not load payouts", description: error.message, variant: "destructive" });
+    if (error) toast({ title: "Could not load payouts", description: friendlyError(error), variant: "destructive" });
     setRows((data as RewardRow[]) ?? []);
     setLoading(false);
   };
@@ -73,7 +74,7 @@ const PayoutsPage = ({ businessId }: Props) => {
     }
     if (v === current) return;
     const { error } = await (supabase as any).from("rewards").update({ amount: v }).eq("id", id);
-    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
     else { toast({ title: "Amount updated" }); load(); }
   };
 
@@ -82,7 +83,7 @@ const PayoutsPage = ({ businessId }: Props) => {
       .from("rewards")
       .update({ status: "paid", marked_paid_at: new Date().toISOString() })
       .eq("id", id);
-    if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: "Update failed", description: friendlyError(error), variant: "destructive" });
     else {
       // Let the referrer know. Fire and forget, at-most-once server side.
       notifyRewardPaid(id);

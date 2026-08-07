@@ -1,3 +1,4 @@
+import { copyText } from "@/lib/clipboard";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,6 +24,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { MAX_UPLOAD_BYTES, uploadUserImage } from "@/lib/imageUpload";
+import { friendlyError } from "@/lib/errors";
 
 interface Testimonial {
   quote: string;
@@ -144,7 +146,7 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
 
     setSaving(false);
     if (error) {
-      toast({ title: "Save failed", description: error.message, variant: "destructive" });
+      toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
       return;
     }
     // Free text without a picked suggestion: resolve coordinates in the
@@ -159,8 +161,23 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
   };
 
   const copyLink = async () => {
-    if (!publicUrl) return;
-    await navigator.clipboard.writeText(publicUrl);
+    if (!publicUrl) {
+      toast({
+        title: "Pick your page address first",
+        description: "Choose a link name above and save, then you can copy the link.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const ok = await copyText(publicUrl);
+    if (!ok) {
+      toast({
+        title: "Could not copy the link",
+        description: "Select the link and copy it manually.",
+        variant: "destructive",
+      });
+      return;
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };

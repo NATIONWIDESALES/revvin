@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { ShieldCheck, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -23,11 +23,21 @@ const AttestationGate = ({ businessId, consentedAt, onConsented, children }: Pro
   const { toast } = useToast();
   const [agreed, setAgreed] = useState(false);
   const [saving, setSaving] = useState(false);
+  // A disabled Continue button reads as tappable on mobile and explains nothing.
+  // Instead the button stays enabled and an attempt without the box ticked
+  // surfaces an inline reason and visibly flags the checkbox.
+  const [showReason, setShowReason] = useState(false);
+  const checkboxRef = useRef<HTMLDivElement | null>(null);
 
   if (consentedAt) return <>{children}</>;
 
   const acceptConsent = async () => {
-    if (!agreed) return;
+    if (!agreed) {
+      setShowReason(true);
+      checkboxRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    setShowReason(false);
     setSaving(true);
     const nowIso = new Date().toISOString();
     const { error } = await supabase
@@ -56,9 +66,10 @@ const AttestationGate = ({ businessId, consentedAt, onConsented, children }: Pro
       }
       toast({
         title: "Could not save",
-        description: error.message || "Please try again in a moment.",
+        description: "We could not save your confirmation. Please try again in a moment.",
         variant: "destructive",
       });
+      console.error("[AttestationGate] consent save failed", error);
       return;
     }
     onConsented(nowIso);
@@ -77,22 +88,35 @@ const AttestationGate = ({ businessId, consentedAt, onConsented, children }: Pro
             a relationship with. Every message you send leaves your own device through your own
             Messages or Mail app. Revvin does not transmit anything on your behalf.
           </p>
-          <label className="mt-4 flex items-start gap-3 cursor-pointer">
+          <label
+            ref={checkboxRef as unknown as React.Ref<HTMLLabelElement>}
+            className={`mt-4 flex items-start gap-3 rounded-lg p-2 cursor-pointer transition-colors ${
+              showReason ? "bg-destructive/5 ring-2 ring-destructive/50 animate-pulse" : ""
+            }`}
+          >
             <Checkbox
               checked={agreed}
-              onCheckedChange={(v) => setAgreed(v === true)}
-              className="mt-0.5"
+              onCheckedChange={(v) => {
+                setAgreed(v === true);
+                if (v === true) setShowReason(false);
+              }}
+              aria-invalid={showReason}
+              className="mt-0.5 h-5 w-5"
             />
             <span className="text-sm text-foreground">
               These are my own past or current customers, and I have an existing relationship
               with them.
             </span>
           </label>
+          {showReason && (
+            <p role="alert" className="mt-2 text-sm font-medium text-destructive">
+              Please tick the box above to confirm, then tap Continue.
+            </p>
+          )}
           <Button
-            className="mt-4"
-            size="sm"
+            className="mt-4 h-11 w-full sm:h-10 sm:w-auto"
             onClick={acceptConsent}
-            disabled={!agreed || saving}
+            disabled={saving}
           >
             {saving ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
             Continue

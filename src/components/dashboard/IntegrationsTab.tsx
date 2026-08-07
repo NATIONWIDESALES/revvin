@@ -1,3 +1,4 @@
+import { copyText } from "@/lib/clipboard";
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, Loader2, Plus, Trash2, KeyRound, Webhook, ExternalLink, AlertTriangle } from "lucide-react";
+import { friendlyError } from "@/lib/errors";
 
 const FUNCTIONS_BASE = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1`;
 const INGEST_URL = `${FUNCTIONS_BASE}/ingest-job-completed`;
@@ -81,15 +83,26 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
 
   useEffect(() => { load(); }, [load]);
 
-  const copy = (v: string, what: string) => {
-    navigator.clipboard.writeText(v);
-    toast({ title: `${what} copied` });
+  const copy = async (v: string, what: string) => {
+    const ok = await copyText(v);
+    toast(
+      ok
+        ? { title: `${what} copied` }
+        : {
+            title: "Could not copy automatically",
+            description: "Select the value and copy it manually.",
+            variant: "destructive" as const,
+          }
+    );
   };
 
   // The plaintext key never leaves this function except into the owner's
   // clipboard. Only its SHA-256 hash and a short prefix are stored.
   const createKey = async () => {
-    if (!keyLabel.trim()) return;
+    if (!keyLabel.trim()) {
+      toast({ title: "Name the key first", description: "A label like \"Zapier\" helps you know what to revoke later.", variant: "destructive" });
+      return;
+    }
     setBusy(true);
     const plain = randomKey();
     const { error } = await supabase.from("api_keys").insert({
@@ -100,7 +113,7 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
     });
     setBusy(false);
     if (error) {
-      toast({ title: "Could not create the key", description: error.message, variant: "destructive" });
+      toast({ title: "Could not create the key", description: friendlyError(error), variant: "destructive" });
       return;
     }
     setFreshKey(plain);
@@ -109,7 +122,13 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
   };
 
   const revokeKey = async (id: string) => {
-    await supabase.from("api_keys").update({ revoked_at: new Date().toISOString() }).eq("id", id);
+    // Confirm the write before claiming success: a silently failed revoke would
+    // leave a live key that the owner believes is dead.
+    const { error } = await supabase.from("api_keys").update({ revoked_at: new Date().toISOString() }).eq("id", id);
+    if (error) {
+      toast({ title: "Could not revoke the key", description: friendlyError(error), variant: "destructive" });
+      return;
+    }
     toast({ title: "Key revoked" });
     load();
   };
@@ -141,7 +160,7 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
     });
     setBusy(false);
     if (error) {
-      toast({ title: "Could not add the endpoint", description: error.message, variant: "destructive" });
+      toast({ title: "Could not add the endpoint", description: friendlyError(error), variant: "destructive" });
       return;
     }
     setFreshSecret(secret);
@@ -151,12 +170,21 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
   };
 
   const toggleEndpoint = async (ep: Endpoint) => {
-    await supabase.from("webhook_endpoints").update({ active: !ep.active }).eq("id", ep.id);
+    const { error } = await supabase.from("webhook_endpoints").update({ active: !ep.active }).eq("id", ep.id);
+    if (error) {
+      toast({ title: ep.active ? "Could not pause the endpoint" : "Could not resume the endpoint", description: friendlyError(error), variant: "destructive" });
+      return;
+    }
+    toast({ title: ep.active ? "Endpoint paused" : "Endpoint resumed" });
     load();
   };
 
   const removeEndpoint = async (id: string) => {
-    await supabase.from("webhook_endpoints").delete().eq("id", id);
+    const { error } = await supabase.from("webhook_endpoints").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Could not remove the endpoint", description: friendlyError(error), variant: "destructive" });
+      return;
+    }
     toast({ title: "Endpoint removed" });
     load();
   };

@@ -60,14 +60,14 @@ const ActivationChecklist = ({ steps }: Props) => {
             </span>
             {!s.done && (s.href || s.onClick) && (
               s.href ? (
-                <Link to={s.href} className="text-xs font-medium text-primary hover:underline">
+                <Link to={s.href} className="inline-flex min-h-11 items-center px-2 text-sm font-medium text-primary hover:underline sm:min-h-0 sm:px-0 sm:text-xs">
                   {s.actionLabel ?? "Do it"}
                 </Link>
               ) : (
                 <button
                   type="button"
                   onClick={s.onClick}
-                  className="text-xs font-medium text-primary hover:underline"
+                  className="inline-flex min-h-11 items-center px-2 text-sm font-medium text-primary hover:underline sm:min-h-0 sm:px-0 sm:text-xs"
                 >
                   {s.actionLabel ?? "Do it"}
                 </button>

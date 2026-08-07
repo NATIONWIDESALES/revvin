@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { friendlyError } from "@/lib/errors";
 
 /** Funnel order — keep in sync with src/lib/track.ts event names. */
 const FUNNEL_ORDER: { event: string; label: string }[] = [
@@ -66,7 +67,7 @@ const FunnelPanel = () => {
         .gte("created_at", since30)
         .limit(50000);
       if (error) {
-        setError(error.message);
+        setError(friendlyError(error, "Could not load the funnel data."));
         setLoading(false);
         return;
       }
@@ -169,7 +170,7 @@ const FunnelPanel = () => {
       </div>
 
       {error ? (
-        <p className="text-sm text-destructive">Could not load funnel: {error}</p>
+        <p className="text-sm text-destructive">{error}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[520px] text-left text-sm">

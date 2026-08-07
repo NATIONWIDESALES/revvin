@@ -73,7 +73,7 @@ const SlugField = ({ value, onChange, businessName = "", onValidityChange, label
         <button
           type="button"
           onClick={() => onChange(suggestion)}
-          className="mt-1 text-xs text-foreground underline underline-offset-2"
+          className="mt-1 inline-flex min-h-11 items-center text-sm text-foreground underline underline-offset-2 sm:min-h-0 sm:text-xs"
         >
           Try {suggestion} instead
         </button>

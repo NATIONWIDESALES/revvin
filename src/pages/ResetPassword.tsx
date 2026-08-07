@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { KeyRound, Eye, EyeOff } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
+import { friendlyError } from "@/lib/errors";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ const ResetPassword = () => {
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Password updated", description: "You can now sign in with your new password." });
       navigate("/auth");
