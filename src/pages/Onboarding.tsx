@@ -108,7 +108,14 @@ const Onboarding = () => {
       .eq("id", bizId);
     setSaving(false);
     if (error) {
-      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      const match = /invalid_slug:(\w+)/.exec(error.message);
+      toast({
+        title: "Could not save",
+        description: match
+          ? slugRejectionMessage(match[1] as SlugRejection)
+          : error.message,
+        variant: "destructive",
+      });
       return;
     }
     toast({
