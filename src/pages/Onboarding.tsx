@@ -227,7 +227,9 @@ const Onboarding = () => {
             {step === 2 && (
               <>
                 <h1 className="text-2xl font-semibold tracking-tight text-foreground">Add your logo</h1>
-                <p className="mt-1 text-sm text-muted-foreground">PNG, JPG, or SVG. Skip if you don't have one yet.</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Any image works, including photos straight from your phone. Skip if you don't have one yet, you can add it later from your dashboard.
+                </p>
                 <div className="mt-6">
                   {bizId && <BusinessLogoUpload currentLogoUrl={logoUrl} businessId={bizId} onUploaded={setLogoUrl} />}
                 </div>

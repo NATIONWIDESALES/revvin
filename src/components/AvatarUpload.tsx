@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Upload, Loader2, UserCircle } from "lucide-react";
+import { MAX_UPLOAD_BYTES, uploadUserImage } from "@/lib/imageUpload";
 
 interface AvatarUploadProps {
   currentUrl?: string | null;
@@ -19,36 +20,23 @@ const AvatarUpload = ({ currentUrl, onUploaded }: AvatarUploadProps) => {
 
   const handleFile = async (file: File) => {
     if (!user) return;
-    if (!file.type.startsWith("image/")) {
-      toast({ title: "Invalid file", description: "Please upload an image file.", variant: "destructive" });
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "File too large", description: "Max 5 MB.", variant: "destructive" });
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast({ title: "File too large", description: "Max 15 MB.", variant: "destructive" });
       return;
     }
 
     setUploading(true);
-    const ext = file.name.split(".").pop() ?? "png";
-    const path = `${user.id}/avatar.${ext}`;
+    const result = await uploadUserImage("avatars", "avatar", file);
+    setUploading(false);
 
-    const { error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(path, file, { upsert: true });
-
-    if (uploadError) {
-      toast({ title: "Upload failed", description: uploadError.message, variant: "destructive" });
-      setUploading(false);
+    if ("error" in result) {
+      toast({ title: "Couldn't upload that", description: result.error });
       return;
     }
 
-    const { data: publicData } = supabase.storage.from("avatars").getPublicUrl(path);
-    const publicUrl = `${publicData.publicUrl}?t=${Date.now()}`;
-
-    setPreview(publicUrl);
-    onUploaded(publicUrl);
+    setPreview(result.publicUrl);
+    onUploaded(result.publicUrl);
     toast({ title: "Avatar uploaded!" });
-    setUploading(false);
   };
 
   return (
