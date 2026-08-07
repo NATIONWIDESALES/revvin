@@ -1,3 +1,4 @@
+import { copyText } from "@/lib/clipboard";
 import { friendlyError } from "@/lib/errors";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -209,7 +210,18 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   }, [preview, existingKey]);
 
   const handleImport = async () => {
-    if (dedupedPreview.length === 0) return;
+    // Explain the no-op instead of returning quietly: pasted rows can all be
+    // duplicates or unparseable, which looks identical to a broken button.
+    if (dedupedPreview.length === 0) {
+      toast({
+        title: paste.trim() ? "Nothing new to add" : "Paste your customers first",
+        description: paste.trim()
+          ? "Every row is already on your list or is missing a name with an email or phone number."
+          : "One customer per line, for example: Jane Smith, 555-123-4567",
+        variant: "destructive",
+      });
+      return;
+    }
     setImporting(true);
     const rows = dedupedPreview.map((p) => ({
       business_id: biz.id,
@@ -314,12 +326,25 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
         await (navigator as any).share({ title: biz.name, text });
         await markSent(c, "share");
       } else {
-        await navigator.clipboard.writeText(text);
+        const ok = await copyText(text);
+        if (!ok) {
+          toast({ title: "Could not copy the message", description: "Select the message and copy it manually.", variant: "destructive" });
+          return;
+        }
         toast({ title: "Message copied", description: "Paste it into any app to send." });
         await markSent(c, "share");
       }
-    } catch {
-      // user cancelled share sheet, do not mark sent
+    } catch (e: any) {
+      // A cancelled share sheet is a normal outcome. Anything else is a real
+      // failure and the owner needs to know the invite did not go out.
+      if (e?.name !== "AbortError") {
+        console.error("[customers] share failed", e);
+        toast({
+          title: "Could not open your share sheet",
+          description: "Use Copy instead and paste the message into any app.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setSendingId(null);
     }
@@ -331,7 +356,11 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const copyMessage = async (c: ReferralContact) => {
     setSendingId(c.id);
     try {
-      await navigator.clipboard.writeText(messageFor(c));
+      const ok = await copyText(messageFor(c));
+      if (!ok) {
+        toast({ title: "Could not copy", description: "Select the message and copy it manually.", variant: "destructive" });
+        return;
+      }
       toast({ title: "Message copied", description: "Paste it into any app to send." });
       await markSent(c, "share");
     } catch {
@@ -490,7 +519,8 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     if (!bulkCurrent) return;
     const bcc = bulkCurrent.map((c) => c.email).filter(Boolean).join(", ");
     try {
-      await navigator.clipboard.writeText(bcc);
+      const ok = await copyText(bcc);
+      if (!ok) throw new Error("copy failed");
       toast({ title: "Addresses copied", description: "Paste into the BCC field of your mail app." });
     } catch {
       toast({ title: "Could not copy", variant: "destructive" });
@@ -561,7 +591,8 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
           <Button
             size="sm"
             onClick={handleImport}
-            disabled={importing || dedupedPreview.length === 0}
+            disabled={importing}
+            className="h-11 sm:h-9"
           >
             {importing ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
             Add {dedupedPreview.length || ""} contact{dedupedPreview.length === 1 ? "" : "s"}
@@ -689,7 +720,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
           <div className="p-10 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
         ) : contacts.length === 0 ? (
           <div className="p-12 text-center">
-            <Inbox className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
+            <Inbox className="h-11 w-11 sm:h-8 sm:w-8 mx-auto text-muted-foreground mb-3" />
             <p className="text-sm text-foreground font-medium">No contacts yet</p>
             <p className="text-xs text-muted-foreground mt-1">Paste a list above to get started.</p>
           </div>
@@ -737,15 +768,15 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                         <Share2 className="h-3.5 w-3.5" /> Share
                       </Button>
                     )}
-                    <Button size="sm" variant="ghost" onClick={() => copyMessage(c)} disabled={isSending} className="h-8 w-8 p-0" aria-label="Copy message">
+                    <Button size="sm" variant="ghost" onClick={() => copyMessage(c)} disabled={isSending} className="h-11 w-11 sm:h-8 sm:w-8 p-0" aria-label="Copy message">
                       <Copy className="h-3.5 w-3.5" />
                     </Button>
                     {(c.phone || c.email) && (
-                      <Button size="sm" variant="ghost" onClick={() => sendShare(c)} disabled={isSending} className="h-8 w-8 p-0" aria-label="Share">
+                      <Button size="sm" variant="ghost" onClick={() => sendShare(c)} disabled={isSending} className="h-11 w-11 sm:h-8 sm:w-8 p-0" aria-label="Share">
                         <Share2 className="h-3.5 w-3.5" />
                       </Button>
                     )}
-                    <Button size="sm" variant="ghost" onClick={() => removeContact(c.id)} className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive" aria-label="Remove">
+                    <Button size="sm" variant="ghost" onClick={() => removeContact(c.id)} className="h-11 w-11 sm:h-8 sm:w-8 p-0 text-muted-foreground hover:text-destructive" aria-label="Remove">
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
