@@ -9,13 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import BusinessLogoUpload from "@/components/BusinessLogoUpload";
+import SlugField from "@/components/SlugField";
 import SEOHead from "@/components/SEOHead";
 import { Loader2, ArrowRight, Check } from "lucide-react";
 import { track } from "@/lib/track";
 import { BUSINESS_CATEGORIES, isRestrictedCategory } from "@/lib/offerUtils";
-
-const slugify = (s: string) =>
-  s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+import { slugifyName as slugify, suggestSlug } from "@/lib/slugRules";
 
 const Onboarding = () => {
   const { user } = useAuth();
@@ -47,9 +46,7 @@ const Onboarding = () => {
   const [offerTrigger, setOfferTrigger] = useState("");
   const [offerFinePrint, setOfferFinePrint] = useState("");
   const [slug, setSlug] = useState("");
-  const [slugChecking, setSlugChecking] = useState(false);
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
-  const [slugTouched, setSlugTouched] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -81,31 +78,12 @@ const Onboarding = () => {
           setSlug(b.slug);
           setSlugAvailable(true);
         } else if (b.name) {
-          setSlug(slugify(b.name));
+          setSlug(suggestSlug(b.name));
         }
       }
       setLoading(false);
     })();
   }, [user]);
-
-  // Slug availability check
-  useEffect(() => {
-    if (!slug || step !== 4) return;
-    if (!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(slug)) {
-      setSlugAvailable(false);
-      return;
-    }
-    setSlugChecking(true);
-    const t = setTimeout(async () => {
-      const { data } = await supabase.rpc("fn_slug_available", { p_slug: slug });
-      // Available if rpc returns true OR slug already belongs to this business
-      const { data: own } = await supabase.from("businesses").select("id").eq("slug", slug).limit(1);
-      const ownsSlug = own?.[0]?.id === bizId;
-      setSlugAvailable(!!data || ownsSlug);
-      setSlugChecking(false);
-    }, 350);
-    return () => clearTimeout(t);
-  }, [slug, step, bizId]);
 
   const saveStep = async (patch: Record<string, any>, nextStep?: number) => {
     if (!bizId) return;
