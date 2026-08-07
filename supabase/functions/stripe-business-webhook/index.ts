@@ -28,6 +28,28 @@ function flaggedLaunchPackage(meta: Stripe.Metadata | null | undefined): boolean
   return raw === "1" || raw === "true";
 }
 
+/**
+ * Resolve the end of the current billing period for a subscription.
+ *
+ * Stripe API 2025-08-27.basil moved `current_period_end` off the Subscription
+ * object and onto each subscription item, so the top-level field is now
+ * `undefined`. The old code did `new Date(sub.current_period_end * 1000)`,
+ * which produced an Invalid Date and made `.toISOString()` THROW — aborting the
+ * whole `checkout.session.completed` handler before it could write
+ * `current_period_end` or `invite_code`. Read the item value first, fall back
+ * to `trial_end` (trialing subs), then to the legacy top-level field.
+ */
+function subscriptionPeriodEnd(sub: Stripe.Subscription): string | null {
+  const anySub = sub as unknown as { current_period_end?: number | null };
+  const seconds =
+    sub.items?.data?.[0]?.current_period_end ??
+    sub.trial_end ??
+    anySub.current_period_end ??
+    null;
+  if (!seconds || !Number.isFinite(seconds)) return null;
+  return new Date(seconds * 1000).toISOString();
+}
+
 function escapeHtml(str: string): string {
   return String(str ?? "")
     .replace(/&/g, "&amp;")
@@ -106,7 +128,7 @@ serve(async (req) => {
           let status = "active";
           if (subId) {
             const sub = await stripe.subscriptions.retrieve(subId);
-            currentPeriodEnd = new Date(sub.current_period_end * 1000).toISOString();
+            currentPeriodEnd = subscriptionPeriodEnd(sub);
             status = sub.status;
           }
 
@@ -326,9 +348,7 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
         const sub = event.data.object as Stripe.Subscription;
         const userId = (sub.metadata?.user_id as string) || "";
         const status = event.type === "customer.subscription.deleted" ? "canceled" : sub.status;
-        const periodEnd = sub.current_period_end
-          ? new Date(sub.current_period_end * 1000).toISOString()
-          : null;
+        const periodEnd = subscriptionPeriodEnd(sub);
         const custId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id ?? null;
         if (userId) {
           await setBiz(userId, {
@@ -440,9 +460,7 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
         const subId = typeof inv.subscription === "string" ? inv.subscription : inv.subscription?.id;
         if (subId) {
           const sub = await stripe.subscriptions.retrieve(subId);
-          const periodEnd = sub.current_period_end
-            ? new Date(sub.current_period_end * 1000).toISOString()
-            : null;
+          const periodEnd = subscriptionPeriodEnd(sub);
           await admin
             .from("businesses")
             .update({
