@@ -414,6 +414,11 @@ export const PROFANITY = [
   "zoophilia",
 ];
 
+// High-signal short terms that are blocked anywhere in the slug, not just as a
+// whole segment. Deliberately excludes words like "cunt" that appear inside
+// legitimate place names (Scunthorpe).
+export const ALWAYS_SUBSTRING = ["fuck", "shit", "porn", "slut", "nigg"];
+
 const LEET: Record<string, string> = {
   "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", "$": "s",
   "8": "b", "9": "g", "|": "l", "!": "i",
