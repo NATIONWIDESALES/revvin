@@ -543,8 +543,17 @@ const PublicReferralPage = () => {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        navigator.clipboard.writeText(statusUrl);
-                        toast({ title: "Link copied" });
+                        void copyText(statusUrl).then((ok) =>
+                          toast(
+                            ok
+                              ? { title: "Link copied" }
+                              : {
+                                  title: "Could not copy the link",
+                                  description: "Select the link and copy it manually.",
+                                  variant: "destructive" as const,
+                                }
+                          )
+                        );
                       }}
                     >
                       Copy

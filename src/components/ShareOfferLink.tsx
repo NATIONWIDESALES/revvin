@@ -1,4 +1,5 @@
 import { copyText } from "@/lib/clipboard";
+import { toast } from "sonner";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link2, Check, QrCode } from "lucide-react";

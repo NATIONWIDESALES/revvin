@@ -161,8 +161,23 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
   };
 
   const copyLink = async () => {
-    if (!publicUrl) return;
-    await navigator.clipboard.writeText(publicUrl);
+    if (!publicUrl) {
+      toast({
+        title: "Pick your page address first",
+        description: "Choose a link name above and save, then you can copy the link.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const ok = await copyText(publicUrl);
+    if (!ok) {
+      toast({
+        title: "Could not copy the link",
+        description: "Select the link and copy it manually.",
+        variant: "destructive",
+      });
+      return;
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };

@@ -866,8 +866,13 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                             size="sm"
                             onClick={() => {
                               const url = `${window.location.origin}/r/status/${l.status_token}`;
-                              navigator.clipboard.writeText(url);
-                              toast({ title: "Status link copied", description: "Share with your referrer so they can check progress." });
+                              void copyText(url).then((ok) =>
+                                toast(
+                                  ok
+                                    ? { title: "Status link copied", description: "Share with your referrer so they can check progress." }
+                                    : { title: "Could not copy the link", description: "Select the link and copy it manually.", variant: "destructive" as const }
+                                )
+                              );
                             }}
                           >
                             <Copy className="mr-1.5 h-3.5 w-3.5" /> Status link
@@ -1096,7 +1101,15 @@ const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: strin
   const [copied, setCopied] = useState(false);
   const [reviewUrl, setReviewUrl] = useState(biz.google_review_url ?? "");
   const [savingReview, setSavingReview] = useState(false);
-  const copy = () => { navigator.clipboard.writeText(publicUrl); setCopied(true); setTimeout(() => setCopied(false), 1500); };
+  const copy = async () => {
+    const ok = await copyText(publicUrl);
+    if (!ok) {
+      toast({ title: "Could not copy the link", description: "Select the link and copy it manually.", variant: "destructive" });
+      return;
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   const saveReviewUrl = async () => {
     const value = reviewUrl.trim();
@@ -1222,7 +1235,14 @@ const ShareTab = ({ biz, publicUrl, isLive }: { biz: Business; publicUrl: string
   const emailTemplate = `Hey [name], we've launched a referral program. If you know someone who could use our services, send them through this link: ${publicUrl}`;
   const smsTemplate = `Hey, quick favor: if you know anyone who needs ${biz.category || "our services"}, send them here: ${publicUrl}`;
 
-  const copy = (s: string, label: string) => { navigator.clipboard.writeText(s); toast({ title: `${label} copied` }); };
+  const copy = async (value: string, label: string) => {
+    const ok = await copyText(value);
+    toast(
+      ok
+        ? { title: `${label} copied` }
+        : { title: "Could not copy automatically", description: "Select the value and copy it manually.", variant: "destructive" as const }
+    );
+  };
 
   return (
     <>
