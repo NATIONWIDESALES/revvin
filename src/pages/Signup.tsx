@@ -15,6 +15,7 @@ import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
 import PromoBar from "@/components/promo/PromoBar";
 import InviteBanner from "@/components/invite/InviteBanner";
 import { captureInviteFromSearch, getInviteCode } from "@/lib/invite";
+import { friendlyError } from "@/lib/errors";
 
 const Signup = () => {
   const { user, loading: authLoading } = useAuth();
@@ -54,7 +55,7 @@ const Signup = () => {
     });
     setResending(false);
     if (error) {
-      toast({ title: "Could not resend", description: error.message, variant: "destructive" });
+      toast({ title: "Could not resend", description: friendlyError(error), variant: "destructive" });
       return;
     }
     toast({ title: "Confirmation email sent", description: `We sent another link to ${email}.` });
@@ -85,7 +86,7 @@ const Signup = () => {
       },
     });
     if (error) {
-      toast({ title: "Signup failed", description: error.message, variant: "destructive" });
+      toast({ title: "Signup failed", description: friendlyError(error), variant: "destructive" });
       track("signup_failed");
       setBusy(false);
       return;

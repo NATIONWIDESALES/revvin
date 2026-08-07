@@ -16,6 +16,7 @@ import { useCountry } from "@/contexts/CountryContext";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Offer } from "@/types/offer";
+import { friendlyError } from "@/lib/errors";
 
 const STORAGE_KEY = "revvin_referral_draft";
 
@@ -259,7 +260,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
       setStep(4);
       toast({ title: "Referral Submitted!", description: "Track this referral in your dashboard." });
     } catch (err: any) {
-      toast({ title: "Submission failed", description: err.message || "Something went wrong.", variant: "destructive" });
+      toast({ title: "Submission failed", description: friendlyError(err, "Something went wrong."), variant: "destructive" });
     } finally {
       setSubmitting(false);
     }

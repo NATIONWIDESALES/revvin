@@ -13,6 +13,7 @@ import BusinessLogoUpload from "@/components/BusinessLogoUpload";
 import AvatarUpload from "@/components/AvatarUpload";
 import PageBrandingEditor from "@/components/dashboard/PageBrandingEditor";
 import {
+import { friendlyError } from "@/lib/errors";
   Select,
   SelectContent,
   SelectItem,
@@ -154,7 +155,7 @@ const ProfileEdit = () => {
 
     setSaving(false);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Profile updated", description: "Your changes have been saved." });
     }

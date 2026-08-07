@@ -15,6 +15,7 @@ import {
 import { motion } from "framer-motion";
 import FunnelPanel from "@/components/admin/FunnelPanel";
 import InviteCodesPanel from "@/components/admin/InviteCodesPanel";
+import { friendlyError } from "@/lib/errors";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -106,7 +107,7 @@ const AdminDashboard = () => {
 
   const verifyBusiness = async (bizId: string) => {
     const { error } = await supabase.from("businesses").update({ verified: true }).eq("id", bizId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
     setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, verified: true } : b));
     if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: "business_verified", p_referral_id: bizId });
     toast({ title: "Business verified" });
@@ -114,14 +115,14 @@ const AdminDashboard = () => {
 
   const approveAccount = async (bizId: string) => {
     const { error } = await supabase.from("businesses").update({ account_status: "approved" } as any).eq("id", bizId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
     setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, account_status: "approved" } : b));
     toast({ title: "Account approved", description: "Business can now create offers." });
   };
 
   const rejectAccount = async (bizId: string) => {
     const { error } = await supabase.from("businesses").update({ account_status: "rejected" } as any).eq("id", bizId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
     setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, account_status: "rejected" } : b));
     toast({ title: "Account rejected" });
   };
@@ -130,21 +131,21 @@ const AdminDashboard = () => {
     const offer = offers.find(o => o.id === offerId);
     const newStatus = offer?.status === "active" ? "paused" : "active";
     const { error } = await supabase.from("offers").update({ status: newStatus }).eq("id", offerId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
     setOffers(prev => prev.map(o => o.id === offerId ? { ...o, status: newStatus } : o));
     toast({ title: `Offer ${newStatus}` });
   };
 
   const approveOffer = async (offerId: string) => {
     const { error } = await supabase.from("offers").update({ approval_status: "approved" }).eq("id", offerId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
     setOffers(prev => prev.map(o => o.id === offerId ? { ...o, approval_status: "approved" } : o));
     toast({ title: "Offer approved" });
   };
 
   const rejectOffer = async (offerId: string) => {
     const { error } = await supabase.from("offers").update({ approval_status: "rejected", status: "paused" }).eq("id", offerId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
     setOffers(prev => prev.map(o => o.id === offerId ? { ...o, approval_status: "rejected", status: "paused" } : o));
     toast({ title: "Offer rejected and paused" });
   };
@@ -153,7 +154,7 @@ const AdminDashboard = () => {
     const updates: any = { status: newStatus };
     if (notes) updates.notes = notes;
     const { error } = await supabase.from("referrals").update(updates).eq("id", referralId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
     setReferrals(prev => prev.map(r => r.id === referralId ? { ...r, ...updates } : r));
     if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: "dispute_resolved", p_referral_id: referralId, p_payload: { resolution: newStatus, notes } });
     toast({ title: "Dispute resolved", description: `Referral status changed to ${newStatus}` });

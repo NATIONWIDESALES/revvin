@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, Loader2, Plus, Trash2, KeyRound, Webhook, ExternalLink, AlertTriangle } from "lucide-react";
+import { friendlyError } from "@/lib/errors";
 
 const FUNCTIONS_BASE = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1`;
 const INGEST_URL = `${FUNCTIONS_BASE}/ingest-job-completed`;
@@ -100,7 +101,7 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
     });
     setBusy(false);
     if (error) {
-      toast({ title: "Could not create the key", description: error.message, variant: "destructive" });
+      toast({ title: "Could not create the key", description: friendlyError(error), variant: "destructive" });
       return;
     }
     setFreshKey(plain);
@@ -141,7 +142,7 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
     });
     setBusy(false);
     if (error) {
-      toast({ title: "Could not add the endpoint", description: error.message, variant: "destructive" });
+      toast({ title: "Could not add the endpoint", description: friendlyError(error), variant: "destructive" });
       return;
     }
     setFreshSecret(secret);

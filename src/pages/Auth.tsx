@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import Wordmark from "@/components/brand/Wordmark";
+import { friendlyError } from "@/lib/errors";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -27,7 +28,7 @@ const Auth = () => {
       const redirectTo = searchParams.get("redirect");
       navigate(redirectTo || "/dashboard");
     } catch (err: any) {
-      toast({ title: "Sign in failed", description: err?.message || "Please try again.", variant: "destructive" });
+      toast({ title: "Sign in failed", description: friendlyError(err, "Please try again."), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -93,7 +94,7 @@ const Auth = () => {
                     redirectTo: window.location.origin + "/reset-password",
                   });
                   if (error) {
-                    toast({ title: "Error", description: error.message, variant: "destructive" });
+                    toast({ title: "Error", description: friendlyError(error), variant: "destructive" });
                   } else {
                     toast({ title: "Check your email", description: "We sent a password reset link." });
                   }

@@ -11,6 +11,7 @@ import SEOHead from "@/components/SEOHead";
 import PromoBlock from "@/components/promo/PromoBlock";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, HandCoins, Quote, Eye, Lock } from "lucide-react";
+import { friendlyError } from "@/lib/errors";
 
 interface Business {
   id: string;
@@ -182,7 +183,7 @@ const PublicReferralPage = () => {
       .limit(1);
     setSubmitting(false);
     if (error) {
-      toast({ title: "Could not submit", description: error.message, variant: "destructive" });
+      toast({ title: "Could not submit", description: friendlyError(error), variant: "destructive" });
       return;
     }
     const newLeadId = inserted?.[0]?.id;

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, CheckCircle2, Clock, XCircle, MessageSquare, Star, ThumbsUp } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { friendlyError } from "@/lib/errors";
 
 // "Job done" auto-ask. The owner logs a finished job, we schedule a single
 // personalised referral ask about two hours later.
@@ -130,7 +131,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
     });
     setSaving(false);
     if (error) {
-      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      toast({ title: "Could not save", description: friendlyError(error), variant: "destructive" });
       return;
     }
     toast({
@@ -150,7 +151,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
       .eq("id", id)
       .in("status", ["scheduled", "queued"]);
     if (error) {
-      toast({ title: "Could not cancel", description: error.message, variant: "destructive" });
+      toast({ title: "Could not cancel", description: friendlyError(error), variant: "destructive" });
       return;
     }
     load();
@@ -165,7 +166,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
       .eq("id", id)
       .is("satisfaction_signal", null);
     if (error) {
-      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      toast({ title: "Could not save", description: friendlyError(error), variant: "destructive" });
       return;
     }
     load();

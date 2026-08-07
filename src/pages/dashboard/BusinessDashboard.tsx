@@ -32,6 +32,7 @@ import { isPromoLive, PROMO_TEXT } from "@/config/promo";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 import InviteBanner from "@/components/invite/InviteBanner";
 import { getInviteCode, setInviteCode, clearInviteCode } from "@/lib/invite";
+import { friendlyError } from "@/lib/errors";
 
 interface Business {
   id: string;
@@ -445,7 +446,7 @@ const PastDueBanner = () => {
     const { data, error } = await supabase.functions.invoke("customer-portal");
     setBusy(false);
     if (error || !data?.url) {
-      toast({ title: "Could not open billing portal", description: error?.message, variant: "destructive" });
+      toast({ title: "Could not open billing portal", description: friendlyError(error), variant: "destructive" });
       return;
     }
     window.open(data.url, "_blank");
@@ -507,7 +508,7 @@ const GoLiveBanner = ({
       const { error } = await supabase.from("businesses").update({ is_published: true }).eq("id", biz.id);
       setBusy(false);
       if (error) {
-        toast({ title: "Could not go live", description: error.message, variant: "destructive" });
+        toast({ title: "Could not go live", description: friendlyError(error), variant: "destructive" });
         return;
       }
       toast({ title: "Your referral page is live" });
@@ -523,7 +524,7 @@ const GoLiveBanner = ({
     });
     if (error || !data?.url) {
       setBusy(false);
-      toast({ title: "Could not start checkout", description: error?.message, variant: "destructive" });
+      toast({ title: "Could not start checkout", description: friendlyError(error), variant: "destructive" });
       return;
     }
     if (data.invite_rejected) {
@@ -700,7 +701,7 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("leads").update({ status }).eq("id", id);
-    if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: "Update failed", description: friendlyError(error), variant: "destructive" });
     else {
       if (status === "closed_won") {
         supabase.functions.invoke("notify-deal-closed", { body: { lead_id: id } }).catch(() => {});
@@ -713,7 +714,7 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
 
   const saveNotes = async (id: string) => {
     const { error } = await supabase.from("leads").update({ notes: editingNotes[id] ?? "" }).eq("id", id);
-    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
     else { toast({ title: "Notes saved" }); reload(); }
   };
 
@@ -724,7 +725,7 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
       return;
     }
     const { error } = await supabase.from("leads").update({ deal_value: v } as never).eq("id", id);
-    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
     else { toast({ title: "Deal value saved" }); reload(); }
   };
 
@@ -930,7 +931,7 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("referrals").update({ status }).eq("id", id);
-    if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: "Update failed", description: friendlyError(error), variant: "destructive" });
     else {
       if (status === "won") {
         supabase.functions.invoke("notify-deal-closed", { body: { referral_id: id } }).catch(() => {});
@@ -944,7 +945,7 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
       .from("referrals")
       .update({ payment_status: "paid", payment_marked_at: new Date().toISOString() } as never)
       .eq("id", id);
-    if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: "Update failed", description: friendlyError(error), variant: "destructive" });
     else { toast({ title: "Marked as paid" }); reload(); }
   };
 
@@ -956,7 +957,7 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
     }
     if ((v ?? null) === (current ?? null)) return;
     const { error } = await supabase.from("referrals").update({ deal_value: v } as never).eq("id", id);
-    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
     else { toast({ title: "Deal value saved" }); reload(); }
   };
 
@@ -1089,7 +1090,7 @@ const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: strin
       .eq("id", biz.id);
     setSavingReview(false);
     if (error) {
-      toast({ title: "Could not save", description: error.message, variant: "destructive" });
+      toast({ title: "Could not save", description: friendlyError(error), variant: "destructive" });
       return;
     }
     toast({ title: "Review link saved" });
@@ -1283,7 +1284,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     setSavingMarketplace(false);
     if (error) {
       setMarketplaceListed(!next);
-      toast({ title: "Could not update", description: error.message, variant: "destructive" });
+      toast({ title: "Could not update", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: next ? "Listed on marketplace" : "Removed from marketplace" });
       onUpdate();
@@ -1317,7 +1318,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
       notification_phone: notifs.notification_phone,
     } as never, { onConflict: "business_id" });
     setBusy(false);
-    if (error) toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    if (error) toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
     else toast({ title: "Saved" });
   };
 
@@ -1325,7 +1326,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     setBusy(true);
     const { data, error } = await supabase.functions.invoke("customer-portal");
     setBusy(false);
-    if (error || !data?.url) { toast({ title: "Could not open billing portal", description: error?.message, variant: "destructive" }); return; }
+    if (error || !data?.url) { toast({ title: "Could not open billing portal", description: friendlyError(error), variant: "destructive" }); return; }
     window.open(data.url, "_blank");
   };
 
@@ -1337,7 +1338,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     });
     setBusy(false);
     if (error || !data?.url) {
-      toast({ title: "Could not start checkout", description: error?.message, variant: "destructive" });
+      toast({ title: "Could not start checkout", description: friendlyError(error), variant: "destructive" });
       return;
     }
     track("checkout_redirected");

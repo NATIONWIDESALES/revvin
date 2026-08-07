@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Settings, Lock, Mail, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { friendlyError } from "@/lib/errors";
 
 const AccountSettings = () => {
   const { user } = useAuth();
@@ -33,7 +34,7 @@ const AccountSettings = () => {
     setSavingPassword(false);
 
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: friendlyError(error), variant: "destructive" });
     } else {
       toast({ title: "Password updated", description: "Your new password has been saved." });
       setNewPassword("");

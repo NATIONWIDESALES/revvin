@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
+import { friendlyError } from "@/lib/errors";
   Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2, UserPlus, PlayCircle, ChevronRight, Copy, Users,
 } from "lucide-react";
 
@@ -168,7 +169,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       .eq("business_id", biz.id)
       .order("created_at", { ascending: false });
     if (error) {
-      toast({ title: "Failed to load contacts", description: error.message, variant: "destructive" });
+      toast({ title: "Failed to load contacts", description: friendlyError(error), variant: "destructive" });
     } else {
       setContacts((data as ReferralContact[]) ?? []);
     }
@@ -219,7 +220,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     const { error } = await (supabase as any).from("referral_contacts").insert(rows);
     setImporting(false);
     if (error) {
-      toast({ title: "Import failed", description: error.message, variant: "destructive" });
+      toast({ title: "Import failed", description: friendlyError(error), variant: "destructive" });
       return;
     }
     toast({ title: `Imported ${rows.length} contact${rows.length === 1 ? "" : "s"}` });
@@ -261,7 +262,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     if (error) {
       // revert on failure
       setContacts((cs) => cs.map((x) => (x.id === c.id ? prev : x)));
-      toast({ title: "Could not save sent status", description: error.message, variant: "destructive" });
+      toast({ title: "Could not save sent status", description: friendlyError(error), variant: "destructive" });
       return;
     }
     // Append a history row so re-asks and nudges can reason over real sends later.
@@ -343,7 +344,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const removeContact = async (id: string) => {
     const { error } = await (supabase as any).from("referral_contacts").delete().eq("id", id);
     if (error) {
-      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+      toast({ title: "Delete failed", description: friendlyError(error), variant: "destructive" });
       return;
     }
     setContacts((cs) => cs.filter((c) => c.id !== id));
@@ -381,7 +382,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     });
     setManualSaving(false);
     if (error) {
-      toast({ title: "Could not add", description: error.message, variant: "destructive" });
+      toast({ title: "Could not add", description: friendlyError(error), variant: "destructive" });
       return;
     }
     setManualName(""); setManualEmail(""); setManualPhone(""); setManualLastJob("");
@@ -465,7 +466,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       .update({ status: "sent", last_sent_at: nowIso, send_channel: "email" })
       .in("id", ids);
     if (error) {
-      toast({ title: "Could not save sent status", description: error.message, variant: "destructive" });
+      toast({ title: "Could not save sent status", description: friendlyError(error), variant: "destructive" });
     } else {
       void (supabase as any)
         .from("referral_contact_sends")

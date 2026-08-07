@@ -17,6 +17,7 @@ import { Loader2, ArrowRight, Check } from "lucide-react";
 import { track } from "@/lib/track";
 import { BUSINESS_CATEGORIES, isRestrictedCategory } from "@/lib/offerUtils";
 import { suggestSlug, slugRejectionMessage, type SlugRejection } from "@/lib/slugRules";
+import { friendlyError } from "@/lib/errors";
 
 const Onboarding = () => {
   const { user } = useAuth();
@@ -96,7 +97,7 @@ const Onboarding = () => {
     const { error } = await supabase.from("businesses").update(patch).eq("id", bizId);
     setSaving(false);
     if (error) {
-      toast({ title: "Save failed", description: error.message, variant: "destructive" });
+      toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
       return;
     }
     if (nextStep) setStep(nextStep);

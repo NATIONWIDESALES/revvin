@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Copy } from "lucide-react";
+import { friendlyError } from "@/lib/errors";
 
 type InviteCode = {
   id: string;
@@ -76,7 +77,7 @@ const InviteCodesPanel = () => {
     });
     setBusy(false);
     if (error) {
-      toast({ title: "Could not create code", description: error.message, variant: "destructive" });
+      toast({ title: "Could not create code", description: friendlyError(error), variant: "destructive" });
       return;
     }
     setCode(""); setLabel(""); setMaxUses(""); setExpiresAt(""); setTrialDays("90");
@@ -86,7 +87,7 @@ const InviteCodesPanel = () => {
 
   const deactivate = async (id: string) => {
     const { error } = await supabase.from("invite_codes").update({ active: false }).eq("id", id);
-    if (error) { toast({ title: "Could not deactivate", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: "Could not deactivate", description: friendlyError(error), variant: "destructive" }); return; }
     load();
   };
 

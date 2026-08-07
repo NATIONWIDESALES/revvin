@@ -12,6 +12,7 @@ import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, B
 import { categories, isRestrictedCategory } from "@/lib/offerUtils";
 import { motion } from "framer-motion";
 import {
+import { friendlyError } from "@/lib/errors";
   Dialog,
   DialogContent,
   DialogHeader,
@@ -156,7 +157,7 @@ const CreateOffer = () => {
       toast({ title: "Offer saved as draft", description: "Your offer has been saved. Publish it to go live on the marketplace." });
       navigate("/dashboard");
     } catch (err: any) {
-      toast({ title: "Error", description: err?.message || "Failed to save draft", variant: "destructive" });
+      toast({ title: "Error", description: friendlyError(err, "Failed to save draft"), variant: "destructive" });
     } finally {
       setPublishLoading(false);
     }
@@ -200,7 +201,7 @@ const CreateOffer = () => {
       }
       navigate("/dashboard");
     } catch (err: any) {
-      toast({ title: "Error", description: err?.message || "Failed to publish offer", variant: "destructive" });
+      toast({ title: "Error", description: friendlyError(err, "Failed to publish offer"), variant: "destructive" });
     } finally {
       setPublishLoading(false);
     }

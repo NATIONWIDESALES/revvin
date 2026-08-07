@@ -23,6 +23,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { MAX_UPLOAD_BYTES, uploadUserImage } from "@/lib/imageUpload";
+import { friendlyError } from "@/lib/errors";
 
 interface Testimonial {
   quote: string;
@@ -144,7 +145,7 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
 
     setSaving(false);
     if (error) {
-      toast({ title: "Save failed", description: error.message, variant: "destructive" });
+      toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
       return;
     }
     // Free text without a picked suggestion: resolve coordinates in the
