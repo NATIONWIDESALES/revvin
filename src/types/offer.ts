@@ -25,6 +25,8 @@ export interface Offer {
   remoteEligible?: boolean;
   latitude?: number;
   longitude?: number;
+  /** The business's own service radius in km (how far it will travel). */
+  serviceRadiusKm?: number;
   qualificationRules?: string[];
   payoutTimeline?: "net7" | "net14" | "net30";
   monthlyCapacity?: number;

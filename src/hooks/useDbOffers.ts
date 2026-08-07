@@ -12,7 +12,7 @@ export function useDbOffers() {
     queryFn: async (): Promise<Offer[]> => {
       const { data: dbOffers, error } = await supabase
         .from("offers")
-        .select("*, businesses(name, logo_url, city, state, verified, latitude, longitude)")
+        .select("*, businesses(name, logo_url, city, state, verified, latitude, longitude, service_radius_km)")
         .eq("status", "active")
         .order("featured", { ascending: false })
         .order("created_at", { ascending: false });
@@ -42,6 +42,7 @@ export function useDbOffers() {
         remoteEligible: o.remote_eligible ?? false,
         latitude: o.businesses?.latitude ?? undefined,
         longitude: o.businesses?.longitude ?? undefined,
+        serviceRadiusKm: o.businesses?.service_radius_km ?? undefined,
         qualificationRules: o.qualification_criteria ? [o.qualification_criteria] : undefined,
         verified: o.businesses?.verified ?? false,
         createdAt: o.created_at,

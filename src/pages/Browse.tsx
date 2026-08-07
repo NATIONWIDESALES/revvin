@@ -118,11 +118,18 @@ const Browse = () => {
       const matchesState = !stateFilter || o.state === stateFilter;
       const matchesCity =
         !cityFilter || (o.city ?? "").toLowerCase().includes(cityFilter.toLowerCase());
-      const matchesDistance =
-        !userLoc ||
-        o.latitude == null ||
-        o.longitude == null ||
-        distanceMiles(userLoc.lat, userLoc.lng, o.latitude, o.longitude) <= maxDistance;
+      // A business must satisfy both sides: it has to be inside the searcher's
+      // chosen radius, and the searcher has to be inside the business's own
+      // service radius. Businesses with no coordinates never match a
+      // distance-filtered search.
+      const matchesDistance = (() => {
+        if (!userLoc) return true;
+        if (o.latitude == null || o.longitude == null) return false;
+        const miles = distanceMiles(userLoc.lat, userLoc.lng, o.latitude, o.longitude);
+        if (miles > maxDistance) return false;
+        const businessRadiusMiles = (o.serviceRadiusKm ?? 50) * 0.621371;
+        return miles <= businessRadiusMiles;
+      })();
       return matchesCountry && matchesSearch && matchesCat && matchesPayout && matchesVerified && matchesRemote && matchesState && matchesCity && matchesDistance;
     })
     .sort((a, b) => {
