@@ -3,6 +3,7 @@ import { useRef, useEffect, useState } from "react";
 import QRCodeStyling from "qr-code-styling";
 import { Button } from "@/components/ui/button";
 import { toSlug } from "@/lib/utils";
+import { toast } from "sonner";
 import { Copy, Check, Download, Printer } from "lucide-react";
 
 interface OfferQRCodeProps {
