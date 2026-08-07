@@ -12,8 +12,7 @@ import BusinessLogoUpload from "@/components/BusinessLogoUpload";
 import SEOHead from "@/components/SEOHead";
 import { Loader2, ArrowRight, Check } from "lucide-react";
 import { track } from "@/lib/track";
-
-const CATEGORIES = ["Roofing","HVAC","Plumbing","Electrical","Landscaping","Painting","Auto","Solar","Home Services","Other"];
+import { BUSINESS_CATEGORIES, isRestrictedCategory } from "@/lib/offerUtils";
 
 const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
@@ -204,8 +203,13 @@ const Onboarding = () => {
                     <Label>Category</Label>
                     <Select value={category} onValueChange={setCategory}>
                       <SelectTrigger className="mt-1.5"><SelectValue placeholder="Pick one" /></SelectTrigger>
-                      <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                      <SelectContent>{BUSINESS_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                     </Select>
+                    {isRestrictedCategory(category) && (
+                      <p className="mt-1.5 text-xs text-muted-foreground">
+                        Offers in this category are reviewed before they appear on the public marketplace. Your branded referral page works either way.
+                      </p>
+                    )}
                   </div>
                   <div><Label>Service area</Label><Input value={serviceArea} onChange={(e) => setServiceArea(e.target.value)} className="mt-1.5" placeholder="Denver metro" /></div>
                   <div><Label>Business phone</Label><Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1.5" /></div>
