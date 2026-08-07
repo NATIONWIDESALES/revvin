@@ -6,6 +6,17 @@ export const categories = [
   "SaaS", "Services", "Technology",
 ];
 
+/**
+ * Business categories offered in onboarding. This describes the business
+ * itself, not a marketplace offer, so it is intentionally a shorter
+ * trade-oriented list than `categories` above (which drives offer and
+ * marketplace filtering). Single source of truth for the onboarding picker.
+ */
+export const BUSINESS_CATEGORIES = [
+  "Roofing", "HVAC", "Plumbing", "Electrical", "Landscaping", "Painting",
+  "Auto", "Solar", "Real Estate", "Home Services", "Other",
+];
+
 // Note: cityJumpsCA / cityJumpsUS are retained for backward compatibility
 // but MapView now derives city chips dynamically from the filtered offers.
 
