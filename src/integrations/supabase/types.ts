@@ -2308,6 +2308,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      fn_normalize_slug: { Args: { p_slug: string }; Returns: string }
       fn_offer_is_restricted_category: {
         Args: { p_category: string }
         Returns: boolean
@@ -2339,6 +2340,11 @@ export type Database = {
         Returns: boolean
       }
       fn_slug_available: { Args: { p_slug: string }; Returns: boolean }
+      fn_slug_blocked_terms: { Args: never; Returns: string[] }
+      fn_slug_profanity: { Args: never; Returns: string[] }
+      fn_slug_rejection: { Args: { p_slug: string }; Returns: string }
+      fn_slug_reserved_words: { Args: never; Returns: string[] }
+      fn_slug_status: { Args: { p_slug: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
