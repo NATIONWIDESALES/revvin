@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { friendlyError } from "@/lib/errors";
 
 /** Funnel order — keep in sync with src/lib/track.ts event names. */
 const FUNNEL_ORDER: { event: string; label: string }[] = [
