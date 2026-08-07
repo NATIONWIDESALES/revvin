@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Upload, Loader2, ImageIcon, Trash2 } from "lucide-react";
+import { Upload, Loader2, ImageIcon } from "lucide-react";
+import { MAX_UPLOAD_BYTES, uploadUserImage } from "@/lib/imageUpload";
 
 interface BusinessLogoUploadProps {
   currentLogoUrl?: string | null;
@@ -21,42 +22,31 @@ const BusinessLogoUpload = ({ currentLogoUrl, businessId, onUploaded }: Business
 
   const handleFile = async (file: File) => {
     if (!user) return;
-    if (!file.type.startsWith("image/")) {
-      toast({ title: "Invalid file", description: "Please upload an image file.", variant: "destructive" });
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "File too large", description: "Max 5 MB.", variant: "destructive" });
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast({ title: "File too large", description: "Max 15 MB.", variant: "destructive" });
       return;
     }
 
     setUploading(true);
-    const ext = file.name.split(".").pop() ?? "png";
-    const path = `${user.id}/logo.${ext}`;
+    const result = await uploadUserImage("business-logos", "logo", file);
 
-    const { error: uploadError } = await supabase.storage
-      .from("business-logos")
-      .upload(path, file, { upsert: true });
-
-    if (uploadError) {
-      toast({ title: "Upload failed", description: uploadError.message, variant: "destructive" });
+    if ("error" in result) {
+      toast({ title: "Couldn't upload that", description: result.error });
       setUploading(false);
       return;
     }
 
-    const { data: publicData } = supabase.storage.from("business-logos").getPublicUrl(path);
-    const publicUrl = publicData.publicUrl;
-
     const { error: updateError } = await supabase
       .from("businesses")
-      .update({ logo_url: publicUrl })
+      .update({ logo_url: result.publicUrl })
       .eq("id", businessId);
 
     if (updateError) {
-      toast({ title: "Error saving", description: updateError.message, variant: "destructive" });
+      console.error("[BusinessLogoUpload] saving logo_url failed", updateError);
+      toast({ title: "Couldn't save that", description: "Your logo uploaded but didn't save. You can try again later from your dashboard." });
     } else {
-      setPreview(publicUrl);
-      onUploaded(publicUrl);
+      setPreview(result.publicUrl);
+      onUploaded(result.publicUrl);
       toast({ title: "Logo uploaded!", description: "Your logo will appear on marketplace listings." });
     }
     setUploading(false);
@@ -100,7 +90,7 @@ const BusinessLogoUpload = ({ currentLogoUrl, businessId, onUploaded }: Business
             <p className="text-sm font-medium text-muted-foreground">
               {uploading ? "Uploading..." : "Drop your logo here or click to browse"}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">PNG, JPG, or SVG, max 5 MB</p>
+            <p className="text-xs text-muted-foreground mt-1">PNG, JPG, WEBP, HEIC, GIF or SVG, up to 15 MB</p>
           </div>
         </div>
       )}
