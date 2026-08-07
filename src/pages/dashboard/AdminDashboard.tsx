@@ -221,6 +221,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="users" className="gap-1"><Users className="h-3.5 w-3.5" /> Users</TabsTrigger>
               <TabsTrigger value="audit" className="gap-1"><History className="h-3.5 w-3.5" /> Audit Log</TabsTrigger>
             </TabsList>
+            </div>
 
             {/* OVERVIEW TAB */}
             <TabsContent value="overview">
