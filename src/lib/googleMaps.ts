@@ -2,9 +2,9 @@
  * Lazy loader for the Google Maps JS API. Only the screens that need Places
  * autocomplete call this, so the library never ships on app-wide routes.
  */
-let loader: Promise<typeof google.maps> | null = null;
+let loader: Promise<any> | null = null;
 
-export function loadGoogleMaps(): Promise<typeof google.maps> {
+export function loadGoogleMaps(): Promise<any> {
   if (loader) return loader;
 
   const key = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
