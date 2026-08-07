@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import SimpleQRCode from "@/components/marketplace/SimpleQRCode";
+import ServiceAreaAutocomplete, { type PlaceSelection } from "@/components/ServiceAreaAutocomplete";
+import { Slider } from "@/components/ui/slider";
 import {
   Palette,
   Image as ImageIcon,
@@ -38,6 +40,8 @@ interface PageBrandingEditorProps {
     welcome_message: string | null;
     referral_cta_label: string | null;
     testimonials: Testimonial[] | null;
+    service_area?: string | null;
+    service_radius_km?: number | null;
   };
   onSaved?: () => void;
 }
@@ -59,6 +63,9 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
   const [welcomeMessage, setWelcomeMessage] = useState(initial.welcome_message || "");
   const [ctaLabel, setCtaLabel] = useState(initial.referral_cta_label || "");
   const [testimonials, setTestimonials] = useState<Testimonial[]>(initial.testimonials || []);
+  const [serviceArea, setServiceArea] = useState(initial.service_area || "");
+  const [serviceRadiusKm, setServiceRadiusKm] = useState<number>(initial.service_radius_km ?? 50);
+  const [placeGeo, setPlaceGeo] = useState<PlaceSelection | null>(null);
 
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -111,7 +118,24 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
       welcome_message: welcomeMessage.trim() || null,
       referral_cta_label: ctaLabel.trim() || null,
       testimonials: cleanTestimonials.length > 0 ? cleanTestimonials : null,
+      service_area: serviceArea.trim() || null,
+      service_radius_km: serviceRadiusKm,
     };
+
+    const trimmedArea = serviceArea.trim();
+    const matchedPlace =
+      placeGeo && placeGeo.label.trim().toLowerCase() === trimmedArea.toLowerCase()
+        ? placeGeo
+        : null;
+    if (matchedPlace) {
+      payload.latitude = matchedPlace.latitude;
+      payload.longitude = matchedPlace.longitude;
+      payload.city = matchedPlace.city;
+      payload.state = matchedPlace.state;
+      payload.country = matchedPlace.country;
+      payload.geocoded_at = new Date().toISOString();
+      payload.geocode_status = "ok";
+    }
 
     const { error } = await supabase
       .from("businesses")
@@ -122,6 +146,13 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
     if (error) {
       toast({ title: "Save failed", description: error.message, variant: "destructive" });
       return;
+    }
+    // Free text without a picked suggestion: resolve coordinates in the
+    // background. Failure is fine, the business just won't show on the map.
+    if (!matchedPlace && trimmedArea) {
+      supabase.functions
+        .invoke("geocode-business", { body: { business_id: businessId } })
+        .catch((err) => console.error("[branding] geocode fallback failed", err));
     }
     toast({ title: "Branding saved", description: "Your referral page is updated." });
     onSaved?.();
@@ -259,6 +290,35 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
               const f = e.target.files?.[0];
               if (f) handleCoverFile(f);
             }}
+          />
+        </div>
+      </div>
+
+      {/* Service area */}
+      <div>
+        <Label htmlFor="branding-service-area">Service area</Label>
+        <ServiceAreaAutocomplete
+          id="branding-service-area"
+          value={serviceArea}
+          onChange={setServiceArea}
+          onPlaceSelected={setPlaceGeo}
+          placeholder="Vancouver, BC"
+        />
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Pick your city or region from the list so you appear on the map and in nearby searches.
+        </p>
+        <div className="mt-4">
+          <div className="flex items-center justify-between">
+            <Label>How far do you travel?</Label>
+            <span className="text-sm font-medium text-foreground">{serviceRadiusKm} km</span>
+          </div>
+          <Slider
+            value={[serviceRadiusKm]}
+            onValueChange={(v) => setServiceRadiusKm(v[0])}
+            min={5}
+            max={200}
+            step={5}
+            className="mt-3"
           />
         </div>
       </div>

@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import BusinessLogoUpload from "@/components/BusinessLogoUpload";
 import SlugField from "@/components/SlugField";
 import SEOHead from "@/components/SEOHead";
+import ServiceAreaAutocomplete, { type PlaceSelection } from "@/components/ServiceAreaAutocomplete";
+import { Slider } from "@/components/ui/slider";
 import { Loader2, ArrowRight, Check } from "lucide-react";
 import { track } from "@/lib/track";
 import { BUSINESS_CATEGORIES, isRestrictedCategory } from "@/lib/offerUtils";
@@ -38,6 +40,8 @@ const Onboarding = () => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [serviceArea, setServiceArea] = useState("");
+  const [serviceRadiusKm, setServiceRadiusKm] = useState<number>(50);
+  const [placeGeo, setPlaceGeo] = useState<PlaceSelection | null>(null);
   const [phone, setPhone] = useState("");
   const [businessEmail, setBusinessEmail] = useState("");
   const [website, setWebsite] = useState("");
@@ -53,7 +57,7 @@ const Onboarding = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id,name,description,category,service_area,phone,business_email,website,logo_url,offer_amount,offer_trigger,offer_fine_print,slug,launch_package_status,subscription_status")
+        .select("id,name,description,category,service_area,service_radius_km,phone,business_email,website,logo_url,offer_amount,offer_trigger,offer_fine_print,slug,launch_package_status,subscription_status")
         .eq("user_id", user.id)
         .limit(1);
       const b = data?.[0];
@@ -67,6 +71,7 @@ const Onboarding = () => {
         setDescription(b.description || "");
         setCategory(b.category || "");
         setServiceArea(b.service_area || "");
+        setServiceRadiusKm(b.service_radius_km ?? 50);
         setPhone(b.phone || "");
         setBusinessEmail(b.business_email || user.email || "");
         setWebsite(b.website || "");
@@ -95,6 +100,49 @@ const Onboarding = () => {
       return;
     }
     if (nextStep) setStep(nextStep);
+  };
+
+  /**
+   * Service area is never a blocker. If a suggestion was picked we already have
+   * coordinates from the Places result. If the person typed free text, we ask
+   * the geocode-business function to resolve it after the save, and if that
+   * fails we simply leave the coordinates NULL.
+   */
+  const saveBasics = async () => {
+    const trimmedArea = serviceArea.trim();
+    const matchedPlace =
+      placeGeo && placeGeo.label.trim().toLowerCase() === trimmedArea.toLowerCase()
+        ? placeGeo
+        : null;
+
+    const patch: Record<string, any> = {
+      name,
+      description,
+      category,
+      service_area: trimmedArea,
+      service_radius_km: serviceRadiusKm,
+      phone,
+      business_email: businessEmail,
+      website,
+    };
+
+    if (matchedPlace) {
+      patch.latitude = matchedPlace.latitude;
+      patch.longitude = matchedPlace.longitude;
+      patch.city = matchedPlace.city;
+      patch.state = matchedPlace.state;
+      patch.country = matchedPlace.country;
+      patch.geocoded_at = new Date().toISOString();
+      patch.geocode_status = "ok";
+    }
+
+    await saveStep(patch, 2);
+
+    if (!matchedPlace && trimmedArea) {
+      supabase.functions
+        .invoke("geocode-business", { body: { business_id: bizId } })
+        .catch((err) => console.error("[onboarding] geocode fallback failed", err));
+    }
   };
 
   const finalize = async () => {
@@ -196,13 +244,52 @@ const Onboarding = () => {
                       </p>
                     )}
                   </div>
-                  <div><Label>Service area</Label><Input value={serviceArea} onChange={(e) => setServiceArea(e.target.value)} className="mt-1.5" placeholder="Denver metro" /></div>
+                  <div>
+                    <Label htmlFor="service-area">Service area</Label>
+                    <ServiceAreaAutocomplete
+                      id="service-area"
+                      value={serviceArea}
+                      onChange={setServiceArea}
+                      onPlaceSelected={setPlaceGeo}
+                      placeholder="Vancouver, BC"
+                    />
+                    <p className="mt-1.5 text-xs text-muted-foreground">
+                      Pick your city or region from the list so you show up on the map and in nearby searches. Typing it yourself works too.
+                    </p>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <Label>How far do you travel?</Label>
+                      <span className="text-sm font-medium text-foreground">{serviceRadiusKm} km</span>
+                    </div>
+                    <Slider
+                      value={[serviceRadiusKm]}
+                      onValueChange={(v) => setServiceRadiusKm(v[0])}
+                      min={5}
+                      max={200}
+                      step={5}
+                      className="mt-3"
+                    />
+                    <div className="mt-2 flex gap-2">
+                      {[25, 50, 100].map((km) => (
+                        <Button
+                          key={km}
+                          type="button"
+                          size="sm"
+                          variant={serviceRadiusKm === km ? "default" : "outline"}
+                          onClick={() => setServiceRadiusKm(km)}
+                        >
+                          {km} km
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
                   <div><Label>Business phone</Label><Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1.5" /></div>
                   <div><Label>Business email</Label><Input type="email" value={businessEmail} onChange={(e) => setBusinessEmail(e.target.value)} className="mt-1.5" /></div>
                   <div><Label>Website <span className="text-muted-foreground text-xs">(optional)</span></Label><Input value={website} onChange={(e) => setWebsite(e.target.value)} className="mt-1.5" placeholder="https://" /></div>
                 </div>
                 <div className="mt-8 flex justify-end">
-                  <Button onClick={() => saveStep({ name, description, category, service_area: serviceArea, phone, business_email: businessEmail, website }, 2)} disabled={!name || !category || saving}>
+                  <Button onClick={saveBasics} disabled={!name || !category || saving}>
                     Continue <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
