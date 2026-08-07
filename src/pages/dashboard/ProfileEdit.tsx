@@ -112,6 +112,9 @@ const ProfileEdit = () => {
       })
       .eq("user_id", user.id);
 
+    // Tracked outside the block so the final toast can report a failed business
+    // save instead of claiming everything was saved.
+    let businessError: unknown = null;
     if (isBusiness && business) {
       const { error: bizErr } = await supabase
         .from("businesses")
@@ -127,6 +130,7 @@ const ProfileEdit = () => {
           country: bizForm.country || null,
         })
         .eq("id", business.id);
+      businessError = bizErr;
 
       // Trigger geocoding if an address is provided and any address field changed.
       const addressChanged =
@@ -149,13 +153,23 @@ const ProfileEdit = () => {
           }
         } catch (e) {
           console.warn("[profile-edit] geocode failed", e);
+          toast({
+            title: "Saved, but address could not be placed on the map",
+            description: "Double-check the street address, city, and postal code.",
+          });
         }
       }
     }
 
     setSaving(false);
     if (error) {
-      toast({ title: "Error", description: friendlyError(error), variant: "destructive" });
+      toast({ title: "Could not save your profile", description: friendlyError(error), variant: "destructive" });
+    } else if (businessError) {
+      toast({
+        title: "Business details did not save",
+        description: friendlyError(businessError),
+        variant: "destructive",
+      });
     } else {
       toast({ title: "Profile updated", description: "Your changes have been saved." });
     }
