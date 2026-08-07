@@ -159,7 +159,13 @@ const Onboarding = () => {
     if (!matchedPlace && trimmedArea) {
       supabase.functions
         .invoke("geocode-business", { body: { business_id: bizId } })
-        .catch((err) => console.error("[onboarding] geocode fallback failed", err));
+        .catch((err) => {
+          console.error("[onboarding] geocode fallback failed", err);
+          toast({
+            title: "Saved, but we could not place you on the map",
+            description: "You can fix your service area later from your dashboard.",
+          });
+        });
     }
   };
 

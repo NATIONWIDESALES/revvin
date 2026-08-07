@@ -48,7 +48,7 @@ const AvatarUpload = ({ currentUrl, onUploaded }: AvatarUploadProps) => {
           <UserCircle className="h-8 w-8 text-muted-foreground" />
         </div>
       )}
-      <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+      <Button variant="outline" size="sm" className="h-11 sm:h-9" onClick={() => fileRef.current?.click()} disabled={uploading}>
         {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Upload className="h-3.5 w-3.5 mr-1.5" />}
         {preview ? "Change" : "Upload"}
       </Button>
