@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Upload, Loader2, ImageIcon } from "lucide-react";
-import { MAX_UPLOAD_BYTES, uploadUserImage } from "@/lib/imageUpload";
+import { Upload, Loader2, ImageIcon, Trash2 } from "lucide-react";
+import { MAX_UPLOAD_BYTES, uploadUserImage, deleteUserImage } from "@/lib/imageUpload";
 
 interface BusinessLogoUploadProps {
   currentLogoUrl?: string | null;
@@ -19,6 +19,7 @@ const BusinessLogoUpload = ({ currentLogoUrl, businessId, onUploaded }: Business
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentLogoUrl ?? null);
   const [dragOver, setDragOver] = useState(false);
+  const [storagePath, setStoragePath] = useState<string | null>(null);
 
   const handleFile = async (file: File) => {
     if (!user) return;
@@ -46,10 +47,26 @@ const BusinessLogoUpload = ({ currentLogoUrl, businessId, onUploaded }: Business
       toast({ title: "Couldn't save that", description: "Your logo uploaded but didn't save. You can try again later from your dashboard." });
     } else {
       setPreview(result.publicUrl);
+      setStoragePath(result.path);
       onUploaded(result.publicUrl);
       toast({ title: "Logo uploaded!", description: "Your logo will appear on marketplace listings." });
     }
     setUploading(false);
+  };
+
+  const removeLogo = async () => {
+    setUploading(true);
+    if (storagePath) await deleteUserImage("business-logos", storagePath);
+    const { error } = await supabase.from("businesses").update({ logo_url: null }).eq("id", businessId);
+    setUploading(false);
+    if (error) {
+      console.error("[BusinessLogoUpload] clearing logo_url failed", error);
+      toast({ title: "Couldn't remove that", description: "Please try again in a moment." });
+      return;
+    }
+    setPreview(null);
+    setStoragePath(null);
+    onUploaded("");
   };
 
   const onDrop = (e: React.DragEvent) => {
@@ -68,6 +85,9 @@ const BusinessLogoUpload = ({ currentLogoUrl, businessId, onUploaded }: Business
             <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
               {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
               Replace
+            </Button>
+            <Button variant="ghost" size="sm" onClick={removeLogo} disabled={uploading}>
+              <Trash2 className="h-3.5 w-3.5" /> Remove
             </Button>
           </div>
         </div>
