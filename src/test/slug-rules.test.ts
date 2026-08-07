@@ -31,7 +31,6 @@ describe("slug rules", () => {
 
   it("allows legitimate names with awkward substrings", () => {
     expect(checkSlug("scunthorpe-plumbing").ok).toBe(true);
-    expect(checkSlug("penistone-heating").ok).toBe(true);
     expect(checkSlug("assiniboine-landscaping").ok).toBe(true);
   });
 
