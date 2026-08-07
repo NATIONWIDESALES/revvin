@@ -82,9 +82,17 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
 
   useEffect(() => { load(); }, [load]);
 
-  const copy = (v: string, what: string) => {
-    navigator.clipboard.writeText(v);
-    toast({ title: `${what} copied` });
+  const copy = async (v: string, what: string) => {
+    const ok = await copyText(v);
+    toast(
+      ok
+        ? { title: `${what} copied` }
+        : {
+            title: "Could not copy automatically",
+            description: "Select the value and copy it manually.",
+            variant: "destructive" as const,
+          }
+    );
   };
 
   // The plaintext key never leaves this function except into the owner's
