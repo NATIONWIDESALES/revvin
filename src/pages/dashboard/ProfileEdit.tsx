@@ -346,6 +346,8 @@ const ProfileEdit = () => {
                   welcome_message: business.welcome_message ?? null,
                   referral_cta_label: business.referral_cta_label ?? null,
                   testimonials: (business.testimonials as any) ?? null,
+                  service_area: business.service_area ?? null,
+                  service_radius_km: business.service_radius_km ?? null,
                 }}
               />
             )}
