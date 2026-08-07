@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +14,6 @@ import BusinessLogoUpload from "@/components/BusinessLogoUpload";
 import AvatarUpload from "@/components/AvatarUpload";
 import PageBrandingEditor from "@/components/dashboard/PageBrandingEditor";
 import {
-import { friendlyError } from "@/lib/errors";
   Select,
   SelectContent,
   SelectItem,

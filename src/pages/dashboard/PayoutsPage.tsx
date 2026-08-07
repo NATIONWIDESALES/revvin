@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Inbox, Check } from "lucide-react";
 import {
-import { friendlyError } from "@/lib/errors";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,

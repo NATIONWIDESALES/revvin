@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -6,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
-import { friendlyError } from "@/lib/errors";
   Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2, UserPlus, PlayCircle, ChevronRight, Copy, Users,
 } from "lucide-react";
 

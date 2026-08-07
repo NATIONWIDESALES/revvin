@@ -1,3 +1,4 @@
+import { friendlyError } from "@/lib/errors";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,7 +13,6 @@ import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, B
 import { categories, isRestrictedCategory } from "@/lib/offerUtils";
 import { motion } from "framer-motion";
 import {
-import { friendlyError } from "@/lib/errors";
   Dialog,
   DialogContent,
   DialogHeader,
