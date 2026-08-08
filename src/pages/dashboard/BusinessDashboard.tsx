@@ -57,6 +57,7 @@ interface Business {
   marketplace_listed?: boolean | null;
   contact_outreach_consent_at?: string | null;
   google_review_url?: string | null;
+  qr_downloaded_at?: string | null;
 }
 
 interface Lead {
@@ -120,7 +121,6 @@ const BusinessDashboard = () => {
   const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
   const [offers, setOffers] = useState<OfferRow[]>([]);
   const [contactStats, setContactStats] = useState<{ total: number; sent: number }>({ total: 0, sent: 0 });
-  const [qrPrinted, setQrPrinted] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<string>("customers");
   const [loading, setLoading] = useState(true);
@@ -163,12 +163,6 @@ const BusinessDashboard = () => {
       track("checkout_canceled");
     }
   }, []);
-
-  useEffect(() => {
-    if (biz?.id) {
-      setQrPrinted(localStorage.getItem(`revvin_qr_printed_${biz.id}`) === "1");
-    }
-  }, [biz?.id]);
 
   const [loadError, setLoadError] = useState<string | null>(null);
 
