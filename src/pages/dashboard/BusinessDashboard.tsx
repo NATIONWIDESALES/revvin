@@ -250,10 +250,22 @@ const BusinessDashboard = () => {
   const publicUrl = `${window.location.origin}/r/${biz.slug}`;
 
   const goToQr = () => {
-    if (!biz) return;
-    localStorage.setItem(`revvin_qr_printed_${biz.id}`, "1");
-    setQrPrinted(true);
-    setActiveTab("share");
+    // Navigation only. Opening the tab is not evidence of a download, so it
+    // deliberately marks nothing complete.
+    changeTab("share");
+  };
+
+  // Stamped only after a QR download or print actually succeeds. Kept on the
+  // business row so the tick survives a device change, like every other step.
+  const markQrDownloaded = async () => {
+    if (!biz || biz.qr_downloaded_at) return;
+    const stamp = new Date().toISOString();
+    const { error } = await supabase
+      .from("businesses")
+      .update({ qr_downloaded_at: stamp })
+      .eq("id", biz.id);
+    if (error) return;
+    setBiz((prev) => (prev ? { ...prev, qr_downloaded_at: stamp } : prev));
   };
 
   const activationSteps: ActivationStep[] = [
@@ -288,8 +300,8 @@ const BusinessDashboard = () => {
       actionLabel: "Open composer",
     },
     {
-      label: "Print your QR code",
-      done: qrPrinted,
+      label: "Download your QR code",
+      done: !!biz.qr_downloaded_at,
       onClick: goToQr,
       actionLabel: "Open QR",
     },
