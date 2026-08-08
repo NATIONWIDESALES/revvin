@@ -536,7 +536,7 @@ const AdminDashboard = () => {
                           </div>
                           <div className="flex flex-col items-end gap-2">
                             {payout.status === "ready" && (
-                              <Button size="sm" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "processing")}>
+                              <Button size="sm" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus()}>
                                 <Clock className="h-3 w-3" /> Start Processing
                               </Button>
                             )}
@@ -547,10 +547,10 @@ const AdminDashboard = () => {
                                   <Input placeholder="Reference ID" className="h-7 text-xs w-32" value={payoutRef} onChange={e => setPayoutRef(e.target.value)} />
                                 </div>
                                 <div className="flex gap-1">
-                                  <Button size="sm" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "paid", payoutMethod, payoutRef)}>
+                                  <Button size="sm" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus()}>
                                     <CheckCircle2 className="h-3 w-3" /> Mark Paid
                                   </Button>
-                                  <Button size="sm" variant="destructive" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus(payout.id, "failed")}>
+                                  <Button size="sm" variant="destructive" className="text-xs h-7 gap-1" onClick={() => updatePayoutStatus()}>
                                     <XCircle className="h-3 w-3" /> Failed
                                   </Button>
                                 </div>
