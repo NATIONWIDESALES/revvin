@@ -155,6 +155,7 @@ export type Database = {
           offer_trigger: string | null
           phone: string | null
           postal_code: string | null
+          qr_downloaded_at: string | null
           referral_cta_label: string | null
           service_area: string | null
           service_radius_km: number | null
@@ -217,6 +218,7 @@ export type Database = {
           offer_trigger?: string | null
           phone?: string | null
           postal_code?: string | null
+          qr_downloaded_at?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
           service_radius_km?: number | null
@@ -279,6 +281,7 @@ export type Database = {
           offer_trigger?: string | null
           phone?: string | null
           postal_code?: string | null
+          qr_downloaded_at?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
           service_radius_km?: number | null
