@@ -1,17 +1,20 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { captureAttribution } from "@/lib/attribution";
+import { META_PIXEL_ID as CONFIGURED_PIXEL_ID } from "@/config/analytics";
 
 /**
  * Meta (Facebook) pixel.
  *
- * To enable: set VITE_META_PIXEL_ID in your environment. Until that env var is
- * set this component renders nothing — no script is injected, no events sent.
+ * The pixel id comes from src/config/analytics.ts (public by design).
+ * VITE_META_PIXEL_ID acts as an optional override when it happens to be set.
+ * When the resolved value is empty nothing is injected and no events are sent.
  *
  * PRIVACY: no Advanced Matching, no PII. Only page views and the funnel events
  * mapped in src/lib/track.ts are sent.
  */
-const META_PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID as string | undefined;
+const META_PIXEL_ID =
+  (import.meta.env.VITE_META_PIXEL_ID as string | undefined) || CONFIGURED_PIXEL_ID;
 const SCRIPT_ID = "meta-pixel-script";
 
 declare global {
