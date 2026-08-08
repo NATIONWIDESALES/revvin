@@ -158,6 +158,15 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkIndex, setBulkIndex] = useState(0);
   const [bulkSending, setBulkSending] = useState(false);
+  // Stable snapshot of the chunks, taken once when the dialog opens. The pending
+  // list mutates as chunks are confirmed, so we must not re-derive from it.
+  const [bulkChunks, setBulkChunks] = useState<ReferralContact[][]>([]);
+  // A draft was opened for the current chunk and we are waiting for the owner to
+  // tell us whether it actually went out. Opening a mail draft is not a send.
+  const [bulkAwaitingConfirm, setBulkAwaitingConfirm] = useState(false);
+  // Single-contact confirmation: which contact/channel is awaiting "Did that send?".
+  const [confirmSend, setConfirmSend] = useState<{ contact: ReferralContact; channel: "sms" | "email" } | null>(null);
+  const [confirmSaving, setConfirmSaving] = useState(false);
 
   const reward = biz.offer_amount?.trim() || "";
   const offer = biz.offer_trigger?.trim() || "our service";
@@ -263,26 +272,32 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
 
   const markSent = async (c: ReferralContact, channel: "sms" | "email" | "share") => {
     const prev = { ...c };
-    setContacts((cs) =>
-      cs.map((x) => (x.id === c.id ? { ...x, status: "sent", last_sent_at: new Date().toISOString(), send_channel: channel } : x)),
-    );
-    setLastSent({ id: c.id, prev });
+    const nowIso = new Date().toISOString();
+    // Write first. Only reflect it in the UI once the database has accepted it,
+    // so the screen never claims a contact was invited when nothing was recorded.
     const { error } = await (supabase as any)
       .from("referral_contacts")
-      .update({ status: "sent", last_sent_at: new Date().toISOString(), send_channel: channel })
+      .update({ status: "sent", last_sent_at: nowIso, send_channel: channel })
       .eq("id", c.id);
     if (error) {
-      // revert on failure
-      setContacts((cs) => cs.map((x) => (x.id === c.id ? prev : x)));
-      toast({ title: "Could not save sent status", description: friendlyError(error), variant: "destructive" });
-      return;
+      toast({
+        title: "Nothing was recorded",
+        description: friendlyError(error) + " This contact is still pending, so you can try again.",
+        variant: "destructive",
+      });
+      return false;
     }
+    setContacts((cs) =>
+      cs.map((x) => (x.id === c.id ? { ...x, status: "sent", last_sent_at: nowIso, send_channel: channel } : x)),
+    );
+    setLastSent({ id: c.id, prev });
     // Append a history row so re-asks and nudges can reason over real sends later.
     // Each row records ONLY that the business tapped Send on a channel; Revvin never
     // sends, so this is not proof of delivery. Failure here is non-fatal.
     void (supabase as any)
       .from("referral_contact_sends")
       .insert({ business_id: c.business_id, contact_id: c.id, channel });
+    return true;
   };
 
   const undoSend = async () => {
@@ -303,9 +318,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     // We use the separator that matches the platform; both modern OSes accept either.
     const sep = isIOS() ? "&" : "?";
     const href = `sms:${c.phone}${sep}body=${body}`;
-    setSendingId(c.id);
     window.location.href = href;
-    markSent(c, "sms").finally(() => setSendingId(null));
+    // Opening the Messages app is not a send. Ask before recording anything.
+    setConfirmSend({ contact: c, channel: "sms" });
   };
 
   const sendEmail = (c: ReferralContact) => {
@@ -313,9 +328,17 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     const subject = encodeURIComponent(`A referral opportunity from ${biz.name}`);
     const body = encodeURIComponent(messageFor(c));
     const href = `mailto:${c.email}?subject=${subject}&body=${body}`;
-    setSendingId(c.id);
     window.location.href = href;
-    markSent(c, "email").finally(() => setSendingId(null));
+    setConfirmSend({ contact: c, channel: "email" });
+  };
+
+  // Single-contact confirmation. Only an explicit "Sent it" records the invite.
+  const confirmSingleSent = async () => {
+    if (!confirmSend || confirmSaving) return;
+    setConfirmSaving(true);
+    const ok = await markSent(confirmSend.contact, confirmSend.channel);
+    setConfirmSaving(false);
+    if (ok) setConfirmSend(null);
   };
 
   const sendShare = async (c: ReferralContact) => {
@@ -438,14 +461,17 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     () => pending.filter((c) => !!c.email),
     [pending],
   );
-  const bulkChunks = useMemo(() => {
-    const out: ReferralContact[][] = [];
-    for (let i = 0; i < pendingEmails.length; i += BULK_CHUNK_SIZE) {
-      out.push(pendingEmails.slice(i, i + BULK_CHUNK_SIZE));
-    }
-    return out;
-  }, [pendingEmails]);
-  const bulkCurrent = bulkChunks[bulkIndex];
+  // Current chunk comes from the frozen snapshot, narrowed to rows that are still
+  // pending (a row could have been invited elsewhere while the dialog was open).
+  const pendingIds = useMemo(() => new Set(pending.map((c) => c.id)), [pending]);
+  const bulkCurrent = useMemo(
+    () => (bulkChunks[bulkIndex] ?? []).filter((c) => pendingIds.has(c.id)),
+    [bulkChunks, bulkIndex, pendingIds],
+  );
+  const bulkRemaining = useMemo(
+    () => bulkChunks.slice(bulkIndex).flat().filter((c) => pendingIds.has(c.id)).length,
+    [bulkChunks, bulkIndex, pendingIds],
+  );
 
   // Generic (non-personalized) body for BCC: {firstName} becomes "there" because
   // one email goes to many recipients. All other placeholders still resolve.
@@ -467,52 +493,76 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       toast({ title: "No pending emails", description: "Import contacts with email addresses first." });
       return;
     }
+    // Freeze the working set once. Chunking off live state made the closure read
+    // a stale length and skip batches.
+    const snapshot: ReferralContact[][] = [];
+    for (let i = 0; i < pendingEmails.length; i += BULK_CHUNK_SIZE) {
+      snapshot.push(pendingEmails.slice(i, i + BULK_CHUNK_SIZE));
+    }
+    setBulkChunks(snapshot);
     setBulkIndex(0);
+    setBulkAwaitingConfirm(false);
     setBulkOpen(true);
   };
 
-  // Open the user's mail app with the current chunk in BCC, then mark every
-  // contact in that chunk as invited (email channel). Revvin does not send.
-  const sendBulkChunk = async () => {
-    if (!bulkCurrent || bulkCurrent.length === 0) return;
-    setBulkSending(true);
+  // Step 1: open the owner's mail app with this chunk in BCC. Nothing is recorded
+  // here. Revvin never transmits; the draft leaves from the owner's own device.
+  const openBulkDraft = () => {
+    if (bulkCurrent.length === 0) return;
     const bcc = bulkCurrent.map((c) => c.email).filter(Boolean).join(",");
     const href = `mailto:?bcc=${encodeURIComponent(bcc)}&subject=${encodeURIComponent(bulkSubject)}&body=${encodeURIComponent(bulkBody)}`;
     window.location.href = href;
+    setBulkAwaitingConfirm(true);
+  };
 
+  // Step 2: the owner confirms the draft actually went out. Write first, then
+  // update local state, then advance. Re-entry is guarded so a double-tap cannot
+  // process the same chunk twice.
+  const confirmBulkChunkSent = async () => {
+    if (bulkSending) return;
+    const chunk = bulkCurrent;
+    if (chunk.length === 0) return;
+    setBulkSending(true);
     const nowIso = new Date().toISOString();
-    const ids = bulkCurrent.map((c) => c.id);
-    // Optimistic update.
-    setContacts((cs) =>
-      cs.map((x) =>
-        ids.includes(x.id)
-          ? { ...x, status: "sent", last_sent_at: nowIso, send_channel: "email" }
-          : x,
-      ),
-    );
+    const ids = chunk.map((c) => c.id);
     const { error } = await (supabase as any)
       .from("referral_contacts")
       .update({ status: "sent", last_sent_at: nowIso, send_channel: "email" })
       .in("id", ids);
-    if (error) {
-      toast({ title: "Could not save sent status", description: friendlyError(error), variant: "destructive" });
-    } else {
-      void (supabase as any)
-        .from("referral_contact_sends")
-        .insert(ids.map((cid) => ({ business_id: biz.id, contact_id: cid, channel: "email" })));
-    }
     setBulkSending(false);
-    // Advance to next chunk, or close when done. Chunks recompute from pending,
-    // so this was the last chunk only when no others remain.
-    if (bulkChunks.length <= 1) {
-      // After marking this chunk sent, remaining pending shrinks; if nothing left, close.
-      setTimeout(() => {
-        setBulkOpen(false);
-        toast({ title: "Done", description: "You've opened a draft for every pending email." });
-      }, 300);
+    if (error) {
+      toast({
+        title: "Nothing was recorded",
+        description: friendlyError(error) + " These contacts are still pending, so you can try again.",
+        variant: "destructive",
+      });
+      return;
     }
-    // bulkIndex stays 0 because pending list shrinks after marking sent; the
-    // next chunk becomes chunk 0. No manual increment needed.
+    setContacts((cs) =>
+      cs.map((x) => (ids.includes(x.id) ? { ...x, status: "sent", last_sent_at: nowIso, send_channel: "email" } : x)),
+    );
+    void (supabase as any)
+      .from("referral_contact_sends")
+      .insert(ids.map((cid) => ({ business_id: biz.id, contact_id: cid, channel: "email" })));
+    setBulkAwaitingConfirm(false);
+    // Completion is decided by how many snapshot contacts are still pending after
+    // this chunk, not by comparing indexes.
+    const nextIndex = bulkIndex + 1;
+    const remainingAfter = bulkChunks
+      .slice(nextIndex)
+      .flat()
+      .filter((c) => pendingIds.has(c.id) && !ids.includes(c.id)).length;
+    setBulkIndex(nextIndex);
+    if (remainingAfter === 0) {
+      setBulkOpen(false);
+      toast({ title: "All batches confirmed", description: `Recorded ${ids.length} more invite${ids.length === 1 ? "" : "s"}.` });
+    }
+  };
+
+  // "Not yet": leave every contact in the chunk pending so it can be retried.
+  const cancelBulkChunk = () => {
+    setBulkAwaitingConfirm(false);
+    toast({ title: "Nothing recorded", description: "These contacts are still pending. You can open the draft again." });
   };
 
   const copyBulkBcc = async () => {
@@ -850,7 +900,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
               Bulk email draft{" "}
               <span className="text-xs font-normal text-muted-foreground">
                 {bulkCurrent
-                  ? `(${bulkCurrent.length} recipient${bulkCurrent.length === 1 ? "" : "s"} · ${pendingEmails.length} pending)`
+                  ? `(batch ${Math.min(bulkIndex + 1, Math.max(bulkChunks.length, 1))} of ${Math.max(bulkChunks.length, 1)} · ${bulkCurrent.length} recipient${bulkCurrent.length === 1 ? "" : "s"} · ${bulkRemaining} left)`
                   : ""}
               </span>
             </DialogTitle>
@@ -869,27 +919,75 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                 <div className="text-[11px] font-medium text-foreground mb-1">Message</div>
                 <Textarea readOnly rows={5} value={bulkBody} className="text-xs" />
               </div>
-              <p className="text-[11px] text-muted-foreground">
-                Tap Open draft to launch your mail app with everyone in BCC. Because one email
-                goes to many people, {"{firstName}"} is replaced with "there". You send it from
-                your own mail app.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Button size="sm" onClick={sendBulkChunk} disabled={bulkSending} className="gap-1.5">
-                  <Mail className="h-3.5 w-3.5" /> Open draft
-                </Button>
-                <Button size="sm" variant="outline" onClick={copyBulkBcc} className="gap-1.5">
-                  <Copy className="h-3.5 w-3.5" /> Copy addresses
-                </Button>
-              </div>
+              {bulkAwaitingConfirm ? (
+                <div className="rounded-md border border-border bg-muted/40 p-3">
+                  <p className="text-sm font-medium text-foreground">Did that send?</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    We cannot see inside your mail app, so nothing is recorded until you tell us.
+                    Choose Not yet and these {bulkCurrent.length} contact{bulkCurrent.length === 1 ? "" : "s"} stay
+                    pending so you can try again.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button size="sm" onClick={confirmBulkChunkSent} disabled={bulkSending} className="gap-1.5">
+                      {bulkSending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                      Sent it
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={cancelBulkChunk} disabled={bulkSending}>
+                      Not yet
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={openBulkDraft} disabled={bulkSending} className="gap-1.5">
+                      <Mail className="h-3.5 w-3.5" /> Reopen draft
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="text-[11px] text-muted-foreground">
+                    Tap Open draft to launch your mail app with everyone in BCC. Because one email
+                    goes to many people, {"{firstName}"} is replaced with "there". You send it from
+                    your own mail app, and we will ask you to confirm afterwards.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" onClick={openBulkDraft} className="gap-1.5">
+                      <Mail className="h-3.5 w-3.5" /> Open draft
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={copyBulkBcc} className="gap-1.5">
+                      <Copy className="h-3.5 w-3.5" /> Copy addresses
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           ) : (
             <div className="py-6 text-center text-sm text-muted-foreground">
-              All pending emails have been drafted.
+              Every batch has been confirmed.
             </div>
           )}
           <DialogFooter>
             <Button variant="ghost" size="sm" onClick={() => setBulkOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Single-contact confirmation: a mail or Messages draft is not a send. */}
+      <Dialog open={!!confirmSend} onOpenChange={(o) => { if (!o) setConfirmSend(null); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Did that send?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {confirmSend ? `We opened your ${confirmSend.channel === "sms" ? "Messages" : "Mail"} app for ${firstName(confirmSend.contact.name)}. ` : ""}
+            We cannot see inside it, so nothing is recorded until you confirm. Choose Not yet and they stay
+            pending so you can try again.
+          </p>
+          <DialogFooter className="flex-row justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => setConfirmSend(null)} disabled={confirmSaving}>
+              Not yet
+            </Button>
+            <Button size="sm" onClick={confirmSingleSent} disabled={confirmSaving} className="gap-1.5">
+              {confirmSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+              Sent it
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
