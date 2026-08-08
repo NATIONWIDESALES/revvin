@@ -438,7 +438,7 @@ const BusinessDashboard = () => {
         </TabsContent>
         <TabsContent value="payouts"><PayoutsPage businessId={biz.id} /></TabsContent>
         <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} /></TabsContent>
-        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} /></TabsContent>
+        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} onQrDownloaded={markQrDownloaded} /></TabsContent>
         <TabsContent value="integrations"><IntegrationsTab biz={{ id: biz.id, contact_outreach_consent_at: biz.contact_outreach_consent_at ?? null }} /></TabsContent>
         <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
       </Tabs>
@@ -1215,7 +1215,7 @@ const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: strin
 };
 
 // ============= SHARE TAB =============
-const ShareTab = ({ biz, publicUrl, isLive }: { biz: Business; publicUrl: string; isLive: boolean }) => {
+const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded }: { biz: Business; publicUrl: string; isLive: boolean; onQrDownloaded: () => void | Promise<void> }) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -1233,7 +1233,7 @@ const ShareTab = ({ biz, publicUrl, isLive }: { biz: Business; publicUrl: string
     qr.append(qrRef.current);
   }, [publicUrl]);
 
-  const download = (ext: "png" | "svg") => {
+  const download = async (ext: "png" | "svg") => {
     const hq = new QRCodeStyling({
       width: 1024, height: 1024, data: publicUrl,
       dotsOptions: { color: "#0F172A", type: "rounded" },
@@ -1242,7 +1242,14 @@ const ShareTab = ({ biz, publicUrl, isLive }: { biz: Business; publicUrl: string
       backgroundOptions: { color: "#ffffff" },
       qrOptions: { errorCorrectionLevel: "H" },
     });
-    hq.download({ name: `${biz.slug}-qr`, extension: ext });
+    try {
+      await hq.download({ name: `${biz.slug}-qr`, extension: ext });
+    } catch {
+      toast({ title: "Download failed", description: "Try again, or use Print / PDF.", variant: "destructive" });
+      return;
+    }
+    // Only a completed download counts as the step being done.
+    await onQrDownloaded();
   };
 
   const printPdf = () => {
@@ -1253,6 +1260,7 @@ const ShareTab = ({ biz, publicUrl, isLive }: { biz: Business; publicUrl: string
     if (!w) return;
     w.document.write(`<html><head><title>${biz.name}, Referral QR</title><style>body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;text-align:center}img{width:400px;height:400px}h1{font-size:24px;margin:24px 0 8px}p{color:#64748b;font-size:14px}@media print{body{padding:0}}</style></head><body><h1>${biz.name}</h1><p>Refer a customer, earn ${biz.offer_amount || ""}</p><img src="${dataUrl}" /><p style="margin-top:16px;font-size:12px;word-break:break-all">${publicUrl}</p><script>window.onload=()=>window.print()</script></body></html>`);
     w.document.close();
+    void onQrDownloaded();
   };
 
   const emailTemplate = `Hey [name], we've launched a referral program. If you know someone who could use our services, send them through this link: ${publicUrl}`;
