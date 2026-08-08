@@ -57,6 +57,7 @@ interface Business {
   marketplace_listed?: boolean | null;
   contact_outreach_consent_at?: string | null;
   google_review_url?: string | null;
+  qr_downloaded_at?: string | null;
 }
 
 interface Lead {
@@ -120,7 +121,6 @@ const BusinessDashboard = () => {
   const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
   const [offers, setOffers] = useState<OfferRow[]>([]);
   const [contactStats, setContactStats] = useState<{ total: number; sent: number }>({ total: 0, sent: 0 });
-  const [qrPrinted, setQrPrinted] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<string>("customers");
   const [loading, setLoading] = useState(true);
@@ -163,12 +163,6 @@ const BusinessDashboard = () => {
       track("checkout_canceled");
     }
   }, []);
-
-  useEffect(() => {
-    if (biz?.id) {
-      setQrPrinted(localStorage.getItem(`revvin_qr_printed_${biz.id}`) === "1");
-    }
-  }, [biz?.id]);
 
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -256,10 +250,22 @@ const BusinessDashboard = () => {
   const publicUrl = `${window.location.origin}/r/${biz.slug}`;
 
   const goToQr = () => {
-    if (!biz) return;
-    localStorage.setItem(`revvin_qr_printed_${biz.id}`, "1");
-    setQrPrinted(true);
-    setActiveTab("share");
+    // Navigation only. Opening the tab is not evidence of a download, so it
+    // deliberately marks nothing complete.
+    changeTab("share");
+  };
+
+  // Stamped only after a QR download or print actually succeeds. Kept on the
+  // business row so the tick survives a device change, like every other step.
+  const markQrDownloaded = async () => {
+    if (!biz || biz.qr_downloaded_at) return;
+    const stamp = new Date().toISOString();
+    const { error } = await supabase
+      .from("businesses")
+      .update({ qr_downloaded_at: stamp })
+      .eq("id", biz.id);
+    if (error) return;
+    setBiz((prev) => (prev ? { ...prev, qr_downloaded_at: stamp } : prev));
   };
 
   const activationSteps: ActivationStep[] = [
@@ -294,8 +300,8 @@ const BusinessDashboard = () => {
       actionLabel: "Open composer",
     },
     {
-      label: "Print your QR code",
-      done: qrPrinted,
+      label: "Download your QR code",
+      done: !!biz.qr_downloaded_at,
       onClick: goToQr,
       actionLabel: "Open QR",
     },
@@ -432,7 +438,7 @@ const BusinessDashboard = () => {
         </TabsContent>
         <TabsContent value="payouts"><PayoutsPage businessId={biz.id} /></TabsContent>
         <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} /></TabsContent>
-        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} /></TabsContent>
+        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} onQrDownloaded={markQrDownloaded} /></TabsContent>
         <TabsContent value="integrations"><IntegrationsTab biz={{ id: biz.id, contact_outreach_consent_at: biz.contact_outreach_consent_at ?? null }} /></TabsContent>
         <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
       </Tabs>
@@ -1209,7 +1215,7 @@ const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: strin
 };
 
 // ============= SHARE TAB =============
-const ShareTab = ({ biz, publicUrl, isLive }: { biz: Business; publicUrl: string; isLive: boolean }) => {
+const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded }: { biz: Business; publicUrl: string; isLive: boolean; onQrDownloaded: () => void | Promise<void> }) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -1227,7 +1233,7 @@ const ShareTab = ({ biz, publicUrl, isLive }: { biz: Business; publicUrl: string
     qr.append(qrRef.current);
   }, [publicUrl]);
 
-  const download = (ext: "png" | "svg") => {
+  const download = async (ext: "png" | "svg") => {
     const hq = new QRCodeStyling({
       width: 1024, height: 1024, data: publicUrl,
       dotsOptions: { color: "#0F172A", type: "rounded" },
@@ -1236,7 +1242,14 @@ const ShareTab = ({ biz, publicUrl, isLive }: { biz: Business; publicUrl: string
       backgroundOptions: { color: "#ffffff" },
       qrOptions: { errorCorrectionLevel: "H" },
     });
-    hq.download({ name: `${biz.slug}-qr`, extension: ext });
+    try {
+      await hq.download({ name: `${biz.slug}-qr`, extension: ext });
+    } catch {
+      toast({ title: "Download failed", description: "Try again, or use Print / PDF.", variant: "destructive" });
+      return;
+    }
+    // Only a completed download counts as the step being done.
+    await onQrDownloaded();
   };
 
   const printPdf = () => {
@@ -1247,6 +1260,7 @@ const ShareTab = ({ biz, publicUrl, isLive }: { biz: Business; publicUrl: string
     if (!w) return;
     w.document.write(`<html><head><title>${biz.name}, Referral QR</title><style>body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;text-align:center}img{width:400px;height:400px}h1{font-size:24px;margin:24px 0 8px}p{color:#64748b;font-size:14px}@media print{body{padding:0}}</style></head><body><h1>${biz.name}</h1><p>Refer a customer, earn ${biz.offer_amount || ""}</p><img src="${dataUrl}" /><p style="margin-top:16px;font-size:12px;word-break:break-all">${publicUrl}</p><script>window.onload=()=>window.print()</script></body></html>`);
     w.document.close();
+    void onQrDownloaded();
   };
 
   const emailTemplate = `Hey [name], we've launched a referral program. If you know someone who could use our services, send them through this link: ${publicUrl}`;

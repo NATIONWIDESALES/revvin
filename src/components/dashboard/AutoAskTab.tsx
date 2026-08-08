@@ -65,7 +65,6 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-  const [showReviewLinkHint, setShowReviewLinkHint] = useState(false);
     first_name: "",
     email: "",
     phone: "",
@@ -75,6 +74,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
     review_request: false,
     gate_referral: false,
   });
+  const [showReviewLinkHint, setShowReviewLinkHint] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
