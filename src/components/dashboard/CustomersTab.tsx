@@ -461,14 +461,17 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     () => pending.filter((c) => !!c.email),
     [pending],
   );
-  const bulkChunks = useMemo(() => {
-    const out: ReferralContact[][] = [];
-    for (let i = 0; i < pendingEmails.length; i += BULK_CHUNK_SIZE) {
-      out.push(pendingEmails.slice(i, i + BULK_CHUNK_SIZE));
-    }
-    return out;
-  }, [pendingEmails]);
-  const bulkCurrent = bulkChunks[bulkIndex];
+  // Current chunk comes from the frozen snapshot, narrowed to rows that are still
+  // pending (a row could have been invited elsewhere while the dialog was open).
+  const pendingIds = useMemo(() => new Set(pending.map((c) => c.id)), [pending]);
+  const bulkCurrent = useMemo(
+    () => (bulkChunks[bulkIndex] ?? []).filter((c) => pendingIds.has(c.id)),
+    [bulkChunks, bulkIndex, pendingIds],
+  );
+  const bulkRemaining = useMemo(
+    () => bulkChunks.slice(bulkIndex).flat().filter((c) => pendingIds.has(c.id)).length,
+    [bulkChunks, bulkIndex, pendingIds],
+  );
 
   // Generic (non-personalized) body for BCC: {firstName} becomes "there" because
   // one email goes to many recipients. All other placeholders still resolve.
@@ -490,52 +493,76 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       toast({ title: "No pending emails", description: "Import contacts with email addresses first." });
       return;
     }
+    // Freeze the working set once. Chunking off live state made the closure read
+    // a stale length and skip batches.
+    const snapshot: ReferralContact[][] = [];
+    for (let i = 0; i < pendingEmails.length; i += BULK_CHUNK_SIZE) {
+      snapshot.push(pendingEmails.slice(i, i + BULK_CHUNK_SIZE));
+    }
+    setBulkChunks(snapshot);
     setBulkIndex(0);
+    setBulkAwaitingConfirm(false);
     setBulkOpen(true);
   };
 
-  // Open the user's mail app with the current chunk in BCC, then mark every
-  // contact in that chunk as invited (email channel). Revvin does not send.
-  const sendBulkChunk = async () => {
-    if (!bulkCurrent || bulkCurrent.length === 0) return;
-    setBulkSending(true);
+  // Step 1: open the owner's mail app with this chunk in BCC. Nothing is recorded
+  // here. Revvin never transmits; the draft leaves from the owner's own device.
+  const openBulkDraft = () => {
+    if (bulkCurrent.length === 0) return;
     const bcc = bulkCurrent.map((c) => c.email).filter(Boolean).join(",");
     const href = `mailto:?bcc=${encodeURIComponent(bcc)}&subject=${encodeURIComponent(bulkSubject)}&body=${encodeURIComponent(bulkBody)}`;
     window.location.href = href;
+    setBulkAwaitingConfirm(true);
+  };
 
+  // Step 2: the owner confirms the draft actually went out. Write first, then
+  // update local state, then advance. Re-entry is guarded so a double-tap cannot
+  // process the same chunk twice.
+  const confirmBulkChunkSent = async () => {
+    if (bulkSending) return;
+    const chunk = bulkCurrent;
+    if (chunk.length === 0) return;
+    setBulkSending(true);
     const nowIso = new Date().toISOString();
-    const ids = bulkCurrent.map((c) => c.id);
-    // Optimistic update.
-    setContacts((cs) =>
-      cs.map((x) =>
-        ids.includes(x.id)
-          ? { ...x, status: "sent", last_sent_at: nowIso, send_channel: "email" }
-          : x,
-      ),
-    );
+    const ids = chunk.map((c) => c.id);
     const { error } = await (supabase as any)
       .from("referral_contacts")
       .update({ status: "sent", last_sent_at: nowIso, send_channel: "email" })
       .in("id", ids);
-    if (error) {
-      toast({ title: "Could not save sent status", description: friendlyError(error), variant: "destructive" });
-    } else {
-      void (supabase as any)
-        .from("referral_contact_sends")
-        .insert(ids.map((cid) => ({ business_id: biz.id, contact_id: cid, channel: "email" })));
-    }
     setBulkSending(false);
-    // Advance to next chunk, or close when done. Chunks recompute from pending,
-    // so this was the last chunk only when no others remain.
-    if (bulkChunks.length <= 1) {
-      // After marking this chunk sent, remaining pending shrinks; if nothing left, close.
-      setTimeout(() => {
-        setBulkOpen(false);
-        toast({ title: "Done", description: "You've opened a draft for every pending email." });
-      }, 300);
+    if (error) {
+      toast({
+        title: "Nothing was recorded",
+        description: friendlyError(error) + " These contacts are still pending, so you can try again.",
+        variant: "destructive",
+      });
+      return;
     }
-    // bulkIndex stays 0 because pending list shrinks after marking sent; the
-    // next chunk becomes chunk 0. No manual increment needed.
+    setContacts((cs) =>
+      cs.map((x) => (ids.includes(x.id) ? { ...x, status: "sent", last_sent_at: nowIso, send_channel: "email" } : x)),
+    );
+    void (supabase as any)
+      .from("referral_contact_sends")
+      .insert(ids.map((cid) => ({ business_id: biz.id, contact_id: cid, channel: "email" })));
+    setBulkAwaitingConfirm(false);
+    // Completion is decided by how many snapshot contacts are still pending after
+    // this chunk, not by comparing indexes.
+    const nextIndex = bulkIndex + 1;
+    const remainingAfter = bulkChunks
+      .slice(nextIndex)
+      .flat()
+      .filter((c) => pendingIds.has(c.id) && !ids.includes(c.id)).length;
+    setBulkIndex(nextIndex);
+    if (remainingAfter === 0) {
+      setBulkOpen(false);
+      toast({ title: "All batches confirmed", description: `Recorded ${ids.length} more invite${ids.length === 1 ? "" : "s"}.` });
+    }
+  };
+
+  // "Not yet": leave every contact in the chunk pending so it can be retried.
+  const cancelBulkChunk = () => {
+    setBulkAwaitingConfirm(false);
+    toast({ title: "Nothing recorded", description: "These contacts are still pending. You can open the draft again." });
   };
 
   const copyBulkBcc = async () => {
