@@ -158,6 +158,15 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkIndex, setBulkIndex] = useState(0);
   const [bulkSending, setBulkSending] = useState(false);
+  // Stable snapshot of the chunks, taken once when the dialog opens. The pending
+  // list mutates as chunks are confirmed, so we must not re-derive from it.
+  const [bulkChunks, setBulkChunks] = useState<ReferralContact[][]>([]);
+  // A draft was opened for the current chunk and we are waiting for the owner to
+  // tell us whether it actually went out. Opening a mail draft is not a send.
+  const [bulkAwaitingConfirm, setBulkAwaitingConfirm] = useState(false);
+  // Single-contact confirmation: which contact/channel is awaiting "Did that send?".
+  const [confirmSend, setConfirmSend] = useState<{ contact: ReferralContact; channel: "sms" | "email" } | null>(null);
+  const [confirmSaving, setConfirmSaving] = useState(false);
 
   const reward = biz.offer_amount?.trim() || "";
   const offer = biz.offer_trigger?.trim() || "our service";
@@ -263,26 +272,32 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
 
   const markSent = async (c: ReferralContact, channel: "sms" | "email" | "share") => {
     const prev = { ...c };
-    setContacts((cs) =>
-      cs.map((x) => (x.id === c.id ? { ...x, status: "sent", last_sent_at: new Date().toISOString(), send_channel: channel } : x)),
-    );
-    setLastSent({ id: c.id, prev });
+    const nowIso = new Date().toISOString();
+    // Write first. Only reflect it in the UI once the database has accepted it,
+    // so the screen never claims a contact was invited when nothing was recorded.
     const { error } = await (supabase as any)
       .from("referral_contacts")
-      .update({ status: "sent", last_sent_at: new Date().toISOString(), send_channel: channel })
+      .update({ status: "sent", last_sent_at: nowIso, send_channel: channel })
       .eq("id", c.id);
     if (error) {
-      // revert on failure
-      setContacts((cs) => cs.map((x) => (x.id === c.id ? prev : x)));
-      toast({ title: "Could not save sent status", description: friendlyError(error), variant: "destructive" });
-      return;
+      toast({
+        title: "Nothing was recorded",
+        description: friendlyError(error) + " This contact is still pending, so you can try again.",
+        variant: "destructive",
+      });
+      return false;
     }
+    setContacts((cs) =>
+      cs.map((x) => (x.id === c.id ? { ...x, status: "sent", last_sent_at: nowIso, send_channel: channel } : x)),
+    );
+    setLastSent({ id: c.id, prev });
     // Append a history row so re-asks and nudges can reason over real sends later.
     // Each row records ONLY that the business tapped Send on a channel; Revvin never
     // sends, so this is not proof of delivery. Failure here is non-fatal.
     void (supabase as any)
       .from("referral_contact_sends")
       .insert({ business_id: c.business_id, contact_id: c.id, channel });
+    return true;
   };
 
   const undoSend = async () => {
@@ -303,9 +318,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     // We use the separator that matches the platform; both modern OSes accept either.
     const sep = isIOS() ? "&" : "?";
     const href = `sms:${c.phone}${sep}body=${body}`;
-    setSendingId(c.id);
     window.location.href = href;
-    markSent(c, "sms").finally(() => setSendingId(null));
+    // Opening the Messages app is not a send. Ask before recording anything.
+    setConfirmSend({ contact: c, channel: "sms" });
   };
 
   const sendEmail = (c: ReferralContact) => {
@@ -313,9 +328,17 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     const subject = encodeURIComponent(`A referral opportunity from ${biz.name}`);
     const body = encodeURIComponent(messageFor(c));
     const href = `mailto:${c.email}?subject=${subject}&body=${body}`;
-    setSendingId(c.id);
     window.location.href = href;
-    markSent(c, "email").finally(() => setSendingId(null));
+    setConfirmSend({ contact: c, channel: "email" });
+  };
+
+  // Single-contact confirmation. Only an explicit "Sent it" records the invite.
+  const confirmSingleSent = async () => {
+    if (!confirmSend || confirmSaving) return;
+    setConfirmSaving(true);
+    const ok = await markSent(confirmSend.contact, confirmSend.channel);
+    setConfirmSaving(false);
+    if (ok) setConfirmSend(null);
   };
 
   const sendShare = async (c: ReferralContact) => {
