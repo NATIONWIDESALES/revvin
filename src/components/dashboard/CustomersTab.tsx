@@ -900,7 +900,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
               Bulk email draft{" "}
               <span className="text-xs font-normal text-muted-foreground">
                 {bulkCurrent
-                  ? `(${bulkCurrent.length} recipient${bulkCurrent.length === 1 ? "" : "s"} · ${pendingEmails.length} pending)`
+                  ? `(batch ${Math.min(bulkIndex + 1, Math.max(bulkChunks.length, 1))} of ${Math.max(bulkChunks.length, 1)} · ${bulkCurrent.length} recipient${bulkCurrent.length === 1 ? "" : "s"} · ${bulkRemaining} left)`
                   : ""}
               </span>
             </DialogTitle>
@@ -919,27 +919,75 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                 <div className="text-[11px] font-medium text-foreground mb-1">Message</div>
                 <Textarea readOnly rows={5} value={bulkBody} className="text-xs" />
               </div>
-              <p className="text-[11px] text-muted-foreground">
-                Tap Open draft to launch your mail app with everyone in BCC. Because one email
-                goes to many people, {"{firstName}"} is replaced with "there". You send it from
-                your own mail app.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Button size="sm" onClick={sendBulkChunk} disabled={bulkSending} className="gap-1.5">
-                  <Mail className="h-3.5 w-3.5" /> Open draft
-                </Button>
-                <Button size="sm" variant="outline" onClick={copyBulkBcc} className="gap-1.5">
-                  <Copy className="h-3.5 w-3.5" /> Copy addresses
-                </Button>
-              </div>
+              {bulkAwaitingConfirm ? (
+                <div className="rounded-md border border-border bg-muted/40 p-3">
+                  <p className="text-sm font-medium text-foreground">Did that send?</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    We cannot see inside your mail app, so nothing is recorded until you tell us.
+                    Choose Not yet and these {bulkCurrent.length} contact{bulkCurrent.length === 1 ? "" : "s"} stay
+                    pending so you can try again.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button size="sm" onClick={confirmBulkChunkSent} disabled={bulkSending} className="gap-1.5">
+                      {bulkSending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                      Sent it
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={cancelBulkChunk} disabled={bulkSending}>
+                      Not yet
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={openBulkDraft} disabled={bulkSending} className="gap-1.5">
+                      <Mail className="h-3.5 w-3.5" /> Reopen draft
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="text-[11px] text-muted-foreground">
+                    Tap Open draft to launch your mail app with everyone in BCC. Because one email
+                    goes to many people, {"{firstName}"} is replaced with "there". You send it from
+                    your own mail app, and we will ask you to confirm afterwards.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" onClick={openBulkDraft} className="gap-1.5">
+                      <Mail className="h-3.5 w-3.5" /> Open draft
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={copyBulkBcc} className="gap-1.5">
+                      <Copy className="h-3.5 w-3.5" /> Copy addresses
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           ) : (
             <div className="py-6 text-center text-sm text-muted-foreground">
-              All pending emails have been drafted.
+              Every batch has been confirmed.
             </div>
           )}
           <DialogFooter>
             <Button variant="ghost" size="sm" onClick={() => setBulkOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Single-contact confirmation: a mail or Messages draft is not a send. */}
+      <Dialog open={!!confirmSend} onOpenChange={(o) => { if (!o) setConfirmSend(null); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Did that send?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {confirmSend ? `We opened your ${confirmSend.channel === "sms" ? "Messages" : "Mail"} app for ${firstName(confirmSend.contact.name)}. ` : ""}
+            We cannot see inside it, so nothing is recorded until you confirm. Choose Not yet and they stay
+            pending so you can try again.
+          </p>
+          <DialogFooter className="flex-row justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => setConfirmSend(null)} disabled={confirmSaving}>
+              Not yet
+            </Button>
+            <Button size="sm" onClick={confirmSingleSent} disabled={confirmSaving} className="gap-1.5">
+              {confirmSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+              Sent it
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
