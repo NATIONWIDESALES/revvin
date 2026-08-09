@@ -166,7 +166,7 @@ const Signup = () => {
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
               {inviteCode
-                ? "Free to build. Your invite covers the first 3 months."
+                ? "Free to build. Your invite offer is applied at checkout."
                 : promoLive
                   ? `Build your referral page, offer, and QR code for free. Go live before ${PROMO_END_DATE_TEXT} and it is ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, locked for as long as you stay subscribed. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime.`
                   : `Build your referral page, offer, and QR code for free. Pay ${PRICE_TEXT.monthlyPerMonth} only when you are ready to go live. Cancel anytime.`}
