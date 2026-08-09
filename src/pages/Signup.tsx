@@ -125,7 +125,7 @@ const Signup = () => {
         path="/signup"
         noindex
       />
-      <div className="flex items-start justify-center px-4 pb-12 pt-6">
+      <div className="flex items-start justify-center px-4 pb-24 pt-6 sm:pb-12">
         <div className="w-full max-w-md">
           <Link to="/" className="mb-5 flex items-center justify-center" aria-label="Revvin home">
             <Wordmark size="md" />
