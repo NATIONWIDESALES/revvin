@@ -48,6 +48,16 @@ type AttributionRow = {
   signups30: number;
 };
 
+type Mode = "human" | "all";
+
+type Row = {
+  event: string;
+  created_at: string | null;
+  meta?: Record<string, unknown> | null;
+  session_id: string | null;
+  bot_reason?: string | null;
+};
+
 const FunnelPanel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,15 +65,23 @@ const FunnelPanel = () => {
   const [d30, setD30] = useState<Counts>(emptyCounts());
   const [visitors, setVisitors] = useState({ v7: 0, v30: 0 });
   const [attribution, setAttribution] = useState<AttributionRow[]>([]);
+  const [mode, setMode] = useState<Mode>("human");
+  const [botReasons, setBotReasons] = useState<Record<string, string>>({});
+  const [filtered, setFiltered] = useState({ bots: 0, total: 0 });
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      setError(null);
       const since30 = new Date(Date.now() - 30 * 86400000).toISOString();
       const since7 = new Date(Date.now() - 7 * 86400000).toISOString();
       const { data, error } = await supabase
-        .from("funnel_events")
-        .select("event, created_at, meta, session_id")
+        .from(mode === "human" ? "funnel_events_human" : "funnel_events")
+        .select(
+          mode === "human"
+            ? "event, created_at, meta, session_id"
+            : "event, created_at, meta, session_id, bot_reason",
+        )
         .gte("created_at", since30)
         .limit(50000);
       if (error) {
@@ -71,21 +89,41 @@ const FunnelPanel = () => {
         setLoading(false);
         return;
       }
+
+      // Filtered share over the same window, counted on distinct sessions.
+      const { data: shareRows } = await supabase
+        .from("funnel_events")
+        .select("session_id, bot_reason")
+        .gte("created_at", since30)
+        .limit(50000);
+      const allSessions = new Set<string>();
+      const botSessions = new Set<string>();
+      for (const r of (shareRows ?? []) as {
+        session_id: string | null;
+        bot_reason: string | null;
+      }[]) {
+        if (!r.session_id) continue;
+        allSessions.add(r.session_id);
+        if (r.bot_reason) botSessions.add(r.session_id);
+      }
+      setFiltered({ bots: botSessions.size, total: allSessions.size });
+
       const a = emptyCounts();
       const b = emptyCounts();
       const attr = new Map<string, AttributionRow>();
       const sessions30 = new Set<string>();
       const sessions7 = new Set<string>();
-      for (const row of data ?? []) {
-        const e = (row as { event: string }).event;
-        const recent = (row as { created_at: string }).created_at >= since7;
-        const sid = (row as { session_id: string | null }).session_id;
+      const reasons: Record<string, string> = {};
+      for (const row of ((data ?? []) as unknown as Row[])) {
+        const e = row.event ?? "";
+        const recent = (row.created_at ?? "") >= since7;
+        const sid = row.session_id;
         if (sid) {
           sessions30.add(sid);
           if (recent) sessions7.add(sid);
         }
-        const meta = ((row as { meta?: Record<string, unknown> | null }).meta ??
-          {}) as Record<string, unknown>;
+        if (row.bot_reason && e && !reasons[e]) reasons[e] = row.bot_reason;
+        const meta = (row.meta ?? {}) as Record<string, unknown>;
         const source =
           typeof meta.utm_source === "string" && meta.utm_source
             ? meta.utm_source
@@ -129,10 +167,11 @@ const FunnelPanel = () => {
       setAttribution(
         [...attr.values()].sort((x, y) => y.events30 - x.events30).slice(0, 50),
       );
+      setBotReasons(reasons);
       setLoading(false);
     };
     void load();
-  }, []);
+  }, [mode]);
 
   const dropoff = (counts: Counts, event: string): string => {
     const idx = DROPOFF_CHAIN.indexOf(event);
