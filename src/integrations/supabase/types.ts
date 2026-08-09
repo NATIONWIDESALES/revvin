@@ -661,6 +661,7 @@ export type Database = {
       }
       funnel_events: {
         Row: {
+          bot_reason: string | null
           created_at: string
           event: string
           id: string
@@ -671,6 +672,7 @@ export type Database = {
           user_agent: string | null
         }
         Insert: {
+          bot_reason?: string | null
           created_at?: string
           event: string
           id?: string
@@ -681,6 +683,7 @@ export type Database = {
           user_agent?: string | null
         }
         Update: {
+          bot_reason?: string | null
           created_at?: string
           event?: string
           id?: string
@@ -2213,6 +2216,42 @@ export type Database = {
         }
         Relationships: []
       }
+      funnel_events_human: {
+        Row: {
+          bot_reason: string | null
+          created_at: string | null
+          event: string | null
+          id: string | null
+          meta: Json | null
+          path: string | null
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          bot_reason?: string | null
+          created_at?: string | null
+          event?: string | null
+          id?: string | null
+          meta?: Json | null
+          path?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          bot_reason?: string | null
+          created_at?: string | null
+          event?: string | null
+          id?: string | null
+          meta?: Json | null
+          path?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       assign_self_role: {
@@ -2231,6 +2270,10 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      fn_bot_reason: {
+        Args: { p_referrer: string; p_ua: string }
+        Returns: string
       }
       fn_business_privileged_unchanged: {
         Args: {
