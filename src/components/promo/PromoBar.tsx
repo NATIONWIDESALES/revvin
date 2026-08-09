@@ -7,9 +7,10 @@ import {
 } from "@/config/promo";
 import { usePromoCountdown } from "@/components/promo/PromoCountdown";
 
-// Routes where the persistent promo bar belongs: the homepage and the signup
-// flow. Everything else (referral pages, dashboard, legal) stays untouched.
-const ALLOWED = ["/", "/signup", "/auth", "/login", "/welcome"];
+// Routes where the persistent promo bar belongs. /signup is deliberately
+// excluded: the bar costs ~124px above the first field on a phone and the page
+// already states the price, so it was pushing the whole form below the fold.
+const ALLOWED = ["/", "/auth", "/login", "/welcome"];
 
 const pad = (n: number) => String(n).padStart(2, "0");
 

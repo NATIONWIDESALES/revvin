@@ -12,8 +12,7 @@ import { Loader2, MailCheck } from "lucide-react";
 import { track } from "@/lib/track";
 import { PRICE_TEXT } from "@/config/pricing";
 import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
-import PromoBar from "@/components/promo/PromoBar";
-import InviteBanner from "@/components/invite/InviteBanner";
+import InviteBanner, { InviteTerms } from "@/components/invite/InviteBanner";
 import { captureInviteFromSearch, getInviteCode } from "@/lib/invite";
 import { friendlyError } from "@/lib/errors";
 
@@ -126,13 +125,12 @@ const Signup = () => {
         path="/signup"
         noindex
       />
-      <PromoBar standalone />
-      <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
+      <div className="flex items-start justify-center px-4 pb-12 pt-6">
         <div className="w-full max-w-md">
-          <Link to="/" className="flex items-center justify-center mb-8" aria-label="Revvin home">
+          <Link to="/" className="mb-5 flex items-center justify-center" aria-label="Revvin home">
             <Wordmark size="md" />
           </Link>
-          <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
             {confirmPending ? (
               <div className="text-center">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -166,15 +164,17 @@ const Signup = () => {
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               Create your free account
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {promoLive
-                ? `Build your referral page, offer, and QR code for free. Go live before ${PROMO_END_DATE_TEXT} and it is ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, locked for as long as you stay subscribed. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime.`
-                : `Build your referral page, offer, and QR code for free. Pay ${PRICE_TEXT.monthlyPerMonth} only when you are ready to go live. Cancel anytime.`}
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              {inviteCode
+                ? "Free to build. Your invite offer is applied at checkout."
+                : promoLive
+                  ? `Build your referral page, offer, and QR code for free. Go live before ${PROMO_END_DATE_TEXT} and it is ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, locked for as long as you stay subscribed. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime.`
+                  : `Build your referral page, offer, and QR code for free. Pay ${PRICE_TEXT.monthlyPerMonth} only when you are ready to go live. Cancel anytime.`}
             </p>
 
-            {inviteCode && <InviteBanner code={inviteCode} className="mt-4" />}
+            {inviteCode && <InviteBanner code={inviteCode} compact className="mt-3" />}
 
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3">
               <div>
                 <Label htmlFor="biz">Business name</Label>
                 <Input id="biz" autoComplete="organization" value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Your business name" className="mt-1.5" required />
@@ -194,12 +194,23 @@ const Signup = () => {
               <Button type="submit" size="lg" className="w-full h-11" disabled={busy}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create free account"}
               </Button>
+              {inviteCode ? (
+                <InviteTerms />
+              ) : (
+                promoLive && (
+                  <p className="text-[11px] leading-relaxed text-muted-foreground">
+                    Launch promotion: go live before {PROMO_END_DATE_TEXT} for {PROMO_TEXT.pricePerMonth} USD, or{" "}
+                    {PROMO_TEXT.annualPerYear} billed once. Regular prices are {PRICE_TEXT.monthlyPerMonth} and{" "}
+                    {PRICE_TEXT.annualPerYear}. Cancel anytime.
+                  </p>
+                )
+              )}
               <p className="text-[11px] text-muted-foreground text-center">
                 By signing up you agree to our <Link to="/terms" className="underline">Terms</Link> and <Link to="/privacy" className="underline">Privacy Policy</Link>.
               </p>
             </form>
 
-            <p className="mt-6 text-center text-sm text-muted-foreground">
+            <p className="mt-5 text-center text-sm text-muted-foreground">
               Already have an account? <Link to="/login" className="text-foreground font-medium hover:underline">Log in</Link>
             </p>
             </>
