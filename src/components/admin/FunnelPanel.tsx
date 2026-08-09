@@ -48,6 +48,16 @@ type AttributionRow = {
   signups30: number;
 };
 
+type Mode = "human" | "all";
+
+type Row = {
+  event: string;
+  created_at: string | null;
+  meta?: Record<string, unknown> | null;
+  session_id: string | null;
+  bot_reason?: string | null;
+};
+
 const FunnelPanel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,37 +65,68 @@ const FunnelPanel = () => {
   const [d30, setD30] = useState<Counts>(emptyCounts());
   const [visitors, setVisitors] = useState({ v7: 0, v30: 0 });
   const [attribution, setAttribution] = useState<AttributionRow[]>([]);
+  const [mode, setMode] = useState<Mode>("human");
+  const [botReasons, setBotReasons] = useState<Record<string, string>>({});
+  const [filtered, setFiltered] = useState({ bots: 0, total: 0 });
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      setError(null);
       const since30 = new Date(Date.now() - 30 * 86400000).toISOString();
       const since7 = new Date(Date.now() - 7 * 86400000).toISOString();
-      const { data, error } = await supabase
-        .from("funnel_events")
-        .select("event, created_at, meta, session_id")
-        .gte("created_at", since30)
-        .limit(50000);
+      const { data, error } =
+        mode === "human"
+          ? await supabase
+              .from("funnel_events_human")
+              .select("event, created_at, meta, session_id")
+              .gte("created_at", since30)
+              .limit(50000)
+          : await supabase
+              .from("funnel_events")
+              .select("event, created_at, meta, session_id, bot_reason")
+              .gte("created_at", since30)
+              .limit(50000);
       if (error) {
         setError(friendlyError(error, "Could not load the funnel data."));
         setLoading(false);
         return;
       }
+
+      // Filtered share over the same window, counted on distinct sessions.
+      const { data: shareRows } = await supabase
+        .from("funnel_events")
+        .select("session_id, bot_reason")
+        .gte("created_at", since30)
+        .limit(50000);
+      const allSessions = new Set<string>();
+      const botSessions = new Set<string>();
+      for (const r of (shareRows ?? []) as {
+        session_id: string | null;
+        bot_reason: string | null;
+      }[]) {
+        if (!r.session_id) continue;
+        allSessions.add(r.session_id);
+        if (r.bot_reason) botSessions.add(r.session_id);
+      }
+      setFiltered({ bots: botSessions.size, total: allSessions.size });
+
       const a = emptyCounts();
       const b = emptyCounts();
       const attr = new Map<string, AttributionRow>();
       const sessions30 = new Set<string>();
       const sessions7 = new Set<string>();
-      for (const row of data ?? []) {
-        const e = (row as { event: string }).event;
-        const recent = (row as { created_at: string }).created_at >= since7;
-        const sid = (row as { session_id: string | null }).session_id;
+      const reasons: Record<string, string> = {};
+      for (const row of ((data ?? []) as unknown as Row[])) {
+        const e = row.event ?? "";
+        const recent = (row.created_at ?? "") >= since7;
+        const sid = row.session_id;
         if (sid) {
           sessions30.add(sid);
           if (recent) sessions7.add(sid);
         }
-        const meta = ((row as { meta?: Record<string, unknown> | null }).meta ??
-          {}) as Record<string, unknown>;
+        if (row.bot_reason && e && !reasons[e]) reasons[e] = row.bot_reason;
+        const meta = (row.meta ?? {}) as Record<string, unknown>;
         const source =
           typeof meta.utm_source === "string" && meta.utm_source
             ? meta.utm_source
@@ -129,10 +170,11 @@ const FunnelPanel = () => {
       setAttribution(
         [...attr.values()].sort((x, y) => y.events30 - x.events30).slice(0, 50),
       );
+      setBotReasons(reasons);
       setLoading(false);
     };
     void load();
-  }, []);
+  }, [mode]);
 
   const dropoff = (counts: Counts, event: string): string => {
     const idx = DROPOFF_CHAIN.indexOf(event);
@@ -154,6 +196,31 @@ const FunnelPanel = () => {
         First-party event counts. Drop-off is measured against the previous step
         in the conversion path. No personal data is recorded.
       </p>
+      <p className="-mt-3 mb-4 text-xs text-muted-foreground">
+        {filtered.bots > 0 && filtered.total > 0
+          ? `${filtered.bots} of ${filtered.total} sessions (${Math.round((filtered.bots / filtered.total) * 100)}%) filtered as automated — spoofed user agents, headless browsers and declared crawlers.`
+          : "No automated traffic detected."}
+      </p>
+
+      <div className="mb-4 inline-flex rounded-lg border border-border p-0.5">
+        {([
+          { key: "human", label: "Human traffic" },
+          { key: "all", label: "All traffic" },
+        ] as { key: Mode; label: string }[]).map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            onClick={() => setMode(t.key)}
+            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              mode === t.key
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
@@ -180,6 +247,9 @@ const FunnelPanel = () => {
                 <th className="py-2 pr-4 text-right font-medium">Last 7d</th>
                 <th className="py-2 pr-4 text-right font-medium">Last 30d</th>
                 <th className="py-2 text-right font-medium">Drop-off (30d)</th>
+                {mode === "all" && (
+                  <th className="py-2 pl-4 text-right font-medium">Bot reason</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -196,6 +266,11 @@ const FunnelPanel = () => {
                     <td className={`py-2 text-right tabular-nums ${drop !== "—" && parseInt(drop, 10) >= 50 ? "font-semibold text-destructive" : "text-muted-foreground"}`}>
                       {drop}
                     </td>
+                    {mode === "all" && (
+                      <td className="py-2 pl-4 text-right text-xs text-muted-foreground">
+                        {botReasons[f.event] ?? "—"}
+                      </td>
+                    )}
                   </tr>
                 );
               })}
