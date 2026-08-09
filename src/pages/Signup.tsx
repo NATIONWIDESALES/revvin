@@ -125,7 +125,7 @@ const Signup = () => {
         path="/signup"
         noindex
       />
-      <div className="flex items-start justify-center px-4 pb-12 pt-6">
+      <div className="flex items-start justify-center px-4 pb-24 pt-6 sm:pb-12">
         <div className="w-full max-w-md">
           <Link to="/" className="mb-5 flex items-center justify-center" aria-label="Revvin home">
             <Wordmark size="md" />
@@ -174,7 +174,7 @@ const Signup = () => {
 
             {inviteCode && <InviteBanner code={inviteCode} compact className="mt-3" />}
 
-            <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+            <form id="signup-form" onSubmit={handleSubmit} className="mt-4 space-y-3">
               <div>
                 <Label htmlFor="biz">Business name</Label>
                 <Input id="biz" autoComplete="organization" value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Your business name" className="mt-1.5" required />
@@ -191,7 +191,7 @@ const Signup = () => {
                 <Label htmlFor="pw">Password</Label>
                 <Input id="pw" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" className="mt-1.5" required />
               </div>
-              <Button type="submit" size="lg" className="w-full h-11" disabled={busy}>
+              <Button type="submit" size="lg" className="hidden w-full h-11 sm:flex" disabled={busy}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create free account"}
               </Button>
               {inviteCode ? (
@@ -213,6 +213,12 @@ const Signup = () => {
             <p className="mt-5 text-center text-sm text-muted-foreground">
               Already have an account? <Link to="/login" className="text-foreground font-medium hover:underline">Log in</Link>
             </p>
+
+            <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden">
+              <Button type="submit" form="signup-form" size="lg" className="w-full h-11" disabled={busy}>
+                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create free account"}
+              </Button>
+            </div>
             </>
             )}
           </div>
