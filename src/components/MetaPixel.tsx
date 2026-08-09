@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { captureAttribution } from "@/lib/attribution";
 import { META_PIXEL_ID as CONFIGURED_PIXEL_ID } from "@/config/analytics";
+import { isLikelyBot } from "@/lib/botCheck";
 
 /**
  * Meta (Facebook) pixel.
@@ -16,6 +17,12 @@ import { META_PIXEL_ID as CONFIGURED_PIXEL_ID } from "@/config/analytics";
 const META_PIXEL_ID =
   (import.meta.env.VITE_META_PIXEL_ID as string | undefined) || CONFIGURED_PIXEL_ID;
 const SCRIPT_ID = "meta-pixel-script";
+
+/**
+ * Computed once per page load. Automated traffic never loads the pixel and
+ * never sends events, so ad optimisation only learns from humans.
+ */
+const IS_BOT = isLikelyBot();
 
 declare global {
   interface Window {
@@ -35,7 +42,7 @@ const MetaPixel = () => {
 
   // Inject the base code once, only if a pixel id is configured.
   useEffect(() => {
-    if (!META_PIXEL_ID) return;
+    if (!META_PIXEL_ID || IS_BOT) return;
     if (document.getElementById(SCRIPT_ID)) return;
     try {
       /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -70,7 +77,7 @@ const MetaPixel = () => {
 
   // SPA navigations are not page loads: fire PageView on route change.
   useEffect(() => {
-    if (!META_PIXEL_ID) return;
+    if (!META_PIXEL_ID || IS_BOT) return;
     try {
       window.fbq?.("track", "PageView");
     } catch {
