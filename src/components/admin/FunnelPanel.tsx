@@ -75,15 +75,18 @@ const FunnelPanel = () => {
       setError(null);
       const since30 = new Date(Date.now() - 30 * 86400000).toISOString();
       const since7 = new Date(Date.now() - 7 * 86400000).toISOString();
-      const { data, error } = await supabase
-        .from(mode === "human" ? "funnel_events_human" : "funnel_events")
-        .select(
-          mode === "human"
-            ? "event, created_at, meta, session_id"
-            : "event, created_at, meta, session_id, bot_reason",
-        )
-        .gte("created_at", since30)
-        .limit(50000);
+      const { data, error } =
+        mode === "human"
+          ? await supabase
+              .from("funnel_events_human")
+              .select("event, created_at, meta, session_id")
+              .gte("created_at", since30)
+              .limit(50000)
+          : await supabase
+              .from("funnel_events")
+              .select("event, created_at, meta, session_id, bot_reason")
+              .gte("created_at", since30)
+              .limit(50000);
       if (error) {
         setError(friendlyError(error, "Could not load the funnel data."));
         setLoading(false);
