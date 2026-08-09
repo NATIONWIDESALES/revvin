@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import Wordmark from "@/components/brand/Wordmark";
 import { PRICE_TEXT } from "@/config/pricing";
 import { PROMO_TEXT, isPromoLive } from "@/config/promo";
+import { INDUSTRIES } from "@/content/industries";
 
 const Footer = () => {
   const promoLive = isPromoLive();
@@ -30,6 +31,7 @@ const Footer = () => {
             <div className="space-y-3">
               <Link to="/how-it-works" className="block text-sm text-white/80 transition-colors hover:text-white">How it works</Link>
               <Link to="/pricing" className="block text-sm text-white/80 transition-colors hover:text-white">Pricing</Link>
+              <Link to="/referral-programs" className="block text-sm text-white/80 transition-colors hover:text-white">Referral programs by industry</Link>
               <Link to="/signup" className="block text-sm text-white/80 transition-colors hover:text-white">Build your page free</Link>
               <Link to="/auth" className="block text-sm text-white/80 transition-colors hover:text-white">Log in</Link>
             </div>
@@ -47,7 +49,24 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center">
+        <nav aria-label="Referral programs by trade" className="mt-12 border-t border-white/10 pt-8">
+          <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+            Referral programs by trade
+          </h4>
+          <div className="flex flex-wrap gap-x-6 gap-y-3">
+            {INDUSTRIES.map((i) => (
+              <Link
+                key={i.slug}
+                to={`/referral-program/${i.slug}`}
+                className="text-sm text-white/70 transition-colors hover:text-white"
+              >
+                {i.label} referral program
+              </Link>
+            ))}
+          </div>
+        </nav>
+
+        <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center">
           <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} Revvin. All rights reserved.</p>
           <p className="text-xs text-white/40">
             free to build · {promoLive ? PROMO_TEXT.pricePerMonth : PRICE_TEXT.monthlyPerMonth} when you publish · referrers join free
