@@ -40,6 +40,8 @@ import ReferralStatus from "./pages/ReferralStatus";
 import Feedback from "./pages/Feedback";
 import PrintAssetPage from "./pages/PrintAsset";
 import ZapierDocs from "./pages/docs/Zapier";
+import IndustriesHub from "./pages/IndustriesHub";
+import IndustryLanding from "./pages/IndustryLanding";
 import Analytics from "@/components/Analytics";
 import MetaPixel from "@/components/MetaPixel";
 
@@ -88,6 +90,8 @@ const App = () => (
                   <Route path="/trust" element={<TrustCenter />} />
                   <Route path="/for-businesses" element={<ForBusinesses />} />
                   <Route path="/for-referrers" element={<ForReferrers />} />
+                  <Route path="/referral-programs" element={<IndustriesHub />} />
+                  <Route path="/referral-program/:industry" element={<IndustryLanding />} />
                   <Route path="/about-revvin-llm" element={<AboutRevvinLLM />} />
                   
                   <Route path="/referrer/:userId" element={<ReferrerProfile />} />
