@@ -10,8 +10,20 @@
 - [For referrers](/for-referrers): How people earn by sending warm leads to local businesses.
 - [Browse offers](/browse): Marketplace of active referral offers.
 - [Pricing](/pricing): Flat $49/month, no trial, no setup fee, cancel anytime. Referrers free.
+- [Referral programs by industry](/referral-programs): Hub of trade-specific referral program guides.
 - [Trust](/trust): How Revvin protects referrers, businesses, and customers.
 - [About Revvin (LLM overview)](/about-revvin-llm): Plain-language summary for AI assistants.
+
+## Referral programs by trade
+
+- [Roofing referral program](/referral-program/roofing): How roofing companies run referrals, repeat exterior work, and reviews.
+- [HVAC referral program](/referral-program/hvac): Referrals after installs plus maintenance reactivation.
+- [Plumbing referral program](/referral-program/plumbing): Referrals at the moment of relief plus deferred-job reactivation.
+- [Solar referral program](/referral-program/solar): Referrals from an installed base plus battery and add-on work.
+- [Electrician referral program](/referral-program/electrical): Referrals from panel, rewire, and EV charger work.
+- [Landscaping referral program](/referral-program/landscaping): Street-level referrals plus seasonal reactivation.
+- [Painting referral program](/referral-program/painting): Referrals from finished rooms plus room-by-room repeat work.
+- [Auto detailing referral program](/referral-program/auto-detailing): Referrals at handover plus short-cycle rebooking.
 
 ## Optional
 
