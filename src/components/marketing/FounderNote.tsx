@@ -75,7 +75,7 @@ const FounderNote = () => {
               <p className="text-sm text-muted-foreground">Vancouver, BC</p>
             )}
             {SHOW_FOUNDER_PHONE && (
-              // TODO(karm): add phone number here if you want it public
+              /* TODO(karm): add phone number here if you want it public */
               <p className="text-sm text-muted-foreground" />
             )}
           </div>
