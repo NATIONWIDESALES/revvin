@@ -66,7 +66,7 @@ const FunnelPanel = () => {
   const [visitors, setVisitors] = useState({ v7: 0, v30: 0 });
   const [attribution, setAttribution] = useState<AttributionRow[]>([]);
   const [mode, setMode] = useState<Mode>("human");
-  const [botReasons, setBotReasons] = useState<Record<string, string>>({});
+  const [botCounts, setBotCounts] = useState<Record<string, number>>({});
   const [filtered, setFiltered] = useState({ bots: 0, total: 0 });
 
   useEffect(() => {
@@ -116,7 +116,7 @@ const FunnelPanel = () => {
       const attr = new Map<string, AttributionRow>();
       const sessions30 = new Set<string>();
       const sessions7 = new Set<string>();
-      const reasons: Record<string, string> = {};
+      const counts: Record<string, number> = {};
       for (const row of ((data ?? []) as unknown as Row[])) {
         const e = row.event ?? "";
         const recent = (row.created_at ?? "") >= since7;
@@ -125,7 +125,7 @@ const FunnelPanel = () => {
           sessions30.add(sid);
           if (recent) sessions7.add(sid);
         }
-        if (row.bot_reason && e && !reasons[e]) reasons[e] = row.bot_reason;
+        if (row.bot_reason && e) counts[e] = (counts[e] ?? 0) + 1;
         const meta = (row.meta ?? {}) as Record<string, unknown>;
         const source =
           typeof meta.utm_source === "string" && meta.utm_source
@@ -170,7 +170,7 @@ const FunnelPanel = () => {
       setAttribution(
         [...attr.values()].sort((x, y) => y.events30 - x.events30).slice(0, 50),
       );
-      setBotReasons(reasons);
+      setBotCounts(counts);
       setLoading(false);
     };
     void load();
@@ -248,7 +248,7 @@ const FunnelPanel = () => {
                 <th className="py-2 pr-4 text-right font-medium">Last 30d</th>
                 <th className="py-2 text-right font-medium">Drop-off (30d)</th>
                 {mode === "all" && (
-                  <th className="py-2 pl-4 text-right font-medium">Bot reason</th>
+                  <th className="py-2 pl-4 text-right font-medium">Automated</th>
                 )}
               </tr>
             </thead>
@@ -268,7 +268,7 @@ const FunnelPanel = () => {
                     </td>
                     {mode === "all" && (
                       <td className="py-2 pl-4 text-right text-xs text-muted-foreground">
-                        {botReasons[f.event] ?? "—"}
+                        {(botCounts[f.event] ?? 0) > 0 ? `${botCounts[f.event]} bot` : "—"}
                       </td>
                     )}
                   </tr>
