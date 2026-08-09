@@ -196,6 +196,31 @@ const FunnelPanel = () => {
         First-party event counts. Drop-off is measured against the previous step
         in the conversion path. No personal data is recorded.
       </p>
+      <p className="-mt-3 mb-4 text-xs text-muted-foreground">
+        {filtered.bots > 0 && filtered.total > 0
+          ? `${filtered.bots} of ${filtered.total} sessions (${Math.round((filtered.bots / filtered.total) * 100)}%) filtered as automated — spoofed user agents, headless browsers and declared crawlers.`
+          : "No automated traffic detected."}
+      </p>
+
+      <div className="mb-4 inline-flex rounded-lg border border-border p-0.5">
+        {([
+          { key: "human", label: "Human traffic" },
+          { key: "all", label: "All traffic" },
+        ] as { key: Mode; label: string }[]).map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            onClick={() => setMode(t.key)}
+            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              mode === t.key
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
@@ -222,6 +247,9 @@ const FunnelPanel = () => {
                 <th className="py-2 pr-4 text-right font-medium">Last 7d</th>
                 <th className="py-2 pr-4 text-right font-medium">Last 30d</th>
                 <th className="py-2 text-right font-medium">Drop-off (30d)</th>
+                {mode === "all" && (
+                  <th className="py-2 pl-4 text-right font-medium">Bot reason</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -238,6 +266,11 @@ const FunnelPanel = () => {
                     <td className={`py-2 text-right tabular-nums ${drop !== "—" && parseInt(drop, 10) >= 50 ? "font-semibold text-destructive" : "text-muted-foreground"}`}>
                       {drop}
                     </td>
+                    {mode === "all" && (
+                      <td className="py-2 pl-4 text-right text-xs text-muted-foreground">
+                        {botReasons[f.event] ?? "—"}
+                      </td>
+                    )}
                   </tr>
                 );
               })}
