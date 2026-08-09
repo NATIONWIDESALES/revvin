@@ -66,7 +66,7 @@ const FunnelPanel = () => {
   const [visitors, setVisitors] = useState({ v7: 0, v30: 0 });
   const [attribution, setAttribution] = useState<AttributionRow[]>([]);
   const [mode, setMode] = useState<Mode>("human");
-  const [botReasons, setBotReasons] = useState<Record<string, string>>({});
+  const [botCounts, setBotCounts] = useState<Record<string, number>>({});
   const [filtered, setFiltered] = useState({ bots: 0, total: 0 });
 
   useEffect(() => {
