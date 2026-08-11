@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info, CreditCard, Loader2, AlertTriangle } from "lucide-react";
-import { categories, isRestrictedCategory } from "@/lib/offerUtils";
+import { categories, isRestrictedCategory, SUPPORTED_COUNTRIES } from "@/lib/offerUtils";
 import { motion } from "framer-motion";
 import {
   Dialog,

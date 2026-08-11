@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, MapPin } from "lucide-react";
-import { categories, isRestrictedCategory } from "@/lib/offerUtils";
+import { categories, isRestrictedCategory, normalizeCountry, SUPPORTED_COUNTRIES } from "@/lib/offerUtils";
 import { friendlyError } from "@/lib/errors";
 
 const EditOffer = () => {
