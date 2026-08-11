@@ -1,5 +1,6 @@
-export type Country = "CA" | "US";
-export type Currency = "CAD" | "USD";
+export type Country = "CA" | "US" | "AE";
+/** Revvin prices and pays out in USD only, everywhere. */
+export type Currency = "USD";
 
 export interface Offer {
   id: string;

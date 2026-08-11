@@ -11,6 +11,7 @@ import ShareOfferLink from "@/components/ShareOfferLink";
 import ReferralWizard from "@/components/ReferralWizard";
 import SEOHead from "@/components/SEOHead";
 import type { Offer } from "@/types/offer";
+import { countryFlag, normalizeCountry } from "@/lib/offerUtils";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -47,8 +48,8 @@ const OfferDetail = () => {
           description: o.description ?? "",
           payout: Number(o.payout),
           payoutType: "flat" as const,
-          currency: (o.currency === "CAD" ? "CAD" : "USD") as "CAD" | "USD",
-          country: (o.country === "CA" ? "CA" : "US") as "CA" | "US",
+          currency: "USD" as const,
+          country: normalizeCountry(o.country),
           location: o.location ?? `${o.businesses?.city ?? ""}, ${o.businesses?.state ?? ""}`,
           state: o.businesses?.state ?? "", city: o.businesses?.city ?? "",
           rating: 4.5, totalReferrals: 0, successRate: 0,
@@ -211,7 +212,7 @@ const OfferDetail = () => {
               <div className="flex-1">
                 <h1 className="text-2xl font-bold text-foreground md:text-3xl">{offer.title}</h1>
                 <p className="text-muted-foreground mt-1 flex items-center gap-1">
-                  {offer.country === "CA" ? "🇨🇦" : "🇺🇸"} {offer.business}
+                  {countryFlag(offer.country)} {offer.business}
                   {offer.verified !== false && <BadgeCheck className="h-4 w-4 text-primary" />}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">

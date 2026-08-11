@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Offer } from "@/types/offer";
+import { normalizeCountry } from "@/lib/offerUtils";
 
 /**
  * Fetches real offers from DB. Returns empty array when no offers exist.
@@ -30,8 +31,8 @@ export function useDbOffers() {
         description: o.description ?? "",
         payout: Number(o.payout),
         payoutType: "flat" as const,
-        currency: (o.currency === "CAD" ? "CAD" : "USD") as "CAD" | "USD",
-        country: (o.country === "CA" ? "CA" : "US") as "CA" | "US",
+        currency: "USD" as const,
+        country: normalizeCountry(o.country),
         location: o.location ?? `${o.businesses?.city ?? ""}, ${o.businesses?.state ?? ""}`,
         state: o.businesses?.state ?? "",
         city: o.businesses?.city ?? "",

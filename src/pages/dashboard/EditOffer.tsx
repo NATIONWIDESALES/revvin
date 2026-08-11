@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, MapPin } from "lucide-react";
-import { categories, isRestrictedCategory } from "@/lib/offerUtils";
+import { categories, isRestrictedCategory, normalizeCountry, SUPPORTED_COUNTRIES } from "@/lib/offerUtils";
 import { friendlyError } from "@/lib/errors";
 
 const EditOffer = () => {
@@ -30,7 +30,7 @@ const EditOffer = () => {
     closeTimeDays: "",
     remoteEligible: false,
     qualificationCriteria: "",
-    country: "US" as "US" | "CA",
+    country: "US" as "US" | "CA" | "AE",
   });
 
   useEffect(() => {
@@ -60,7 +60,7 @@ const EditOffer = () => {
         closeTimeDays: offer.close_time_days ? String(offer.close_time_days) : "",
         remoteEligible: offer.remote_eligible || false,
         qualificationCriteria: offer.qualification_criteria || "",
-        country: (offer.country === "CA" ? "CA" : "US") as "US" | "CA",
+        country: normalizeCountry(offer.country),
       });
       setLoading(false);
     };
@@ -91,7 +91,7 @@ const EditOffer = () => {
           payout: payoutNum,
           location: form.location.trim(),
           country: form.country,
-          currency: form.country === "CA" ? "CAD" : "USD",
+          currency: "USD",
           deal_size_min: form.dealSizeMin ? parseFloat(form.dealSizeMin) : null,
           deal_size_max: form.dealSizeMax ? parseFloat(form.dealSizeMax) : null,
           close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
@@ -150,7 +150,7 @@ const EditOffer = () => {
             </div>
             <div>
               <Label>Service Location</Label>
-              <Input value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="e.g. Los Angeles, CA" className="mt-1" />
+              <Input value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="e.g. Los Angeles, CA or Dubai, UAE" className="mt-1" />
             </div>
           </div>
 
@@ -158,12 +158,16 @@ const EditOffer = () => {
             <div>
               <Label>Country</Label>
               <div className="mt-1 flex gap-2">
-                <Button type="button" variant={form.country === "US" ? "default" : "outline"} size="sm" onClick={() => update("country", "US")} className="flex-1">🇺🇸 USA</Button>
-                <Button type="button" variant={form.country === "CA" ? "default" : "outline"} size="sm" onClick={() => update("country", "CA")} className="flex-1">🇨🇦 Canada</Button>
+                {SUPPORTED_COUNTRIES.map((c) => (
+                  <Button key={c.value} type="button" variant={form.country === c.value ? "default" : "outline"} size="sm" onClick={() => update("country", c.value)} className="flex-1">
+                    {c.flag} {c.label}
+                  </Button>
+                ))}
               </div>
+              <p className="mt-1 text-xs text-muted-foreground">All payouts are shown and paid in USD.</p>
             </div>
             <div>
-              <Label>Payout Amount ($)</Label>
+              <Label>Payout Amount (USD)</Label>
               <Input type="number" value={form.payout} onChange={(e) => update("payout", e.target.value)} required className="mt-1" />
             </div>
           </div>

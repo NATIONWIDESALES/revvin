@@ -25,12 +25,11 @@ export const useCountry = () => useContext(CountryContext);
 
 export const CountryProvider = ({ children }: { children: ReactNode }) => {
   const [country, setCountryState] = useState<CountryFilter>("US");
+  // USD only, always, in every country Revvin operates in.
   const [displayCurrency, setDisplayCurrency] = useState<Currency>("USD");
 
   const setCountry = useCallback((c: CountryFilter) => {
     setCountryState(c);
-    if (c === "CA") setDisplayCurrency("CAD");
-    else if (c === "US") setDisplayCurrency("USD");
   }, []);
 
   // All amounts displayed as plain USD ($1,000) — currency codes/prefixes intentionally suppressed.

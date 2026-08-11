@@ -391,7 +391,7 @@ const Browse = () => {
                 <div>
                   <label className="text-sm font-medium mb-2 block">Country</label>
                   <div className="flex gap-1">
-                    {([["ALL", "🌎 Both"], ["US", "🇺🇸 USA"], ["CA", "🇨🇦 Canada"]] as [Country | "ALL", string][]).map(([val, label]) => (
+                    {([["ALL", "🌎 All"], ["US", "🇺🇸 USA"], ["CA", "🇨🇦 Canada"], ["AE", "🇦🇪 UAE"]] as [Country | "ALL", string][]).map(([val, label]) => (
                       <Button key={val} size="sm" variant={country === val ? "default" : "outline"} onClick={() => setCountry(val)} className="flex-1 text-xs">
                         {label}
                       </Button>
@@ -400,7 +400,7 @@ const Browse = () => {
                 </div>
                 {/* State */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">State / Province</label>
+                  <label className="text-sm font-medium mb-2 block">State / Province / Emirate</label>
                   <Select value={stateFilter || "all"} onValueChange={(v) => { setStateFilter(v === "all" ? "" : v); setCityFilter(""); }}>
                     <SelectTrigger className="h-10"><SelectValue placeholder="All" /></SelectTrigger>
                     <SelectContent>

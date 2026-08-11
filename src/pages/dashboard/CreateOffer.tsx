@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, DollarSign, Clock, MapPin, Shield, BadgeCheck, Building2, CheckCircle2, Info, CreditCard, Loader2, AlertTriangle } from "lucide-react";
-import { categories, isRestrictedCategory } from "@/lib/offerUtils";
+import { categories, isRestrictedCategory, SUPPORTED_COUNTRIES } from "@/lib/offerUtils";
 import { motion } from "framer-motion";
 import {
   Dialog,
@@ -44,7 +44,7 @@ const CreateOffer = () => {
     remoteEligible: false, qualificationCriteria: "",
     payoutTimeline: "net14" as "net7" | "net14" | "net30",
     monthlyCapacity: "", leadFreshness: "", minProjectSize: "", eligibleLocations: "",
-    country: "US" as "US" | "CA",
+    country: "US" as "US" | "CA" | "AE",
   });
 
   useEffect(() => {
@@ -134,7 +134,7 @@ const CreateOffer = () => {
       payout_type: "flat" as const,
       location: form.location,
       country: form.country,
-      currency: form.country === "CA" ? "CAD" : "USD",
+      currency: "USD",
       deal_size_min: form.dealSizeMin ? parseFloat(form.dealSizeMin) : null,
       deal_size_max: form.dealSizeMax ? parseFloat(form.dealSizeMax) : null,
       close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
@@ -270,15 +270,19 @@ const CreateOffer = () => {
                     <p className="text-xs text-accent-foreground mt-1 flex items-center gap-1"><Info className="h-3 w-3" /> This category requires admin approval before going live.</p>
                   )}
                 </div>
-                <div><Label>Service Location</Label><Input value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="e.g. Los Angeles, CA" className="mt-1" /></div>
+<div><Label>Service Location</Label><Input value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="e.g. Los Angeles, CA or Dubai, UAE" className="mt-1" /></div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label>Country</Label>
                   <div className="mt-1 flex gap-2">
-                    <Button type="button" variant={form.country === "US" ? "default" : "outline"} size="sm" onClick={() => update("country", "US")} className="flex-1">🇺🇸 USA</Button>
-                    <Button type="button" variant={form.country === "CA" ? "default" : "outline"} size="sm" onClick={() => update("country", "CA")} className="flex-1">🇨🇦 Canada</Button>
+                    {SUPPORTED_COUNTRIES.map((c) => (
+                      <Button key={c.value} type="button" variant={form.country === c.value ? "default" : "outline"} size="sm" onClick={() => update("country", c.value)} className="flex-1">
+                        {c.flag} {c.label}
+                      </Button>
+                    ))}
                   </div>
+                  <p className="mt-1 text-xs text-muted-foreground">All payouts are shown and paid in USD.</p>
                 </div>
               </div>
               <div><Label>Qualification Criteria (optional)</Label><Textarea value={form.qualificationCriteria} onChange={(e) => update("qualificationCriteria", e.target.value)} placeholder="What makes a qualified lead?" rows={3} className="mt-1" /></div>

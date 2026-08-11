@@ -228,7 +228,7 @@ const ProfileEdit = () => {
                 </div>
                 <div>
                   <Label>Province / State</Label>
-                  <Input value={form.state} onChange={(e) => update("state", e.target.value)} placeholder="e.g. BC" className="mt-1" />
+                  <Input value={form.state} onChange={(e) => update("state", e.target.value)} placeholder="e.g. BC, TX, or Dubai" className="mt-1" />
                 </div>
               </div>
 
@@ -335,7 +335,7 @@ const ProfileEdit = () => {
                       <Input
                         value={bizForm.country}
                         onChange={(e) => updateBiz("country", e.target.value)}
-                        placeholder="Canada"
+                        placeholder="United States, Canada, or United Arab Emirates"
                         className="mt-1"
                       />
                     </div>

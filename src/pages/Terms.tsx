@@ -29,14 +29,14 @@ const Terms = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">2. Who can use the Service</h2>
-            <p>The Service is offered to businesses located in the United States and Canada, and to referrers submitting leads to those businesses. You must be at least 18 years old and able to enter a binding contract. You are responsible for keeping your login credentials confidential and for activity on your account.</p>
+            <p>The Service is offered to businesses located in the United States, Canada and the United Arab Emirates, and to referrers submitting leads to those businesses. You must be at least 18 years old and able to enter a binding contract. You are responsible for keeping your login credentials confidential and for activity on your account.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-bold text-foreground">3. Subscription and billing</h2>
             <ul className="list-disc pl-5 space-y-1">
               <li>Creating an account, building your referral page, and previewing it are free. No payment details are required to build.</li>
-              <li>Business subscriptions are either a flat $49 per month in US dollars, billed monthly through Stripe, or $450 per year in US dollars, billed once up front through Stripe. Pricing is in USD for all customers, including customers in Canada.</li>
+              <li>Business subscriptions are either a flat $49 per month in US dollars, billed monthly through Stripe, or $450 per year in US dollars, billed once up front through Stripe. Pricing, offer payouts and every amount shown in the Service are in USD for all customers, in every country, including Canada and the United Arab Emirates. Your bank may apply its own conversion rate and fees.</li>
               <li>There is no contract and no setup fee. Billing starts when you publish your page and does not start before that. Until you publish, your page is a private draft that is not visible to the public.</li>
               <li>You can cancel anytime through the Stripe billing portal linked from your account. On cancellation your access continues until the end of the current paid period and does not renew. On the annual plan the paid period is the full twelve months you were charged for, so your page stays live through the end of that year.</li>
               <li>Fees already paid are non-refundable. We do not pro-rate or refund the unused part of a monthly or annual billing period, including when you cancel an annual subscription part way through the year.</li>
@@ -53,7 +53,7 @@ const Terms = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">5. Contacting your own customers</h2>
-            <p>When a business uses Revvin to announce or promote its referral program to its own customers, the business is solely responsible for having the right to contact those people and for complying with applicable communications and marketing laws, including the US Telephone Consumer Protection Act (TCPA) and Canada's Anti-Spam Legislation (CASL). Sends happen from the business's own devices and accounts, using the business's own SMS and email apps. Revvin does not send SMS or email to your customers on your behalf.</p>
+            <p>When a business uses Revvin to announce or promote its referral program to its own customers, the business is solely responsible for having the right to contact those people and for complying with applicable communications and marketing laws, including the US Telephone Consumer Protection Act (TCPA), Canada's Anti-Spam Legislation (CASL) and, in the United Arab Emirates, the TDRA rules on unsolicited electronic marketing. Sends happen from the business's own devices and accounts, using the business's own SMS and email apps. Revvin does not send SMS or email to your customers on your behalf.</p>
           </section>
 
           <section>
