@@ -212,7 +212,7 @@ const OfferDetail = () => {
               <div className="flex-1">
                 <h1 className="text-2xl font-bold text-foreground md:text-3xl">{offer.title}</h1>
                 <p className="text-muted-foreground mt-1 flex items-center gap-1">
-                  {offer.country === "CA" ? "🇨🇦" : "🇺🇸"} {offer.business}
+                  {countryFlag(offer.country)} {offer.business}
                   {offer.verified !== false && <BadgeCheck className="h-4 w-4 text-primary" />}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">

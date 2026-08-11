@@ -150,7 +150,7 @@ const MapView = ({ offers, highlightOfferId, onMarkerClick }: MapViewProps) => {
         const borderColor = isVerified
           ? "hsl(160, 84%, 30%)"
           : "hsl(220, 10%, 65%)";
-        const flag = offer.country === "CA" ? "🇨🇦" : "🇺🇸";
+        const flag = countryFlag(offer.country);
 
         const marker = L.circleMarker(
           [offer.latitude!, offer.longitude!],
@@ -198,9 +198,7 @@ const MapView = ({ offers, highlightOfferId, onMarkerClick }: MapViewProps) => {
         const avgPayout = Math.round(
           cluster.offers.reduce((s, o) => s + o.payout, 0) / count,
         );
-        const hasCA = cluster.offers.some((o) => o.country === "CA");
-        const hasUS = cluster.offers.some((o) => o.country === "US");
-        const flags = hasCA && hasUS ? "🇨🇦🇺🇸" : hasCA ? "🇨🇦" : "🇺🇸";
+        const flags = Array.from(new Set(cluster.offers.map((o) => countryFlag(o.country)))).join("");
 
         const icon = L.divIcon({
           html: `<div style="background:hsl(160,84%,22%);color:white;border-radius:50%;width:44px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,system-ui,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid hsl(160,84%,30%);">
@@ -223,7 +221,7 @@ const MapView = ({ offers, highlightOfferId, onMarkerClick }: MapViewProps) => {
           .slice(0, 4)
           .map((o) => {
             const pl = formatPayout(o.payout, o.currency);
-            const f = o.country === "CA" ? "🇨🇦" : "🇺🇸";
+            const f = countryFlag(o.country);
             return `<div style="margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #eee;">
               <div style="font-weight:600;font-size:13px;">${f} ${o.title}</div>
               <div style="font-size:11px;color:#888;">${o.business} · <strong style="color:hsl(160,84%,22%);">${pl}</strong></div>

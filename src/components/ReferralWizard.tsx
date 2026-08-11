@@ -342,7 +342,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
                     </div>
                     <div>
                       <p className="font-semibold text-sm">{offer.title}</p>
-                      <p className="text-xs text-muted-foreground">{offer.business} • {offer.country === "CA" ? "🇨🇦" : "🇺🇸"} {offer.city}</p>
+                      <p className="text-xs text-muted-foreground">{offer.business} • {countryFlag(offer.country)} {offer.city}</p>
                     </div>
                   </div>
                   <div className="rounded-lg bg-earnings/5 border border-earnings/20 p-2 text-center">
