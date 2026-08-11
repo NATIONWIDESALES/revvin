@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { Offer } from "@/types/offer";
+import { countryFlag } from "@/lib/offerUtils";
 import { Button } from "@/components/ui/button";
 import { useCountry } from "@/contexts/CountryContext";
 import { toSlug } from "@/lib/utils";

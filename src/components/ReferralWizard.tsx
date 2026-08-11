@@ -16,6 +16,7 @@ import { useCountry } from "@/contexts/CountryContext";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Offer } from "@/types/offer";
+import { countryFlag } from "@/lib/offerUtils";
 import { friendlyError } from "@/lib/errors";
 
 const STORAGE_KEY = "revvin_referral_draft";
