@@ -335,7 +335,7 @@ const ProfileEdit = () => {
                       <Input
                         value={bizForm.country}
                         onChange={(e) => updateBiz("country", e.target.value)}
-                        placeholder="Canada"
+                        placeholder="United States, Canada, or United Arab Emirates"
                         className="mt-1"
                       />
                     </div>

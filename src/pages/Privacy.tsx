@@ -73,7 +73,7 @@ const Privacy = () => {
 
           <section>
             <h2 className="text-lg font-bold text-foreground">5. International Data Transfers</h2>
-            <p>Revvin operates in the United States and Canada. Our infrastructure providers may process data in the United States and other countries. By using the Service you understand that your information may be transferred to and processed in jurisdictions outside your own, including the United States, and we apply reasonable safeguards consistent with applicable law.</p>
+            <p>Revvin operates in the United States, Canada and the United Arab Emirates. Our infrastructure providers may process data in the United States and other countries. By using the Service you understand that your information may be transferred to and processed in jurisdictions outside your own, including the United States, and we apply reasonable safeguards consistent with applicable law.</p>
           </section>
 
           <section>
@@ -94,6 +94,7 @@ const Privacy = () => {
             <p><strong>Marketing email.</strong> You can opt out of marketing email at any time using the unsubscribe link. Transactional email related to your account and referrals will continue.</p>
             <p><strong>California, Colorado, and similar US state privacy rights.</strong> Residents of states with comprehensive privacy laws have the rights described above and the right not to be discriminated against for exercising them. We do not sell personal information and we do not engage in cross-context behavioral advertising.</p>
             <p><strong>Canada (PIPEDA and provincial laws).</strong> Canadian users may direct privacy complaints to us first, and if unresolved, to the Office of the Privacy Commissioner of Canada or the applicable provincial regulator.</p>
+            <p><strong>United Arab Emirates (PDPL).</strong> Users in the UAE may request access, correction, deletion or restriction of their personal data, and may withdraw consent at any time, by emailing info@revvin.co. Data is processed on the basis of the account contract and, for marketing, on consent. Personal data is stored on infrastructure located outside the UAE, including the United States, under contractual safeguards with our processors.</p>
           </section>
 
           <section>
