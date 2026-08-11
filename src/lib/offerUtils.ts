@@ -45,6 +45,29 @@ export const isRestrictedCategory = (category: string | null | undefined) =>
 
 export const canadaProvinces = ["BC", "AB", "ON", "QC", "MB", "SK"];
 export const usStates = ["CA", "TX", "WA", "AZ", "NY", "FL", "IL", "CO", "GA", "MA"];
+/** UAE emirates, used in place of states for AE listings. */
+export const uaeEmirates = ["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Ras Al Khaimah", "Fujairah", "Umm Al Quwain"];
+
+/** Countries Revvin operates in. Currency is always USD, everywhere. */
+export const SUPPORTED_COUNTRIES: { value: Country; label: string; flag: string }[] = [
+  { value: "US", label: "USA", flag: "🇺🇸" },
+  { value: "CA", label: "Canada", flag: "🇨🇦" },
+  { value: "AE", label: "UAE", flag: "🇦🇪" },
+];
+
+/** Maps a raw DB country value onto a supported country, defaulting to US. */
+export const normalizeCountry = (raw: string | null | undefined): Country => {
+  const v = (raw ?? "").trim().toUpperCase();
+  if (v === "CA" || v === "CANADA") return "CA";
+  if (v === "AE" || v === "UAE" || v === "UNITED ARAB EMIRATES") return "AE";
+  return "US";
+};
+
+export const countryFlag = (country: Country | null | undefined) =>
+  country === "CA" ? "🇨🇦" : country === "AE" ? "🇦🇪" : "🇺🇸";
+
+export const countryLabel = (country: Country | null | undefined) =>
+  country === "CA" ? "Canada" : country === "AE" ? "United Arab Emirates" : "United States";
 
 export const cityJumpsCA = [
   { label: "Vancouver", lat: 49.2827, lng: -123.1207 },
@@ -62,6 +85,15 @@ export const cityJumpsUS = [
   { label: "Phoenix", lat: 33.4484, lng: -112.074 },
   { label: "NYC", lat: 40.7128, lng: -74.006 },
   { label: "SF", lat: 37.7749, lng: -122.4194 },
+];
+
+export const cityJumpsAE = [
+  { label: "Dubai", lat: 25.2048, lng: 55.2708 },
+  { label: "Deira", lat: 25.2697, lng: 55.3095 },
+  { label: "Jumeirah", lat: 25.2048, lng: 55.2404 },
+  { label: "Business Bay", lat: 25.1857, lng: 55.2766 },
+  { label: "Abu Dhabi", lat: 24.4539, lng: 54.3773 },
+  { label: "Sharjah", lat: 25.3463, lng: 55.4209 },
 ];
 
 // ===== OFFER SCORING =====
@@ -90,7 +122,7 @@ export function calculateOfferScore(offer: Offer, allOffers?: Offer[]): OfferSco
 // ===== CITY SLOTS (scarcity concept) =====
 export interface CitySlot {
   city: string;
-  country: "CA" | "US";
+  country: Country;
   category: string;
   maxSlots: 5;
   filledSlots: number;
