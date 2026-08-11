@@ -11,6 +11,7 @@ import ShareOfferLink from "@/components/ShareOfferLink";
 import ReferralWizard from "@/components/ReferralWizard";
 import SEOHead from "@/components/SEOHead";
 import type { Offer } from "@/types/offer";
+import { countryFlag, normalizeCountry } from "@/lib/offerUtils";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
