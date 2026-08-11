@@ -150,7 +150,7 @@ const EditOffer = () => {
             </div>
             <div>
               <Label>Service Location</Label>
-              <Input value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="e.g. Los Angeles, CA" className="mt-1" />
+              <Input value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="e.g. Los Angeles, CA or Dubai, UAE" className="mt-1" />
             </div>
           </div>
 

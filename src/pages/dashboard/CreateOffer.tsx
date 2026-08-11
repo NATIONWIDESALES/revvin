@@ -270,7 +270,7 @@ const CreateOffer = () => {
                     <p className="text-xs text-accent-foreground mt-1 flex items-center gap-1"><Info className="h-3 w-3" /> This category requires admin approval before going live.</p>
                   )}
                 </div>
-                <div><Label>Service Location</Label><Input value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="e.g. Los Angeles, CA" className="mt-1" /></div>
+<div><Label>Service Location</Label><Input value={form.location} onChange={(e) => update("location", e.target.value)} placeholder="e.g. Los Angeles, CA or Dubai, UAE" className="mt-1" /></div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
