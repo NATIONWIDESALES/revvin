@@ -1,4 +1,4 @@
-import type { Offer } from "@/types/offer";
+import type { Country, Offer } from "@/types/offer";
 
 export const categories = [
   "All", "Roofing", "Plumbing", "HVAC", "Landscaping", "Paving", "Home Inspection",
