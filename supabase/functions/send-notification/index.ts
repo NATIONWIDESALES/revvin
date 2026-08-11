@@ -201,6 +201,100 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // --- AUTHORIZATION: prevent using this endpoint as an open mail relay ---
+    // Only internal (service-role) callers and admins may send arbitrary
+    // template notifications. Regular signed-in users are limited to two
+    // product flows, with all recipient/content data derived server-side.
+    const callerToken = authHeader.slice("Bearer ".length).trim();
+    const isServiceRole = callerToken === supabaseKey;
+
+    let isAdmin = false;
+    if (!isServiceRole) {
+      const { data: adminRow } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      isAdmin = !!adminRow;
+    }
+
+    const SELF_SERVICE_TYPES = new Set(["business_invite", "dispute_submitted"]);
+    let safeData: Record<string, string> = data;
+
+    if (!isServiceRole && !isAdmin) {
+      if (!SELF_SERVICE_TYPES.has(type)) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (type === "business_invite") {
+        // Recipient is user-supplied by design (it is an invitation), but the
+        // body is fully server-controlled: no attacker-chosen links or amounts.
+        const email = String(recipientEmail ?? "").trim().toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+          return new Response(JSON.stringify({ error: "Valid recipient email required" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        recipientEmail = email;
+        recipientUserId = undefined;
+        recipientBusinessId = undefined;
+        recipientName = "there";
+        safeData = {
+          name: "there",
+          businessName: String(data.businessName ?? "").slice(0, 120) || "your business",
+          signupUrl: appUrl("/auth?mode=signup&role=business"),
+        };
+      } else {
+        // dispute_submitted: caller must own the referral being disputed and
+        // the recipient + content are read from the referral itself.
+        const referralId = String(rawPayload.referralId ?? "");
+        if (!referralId) {
+          return new Response(JSON.stringify({ error: "referralId required" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        const { data: refRows } = await supabase
+          .from("referrals")
+          .select("id, referrer_id, business_id, customer_name, offer_id")
+          .eq("id", referralId)
+          .limit(1);
+        const referral = refRows?.[0];
+        if (!referral || referral.referrer_id !== user.id) {
+          return new Response(JSON.stringify({ error: "Forbidden" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        let offerTitle = "";
+        if (referral.offer_id) {
+          const { data: offerRows } = await supabase
+            .from("offers")
+            .select("title")
+            .eq("id", referral.offer_id)
+            .limit(1);
+          offerTitle = offerRows?.[0]?.title ?? "";
+        }
+
+        recipientEmail = undefined;
+        recipientUserId = undefined;
+        recipientBusinessId = referral.business_id;
+        recipientName = undefined;
+        safeData = {
+          customerName: referral.customer_name ?? "",
+          referrerName: user.email ?? "A referrer",
+          offerTitle,
+        };
+      }
+    }
+    // --- END AUTHORIZATION ---
+
     if (!recipientUserId && recipientBusinessId) {
       const { data: business } = await supabase
         .from("businesses")
@@ -231,10 +325,10 @@ serve(async (req) => {
 
     recipientName = recipientName || "there";
     const mergedData = {
-      ...data,
-      name: data.name || recipientName,
-      referrerName: data.referrerName || recipientName,
-      businessName: data.businessName || recipientName,
+      ...safeData,
+      name: safeData.name || recipientName,
+      referrerName: safeData.referrerName || recipientName,
+      businessName: safeData.businessName || recipientName,
     };
     const subject = template.subject.replace(
       /\$\{(\w+)\}/g,

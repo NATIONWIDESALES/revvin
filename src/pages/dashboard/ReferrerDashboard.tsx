@@ -122,7 +122,6 @@ const ReferrerDashboard = () => {
     // Notify business via in-app + email
     if (ref.business_id) {
       let businessOwnerId = ref.businesses?.user_id;
-      let businessName = ref.businesses?.name || "";
 
       if (businessOwnerId) {
         await supabase.rpc("fn_create_notification", {
@@ -139,8 +138,7 @@ const ReferrerDashboard = () => {
         await supabase.functions.invoke("send-notification", {
           body: {
             type: "dispute_submitted",
-            recipientBusinessId: ref.business_id,
-            data: { businessName, customerName: ref.customer_name, referrerName: user.email || "A referrer", offerTitle: ref.offers?.title || "" },
+            referralId: refId,
           },
         });
       } catch (err) {
