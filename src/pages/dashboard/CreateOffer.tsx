@@ -44,7 +44,7 @@ const CreateOffer = () => {
     remoteEligible: false, qualificationCriteria: "",
     payoutTimeline: "net14" as "net7" | "net14" | "net30",
     monthlyCapacity: "", leadFreshness: "", minProjectSize: "", eligibleLocations: "",
-    country: "US" as "US" | "CA",
+    country: "US" as "US" | "CA" | "AE",
   });
 
   useEffect(() => {
@@ -276,9 +276,13 @@ const CreateOffer = () => {
                 <div>
                   <Label>Country</Label>
                   <div className="mt-1 flex gap-2">
-                    <Button type="button" variant={form.country === "US" ? "default" : "outline"} size="sm" onClick={() => update("country", "US")} className="flex-1">🇺🇸 USA</Button>
-                    <Button type="button" variant={form.country === "CA" ? "default" : "outline"} size="sm" onClick={() => update("country", "CA")} className="flex-1">🇨🇦 Canada</Button>
+                    {SUPPORTED_COUNTRIES.map((c) => (
+                      <Button key={c.value} type="button" variant={form.country === c.value ? "default" : "outline"} size="sm" onClick={() => update("country", c.value)} className="flex-1">
+                        {c.flag} {c.label}
+                      </Button>
+                    ))}
                   </div>
+                  <p className="mt-1 text-xs text-muted-foreground">All payouts are shown and paid in USD.</p>
                 </div>
               </div>
               <div><Label>Qualification Criteria (optional)</Label><Textarea value={form.qualificationCriteria} onChange={(e) => update("qualificationCriteria", e.target.value)} placeholder="What makes a qualified lead?" rows={3} className="mt-1" /></div>

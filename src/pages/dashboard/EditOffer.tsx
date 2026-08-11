@@ -30,7 +30,7 @@ const EditOffer = () => {
     closeTimeDays: "",
     remoteEligible: false,
     qualificationCriteria: "",
-    country: "US" as "US" | "CA",
+    country: "US" as "US" | "CA" | "AE",
   });
 
   useEffect(() => {
@@ -60,7 +60,7 @@ const EditOffer = () => {
         closeTimeDays: offer.close_time_days ? String(offer.close_time_days) : "",
         remoteEligible: offer.remote_eligible || false,
         qualificationCriteria: offer.qualification_criteria || "",
-        country: (offer.country === "CA" ? "CA" : "US") as "US" | "CA",
+        country: normalizeCountry(offer.country),
       });
       setLoading(false);
     };
@@ -158,12 +158,16 @@ const EditOffer = () => {
             <div>
               <Label>Country</Label>
               <div className="mt-1 flex gap-2">
-                <Button type="button" variant={form.country === "US" ? "default" : "outline"} size="sm" onClick={() => update("country", "US")} className="flex-1">🇺🇸 USA</Button>
-                <Button type="button" variant={form.country === "CA" ? "default" : "outline"} size="sm" onClick={() => update("country", "CA")} className="flex-1">🇨🇦 Canada</Button>
+                {SUPPORTED_COUNTRIES.map((c) => (
+                  <Button key={c.value} type="button" variant={form.country === c.value ? "default" : "outline"} size="sm" onClick={() => update("country", c.value)} className="flex-1">
+                    {c.flag} {c.label}
+                  </Button>
+                ))}
               </div>
+              <p className="mt-1 text-xs text-muted-foreground">All payouts are shown and paid in USD.</p>
             </div>
             <div>
-              <Label>Payout Amount ($)</Label>
+              <Label>Payout Amount (USD)</Label>
               <Input type="number" value={form.payout} onChange={(e) => update("payout", e.target.value)} required className="mt-1" />
             </div>
           </div>
