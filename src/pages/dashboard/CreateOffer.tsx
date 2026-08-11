@@ -134,7 +134,7 @@ const CreateOffer = () => {
       payout_type: "flat" as const,
       location: form.location,
       country: form.country,
-      currency: form.country === "CA" ? "CAD" : "USD",
+      currency: "USD",
       deal_size_min: form.dealSizeMin ? parseFloat(form.dealSizeMin) : null,
       deal_size_max: form.dealSizeMax ? parseFloat(form.dealSizeMax) : null,
       close_time_days: form.closeTimeDays ? parseInt(form.closeTimeDays) : null,
