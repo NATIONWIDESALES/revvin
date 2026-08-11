@@ -122,7 +122,6 @@ const ReferrerDashboard = () => {
     // Notify business via in-app + email
     if (ref.business_id) {
       let businessOwnerId = ref.businesses?.user_id;
-      let businessName = ref.businesses?.name || "";
 
       if (businessOwnerId) {
         await supabase.rpc("fn_create_notification", {
