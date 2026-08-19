@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Users, ArrowRight, BadgeCheck, Trophy, DollarSign, Search, Shield, CheckCircle2 } from "lucide-react";
+import { Users, ArrowRight, BadgeCheck, Trophy, DollarSign, Search, Shield, CheckCircle2, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 import MarqueeTicker from "@/components/MarqueeTicker";
