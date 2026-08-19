@@ -32,7 +32,7 @@ const ForReferrers = () => (
         "@context": "https://schema.org",
         "@type": "FAQPage",
         "mainEntity": [
-          { "@type": "Question", "name": "How do I get paid as a referrer?", "acceptedAnswer": { "@type": "Answer", "text": "When the business confirms the referred customer closed a deal, the business pays you directly for the full advertised amount, in whatever way they specified on the offer." } },
+          { "@type": "Question", "name": "How do I get paid as a referrer?", "acceptedAnswer": { "@type": "Answer", "text": "When the business confirms the referred customer closed a deal, the business pays you directly for the full advertised amount, using whatever method they publish on their offer. Revvin does not hold or send the money." } },
           { "@type": "Question", "name": "Does Revvin take a cut of my earnings?", "acceptedAnswer": { "@type": "Answer", "text": "No. You always receive 100% of the advertised payout, directly from the business. Revvin only charges the business a flat monthly subscription." } },
           { "@type": "Question", "name": "Do I need to be a professional to refer?", "acceptedAnswer": { "@type": "Answer", "text": "No. Anyone with a network, friends, family, neighbors, clients, can submit referrals and earn." } },
           { "@type": "Question", "name": "What if someone else refers the same customer first?", "acceptedAnswer": { "@type": "Answer", "text": "Revvin uses a first-in-wins policy. The first valid referral submitted for a given customer receives credit for the close." } }
@@ -69,15 +69,16 @@ const ForReferrers = () => (
             </Button>
           </motion.div>
           <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
-            Free to join · No fees ever · Earn the full advertised payout
+            Free to join · Revvin takes no cut · Paid directly by the business
           </motion.p>
         </motion.div>
       </div>
     </section>
 
-    {/* Social proof ticker */}
+    {/* Factual claim ticker. No earnings averages or payout timing claims here:
+        the business pays the referrer directly, so Revvin cannot promise speed. */}
     <section className="py-3 bg-muted/30 border-y border-border overflow-hidden">
-      <MarqueeTicker items={["100% of advertised payout", "No chasing payments", "$750 average first earning", "Submit referrals in 60 seconds", "Get paid in 3-5 business days", "Free to join"]} />
+      <MarqueeTicker items={["100% of the advertised payout", "Paid directly by the business", "Every referral is timestamped", "Revvin does not take a cut of your reward", "Businesses publish their own payout terms", "Free to join"]} />
     </section>
     <section className="py-24 lg:py-32 bg-surface">
       <div className="container">
@@ -90,7 +91,7 @@ const ForReferrers = () => (
             {[
               { num: "01", title: "Find an opportunity", desc: "Browse live referral offers from real businesses. See what they'll pay for a new customer." },
               { num: "02", title: "Submit a referral", desc: "Know someone who needs the service? Submit their info through Revvin. First submission wins." },
-              { num: "03", title: "Earn when it closes", desc: "When the business closes the deal, you get paid the full advertised amount. Automatically." },
+              { num: "03", title: "Earn when it closes", desc: "When the business closes the deal, they pay you the full advertised amount directly, on the terms they published. Revvin records the reward and tracks it from pending to paid." },
             ].map((item, i) => (
               <motion.div key={item.num} variants={fadeUp} custom={i + 1}>
                 <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-earnings/5 text-sm font-bold text-earnings">
@@ -115,9 +116,10 @@ const ForReferrers = () => (
           </motion.h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: DollarSign, title: "100% of the payout is yours", desc: "Paid directly by the business. Revvin charges the business a flat $49/month and takes no cut of your reward." },
+              { icon: DollarSign, title: "100% of the payout is yours", desc: "Paid directly by the business. Revvin charges the business a flat $49/month and does not take a cut of your reward." },
               { icon: BadgeCheck, title: "Real businesses", desc: "You are referring to active, subscribed businesses with a live public page and contact details." },
-              { icon: Shield, title: "A clear record", desc: "Every referral is timestamped in your dashboard, so there is always a record of who referred whom and when." },
+              { icon: Shield, title: "A clear record", desc: "Every referral is timestamped in your dashboard, and each reward is tracked from pending to paid, so there is always a record of who referred whom and when." },
+              { icon: FileText, title: "Terms you can read first", desc: "Businesses publish their own payout terms on their offer, so you know the reward and when it pays before you send a lead." },
               { icon: Search, title: "Browse real opportunities", desc: "Filter by category, city, and payout amount. Find offers that match your network." },
               { icon: CheckCircle2, title: "Works for anyone", desc: "Whether you're a professional connector or just know the right people, Revvin works for you." },
             ].map((item, i) => (
