@@ -37,7 +37,7 @@ import Testimonials from "@/components/marketing/Testimonials";
 import FounderNote from "@/components/marketing/FounderNote";
 import RiskReversalStrip from "@/components/marketing/RiskReversalStrip";
 import { PRICE_TEXT } from "@/config/pricing";
-import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
+import HowPayoutsWork from "@/components/marketing/HowPayoutsWork";
 
 const FEATURED_OFFERS = [
   // Illustrative placeholders only. Do NOT use real or invented company names here.
@@ -51,10 +51,9 @@ const FEATURED_OFFERS = [
   { id: "ex-electrical", business: "An electrician near you", category: "Electrical", city: "Seattle", state: "WA", payout: 350, desc: "Example offer · refer a panel upgrade or rewire", owner: "Local business owner" },
 ];
 
-// Single source of truth for FAQ — drives both the visible accordion and the
-// FAQPage JSON-LD. Built as a function of promoLive so that once the promotion
-// deadline passes the regular-price wording takes over with no dead references.
-const buildFaqs = (promoLive: boolean): { question: string; answer: string }[] => [
+// Single source of truth for FAQ, drives both the visible accordion and the
+// FAQPage JSON-LD.
+const buildFaqs = (): { question: string; answer: string }[] => [
   {
     question: "What are the three loops?",
     answer:
@@ -72,15 +71,11 @@ const buildFaqs = (promoLive: boolean): { question: string; answer: string }[] =
   },
   {
     question: "How does billing work?",
-    answer: promoLive
-      ? `Building your page is free. You are only charged when you publish it. Publish before ${PROMO_END_DATE_TEXT} and it is ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, locked for as long as you stay subscribed. After that the regular ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear} prices apply. There is no contract, no setup fee, and no platform fees, and all three loops are included. Cancel anytime from your Stripe billing portal; your page stays live until the end of the period you've already paid for.`
-      : `Building your page is free. You are only charged when you publish it. Publishing costs a flat ${PRICE_TEXT.monthlyPerMonth} USD, billed monthly, or ${PRICE_TEXT.annualPerYear} billed once, with no contract, no setup fee, and no platform fees, and it includes all three loops. Cancel anytime from your Stripe billing portal; your page stays live until the end of the period you've already paid for.`,
+    answer: `Building your page is free. You are only charged when you publish it. Publishing costs a flat ${PRICE_TEXT.monthlyPerMonth} USD, billed monthly, or ${PRICE_TEXT.annualPerYear} billed once, with no contract and no platform fees on your referral rewards, and it includes all three loops. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.`,
   },
   {
     question: "What is free and what costs money?",
-    answer: promoLive
-      ? `Creating your account and building your page, offer, and QR code is free, and you can preview it before you commit. This is not a trial and not a free plan with usage limits: your page cannot receive referrals until you publish it, and publishing costs ${PROMO_TEXT.pricePerMonth} USD if you publish before ${PROMO_END_DATE_TEXT}, ${PRICE_TEXT.monthlyPerMonth} after that. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.`
-      : `Creating your account and building your page, offer, and QR code is free, and you can preview it before you commit. This is not a trial and not a free plan with usage limits: your page cannot receive referrals until you publish it, and publishing costs ${PRICE_TEXT.monthlyPerMonth} USD. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.`,
+    answer: `Creating your account and building your page, offer, and QR code is free, and you can preview it before you commit. This is not a trial and not a free plan with usage limits: your page cannot receive referrals until you publish it, and publishing costs ${PRICE_TEXT.monthlyPerMonth} USD. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.`,
   },
   {
     question: "Can Revvin fire the ask from the tools I already use?",
@@ -101,6 +96,36 @@ const buildFaqs = (promoLive: boolean): { question: string; answer: string }[] =
     question: "What kind of businesses is Revvin for?",
     answer:
       "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, electricians, landscapers, painters, solar installers, auto detailers, and other home services.",
+  },
+  {
+    question: "What should I pay per referral?",
+    answer:
+      "You set the amount, and you can change it whenever you want. Businesses on Revvin commonly land somewhere between $50 and $150 for smaller repair and service jobs, and between $250 and $750 for larger installs and replacements, usually a small slice of the profit on one closed job. Percentage rewards work too. This is what businesses commonly choose, not a Revvin recommendation, and no reward amount guarantees a result.",
+  },
+  {
+    question: "Will this annoy my customers?",
+    answer:
+      "The ask only goes to people who already hired you, never to cold contacts. You control the wording of every message, and the auto-ask waits until a couple of hours after the job is done. On mobile the message opens in your own texting or email app, so it comes from you, and anyone can opt out with the unsubscribe link on emails.",
+  },
+  {
+    question: "Can I import a CSV?",
+    answer:
+      "Yes. Upload a CSV with name, email, and phone columns, or paste one customer per line as name, phone, email. A header row is optional. Every row needs a name plus either an email or a phone number, and Revvin dedupes against the contacts you already have before anything is added. You review the parsed list before importing.",
+  },
+  {
+    question: "Can I use my own Google review link?",
+    answer:
+      "Yes. Paste your own Google review link in your dashboard and review requests send customers straight to it. Review requests stay off until that link is saved.",
+  },
+  {
+    question: "Do I need the marketplace for this to work?",
+    answer:
+      "No. Your branded referral page, shareable link, QR code, and lead inbox all work on their own. Listing publicly on the Revvin marketplace is optional, and you can switch it off and still run your whole program.",
+  },
+  {
+    question: "Does this work with Jobber, Housecall Pro, or ServiceTitan?",
+    answer:
+      "There is no connection to those tools. You export your customer list from whatever you use today and import that CSV into Revvin, which takes a couple of minutes. If you have a developer or use a tool that can call a webhook, Revvin also has webhooks and an API you can trigger yourself.",
   },
 ];
 
@@ -171,17 +196,12 @@ const businessHue = (name: string) => {
 };
 
 const Index = () => {
-  const promoLive = isPromoLive();
-  const faqs = buildFaqs(promoLive);
+  const faqs = buildFaqs();
   return (
     <>
       <SEOHead
         title="Revvin · Your customer list, working for you"
-        description={
-          promoLive
-            ? `Turn past customers into referrals, repeat work, and reviews. Build free, publish for ${PROMO_TEXT.pricePerMonth} USD before ${PROMO_END_DATE_TEXT}. Cancel anytime.`
-            : `Turn your past customers into referrals, repeat work, and reviews. Build free, pay ${PRICE_TEXT.monthlyPerMonth} USD only when you publish. Cancel anytime.`
-        }
+        description={`Turn your past customers into referrals, repeat work, and reviews. Build free, pay ${PRICE_TEXT.monthlyPerMonth} USD only when you publish. Cancel anytime.`}
         path="/"
         jsonLd={[
           {
@@ -233,9 +253,7 @@ const Index = () => {
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
                 You already have a list of people who paid you and never heard from you again. Revvin turns that one list into three revenue loops: <span className="text-foreground font-medium">referrals, repeat work, and reviews.</span>{" "}
-                {promoLive
-                  ? `Build it free. ${PROMO_TEXT.pricePerMonth} USD when you publish, if you publish before ${PROMO_END_DATE_TEXT}. Regular price is ${PRICE_TEXT.monthlyPerMonth}.`
-                  : `Build it free. ${PRICE_TEXT.monthlyPerMonth} USD when you publish.`}
+                {`Build it free. ${PRICE_TEXT.monthlyPerMonth} USD when you publish.`}
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
@@ -256,9 +274,7 @@ const Index = () => {
                 </Link>
               </p>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                {promoLive
-                  ? `Free to build and preview. ${PROMO_TEXT.pricePerMonth} USD when you publish, or ${PROMO_TEXT.annualPerYear} billed once, locked for as long as you stay subscribed if you publish before ${PROMO_END_DATE_TEXT}. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime.`
-                  : `Free to build and preview. ${PRICE_TEXT.monthlyPerMonth} USD when you publish. Cancel anytime.`}
+                {`Free to build and preview. ${PRICE_TEXT.monthlyPerMonth} USD when you publish. Cancel anytime.`}
               </p>
             </div>
 
@@ -342,9 +358,7 @@ const Index = () => {
           </div>
 
           <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-muted-foreground">
-            {promoLive
-              ? `All three loops are included in the one price: ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, if you publish before ${PROMO_END_DATE_TEXT}. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. You pay your referrers directly; Revvin never handles reward money.`
-              : `All three loops are included in the one ${PRICE_TEXT.monthlyPerMonth} USD price, or ${PRICE_TEXT.annualPerYear} billed once, which saves ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off). You pay your referrers directly; Revvin never handles reward money.`}
+            {`All three loops are included in the one ${PRICE_TEXT.monthlyPerMonth} USD price, or ${PRICE_TEXT.annualPerYear} billed once, which saves ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off). You pay your referrers directly; Revvin never handles reward money.`}
           </p>
         </div>
       </section>
@@ -624,19 +638,12 @@ const Index = () => {
               </p>
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="text-6xl font-extrabold tracking-tight text-foreground">
-                  {promoLive ? PROMO_TEXT.price : PRICE_TEXT.monthly}
+                  {PRICE_TEXT.monthly}
                 </span>
                 <span className="text-base font-medium text-muted-foreground">/month USD</span>
-                {promoLive && (
-                  <span className="text-base font-medium text-muted-foreground line-through">
-                    {PRICE_TEXT.monthly}
-                  </span>
-                )}
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                {promoLive
-                  ? `Free to build and preview your page. Billing starts when you publish it. Publish before ${PROMO_END_DATE_TEXT} and your price stays ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, for as long as you stay subscribed. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime. No contract, no setup fee. Billed in USD.`
-                  : `Free to build and preview your page. Billing starts when you publish it. Cancel anytime. No contract, no setup fee. Billed in USD.`}
+                {`Free to build and preview your page. Billing starts when you publish it. Cancel anytime. No contract. Billed in USD.`}
               </p>
 
               <Button size="lg" className="mt-8 h-12 w-full text-base shadow-soft hover:bg-primary-deep" asChild>
@@ -668,6 +675,90 @@ const Index = () => {
             <div className="mt-6">
               <RiskReversalStrip />
             </div>
+            <div className="mt-6">
+              <HowPayoutsWork />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Built for owner-operators. Every line below is verifiable in this
+          codebase: month to month billing with a cancel path in the billing
+          portal, no fee taken on rewards, direct payment by the business, and a
+          customer list the business owns and can export. */}
+      <section className="border-b border-border bg-background">
+        <div className="container py-20">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
+              Built for owner-operators, not marketing teams.
+            </h2>
+            <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+              {[
+                "No contract",
+                "No platform fee on referral rewards",
+                "You pay your referrer directly",
+                "Your customer list stays yours",
+                "Cancel anytime",
+              ].map((p) => (
+                <li key={p} className="flex items-start gap-2.5 text-sm text-foreground">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  <span>{p}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Why it fits each trade's job rhythm */}
+      <section className="border-b border-border bg-surface-warm">
+        <div className="container py-20">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              Built around how the work actually happens
+            </p>
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
+              Why this fits your trade
+            </h2>
+          </div>
+          <div className="mx-auto grid max-w-5xl gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                trade: "Roofing",
+                body:
+                  "A finished roof is visible from the street, so neighbors already ask who did it. Give the customer a link and a reward so that conversation turns into a lead.",
+              },
+              {
+                trade: "HVAC",
+                body:
+                  "Filter changes and seasonal changeovers give you a real reason to reach out again. The same list you rebook is the list you ask for referrals.",
+              },
+              {
+                trade: "Plumbing",
+                body:
+                  "Right after you fix a leak is when goodwill is highest. Revvin sends the ask a couple of hours after the job, while the customer is still relieved.",
+              },
+              {
+                trade: "Landscaping",
+                body:
+                  "A QR code on a yard sign puts the ask where the work is. Anyone walking past the finished yard can scan it and send you a lead.",
+              },
+              {
+                trade: "Painting",
+                body:
+                  "People show off a finished room. One house on a block often leads to the next, and a shareable link makes that easy to pass along.",
+              },
+              {
+                trade: "Electrical",
+                body:
+                  "Panel upgrades, rewires, and fixture work spread by word of mouth in older neighborhoods where everyone needs the same thing eventually.",
+              },
+            ].map((c) => (
+              <article key={c.trade} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+                <h3 className="text-base font-bold text-foreground">{c.trade}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.body}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -750,9 +841,7 @@ const Index = () => {
             Put your customer list <span className="shimmer-text">to work.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-            {promoLive
-              ? `Referrals, repeat work, and reviews from one list. Build free. ${PROMO_TEXT.pricePerMonth} USD when you publish, if you publish before ${PROMO_END_DATE_TEXT}. Regular price is ${PRICE_TEXT.monthlyPerMonth}. Cancel anytime.`
-              : `Referrals, repeat work, and reviews from one list. Build free. ${PRICE_TEXT.monthlyPerMonth} USD when you publish. Cancel anytime.`}
+            {`Referrals, repeat work, and reviews from one list. Build free. ${PRICE_TEXT.monthlyPerMonth} USD when you publish. Cancel anytime.`}
           </p>
           <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
             <Link to="/signup">Build your page — free</Link>

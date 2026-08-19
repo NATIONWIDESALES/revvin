@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import SEOHead from "@/components/SEOHead";
-import PromoBlock from "@/components/promo/PromoBlock";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, HandCoins, Quote, Eye, Lock } from "lucide-react";
 import { friendlyError } from "@/lib/errors";
@@ -289,9 +288,6 @@ const PublicReferralPage = () => {
                   Go live
                 </Link>
               </Button>
-            </div>
-            <div className="mx-auto mt-2 max-w-3xl">
-              <PromoBlock variant="compact" plan="both" />
             </div>
           </div>
         )}
