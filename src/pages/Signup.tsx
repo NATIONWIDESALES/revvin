@@ -19,7 +19,6 @@ const Signup = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const promoLive = isPromoLive();
 
   const [businessName, setBusinessName] = useState("");
   const [fullName, setFullName] = useState("");
