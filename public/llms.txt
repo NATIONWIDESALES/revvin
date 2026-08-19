@@ -1,6 +1,6 @@
 # Revvin
 
-> Referral program platform for service businesses. Building and previewing a referral page is free. Publishing costs $49/month or $450/year. A launch promotion runs until August 17, 2026: $17/month or $204/year, locked for as long as the subscription stays active. Invited businesses receive 90 days free, then $17/month; invites are given out directly by Revvin, not claimable from the public site. No setup fee and no platform fees on referral rewards. Cancel anytime. Businesses optionally list on the public Revvin marketplace. Businesses pay their referrers directly off-platform when deals close; Revvin is the infrastructure and does not process payouts.
+> Referral program platform for service businesses. Building and previewing a referral page is free. Publishing costs $49/month USD, or $450/year billed once. Invited businesses receive 90 days free, then $17/month; invites are given out directly by Revvin, not claimable from the public site. No platform fees on referral rewards. Cancel anytime. Businesses optionally list on the public Revvin marketplace. Businesses pay their referrers directly off-platform when deals close; Revvin keeps the record, does not hold funds, and does not take a cut.
 
 ## Pages
 
@@ -9,7 +9,7 @@
 - [For businesses](/for-businesses): Referral program software and customer acquisition for service businesses.
 - [For referrers](/for-referrers): How people earn by sending warm leads to local businesses.
 - [Browse offers](/browse): Public marketplace where referrers find local referral offers. Launching — listings are limited while founding businesses come on board.
-- [Pricing](/pricing): Free to build and preview. Publishing at $49/month or $450/year. Launch promotion until August 17, 2026: $17/month or $204/year, price locked while subscribed. Invited businesses get 90 days free, then $17/month. No setup fee, no platform fees, cancel anytime. Referrers free.
+- [Pricing](/pricing): Free to build and preview. Publishing at $49/month USD, or $450/year billed once. Invited businesses get 90 days free, then $17/month. No platform fees on referral rewards, cancel anytime. Referrers free.
 - [Referral programs by industry](/referral-programs): Hub of trade-specific referral program guides.
 - [Trust](/trust): How Revvin protects referrers, businesses, and customers.
 - [About Revvin (LLM overview)](/about-revvin-llm): Plain-language summary for AI assistants.
