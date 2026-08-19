@@ -4,14 +4,12 @@ import SEOHead from "@/components/SEOHead";
 import NotFound from "@/pages/NotFound";
 import { INDUSTRIES, getIndustry } from "@/content/industries";
 import { PRICE_TEXT } from "@/config/pricing";
-import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
 
 const BASE = "https://revvin.co";
 
 const IndustryLanding = () => {
   const { industry: slug } = useParams();
   const industry = getIndustry(slug);
-  const promoLive = isPromoLive();
 
   if (!industry) return <NotFound />;
 
@@ -89,9 +87,7 @@ const IndustryLanding = () => {
             </Button>
           </div>
           <p className="mt-5 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            {promoLive
-              ? `Free to build · ${PROMO_TEXT.pricePerMonth} USD to publish before ${PROMO_END_DATE_TEXT} · regular ${PRICE_TEXT.monthlyPerMonth}`
-              : `Free to build · ${PRICE_TEXT.monthlyPerMonth} USD to publish · cancel anytime`}
+            {`Free to build · ${PRICE_TEXT.monthlyPerMonth} USD to publish · cancel anytime`}
           </p>
         </div>
       </section>
@@ -188,9 +184,7 @@ const IndustryLanding = () => {
             Start with the customers you already have.
           </h2>
           <p className="mt-4 text-lg text-white/70">
-            {promoLive
-              ? `Free to build and preview. ${PROMO_TEXT.pricePerMonth} USD when you publish before ${PROMO_END_DATE_TEXT}, regular ${PRICE_TEXT.monthlyPerMonth}. Cancel anytime.`
-              : `Free to build and preview. ${PRICE_TEXT.monthlyPerMonth} USD when you publish. Cancel anytime.`}
+            {`Free to build and preview. ${PRICE_TEXT.monthlyPerMonth} USD when you publish. Cancel anytime.`}
           </p>
           <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
             <Link to="/signup">Build your {industry.trade} referral page — free</Link>
