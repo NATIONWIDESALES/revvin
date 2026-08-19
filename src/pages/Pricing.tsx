@@ -14,8 +14,7 @@ import {
 } from "@/components/ui/accordion";
 import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
-import PromoBlock from "@/components/promo/PromoBlock";
-import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
+import HowPayoutsWork from "@/components/marketing/HowPayoutsWork";
 
 // Grouped by revenue loop so the value is legible. Everything listed is shipped.
 const proFeatureGroups: { label: string; features: string[] }[] = [
@@ -111,35 +110,19 @@ const Pricing = () => {
         <div aria-hidden className="absolute inset-0 grid-faint" />
         <div className="container relative max-w-3xl py-24 text-center">
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pricing</p>
-          {/* Headline follows the live offer. Both branches read every figure
-              from the pricing and promo configs, so once the deadline passes
-              isPromoLive() flips and the regular wording takes over with no
-              dead promo reference left behind. */}
+          {/* Every figure reads from the pricing config so the numbers can
+              never drift between pages. */}
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
-            {isPromoLive()
-              ? `Build free. Publish for ${PROMO_TEXT.pricePerMonth}.`
-              : `Build free. Pay ${PRICE_TEXT.monthlyPerMonth} to go live.`}
+            {`Build free. Pay ${PRICE_TEXT.monthlyPerMonth} to go live.`}
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            {isPromoLive() ? (
-              <>
-                Building your page, offer, and QR code costs nothing, and you can preview it before you commit. Publish before {PROMO_END_DATE_TEXT} and it is {PROMO_TEXT.pricePerMonth} USD, or {PROMO_TEXT.annualPerYear} billed once, locked for as long as you stay subscribed. After that the regular {PRICE_TEXT.monthlyPerMonth} and {PRICE_TEXT.annualPerYear} prices apply. Both plans include all three loops: referrals, repeat work, and reviews. No contract, no setup fee, no platform fees. Referrers are free.
-              </>
-            ) : (
-              <>
-                Building your page, offer, and QR code costs nothing, and you can preview it before you commit. Publishing costs a flat {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, which saves {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off). Both include all three loops: referrals, repeat work, and reviews. No contract, no setup fee, no platform fees. Referrers are free.
-              </>
-            )}
+            Building your page, offer, and QR code costs nothing, and you can preview it before you commit. Publishing costs a flat {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, which saves {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off). Both include all three loops: referrals, repeat work, and reviews. No contract and no platform fees on your referral rewards. Referrers are free.
           </p>
         </div>
       </section>
 
       <section>
         <div className="container max-w-6xl py-20">
-          {/* Launch promotion. Disappears on its own once the deadline passes.
-              The regular $49 monthly and $450 annual options below stay fully
-              visible and purchasable. */}
-          <PromoBlock variant="full" showCta plan={plan} className="mb-10 mx-auto max-w-3xl" />
           <div className={`grid gap-6 ${LAUNCH_PACKAGE_ENABLED ? "md:grid-cols-3" : "md:grid-cols-2 md:max-w-3xl md:mx-auto"}`}>
             {/* Free */}
             <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
@@ -191,7 +174,7 @@ const Pricing = () => {
                   onClick={() => setPlan("annual")}
                   className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors ${annual ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  {isPromoLive() ? "Annual" : `Annual, save ${PRICE_TEXT.discount}`}
+                  {`Annual, save ${PRICE_TEXT.discount}`}
                 </button>
               </div>
 
@@ -203,28 +186,20 @@ const Pricing = () => {
               </div>
               {annual ? (
                 <div className="mt-2 space-y-1 text-sm">
-                  {/* While the promo runs, annual and monthly cost the same over
-                      twelve months, so the regular-pricing saving comparison is
-                      not true and is withheld. */}
-                  {!isPromoLive() && (
-                    <>
-                      <p className="text-muted-foreground">
-                        <span className="line-through">{PRICE_TEXT.annualListPrice}</span>{" "}
-                        if paid monthly for twelve months. You save {PRICE_TEXT.saving}, {PRICE_TEXT.discount} off.
-                      </p>
-                      <p className="text-muted-foreground">
-                        Works out to {PRICE_TEXT.effectiveMonthly} USD.
-                      </p>
-                    </>
-                  )}
+                  <p className="text-muted-foreground">
+                    <span className="line-through">{PRICE_TEXT.annualListPrice}</span>{" "}
+                    if paid monthly for twelve months. You save {PRICE_TEXT.saving}, {PRICE_TEXT.discount} off.
+                  </p>
+                  <p className="text-muted-foreground">
+                    Works out to {PRICE_TEXT.effectiveMonthly} USD.
+                  </p>
                   <p className="text-xs text-muted-foreground">{ANNUAL_TERMS_COPY}</p>
                 </div>
               ) : (
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Billing starts when you publish your page. Cancel anytime. No contract, no setup fee.
+                  Billing starts when you publish your page. Cancel anytime. No contract.
                 </p>
               )}
-              <PromoBlock variant="compact" plan={plan} className="mt-3" />
               <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
                 <Link to={`/signup?plan=${plan}`}>
                   {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Build free + Launch Package" : "Build your page free"}
@@ -236,9 +211,7 @@ const Pricing = () => {
                   onClick={() => setPlan("annual")}
                   className="mt-3 text-xs font-medium text-primary underline-offset-2 hover:underline"
                 >
-                  {isPromoLive()
-                    ? `Pay yearly instead and lock ${PROMO_TEXT.annualPerYear} (${PROMO_TEXT.annualDiscount} off)`
-                    : `Pay yearly instead and save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off)`}
+                  {`Pay yearly instead and save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off)`}
                 </button>
               )}
               {LAUNCH_PACKAGE_ENABLED && (
