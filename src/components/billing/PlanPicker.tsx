@@ -1,10 +1,7 @@
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
-import { PROMO_TEXT, isPromoLive } from "@/config/promo";
 
 // Shared monthly/annual chooser for the go-live conversion points.
-// Monthly is always the default. While the launch promo is live both plans get
-// their own promo price, and annual is framed as "pay once and lock it" rather
-// than as the cheaper option, because over twelve months they cost the same.
+// Monthly is always the default.
 const PlanPicker = ({
   plan,
   onChange,
@@ -14,31 +11,14 @@ const PlanPicker = ({
   onChange: (plan: BillingPlan) => void;
   className?: string;
 }) => {
-  const promo = isPromoLive();
-
-  const options: { value: BillingPlan; label: string; strike?: string; sub: string }[] = promo
-    ? [
-        {
-          value: "monthly",
-          label: `${PROMO_TEXT.pricePerMonth} USD`,
-          strike: PROMO_TEXT.regularPerMonth,
-          sub: `Billed monthly, ${PROMO_TEXT.discount} off, locked while subscribed`,
-        },
-        {
-          value: "annual",
-          label: `${PROMO_TEXT.annualPerYear} USD`,
-          strike: PROMO_TEXT.annualRegularPerYear,
-          sub: `Paid once, ${PROMO_TEXT.annualDiscount} off, locks the price in`,
-        },
-      ]
-    : [
-        { value: "monthly", label: `${PRICE_TEXT.monthlyPerMonth} USD`, sub: "Billed monthly" },
-        {
-          value: "annual",
-          label: `${PRICE_TEXT.annualPerYear} USD`,
-          sub: `${PRICE_TEXT.effectiveMonthly}, save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off)`,
-        },
-      ];
+  const options: { value: BillingPlan; label: string; strike?: string; sub: string }[] = [
+    { value: "monthly", label: `${PRICE_TEXT.monthlyPerMonth} USD`, sub: "Billed monthly" },
+    {
+      value: "annual",
+      label: `${PRICE_TEXT.annualPerYear} USD`,
+      sub: `${PRICE_TEXT.effectiveMonthly}, save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off)`,
+    },
+  ];
 
   return (
     <div className={className}>
