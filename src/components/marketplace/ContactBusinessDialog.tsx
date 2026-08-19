@@ -75,7 +75,7 @@ export default function ContactBusinessDialog({
             <CheckCircle2 className="mx-auto h-12 w-12 text-primary" />
             <h3 className="mt-4 text-xl font-bold text-foreground">We'll be in touch</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              {businessName} typically responds within 1 business day.
+              {businessName} handles its own replies, so response times vary.
             </p>
             <Button className="mt-6" onClick={() => setOpen(false)}>Done</Button>
           </div>

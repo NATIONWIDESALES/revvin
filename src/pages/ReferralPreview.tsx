@@ -92,7 +92,7 @@ export default function ReferralPreview() {
                   businessName={listing.name}
                   kind="referral"
                   title={`Submit a referral to ${listing.name}`}
-                  description="The business will reach out to your contact within 1 business day."
+                  description="The business reaches out to your contact and works the lead."
                   trigger={
                     <Button size="lg" className="h-12 px-7 text-base hover:bg-primary-deep" style={{ background: accent, borderColor: accent }}>
                       <UserPlus className="mr-2 h-4 w-4" /> Submit a referral

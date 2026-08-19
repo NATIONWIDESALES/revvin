@@ -53,7 +53,8 @@ const EarningsEstimator = () => {
       </div>
 
       <p className="text-xs text-muted-foreground mt-4">
-        Most referrers earn their first payout within 2 weeks of joining.
+        An estimate only. Your reward is whatever the business advertised on its offer, paid
+        directly by that business on the terms it publishes.
       </p>
     </div>
   );
