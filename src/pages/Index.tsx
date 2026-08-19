@@ -97,6 +97,36 @@ const buildFaqs = (): { question: string; answer: string }[] => [
     answer:
       "Service businesses where one new customer is worth real money: roofers, HVAC, plumbers, electricians, landscapers, painters, solar installers, auto detailers, and other home services.",
   },
+  {
+    question: "What should I pay per referral?",
+    answer:
+      "You set the amount, and you can change it whenever you want. Businesses on Revvin commonly land somewhere between $50 and $150 for smaller repair and service jobs, and between $250 and $750 for larger installs and replacements, usually a small slice of the profit on one closed job. Percentage rewards work too. This is what businesses commonly choose, not a Revvin recommendation, and no reward amount guarantees a result.",
+  },
+  {
+    question: "Will this annoy my customers?",
+    answer:
+      "The ask only goes to people who already hired you, never to cold contacts. You control the wording of every message, and the auto-ask waits until a couple of hours after the job is done. On mobile the message opens in your own texting or email app, so it comes from you, and anyone can opt out with the unsubscribe link on emails.",
+  },
+  {
+    question: "Can I import a CSV?",
+    answer:
+      "Yes. Upload a CSV with name, email, and phone columns, or paste one customer per line as name, phone, email. A header row is optional. Every row needs a name plus either an email or a phone number, and Revvin dedupes against the contacts you already have before anything is added. You review the parsed list before importing.",
+  },
+  {
+    question: "Can I use my own Google review link?",
+    answer:
+      "Yes. Paste your own Google review link in your dashboard and review requests send customers straight to it. Review requests stay off until that link is saved.",
+  },
+  {
+    question: "Do I need the marketplace for this to work?",
+    answer:
+      "No. Your branded referral page, shareable link, QR code, and lead inbox all work on their own. Listing publicly on the Revvin marketplace is optional, and you can switch it off and still run your whole program.",
+  },
+  {
+    question: "Does this work with Jobber, Housecall Pro, or ServiceTitan?",
+    answer:
+      "There is no connection to those tools. You export your customer list from whatever you use today and import that CSV into Revvin, which takes a couple of minutes. If you have a developer or use a tool that can call a webhook, Revvin also has webhooks and an API you can trigger yourself.",
+  },
 ];
 
 // The three revenue loops — the primary explainer for the page.
