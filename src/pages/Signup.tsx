@@ -11,7 +11,6 @@ import Wordmark from "@/components/brand/Wordmark";
 import { Loader2, MailCheck } from "lucide-react";
 import { track } from "@/lib/track";
 import { PRICE_TEXT } from "@/config/pricing";
-import { PROMO_TEXT, PROMO_END_DATE_TEXT, isPromoLive } from "@/config/promo";
 import InviteBanner, { InviteTerms } from "@/components/invite/InviteBanner";
 import { captureInviteFromSearch, getInviteCode } from "@/lib/invite";
 import { friendlyError } from "@/lib/errors";
@@ -117,11 +116,7 @@ const Signup = () => {
     <>
       <SEOHead
         title="Revvin | Start your referral program"
-        description={
-          promoLive
-            ? `Create a free Revvin account and build your branded referral page, QR code, and offer. Publish before ${PROMO_END_DATE_TEXT} for ${PROMO_TEXT.pricePerMonth} USD.`
-            : `Create a free Revvin account, build your branded referral page, QR code, and offer. Pay ${PRICE_TEXT.monthlyPerMonth} only when you are ready to go live.`
-        }
+        description={`Create a free Revvin account, build your branded referral page, QR code, and offer. Pay ${PRICE_TEXT.monthlyPerMonth} only when you are ready to go live.`}
         path="/signup"
         noindex
       />
@@ -167,9 +162,7 @@ const Signup = () => {
             <p className="mt-1.5 text-sm text-muted-foreground">
               {inviteCode
                 ? "Free to build. Your invite offer is applied at checkout."
-                : promoLive
-                  ? `Build your referral page, offer, and QR code for free. Go live before ${PROMO_END_DATE_TEXT} and it is ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, locked for as long as you stay subscribed. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime.`
-                  : `Build your referral page, offer, and QR code for free. Pay ${PRICE_TEXT.monthlyPerMonth} only when you are ready to go live. Cancel anytime.`}
+                : `Build your referral page, offer, and QR code for free. Pay ${PRICE_TEXT.monthlyPerMonth} only when you are ready to go live. Cancel anytime.`}
             </p>
 
             {inviteCode && <InviteBanner code={inviteCode} compact className="mt-3" />}
@@ -194,17 +187,7 @@ const Signup = () => {
               <Button type="submit" size="lg" className="hidden w-full h-11 sm:flex" disabled={busy}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create free account"}
               </Button>
-              {inviteCode ? (
-                <InviteTerms />
-              ) : (
-                promoLive && (
-                  <p className="text-[11px] leading-relaxed text-muted-foreground">
-                    Launch promotion: go live before {PROMO_END_DATE_TEXT} for {PROMO_TEXT.pricePerMonth} USD, or{" "}
-                    {PROMO_TEXT.annualPerYear} billed once. Regular prices are {PRICE_TEXT.monthlyPerMonth} and{" "}
-                    {PRICE_TEXT.annualPerYear}. Cancel anytime.
-                  </p>
-                )
-              )}
+              {inviteCode && <InviteTerms />}
               <p className="text-[11px] text-muted-foreground text-center">
                 By signing up you agree to our <Link to="/terms" className="underline">Terms</Link> and <Link to="/privacy" className="underline">Privacy Policy</Link>.
               </p>
