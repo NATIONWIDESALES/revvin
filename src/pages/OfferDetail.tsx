@@ -242,7 +242,7 @@ const OfferDetail = () => {
                 <Clock className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-lg font-bold">{payoutTimelineLabel}</p>
-                  <p className="text-xs text-muted-foreground">Payout Timeline</p>
+                  <p className="text-xs text-muted-foreground">Terms set by the business</p>
                 </div>
               </div>
             </motion.div>
@@ -308,9 +308,13 @@ const OfferDetail = () => {
             {/* Payout Earnings Callout */}
             <motion.div variants={fadeUp} custom={5} className="rounded-xl border-2 border-primary/20 bg-primary/5 p-5">
               <p className="text-lg font-bold text-foreground">
-                You earn <span className="text-primary">{formatPayout(offer.payout, offer.currency)}</span> for every closed deal.
+                {offer.business} advertises{" "}
+                <span className="text-primary">{formatPayout(offer.payout, offer.currency)}</span> per closed
+                referral.
               </p>
-              <p className="text-sm text-muted-foreground mt-1">Full payout, every time. No hidden fees.</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Paid directly by the business. Revvin does not take a cut of your reward.
+              </p>
             </motion.div>
 
             {/* Trust Signals */}
@@ -334,7 +338,7 @@ const OfferDetail = () => {
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0">
                 {[
                   { icon: Send, label: "Submit Referral" },
-                  { icon: Clock, label: "Business Reviews (1-2 days)" },
+                  { icon: Clock, label: "Business Reviews the Lead" },
                   { icon: CheckCircle2, label: "Deal Closes" },
                   { icon: DollarSign, label: "Business Pays You Directly" },
                 ].map((step, i) => (
