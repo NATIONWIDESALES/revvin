@@ -28,8 +28,6 @@ import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
 import PlanPicker from "@/components/billing/PlanPicker";
-import PromoBlock from "@/components/promo/PromoBlock";
-import { isPromoLive, PROMO_TEXT } from "@/config/promo";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 import InviteBanner from "@/components/invite/InviteBanner";
 import { getInviteCode, setInviteCode, clearInviteCode } from "@/lib/invite";
@@ -578,8 +576,6 @@ const GoLiveBanner = ({
               ? "Publish it so customers and referrers can reach it."
               : inviteCode
                 ? "Building is free. Your invite covers the first 3 months, then it is $17/month USD. Cancel anytime."
-              : isPromoLive()
-                ? `Building is free. Go live for ${PROMO_TEXT.pricePerMonth} USD, or ${PROMO_TEXT.annualPerYear} billed once, to open your page to customers and the marketplace. Regular prices are ${PRICE_TEXT.monthlyPerMonth} and ${PRICE_TEXT.annualPerYear}. Cancel anytime.`
                 : `Building is free. Go live for ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once and save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off), to open your page to customers and the marketplace. Cancel anytime.`}
           </p>
           {!ready && (
@@ -596,14 +592,13 @@ const GoLiveBanner = ({
           ) : inviteCode ? (
             "Go live, 3 months free"
           ) : plan === "annual" ? (
-            `Go live, ${isPromoLive() ? PROMO_TEXT.annualPerYear : PRICE_TEXT.annualPerYear}`
+            `Go live, ${PRICE_TEXT.annualPerYear}`
           ) : (
-            `Go live, ${isPromoLive() ? PROMO_TEXT.pricePerMonth : PRICE_TEXT.monthlyPerMonth}`
+            `Go live, ${PRICE_TEXT.monthlyPerMonth}`
           )}
         </Button>
       </div>
       {!subscribed && inviteCode && <InviteBanner code={inviteCode} className="mt-4" />}
-      {!subscribed && !inviteCode && <PromoBlock variant="compact" plan={plan} className="mt-4" />}
       {!subscribed && !inviteCode && <PlanPicker plan={plan} onChange={setPlan} className="mt-4" />}
       {!subscribed && !inviteCode && (
         showInviteField ? (
@@ -1483,12 +1478,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
         {hasSubscription ? (
           <>
             <Button variant="outline" className="mt-4 w-full" onClick={openPortal} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing"}</Button>
-            {/* While the launch promo is live, an existing monthly subscriber who
-                switches through the Stripe portal keeps their monthly $32-off
-                coupon, which does not produce the $204 annual promo price. The
-                upsell (and its regular-pricing saving figure) is withheld until
-                the promo ends rather than making a claim we cannot honour. */}
-            {!onAnnual && !isPromoLive() && (
+            {!onAnnual && (
               <div className="mt-3 rounded-lg border border-border bg-surface-warm p-3">
                 <p className="text-xs leading-snug text-foreground">
                   <span className="font-semibold">Switch to annual and save {PRICE_TEXT.saving}.</span>{" "}
