@@ -308,6 +308,10 @@ const Pricing = () => {
           <div className="mx-auto mt-8 max-w-3xl">
             <RiskReversalStrip />
           </div>
+
+          <div className="mx-auto mt-6 max-w-3xl">
+            <HowPayoutsWork />
+          </div>
         </div>
       </section>
 
@@ -315,14 +319,6 @@ const Pricing = () => {
         <div className="container max-w-3xl py-20">
           <h2 className="mb-8 text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Common questions</h2>
           <Accordion type="single" collapsible className="w-full">
-            {isPromoLive() && (
-              <AccordionItem value="p0">
-                <AccordionTrigger>How does the {PROMO_TEXT.pricePerMonth} launch promotion work?</AccordionTrigger>
-                <AccordionContent>
-                  Publish before {PROMO_END_DATE_TEXT} and your monthly price is {PROMO_TEXT.pricePerMonth} USD instead of {PROMO_TEXT.regularPerMonth}, a saving of {PROMO_TEXT.savingPerMonth} ({PROMO_TEXT.discount} off). The annual plan is included too: {PROMO_TEXT.annualPerYear} USD instead of {PROMO_TEXT.annualRegularPerYear}, {PROMO_TEXT.annualDiscount} off, paid once. Over twelve months both come to {PROMO_TEXT.annualPrice}, so annual is not cheaper under the promotion, it simply locks the price in with a single payment. The discount is not a limited-time trial rate: it holds on renewals for as long as you stay subscribed, and it is applied automatically at checkout with no code to enter. After {PROMO_END_DATE_TEXT} the regular {PRICE_TEXT.monthlyPerMonth} and {PRICE_TEXT.annualPerYear} prices apply.
-                </AccordionContent>
-              </AccordionItem>
-            )}
             <AccordionItem value="p1">
               <AccordionTrigger>Is there really no contract?</AccordionTrigger>
               <AccordionContent>
