@@ -1493,7 +1493,6 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
           </>
         ) : (
           <>
-            <PromoBlock variant="compact" plan={billingPlan} className="mt-4" />
             <PlanPicker plan={billingPlan} onChange={setBillingPlan} className="mt-4" />
             <Button className="mt-3 w-full" onClick={startSubscription} disabled={busy}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Start subscription · ${billingPlan === "annual" ? PRICE_TEXT.annualPerYear : PRICE_TEXT.monthlyPerMonth}`}
