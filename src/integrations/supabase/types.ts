@@ -137,6 +137,7 @@ export type Database = {
           id: string
           industry: string | null
           invite_code: string | null
+          is_demo: boolean | null
           is_disabled: boolean
           is_published: boolean
           jobber_access_token_encrypted: string | null
@@ -200,6 +201,7 @@ export type Database = {
           id?: string
           industry?: string | null
           invite_code?: string | null
+          is_demo?: boolean | null
           is_disabled?: boolean
           is_published?: boolean
           jobber_access_token_encrypted?: string | null
@@ -263,6 +265,7 @@ export type Database = {
           id?: string
           industry?: string | null
           invite_code?: string | null
+          is_demo?: boolean | null
           is_disabled?: boolean
           is_published?: boolean
           jobber_access_token_encrypted?: string | null
