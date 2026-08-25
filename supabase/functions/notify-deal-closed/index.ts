@@ -136,7 +136,7 @@ Deno.serve(async (req) => {
 
     const { data: bizRows } = await supabase
       .from("businesses")
-      .select("name, user_id")
+      .select("name, user_id, is_demo")
       .eq("id", businessId)
       .limit(1);
     const bizRow = bizRows?.[0];
