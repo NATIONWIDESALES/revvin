@@ -65,13 +65,20 @@ Deno.serve(async (req) => {
 
     const { data: bizRows } = await supabase
       .from("businesses")
-      .select("id, name, user_id, business_email")
+      .select("id, name, user_id, business_email, is_demo")
       .eq("id", lead.business_id)
       .limit(1);
     const biz = bizRows?.[0];
     if (!biz) {
       return new Response(JSON.stringify({ error: "business not found" }), {
         status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Demo accounts are excluded from every triggered send.
+    if (biz.is_demo === true) {
+      return new Response(JSON.stringify({ ok: true, skipped: "demo_business" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
