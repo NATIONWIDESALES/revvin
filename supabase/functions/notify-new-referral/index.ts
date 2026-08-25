@@ -74,13 +74,18 @@ Deno.serve(async (req) => {
     // 2. Get business
     const { data: business } = await supabase
       .from("businesses")
-      .select("name, user_id")
+      .select("name, user_id, is_demo")
       .eq("id", referral.business_id)
       .maybeSingle();
 
     if (!business) {
       console.error("Business not found for id:", referral.business_id);
       return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Demo accounts are excluded from every triggered send.
+    if (business.is_demo === true) {
+      return new Response(JSON.stringify({ ok: true, skipped: "demo_business" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // 3. Get business owner email via admin API

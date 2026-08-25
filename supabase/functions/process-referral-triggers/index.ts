@@ -49,6 +49,7 @@ interface Biz {
   is_published: boolean;
   is_disabled: boolean;
   contact_outreach_consent_at: string | null;
+  is_demo: boolean | null;
 }
 
 Deno.serve(async (req) => {
@@ -74,7 +75,7 @@ Deno.serve(async (req) => {
     const { data } = await supabase
       .from("businesses")
       .select(
-        "id, name, slug, offer_amount, google_review_url, is_published, is_disabled, contact_outreach_consent_at",
+        "id, name, slug, offer_amount, google_review_url, is_published, is_disabled, contact_outreach_consent_at, is_demo",
       )
       .eq("id", id)
       .limit(1);
@@ -123,6 +124,8 @@ Deno.serve(async (req) => {
 
       const biz = await loadBiz(row.business_id);
       if (!biz) { await stop("failed", "business_not_found"); continue; }
+      // Demo accounts are excluded from every scheduled send.
+      if (biz.is_demo === true) { await stop("skipped", "demo_business"); continue; }
       if (!biz.contact_outreach_consent_at) { await stop("failed", "owner_attestation_missing"); continue; }
       if (biz.is_disabled || !biz.is_published) { await stop("failed", "business_page_not_live"); continue; }
       if (!biz.google_review_url) { await stop("failed", "no_review_link_on_profile"); continue; }
@@ -264,6 +267,8 @@ Deno.serve(async (req) => {
 
       const biz = await loadBiz(row.business_id);
       if (!biz) { await fail("business_not_found"); continue; }
+      // Demo accounts are excluded from every scheduled send.
+      if (biz.is_demo === true) { await fail("demo_business"); continue; }
       if (!biz.contact_outreach_consent_at) { await fail("owner_attestation_missing"); continue; }
       if (biz.is_disabled || !biz.is_published) { await fail("business_page_not_live"); continue; }
 

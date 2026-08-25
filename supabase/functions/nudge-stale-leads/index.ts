@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
       const [{ data: bizRows }, { data: settingsRows }] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, user_id, business_email")
+          .select("id, name, user_id, business_email, is_demo")
           .eq("id", lead.business_id)
           .limit(1),
         supabase
@@ -117,6 +117,11 @@ Deno.serve(async (req) => {
       const settings = settingsRows?.[0];
       if (!biz) {
         results.push({ lead_id: lead.id, tier, status: "skipped", detail: "business missing" });
+        continue;
+      }
+      // Demo accounts are excluded from every scheduled send.
+      if (biz.is_demo === true) {
+        results.push({ lead_id: lead.id, tier, status: "skipped", detail: "demo_business" });
         continue;
       }
       if (settings && settings.email_notifications_enabled === false) {

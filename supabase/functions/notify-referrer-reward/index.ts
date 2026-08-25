@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
 
     const { data: bizRows } = await supabase
       .from("businesses")
-      .select("id, name, slug, user_id")
+      .select("id, name, slug, user_id, is_demo")
       .eq("id", reward.business_id)
       .limit(1);
     const biz = bizRows?.[0];
@@ -94,6 +94,9 @@ Deno.serve(async (req) => {
         .limit(1);
       if (!roleRow?.length) return json({ error: "forbidden" }, 403);
     }
+
+    // Demo accounts are excluded from every triggered send.
+    if (biz.is_demo === true) return json({ ok: true, skipped: "demo_business" });
 
     if (kind === "paid" && reward.status !== "paid") {
       return json({ ok: true, skipped: "reward_not_paid" });
