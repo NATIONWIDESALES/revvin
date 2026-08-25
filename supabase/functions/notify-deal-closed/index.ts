@@ -163,6 +163,13 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Demo accounts are excluded from every triggered send.
+    if (bizRow.is_demo === true) {
+      return new Response(JSON.stringify({ ok: true, skipped: "demo_business" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const businessName = bizRow.name ?? "your business";
 
     if (statusSkip) {
