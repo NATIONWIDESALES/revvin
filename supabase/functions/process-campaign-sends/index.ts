@@ -93,11 +93,13 @@ async function runCampaign(supabase: any, campaign: any) {
 
   const { data: bizRows } = await supabase
     .from("businesses")
-    .select("id, name, slug, offer_amount, is_published, is_disabled, contact_outreach_consent_at")
+    .select("id, name, slug, offer_amount, is_published, is_disabled, contact_outreach_consent_at, is_demo")
     .eq("id", campaign.business_id)
     .limit(1);
   const biz = bizRows?.[0];
   if (!biz) return await halt("business_not_found");
+  // Demo accounts are excluded from every scheduled send.
+  if (biz.is_demo === true) return { skipped: "demo_business" };
   if (!biz.contact_outreach_consent_at) return await halt("attestation_missing");
   if (biz.is_disabled || !biz.is_published) return await halt("business_page_not_live");
 

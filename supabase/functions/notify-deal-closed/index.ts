@@ -136,7 +136,7 @@ Deno.serve(async (req) => {
 
     const { data: bizRows } = await supabase
       .from("businesses")
-      .select("name, user_id")
+      .select("name, user_id, is_demo")
       .eq("id", businessId)
       .limit(1);
     const bizRow = bizRows?.[0];
@@ -161,6 +161,13 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+    }
+
+    // Demo accounts are excluded from every triggered send.
+    if (bizRow.is_demo === true) {
+      return new Response(JSON.stringify({ ok: true, skipped: "demo_business" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const businessName = bizRow.name ?? "your business";

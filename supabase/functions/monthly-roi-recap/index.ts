@@ -105,6 +105,8 @@ serve(async (req) => {
     let q = supabase
       .from("businesses")
       .select("id, name, user_id, subscription_status, is_disabled, is_published")
+      // Demo accounts are excluded from every scheduled send.
+      .not("is_demo", "is", true)
       .eq("is_disabled", false)
       .eq("is_published", true)
       .in("subscription_status", ["active", "trialing", "past_due"]);
