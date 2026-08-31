@@ -35,6 +35,9 @@ interface Testimonial {
 interface PageBrandingEditorProps {
   businessId: string;
   slug: string | null;
+  /** Custom branding is a Revvin Pro feature. Free accounts see the editor,
+   *  with the branding inputs disabled rather than silently failing on save. */
+  isPro?: boolean;
   initial: {
     brand_color: string | null;
     cover_image_url: string | null;
@@ -54,7 +57,8 @@ function isHex(v: string) {
   return /^#[0-9a-f]{6}$/i.test(v.trim());
 }
 
-const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBrandingEditorProps) => {
+const PageBrandingEditor = ({ businessId, slug, isPro = false, initial, onSaved }: PageBrandingEditorProps) => {
+
   const { user } = useAuth();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
