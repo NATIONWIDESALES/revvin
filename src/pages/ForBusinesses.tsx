@@ -26,31 +26,31 @@ const ForBusinesses = () => (
   <div>
     <SEOHead
       title="Revvin | Referrals, repeat work and reviews"
-      description="Turn your past-customer list into referrals, repeat work, and reviews. Build free, pay $49/month USD when you publish. Cancel anytime."
+      description="Turn your past-customer list into referrals, repeat work, and reviews. Your referral page is free. Revvin Pro is $49/month USD. Cancel anytime."
       path="/for-businesses"
       jsonLd={[
         {
           "@context": "https://schema.org",
           "@type": "Service",
           "name": "Revvin for Service Businesses",
-          "description": "Customer retention and referral software for service businesses. Turns one past-customer list into three revenue loops: referrals with a branded referral page, link, QR code, lead inbox and job-done auto-ask; repeat work with reactivation campaigns segmented by time since last job; and review requests with a follow-up referral ask. Also includes reward tracking, an ROI scoreboard, a print pack, and webhooks with an API. Building your page is free; publishing costs a flat $49/month. Businesses pay their referrers directly when deals close.",
+          "description": "Customer retention and referral software for service businesses. Turns one past-customer list into three revenue loops: referrals with a branded referral page, link, QR code, lead inbox and job-done auto-ask; repeat work with reactivation campaigns segmented by time since last job; and review requests with a follow-up referral ask. Also includes reward tracking, an ROI scoreboard, a print pack, and webhooks with an API. Publishing your referral page is free; Revvin Pro costs a flat $49/month. Businesses pay their referrers directly when deals close.",
           "provider": { "@type": "Organization", "name": "Revvin", "slogan": "Your customer list, working for you" },
           "offers": {
             "@type": "Offer",
             "price": "49",
             "priceCurrency": "USD",
-            "description": "Free to build and preview your page. $49/month when you publish it, including all three loops. Cancel anytime. No contract."
+            "description": "Publishing your referral page is free. $49/month for Revvin Pro: customer list import, auto-ask, reactivation campaigns, review requests, reporting and custom branding. Cancel anytime. No contract."
           }
         },
         {
           "@context": "https://schema.org",
           "@type": "FAQPage",
           "mainEntity": [
-            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "Building and previewing your page is free. Publishing it costs a flat $49/month and includes all three loops: referrals, repeat work, and reviews. Cancel anytime, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close." } },
+            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "Publishing your referral page and taking referrals on it is free. Revvin Pro costs a flat $49/month and adds the tools that ask your whole customer list for you: import, auto-ask, reactivation campaigns, review requests, reporting and custom branding. Cancel anytime, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close." } },
             { "@type": "Question", "name": "What are the three loops?", "acceptedAnswer": { "@type": "Answer", "text": "Loop one is referrals: a branded referral page, shareable link and QR code, a lead inbox, and a job-done auto-ask sent on a delay. Loop two is repeat work: reactivation campaigns segmented by how long since a customer's last job. Loop three is reviews: a review request after a job, followed by a referral ask to happy customers. All three run off the same past-customer list." } },
-            { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay your referrer nothing because they only earn when a deal closes. Your only cost to Revvin is the flat $49/month subscription." } },
+            { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay your referrer nothing because they only earn when a deal closes. Your referral page costs nothing, and the only optional cost is the flat $49/month Revvin Pro subscription." } },
             { "@type": "Question", "name": "Who decides the referral payout amount?", "acceptedAnswer": { "@type": "Answer", "text": "The business sets the payout based on what a closed customer is worth. Referrers receive 100% of that advertised amount." } },
-            { "@type": "Question", "name": "How is this different from Google Ads or Facebook Ads?", "acceptedAnswer": { "@type": "Answer", "text": "Ads charge per click or impression with no guarantee of conversion. Revvin is a flat $49/month subscription once you publish your page, with no platform fees. You pay your referrers directly when deals close." } }
+            { "@type": "Question", "name": "How is this different from Google Ads or Facebook Ads?", "acceptedAnswer": { "@type": "Answer", "text": "Ads charge per click or impression with no guarantee of conversion. With Revvin your referral page is free, and Revvin Pro is a flat $49/month subscription with no platform fees. You pay your referrers directly when deals close." } }
           ]
         }
       ]}
@@ -72,7 +72,7 @@ const ForBusinesses = () => (
             <span className="text-primary">Start working the list you have.</span>
           </motion.h1>
           <motion.p variants={fadeUp} custom={2} className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Every customer who ever paid you is a referral, a repeat job, or a review waiting to happen. Revvin runs all three loops off that one list. Build free, $49/month USD when you publish. You pay your referrers directly when deals close.
+            Every customer who ever paid you is a referral, a repeat job, or a review waiting to happen. Revvin runs all three loops off that one list. Your referral page is free, and Revvin Pro is $49/month USD. You pay your referrers directly when deals close.
           </motion.p>
           <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
@@ -83,7 +83,7 @@ const ForBusinesses = () => (
             </Button>
           </motion.div>
           <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
-            Free to build · $49/month when you publish · Cancel anytime
+            Free referral page · Revvin Pro $49/month · Cancel anytime
           </motion.p>
         </motion.div>
       </div>
@@ -91,7 +91,7 @@ const ForBusinesses = () => (
 
     {/* Social proof ticker */}
     <section className="py-3 bg-muted/30 border-y border-border overflow-hidden">
-      <MarqueeTicker items={["Referrals", "Repeat work", "Reviews", "Free to build your page", "$49/month when you publish", "You set the referrer payout", "Pay referrers directly", "Cancel anytime"]} />
+      <MarqueeTicker items={["Referrals", "Repeat work", "Reviews", "Free referral page", "Revvin Pro $49/month", "You set the referrer payout", "Pay referrers directly", "Cancel anytime"]} />
     </section>
     <section className="py-24 lg:py-32 bg-surface">
       <div className="container">
@@ -130,7 +130,7 @@ const ForBusinesses = () => (
           </motion.h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: DollarSign, title: "Flat monthly price", desc: "$49/month flat for all three loops. No per-referral fee from Revvin; you decide what to pay your own referrers when deals close." },
+              { icon: DollarSign, title: "Flat monthly price", desc: "Your page is free. $49/month flat for Revvin Pro. No per-referral fee from Revvin; you decide what to pay your own referrers when deals close." },
               { icon: Users, title: "Warm introductions", desc: "Referrals come from people who know your next customer, not algorithms guessing from cookie data." },
               { icon: Shield, title: "Clean records", desc: "Tracked referrals, rewards from pending to paid, and a clear pipeline. No more informal deals and missing follow-ups." },
               { icon: Zap, title: "The ask fires itself", desc: "Mark a job done and Revvin sends the review request and a personalised referral ask on a delay. Webhooks and an API let another tool trigger it." },
@@ -171,13 +171,13 @@ const ForBusinesses = () => (
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-2xl mx-auto text-center">
           <motion.p variants={fadeUp} custom={0} className="section-label mb-3">Simple economics</motion.p>
           <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-            Build free. $49/month to publish.
+            Your page is free. Pro is $49/month.
           </motion.h2>
           <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-sm mb-8 max-w-lg mx-auto">
-            Create and preview your page and offer at no cost. Publishing it costs one flat $49/month, billed monthly, and includes referrals, repeat work, and reviews. No contract, no setup fee, no per-referral cut. You pay referrers directly when deals close.
+            Build your page, publish it, and take referrals at no cost. Revvin Pro is one flat $49/month, billed monthly, and adds the tools that ask your whole customer list for you across referrals, repeat work, and reviews. No contract, no setup fee, no per-referral cut. You pay referrers directly when deals close.
           </motion.p>
           <motion.div variants={fadeUp} custom={2} className="inline-flex flex-wrap items-center justify-center gap-4">
-            {["Free to build", "$49/month to publish", "All three loops included", "You set the payout", "Cancel anytime", "Pay referrers directly"].map(item => (
+            {["Free referral page", "Revvin Pro $49/month", "All three loops included", "You set the payout", "Cancel anytime", "Pay referrers directly"].map(item => (
               <span key={item} className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                 <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                 {item}
@@ -205,11 +205,11 @@ const ForBusinesses = () => (
           className="max-w-xl mx-auto"
         >
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Start acquiring customers today</h2>
-          <p className="text-muted-foreground mb-8">Create your business account for free, import your customers, set your referral payout, and publish when you are ready.</p>
+          <p className="text-muted-foreground mb-8">Create your business account for free, set your referral payout, and publish your page at no cost.</p>
           <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
             <Link to="/signup">Build your page — free <ArrowRight className="h-4 w-4" /></Link>
           </Button>
-          <p className="mt-4 text-xs text-muted-foreground">Free to build. $49/month when you publish. Cancel anytime.</p>
+          <p className="mt-4 text-xs text-muted-foreground">Free referral page. Revvin Pro $49/month. Cancel anytime.</p>
         </motion.div>
       </div>
     </section>

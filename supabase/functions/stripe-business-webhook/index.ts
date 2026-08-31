@@ -165,13 +165,15 @@ serve(async (req) => {
           launchPaymentIntentId =
             typeof s.payment_intent === "string" ? s.payment_intent : s.payment_intent?.id ?? null;
 
+          // Publishing is free and owner-controlled. The webhook only tracks
+          // billing state; it never sets or clears is_published.
           const patch: Record<string, unknown> = {
             stripe_subscription_id: subId,
             stripe_customer_id: custId,
             subscription_status: status,
             current_period_end: currentPeriodEnd,
-            is_published: publishedStatuses.has(status),
           };
+
           // Stamp the invite the business came from, for attribution.
           const inviteCode = (s.metadata?.invite_code as string) || "";
           if (inviteCode) patch.invite_code = inviteCode;
@@ -351,19 +353,18 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
         const periodEnd = subscriptionPeriodEnd(sub);
         const custId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id ?? null;
         if (userId) {
-          await setBiz(userId, {
-            stripe_subscription_id: sub.id,
-            stripe_customer_id: custId,
-            subscription_status: status,
-            current_period_end: periodEnd,
-            is_published:
-              status === "canceled"
-                ? false
-                : publishedStatuses.has(status) && (periodEnd ? new Date(periodEnd) > new Date() : true),
-            ...(status !== "canceled" && publishedStatuses.has(status)
-              ? { account_status: "approved" }
-              : {}),
-          });
+          // Cancelling downgrades to free. It never takes the page down.
+          if (status === "canceled") {
+            await setBiz(userId, { subscription_status: "canceled" });
+          } else {
+            await setBiz(userId, {
+              stripe_subscription_id: sub.id,
+              stripe_customer_id: custId,
+              subscription_status: status,
+              current_period_end: periodEnd,
+              ...(publishedStatuses.has(status) ? { account_status: "approved" } : {}),
+            });
+          }
         } else {
           // Fall back to customer email lookup
           const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
@@ -375,18 +376,22 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
             if (match) {
               await admin
                 .from("businesses")
-                .update({
-                  stripe_subscription_id: sub.id,
-                  stripe_customer_id: customerId,
-                  subscription_status: status,
-                  current_period_end: periodEnd,
-                  is_published: publishedStatuses.has(status),
-                  ...(publishedStatuses.has(status) ? { account_status: "approved" } : {}),
-                })
+                .update(
+                  status === "canceled"
+                    ? { subscription_status: "canceled" }
+                    : {
+                        stripe_subscription_id: sub.id,
+                        stripe_customer_id: customerId,
+                        subscription_status: status,
+                        current_period_end: periodEnd,
+                        ...(publishedStatuses.has(status) ? { account_status: "approved" } : {}),
+                      },
+                )
                 .eq("user_id", match.id);
             }
           }
         }
+
         break;
       }
       case "invoice.payment_failed": {
@@ -466,7 +471,7 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
             .update({
               subscription_status: "active",
               current_period_end: periodEnd,
-              is_published: true,
+              
               account_status: "approved",
               // Reset dunning so the next failed period can notify again.
               dunning_notified_at: null,

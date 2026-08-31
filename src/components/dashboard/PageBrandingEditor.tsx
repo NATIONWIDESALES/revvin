@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import ProUpsell, { PRO_COPY } from "@/components/dashboard/ProUpsell";
 import SimpleQRCode from "@/components/marketplace/SimpleQRCode";
 import ServiceAreaAutocomplete, { type PlaceSelection } from "@/components/ServiceAreaAutocomplete";
 import { Slider } from "@/components/ui/slider";
@@ -35,6 +36,9 @@ interface Testimonial {
 interface PageBrandingEditorProps {
   businessId: string;
   slug: string | null;
+  /** Custom branding is a Revvin Pro feature. Free accounts see the editor,
+   *  with the branding inputs disabled rather than silently failing on save. */
+  isPro?: boolean;
   initial: {
     brand_color: string | null;
     cover_image_url: string | null;
@@ -54,7 +58,8 @@ function isHex(v: string) {
   return /^#[0-9a-f]{6}$/i.test(v.trim());
 }
 
-const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBrandingEditorProps) => {
+const PageBrandingEditor = ({ businessId, slug, isPro = false, initial, onSaved }: PageBrandingEditorProps) => {
+
   const { user } = useAuth();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -230,8 +235,12 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
         </div>
       )}
 
+      {!isPro && <ProUpsell title={PRO_COPY.branding.title} body={PRO_COPY.branding.body} />}
+
       {/* Brand color */}
+      <fieldset disabled={!isPro} className={`space-y-6 ${!isPro ? "opacity-60" : ""}`}>
       <div>
+
         <Label className="flex items-center gap-1.5">
           <Palette className="h-3.5 w-3.5" /> Brand color
         </Label>
@@ -310,6 +319,9 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
           />
         </div>
       </div>
+      </fieldset>
+
+
 
       {/* Service area */}
       <div>
@@ -340,8 +352,10 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
         </div>
       </div>
 
-      {/* Headline */}
+      {/* Headline, welcome message and testimonials: Pro branding */}
+      <fieldset disabled={!isPro} className={`space-y-6 ${!isPro ? "opacity-60" : ""}`}>
       <div>
+
         <Label>Headline</Label>
         <Input
           value={headline}
@@ -435,6 +449,9 @@ const PageBrandingEditor = ({ businessId, slug, initial, onSaved }: PageBranding
           </div>
         )}
       </div>
+      </fieldset>
+
+
 
       <div className="flex justify-end pt-2 border-t border-border">
         <Button onClick={save} disabled={saving} className="gap-2">

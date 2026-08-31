@@ -16,41 +16,34 @@ import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 import HowPayoutsWork from "@/components/marketing/HowPayoutsWork";
 
-// Grouped by revenue loop so the value is legible. Everything listed is shipped.
+// Publishing is free, so the free column now carries the whole referral loop.
+// Pro is grouped by what it does for you: it asks your customer list on your
+// behalf, reports what came back, and makes the page yours.
 const proFeatureGroups: { label: string; features: string[] }[] = [
   {
-    label: "Loop 01 · Referrals",
-    features: [
-      "Branded referral page on your own custom URL",
-      "Shareable link and QR code (PNG + print)",
-      "Referral offer builder, edit anytime",
-      "Lead inbox with status tracking",
-      "One-tap text or call back on a new referral",
-      "Job done auto-ask with customer name, technician name and service, sent on a delay",
-      "Email and in-app lead notifications",
-    ],
-  },
-  {
-    label: "Loop 02 · Repeat work",
+    label: "Asks your list for you",
     features: [
       "Customer list import",
+      "Job done auto-ask with customer name, technician name and service, sent on a delay",
       "Reactivation campaigns segmented by time since last job",
       "Seasonal and maintenance campaign templates",
+      "Review requests sent after a job, with a follow-up referral ask for happy customers",
+    ],
+  },
+  {
+    label: "Shows you what it produced",
+    features: [
+      "ROI scoreboard: leads, closed deals and attributed revenue",
       "Campaign results reporting",
-    ],
-  },
-  {
-    label: "Loop 03 · Reviews",
-    features: [
-      "Review requests sent after a job",
-      "Follow-up referral ask for happy customers",
-    ],
-  },
-  {
-    label: "Across all three",
-    features: [
+      "Monthly recap emailed to you",
       "Reward tracking from pending to paid, with the referrer notified at both moments",
-      "ROI scoreboard on your dashboard",
+    ],
+  },
+  {
+    label: "Makes the page yours",
+    features: [
+      "Brand colour, cover image, custom headline and welcome message",
+      "Testimonials on your referral page",
       "Print pack: yard signs, door hangers, invoice inserts, business cards, truck magnets",
       "Webhooks and an API, so job complete in another tool fires the auto-ask",
       "Stripe billing portal, cancel anytime",
@@ -59,11 +52,15 @@ const proFeatureGroups: { label: string; features: string[] }[] = [
 ];
 
 const freeFeatures = [
-  "Public referrer profile",
-  "Submit referrals to any business on Revvin",
-  "Track your referrals in one place",
-  "Get paid directly by the business",
+  "Branded referral page on your own custom URL, published free",
+  "Shareable link and QR code (PNG + print)",
+  "Referral offer builder, edit anytime",
+  "Lead inbox with status tracking",
+  "One-tap text or call back on a new referral",
+  "Email and in-app lead notifications",
+  "Referrer accounts are free too, and they get paid by you directly",
 ];
+
 
 const launchFeatures = [
   "1:1 onboarding call",
@@ -102,7 +99,7 @@ const Pricing = () => {
     <>
       <SEOHead
         title="Revvin | Pricing"
-        description="Build free. Pay $49/month USD only when you publish. All three loops included: referrals, repeat work, and reviews. Cancel anytime. You pay your referrers directly."
+        description="Your referral page is free, published and collecting referrals. Revvin Pro is $49/month USD for the tools that ask your whole customer list for you. You pay your referrers directly."
         path="/pricing"
       />
 
@@ -113,10 +110,10 @@ const Pricing = () => {
           {/* Every figure reads from the pricing config so the numbers can
               never drift between pages. */}
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
-            {`Build free. Pay ${PRICE_TEXT.monthlyPerMonth} to go live.`}
+            Your referral page is free.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            Building your page, offer, and QR code costs nothing, and you can preview it before you commit. Publishing costs a flat {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, which saves {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off). Both include all three loops: referrals, repeat work, and reviews. No contract and no platform fees on your referral rewards. Referrers are free.
+            Build it, publish it, and take referrals on it without paying anything. Revvin Pro is {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, which saves {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off). Pro is the part that asks your whole customer list for you and shows you what came back. No contract, and no platform fees on your referral rewards.
           </p>
         </div>
       </section>
@@ -127,17 +124,18 @@ const Pricing = () => {
             {/* Free */}
             <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Free</p>
-              <h2 className="mt-1 text-xl font-bold text-foreground">Referrer</h2>
+              <h2 className="mt-1 text-xl font-bold text-foreground">Your referral page</h2>
               <div className="mt-6 flex items-baseline gap-2">
                 <span className="text-5xl font-extrabold tracking-tight text-foreground">$0</span>
                 <span className="text-sm text-muted-foreground">forever</span>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                Send referrals to any business on Revvin and get paid directly.
+                Publish your page, share the link and QR code, and take referrals. No card required.
               </p>
               <Button variant="outline" size="lg" className="mt-6 h-11 w-full" asChild onClick={() => setLaunchFlag(false)}>
-                <Link to="/signup?role=referrer">Create free account</Link>
+                <Link to="/signup">Create free account</Link>
               </Button>
+
               <ul className="mt-8 space-y-2.5 border-t border-border pt-6">
                 {freeFeatures.map((f) => (
                   <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
@@ -156,7 +154,7 @@ const Pricing = () => {
                 </span>
               </div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pro</p>
-              <h2 className="mt-1 text-xl font-bold text-foreground">All three loops</h2>
+              <h2 className="mt-1 text-xl font-bold text-foreground">Ask your whole list</h2>
 
               {/* Billing period toggle */}
               <div role="group" aria-label="Billing period" className="mt-5 grid grid-cols-2 gap-1 rounded-lg border border-border bg-surface-warm p-1">
@@ -197,12 +195,12 @@ const Pricing = () => {
                 </div>
               ) : (
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Billing starts when you publish your page. Cancel anytime. No contract.
+                  Cancel anytime. Your page stays free and live either way. No contract.
                 </p>
               )}
               <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
                 <Link to={`/signup?plan=${plan}`}>
-                  {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Build free + Launch Package" : "Build your page free"}
+                  {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Start Pro + Launch Package" : "Start with Revvin Pro"}
                 </Link>
               </Button>
               {!annual && (
@@ -322,13 +320,13 @@ const Pricing = () => {
             <AccordionItem value="p1">
               <AccordionTrigger>Is there really no contract?</AccordionTrigger>
               <AccordionContent>
-                Correct. Publishing is {PRICE_TEXT.monthlyPerMonth} billed monthly, or {PRICE_TEXT.annualPerYear} billed once. Cancel anytime from your billing portal, your page stays live through the end of the period you've already paid for.
+                Correct. Your page costs nothing and has no contract at all. Revvin Pro is {PRICE_TEXT.monthlyPerMonth} billed monthly, or {PRICE_TEXT.annualPerYear} billed once, and you can cancel anytime from your billing portal. Your page and your referrals stay live either way, you just lose the Pro tools.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p6">
               <AccordionTrigger>How does annual billing work if I cancel?</AccordionTrigger>
               <AccordionContent>
-                The annual plan is {PRICE_TEXT.annual} USD charged once, up front, for twelve months. You can cancel anytime and your page stays live through the end of that paid year, then it does not renew. We do not pro-rate or refund the unused part of a year, so if you are not sure yet, start monthly at {PRICE_TEXT.monthlyPerMonth} and switch to annual later from your billing portal.
+                The annual plan is {PRICE_TEXT.annual} USD charged once, up front, for twelve months of Pro. You can cancel anytime and Pro stays on through the end of that paid year, then it does not renew. Your page stays live regardless. We do not pro-rate or refund the unused part of a year, so if you are not sure yet, start monthly at {PRICE_TEXT.monthlyPerMonth} and switch to annual later from your billing portal.
               </AccordionContent>
             </AccordionItem>
             {LAUNCH_PACKAGE_ENABLED && (
@@ -342,13 +340,13 @@ const Pricing = () => {
             <AccordionItem value="p3">
               <AccordionTrigger>What exactly is free?</AccordionTrigger>
               <AccordionContent>
-                Two things. Referrer accounts are always free: send leads to businesses on Revvin and get paid directly, no card required. And for businesses, the builder is free: create your account, set up your offer, page, and QR code, and preview the whole thing without paying. This is not a trial and not a limited plan. Your page cannot receive referrals until you publish it, and publishing costs $49/month.
+                Your referral page. Create your account, set up your offer, publish the page, share the link and QR code, and take referrals through it without paying anything. That is not a trial and it does not expire. Referrer accounts are free too: send leads to businesses on Revvin and get paid directly, no card required. Pro is what you pay for, and it is the tools that ask your whole customer list for you.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p5">
-              <AccordionTrigger>Are all three loops included in the $49?</AccordionTrigger>
+              <AccordionTrigger>What do I actually get for the $49?</AccordionTrigger>
               <AccordionContent>
-                Yes, on both monthly and annual. One price covers referrals, repeat work, and reviews, plus reward tracking, the ROI scoreboard, the print pack, and webhooks and the API. There are no add-on tiers and no per-send charges.
+                Everything that works your existing customer list: import, the job done auto-ask, reactivation campaigns, review requests, the ROI scoreboard and monthly recap, reward tracking, custom page branding, the print pack, and webhooks and the API. Same on monthly and annual. There are no add-on tiers and no per-send charges.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">

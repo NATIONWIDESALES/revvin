@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import ProUpsell, { PRO_COPY } from "@/components/dashboard/ProUpsell";
 import { track } from "@/lib/track";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -29,8 +30,6 @@ import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
 import PlanPicker from "@/components/billing/PlanPicker";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
-import InviteBanner from "@/components/invite/InviteBanner";
-import { getInviteCode, setInviteCode, clearInviteCode } from "@/lib/invite";
 import { friendlyError } from "@/lib/errors";
 
 interface Business {
@@ -46,8 +45,10 @@ interface Business {
   offer_fine_print: string | null;
   is_published: boolean;
   is_disabled: boolean;
+  plan: string;
   subscription_status: string | null;
   current_period_end: string | null;
+
   business_email: string | null;
   phone: string | null;
   stripe_customer_id: string | null;
@@ -226,13 +227,14 @@ const BusinessDashboard = () => {
     );
   }
 
-  // Free to build, pay to publish. Businesses without an active subscription
-  // keep full access to page building and share tools, and see a Go live
-  // banner. Only the live-traffic surfaces are gated.
+  // Publishing is free. The subscription buys leverage, not existence, so
+  // being live has nothing to do with billing. Pro unlocks the customer-list
+  // tools, reporting and custom branding.
   const subStatus = (biz.subscription_status || "").toLowerCase();
-  const subscribed = ["active", "trialing", "past_due"].includes(subStatus);
-  const isLive = subscribed && biz.is_published && !biz.is_disabled;
-  const everSubscribed = ["canceled", "cancelled", "unpaid", "incomplete_expired"].includes(subStatus);
+
+  const isLive = biz.is_published && !biz.is_disabled;
+  const isPro = (biz.plan || "free") === "pro";
+
 
   // Setup has not produced a URL yet, there is nothing to show or preview.
   if (!biz.slug) {
@@ -320,7 +322,7 @@ const BusinessDashboard = () => {
                 isLive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
               }`}
             >
-              {isLive ? "Live" : everSubscribed ? "Canceled" : "Draft"}
+              {isLive ? "Live" : "Draft"}
             </span>
           </div>
           <p className="text-sm text-muted-foreground mt-1">Your referral program dashboard</p>
@@ -339,11 +341,18 @@ const BusinessDashboard = () => {
 
       {subStatus === "past_due" && <PastDueBanner />}
 
-      {!isLive && <GoLiveBanner biz={biz} subscribed={subscribed} onUpdate={loadAll} />}
+      {!isLive && <PublishBanner biz={biz} onUpdate={loadAll} />}
 
       <ActivationChecklist steps={activationSteps} />
 
-      <RoiSummaryCard businessId={biz.id} />
+      {isPro ? (
+        <RoiSummaryCard businessId={biz.id} />
+      ) : (
+        <div className="mb-8">
+          <ProUpsell title={PRO_COPY.reporting.title} body={PRO_COPY.reporting.body} />
+        </div>
+      )}
+
 
       <Tabs value={activeTab} onValueChange={changeTab}>
         {/* Eleven tabs never fit a 375px viewport. The list scrolls inside its own
@@ -368,9 +377,11 @@ const BusinessDashboard = () => {
         <TabsContent value="customers">
           {!isLive ? (
             <LockedTab
-              title="Go live to invite your customers"
+              title="Publish your page to invite your customers"
               body="Your referral page has to be live before you send customers to it. Everything you build here is saved."
             />
+          ) : !isPro ? (
+            <ProUpsell title={PRO_COPY.customers.title} body={PRO_COPY.customers.body} />
           ) : (
           <AttestationGate
             businessId={biz.id}
@@ -381,10 +392,11 @@ const BusinessDashboard = () => {
           </AttestationGate>
           )}
         </TabsContent>
+
         <TabsContent value="jobdone">
           {!isLive ? (
             <LockedTab
-              title="Go live to run the auto-ask"
+              title="Publish your page to run the auto-ask"
               body="Once your referral page is live, logging a finished job schedules a personalised referral ask to that customer."
             />
           ) : (
@@ -400,7 +412,7 @@ const BusinessDashboard = () => {
         <TabsContent value="campaigns">
           {!isLive ? (
             <LockedTab
-              title="Go live to run a campaign"
+              title="Publish your page to run a campaign"
               body="Reactivation campaigns point people back at your referral page, so it has to be live first. Your customer list is saved either way."
             />
           ) : (
@@ -427,7 +439,7 @@ const BusinessDashboard = () => {
         <TabsContent value="referrals">
           {!isLive && marketplaceReferrals.length === 0 ? (
             <LockedTab
-              title="Go live to appear in the marketplace"
+              title="Publish your page to appear in the marketplace"
               body="Outside referrers can only find and submit to businesses with a live referral page."
             />
           ) : (
@@ -454,6 +466,8 @@ const LockedTab = ({ title, body }: { title: string; body: string }) => (
     <p className="mx-auto mt-1.5 max-w-sm text-sm text-muted-foreground">{body}</p>
   </div>
 );
+
+
 
 /**
  * Failed payment recovery. The customer is paying and wants to keep paying,
@@ -491,140 +505,46 @@ const PastDueBanner = () => {
   );
 };
 
-const GoLiveBanner = ({
-  biz,
-  subscribed,
-  onUpdate,
-}: {
-  biz: Business;
-  subscribed: boolean;
-  onUpdate: () => void;
-}) => {
+/**
+ * Publishing is free. This is one server call, and the RPC owns the rules
+ * (a slug and a reward have to exist first) along with the wording of the
+ * errors, so they are shown to the owner verbatim.
+ */
+const PublishBanner = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) => {
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
-  const [plan, setPlan] = useState<BillingPlan>("monthly");
-  // An invite may be held from an /i/:code link, or typed in here by someone
-  // who got the code verbally. Either way it is only validated at checkout.
-  const [inviteCode, setInviteCodeValue] = useState<string | null>(() => getInviteCode());
-  const [manualInvite, setManualInvite] = useState("");
-  const [showInviteField, setShowInviteField] = useState(false);
-
-  const applyManualInvite = () => {
-    const stored = setInviteCode(manualInvite);
-    if (!stored) {
-      toast({ title: "That does not look like a code", description: "Codes are letters, numbers, dashes.", variant: "destructive" });
-      return;
-    }
-    setInviteCodeValue(stored);
-    setManualInvite("");
-    setShowInviteField(false);
-    setPlan("monthly"); // invites are monthly only
-    track("invite_code_entered");
-  };
 
   const goLive = async () => {
     track("go_live_clicked");
     setBusy(true);
-    // Already paying, publishing is a single flag flip.
-    if (subscribed) {
-      const { error } = await supabase.from("businesses").update({ is_published: true }).eq("id", biz.id);
-      setBusy(false);
-      if (error) {
-        toast({ title: "Could not go live", description: friendlyError(error), variant: "destructive" });
-        return;
-      }
-      toast({ title: "Your referral page is live" });
-      onUpdate();
+    const { error } = await supabase.rpc("fn_set_business_published", { p_published: true });
+    setBusy(false);
+    if (error) {
+      toast({ title: "Could not publish your page", description: error.message, variant: "destructive" });
       return;
     }
-    const { data, error } = await supabase.functions.invoke("create-business-checkout", {
-      body: {
-        includeLaunchPackage: false,
-        plan: inviteCode ? "monthly" : plan,
-        ...(inviteCode ? { invite_code: inviteCode } : {}),
-      },
-    });
-    if (error || !data?.url) {
-      setBusy(false);
-      toast({ title: "Could not start checkout", description: friendlyError(error), variant: "destructive" });
-      return;
-    }
-    if (data.invite_rejected) {
-      toast({
-        title: "Invite code did not apply",
-        description: "That code is not valid, has expired, or is fully used. Continuing at regular pricing.",
-      });
-      clearInviteCode();
-    } else if (data.invite_applied) {
-      clearInviteCode();
-    }
-    track("checkout_redirected");
-    window.location.href = data.url;
+    toast({ title: "Your referral page is live" });
+    onUpdate();
   };
-
-  const ready = !!(biz.slug && biz.offer_amount && biz.offer_trigger);
 
   return (
     <div className="mb-6 rounded-2xl border border-primary/30 bg-primary/5 p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-base font-semibold text-foreground">
-            {subscribed ? "Your page is ready to publish" : "Your referral page is in draft"}
-          </h2>
+          <h2 className="text-base font-semibold text-foreground">Your referral page is ready</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {subscribed
-              ? "Publish it so customers and referrers can reach it."
-              : inviteCode
-                ? "Building is free. Your invite covers the first 3 months, then it is $17/month USD. Cancel anytime."
-                : `Building is free. Go live for ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once and save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off), to open your page to customers and the marketplace. Cancel anytime.`}
+            Publishing is free. Your page goes live at your own link and you can start collecting
+            referrals today.
           </p>
-          {!ready && (
-            <p className="mt-2 text-xs text-muted-foreground">
-              Tip: add your reward amount and when it pays out first so referrers know the deal.
-            </p>
-          )}
         </div>
         <Button onClick={goLive} disabled={busy} size="lg" className="w-full shrink-0 sm:w-auto">
-          {busy ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : subscribed ? (
-            "Publish page"
-          ) : inviteCode ? (
-            "Go live, 3 months free"
-          ) : plan === "annual" ? (
-            `Go live, ${PRICE_TEXT.annualPerYear}`
-          ) : (
-            `Go live, ${PRICE_TEXT.monthlyPerMonth}`
-          )}
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Publish my page"}
         </Button>
       </div>
-      {!subscribed && inviteCode && <InviteBanner code={inviteCode} className="mt-4" />}
-      {!subscribed && !inviteCode && <PlanPicker plan={plan} onChange={setPlan} className="mt-4" />}
-      {!subscribed && !inviteCode && (
-        showInviteField ? (
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-            <Input
-              value={manualInvite}
-              onChange={(e) => setManualInvite(e.target.value.toUpperCase())}
-              placeholder="Invite code"
-              aria-label="Invite code"
-              className="sm:max-w-[200px] font-mono"
-            />
-            <Button variant="outline" onClick={applyManualInvite}>Apply code</Button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setShowInviteField(true)}
-            className="mt-4 text-xs text-muted-foreground underline"
-          >
-            Have an invite code?
-          </button>
-        )
-      )}
     </div>
   );
 };
+
 
 // ============= OFFERS TAB =============
 const OffersTab = ({ offers }: { offers: OfferRow[] }) => {
@@ -1274,7 +1194,7 @@ const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded }: { biz: Business; p
     <>
     {!isLive && (
       <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        Your page is in draft, so this link and QR code will not work for anyone else yet. Go live to activate them.
+        Your page is in draft, so this link and QR code will not work for anyone else yet. Publish your page to activate them.
       </div>
     )}
     <div className="grid gap-6 md:grid-cols-2">

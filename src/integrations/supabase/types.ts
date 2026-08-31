@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -155,6 +155,7 @@ export type Database = {
           offer_fine_print: string | null
           offer_trigger: string | null
           phone: string | null
+          plan: string
           postal_code: string | null
           qr_downloaded_at: string | null
           referral_cta_label: string | null
@@ -219,6 +220,7 @@ export type Database = {
           offer_fine_print?: string | null
           offer_trigger?: string | null
           phone?: string | null
+          plan?: string
           postal_code?: string | null
           qr_downloaded_at?: string | null
           referral_cta_label?: string | null
@@ -283,6 +285,7 @@ export type Database = {
           offer_fine_print?: string | null
           offer_trigger?: string | null
           phone?: string | null
+          plan?: string
           postal_code?: string | null
           qr_downloaded_at?: string | null
           referral_cta_label?: string | null
@@ -2141,6 +2144,7 @@ export type Database = {
           offer_amount: string | null
           offer_fine_print: string | null
           offer_trigger: string | null
+          plan: string | null
           referral_cta_label: string | null
           service_area: string | null
           slug: string | null
@@ -2173,6 +2177,7 @@ export type Database = {
           offer_amount?: string | null
           offer_fine_print?: string | null
           offer_trigger?: string | null
+          plan?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
           slug?: string | null
@@ -2205,6 +2210,7 @@ export type Database = {
           offer_amount?: string | null
           offer_fine_print?: string | null
           offer_trigger?: string | null
+          plan?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
           slug?: string | null
@@ -2390,6 +2396,13 @@ export type Database = {
       fn_release_invite_code: {
         Args: { p_session_id: string }
         Returns: boolean
+      }
+      fn_set_business_published: {
+        Args: { p_published: boolean }
+        Returns: {
+          published: boolean
+          slug: string
+        }[]
       }
       fn_slug_available: { Args: { p_slug: string }; Returns: boolean }
       fn_slug_blocked_terms: { Args: never; Returns: string[] }
