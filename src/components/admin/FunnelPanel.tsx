@@ -14,6 +14,7 @@ const FUNNEL_ORDER: { event: string; label: string }[] = [
   { event: "onboarding_started", label: "Onboarding started" },
   { event: "onboarding_completed", label: "Onboarding completed" },
   { event: "go_live_clicked", label: "Go live clicked" },
+  { event: "publish_page_clicked", label: "Publish page clicked" },
   { event: "checkout_redirected", label: "Checkout redirected" },
   { event: "checkout_succeeded", label: "Checkout succeeded" },
   { event: "checkout_canceled", label: "Checkout canceled" },

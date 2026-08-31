@@ -1,5 +1,5 @@
 // Industry landing page content. Every claim here must be true of the product:
-// free to build, $49/month USD to publish, businesses pay referrers directly
+// free to publish; $49/month USD for Pro, businesses pay referrers directly
 // off-platform, and all sending is device-native or email automation.
 // No statistics, testimonials or results are invented.
 
@@ -30,7 +30,7 @@ export interface Industry {
 const sharedFaqs = (trade: string): IndustryFaq[] => [
   {
     q: `What does a ${trade} referral program cost to run on Revvin?`,
-    a: "Building and previewing your referral page is free. Publishing it costs a flat $49/month USD, with no trial, no setup fee and no platform fees. Cancel anytime. Referral rewards are separate: you set the amount and pay your referrer directly when a deal closes.",
+    a: "Publishing your referral page is free. Revvin Pro is $49/month USD, with no trial, no setup fee and no platform fees. Cancel anytime. Referral rewards are separate: you set the amount and pay your referrer directly when a deal closes.",
   },
   {
     q: "Who pays the referrer?",
@@ -54,7 +54,7 @@ export const INDUSTRIES: Industry[] = [
     h1: "Referral program software for roofing companies",
     metaTitle: "Roofing Referral Program Software | Revvin",
     metaDescription:
-      "Run a roofing referral program off your past-customer list. Branded referral page, QR code and lead inbox. Free to build, $49/month USD to publish. Pay referrers directly.",
+      "Run a roofing referral program off your past-customer list. Branded referral page, QR code and lead inbox. Free to publish; $49/month USD for Pro. Pay referrers directly.",
     intro:
       "A finished roof is visible from the street, and the neighbours ask about it. A roofing referral program turns those conversations into tracked leads instead of lost ones. Revvin gives you a branded referral page, a shareable link and a QR code, then asks your past customers to pass it on after every completed job.",
     loops: [
@@ -94,7 +94,7 @@ export const INDUSTRIES: Industry[] = [
     h1: "Referral program software for HVAC contractors",
     metaTitle: "HVAC Referral Program Software | Revvin",
     metaDescription:
-      "Run an HVAC referral program plus maintenance reactivation off one customer list. Free to build, $49/month USD to publish. You pay your referrers directly.",
+      "Run an HVAC referral program plus maintenance reactivation off one customer list. Free to publish; $49/month USD for Pro. You pay your referrers directly.",
     intro:
       "HVAC has the two things a referral engine needs: a service list that ages predictably and neighbours on the same equipment cycle. Revvin turns your past-customer list into a referral page, a seasonal reactivation calendar and a review loop, all firing off the jobs you already close.",
     loops: [
@@ -134,7 +134,7 @@ export const INDUSTRIES: Industry[] = [
     h1: "Referral program software for plumbers",
     metaTitle: "Plumbing Referral Program Software | Revvin",
     metaDescription:
-      "Turn plumbing customers into referrals, repeat work and reviews. Branded referral page, QR code, lead inbox. Free to build, $49/month USD to publish.",
+      "Turn plumbing customers into referrals, repeat work and reviews. Branded referral page, QR code, lead inbox. Free to publish; $49/month USD for Pro.",
     intro:
       "Most plumbing work arrives as an emergency, which means the customer is relieved and talkative right when the job ends. Revvin captures that moment with an automatic ask, then keeps the rest of your list warm with reactivation campaigns for the work people postpone.",
     loops: [
@@ -168,7 +168,7 @@ export const INDUSTRIES: Industry[] = [
     h1: "Referral program software for solar installers",
     metaTitle: "Solar Referral Program Software | Revvin",
     metaDescription:
-      "Run a solar referral program from your installed-customer list. Branded referral page, QR code, tracked rewards. Free to build, $49/month USD to publish.",
+      "Run a solar referral program from your installed-customer list. Branded referral page, QR code, tracked rewards. Free to publish; $49/month USD for Pro.",
     intro:
       "Solar is sold neighbour to neighbour, and your installed base is the most credible sales team you will ever have. Revvin gives every past customer a branded page and link to share, tracks the reward from pending to paid, and keeps the rest of the loop running without you chasing anyone.",
     loops: [
@@ -202,7 +202,7 @@ export const INDUSTRIES: Industry[] = [
     h1: "Referral program software for electricians",
     metaTitle: "Electrician Referral Program Software | Revvin",
     metaDescription:
-      "Run an electrician referral program off your customer list. Branded page, QR code, lead inbox, tracked rewards. Free to build, $49/month USD to publish.",
+      "Run an electrician referral program off your customer list. Branded page, QR code, lead inbox, tracked rewards. Free to publish; $49/month USD for Pro.",
     intro:
       "Electrical work is bought on trust, and trust travels by recommendation. Revvin turns the customers who already trust you into a referral channel, with a page you brand, a link they can send and a reward you set.",
     loops: [
@@ -236,7 +236,7 @@ export const INDUSTRIES: Industry[] = [
     h1: "Referral program software for landscapers",
     metaTitle: "Landscaping Referral Program Software | Revvin",
     metaDescription:
-      "Run a landscaping referral program and seasonal reactivation from one customer list. Free to build, $49/month USD to publish. Pay referrers directly.",
+      "Run a landscaping referral program and seasonal reactivation from one customer list. Free to publish; $49/month USD for Pro. Pay referrers directly.",
     intro:
       "Landscaping is the most visible trade there is, and your best advertisement is the yard you finished this morning. Revvin makes that yard referable with a branded page, a QR code for the sign out front and an automatic ask to the customer who paid for it.",
     loops: [
@@ -270,7 +270,7 @@ export const INDUSTRIES: Industry[] = [
     h1: "Referral program software for painting contractors",
     metaTitle: "Painting Referral Program Software | Revvin",
     metaDescription:
-      "Run a painting referral program off your past-customer list. Branded referral page, QR code, tracked rewards. Free to build, $49/month USD to publish.",
+      "Run a painting referral program off your past-customer list. Branded referral page, QR code, tracked rewards. Free to publish; $49/month USD for Pro.",
     intro:
       "Painting sells itself once someone stands in the room. Revvin gives your past customers an easy way to hand you on, and gives you a lead inbox that lets you respond before the next quote does.",
     loops: [
@@ -304,7 +304,7 @@ export const INDUSTRIES: Industry[] = [
     h1: "Referral program software for auto detailing businesses",
     metaTitle: "Auto Detailing Referral Program Software | Revvin",
     metaDescription:
-      "Run an auto detailing referral program and rebooking reminders from one list. Free to build, $49/month USD to publish. You pay referrers directly.",
+      "Run an auto detailing referral program and rebooking reminders from one list. Free to publish; $49/month USD for Pro. You pay referrers directly.",
     intro:
       "Detailing is a before-and-after business with a short repeat cycle, which makes it ideal for all three loops. Revvin asks for the referral while the car still looks new, brings customers back on schedule and collects reviews in between.",
     loops: [

@@ -75,8 +75,8 @@ const Onboarding = () => {
         setBizId(b.id);
         setLaunchPackageStatus(b.launch_package_status || null);
         setSubscriptionStatus(b.subscription_status || null);
-        // No billing gate here. Onboarding is free: businesses build their
-        // page first and only pay when they choose to go live.
+        // No billing gate here. Onboarding is free: businesses build and
+        // publish their page first and only pay if they choose Revvin Pro.
         setName(b.name || "");
         setDescription(b.description || "");
         setCategory(b.category || "");
@@ -184,7 +184,7 @@ const Onboarding = () => {
       return;
     }
     // Free to build: saving the slug finishes setup. The page stays in draft
-    // (is_published = false) until the business subscribes and goes live.
+    // (is_published = false) until the business publishes it from the dashboard.
     setSaving(true);
     const { error } = await supabase
       .from("businesses")
@@ -204,7 +204,7 @@ const Onboarding = () => {
     }
     toast({
       title: "Your referral page is ready",
-      description: "It is in draft. Go live from your dashboard whenever you're ready.",
+      description: "It is in draft. Publish it from your dashboard whenever you're ready.",
     });
     track("onboarding_completed");
     navigate("/dashboard");
