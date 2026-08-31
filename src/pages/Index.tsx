@@ -515,7 +515,7 @@ const Index = () => {
               <MockQRCard className="border-0 p-0 shadow-none" />
             </div>
 
-            {/* Auto-ask tile */}
+            {/* Bulk referral ask tile */}
             <div className="bento-tile md:col-span-2 flex flex-col justify-between">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Bulk referral ask</p>
               <div className="py-2">
@@ -538,7 +538,7 @@ const Index = () => {
               <p className="mt-3 text-xs text-muted-foreground">Branded. Shareable. Memorable.</p>
             </div>
 
-            {/* Reactivation campaigns */}
+            {/* Repeat-work templates */}
             <div className="bento-tile md:col-span-3 flex items-start gap-3">
               <div className="rounded-md bg-primary/10 p-2 text-primary"><CalendarClock className="h-4 w-4" /></div>
               <div>
