@@ -397,7 +397,7 @@ const BusinessDashboard = () => {
         <TabsContent value="jobdone">
           {!isLive ? (
             <LockedTab
-              title="Go live to run the auto-ask"
+              title="Publish your page to run the auto-ask"
               body="Once your referral page is live, logging a finished job schedules a personalised referral ask to that customer."
             />
           ) : (
@@ -413,7 +413,7 @@ const BusinessDashboard = () => {
         <TabsContent value="campaigns">
           {!isLive ? (
             <LockedTab
-              title="Go live to run a campaign"
+              title="Publish your page to run a campaign"
               body="Reactivation campaigns point people back at your referral page, so it has to be live first. Your customer list is saved either way."
             />
           ) : (
@@ -440,7 +440,7 @@ const BusinessDashboard = () => {
         <TabsContent value="referrals">
           {!isLive && marketplaceReferrals.length === 0 ? (
             <LockedTab
-              title="Go live to appear in the marketplace"
+              title="Publish your page to appear in the marketplace"
               body="Outside referrers can only find and submit to businesses with a live referral page."
             />
           ) : (
@@ -1287,7 +1287,7 @@ const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded }: { biz: Business; p
     <>
     {!isLive && (
       <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        Your page is in draft, so this link and QR code will not work for anyone else yet. Go live to activate them.
+        Your page is in draft, so this link and QR code will not work for anyone else yet. Publish your page to activate them.
       </div>
     )}
     <div className="grid gap-6 md:grid-cols-2">
