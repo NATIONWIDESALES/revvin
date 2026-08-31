@@ -199,7 +199,7 @@ const Index = () => {
             "@type": "Product",
             name: "Revvin",
             description:
-              "Customer retention and referral software for service businesses. Turns one past-customer list into three revenue loops: referrals with a branded referral page, link, QR code, lead inbox and job-done auto-ask; repeat work with reactivation campaigns segmented by time since last job; and review requests with a follow-up referral ask. Includes reward tracking, an ROI scoreboard, a print pack, and webhooks with an API. Publishing your referral page is free; Revvin Pro costs a flat $49/month. Businesses pay their referrers directly off-platform.",
+              "Customer retention and referral software for service businesses. Turns one past-customer list into three revenue loops: referrals with a branded referral page, link, QR code and lead inbox; repeat work with pre-written rebooking messages to past customers; and reviews with a follow-up referral ask. Includes reward tracking, an ROI scoreboard, and a print pack. Publishing your referral page is free; Revvin Pro costs a flat $49/month. Businesses pay their referrers directly off-platform.",
             brand: { "@type": "Brand", name: "Revvin" },
             offers: {
               "@type": "Offer",
@@ -455,7 +455,7 @@ const Index = () => {
           <div className="space-y-20">
             {[
               { n: "01", t: "Build your page and load your customers", d: "Add your logo, write your offer, pick a custom URL, and import the customers you already have.", visual: <MockPageBuilder /> },
-              { n: "02", t: "Mark jobs done and let the asks fire", d: "Revvin sends the review request and the referral ask on a delay, and campaigns go to the customers who have not booked in a while. Share the link or QR code yourself anytime.", visual: <MockQRCard /> },
+              { n: "02", t: "Send the ask", d: "Share the link or QR code, and send your referral ask to your customer list with a pre-written message that opens in your own texting or email app. You always press send yourself.", visual: <MockQRCard /> },
               { n: "03", t: "Work the leads and pay your referrers", d: "Every referral lands in your inbox. Text or call back in one tap, move it to closed, and pay your referrer directly. They get notified at pending and at paid.", visual: <MockLeadsTable /> },
             ].map((s, i) => (
               <div key={s.n} className="relative grid items-center gap-10 md:grid-cols-12">
@@ -493,7 +493,7 @@ const Index = () => {
               Everything the three loops need, in one place.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              The asks fire on their own, the leads land in one inbox, the rewards get tracked to paid, and the scoreboard tells you what it all returned.
+              The asks go out from your own phone or email, the leads land in one inbox, the rewards get tracked to paid, and the scoreboard tells you what it all returned.
             </p>
           </div>
 
@@ -517,14 +517,14 @@ const Index = () => {
 
             {/* Auto-ask tile */}
             <div className="bento-tile md:col-span-2 flex flex-col justify-between">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Job done auto-ask</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Bulk referral ask</p>
               <div className="py-2">
                 <p className="text-lg font-bold leading-snug tracking-tight text-foreground">
-                  Mark the job done. The ask sends itself.
+                  One list. One ask, sent in minutes.
                 </p>
               </div>
               <p className="text-xs text-muted-foreground">
-                Personalised with the customer name, technician name, and service, then sent on a delay.
+                Personalised for each customer and opened in your own texting or email app. You press send.
               </p>
             </div>
 
@@ -542,15 +542,15 @@ const Index = () => {
             <div className="bento-tile md:col-span-3 flex items-start gap-3">
               <div className="rounded-md bg-primary/10 p-2 text-primary"><CalendarClock className="h-4 w-4" /></div>
               <div>
-                <p className="text-sm font-semibold text-foreground">Reactivation campaigns</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Segment past customers by time since their last job, send from a template, and see the results.</p>
+                <p className="text-sm font-semibold text-foreground">Repeat-work templates</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Pre-written seasonal and maintenance messages for the customers you have already served.</p>
               </div>
             </div>
 
             <div className="bento-tile md:col-span-3 flex items-start gap-3">
               <div className="rounded-md bg-primary/10 p-2 text-primary"><MessageSquare className="h-4 w-4" /></div>
               <div>
-                <p className="text-sm font-semibold text-foreground">Review requests</p>
+                <p className="text-sm font-semibold text-foreground">Review asks</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">Ask for a review after the job, then follow up asking happy customers to refer someone.</p>
               </div>
             </div>
@@ -580,10 +580,10 @@ const Index = () => {
             </div>
 
             <div className="bento-tile md:col-span-2 flex items-start gap-3">
-              <div className="rounded-md bg-primary/10 p-2 text-primary"><Webhook className="h-4 w-4" /></div>
+              <div className="rounded-md bg-primary/10 p-2 text-primary"><Upload className="h-4 w-4" /></div>
               <div>
-                <p className="text-sm font-semibold text-foreground">Webhooks and API</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Job complete in another tool can fire the auto-ask in Revvin.</p>
+                <p className="text-sm font-semibold text-foreground">CSV import</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Upload your past customer list in a couple of minutes.</p>
               </div>
             </div>
 
@@ -644,12 +644,12 @@ const Index = () => {
                 {[
                   "Branded referral page, link and QR code",
                   "Lead inbox with one-tap text or call back",
-                  "Job done auto-ask",
-                  "Reactivation campaigns",
-                  "Review requests with referral follow-up",
-                  "Reward tracking and ROI scoreboard",
+                  "Customer list import and bulk referral ask",
+                  "Pre-written referral, rebooking and review templates",
+                  "ROI reporting with a monthly email recap",
+                  "Custom page branding",
+                  "Reward tracking from pending to paid",
                   "Print pack",
-                  "Webhooks and API",
                 ].map((f) => (
                   <div key={f} className="flex items-start gap-2.5">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
@@ -726,7 +726,7 @@ const Index = () => {
               {
                 trade: "Plumbing",
                 body:
-                  "Right after you fix a leak is when goodwill is highest. Revvin sends the ask a couple of hours after the job, while the customer is still relieved.",
+                   "Right after you fix a leak is when goodwill is highest. Send the ask while the customer is still relieved, with a pre-written message that comes from you.",
               },
               {
                 trade: "Landscaping",
@@ -781,8 +781,8 @@ const Index = () => {
               <h3 className="mt-1 text-xl font-bold text-foreground">Working the list you already have</h3>
               <ul className="mt-6 space-y-3 text-sm text-foreground">
                 <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />One flat price for all three loops</li>
-                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />The ask fires automatically after every finished job</li>
-                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />Past customers rebook through reactivation campaigns</li>
+                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />Your referral page is free, and listed in the marketplace</li>
+                <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />Pre-written asks go out from your own phone or email</li>
                 <li className="flex gap-3"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />You decide what to pay referrers when deals close</li>
               </ul>
             </div>
