@@ -237,7 +237,7 @@ const PageBrandingEditor = ({ businessId, slug, isPro = false, initial, onSaved 
       {!isPro && <ProUpsell title={PRO_COPY.branding.title} body={PRO_COPY.branding.body} />}
 
       {/* Brand color */}
-      <fieldset disabled={!isPro} className={!isPro ? "opacity-60" : undefined}>
+      <fieldset disabled={!isPro} className={`space-y-6 ${!isPro ? "opacity-60" : ""}`}>
       <div>
 
         <Label className="flex items-center gap-1.5">
