@@ -16,6 +16,7 @@ import HowItWorks from "./pages/HowItWorks";
 import TrustCenter from "./pages/TrustCenter";
 import ForBusinesses from "./pages/ForBusinesses";
 import ForReferrers from "./pages/ForReferrers";
+import AskKit from "./pages/AskKit";
 import AboutRevvinLLM from "./pages/AboutRevvinLLM";
 import ReferrerProfile from "./pages/ReferrerProfile";
 import Auth from "./pages/Auth";
@@ -90,6 +91,7 @@ const App = () => (
                   <Route path="/trust" element={<TrustCenter />} />
                   <Route path="/for-businesses" element={<ForBusinesses />} />
                   <Route path="/for-referrers" element={<ForReferrers />} />
+                  <Route path="/ask-kit" element={<AskKit />} />
                   <Route path="/referral-programs" element={<IndustriesHub />} />
                   <Route path="/referral-program/:industry" element={<IndustryLanding />} />
                   <Route path="/about-revvin-llm" element={<AboutRevvinLLM />} />
