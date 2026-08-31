@@ -232,7 +232,7 @@ const BusinessDashboard = () => {
   // being live has nothing to do with billing. Pro unlocks the customer-list
   // tools, reporting and custom branding.
   const subStatus = (biz.subscription_status || "").toLowerCase();
-  const subscribed = ["active", "trialing", "past_due"].includes(subStatus);
+
   const isLive = biz.is_published && !biz.is_disabled;
   const isPro = (biz.plan || "free") === "pro";
 
