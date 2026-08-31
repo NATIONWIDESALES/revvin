@@ -471,7 +471,7 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
             .update({
               subscription_status: "active",
               current_period_end: periodEnd,
-              is_published: true,
+              
               account_status: "approved",
               // Reset dunning so the next failed period can notify again.
               dunning_notified_at: null,
