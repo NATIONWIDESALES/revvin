@@ -12,7 +12,7 @@ import {
   Star,
   Share2,
   Printer,
-  Webhook,
+  Upload,
   HandCoins,
   CalendarClock,
   MessageSquare,
@@ -57,12 +57,12 @@ const buildFaqs = (): { question: string; answer: string }[] => [
   {
     question: "What are the three loops?",
     answer:
-      "Three ways Revvin puts your existing customer list back to work. Loop one is referrals: a branded referral page, a shareable link and QR code, a lead inbox, and an auto-ask that fires a personalised request a couple of hours after a job is done. Loop two is repeat work: segment past customers by how long since their last job and send seasonal or maintenance campaigns. Loop three is reviews: request a review after a job, then follow up asking happy customers to refer someone. Same list, three revenue loops.",
+      "Three ways Revvin puts your existing customer list back to work. Loop one is referrals: a branded referral page, a shareable link and QR code, a lead inbox, and a pre-written referral ask you send to your customer list from your own phone or email app. Loop two is repeat work: pre-written seasonal and maintenance messages to the customers who already hired you. Loop three is reviews: ask for the review after a job, then follow up asking happy customers to refer someone. Same list, three revenue loops.",
   },
   {
     question: "What if I do not get any referrals?",
     answer:
-      "Referrals come from making the ask, so Revvin makes the ask automatic. Mark a job done and Revvin sends a personalised request a couple of hours later, using the customer name, the technician name, and the service. Every reply lands in your lead inbox where you can text or call back in one tap. And referrals are only loop one: the same customer list also drives reactivation campaigns and review requests. It is month to month, so you can cancel anytime.",
+      "Referrals come from making the ask, so Revvin makes the ask easy. Load your customer list and Revvin hands you a pre-written, personalised ask for each customer, opened in your own texting or email app so it comes from you. Every reply lands in your lead inbox where you can text or call back in one tap. It is month to month, so you can cancel anytime.",
   },
   {
     question: "Does Revvin pay the referrers for me?",
@@ -71,16 +71,11 @@ const buildFaqs = (): { question: string; answer: string }[] => [
   },
   {
     question: "How does billing work?",
-    answer: `Your referral page is free: publish it and take referrals without paying anything. Revvin Pro costs a flat ${PRICE_TEXT.monthlyPerMonth} USD, billed monthly, or ${PRICE_TEXT.annualPerYear} billed once, with no contract and no platform fees on your referral rewards. Pro adds the customer list import, the auto-ask, reactivation campaigns, review requests, reporting and custom branding. Cancel anytime from your billing portal; your page stays live either way.`,
+    answer: `Your referral page is free: publish it and take referrals without paying anything. Revvin Pro costs a flat ${PRICE_TEXT.monthlyPerMonth} USD, billed monthly, or ${PRICE_TEXT.annualPerYear} billed once, with no contract and no platform fees on your referral rewards. Pro adds customer list import, the bulk referral ask to your whole list, ROI reporting with a monthly email recap, and custom page branding. Cancel anytime from your billing portal; your page stays live either way.`,
   },
   {
     question: "What is free and what costs money?",
     answer: `Your referral page. Create your account, build your offer, publish the page, share the link and QR code, and take referrals through it at no cost. That is not a trial and it does not expire. Referrers are free too: they create an account, send leads, and get paid directly by the business. Revvin Pro at ${PRICE_TEXT.monthlyPerMonth} USD is what you pay for, and it is the tools that ask your whole customer list for you.`,
-  },
-  {
-    question: "Can Revvin fire the ask from the tools I already use?",
-    answer:
-      "Yes. Revvin has webhooks and an API, so marking a job complete in another tool can trigger the auto-ask in Revvin, and lead, deal, and payout events can be pushed back out to your own systems or to a generic webhook step in a tool like Zapier.",
   },
   {
     question: "Do you have a marketplace where I can browse offers?",
@@ -90,7 +85,7 @@ const buildFaqs = (): { question: string; answer: string }[] => [
   {
     question: "What if I cancel?",
     answer:
-      "You can cancel anytime from your Stripe billing portal — no contract and no cancellation fee. Your page and link stay live until the end of the billing period you've already paid for, then they're paused. Your lead and customer history isn't deleted, so if you come back later your data is still there.",
+      "You can cancel anytime from your Stripe billing portal, no contract and no cancellation fee. Your page stays live and your referrals keep coming in; you only lose the Pro tools. Your lead and customer history isn't deleted, so if you come back later your data is still there.",
   },
   {
     question: "What kind of businesses is Revvin for?",
@@ -105,17 +100,12 @@ const buildFaqs = (): { question: string; answer: string }[] => [
   {
     question: "Will this annoy my customers?",
     answer:
-      "The ask only goes to people who already hired you, never to cold contacts. You control the wording of every message, and the auto-ask waits until a couple of hours after the job is done. On mobile the message opens in your own texting or email app, so it comes from you, and anyone can opt out with the unsubscribe link on emails.",
+      "The ask only goes to people who already hired you, never to cold contacts. You control the wording of every message, and every message opens in your own texting or email app so it comes from you. Anyone can opt out with the unsubscribe link on emails.",
   },
   {
     question: "Can I import a CSV?",
     answer:
       "Yes. Upload a CSV with name, email, and phone columns, or paste one customer per line as name, phone, email. A header row is optional. Every row needs a name plus either an email or a phone number, and Revvin dedupes against the contacts you already have before anything is added. You review the parsed list before importing.",
-  },
-  {
-    question: "Can I use my own Google review link?",
-    answer:
-      "Yes. Paste your own Google review link in your dashboard and review requests send customers straight to it. Review requests stay off until that link is saved.",
   },
   {
     question: "Do I need the marketplace for this to work?",
@@ -125,7 +115,7 @@ const buildFaqs = (): { question: string; answer: string }[] => [
   {
     question: "Does this work with Jobber, Housecall Pro, or ServiceTitan?",
     answer:
-      "There is no connection to those tools. You export your customer list from whatever you use today and import that CSV into Revvin, which takes a couple of minutes. If you have a developer or use a tool that can call a webhook, Revvin also has webhooks and an API you can trigger yourself.",
+      "There is no connection to those tools. You export your customer list from whatever you use today and import that CSV into Revvin, which takes a couple of minutes.",
   },
 ];
 
@@ -137,11 +127,11 @@ const LOOPS = [
     icon: Share2,
     headline: "Turn a finished job into the next one.",
     body:
-      "A branded referral page on your own custom URL, with a shareable link and QR code. Mark a job done and Revvin sends a personalised ask a couple of hours later, using the customer name, the technician name, and the service. Replies land in a lead inbox where you can text or call back in one tap.",
+      "A branded referral page on your own custom URL, with a shareable link and QR code. Load your customer list and send a personalised, pre-written ask from your own phone or email app. Replies land in a lead inbox where you can text or call back in one tap.",
     points: [
       "Branded referral page, custom URL, link and QR code",
       "Lead inbox with status tracking and one-tap text or call back",
-      "Job done auto-ask, personalised and sent on a delay",
+      "Pre-written referral ask, personalised for each customer",
     ],
   },
   {
@@ -150,11 +140,11 @@ const LOOPS = [
     icon: Repeat,
     headline: "Rebook the customers you already have.",
     body:
-      "Segment your past customers by how long it has been since their last job, then send a seasonal or maintenance campaign to that segment. Start from a template, send it, and see what came back. The same list that referred you also rebooks you.",
+      "Your past customers are the cheapest rebooking you will ever get. Start from a pre-written seasonal or maintenance template, send it to your list from your own phone or email app, and see what came back. The same list that referred you also rebooks you.",
     points: [
-      "Segment by time since last job",
-      "Seasonal and maintenance campaign templates",
-      "Results reporting on what each campaign brought in",
+      "Pre-written seasonal and maintenance templates",
+      "Sent from your own phone or email app",
+      "Results reporting on what came back",
     ],
   },
   {
@@ -163,9 +153,9 @@ const LOOPS = [
     icon: Star,
     headline: "Ask for the review, then ask for the referral.",
     body:
-      "After a job, Revvin requests a review. Everyone gets asked, not just the happy ones. Then it follows up with the customers who told you they were happy and asks them to refer someone, which feeds straight back into loop one.",
+      "After a job, ask for the review with a pre-written message. Then follow up with the customers who told you they were happy and ask them to refer someone, which feeds straight back into loop one.",
     points: [
-      "Review request after every job",
+      "Pre-written review ask after a job",
       "Follow-up referral ask for happy customers",
       "Feeds new referrals back into loop one",
     ],
