@@ -201,7 +201,7 @@ const Index = () => {
     <>
       <SEOHead
         title="Revvin · Your customer list, working for you"
-        description={`Turn your past customers into referrals, repeat work, and reviews. Build free, pay ${PRICE_TEXT.monthlyPerMonth} USD only when you publish. Cancel anytime.`}
+        description={`Your referral page is free: publish it and take referrals. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD for the tools that ask your whole customer list for you.`}
         path="/"
         jsonLd={[
           {
