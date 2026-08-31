@@ -165,13 +165,15 @@ serve(async (req) => {
           launchPaymentIntentId =
             typeof s.payment_intent === "string" ? s.payment_intent : s.payment_intent?.id ?? null;
 
+          // Publishing is free and owner-controlled. The webhook only tracks
+          // billing state; it never sets or clears is_published.
           const patch: Record<string, unknown> = {
             stripe_subscription_id: subId,
             stripe_customer_id: custId,
             subscription_status: status,
             current_period_end: currentPeriodEnd,
-            is_published: publishedStatuses.has(status),
           };
+
           // Stamp the invite the business came from, for attribution.
           const inviteCode = (s.metadata?.invite_code as string) || "";
           if (inviteCode) patch.invite_code = inviteCode;
