@@ -46,8 +46,10 @@ interface Business {
   offer_fine_print: string | null;
   is_published: boolean;
   is_disabled: boolean;
+  plan: string;
   subscription_status: string | null;
   current_period_end: string | null;
+
   business_email: string | null;
   phone: string | null;
   stripe_customer_id: string | null;
