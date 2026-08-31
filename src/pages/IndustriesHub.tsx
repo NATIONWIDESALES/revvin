@@ -10,7 +10,7 @@ const IndustriesHub = () => (
   <>
     <SEOHead
       title="Referral Programs by Industry | Revvin"
-      description="Referral program software for roofing, HVAC, plumbing, solar, electrical, landscaping, painting and auto detailing. Free to build, $49/month USD to publish."
+      description="Referral program software for roofing, HVAC, plumbing, solar, electrical, landscaping, painting and auto detailing. Free to publish. Revvin Pro is $49/month USD for the tools that ask your whole customer list for you."
       path="/referral-programs"
       jsonLd={[
         {

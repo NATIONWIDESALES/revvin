@@ -87,7 +87,7 @@ const IndustryLanding = () => {
             </Button>
           </div>
           <p className="mt-5 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            {`Free to build · ${PRICE_TEXT.monthlyPerMonth} USD to publish · cancel anytime`}
+            {`Free to publish · Pro is ${PRICE_TEXT.monthlyPerMonth} USD · cancel anytime`}
           </p>
         </div>
       </section>

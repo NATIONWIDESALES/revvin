@@ -181,7 +181,7 @@ const Browse = () => {
       <div className="py-6">
         <SEOHead
           title="Revvin | Browse referral offers"
-          description="Launch a referral program for your service business. Branded page, link, QR code, and lead inbox. Free to build, $49/month USD to go live."
+          description="Launch a referral program for your service business. Branded page, link, QR code, and lead inbox. Free to publish, and listed in the marketplace at no cost."
           path="/browse"
         />
         <div className="container">
