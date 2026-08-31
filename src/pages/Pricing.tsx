@@ -16,41 +16,34 @@ import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 import HowPayoutsWork from "@/components/marketing/HowPayoutsWork";
 
-// Grouped by revenue loop so the value is legible. Everything listed is shipped.
+// Publishing is free, so the free column now carries the whole referral loop.
+// Pro is grouped by what it does for you: it asks your customer list on your
+// behalf, reports what came back, and makes the page yours.
 const proFeatureGroups: { label: string; features: string[] }[] = [
   {
-    label: "Loop 01 · Referrals",
-    features: [
-      "Branded referral page on your own custom URL",
-      "Shareable link and QR code (PNG + print)",
-      "Referral offer builder, edit anytime",
-      "Lead inbox with status tracking",
-      "One-tap text or call back on a new referral",
-      "Job done auto-ask with customer name, technician name and service, sent on a delay",
-      "Email and in-app lead notifications",
-    ],
-  },
-  {
-    label: "Loop 02 · Repeat work",
+    label: "Asks your list for you",
     features: [
       "Customer list import",
+      "Job done auto-ask with customer name, technician name and service, sent on a delay",
       "Reactivation campaigns segmented by time since last job",
       "Seasonal and maintenance campaign templates",
+      "Review requests sent after a job, with a follow-up referral ask for happy customers",
+    ],
+  },
+  {
+    label: "Shows you what it produced",
+    features: [
+      "ROI scoreboard: leads, closed deals and attributed revenue",
       "Campaign results reporting",
-    ],
-  },
-  {
-    label: "Loop 03 · Reviews",
-    features: [
-      "Review requests sent after a job",
-      "Follow-up referral ask for happy customers",
-    ],
-  },
-  {
-    label: "Across all three",
-    features: [
+      "Monthly recap emailed to you",
       "Reward tracking from pending to paid, with the referrer notified at both moments",
-      "ROI scoreboard on your dashboard",
+    ],
+  },
+  {
+    label: "Makes the page yours",
+    features: [
+      "Brand colour, cover image, custom headline and welcome message",
+      "Testimonials on your referral page",
       "Print pack: yard signs, door hangers, invoice inserts, business cards, truck magnets",
       "Webhooks and an API, so job complete in another tool fires the auto-ask",
       "Stripe billing portal, cancel anytime",
@@ -59,11 +52,15 @@ const proFeatureGroups: { label: string; features: string[] }[] = [
 ];
 
 const freeFeatures = [
-  "Public referrer profile",
-  "Submit referrals to any business on Revvin",
-  "Track your referrals in one place",
-  "Get paid directly by the business",
+  "Branded referral page on your own custom URL, published free",
+  "Shareable link and QR code (PNG + print)",
+  "Referral offer builder, edit anytime",
+  "Lead inbox with status tracking",
+  "One-tap text or call back on a new referral",
+  "Email and in-app lead notifications",
+  "Referrer accounts are free too, and they get paid by you directly",
 ];
+
 
 const launchFeatures = [
   "1:1 onboarding call",
