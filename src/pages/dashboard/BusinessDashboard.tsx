@@ -342,11 +342,18 @@ const BusinessDashboard = () => {
 
       {subStatus === "past_due" && <PastDueBanner />}
 
-      {!isLive && <GoLiveBanner biz={biz} subscribed={subscribed} onUpdate={loadAll} />}
+      {!isLive && <PublishBanner biz={biz} onUpdate={loadAll} />}
 
       <ActivationChecklist steps={activationSteps} />
 
-      <RoiSummaryCard businessId={biz.id} />
+      {isPro ? (
+        <RoiSummaryCard businessId={biz.id} />
+      ) : (
+        <div className="mb-8">
+          <ProUpsell title={PRO_COPY.reporting.title} body={PRO_COPY.reporting.body} />
+        </div>
+      )}
+
 
       <Tabs value={activeTab} onValueChange={changeTab}>
         {/* Eleven tabs never fit a 375px viewport. The list scrolls inside its own
