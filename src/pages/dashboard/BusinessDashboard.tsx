@@ -540,140 +540,46 @@ const PastDueBanner = () => {
   );
 };
 
-const GoLiveBanner = ({
-  biz,
-  subscribed,
-  onUpdate,
-}: {
-  biz: Business;
-  subscribed: boolean;
-  onUpdate: () => void;
-}) => {
+/**
+ * Publishing is free. This is one server call, and the RPC owns the rules
+ * (a slug and a reward have to exist first) along with the wording of the
+ * errors, so they are shown to the owner verbatim.
+ */
+const PublishBanner = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) => {
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
-  const [plan, setPlan] = useState<BillingPlan>("monthly");
-  // An invite may be held from an /i/:code link, or typed in here by someone
-  // who got the code verbally. Either way it is only validated at checkout.
-  const [inviteCode, setInviteCodeValue] = useState<string | null>(() => getInviteCode());
-  const [manualInvite, setManualInvite] = useState("");
-  const [showInviteField, setShowInviteField] = useState(false);
-
-  const applyManualInvite = () => {
-    const stored = setInviteCode(manualInvite);
-    if (!stored) {
-      toast({ title: "That does not look like a code", description: "Codes are letters, numbers, dashes.", variant: "destructive" });
-      return;
-    }
-    setInviteCodeValue(stored);
-    setManualInvite("");
-    setShowInviteField(false);
-    setPlan("monthly"); // invites are monthly only
-    track("invite_code_entered");
-  };
 
   const goLive = async () => {
     track("go_live_clicked");
     setBusy(true);
-    // Already paying, publishing is a single flag flip.
-    if (subscribed) {
-      const { error } = await supabase.from("businesses").update({ is_published: true }).eq("id", biz.id);
-      setBusy(false);
-      if (error) {
-        toast({ title: "Could not go live", description: friendlyError(error), variant: "destructive" });
-        return;
-      }
-      toast({ title: "Your referral page is live" });
-      onUpdate();
+    const { error } = await supabase.rpc("fn_set_business_published", { p_published: true });
+    setBusy(false);
+    if (error) {
+      toast({ title: "Could not publish your page", description: error.message, variant: "destructive" });
       return;
     }
-    const { data, error } = await supabase.functions.invoke("create-business-checkout", {
-      body: {
-        includeLaunchPackage: false,
-        plan: inviteCode ? "monthly" : plan,
-        ...(inviteCode ? { invite_code: inviteCode } : {}),
-      },
-    });
-    if (error || !data?.url) {
-      setBusy(false);
-      toast({ title: "Could not start checkout", description: friendlyError(error), variant: "destructive" });
-      return;
-    }
-    if (data.invite_rejected) {
-      toast({
-        title: "Invite code did not apply",
-        description: "That code is not valid, has expired, or is fully used. Continuing at regular pricing.",
-      });
-      clearInviteCode();
-    } else if (data.invite_applied) {
-      clearInviteCode();
-    }
-    track("checkout_redirected");
-    window.location.href = data.url;
+    toast({ title: "Your referral page is live" });
+    onUpdate();
   };
-
-  const ready = !!(biz.slug && biz.offer_amount && biz.offer_trigger);
 
   return (
     <div className="mb-6 rounded-2xl border border-primary/30 bg-primary/5 p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-base font-semibold text-foreground">
-            {subscribed ? "Your page is ready to publish" : "Your referral page is in draft"}
-          </h2>
+          <h2 className="text-base font-semibold text-foreground">Your referral page is ready</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {subscribed
-              ? "Publish it so customers and referrers can reach it."
-              : inviteCode
-                ? "Building is free. Your invite covers the first 3 months, then it is $17/month USD. Cancel anytime."
-                : `Building is free. Go live for ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once and save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off), to open your page to customers and the marketplace. Cancel anytime.`}
+            Publishing is free. Your page goes live at your own link and you can start collecting
+            referrals today.
           </p>
-          {!ready && (
-            <p className="mt-2 text-xs text-muted-foreground">
-              Tip: add your reward amount and when it pays out first so referrers know the deal.
-            </p>
-          )}
         </div>
         <Button onClick={goLive} disabled={busy} size="lg" className="w-full shrink-0 sm:w-auto">
-          {busy ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : subscribed ? (
-            "Publish page"
-          ) : inviteCode ? (
-            "Go live, 3 months free"
-          ) : plan === "annual" ? (
-            `Go live, ${PRICE_TEXT.annualPerYear}`
-          ) : (
-            `Go live, ${PRICE_TEXT.monthlyPerMonth}`
-          )}
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Publish my page"}
         </Button>
       </div>
-      {!subscribed && inviteCode && <InviteBanner code={inviteCode} className="mt-4" />}
-      {!subscribed && !inviteCode && <PlanPicker plan={plan} onChange={setPlan} className="mt-4" />}
-      {!subscribed && !inviteCode && (
-        showInviteField ? (
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-            <Input
-              value={manualInvite}
-              onChange={(e) => setManualInvite(e.target.value.toUpperCase())}
-              placeholder="Invite code"
-              aria-label="Invite code"
-              className="sm:max-w-[200px] font-mono"
-            />
-            <Button variant="outline" onClick={applyManualInvite}>Apply code</Button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setShowInviteField(true)}
-            className="mt-4 text-xs text-muted-foreground underline"
-          >
-            Have an invite code?
-          </button>
-        )
-      )}
     </div>
   );
 };
+
 
 // ============= OFFERS TAB =============
 const OffersTab = ({ offers }: { offers: OfferRow[] }) => {
