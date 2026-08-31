@@ -323,7 +323,7 @@ const BusinessDashboard = () => {
                 isLive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
               }`}
             >
-              {isLive ? "Live" : everSubscribed ? "Canceled" : "Draft"}
+              {isLive ? "Live" : "Draft"}
             </span>
           </div>
           <p className="text-sm text-muted-foreground mt-1">Your referral program dashboard</p>
