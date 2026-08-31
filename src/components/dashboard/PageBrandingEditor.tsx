@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import ProUpsell, { PRO_COPY } from "@/components/dashboard/ProUpsell";
 import SimpleQRCode from "@/components/marketplace/SimpleQRCode";
 import ServiceAreaAutocomplete, { type PlaceSelection } from "@/components/ServiceAreaAutocomplete";
 import { Slider } from "@/components/ui/slider";
