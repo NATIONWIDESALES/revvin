@@ -20,13 +20,19 @@ export default defineConfig(({ mode }) => ({
       output: {
         // Split the heaviest shared dependencies so they cache independently
         // across deploys instead of being re-downloaded with app code.
-        manualChunks: {
-          react: ["react", "react-dom"],
-          router: ["react-router-dom"],
-          motion: ["framer-motion"],
-          supabase: ["@supabase/supabase-js"],
-          charts: ["recharts"],
-          leaflet: ["leaflet", "react-leaflet"],
+        // Function form (not the object form): only these exact packages are
+        // pinned into their own chunk. Shared transitive deps stay where Rollup
+        // puts them, so a marketing page does not statically pull in a vendor
+        // chunk just because it shares a small utility with it.
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) return "react";
+          if (id.includes("node_modules/react-router")) return "router";
+          if (id.includes("node_modules/framer-motion")) return "motion";
+          if (id.includes("node_modules/@supabase/")) return "supabase";
+          if (id.includes("node_modules/recharts")) return "charts";
+          if (/node_modules\/(leaflet|react-leaflet)\//.test(id)) return "leaflet";
+        },
         },
       },
     },
