@@ -44,7 +44,7 @@ const HowItWorks = () => {
             Three steps to an engine that runs off your jobs.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            Set up your page once, then every finished job triggers the asks. Referrals, repeat work, and reviews from the customer list you already have. You handle the relationship.
+            Set up your page once, then send the asks yourself with pre-written messages after each finished job. Referrals, repeat work, and reviews from the customer list you already have. You handle the relationship.
           </p>
         </div>
       </section>

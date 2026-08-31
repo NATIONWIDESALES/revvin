@@ -9,7 +9,7 @@
 - [For businesses](/for-businesses): Referral program software and customer acquisition for service businesses.
 - [For referrers](/for-referrers): How people earn by sending warm leads to local businesses.
 - [Browse offers](/browse): Public marketplace where referrers find local referral offers. Launching — listings are limited while founding businesses come on board.
-- [Pricing](/pricing): Free referral page, published and collecting referrals. Revvin Pro at $49/month USD, or $450/year billed once. Invited businesses get 90 days free, then $17/month. No platform fees on referral rewards, cancel anytime. Referrers free.
+- [Pricing](/pricing): Building and publishing a referral page is free. Revvin Pro is $49/month USD, or $450/year billed once. Invited businesses get 90 days of Pro free, then $17/month. No platform fees on referral rewards. Cancel anytime; the page stays live and referrals keep coming in. Referrers free.
 - [Referral programs by industry](/referral-programs): Hub of trade-specific referral program guides.
 - [Trust](/trust): How Revvin protects referrers, businesses, and customers.
 - [About Revvin (LLM overview)](/about-revvin-llm): Plain-language summary for AI assistants.
