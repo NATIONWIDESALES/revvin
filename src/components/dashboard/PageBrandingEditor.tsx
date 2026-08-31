@@ -448,6 +448,9 @@ const PageBrandingEditor = ({ businessId, slug, isPro = false, initial, onSaved 
           </div>
         )}
       </div>
+      </fieldset>
+
+
 
       <div className="flex justify-end pt-2 border-t border-border">
         <Button onClick={save} disabled={saving} className="gap-2">
