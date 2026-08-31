@@ -17,6 +17,7 @@ export const FUNNEL_EVENTS = [
   "onboarding_started",
   "onboarding_completed",
   "go_live_clicked",
+  "publish_page_clicked",
   "checkout_redirected",
   "checkout_succeeded",
   "checkout_canceled",
