@@ -30,7 +30,11 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("node_modules/react-router")) return "router";
           if (id.includes("node_modules/framer-motion")) return "motion";
           if (id.includes("node_modules/@supabase/")) return "supabase";
-          if (id.includes("node_modules/recharts")) return "charts";
+          // recharts is deliberately NOT pinned: it is only used by the lazy
+          // referrer dashboard, so Rollup folds it into that route chunk.
+          // Pinning it created a vendor chunk that the entry ended up importing
+          // statically through shared utilities, loading ~100KB gz on marketing
+          // pages for nothing.
           if (/node_modules\/(leaflet|react-leaflet)\//.test(id)) return "leaflet";
         },
       },
