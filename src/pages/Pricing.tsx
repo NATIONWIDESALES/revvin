@@ -23,19 +23,15 @@ const proFeatureGroups: { label: string; features: string[] }[] = [
   {
     label: "Asks your list for you",
     features: [
-      "Customer list import",
-      "Job done auto-ask with customer name, technician name and service, sent on a delay",
-      "Reactivation campaigns segmented by time since last job",
-      "Seasonal and maintenance campaign templates",
-      "Review requests sent after a job, with a follow-up referral ask for happy customers",
+      "Import your past customer list",
+      "Send your referral ask to all of them in bulk, instead of texting people one at a time",
     ],
   },
   {
     label: "Shows you what it produced",
     features: [
-      "ROI scoreboard: leads, closed deals and attributed revenue",
-      "Campaign results reporting",
-      "Monthly recap emailed to you",
+      "ROI reporting: leads, closed deals and attributed revenue",
+      "Monthly email recap",
       "Reward tracking from pending to paid, with the referrer notified at both moments",
     ],
   },
@@ -45,20 +41,19 @@ const proFeatureGroups: { label: string; features: string[] }[] = [
       "Brand colour, cover image, custom headline and welcome message",
       "Testimonials on your referral page",
       "Print pack: yard signs, door hangers, invoice inserts, business cards, truck magnets",
-      "Webhooks and an API, so job complete in another tool fires the auto-ask",
-      "Stripe billing portal, cancel anytime",
+      "Stripe billing portal, cancel any time",
     ],
   },
 ];
 
 const freeFeatures = [
-  "Branded referral page on your own custom URL, published free",
-  "Shareable link and QR code (PNG + print)",
-  "Referral offer builder, edit anytime",
+  "Your referral page on your own link",
+  "QR code and share tools",
+  "Unlimited referral leads",
   "Lead inbox with status tracking",
-  "One-tap text or call back on a new referral",
-  "Email and in-app lead notifications",
-  "Referrer accounts are free too, and they get paid by you directly",
+  "Offers",
+  "Payout tracking",
+  "Listed in the marketplace",
 ];
 
 
@@ -294,7 +289,11 @@ const Pricing = () => {
             )}
           </div>
 
-          <p className="mt-10 text-center text-xs text-muted-foreground">
+          <p className="mt-10 text-center text-sm font-medium text-foreground">
+            Cancel any time. Your page stays live and your referrals keep coming in. You only lose the Pro tools.
+          </p>
+
+          <p className="mt-3 text-center text-xs text-muted-foreground">
             Revvin does not pay referrers for you. You pay referrers directly when the deal closes.
           </p>
 
@@ -346,7 +345,7 @@ const Pricing = () => {
             <AccordionItem value="p5">
               <AccordionTrigger>What do I actually get for the $49?</AccordionTrigger>
               <AccordionContent>
-                Everything that works your existing customer list: import, the job done auto-ask, reactivation campaigns, review requests, the ROI scoreboard and monthly recap, reward tracking, custom page branding, the print pack, and webhooks and the API. Same on monthly and annual. There are no add-on tiers and no per-send charges.
+                Everything in Free, plus the tools that work your existing customer list: import your past customers and send your referral ask to all of them in bulk, ROI reporting with a monthly email recap, and custom page branding with the print pack. Same on monthly and annual. There are no add-on tiers and no per-send charges.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">
