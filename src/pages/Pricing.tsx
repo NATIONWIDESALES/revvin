@@ -154,7 +154,7 @@ const Pricing = () => {
                 </span>
               </div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pro</p>
-              <h2 className="mt-1 text-xl font-bold text-foreground">All three loops</h2>
+              <h2 className="mt-1 text-xl font-bold text-foreground">Ask your whole list</h2>
 
               {/* Billing period toggle */}
               <div role="group" aria-label="Billing period" className="mt-5 grid grid-cols-2 gap-1 rounded-lg border border-border bg-surface-warm p-1">
@@ -195,12 +195,12 @@ const Pricing = () => {
                 </div>
               ) : (
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Billing starts when you publish your page. Cancel anytime. No contract.
+                  Cancel anytime. Your page stays free and live either way. No contract.
                 </p>
               )}
               <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
                 <Link to={`/signup?plan=${plan}`}>
-                  {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Build free + Launch Package" : "Build your page free"}
+                  {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Start Pro + Launch Package" : "Start with Revvin Pro"}
                 </Link>
               </Button>
               {!annual && (
