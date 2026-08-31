@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Copy, ExternalLink, Download, Inbox, AlertCircle, Check, Plus, Lock, Clock, MessageSquare, Phone, TrendingUp } from "lucide-react";
+import { Loader2, Copy, ExternalLink, Download, Inbox, AlertCircle, Check, Plus, Lock, Clock, MessageSquare, Phone } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import QRCodeStyling from "qr-code-styling";
 import { useRef } from "react";
