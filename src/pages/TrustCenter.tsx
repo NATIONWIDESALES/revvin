@@ -106,7 +106,7 @@ const TrustCenter = () => {
             <div className="grid gap-6 md:grid-cols-3">
               {[
                 { level: "Pending Review", icon: AlertTriangle, color: "text-muted-foreground", bg: "bg-muted", desc: "Account created but not yet reviewed. The business's branded referral page works, but offers are not listed in the public marketplace." },
-                { level: "Approved", icon: BadgeCheck, color: "text-primary", bg: "bg-primary/10", desc: "An admin has done a basic review of the business profile. Offers are eligible to appear in the marketplace once the business activates a subscription and publishes." },
+                { level: "Approved", icon: BadgeCheck, color: "text-primary", bg: "bg-primary/10", desc: "An admin has done a basic review of the business profile. Offers are eligible to appear in the marketplace once the business publishes its referral page." },
                 { level: "Suspended", icon: Shield, color: "text-earnings", bg: "bg-earnings/10", desc: "Removed from the marketplace due to a pattern of unpaid referrals, dishonest status reporting, or terms violations." },
               ].map((item, i) => (
                 <motion.div key={item.level} variants={fadeUp} custom={i + 2} className="rounded-xl border border-border bg-card p-6">
