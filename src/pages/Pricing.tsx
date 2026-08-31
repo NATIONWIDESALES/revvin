@@ -99,7 +99,7 @@ const Pricing = () => {
     <>
       <SEOHead
         title="Revvin | Pricing"
-        description="Build free. Pay $49/month USD only when you publish. All three loops included: referrals, repeat work, and reviews. Cancel anytime. You pay your referrers directly."
+        description="Your referral page is free, published and collecting referrals. Revvin Pro is $49/month USD for the tools that ask your whole customer list for you. You pay your referrers directly."
         path="/pricing"
       />
 
@@ -110,10 +110,10 @@ const Pricing = () => {
           {/* Every figure reads from the pricing config so the numbers can
               never drift between pages. */}
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
-            {`Build free. Pay ${PRICE_TEXT.monthlyPerMonth} to go live.`}
+            Your referral page is free.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            Building your page, offer, and QR code costs nothing, and you can preview it before you commit. Publishing costs a flat {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, which saves {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off). Both include all three loops: referrals, repeat work, and reviews. No contract and no platform fees on your referral rewards. Referrers are free.
+            Build it, publish it, and take referrals on it without paying anything. Revvin Pro is {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, which saves {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off). Pro is the part that asks your whole customer list for you and shows you what came back. No contract, and no platform fees on your referral rewards.
           </p>
         </div>
       </section>
@@ -124,17 +124,18 @@ const Pricing = () => {
             {/* Free */}
             <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Free</p>
-              <h2 className="mt-1 text-xl font-bold text-foreground">Referrer</h2>
+              <h2 className="mt-1 text-xl font-bold text-foreground">Your referral page</h2>
               <div className="mt-6 flex items-baseline gap-2">
                 <span className="text-5xl font-extrabold tracking-tight text-foreground">$0</span>
                 <span className="text-sm text-muted-foreground">forever</span>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                Send referrals to any business on Revvin and get paid directly.
+                Publish your page, share the link and QR code, and take referrals. No card required.
               </p>
               <Button variant="outline" size="lg" className="mt-6 h-11 w-full" asChild onClick={() => setLaunchFlag(false)}>
-                <Link to="/signup?role=referrer">Create free account</Link>
+                <Link to="/signup">Create free account</Link>
               </Button>
+
               <ul className="mt-8 space-y-2.5 border-t border-border pt-6">
                 {freeFeatures.map((f) => (
                   <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
