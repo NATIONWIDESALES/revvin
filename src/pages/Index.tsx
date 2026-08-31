@@ -71,11 +71,11 @@ const buildFaqs = (): { question: string; answer: string }[] => [
   },
   {
     question: "How does billing work?",
-    answer: `Building your page is free. You are only charged when you publish it. Publishing costs a flat ${PRICE_TEXT.monthlyPerMonth} USD, billed monthly, or ${PRICE_TEXT.annualPerYear} billed once, with no contract and no platform fees on your referral rewards, and it includes all three loops. Cancel anytime from your billing portal; your page stays live until the end of the period you've already paid for.`,
+    answer: `Your referral page is free: publish it and take referrals without paying anything. Revvin Pro costs a flat ${PRICE_TEXT.monthlyPerMonth} USD, billed monthly, or ${PRICE_TEXT.annualPerYear} billed once, with no contract and no platform fees on your referral rewards. Pro adds the customer list import, the auto-ask, reactivation campaigns, review requests, reporting and custom branding. Cancel anytime from your billing portal; your page stays live either way.`,
   },
   {
     question: "What is free and what costs money?",
-    answer: `Creating your account and building your page, offer, and QR code is free, and you can preview it before you commit. This is not a trial and not a free plan with usage limits: your page cannot receive referrals until you publish it, and publishing costs ${PRICE_TEXT.monthlyPerMonth} USD. Referrers always use Revvin for free: they create an account, send leads, and get paid directly by the business.`,
+    answer: `Your referral page. Create your account, build your offer, publish the page, share the link and QR code, and take referrals through it at no cost. That is not a trial and it does not expire. Referrers are free too: they create an account, send leads, and get paid directly by the business. Revvin Pro at ${PRICE_TEXT.monthlyPerMonth} USD is what you pay for, and it is the tools that ask your whole customer list for you.`,
   },
   {
     question: "Can Revvin fire the ask from the tools I already use?",
@@ -209,7 +209,7 @@ const Index = () => {
             "@type": "Product",
             name: "Revvin",
             description:
-              "Customer retention and referral software for service businesses. Turns one past-customer list into three revenue loops: referrals with a branded referral page, link, QR code, lead inbox and job-done auto-ask; repeat work with reactivation campaigns segmented by time since last job; and review requests with a follow-up referral ask. Includes reward tracking, an ROI scoreboard, a print pack, and webhooks with an API. Building your page is free; publishing costs a flat $49/month. Businesses pay their referrers directly off-platform.",
+              "Customer retention and referral software for service businesses. Turns one past-customer list into three revenue loops: referrals with a branded referral page, link, QR code, lead inbox and job-done auto-ask; repeat work with reactivation campaigns segmented by time since last job; and review requests with a follow-up referral ask. Includes reward tracking, an ROI scoreboard, a print pack, and webhooks with an API. Publishing your referral page is free; Revvin Pro costs a flat $49/month. Businesses pay their referrers directly off-platform.",
             brand: { "@type": "Brand", name: "Revvin" },
             offers: {
               "@type": "Offer",
@@ -253,7 +253,7 @@ const Index = () => {
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
                 You already have a list of people who paid you and never heard from you again. Revvin turns that one list into three revenue loops: <span className="text-foreground font-medium">referrals, repeat work, and reviews.</span>{" "}
-                {`Build it free. ${PRICE_TEXT.monthlyPerMonth} USD when you publish.`}
+                Your referral page is free, published and taking referrals.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
@@ -274,7 +274,7 @@ const Index = () => {
                 </Link>
               </p>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                {`Free to build and preview. ${PRICE_TEXT.monthlyPerMonth} USD when you publish. Cancel anytime.`}
+                {`Your page is free forever. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD for the tools that ask your whole list for you. Cancel anytime.`}
               </p>
             </div>
 
@@ -634,7 +634,7 @@ const Index = () => {
             <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-10 shadow-product md:p-12">
               <span className="absolute left-0 top-0 h-full w-[3px] bg-primary" />
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-4">
-                Pro · All three loops
+                Revvin Pro
               </p>
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="text-6xl font-extrabold tracking-tight text-foreground">
@@ -643,11 +643,11 @@ const Index = () => {
                 <span className="text-base font-medium text-muted-foreground">/month USD</span>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                {`Free to build and preview your page. Billing starts when you publish it. Cancel anytime. No contract. Billed in USD.`}
+                Your referral page is free. Pro is the part that asks your whole customer list for you and shows you what came back. Cancel anytime. No contract. Billed in USD.
               </p>
 
               <Button size="lg" className="mt-8 h-12 w-full text-base shadow-soft hover:bg-primary-deep" asChild>
-                <Link to="/signup">Build your page free</Link>
+                <Link to="/signup">Start with Revvin Pro</Link>
               </Button>
 
               <div className="mt-8 grid grid-cols-1 gap-y-2.5 border-t border-border pt-6 sm:grid-cols-2 sm:gap-x-8">
@@ -841,7 +841,7 @@ const Index = () => {
             Put your customer list <span className="shimmer-text">to work.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-            {`Referrals, repeat work, and reviews from one list. Build free. ${PRICE_TEXT.monthlyPerMonth} USD when you publish. Cancel anytime.`}
+            {`Referrals, repeat work, and reviews from one list. Your page is free. Pro is ${PRICE_TEXT.monthlyPerMonth} USD when you want it working your whole list. Cancel anytime.`}
           </p>
           <Button size="lg" className="shine-on-hover mt-10 h-13 px-10 text-base bg-primary text-primary-foreground shadow-product hover:bg-primary-deep" asChild>
             <Link to="/signup">Build your page — free</Link>
