@@ -35,7 +35,9 @@ export default defineConfig(({ mode }) => ({
           // Pinning it created a vendor chunk that the entry ended up importing
           // statically through shared utilities, loading ~100KB gz on marketing
           // pages for nothing.
-          if (/node_modules\/(leaflet|react-leaflet)\//.test(id)) return "leaflet";
+          // leaflet is likewise left unpinned: it is reached only through the
+          // lazily imported MapView, so it stays inside that route's chunk and
+          // is never fetched on app boot.
         },
       },
     },
