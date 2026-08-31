@@ -19,6 +19,12 @@ export interface PrerenderRoute {
   h1: string;
   sections: { heading: string; body: string }[];
   faqs?: { q: string; a: string }[];
+  /**
+   * Absolute canonical URL. Set this only for pages that are genuine variants
+   * or aliases of another page and must not compete with it in the index.
+   * When absent the prerender emits a self-referential canonical.
+   */
+  canonical?: string;
 }
 
 const PRO = "$49/month USD";
@@ -299,6 +305,79 @@ const handwritten: PrerenderRoute[] = [
       {
         heading: "Free to publish your own",
         body: `Your version of this page is free to build and publish on your own link. Revvin Pro is ${PRO} and adds bulk asking from your own email app, ROI reporting with a monthly recap, and custom branding for the page.`,
+      },
+    ],
+  },
+  {
+    path: "/marketplace",
+    // Alias route: /marketplace renders the same Browse component and the same
+    // offer listing as /browse, so it canonicals there and is kept out of the
+    // sitemap.
+    canonical: "https://revvin.co/browse",
+    title: "Revvin | Browse referral offers",
+    description:
+      "Browse referral offers from verified service businesses on Revvin. Refer a customer, earn the full advertised payout when the deal closes. Free to join as a referrer.",
+    h1: "Browse referral offers",
+    sections: [
+      {
+        heading: "The marketplace is launching",
+        body: "This is the same listing as the Revvin browse page. Listings are limited while founding businesses come on board. You can filter what is live by category, by country and region across the United States, Canada and the UAE, by payout, and by distance from where you are. If nothing matches yet you can leave your email and hear when offers go live in your area.",
+      },
+      {
+        heading: "How referring works",
+        body: "Joining as a referrer is free. You submit a customer's details on a business's referral page, the business contacts and qualifies them, and when the deal closes the business pays you the full advertised reward directly. Revvin takes no cut and does not process the payout.",
+      },
+    ],
+  },
+  {
+    path: "/docs/zapier",
+    title: "Zapier and integrations | Revvin",
+    description:
+      "Zapier, webhook and API integrations are not available in Revvin yet. Here is how the work actually gets done today.",
+    h1: "Zapier and integrations",
+    sections: [
+      {
+        heading: "These integrations do not exist yet",
+        body: "Revvin has no Zapier app, no webhooks and no public API. Nothing on this page is a preview or a waitlist for one. If you are looking for a way to connect Revvin to another tool automatically, it is not available today.",
+      },
+      {
+        heading: "What happens instead",
+        body: "Jobs are marked done by hand in your dashboard, and every referral ask goes out from your own phone or email app, so it always comes from you. Revvin prepares the message and opens your own app with the recipients and the text filled in; it never sends email or SMS on your behalf.",
+      },
+      {
+        heading: "Tell us if it matters",
+        body: "If an integration matters to how you work, email info@revvin.co and it will be factored into what gets built next. In the meantime the how-it-works page describes exactly what Revvin does today.",
+      },
+    ],
+  },
+  {
+    path: "/en-usd",
+    // Legacy currency-variant URL. Revvin prices in USD only in every country,
+    // so this variant has no distinct content: it redirects to the homepage and
+    // canonicals there rather than self-canonicalising.
+    canonical: "https://revvin.co/",
+    title: "Revvin · Your customer list, working for you",
+    description: `Revvin prices in USD everywhere. Your referral page is free to publish. Revvin Pro is ${PRO}.`,
+    h1: "Your customer list, working for you.",
+    sections: [
+      {
+        heading: "One currency, everywhere",
+        body: `Revvin prices in USD only, in every country it supports: the United States, Canada and the United Arab Emirates. There is no separate currency edition of the site, so this address is the Revvin homepage. Publishing your referral page is free and Revvin Pro is ${PRO}.`,
+      },
+    ],
+  },
+  {
+    path: "/en-cad",
+    // Same as /en-usd: a legacy currency variant with no distinct content.
+    // Revvin bills in USD only, including in Canada.
+    canonical: "https://revvin.co/",
+    title: "Revvin · Your customer list, working for you",
+    description: `Revvin bills in USD, including in Canada. Your referral page is free to publish. Revvin Pro is ${PRO}.`,
+    h1: "Your customer list, working for you.",
+    sections: [
+      {
+        heading: "Canadian businesses are billed in USD",
+        body: `Revvin supports Canada, but it bills in USD only, so there is no Canadian-dollar edition of the site and this address is the Revvin homepage. Publishing your referral page is free and Revvin Pro is ${PRO}. Businesses pay their referrers directly off-platform when deals close.`,
       },
     ],
   },
