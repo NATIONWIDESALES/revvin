@@ -115,7 +115,7 @@ const Signup = () => {
     <>
       <SEOHead
         title="Revvin | Start your referral program"
-        description={`Create a free Revvin account, build your branded referral page, QR code, and offer. Pay ${PRICE_TEXT.monthlyPerMonth} only when you are ready to go live.`}
+        description={`Create a free Revvin account, build your branded referral page, QR code, and offer, and publish it free. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} when you want the tools that ask your whole customer list for you.`}
         path="/signup"
         noindex
       />
@@ -161,7 +161,7 @@ const Signup = () => {
             <p className="mt-1.5 text-sm text-muted-foreground">
               {inviteCode
                 ? "Free to build. Your invite offer is applied at checkout."
-                : `Build your referral page, offer, and QR code for free. Pay ${PRICE_TEXT.monthlyPerMonth} only when you are ready to go live. Cancel anytime.`}
+                : `Build your referral page, offer, and QR code, and publish it free. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} when you want it working your whole list. Cancel anytime.`}
             </p>
 
             {inviteCode && <InviteBanner code={inviteCode} compact className="mt-3" />}

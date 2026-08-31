@@ -211,8 +211,8 @@ const RoiCalculator = () => {
             Estimates only. Actual results depend on your referrals.
           </p>
           <p className="mt-3 text-xs text-muted-foreground">
-            Building and previewing your referral page is free. The $49/month
-            starts only when you publish.
+            Publishing your referral page is free. The $49/month is Revvin Pro,
+            and cancelling it never takes your page down.
           </p>
         </div>
       </div>

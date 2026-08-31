@@ -33,21 +33,21 @@ const ForBusinesses = () => (
           "@context": "https://schema.org",
           "@type": "Service",
           "name": "Revvin for Service Businesses",
-          "description": "Customer retention and referral software for service businesses. Turns one past-customer list into three revenue loops: referrals with a branded referral page, link, QR code, lead inbox and job-done auto-ask; repeat work with reactivation campaigns segmented by time since last job; and review requests with a follow-up referral ask. Also includes reward tracking, an ROI scoreboard, a print pack, and webhooks with an API. Publishing your referral page is free; Revvin Pro costs a flat $49/month. Businesses pay their referrers directly when deals close.",
+          "description": "Customer retention and referral software for service businesses. Turns one past-customer list into three revenue loops: referrals with a branded referral page, link, QR code and lead inbox; repeat work with pre-written rebooking messages to past customers; and reviews with a follow-up referral ask. Also includes reward tracking, an ROI scoreboard, and a print pack. Publishing your referral page is free; Revvin Pro costs a flat $49/month. Businesses pay their referrers directly when deals close.",
           "provider": { "@type": "Organization", "name": "Revvin", "slogan": "Your customer list, working for you" },
           "offers": {
             "@type": "Offer",
             "price": "49",
             "priceCurrency": "USD",
-            "description": "Publishing your referral page is free. $49/month for Revvin Pro: customer list import, auto-ask, reactivation campaigns, review requests, reporting and custom branding. Cancel anytime. No contract."
+            "description": "Publishing your referral page is free. $49/month for Revvin Pro: customer list import, the bulk referral ask, ROI reporting and custom branding. Cancel anytime. No contract."
           }
         },
         {
           "@context": "https://schema.org",
           "@type": "FAQPage",
           "mainEntity": [
-            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "Publishing your referral page and taking referrals on it is free. Revvin Pro costs a flat $49/month and adds the tools that ask your whole customer list for you: import, auto-ask, reactivation campaigns, review requests, reporting and custom branding. Cancel anytime, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close." } },
-            { "@type": "Question", "name": "What are the three loops?", "acceptedAnswer": { "@type": "Answer", "text": "Loop one is referrals: a branded referral page, shareable link and QR code, a lead inbox, and a job-done auto-ask sent on a delay. Loop two is repeat work: reactivation campaigns segmented by how long since a customer's last job. Loop three is reviews: a review request after a job, followed by a referral ask to happy customers. All three run off the same past-customer list." } },
+            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "Publishing your referral page and taking referrals on it is free. Revvin Pro costs a flat $49/month and adds the tools that ask your whole customer list for you: import, the bulk referral ask, ROI reporting and custom branding. Cancel anytime, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close." } },
+            { "@type": "Question", "name": "What are the three loops?", "acceptedAnswer": { "@type": "Answer", "text": "Loop one is referrals: a branded referral page, shareable link and QR code, a lead inbox, and a pre-written referral ask you send from your own phone or email app. Loop two is repeat work: pre-written seasonal and maintenance messages to past customers. Loop three is reviews: a review ask after a job, followed by a referral ask to happy customers. All three run off the same past-customer list." } },
             { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay your referrer nothing because they only earn when a deal closes. Your referral page costs nothing, and the only optional cost is the flat $49/month Revvin Pro subscription." } },
             { "@type": "Question", "name": "Who decides the referral payout amount?", "acceptedAnswer": { "@type": "Answer", "text": "The business sets the payout based on what a closed customer is worth. Referrers receive 100% of that advertised amount." } },
             { "@type": "Question", "name": "How is this different from Google Ads or Facebook Ads?", "acceptedAnswer": { "@type": "Answer", "text": "Ads charge per click or impression with no guarantee of conversion. With Revvin your referral page is free, and Revvin Pro is a flat $49/month subscription with no platform fees. You pay your referrers directly when deals close." } }
@@ -104,7 +104,7 @@ const ForBusinesses = () => (
             {[
               { num: "01", title: "Set up and import", desc: "Add your business details, logo, and service area, then import the customers who already paid you." },
               { num: "02", title: "Set your payout", desc: "Define what you'll pay a referrer for a closed deal: flat fee or percentage." },
-              { num: "03", title: "Mark jobs done", desc: "Review requests, referral asks, and reactivation campaigns fire off your finished jobs automatically." },
+              { num: "03", title: "Send the ask", desc: "Share your link and QR code, and send a pre-written referral ask to your customer list from your own phone or email app." },
               { num: "04", title: "Close and pay", desc: "Work leads in your inbox, close deals, and pay your referrer directly. They are notified at pending and at paid." },
             ].map((item, i) => (
               <motion.div key={item.num} variants={fadeUp} custom={i + 1}>
@@ -133,8 +133,8 @@ const ForBusinesses = () => (
               { icon: DollarSign, title: "Flat monthly price", desc: "Your page is free. $49/month flat for Revvin Pro. No per-referral fee from Revvin; you decide what to pay your own referrers when deals close." },
               { icon: Users, title: "Warm introductions", desc: "Referrals come from people who know your next customer, not algorithms guessing from cookie data." },
               { icon: Shield, title: "Clean records", desc: "Tracked referrals, rewards from pending to paid, and a clear pipeline. No more informal deals and missing follow-ups." },
-              { icon: Zap, title: "The ask fires itself", desc: "Mark a job done and Revvin sends the review request and a personalised referral ask on a delay. Webhooks and an API let another tool trigger it." },
-              { icon: BarChart3, title: "Full visibility", desc: "Track referrals, campaign results, payouts, and an ROI scoreboard all from your dashboard." },
+              { icon: Zap, title: "You press send", desc: "Every ask opens pre-written and pre-filled in your own texting or email app, so it comes from you, not from us." },
+              { icon: BarChart3, title: "Full visibility", desc: "Track referrals, payouts, and an ROI scoreboard all from your dashboard." },
               { icon: CheckCircle2, title: "You set the terms", desc: "Choose your payout amount, define qualification criteria, and control your referral program." },
             ].map((item, i) => (
               <motion.div key={item.title} variants={fadeUp} custom={i + 1} className="rounded-xl border bg-card p-6">
@@ -174,7 +174,7 @@ const ForBusinesses = () => (
             Your page is free. Pro is $49/month.
           </motion.h2>
           <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-sm mb-8 max-w-lg mx-auto">
-            Build your page, publish it, and take referrals at no cost. Revvin Pro is one flat $49/month, billed monthly, and adds the tools that ask your whole customer list for you across referrals, repeat work, and reviews. No contract, no setup fee, no per-referral cut. You pay referrers directly when deals close.
+            Build your page, publish it, and take referrals at no cost. Revvin Pro is one flat $49/month, billed monthly, and adds the tools that ask your whole customer list for you across referrals, repeat work, and reviews. Cancel any time and your page stays live and your referrals keep coming in; you only lose the Pro tools. No contract, no setup fee, no per-referral cut. You pay referrers directly when deals close.
           </motion.p>
           <motion.div variants={fadeUp} custom={2} className="inline-flex flex-wrap items-center justify-center gap-4">
             {["Free referral page", "Revvin Pro $49/month", "All three loops included", "You set the payout", "Cancel anytime", "Pay referrers directly"].map(item => (

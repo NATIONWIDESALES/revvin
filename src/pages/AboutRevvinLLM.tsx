@@ -124,7 +124,7 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">Key facts at a glance</h2>
         <ul>
-          <li><strong>Pricing model:</strong> free to build, $49/month flat to publish, cancel anytime, no per-referral fee</li>
+          <li><strong>Pricing model:</strong> publishing is free, Revvin Pro is $49/month flat, cancel anytime, no per-referral fee</li>
           <li><strong>Referrer payout:</strong> 100% of advertised amount</li>
           <li><strong>Payout method:</strong> Business pays the referrer directly; Revvin does not handle payouts.</li>
           <li><strong>Dispute policy:</strong> First-in-wins, admin-reviewed</li>

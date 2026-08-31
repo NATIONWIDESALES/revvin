@@ -117,6 +117,11 @@ serve(async (req) => {
 
     const publishedStatuses = new Set(["active", "trialing", "paid", "past_due"]);
 
+    // Publication is owner-controlled via the fn_set_business_published RPC.
+    // Billing state must never change it: this webhook writes
+    // subscription_status (a DB trigger derives plan from it) and never
+    // sets or clears is_published. Cancelling downgrades to free; the
+    // page stays live.
     switch (event.type) {
       case "checkout.session.completed": {
         const s = event.data.object as Stripe.Checkout.Session;

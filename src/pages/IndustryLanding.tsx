@@ -35,7 +35,7 @@ const IndustryLanding = () => {
               price: "49",
               priceCurrency: "USD",
               description:
-                "Free to build and preview your referral page. $49/month USD when you publish it. Cancel anytime. Businesses pay their referrers directly when deals close.",
+                "Free to publish your referral page and take referrals on it. Revvin Pro is $49/month USD for the tools that ask your whole customer list for you. Cancel anytime. Businesses pay their referrers directly when deals close.",
             },
           },
           {
@@ -87,7 +87,7 @@ const IndustryLanding = () => {
             </Button>
           </div>
           <p className="mt-5 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            {`Free to build · ${PRICE_TEXT.monthlyPerMonth} USD to publish · cancel anytime`}
+            {`Free to publish · Pro is ${PRICE_TEXT.monthlyPerMonth} USD · cancel anytime`}
           </p>
         </div>
       </section>
@@ -184,7 +184,7 @@ const IndustryLanding = () => {
             Start with the customers you already have.
           </h2>
           <p className="mt-4 text-lg text-white/70">
-            {`Free to build and preview. ${PRICE_TEXT.monthlyPerMonth} USD when you publish. Cancel anytime.`}
+            {`Free to publish. Pro is ${PRICE_TEXT.monthlyPerMonth} USD when you want it working your whole list. Cancel anytime.`}
           </p>
           <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
             <Link to="/signup">Build your {industry.trade} referral page — free</Link>

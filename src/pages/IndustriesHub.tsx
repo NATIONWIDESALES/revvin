@@ -10,7 +10,7 @@ const IndustriesHub = () => (
   <>
     <SEOHead
       title="Referral Programs by Industry | Revvin"
-      description="Referral program software for roofing, HVAC, plumbing, solar, electrical, landscaping, painting and auto detailing. Free to build, $49/month USD to publish."
+      description="Referral program software for roofing, HVAC, plumbing, solar, electrical, landscaping, painting and auto detailing. Free to publish. Revvin Pro is $49/month USD for the tools that ask your whole customer list for you."
       path="/referral-programs"
       jsonLd={[
         {
@@ -79,7 +79,7 @@ const IndustriesHub = () => (
         <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">Not listed? It still works.</h2>
         <p className="mt-4 text-lg text-white/70">
           Revvin runs on any service business with a past-customer list. Free to build and preview,{" "}
-          {PRICE_TEXT.monthlyPerMonth} USD when you publish.
+          Free to publish. Pro is {PRICE_TEXT.monthlyPerMonth} USD.
         </p>
         <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
           <Link to="/signup">Build your page — free</Link>

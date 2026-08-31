@@ -1,6 +1,6 @@
 # Revvin
 
-> Referral program platform for service businesses. Publishing a referral page and taking referrals on it is free. Revvin Pro costs $49/month USD, or $450/year billed once, and adds customer list import, the job done auto-ask, reactivation campaigns, review requests, reporting and custom page branding. Invited businesses receive 90 days free, then $17/month; invites are given out directly by Revvin, not claimable from the public site. No platform fees on referral rewards. Cancel anytime. Businesses optionally list on the public Revvin marketplace. Businesses pay their referrers directly off-platform when deals close; Revvin keeps the record, does not hold funds, and does not take a cut.
+> Referral program platform for service businesses. Publishing a referral page and taking referrals on it is free. Revvin Pro costs $49/month USD, or $450/year billed once, and adds customer list import, the bulk referral ask sent from the owner's own phone or email app, ROI reporting with a monthly email recap, and custom page branding. Invited businesses receive 90 days free, then $17/month; invites are given out directly by Revvin, not claimable from the public site. No platform fees on referral rewards. Cancel anytime; the page stays live and referrals keep coming in, only the Pro tools are removed. Businesses optionally list on the public Revvin marketplace at no cost. Businesses pay their referrers directly off-platform when deals close; Revvin keeps the record, does not hold funds, and does not take a cut.
 
 ## Pages
 
@@ -17,11 +17,11 @@
 ## Referral programs by trade
 
 - [Roofing referral program](/referral-program/roofing): How roofing companies run referrals, repeat exterior work, and reviews.
-- [HVAC referral program](/referral-program/hvac): Referrals after installs plus maintenance reactivation.
-- [Plumbing referral program](/referral-program/plumbing): Referrals at the moment of relief plus deferred-job reactivation.
+- [HVAC referral program](/referral-program/hvac): Referrals after installs plus maintenance rebooking.
+- [Plumbing referral program](/referral-program/plumbing): Referrals at the moment of relief plus deferred-job follow-up.
 - [Solar referral program](/referral-program/solar): Referrals from an installed base plus battery and add-on work.
 - [Electrician referral program](/referral-program/electrical): Referrals from panel, rewire, and EV charger work.
-- [Landscaping referral program](/referral-program/landscaping): Street-level referrals plus seasonal reactivation.
+- [Landscaping referral program](/referral-program/landscaping): Street-level referrals plus seasonal repeat work.
 - [Painting referral program](/referral-program/painting): Referrals from finished rooms plus room-by-room repeat work.
 - [Auto detailing referral program](/referral-program/auto-detailing): Referrals at handover plus short-cycle rebooking.
 
