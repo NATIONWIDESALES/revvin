@@ -318,6 +318,9 @@ const PageBrandingEditor = ({ businessId, slug, isPro = false, initial, onSaved 
           />
         </div>
       </div>
+      </fieldset>
+
+
 
       {/* Service area */}
       <div>
