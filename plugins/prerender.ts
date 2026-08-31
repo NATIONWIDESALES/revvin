@@ -133,15 +133,20 @@ const renderRoute = (template: string, route: PrerenderRoute) => {
     `<meta name="twitter:description" content="${desc}">`,
   );
 
-  // Canonical
-  html = html.replace(
-    /<link rel="canonical"[\s\S]*?>\s*/,
-    "",
-  );
-  html = html.replace(
-    "</head>",
-    `  <link rel="canonical" href="${esc(`${SITE}${route.path}`)}">\n  </head>`,
-  );
+  // Canonical: skip the root document because dist/index.html is also the SPA
+  // fallback for every unprerendered route (e.g. business referral pages under
+  // /r/*). A self-referential canonical on that fallback would tell crawlers
+  // that every such route is a duplicate of the homepage.
+  if (route.path !== "/") {
+    html = html.replace(
+      /<link rel="canonical"[\s\S]*?>\s*/,
+      "",
+    );
+    html = html.replace(
+      "</head>",
+      `  <link rel="canonical" href="${esc(`${SITE}${route.path}`)}">\n  </head>`,
+    );
+  }
 
   // JSON-LD
   html = replaceTag(
@@ -152,6 +157,10 @@ const renderRoute = (template: string, route: PrerenderRoute) => {
 
   // Prerendered body
   html = html.replace(/<div id="root">\s*<\/div>/, bodyHtml(route));
+
+  // Remove the JS-disabled fallback; #root now carries real per-route content,
+  // so the fallback would duplicate the homepage copy on every page.
+  html = html.replace(/<noscript>[\s\S]*?<\/noscript>\s*/, "");
 
   return html;
 };
