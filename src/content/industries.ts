@@ -1,6 +1,12 @@
 // Industry landing page content. Every claim here must be true of the product:
 // free to publish; $49/month USD for Pro, businesses pay referrers directly
-// off-platform, and all sending is device-native or email automation.
+// off-platform, and every message is sent by the owner from their own device.
+// Revvin never sends email or SMS on a business's behalf: the bulk ask tool
+// prepares the message and opens the owner's own email app with recipients
+// filled in, in batches. Real capabilities referenced below: branded referral
+// page, QR code and print pack, lead inbox with status tracking and one-tap
+// call/text back, reward tracking from pending to paid, ROI reporting with a
+// monthly email recap (Pro), and custom page branding (Pro).
 // No statistics, testimonials or results are invented.
 
 export interface IndustryFaq {
@@ -30,7 +36,7 @@ export interface Industry {
 const sharedFaqs = (trade: string): IndustryFaq[] => [
   {
     q: `What does a ${trade} referral program cost to run on Revvin?`,
-    a: "Publishing your referral page is free. Revvin Pro is $49/month USD, with no trial, no setup fee and no platform fees. Cancel anytime. Referral rewards are separate: you set the amount and pay your referrer directly when a deal closes.",
+    a: "Publishing your referral page is free. Revvin Pro is $49/month USD, with no setup fee and no platform fees. Cancel anytime. Referral rewards are separate: you set the amount and pay your referrer directly when a deal closes.",
   },
   {
     q: "Who pays the referrer?",
@@ -38,11 +44,11 @@ const sharedFaqs = (trade: string): IndustryFaq[] => [
   },
   {
     q: "Does Revvin text or email my customers for me?",
-    a: "Automated asks go out by email from Revvin. Text messages are device-native: Revvin pre-fills the message and your phone sends it from your own number, so the relationship and the consent stay with you.",
+    a: "No. Revvin never sends anything on your behalf. It prepares the message and opens your own email app or messaging app with the recipients and text filled in, in batches, and your device sends it from your own address or number. The relationship and the consent stay with you.",
   },
   {
     q: "Do I need a customer list to start?",
-    a: "You need the customers who have already paid you. That single list is what the referral, repeat-work and review loops all run on, so importing it is the first setup step.",
+    a: "Your referral page works the day you publish it, but the customers who have already paid you are where referrals come from fastest. On Pro you can import that list by pasting it in and send your referral ask to everyone in a few batches from your own email app.",
   },
 ];
 
@@ -56,19 +62,19 @@ export const INDUSTRIES: Industry[] = [
     metaDescription:
       "Run a roofing referral program off your past-customer list. Branded referral page, QR code and lead inbox. Free to publish; $49/month USD for Pro. Pay referrers directly.",
     intro:
-      "A finished roof is visible from the street, and the neighbours ask about it. A roofing referral program turns those conversations into tracked leads instead of lost ones. Revvin gives you a branded referral page, a shareable link and a QR code, then asks your past customers to pass it on after every completed job.",
+      "A finished roof is visible from the street, and the neighbours ask about it. A roofing referral program turns those conversations into tracked leads instead of lost ones. Revvin gives you a branded referral page, a shareable link and a QR code, and makes it easy to ask your past customers to pass it on.",
     loops: [
       {
         title: "Referrals from finished roofs",
-        body: "Mark the job done and Revvin sends a personalised ask a couple of hours later, using the homeowner's name, the crew lead and the service. Every referral lands in your inbox with the lead's name, contact and what they need, so you can text or call back in one tap.",
+        body: "You send the ask, Revvin catches the reply. Send your referral link to the homeowner after a completed job, or to your whole past-customer list in batches from your own email app. Every referral lands in your inbox with the lead's name, contact and what they need, so you can text or call back in one tap.",
       },
       {
         title: "Repeat work on the rest of the exterior",
-        body: "Roofs do not come around often, but gutters, vents, flashing, attic ventilation and inspections do. Reactivation campaigns segment your list by how long since the last job and send a relevant offer instead of a generic blast.",
+        body: "Roofs do not come around often, but gutters, vents, flashing, attic ventilation and inspections do. On Pro, import your past-customer list and send a relevant offer to the customers you have not heard from in a while, from your own address, in a few batches.",
       },
       {
-        title: "Reviews while the roof is new",
-        body: "A review request goes out after the job. Customers who say they are happy get a follow-up asking them to refer a neighbour, so your review pipeline feeds your referral pipeline.",
+        title: "A page that keeps asking for you",
+        body: "Your QR code on the yard sign, truck and invoice works while you are on the next job. Anyone who scans it lands on your branded referral page with your reward offer, and their referral goes straight to your lead inbox with status tracking from new lead to closed deal.",
       },
     ],
     rewardExample:
@@ -94,21 +100,21 @@ export const INDUSTRIES: Industry[] = [
     h1: "Referral program software for HVAC contractors",
     metaTitle: "HVAC Referral Program Software | Revvin",
     metaDescription:
-      "Run an HVAC referral program plus maintenance reactivation off one customer list. Free to publish; $49/month USD for Pro. You pay your referrers directly.",
+      "Run an HVAC referral program plus maintenance outreach off one customer list. Free to publish; $49/month USD for Pro. You pay your referrers directly.",
     intro:
-      "HVAC has the two things a referral engine needs: a service list that ages predictably and neighbours on the same equipment cycle. Revvin turns your past-customer list into a referral page, a seasonal reactivation calendar and a review loop, all firing off the jobs you already close.",
+      "HVAC has the two things a referral engine needs: a service list that ages predictably and neighbours on the same equipment cycle. Revvin turns your past-customer list into a branded referral page, a seasonal outreach habit and a lead inbox, all running off the customers you already have.",
     loops: [
       {
         title: "Referrals after an install",
-        body: "A new system is the moment a homeowner is most willing to recommend you. Revvin sends the ask on a delay after you mark the install done, and routes any referral straight into your lead inbox with one-tap call back.",
+        body: "A new system is the moment a homeowner is most willing to recommend you. Send them your referral link while the job is fresh, and route any reply straight into your lead inbox with one-tap call back. With Pro, ask your whole installed base in batches from your own email app.",
       },
       {
         title: "Repeat work on the maintenance clock",
-        body: "Reactivation campaigns segment by time since last visit, so pre-season tune-ups, filter changes and lapsed maintenance plans get a specific message instead of one list-wide email.",
+        body: "Pre-season tune-ups, filter changes and lapsed maintenance plans are sitting in your list. Import your customers on Pro and send the seasonal offer yourself, from your own address, so the message reads like it came from you, because it did.",
       },
       {
-        title: "Reviews after the first hot or cold week",
-        body: "Review requests go out after the job, and happy customers get a follow-up referral ask. Both run automatically from the same list.",
+        title: "Always-on asking from your equipment",
+        body: "A QR sticker on the air handler or thermostat turns every future service visit, by anyone, into a chance to refer. The page shows your reward offer and every referral arrives in your inbox with contact details and status tracking.",
       },
     ],
     rewardExample:
@@ -134,21 +140,21 @@ export const INDUSTRIES: Industry[] = [
     h1: "Referral program software for plumbers",
     metaTitle: "Plumbing Referral Program Software | Revvin",
     metaDescription:
-      "Turn plumbing customers into referrals, repeat work and reviews. Branded referral page, QR code, lead inbox. Free to publish; $49/month USD for Pro.",
+      "Turn plumbing customers into referrals and repeat work. Branded referral page, QR code, lead inbox. Free to publish; $49/month USD for Pro.",
     intro:
-      "Most plumbing work arrives as an emergency, which means the customer is relieved and talkative right when the job ends. Revvin captures that moment with an automatic ask, then keeps the rest of your list warm with reactivation campaigns for the work people postpone.",
+      "Most plumbing work arrives as an emergency, which means the customer is relieved and talkative right when the job ends. Revvin captures that moment by giving you a link and QR code that are ready to share, and a lead inbox that makes sure no referral gets lost.",
     loops: [
       {
         title: "Referrals at the moment of relief",
-        body: "Mark the job done and the ask goes out shortly after, naming the customer, the technician and the service. Referrals arrive in your inbox with contact details and what the lead needs.",
+        body: "Hand over your QR card or text your referral link before you leave the driveway. Referrals arrive in your inbox with the lead's name, contact details and what they need, with one-tap call or text back while the emergency is still theirs to solve.",
       },
       {
         title: "Repeat work on deferred jobs",
-        body: "Water heaters, re-pipes, fixture upgrades and drain maintenance all sit on your list waiting. Segment by time since last job and send the offer that matches.",
+        body: "Water heaters, re-pipes, fixture upgrades and drain maintenance all sit on your list waiting. On Pro, import your past customers and send the offer that matches the work they have been postponing, in batches from your own email app.",
       },
       {
-        title: "Reviews that carry the emergency story",
-        body: "A review request follows the job, and customers who report they were happy get a referral ask next.",
+        title: "The fridge magnet that tracks itself",
+        body: "A QR code on a magnet or water heater sticker keeps your referral page one scan away for years. Because every scan lands on your tracked page, referrals come in with full contact details instead of a vague mention you never hear about.",
       },
     ],
     rewardExample:
@@ -170,19 +176,19 @@ export const INDUSTRIES: Industry[] = [
     metaDescription:
       "Run a solar referral program from your installed-customer list. Branded referral page, QR code, tracked rewards. Free to publish; $49/month USD for Pro.",
     intro:
-      "Solar is sold neighbour to neighbour, and your installed base is the most credible sales team you will ever have. Revvin gives every past customer a branded page and link to share, tracks the reward from pending to paid, and keeps the rest of the loop running without you chasing anyone.",
+      "Solar is sold neighbour to neighbour, and your installed base is the most credible sales team you will ever have. Revvin gives every past customer a branded page and link to share, tracks the reward from pending to paid, and keeps your leads organised so nobody gets chased or forgotten.",
     loops: [
       {
         title: "Referrals from the installed base",
-        body: "After commissioning, Revvin asks the homeowner to pass on their link. Referrals land in your inbox with name, contact and what they are asking about, so a consultant can call back the same day.",
+        body: "After commissioning, send the homeowner your referral link, or ask your entire installed base in batches from your own email app with Pro. Referrals land in your inbox with name, contact and what they are asking about, so a consultant can call back the same day.",
       },
       {
         title: "Repeat work on the rest of the system",
-        body: "Battery add-ons, panel cleaning, monitoring checks, EV chargers and roof-related work all live on your existing list. Reactivation campaigns segment by time since install.",
+        body: "Battery add-ons, panel cleaning, monitoring checks, EV chargers and roof-related work all live on your existing list. Import it once and reach out with the right offer when the timing suits, from your own address.",
       },
       {
-        title: "Reviews after the first full bill cycle",
-        body: "Review requests go out after the job, then happy customers get a referral ask. Both are automatic.",
+        title: "Your reward offer, always on display",
+        body: "Solar rewards are worth talking about, so put them where people look: a sticker on the inverter, the handover pack, the production report footer. Every scan opens your branded page with the offer spelled out and a tracked path into your lead inbox.",
       },
     ],
     rewardExample:
@@ -208,15 +214,15 @@ export const INDUSTRIES: Industry[] = [
     loops: [
       {
         title: "Referrals from completed work",
-        body: "Panel upgrades, rewires and EV charger installs all end with a satisfied homeowner. Mark the job done and the ask fires automatically.",
+        body: "Panel upgrades, rewires and EV charger installs all end with a satisfied homeowner. Send your referral link before you pack up the van, and catch every reply in a lead inbox with one-tap call or text back and status tracking.",
       },
       {
         title: "Repeat work across the house",
-        body: "Lighting, generators, surge protection, safety inspections and EV chargers are natural second jobs. Segment your list by time since last visit and offer the right one.",
+        body: "Lighting, generators, surge protection, safety inspections and EV chargers are natural second jobs. On Pro, import your past-customer list and offer the next job yourself, in batches from your own email app.",
       },
       {
-        title: "Reviews that mention the work by name",
-        body: "Review requests follow the job, and customers who say they were happy get a referral ask.",
+        title: "The panel label that refers for you",
+        body: "Your QR code on the panel label and inspection sticker sits in the home for decades. Anyone who scans it sees your branded referral page and reward offer, and their referral reaches you with full contact details.",
       },
     ],
     rewardExample:
@@ -236,21 +242,21 @@ export const INDUSTRIES: Industry[] = [
     h1: "Referral program software for landscapers",
     metaTitle: "Landscaping Referral Program Software | Revvin",
     metaDescription:
-      "Run a landscaping referral program and seasonal reactivation from one customer list. Free to publish; $49/month USD for Pro. Pay referrers directly.",
+      "Run a landscaping referral program and seasonal outreach from one customer list. Free to publish; $49/month USD for Pro. Pay referrers directly.",
     intro:
-      "Landscaping is the most visible trade there is, and your best advertisement is the yard you finished this morning. Revvin makes that yard referable with a branded page, a QR code for the sign out front and an automatic ask to the customer who paid for it.",
+      "Landscaping is the most visible trade there is, and your best advertisement is the yard you finished this morning. Revvin makes that yard referable with a branded page, a QR code for the sign out front and an easy way to ask the customer who paid for it.",
     loops: [
       {
         title: "Referrals from the street",
-        body: "Neighbours notice new work immediately. A QR code on the yard sign and an automatic ask to the homeowner turn that attention into leads in your inbox.",
+        body: "Neighbours notice new work immediately. A QR code on the yard sign and a referral link sent to the homeowner turn that attention into leads in your inbox, each with a name, contact details and what they want done.",
       },
       {
         title: "Repeat work by season",
-        body: "Spring cleanups, irrigation, mulch, aeration and fall work repeat on a calendar. Reactivation campaigns segment by time since last service and send the seasonal offer.",
+        body: "Spring cleanups, irrigation, mulch, aeration and fall work repeat on a calendar. On Pro, import your customer list and send the seasonal offer at the right moment, from your own email app, in batches.",
       },
       {
-        title: "Reviews while the yard looks its best",
-        body: "Review requests go out after the job, and happy customers get a follow-up referral ask.",
+        title: "Signage that works the whole job",
+        body: "From the first day of the install to the last, your sign and truck decals carry a QR code that opens your referral page with the reward offer on it. Every referral is tracked from new lead to closed deal.",
       },
     ],
     rewardExample:
@@ -276,15 +282,15 @@ export const INDUSTRIES: Industry[] = [
     loops: [
       {
         title: "Referrals from finished rooms and exteriors",
-        body: "Mark the job done and the ask goes out with the customer's name and the work you did, so the message reads like you wrote it.",
+        body: "Send your referral link at the walkthrough, while the customer is showing the room to family. The message reads like it came from you because it does: your device sends it, and every reply lands in your lead inbox with contact details and status tracking.",
       },
       {
         title: "Repeat work room by room",
-        body: "Most painting customers only did part of the house. Reactivation campaigns segment by time since the last job and offer the next phase.",
+        body: "Most painting customers only did part of the house. On Pro, import your past-customer list and offer the next phase yourself, in batches from your own email app, timed to when the work usually follows.",
       },
       {
-        title: "Reviews with photos attached",
-        body: "Review requests follow the job, and happy customers get a referral ask straight after.",
+        title: "A quiet ask on every surface",
+        body: "The yard sign during the job and the QR code on the final invoice keep your referral page in front of neighbours and guests. Anyone can refer in a couple of taps, and you see it the moment it happens.",
       },
     ],
     rewardExample:
@@ -306,19 +312,19 @@ export const INDUSTRIES: Industry[] = [
     metaDescription:
       "Run an auto detailing referral program and rebooking reminders from one list. Free to publish; $49/month USD for Pro. You pay referrers directly.",
     intro:
-      "Detailing is a before-and-after business with a short repeat cycle, which makes it ideal for all three loops. Revvin asks for the referral while the car still looks new, brings customers back on schedule and collects reviews in between.",
+      "Detailing is a before-and-after business with a short repeat cycle, which makes it ideal for referrals and rebookings. Revvin helps you ask while the car still looks new, bring customers back on schedule and keep every lead tracked in between.",
     loops: [
       {
         title: "Referrals at handover",
-        body: "The ask fires shortly after you mark the job done, while the customer is still looking at the result. Referrals arrive with contact details and vehicle notes.",
+        body: "Leave a QR card in the cup holder or text your referral link at handover, while the customer is still looking at the result. Referrals arrive in your inbox with contact details and vehicle notes, ready for a one-tap reply.",
       },
       {
         title: "Repeat work on a short cycle",
-        body: "Detailing repeats in weeks and months, not years. Reactivation campaigns segment by time since last appointment and prompt the rebooking.",
+        body: "Detailing repeats in weeks and months, not years. On Pro, import your customer list and send the rebooking prompt yourself, from your own email app, in batches timed to when each customer is due.",
       },
       {
-        title: "Reviews with the photos you already take",
-        body: "Review requests go out after the job, then happy customers get a referral ask.",
+        title: "Your page, riding in every car",
+        body: "The QR card in the cup holder keeps working after handover: friends ask, the customer scans, and your referral page with its reward offer does the explaining. Every referral is tracked from new lead to closed deal.",
       },
     ],
     rewardExample:
