@@ -16,7 +16,7 @@ const Sample = () => {
     <>
       <SEOHead
         title="Revvin | Sample referral page"
-        description="Preview an example Revvin referral page. Branded referral page, shareable link, QR code, and lead inbox for service businesses. Free to build. $49/month USD when you go live."
+        description="Preview an example Revvin referral page. Branded referral page, shareable link, QR code, and lead inbox for service businesses. Free to publish. Revvin Pro is $49/month USD for the tools that ask your whole customer list for you."
       />
 
       <section className="border-b border-border bg-surface-warm">
