@@ -16,7 +16,7 @@ const Footer = () => {
               Your customer list, working for you. Revvin turns the people who already paid you into referrals, repeat work, and reviews. You handle the relationship.
             </p>
             <p className="mt-5 text-xs uppercase tracking-[0.18em] text-white/40">
-              {`Free to build. ${PRICE_TEXT.monthlyPerMonth} to publish.`}
+              {`Free to publish. ${PRICE_TEXT.monthlyPerMonth} for Pro.`}
             </p>
           </div>
 
@@ -66,7 +66,7 @@ const Footer = () => {
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center">
           <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} Revvin. All rights reserved.</p>
           <p className="text-xs text-white/40">
-            free to build · {PRICE_TEXT.monthlyPerMonth} when you publish · referrers join free
+            free to publish · {PRICE_TEXT.monthlyPerMonth} for Pro · referrers join free
           </p>
         </div>
       </div>
