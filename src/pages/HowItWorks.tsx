@@ -16,7 +16,7 @@ const steps = [
   {
     n: "02",
     t: "Mark jobs done and let the asks fire",
-    d: "When a job is finished, mark it done. Revvin sends a review request, then follows up with the customers who said they were happy and asks them to refer someone. Separately, a personalised referral ask goes out a couple of hours after the job, using the customer name, the technician name, and the service. Customers who have not booked in a while get a reactivation campaign. If your job data lives in another tool, a webhook or API call can fire all of this for you.",
+    d: "When a job is finished, send the review ask with a pre-written message, then follow up with the customers who said they were happy and ask them to refer someone. The referral ask is personalised with the customer name and the service, and opens in your own texting or email app, so it comes from you. Customers who have not booked in a while get a pre-written rebooking message the same way.",
     visual: <MockQRCard />,
   },
   {
@@ -32,7 +32,7 @@ const HowItWorks = () => {
     <>
       <SEOHead
         title="Revvin | How it works"
-        description={`See how Revvin turns past customers into referrals, repeat work, and reviews. Build free, ${PRICE_TEXT.monthlyPerMonth} USD when you publish.`}
+        description={`See how Revvin turns past customers into referrals, repeat work, and reviews. Your page is free to publish; Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD for the tools that ask your whole customer list for you.`}
         path="/how-it-works"
       />
 
