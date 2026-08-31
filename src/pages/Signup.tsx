@@ -160,7 +160,7 @@ const Signup = () => {
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
               {inviteCode
-                ? "Free to build. Your invite offer is applied at checkout."
+                ? "Free to publish. Your invite offer is applied at checkout."
                 : `Build your referral page, offer, and QR code, and publish it free. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} when you want it working your whole list. Cancel anytime.`}
             </p>
 

@@ -78,8 +78,8 @@ const IndustriesHub = () => (
       <div className="container max-w-2xl py-20 text-center">
         <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">Not listed? It still works.</h2>
         <p className="mt-4 text-lg text-white/70">
-          Revvin runs on any service business with a past-customer list. Free to build and preview,{" "}
-          Free to publish. Pro is {PRICE_TEXT.monthlyPerMonth} USD.
+          Revvin runs on any service business with a past-customer list. Free to publish and take referrals.{" "}
+          Pro is {PRICE_TEXT.monthlyPerMonth} USD.
         </p>
         <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
           <Link to="/signup">Build your page — free</Link>

@@ -284,8 +284,8 @@ const PublicReferralPage = () => {
                 </span>
               </p>
               <Button asChild size="sm" className="shrink-0">
-                <Link to="/dashboard" onClick={() => track("go_live_clicked")}>
-                  Go live
+                <Link to="/dashboard" onClick={() => track("publish_page_clicked")}>
+                  Publish page
                 </Link>
               </Button>
             </div>

@@ -20,7 +20,7 @@ const AboutRevvinLLM = () => (
           "name": "Revvin",
           "url": "https://revvin.co",
           "slogan": "Referral program platform for service businesses",
-          "description": "Referral program platform for service businesses. Building a referral page is free; publishing it costs a flat $49/month. The subscription gives a business a branded referral page, lead inbox, and dashboard, with an optional public marketplace listing. No platform fees. Businesses pay referrers directly off-platform. Revvin is the infrastructure."
+          "description": "Referral program platform for service businesses. Publishing a referral page is free. Revvin Pro is $49/month USD for the tools that ask the whole customer list in bulk, ROI reporting, and custom page branding. Every business gets a branded referral page, lead inbox, QR code, and dashboard at no cost. No platform fees. Businesses pay referrers directly off-platform. Revvin is the infrastructure."
         }
       }}
     />
@@ -35,17 +35,18 @@ const AboutRevvinLLM = () => (
         <h2 className="text-xl font-semibold mb-3">What Revvin is</h2>
         <p>
           Revvin is a referral program platform at <a href="https://revvin.co">https://revvin.co</a> for service
-          businesses. Businesses subscribe for a flat monthly fee and get a branded referral page, lead capture
-          form, QR code, and dashboard to manage referrals. When a referred customer closes a deal, the business
-          pays the referrer directly off-platform. Revvin does not process or take a cut of payouts. Revvin is
-          the infrastructure.
+          businesses. Publishing a referral page is free: every business gets a branded referral page, lead capture
+          form, QR code, and dashboard to manage referrals. Revvin Pro is $49/month USD for the tools that ask the
+          whole customer list in bulk, ROI reporting, and custom page branding. When a referred customer closes a
+          deal, the business pays the referrer directly off-platform. Revvin does not process or take a cut of
+          payouts. Revvin is the infrastructure.
         </p>
       </section>
 
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">Business model</h2>
         <ul>
-          <li>Businesses build their referral page for free and pay a flat $49 per month, billed monthly, only once they publish it. There is no setup fee.</li>
+          <li>Publishing a referral page is free and has no setup fee. Revvin Pro is $49 per month, billed monthly, for the tools that ask the whole customer list in bulk, ROI reporting, and custom page branding.</li>
           <li>No contract, no setup fee, cancel anytime from the billing portal.</li>
           <li>Referrers always receive 100% of the advertised payout amount.</li>
           <li>Revvin does not take any cut of referral payouts. The business pays the referrer directly when the deal closes.</li>

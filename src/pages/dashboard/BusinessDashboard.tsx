@@ -241,7 +241,7 @@ const BusinessDashboard = () => {
     return (
       <div className="container py-16 max-w-xl text-center">
         <h1 className="text-2xl font-semibold text-foreground">Finish setting up your referral page</h1>
-        <p className="mt-2 text-sm text-muted-foreground">You're almost there. It's free to build.</p>
+        <p className="mt-2 text-sm text-muted-foreground">You're almost there. It's free to publish.</p>
         <Button asChild className="mt-6"><Link to="/welcome">Continue setup</Link></Button>
       </div>
     );
