@@ -378,9 +378,11 @@ const BusinessDashboard = () => {
         <TabsContent value="customers">
           {!isLive ? (
             <LockedTab
-              title="Go live to invite your customers"
+              title="Publish your page to invite your customers"
               body="Your referral page has to be live before you send customers to it. Everything you build here is saved."
             />
+          ) : !isPro ? (
+            <ProUpsell title={PRO_COPY.customers.title} body={PRO_COPY.customers.body} />
           ) : (
           <AttestationGate
             businessId={biz.id}
@@ -391,6 +393,7 @@ const BusinessDashboard = () => {
           </AttestationGate>
           )}
         </TabsContent>
+
         <TabsContent value="jobdone">
           {!isLive ? (
             <LockedTab
