@@ -144,7 +144,7 @@ const renderRoute = (template: string, route: PrerenderRoute) => {
     );
     html = html.replace(
       "</head>",
-      `  <link rel="canonical" href="${esc(`${SITE}${route.path}`)}">\n  </head>`,
+      `  <link rel="canonical" href="${esc(route.canonical ?? `${SITE}${route.path}`)}">\n  </head>`,
     );
   }
 
