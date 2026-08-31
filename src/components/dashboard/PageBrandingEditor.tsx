@@ -351,8 +351,10 @@ const PageBrandingEditor = ({ businessId, slug, isPro = false, initial, onSaved 
         </div>
       </div>
 
-      {/* Headline */}
+      {/* Headline, welcome message and testimonials: Pro branding */}
+      <fieldset disabled={!isPro} className={`space-y-6 ${!isPro ? "opacity-60" : ""}`}>
       <div>
+
         <Label>Headline</Label>
         <Input
           value={headline}
