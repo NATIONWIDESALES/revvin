@@ -354,6 +354,8 @@ const ProfileEdit = () => {
               <PageBrandingEditor
                 businessId={business.id}
                 slug={business.slug ?? null}
+                isPro={(business.plan ?? "free") === "pro"}
+
                 initial={{
                   brand_color: business.brand_color ?? null,
                   cover_image_url: business.cover_image_url ?? null,
