@@ -228,13 +228,14 @@ const BusinessDashboard = () => {
     );
   }
 
-  // Free to build, pay to publish. Businesses without an active subscription
-  // keep full access to page building and share tools, and see a Go live
-  // banner. Only the live-traffic surfaces are gated.
+  // Publishing is free. The subscription buys leverage, not existence, so
+  // being live has nothing to do with billing. Pro unlocks the customer-list
+  // tools, reporting and custom branding.
   const subStatus = (biz.subscription_status || "").toLowerCase();
   const subscribed = ["active", "trialing", "past_due"].includes(subStatus);
-  const isLive = subscribed && biz.is_published && !biz.is_disabled;
-  const everSubscribed = ["canceled", "cancelled", "unpaid", "incomplete_expired"].includes(subStatus);
+  const isLive = biz.is_published && !biz.is_disabled;
+  const isPro = (biz.plan || "free") === "pro";
+
 
   // Setup has not produced a URL yet, there is nothing to show or preview.
   if (!biz.slug) {
