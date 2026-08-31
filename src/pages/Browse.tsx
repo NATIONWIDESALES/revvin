@@ -1,3 +1,7 @@
+import { lazy, Suspense } from "react";
+
+// Leaflet is ~150KB: only fetched when the user actually switches to map view.
+const MapView = lazy(() => import("@/components/MapView"));
 import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -6,7 +10,7 @@ import {
   Search, SlidersHorizontal, Map, List, Building2, PlusCircle, X, Sparkles, MapPin, Loader2
 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
-import MapView from "@/components/MapView";
+
 import SEOHead from "@/components/SEOHead";
 import { categories } from "@/lib/offerUtils";
 import { useDbOffers } from "@/hooks/useDbOffers";
@@ -509,7 +513,9 @@ const Browse = () => {
 
         {/* Content */}
         {viewMode === "map" ? (
-          <MapView offers={gridOffers} />
+          <Suspense fallback={<div className="h-[420px] rounded-xl bg-muted/40" />}>
+            <MapView offers={gridOffers} />
+          </Suspense>
         ) : gridOffers.length > 0 ? (
           <motion.div
             className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"

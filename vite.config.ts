@@ -15,6 +15,22 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [react(), mode === "development" && componentTagger(), mcpPlugin(), prerenderPlugin()].filter(Boolean),
+  build: {
+    rollupOptions: {
+      output: {
+        // Split the heaviest shared dependencies so they cache independently
+        // across deploys instead of being re-downloaded with app code.
+        manualChunks: {
+          react: ["react", "react-dom"],
+          router: ["react-router-dom"],
+          motion: ["framer-motion"],
+          supabase: ["@supabase/supabase-js"],
+          charts: ["recharts"],
+          leaflet: ["leaflet", "react-leaflet"],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
