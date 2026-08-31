@@ -320,13 +320,13 @@ const Pricing = () => {
             <AccordionItem value="p1">
               <AccordionTrigger>Is there really no contract?</AccordionTrigger>
               <AccordionContent>
-                Correct. Publishing is {PRICE_TEXT.monthlyPerMonth} billed monthly, or {PRICE_TEXT.annualPerYear} billed once. Cancel anytime from your billing portal, your page stays live through the end of the period you've already paid for.
+                Correct. Your page costs nothing and has no contract at all. Revvin Pro is {PRICE_TEXT.monthlyPerMonth} billed monthly, or {PRICE_TEXT.annualPerYear} billed once, and you can cancel anytime from your billing portal. Your page and your referrals stay live either way, you just lose the Pro tools.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p6">
               <AccordionTrigger>How does annual billing work if I cancel?</AccordionTrigger>
               <AccordionContent>
-                The annual plan is {PRICE_TEXT.annual} USD charged once, up front, for twelve months. You can cancel anytime and your page stays live through the end of that paid year, then it does not renew. We do not pro-rate or refund the unused part of a year, so if you are not sure yet, start monthly at {PRICE_TEXT.monthlyPerMonth} and switch to annual later from your billing portal.
+                The annual plan is {PRICE_TEXT.annual} USD charged once, up front, for twelve months of Pro. You can cancel anytime and Pro stays on through the end of that paid year, then it does not renew. Your page stays live regardless. We do not pro-rate or refund the unused part of a year, so if you are not sure yet, start monthly at {PRICE_TEXT.monthlyPerMonth} and switch to annual later from your billing portal.
               </AccordionContent>
             </AccordionItem>
             {LAUNCH_PACKAGE_ENABLED && (
@@ -340,13 +340,13 @@ const Pricing = () => {
             <AccordionItem value="p3">
               <AccordionTrigger>What exactly is free?</AccordionTrigger>
               <AccordionContent>
-                Two things. Referrer accounts are always free: send leads to businesses on Revvin and get paid directly, no card required. And for businesses, the builder is free: create your account, set up your offer, page, and QR code, and preview the whole thing without paying. This is not a trial and not a limited plan. Your page cannot receive referrals until you publish it, and publishing costs $49/month.
+                Your referral page. Create your account, set up your offer, publish the page, share the link and QR code, and take referrals through it without paying anything. That is not a trial and it does not expire. Referrer accounts are free too: send leads to businesses on Revvin and get paid directly, no card required. Pro is what you pay for, and it is the tools that ask your whole customer list for you.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p5">
-              <AccordionTrigger>Are all three loops included in the $49?</AccordionTrigger>
+              <AccordionTrigger>What do I actually get for the $49?</AccordionTrigger>
               <AccordionContent>
-                Yes, on both monthly and annual. One price covers referrals, repeat work, and reviews, plus reward tracking, the ROI scoreboard, the print pack, and webhooks and the API. There are no add-on tiers and no per-send charges.
+                Everything that works your existing customer list: import, the job done auto-ask, reactivation campaigns, review requests, the ROI scoreboard and monthly recap, reward tracking, custom page branding, the print pack, and webhooks and the API. Same on monthly and annual. There are no add-on tiers and no per-send charges.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">
