@@ -33,10 +33,10 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("node_modules/recharts")) return "charts";
           if (/node_modules\/(leaflet|react-leaflet)\//.test(id)) return "leaflet";
         },
-        },
       },
     },
   },
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
