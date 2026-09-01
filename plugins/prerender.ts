@@ -89,8 +89,19 @@ const bodyHtml = (route: PrerenderRoute) => {
     .map((r) => `<li><a href="${esc(r.path)}">${esc(r.h1)}</a></li>`)
     .join("");
   parts.push(`<nav aria-label="Site pages"><h2>More from Revvin</h2><ul>${links}</ul></nav>`);
-  return `<div id="root">${parts.join("")}</div>`;
+
+  // dist/index.html is also the SPA fallback for every unprerendered route
+  // (/r/*, /dashboard, /auth, /i/*). Without this, those routes would flash the
+  // homepage copy until React boots. The script runs before first paint, so
+  // crawlers on "/" still get the static content and real visitors elsewhere
+  // never see it.
+  const guard =
+    route.path === "/"
+      ? `<script>if(location.pathname!=="/"){var r=document.getElementById("root");if(r)r.textContent="";}</script>`
+      : "";
+  return `<div id="root">${parts.join("")}</div>${guard}`;
 };
+
 
 const replaceTag = (html: string, pattern: RegExp, replacement: string) =>
   pattern.test(html) ? html.replace(pattern, replacement) : html;
