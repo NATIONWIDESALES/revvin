@@ -9,8 +9,9 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "bun run check:functions && vitest run",
+    "test:watch": "vitest",
+    "check:functions": "deno check --node-modules-dir=auto supabase/functions/_shared/*.ts supabase/functions/send-campaign/index.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
