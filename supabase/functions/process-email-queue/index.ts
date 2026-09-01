@@ -1,11 +1,37 @@
 import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
 import { createClient, SupabaseClient } from 'npm:@supabase/supabase-js@2'
+import { suppressContact } from '../_shared/outreach.ts'
 
 const MAX_RETRIES = 5
 const DEFAULT_BATCH_SIZE = 10
 const DEFAULT_SEND_DELAY_MS = 200
 const DEFAULT_AUTH_TTL_MINUTES = 15
 const DEFAULT_TRANSACTIONAL_TTL_MINUTES = 60
+// A reactivation campaign is still worth sending an hour late, unlike a login
+// code, so it gets a much longer TTL. Held as a constant rather than a column
+// on email_send_state because that would need a migration.
+const CAMPAIGN_TTL_MINUTES = 24 * 60
+
+// Campaign queue drains last so a 500-recipient campaign can never delay an
+// auth email. pgmq queue name -> the queue that carries campaign payloads.
+const CAMPAIGN_QUEUE = 'campaign_emails'
+
+/**
+ * A permanent delivery failure: the address does not exist, is blocked, or the
+ * recipient complained. These must never be retried on a shared sending domain.
+ */
+function isPermanentDeliveryFailure(error: unknown): boolean {
+  if (error && typeof error === 'object' && 'status' in error) {
+    const status = (error as { status: number }).status
+    // 422 is the gateway's validation/suppression rejection.
+    if (status === 422) return true
+  }
+  const message = error instanceof Error ? error.message : String(error ?? '')
+  return /hard\s*bounce|permanently|does not exist|invalid recipient|mailbox (not found|unavailable)|no such user|blocked|blacklist|spam complaint|complaint|unsubscribed|suppress/i.test(
+    message
+  )
+}
+
 
 // Check if an error is a rate-limit (429) response.
 // Uses EmailAPIError.status when available (email-js >=0.x with structured errors),
@@ -78,6 +104,83 @@ async function moveToDlq(
   }
 }
 
+/**
+ * Reconcile one campaign's counters from its send rows and close it out when
+ * nothing is left in flight.
+ *
+ * Counters are recounted rather than incremented so a redelivered queue message
+ * or an overlapping worker run cannot double count. The deployed
+ * campaigns_status_check constraint has no 'completed' value, so a finished
+ * campaign is marked 'sent' with completed_at set.
+ */
+async function reconcileCampaign(
+  supabase: SupabaseClient<any, any, any>,
+  campaignId: string
+): Promise<void> {
+  const counts: Record<string, number> = {}
+  for (const status of ['sent', 'failed', 'suppressed', 'pending', 'sending']) {
+    const { count } = await supabase
+      .from('campaign_sends')
+      .select('id', { count: 'exact', head: true })
+      .eq('campaign_id', campaignId)
+      .eq('status', status)
+    counts[status] = count ?? 0
+  }
+
+  const inFlight = counts.pending + counts.sending
+  const update: Record<string, unknown> = {
+    sent_count: counts.sent,
+    failed_count: counts.failed,
+    opted_out_count: counts.suppressed,
+  }
+  if (inFlight === 0) {
+    update.status = 'sent'
+    update.completed_at = new Date().toISOString()
+  }
+
+  const { error } = await supabase.from('campaigns').update(update as any).eq('id', campaignId)
+  if (error) {
+    console.error('Failed to reconcile campaign counters', { campaignId, error })
+  }
+}
+
+/** Record the outcome of a campaign send on its campaign_sends row. */
+async function recordCampaignOutcome(
+  supabase: SupabaseClient<any, any, any>,
+  payload: Record<string, unknown>,
+  outcome: { ok: true } | { ok: false; reason: string; suppressed?: boolean }
+): Promise<void> {
+  const sendId = typeof payload.campaign_send_id === 'string' ? payload.campaign_send_id : null
+  if (!sendId) return
+
+  // 'queued' is not a permitted campaign_sends status in the deployed schema;
+  // rows start at 'pending'.
+  const update = outcome.ok
+    ? {
+        status: 'sent',
+        message_id: (payload.message_id as string) ?? null,
+        sent_at: new Date().toISOString(),
+        failure_reason: null,
+      }
+    : {
+        status: 'failed',
+        failure_reason: outcome.reason.slice(0, 500),
+      }
+
+  const { error } = await supabase.from('campaign_sends').update(update as any).eq('id', sendId)
+  if (error) {
+    console.error('Failed to update campaign_sends row', { sendId, error })
+  }
+}
+
+async function reconcileCampaignForPayload(
+  supabase: SupabaseClient<any, any, any>,
+  payload: Record<string, unknown>,
+): Promise<void> {
+  const campaignId = typeof payload.campaign_id === 'string' ? payload.campaign_id : null
+  if (campaignId) await reconcileCampaign(supabase, campaignId)
+}
+
 Deno.serve(async (req) => {
   const apiKey = Deno.env.get('LOVABLE_API_KEY')
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
@@ -131,12 +234,15 @@ Deno.serve(async (req) => {
   const ttlMinutes: Record<string, number> = {
     auth_emails: state?.auth_email_ttl_minutes ?? DEFAULT_AUTH_TTL_MINUTES,
     transactional_emails: state?.transactional_email_ttl_minutes ?? DEFAULT_TRANSACTIONAL_TTL_MINUTES,
+    [CAMPAIGN_QUEUE]: CAMPAIGN_TTL_MINUTES,
   }
 
   let totalProcessed = 0
 
-  // 2. Process auth_emails first (priority), then transactional_emails
-  for (const queue of ['auth_emails', 'transactional_emails']) {
+  // Auth and transactional mail always run before campaigns. Campaigns are last
+  // and each invocation still reads only batchSize messages, so a large campaign
+  // cannot delay account access or lead notifications.
+  for (const queue of ['auth_emails', 'transactional_emails', CAMPAIGN_QUEUE]) {
     const { data: messages, error: readError } = await supabase.rpc('read_email_batch', {
       queue_name: queue,
       batch_size: batchSize,
@@ -191,34 +297,33 @@ Deno.serve(async (req) => {
 
     for (let i = 0; i < messages.length; i++) {
       const msg = messages[i]
-      const payload = msg.message
+      const payload = msg.message as Record<string, unknown>
       const failedAttempts =
         payload?.message_id && typeof payload.message_id === 'string'
           ? (failedAttemptsByMessageId.get(payload.message_id) ?? 0)
           : msg.read_ct ?? 0
 
-      // Drop expired messages (TTL exceeded).
-      // Prefer payload.queued_at when present; fall back to PGMQ's enqueued_at
-      // which is always set by the queue.
+      // Drop expired messages (TTL exceeded). Campaigns use their own 24-hour
+      // TTL so a delayed campaign remains useful without changing auth TTL.
       const queuedAt = payload.queued_at ?? msg.enqueued_at
       if (queuedAt) {
-        const ageMs = Date.now() - new Date(queuedAt).getTime()
+        const ageMs = Date.now() - new Date(String(queuedAt)).getTime()
         const maxAgeMs = ttlMinutes[queue] * 60 * 1000
         if (ageMs > maxAgeMs) {
-          console.warn('Email expired (TTL exceeded)', {
-            queue,
-            msg_id: msg.msg_id,
-            queued_at: queuedAt,
-            ttl_minutes: ttlMinutes[queue],
-          })
-          await moveToDlq(supabase, queue, msg, `TTL exceeded (${ttlMinutes[queue]} minutes)`)
+          const reason = `TTL exceeded (${ttlMinutes[queue]} minutes)`
+          await moveToDlq(supabase, queue, msg, reason)
+          await recordCampaignOutcome(supabase, payload, { ok: false, reason })
+          await reconcileCampaignForPayload(supabase, payload)
           continue
         }
       }
 
       // Move to DLQ if max failed send attempts reached.
       if (failedAttempts >= MAX_RETRIES) {
-        await moveToDlq(supabase, queue, msg, `Max retries (${MAX_RETRIES}) exceeded (attempted ${failedAttempts} times)`)
+        const reason = `Max retries (${MAX_RETRIES}) exceeded (attempted ${failedAttempts} times)`
+        await moveToDlq(supabase, queue, msg, reason)
+        await recordCampaignOutcome(supabase, payload, { ok: false, reason })
+        await reconcileCampaignForPayload(supabase, payload)
         continue
       }
 
@@ -229,14 +334,9 @@ Deno.serve(async (req) => {
           .select('id')
           .eq('message_id', payload.message_id)
           .eq('status', 'sent')
-          .maybeSingle()
+          .limit(1)
 
-        if (alreadySent) {
-          console.warn('Skipping duplicate send (already sent)', {
-            queue,
-            msg_id: msg.msg_id,
-            message_id: payload.message_id,
-          })
+        if (alreadySent?.length) {
           const { error: dupDelError } = await supabase.rpc('delete_email', {
             queue_name: queue,
             message_id: msg.msg_id,
@@ -244,8 +344,19 @@ Deno.serve(async (req) => {
           if (dupDelError) {
             console.error('Failed to delete duplicate message from queue', { queue, msg_id: msg.msg_id, error: dupDelError })
           }
+          await recordCampaignOutcome(supabase, payload, { ok: true })
+          await reconcileCampaignForPayload(supabase, payload)
           continue
         }
+      }
+
+      // A retried campaign message becomes in-flight again. This keeps a
+      // transient failed attempt from being mistaken for a finished campaign.
+      if (queue === CAMPAIGN_QUEUE && typeof payload.campaign_send_id === 'string') {
+        await supabase
+          .from('campaign_sends')
+          .update({ status: 'pending', failure_reason: null } as any)
+          .eq('id', payload.campaign_send_id)
       }
 
       try {
@@ -255,6 +366,7 @@ Deno.serve(async (req) => {
             to: payload.to,
             from: payload.from,
             sender_domain: payload.sender_domain,
+            reply_to: payload.reply_to,
             subject: payload.subject,
             html: payload.html,
             text: payload.text,
@@ -264,21 +376,18 @@ Deno.serve(async (req) => {
             unsubscribe_token: payload.unsubscribe_token,
             message_id: payload.message_id,
           },
-          // sendUrl is optional — when LOVABLE_SEND_URL is not set, the library
-          // falls back to the default Lovable API endpoint (https://api.lovable.dev).
-          // Set LOVABLE_SEND_URL as a Supabase secret to override (e.g. for local dev).
           { apiKey, sendUrl: Deno.env.get('LOVABLE_SEND_URL') }
         )
 
-        // Log success
         await supabase.from('email_send_log').insert({
           message_id: payload.message_id,
           template_name: payload.label || queue,
           recipient_email: payload.to,
           status: 'sent',
         })
+        await recordCampaignOutcome(supabase, payload, { ok: true })
+        await reconcileCampaignForPayload(supabase, payload)
 
-        // Delete from queue
         const { error: delError } = await supabase.rpc('delete_email', {
           queue_name: queue,
           message_id: msg.msg_id,
@@ -310,46 +419,65 @@ Deno.serve(async (req) => {
           await supabase
             .from('email_send_state')
             .update({
-              retry_after_until: new Date(
-                Date.now() + retryAfterSecs * 1000
-              ).toISOString(),
+              retry_after_until: new Date(Date.now() + retryAfterSecs * 1000).toISOString(),
               updated_at: new Date().toISOString(),
             })
             .eq('id', 1)
 
-          // Stop processing — remaining messages stay in queue (VT expires, retried next cycle)
+          // Remaining messages stay in the queue. Auth mail is never reached
+          // after this point because campaigns are the final queue.
           return new Response(
             JSON.stringify({ processed: totalProcessed, stopped: 'rate_limited' }),
             { headers: { 'Content-Type': 'application/json' } }
           )
         }
 
-        // 403 means emails are disabled for this project — retrying won't help.
-        // Move straight to DLQ and stop processing the rest of the batch.
+        const permanent = queue === CAMPAIGN_QUEUE && isPermanentDeliveryFailure(error)
+        if (permanent) {
+          // Hard bounces and complaints must never consume retry attempts on the
+          // shared sending domain. Suppression happens before any return.
+          const businessId = typeof payload.business_id === 'string' ? payload.business_id : ''
+          if (businessId && typeof payload.to === 'string') {
+            await suppressContact(
+              supabase,
+              businessId,
+              payload.to,
+              /complaint|spam/i.test(errorMsg) ? 'spam_complaint' : 'hard_bounce'
+            )
+          }
+        }
+
+        const failureReason = permanent ? `permanent_delivery_failure: ${errorMsg}` : errorMsg
+        await supabase.from('email_send_log').insert({
+          message_id: payload.message_id,
+          template_name: payload.label || queue,
+          recipient_email: payload.to,
+          status: 'failed',
+          error_message: failureReason.slice(0, 1000),
+        })
+        await recordCampaignOutcome(supabase, payload, { ok: false, reason: failureReason })
+        if (payload?.message_id && typeof payload.message_id === 'string') {
+          failedAttemptsByMessageId.set(payload.message_id, failedAttempts + 1)
+        }
+
+        if (permanent) {
+          await moveToDlq(supabase, queue, msg, failureReason)
+          await reconcileCampaignForPayload(supabase, payload)
+        }
         if (isForbidden(error)) {
-          await moveToDlq(supabase, queue, msg, 'Emails disabled for this project')
+          const reason = 'Emails disabled for this project'
+          await moveToDlq(supabase, queue, msg, reason)
+          await recordCampaignOutcome(supabase, payload, { ok: false, reason })
+          await reconcileCampaignForPayload(supabase, payload)
           return new Response(
             JSON.stringify({ processed: totalProcessed, stopped: 'emails_disabled' }),
             { headers: { 'Content-Type': 'application/json' } }
           )
         }
 
-        // Log non-429 failures to track real retry attempts.
-        await supabase.from('email_send_log').insert({
-          message_id: payload.message_id,
-          template_name: payload.label || queue,
-          recipient_email: payload.to,
-          status: 'failed',
-          error_message: errorMsg.slice(0, 1000),
-        })
-        if (payload?.message_id && typeof payload.message_id === 'string') {
-          failedAttemptsByMessageId.set(payload.message_id, failedAttempts + 1)
-        }
-
-        // Non-429 errors: message stays invisible until VT expires, then retried
+        // Other failures stay invisible until VT expires and are retried.
       }
 
-      // Small delay between sends to smooth bursts
       if (i < messages.length - 1) {
         await new Promise((r) => setTimeout(r, sendDelayMs))
       }

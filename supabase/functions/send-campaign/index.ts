@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
 
   const { data: contacts, error: contactError } = await supabase
     .from("referral_contacts")
-    .select("id, name, email, last_job_at, opted_out, is_mock")
+    .select("id, name, email, last_job_at, status, is_mock")
     .eq("business_id", business.id)
     .limit(10000);
   if (contactError) return json({ error: "Could not load customers" }, 500);
@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
     if (!inSegment(contact, segment)) continue;
     const email = String(contact.email || "").trim().toLowerCase();
     if (contact.is_mock) { skipped("mock_contact"); continue; }
-    if (contact.opted_out) { skipped("opted_out"); continue; }
+    if (String(contact.status || "").toLowerCase() === "opted_out") { skipped("opted_out"); continue; }
     if (!email) { skipped("no_email"); continue; }
     if (invalidEmail(email)) { skipped("undeliverable_email"); continue; }
     if (seen.has(email)) { skipped("duplicate_email"); continue; }
@@ -177,7 +177,7 @@ Deno.serve(async (req) => {
         contact_id: contact.id,
         business_id: business.id,
         recipient_email: contact.email,
-        status: "queued",
+        status: "pending",
       })
       .select("id")
       .single();
@@ -196,6 +196,7 @@ Deno.serve(async (req) => {
     const inner = `<h1 style="margin:8px 0 14px;font-size:22px;line-height:1.3">${esc(subject)}</h1>${paragraphs(body)}<p style="margin:18px 0 0"><a href="${esc(referralUrl)}" style="display:inline-block;background:#15803d;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px">Get in touch</a></p>`;
     messages.push({
       campaign_id: campaign.id,
+      business_id: business.id,
       campaign_send_id: sendRow.id,
       message_id: messageId,
       idempotency_key: messageId,
