@@ -26,8 +26,10 @@ function extract(name: string): string {
   throw new Error(`could not parse ${name}`);
 }
 
+const ESC_SRC = `const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");`;
+
 const factory = new Function(
-  `${extract("esc")}\n${extract("renderTokens")}\n${extract("emailFooter")}\nreturn { esc, renderTokens, emailFooter };`,
+  `${ESC_SRC}\n${extract("renderTokens")}\n${extract("emailFooter")}\nreturn { renderTokens, emailFooter };`,
 );
 const { renderTokens, emailFooter } = factory() as {
   renderTokens: (i: string, t: Record<string, string>, e: boolean) => string;
