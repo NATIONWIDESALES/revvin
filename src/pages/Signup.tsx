@@ -186,10 +186,13 @@ const Signup = () => {
               <Button type="submit" size="lg" className="hidden w-full h-11 sm:flex" disabled={busy}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create free account"}
               </Button>
-              {inviteCode && <InviteTerms />}
-              <p className="text-center text-[11px] text-muted-foreground">
-                No card required. Your referral page is free to publish.
-              </p>
+              {inviteCode ? (
+                <InviteTerms />
+              ) : (
+                <p className="text-center text-[11px] text-muted-foreground">
+                  No card required. Your referral page is free to publish.
+                </p>
+              )}
               <p className="text-[11px] text-muted-foreground text-center">
                 By signing up you agree to our <Link to="/terms" className="underline">Terms</Link> and <Link to="/privacy" className="underline">Privacy Policy</Link>.
               </p>
