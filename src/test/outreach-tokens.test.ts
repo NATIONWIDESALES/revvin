@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { transformSync } from "esbuild";
 
 /**
  * outreach.ts is a Deno module, so we evaluate the pure helpers directly from
@@ -28,7 +29,15 @@ function extract(name: string): string {
 
 const ESC_SRC = `const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");`;
 
+const js = transformSync(
+  `${extract("renderTokens")}\n${extract("emailFooter")}`,
+  { loader: "ts" },
+).code;
+
 const factory = new Function(
+  `${ESC_SRC}\n${js}\nreturn { renderTokens, emailFooter };`,
+);
+const OLD_FACTORY = new Function(
   `${ESC_SRC}\n${extract("renderTokens")}\n${extract("emailFooter")}\nreturn { renderTokens, emailFooter };`,
 );
 const { renderTokens, emailFooter } = factory() as {
