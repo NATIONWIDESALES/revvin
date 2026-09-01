@@ -1,11 +1,37 @@
 import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
 import { createClient, SupabaseClient } from 'npm:@supabase/supabase-js@2'
+import { suppressContact } from '../_shared/outreach.ts'
 
 const MAX_RETRIES = 5
 const DEFAULT_BATCH_SIZE = 10
 const DEFAULT_SEND_DELAY_MS = 200
 const DEFAULT_AUTH_TTL_MINUTES = 15
 const DEFAULT_TRANSACTIONAL_TTL_MINUTES = 60
+// A reactivation campaign is still worth sending an hour late, unlike a login
+// code, so it gets a much longer TTL. Held as a constant rather than a column
+// on email_send_state because that would need a migration.
+const CAMPAIGN_TTL_MINUTES = 24 * 60
+
+// Campaign queue drains last so a 500-recipient campaign can never delay an
+// auth email. pgmq queue name -> the queue that carries campaign payloads.
+const CAMPAIGN_QUEUE = 'campaign_emails'
+
+/**
+ * A permanent delivery failure: the address does not exist, is blocked, or the
+ * recipient complained. These must never be retried on a shared sending domain.
+ */
+function isPermanentDeliveryFailure(error: unknown): boolean {
+  if (error && typeof error === 'object' && 'status' in error) {
+    const status = (error as { status: number }).status
+    // 422 is the gateway's validation/suppression rejection.
+    if (status === 422) return true
+  }
+  const message = error instanceof Error ? error.message : String(error ?? '')
+  return /hard\s*bounce|permanently|does not exist|invalid recipient|mailbox (not found|unavailable)|no such user|blocked|blacklist|spam complaint|complaint|unsubscribed|suppress/i.test(
+    message
+  )
+}
+
 
 // Check if an error is a rate-limit (429) response.
 // Uses EmailAPIError.status when available (email-js >=0.x with structured errors),
