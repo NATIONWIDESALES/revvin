@@ -459,7 +459,9 @@ Deno.serve(async (req) => {
           await reconcileCampaignForPayload(supabase, payload)
         }
         if (isForbidden(error)) {
-          await moveToDlq(supabase, queue, msg, 'Emails disabled for this project')
+          const reason = 'Emails disabled for this project'
+          await moveToDlq(supabase, queue, msg, reason)
+          await recordCampaignOutcome(supabase, payload, { ok: false, reason })
           await reconcileCampaignForPayload(supabase, payload)
           return new Response(
             JSON.stringify({ processed: totalProcessed, stopped: 'emails_disabled' }),
