@@ -177,7 +177,7 @@ Deno.serve(async (req) => {
         contact_id: contact.id,
         business_id: business.id,
         recipient_email: contact.email,
-        status: "queued",
+        status: "pending",
       })
       .select("id")
       .single();
@@ -196,6 +196,7 @@ Deno.serve(async (req) => {
     const inner = `<h1 style="margin:8px 0 14px;font-size:22px;line-height:1.3">${esc(subject)}</h1>${paragraphs(body)}<p style="margin:18px 0 0"><a href="${esc(referralUrl)}" style="display:inline-block;background:#15803d;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px">Get in touch</a></p>`;
     messages.push({
       campaign_id: campaign.id,
+      business_id: business.id,
       campaign_send_id: sendRow.id,
       message_id: messageId,
       idempotency_key: messageId,
