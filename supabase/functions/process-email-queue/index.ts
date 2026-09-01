@@ -432,13 +432,18 @@ Deno.serve(async (req) => {
           )
         }
 
-        const permanent = isPermanentDeliveryFailure(error)
+        const permanent = queue === CAMPAIGN_QUEUE && isPermanentDeliveryFailure(error)
         if (permanent) {
           // Hard bounces and complaints must never consume retry attempts on the
           // shared sending domain. Suppression happens before any return.
           const businessId = typeof payload.business_id === 'string' ? payload.business_id : ''
           if (businessId && typeof payload.to === 'string') {
-            await suppressContact(supabase, businessId, payload.to, /complaint|spam/i.test(errorMsg) ? 'spam_complaint' : 'hard_bounce')
+            await suppressContact(
+              supabase,
+              businessId,
+              payload.to,
+              /complaint|spam/i.test(errorMsg) ? 'spam_complaint' : 'hard_bounce'
+            )
           }
         }
 
