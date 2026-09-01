@@ -16,6 +16,11 @@ import {
 
 interface EmailChangeEmailProps {
   siteName: string
+  // oldEmail is the user's current address (HookData.OldEmail). For the
+  // NEW-recipient half of a secure email_change fanout, `email` equals the
+  // recipient (NEW), so the "from" line must render oldEmail to read
+  // "from OLD to NEW" instead of "from NEW to NEW".
+  oldEmail: string
   email: string
   newEmail: string
   confirmationUrl: string
@@ -23,21 +28,23 @@ interface EmailChangeEmailProps {
 
 export const EmailChangeEmail = ({
   siteName,
-  email,
+  oldEmail,
   newEmail,
   confirmationUrl,
 }: EmailChangeEmailProps) => (
   <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>Confirm your email change for Revvin</Preview>
+    <Head>
+      <style>{darkModeCss}</style>
+    </Head>
+    <Preview>Confirm your email change for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Text style={wordmark}>Revvin</Text>
         <Heading style={h1}>Confirm your email change</Heading>
         <Text style={text}>
-          You requested to change your email address for Revvin from{' '}
-          <Link href={`mailto:${email}`} style={link}>
-            {email}
+          You requested to change your email address for {siteName} from{' '}
+          <Link href={`mailto:${oldEmail}`} style={link}>
+            {oldEmail}
           </Link>{' '}
           to{' '}
           <Link href={`mailto:${newEmail}`} style={link}>
@@ -48,7 +55,7 @@ export const EmailChangeEmail = ({
         <Text style={text}>
           Click the button below to confirm this change:
         </Text>
-        <Button style={button} href={confirmationUrl}>
+        <Button className="dm-btn" style={button} href={confirmationUrl}>
           Confirm Email Change
         </Button>
         <Text style={footer}>
@@ -63,7 +70,6 @@ export const EmailChangeEmail = ({
 export default EmailChangeEmail
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'Inter', Arial, sans-serif" }
-const container = { padding: '40px 25px' }
 const wordmark = {
   fontSize: '24px',
   fontWeight: 'bold' as const,
@@ -71,6 +77,7 @@ const wordmark = {
   margin: '0 0 32px',
   letterSpacing: '-0.5px',
 }
+const container = { padding: '40px 25px' }
 const h1 = {
   fontSize: '22px',
   fontWeight: 'bold' as const,
@@ -80,7 +87,7 @@ const h1 = {
 const text = {
   fontSize: '14px',
   color: '#64748B',
-  lineHeight: '1.6',
+  lineHeight: '1.5',
   margin: '0 0 25px',
 }
 const link = { color: '#15803D', textDecoration: 'underline' }
@@ -88,9 +95,17 @@ const button = {
   backgroundColor: '#15803D',
   color: '#ffffff',
   fontSize: '14px',
-  fontWeight: '600' as const,
+  border: '1px solid #15803D',
   borderRadius: '8px',
-  padding: '12px 24px',
+  padding: '12px 20px',
   textDecoration: 'none',
 }
 const footer = { fontSize: '12px', color: '#94A3B8', margin: '30px 0 0' }
+// Rendered as a text child, which React may HTML-escape: keep this CSS free of >, &, and quotes.
+const darkModeCss = `
+  @media (prefers-color-scheme: dark) {
+    .dm-btn { background-color: #ffffff !important; color: #15803D !important; }
+  }
+  [data-ogsc] .dm-btn { background-color: #ffffff !important; color: #15803D !important; }
+  [data-ogsb] .dm-btn { background-color: #ffffff !important; color: #15803D !important; }
+`
