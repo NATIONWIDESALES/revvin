@@ -78,12 +78,11 @@ Deno.serve(async (req) => {
     return json({ error: "Invalid JSON body" }, 400);
   }
 
-  const name = String(input.name || "").trim().slice(0, 100);
   const subjectTemplate = String(input.subject || "").trim().slice(0, 200);
   const bodyTemplate = String(input.body || "").trim().slice(0, 20000);
   const segmentKey = String(input.segment_key || "");
   const segment = SEGMENTS[segmentKey];
-  if (!name || !subjectTemplate || !bodyTemplate || !segment) return json({ error: "Campaign name, subject, message, and a valid segment are required" }, 400);
+  if (!subjectTemplate || !bodyTemplate || !segment) return json({ error: "Subject, message, and a valid segment are required" }, 400);
   if (input.consent_confirmed !== true) return json({ error: "Customer relationship confirmation is required" }, 400);
 
   const { data: businesses, error: businessError } = await supabase
@@ -135,11 +134,12 @@ Deno.serve(async (req) => {
   if (!recipients.length) return json({ campaign_id: null, queued: 0, skipped: Object.values(reasons).reduce((a, b) => a + b, 0), reasons });
 
   const segmentLabel = segment.label;
+  const campaignName = `${segmentLabel} reactivation`;
   const { data: campaign, error: campaignError } = await supabase
     .from("campaigns")
     .insert({
       business_id: business.id,
-      name,
+      name: campaignName,
       channel: "email",
       subject: subjectTemplate,
       body: bodyTemplate,
