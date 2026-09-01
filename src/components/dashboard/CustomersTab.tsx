@@ -424,6 +424,26 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     setContacts((cs) => cs.filter((c) => c.id !== id));
   };
 
+  const saveLastJobDate = async (contact: ReferralContact, value: string) => {
+    const parsed = parseJobDate(value);
+    if (value && !parsed) {
+      toast({ title: "Use a valid past date", description: "Enter the date as YYYY-MM-DD.", variant: "destructive" });
+      return;
+    }
+    setSavingDateId(contact.id);
+    const { error } = await (supabase as any)
+      .from("referral_contacts")
+      .update({ last_job_at: parsed ?? null })
+      .eq("id", contact.id)
+      .eq("business_id", biz.id);
+    setSavingDateId(null);
+    if (error) {
+      toast({ title: "Could not save last job date", description: friendlyError(error), variant: "destructive" });
+      return;
+    }
+    setContacts((cs) => cs.map((c) => c.id === contact.id ? { ...c, last_job_at: parsed ?? null } : c));
+  };
+
   // Manual add of a single contact. Requires name plus at least one of email/phone.
   // Deduped against existing rows the same way the paste importer dedupes.
   const addManual = async () => {
