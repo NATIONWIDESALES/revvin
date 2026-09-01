@@ -173,7 +173,13 @@ async function recordCampaignOutcome(
   }
 }
 
-
+async function reconcileCampaignForPayload(
+  supabase: SupabaseClient<any, any, any>,
+  payload: Record<string, unknown>,
+): Promise<void> {
+  const campaignId = typeof payload.campaign_id === 'string' ? payload.campaign_id : null
+  if (campaignId) await reconcileCampaign(supabase, campaignId)
+}
 
 Deno.serve(async (req) => {
   const apiKey = Deno.env.get('LOVABLE_API_KEY')
