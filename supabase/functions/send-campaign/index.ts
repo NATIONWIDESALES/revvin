@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
 
   const { data: contacts, error: contactError } = await supabase
     .from("referral_contacts")
-    .select("id, name, email, last_job_at, opted_out, is_mock")
+    .select("id, name, email, last_job_at, status, is_mock")
     .eq("business_id", business.id)
     .limit(10000);
   if (contactError) return json({ error: "Could not load customers" }, 500);
@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
     if (!inSegment(contact, segment)) continue;
     const email = String(contact.email || "").trim().toLowerCase();
     if (contact.is_mock) { skipped("mock_contact"); continue; }
-    if (contact.opted_out) { skipped("opted_out"); continue; }
+    if (String(contact.status || "").toLowerCase() === "opted_out") { skipped("opted_out"); continue; }
     if (!email) { skipped("no_email"); continue; }
     if (invalidEmail(email)) { skipped("undeliverable_email"); continue; }
     if (seen.has(email)) { skipped("duplicate_email"); continue; }

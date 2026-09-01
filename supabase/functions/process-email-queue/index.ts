@@ -333,6 +333,7 @@ Deno.serve(async (req) => {
           .from('email_send_log')
           .select('id')
           .eq('message_id', payload.message_id)
+          .eq('status', 'sent')
           .limit(1)
 
         if (alreadySent?.length) {
