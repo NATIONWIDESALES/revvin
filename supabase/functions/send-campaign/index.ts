@@ -44,7 +44,10 @@ function inSegment(contact: { last_job_at?: string | null }, segment: typeof SEG
 function invalidEmail(email: string) {
   const value = email.trim().toLowerCase();
   const [local, domain] = value.split("@");
-  return !local || !domain || !domain.includes(".") || local.startsWith("test") || UNDELIVERABLE_DOMAINS.has(domain);
+  if (!local || !domain || !domain.includes(".")) return true;
+  if (local === "test" || local.startsWith("test@") || local.startsWith("test.")) return true;
+  if (domain.startsWith("test.") || domain.startsWith("invalid") || domain.endsWith(".invalid")) return true;
+  return UNDELIVERABLE_DOMAINS.has(domain);
 }
 
 function paragraphs(value: string) {
