@@ -7,7 +7,10 @@ import { friendlyError } from "@/lib/errors";
 const FUNNEL_ORDER: { event: string; label: string }[] = [
   { event: "page_viewed", label: "Visits (page views)" },
   { event: "sample_page_viewed", label: "Sample page viewed" },
+  { event: "invite_landing_viewed", label: "Invite landing viewed" },
+  { event: "invite_cta_clicked", label: "Invite CTA clicked" },
   { event: "signup_viewed", label: "Signup viewed" },
+  { event: "signup_form_started", label: "Signup form started" },
   { event: "signup_submitted", label: "Signup submitted" },
   { event: "signup_succeeded", label: "Signup succeeded" },
   { event: "signup_failed", label: "Signup failed" },
