@@ -28,6 +28,9 @@ export const FUNNEL_EVENTS = [
   "promo_cta_clicked",
   "invite_link_opened",
   "invite_code_entered",
+  "invite_landing_viewed",
+  "signup_form_started",
+  "invite_cta_clicked",
 ] as const;
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];
