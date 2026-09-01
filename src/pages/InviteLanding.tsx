@@ -115,8 +115,7 @@ const InviteLanding = () => {
               The value here is your own page and your own customers. Our public marketplace is still
               filling up, so do not count on strangers finding you there yet. Publishing is free. Revvin
               Pro is $49/month USD and adds the customer list, bulk asks that open your own email app,
-              ROI reporting and page branding. Your invite offers a lower rate after its introductory period.
-
+              ROI reporting and page branding. Your invite holds Revvin Pro at $17/month instead of $49, after three months free.
             </p>
           </section>
 
