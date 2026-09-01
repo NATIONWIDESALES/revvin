@@ -27,6 +27,8 @@ export interface ReferralContact {
   status: "pending" | "sent";
   last_sent_at: string | null;
   send_channel: "sms" | "email" | "share" | null;
+  last_job_at: string | null;
+  opted_out?: boolean;
   is_mock: boolean;
   created_at: string;
 }
