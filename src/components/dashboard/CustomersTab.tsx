@@ -718,6 +718,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                   <th className="text-left px-3 py-2 font-medium">Name</th>
                   <th className="text-left px-3 py-2 font-medium">Phone</th>
                   <th className="text-left px-3 py-2 font-medium">Email</th>
+                  <th className="text-left px-3 py-2 font-medium">Last job</th>
                 </tr>
               </thead>
               <tbody>
