@@ -2301,6 +2301,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      fn_campaign_readiness: {
+        Args: never
+        Returns: {
+          business_id: string
+          missing: string[]
+          ready: boolean
+        }[]
+      }
       fn_check_duplicate_referral: {
         Args: {
           p_business_id: string
@@ -2321,6 +2329,14 @@ export type Database = {
         }[]
       }
       fn_claim_referrer_leads: { Args: never; Returns: number }
+      fn_contact_segments: {
+        Args: never
+        Returns: {
+          contacts: number
+          segment_key: string
+          segment_label: string
+        }[]
+      }
       fn_create_audit_entry:
         | {
             Args: {

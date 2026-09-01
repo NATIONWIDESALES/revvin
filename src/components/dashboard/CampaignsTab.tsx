@@ -5,22 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Send, Users, AlertCircle } from "lucide-react";
-import { SEGMENTS, inSegment, segmentByKey, segmentCounts, type RecencyContact } from "@/lib/campaignSegments";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Loader2, Send, Users, AlertCircle, CheckCircle2 } from "lucide-react";
+import { inSegment, segmentByKey, type RecencyContact } from "@/lib/campaignSegments";
 import { friendlyError } from "@/lib/errors";
 
-// Reactivation campaigns.
-//
-// Compliance: email only. Revvin never sends SMS to an imported customer list,
-// because referral and marketing texts need prior express written consent under
-// the TCPA. This tab is rendered behind AttestationGate, and the attestation is
-// what sets campaigns.consent_confirmed. The worker refuses to send without it.
-// Every email carries an unsubscribe link and every recipient is checked against
-// the suppression lists immediately before the send.
-
-const DAILY_CAP = 500;
-const BATCH_SIZE = 40;
+const SEGMENT_ORDER = ["m24_plus", "m12_24", "m6_12", "recent", "unknown"];
+const MAX_CAMPAIGN_RECIPIENTS = 500;
 
 interface Contact extends RecencyContact {
   id: string;
@@ -28,12 +19,16 @@ interface Contact extends RecencyContact {
   email: string | null;
 }
 
-interface TemplateRow {
-  id: string;
-  name: string;
-  subject: string | null;
-  body: string;
-  is_system: boolean;
+interface SegmentRow {
+  segment_key: string;
+  segment_label: string;
+  contacts: number;
+}
+
+interface Readiness {
+  ready: boolean;
+  missing: string[];
+  business_id: string;
 }
 
 interface CampaignRow {
@@ -58,352 +53,328 @@ interface Props {
   publicUrl: string;
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  draft: "Draft",
-  scheduled: "Scheduled",
-  sending: "Sending",
-  sent: "Finished",
-  failed: "Stopped",
-  cancelled: "Cancelled",
+const STARTER_TEMPLATES = [
+  {
+    id: "seasonal",
+    label: "Seasonal check-in",
+    name: "Seasonal check-in",
+    subject: "A quick seasonal check-in from {business_name}",
+    body: "Hi {first_name},\n\nI hope you are doing well. I am checking in with a few customers before the season gets busy. If there is anything around your home or property you would like me to look at, reply to this email and I will be happy to help.\n\nBest,\n{business_name}",
+  },
+  {
+    id: "been-a-while",
+    label: "It has been a while",
+    name: "It has been a while",
+    subject: "It has been a while, {first_name}",
+    body: "Hi {first_name},\n\nIt has been a while since I worked with you, so I wanted to check in. If something needs attention or you have been putting off a project, reply here and I can take a look.\n\nBest,\n{business_name}",
+  },
+  {
+    id: "specific-service",
+    label: "Specific service reminder",
+    name: "Specific service reminder",
+    subject: "A reminder about your next service",
+    body: "Hi {first_name},\n\nI am reaching out because this is a good time to think about your next service. If you would like help with a tune-up, inspection, or another {business_name} service, reply to this email and I will get back to you.\n\nBest,\n{business_name}",
+  },
+];
+
+const missingLabels: Record<string, string> = {
+  street_address: "Street address",
+  city: "City",
+  postal_code: "Postal code",
+  country: "Country",
+  business_email: "Reply-to email",
+};
+
+const emptyReadinessForm = {
+  street_address: "",
+  city: "",
+  postal_code: "",
+  country: "",
+  business_email: "",
 };
 
 const CampaignsTab = ({ biz, publicUrl }: Props) => {
   const { toast } = useToast();
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [templates, setTemplates] = useState<TemplateRow[]>([]);
+  const [segments, setSegments] = useState<SegmentRow[]>([]);
   const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
-  const [attributed, setAttributed] = useState<Record<string, { leads: number; won: number; revenue: number }>>({});
+  const [readiness, setReadiness] = useState<Readiness | null>(null);
+  const [readinessForm, setReadinessForm] = useState(emptyReadinessForm);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
+  const [savingReadiness, setSavingReadiness] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [consent, setConsent] = useState(false);
   const [form, setForm] = useState({
     name: "",
-    segment_key: "12_24",
+    segment_key: "m24_plus",
     subject: "",
     body: "",
-    scheduled_at: "",
   });
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [{ data: c }, { data: t }, { data: camp }] = await Promise.all([
+    const [{ data: readyRows, error: readyError }, { data: segmentRows }, { data: contactRows }, { data: campaignRows }] = await Promise.all([
+      supabase.rpc("fn_campaign_readiness"),
+      supabase.rpc("fn_contact_segments"),
       supabase
         .from("referral_contacts")
         .select("id, name, email, last_job_at, created_at")
         .eq("business_id", biz.id)
         .limit(5000),
       supabase
-        .from("campaign_templates")
-        .select("id, name, subject, body, is_system")
-        .or(`is_system.eq.true,business_id.eq.${biz.id}`)
-        .order("is_system", { ascending: false }),
-      supabase
         .from("campaigns")
-        .select(
-          "id, name, subject, body, status, segment_key, segment_label, scheduled_at, started_at, total_recipients, sent_count, failed_count, opted_out_count, created_at",
-        )
+        .select("id, name, subject, body, status, segment_key, segment_label, scheduled_at, started_at, total_recipients, sent_count, failed_count, opted_out_count, created_at")
         .eq("business_id", biz.id)
         .order("created_at", { ascending: false })
         .limit(25),
     ]);
-    setContacts((c as Contact[]) ?? []);
-    setTemplates((t as TemplateRow[]) ?? []);
-    setCampaigns((camp as CampaignRow[]) ?? []);
+
+    if (readyError) {
+      toast({ title: "Could not check campaign readiness", description: friendlyError(readyError), variant: "destructive" });
+    }
+    const ready = (readyRows?.[0] as Readiness | undefined) ?? null;
+    setReadiness(ready);
+    setSegments(((segmentRows ?? []) as SegmentRow[]).sort((a, b) => SEGMENT_ORDER.indexOf(a.segment_key) - SEGMENT_ORDER.indexOf(b.segment_key)));
+    setContacts((contactRows ?? []) as Contact[]);
+    setCampaigns((campaignRows ?? []) as CampaignRow[]);
     setLoading(false);
-  }, [biz.id]);
+  }, [biz.id, toast]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { void load(); }, [load]);
 
-  // Attribution we can actually observe: referrals submitted by someone who was
-  // on the campaign's recipient list, after the campaign started sending.
-  useEffect(() => {
-    const run = async () => {
-      const live = campaigns.filter((c) => c.started_at);
-      if (live.length === 0) return;
-      const { data: sends } = await supabase
-        .from("campaign_sends")
-        .select("campaign_id, recipient_email, status")
-        .in("campaign_id", live.map((c) => c.id))
-        .eq("status", "sent");
-      const { data: leads } = await supabase
-        .from("leads")
-        .select("referrer_email, created_at, status, deal_value")
-        .eq("business_id", biz.id)
-        .limit(2000);
-
-      const out: Record<string, { leads: number; won: number; revenue: number }> = {};
-      for (const c of live) {
-        const recipients = new Set(
-          (sends ?? [])
-            .filter((s) => s.campaign_id === c.id)
-            .map((s) => String(s.recipient_email || "").toLowerCase()),
-        );
-        const matched = (leads ?? []).filter(
-          (l) =>
-            recipients.has(String(l.referrer_email || "").toLowerCase()) &&
-            new Date(l.created_at) >= new Date(c.started_at as string),
-        );
-        out[c.id] = {
-          leads: matched.length,
-          won: matched.filter((l) => l.status === "closed_won").length,
-          revenue: matched
-            .filter((l) => l.status === "closed_won")
-            .reduce((sum, l) => sum + Number(l.deal_value ?? 0), 0),
-        };
-      }
-      setAttributed(out);
-    };
-    run();
-  }, [campaigns, biz.id]);
-
-  const emailable = useMemo(() => contacts.filter((c) => (c.email || "").trim()), [contacts]);
-  const counts = useMemo(() => segmentCounts(emailable), [emailable]);
-  const usingRealDates = useMemo(() => emailable.some((c) => c.last_job_at), [emailable]);
-
+  const segmentCounts = useMemo(() => Object.fromEntries(segments.map((s) => [s.segment_key, s.contacts])), [segments]);
   const selectedSegment = segmentByKey(form.segment_key);
-  const recipientCount = selectedSegment
-    ? emailable.filter((c) => inSegment(c, selectedSegment)).length
-    : 0;
+  const previewContact = useMemo(() => {
+    if (!selectedSegment) return null;
+    return contacts.find((c) => !!c.email && inSegment(c, selectedSegment)) ?? null;
+  }, [contacts, selectedSegment]);
+  const recipientCount = segmentCounts[form.segment_key] ?? 0;
 
-  const applyTemplate = (id: string) => {
-    const t = templates.find((x) => x.id === id);
-    if (!t) return;
-    setForm((f) => ({ ...f, subject: t.subject ?? "", body: t.body, name: f.name || t.name }));
+  const renderTokens = (value: string, contact: Contact | null) => {
+    const firstName = contact?.name.trim().split(/\s+/)[0] || "there";
+    return value.replace(/\{\{?\s*(first_name|business_name)\s*\}\}?/gi, (_match, key: string) =>
+      key.toLowerCase() === "first_name" ? firstName : biz.name,
+    );
   };
 
-  const tokens: Record<string, string> = {
-    first_name: "Alex",
-    business_name: biz.name,
-    referral_link: publicUrl,
-    offer: biz.offer_amount ?? "",
+  const applyTemplate = (template: typeof STARTER_TEMPLATES[number]) => {
+    setForm((current) => ({
+      ...current,
+      name: template.name,
+      subject: template.subject,
+      body: template.body,
+    }));
   };
-  const render = (s: string) =>
-    s.replace(/\{\{\s*([a-z_]+)\s*\}\}/gi, (_m, k: string) => tokens[k.toLowerCase()] ?? "");
 
-  const submit = async (mode: "now" | "schedule") => {
-    if (!form.name.trim()) {
-      toast({ title: "Name your campaign", variant: "destructive" });
+  const saveReadiness = async () => {
+    if (!readiness) return;
+    const missing = readiness.missing;
+    const incomplete = missing.find((field) => !readinessForm[field as keyof typeof readinessForm].trim());
+    if (incomplete) {
+      toast({ title: `${missingLabels[incomplete] ?? incomplete} is required`, description: "Every campaign email includes your business address and a reply-to email.", variant: "destructive" });
       return;
     }
-    if (!form.subject.trim() || !form.body.trim()) {
-      toast({ title: "Add a subject and body", variant: "destructive" });
+    setSavingReadiness(true);
+    const { error } = await supabase
+      .from("businesses")
+      .update(Object.fromEntries(missing.map((field) => [field, readinessForm[field as keyof typeof readinessForm].trim()])))
+      .eq("id", biz.id);
+    setSavingReadiness(false);
+    if (error) {
+      toast({ title: "Could not save business details", description: friendlyError(error), variant: "destructive" });
+      return;
+    }
+    toast({ title: "Business details saved" });
+    await load();
+  };
+
+  const sendCampaign = async () => {
+    if (!readiness?.ready) return;
+    if (!form.name.trim() || !form.subject.trim() || !form.body.trim()) {
+      toast({ title: "Complete the campaign", description: "Add a name, subject, and message.", variant: "destructive" });
+      return;
+    }
+    if (!consent) {
+      toast({ title: "Confirm your customer relationship", description: "You must confirm these are your own past customers before sending.", variant: "destructive" });
       return;
     }
     if (recipientCount === 0) {
-      toast({ title: "No one in this segment", description: "Pick a different segment or add customers with email addresses first.", variant: "destructive" });
+      toast({ title: "No customers in this segment", description: "Choose another segment or add customers with email addresses.", variant: "destructive" });
       return;
     }
-    if (mode === "schedule" && !form.scheduled_at) {
-      toast({ title: "Pick a date and time", variant: "destructive" });
-      return;
-    }
-    setSaving(true);
-    const { error } = await supabase.from("campaigns").insert({
-      business_id: biz.id,
-      name: form.name.trim(),
-      channel: "email",
-      subject: form.subject.trim(),
-      body: form.body,
-      status: "scheduled",
-      segment_key: form.segment_key,
-      segment_label: selectedSegment?.label ?? null,
-      scheduled_at: mode === "schedule" ? new Date(form.scheduled_at).toISOString() : new Date().toISOString(),
-      // Set from the attestation this tab is gated behind.
-      consent_confirmed: true,
-      created_by: (await supabase.auth.getUser()).data.user?.id,
+    setSending(true);
+    const { data, error } = await supabase.functions.invoke("send-campaign", {
+      body: {
+        name: form.name.trim(),
+        segment_key: form.segment_key,
+        subject: form.subject.trim(),
+        body: form.body,
+        consent_confirmed: true,
+      },
     });
-    setSaving(false);
+    setSending(false);
     if (error) {
-      toast({ title: "Could not create campaign", description: friendlyError(error), variant: "destructive" });
+      toast({ title: "Could not queue campaign", description: friendlyError(error), variant: "destructive" });
       return;
     }
+    const queued = Number(data?.queued ?? 0);
+    const skipped = Number(data?.skipped ?? 0);
     toast({
-      title: mode === "now" ? "Campaign queued" : "Campaign scheduled",
-      description: `${recipientCount} recipients. We send in batches of ${BATCH_SIZE}, up to ${DAILY_CAP} a day.`,
+      title: "Campaign queued",
+      description: `${queued} email${queued === 1 ? "" : "s"} queued${skipped ? `, ${skipped} skipped` : ""}. Campaign email is sent by Revvin from your business name.`,
     });
-    setForm({ name: "", segment_key: form.segment_key, subject: "", body: "", scheduled_at: "" });
-    load();
-  };
-
-  const cancel = async (id: string) => {
-    const { error } = await supabase
-      .from("campaigns")
-      .update({ status: "cancelled" })
-      .eq("id", id)
-      .in("status", ["draft", "scheduled"]);
-    if (error) {
-      toast({ title: "Could not cancel", description: friendlyError(error), variant: "destructive" });
-      return;
-    }
-    load();
+    setConsent(false);
+    setForm((current) => ({ ...current, name: "", subject: "", body: "" }));
+    await load();
   };
 
   if (loading) {
-    return <div className="p-10 text-center text-sm text-muted-foreground">Loading…</div>;
+    return <div className="p-10 text-center text-sm text-muted-foreground"><Loader2 className="mx-auto h-5 w-5 animate-spin" /></div>;
   }
+
+  const readinessFields = readiness?.missing ?? [];
 
   return (
     <div className="space-y-6">
-      {/* Segments */}
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-        <h2 className="text-base font-semibold text-foreground">Who has gone quiet</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Your customer list grouped by how long it has been since their last job.{" "}
-          {usingRealDates
-            ? "Based on the last job date you have recorded, falling back to the date you added the contact where there is none."
-            : "You have not recorded a last job date for anyone yet, so these buckets use the date each contact was added to your list."}
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {SEGMENTS.filter((s) => s.key !== "all").map((s) => (
-            <button
-              key={s.key}
-              type="button"
-              onClick={() => setForm((f) => ({ ...f, segment_key: s.key }))}
-              className={`rounded-xl border p-4 text-left transition ${
-                form.segment_key === s.key ? "border-primary bg-primary/5" : "border-border bg-background hover:border-primary/40"
-              }`}
-            >
-              <div className="text-2xl font-semibold text-foreground">{counts[s.key] ?? 0}</div>
-              <div className="text-sm font-medium text-foreground">{s.label}</div>
-              <div className="text-xs text-muted-foreground">{s.description}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Composer */}
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-        <h2 className="text-base font-semibold text-foreground">New campaign</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Email only. Texts to a customer list need written consent, so Revvin never sends them for you.
-        </p>
-
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <div>
-            <Label htmlFor="cp-name" className="text-xs">Campaign name</Label>
-            <Input id="cp-name" className="mt-1.5" value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-          </div>
-          <div>
-            <Label className="text-xs">Segment</Label>
-            <Select value={form.segment_key} onValueChange={(v) => setForm((f) => ({ ...f, segment_key: v }))}>
-              <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {SEGMENTS.map((s) => (
-                  <SelectItem key={s.key} value={s.key}>{s.label} ({counts[s.key] ?? 0})</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="md:col-span-2">
-            <Label className="text-xs">Start from a template</Label>
-            <Select onValueChange={applyTemplate}>
-              <SelectTrigger className="mt-1.5"><SelectValue placeholder="Choose a template" /></SelectTrigger>
-              <SelectContent>
-                {templates.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>{t.name}{t.is_system ? "" : " (yours)"}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="md:col-span-2">
-            <Label htmlFor="cp-subject" className="text-xs">Subject</Label>
-            <Input id="cp-subject" className="mt-1.5" value={form.subject}
-              onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))} />
-          </div>
-          <div className="md:col-span-2">
-            <Label htmlFor="cp-body" className="text-xs">Message</Label>
-            <Textarea id="cp-body" rows={12} className="mt-1.5 font-mono text-xs" value={form.body}
-              onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))} />
-            <p className="mt-1.5 text-xs text-muted-foreground">
-              Merge tokens: <code>{"{{first_name}}"}</code>, <code>{"{{business_name}}"}</code>,{" "}
-              <code>{"{{referral_link}}"}</code>, <code>{"{{offer}}"}</code>. Anything in square brackets is a
-              placeholder for you to replace.
-            </p>
-          </div>
-        </div>
-
-        {form.body.trim() && (
-          <div className="mt-5 rounded-xl border border-border bg-muted/20 p-5">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Preview</div>
-            <div className="mt-3 text-sm font-semibold text-foreground">{render(form.subject) || "(no subject)"}</div>
-            <div className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{render(form.body)}</div>
-            <div className="mt-4 border-t border-border pt-3 text-xs text-muted-foreground">
-              An unsubscribe link is added to every email automatically.
+      {!readiness?.ready ? (
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+            <div>
+              <h2 className="text-base font-semibold text-foreground">Finish your sending details</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Anti-spam law requires your business address in every campaign email. Add the missing details below before composing a campaign.</p>
             </div>
           </div>
-        )}
-
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <Button onClick={() => submit("now")} disabled={saving}>
-            {saving ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Send className="mr-2 h-3.5 w-3.5" />}
-            Send to {recipientCount}
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            {readinessFields.map((field) => (
+              <div key={field}>
+                <Label htmlFor={`campaign-${field}`} className="text-xs">{missingLabels[field] ?? field}</Label>
+                <Input
+                  id={`campaign-${field}`}
+                  type={field === "business_email" ? "email" : "text"}
+                  value={readinessForm[field as keyof typeof readinessForm]}
+                  onChange={(e) => setReadinessForm((current) => ({ ...current, [field]: e.target.value }))}
+                  className="mt-1.5"
+                  autoComplete={field === "business_email" ? "email" : "street-address"}
+                />
+              </div>
+            ))}
+          </div>
+          <Button className="mt-5" onClick={saveReadiness} disabled={savingReadiness}>
+            {savingReadiness ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Save details
           </Button>
-          <div className="flex items-center gap-2">
-            <Input type="datetime-local" className="w-auto" value={form.scheduled_at}
-              onChange={(e) => setForm((f) => ({ ...f, scheduled_at: e.target.value }))} />
-            <Button variant="outline" onClick={() => submit("schedule")} disabled={saving}>Schedule</Button>
-          </div>
         </div>
-        <p className="mt-3 flex items-start gap-2 text-xs text-muted-foreground">
-          <Users className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          We send in batches of {BATCH_SIZE} and stop at {DAILY_CAP} campaign emails a day so your sending
-          reputation stays intact. Anyone who has unsubscribed or bounced is skipped.
-        </p>
-      </div>
-
-      {/* Results */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <div className="border-b border-border px-5 py-3 text-sm font-medium text-foreground">Campaigns</div>
-        {campaigns.length === 0 ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">
-            No campaigns yet. Pick a segment above and write your first one.
+      ) : (
+        <>
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">Who could use a return visit</h2>
+                <p className="mt-1 text-sm text-muted-foreground">Choose a customer group by time since their last job. A missing last job date uses the date they were added to your list.</p>
+              </div>
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {SEGMENT_ORDER.map((key) => {
+                const row = segments.find((segment) => segment.segment_key === key);
+                if (!row) return null;
+                const selected = form.segment_key === key;
+                return (
+                  <Button
+                    key={key}
+                    type="button"
+                    variant="outline"
+                    onClick={() => setForm((current) => ({ ...current, segment_key: key }))}
+                    className={`h-auto min-h-[116px] justify-start whitespace-normal p-4 text-left ${selected ? "border-primary bg-primary/5" : ""}`}
+                  >
+                    <span>
+                      <span className="block text-2xl font-semibold text-foreground">{row.contacts}</span>
+                      <span className="mt-1 block text-sm font-medium text-foreground">{row.segment_label}</span>
+                      <span className="mt-1 block text-xs font-normal text-muted-foreground">{key === "m24_plus" ? "Biggest opportunity" : key === "unknown" ? "No date recorded" : "Past customers"}</span>
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
           </div>
+
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+            <h2 className="text-base font-semibold text-foreground">New reactivation campaign</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Email only. Referral asks still open your own email or messaging app. Reactivation campaigns are sent by Revvin from your business name, with replies going to your reply-to email.</p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {STARTER_TEMPLATES.map((template) => (
+                <Button key={template.id} type="button" size="sm" variant="outline" onClick={() => applyTemplate(template)}>{template.label}</Button>
+              ))}
+            </div>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <div>
+                <Label htmlFor="cp-name" className="text-xs">Campaign name</Label>
+                <Input id="cp-name" className="mt-1.5" value={form.name} onChange={(e) => setForm((current) => ({ ...current, name: e.target.value }))} maxLength={100} />
+              </div>
+              <div>
+                <Label className="text-xs">Customer group</Label>
+                <div className="mt-1.5 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm text-foreground">{segments.find((s) => s.segment_key === form.segment_key)?.segment_label ?? "Choose a segment"} · {recipientCount}</div>
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="cp-subject" className="text-xs">Subject</Label>
+                <Input id="cp-subject" className="mt-1.5" value={form.subject} onChange={(e) => setForm((current) => ({ ...current, subject: e.target.value }))} maxLength={200} placeholder="A quick note from {business_name}" />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="cp-body" className="text-xs">Message</Label>
+                <Textarea id="cp-body" rows={10} className="mt-1.5 text-sm" value={form.body} onChange={(e) => setForm((current) => ({ ...current, body: e.target.value }))} maxLength={20000} placeholder="Hi {first_name}," />
+                <p className="mt-1.5 text-xs text-muted-foreground">Use <code>{"{first_name}"}</code> and <code>{"{business_name}"}</code>. Every email includes your address and an unsubscribe link.</p>
+              </div>
+            </div>
+
+            {form.body.trim() && (
+              <div className="mt-5 rounded-xl border border-border bg-muted/20 p-5">
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Preview for {previewContact?.name ?? "a customer"}</div>
+                <div className="mt-3 text-sm font-semibold text-foreground">{renderTokens(form.subject, previewContact) || "(no subject)"}</div>
+                <div className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{renderTokens(form.body, previewContact)}</div>
+                <div className="mt-4 border-t border-border pt-3 text-xs text-muted-foreground">Your business address and unsubscribe link will be added automatically.</div>
+              </div>
+            )}
+
+            <div className="mt-5 flex items-start gap-3 rounded-lg border border-border bg-muted/20 p-4">
+              <Checkbox id="campaign-consent" checked={consent} onCheckedChange={(value) => setConsent(value === true)} className="mt-0.5" />
+              <Label htmlFor="campaign-consent" className="cursor-pointer text-sm leading-snug text-foreground">These are my own past customers and they gave me their email during business with me.</Label>
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Button onClick={sendCampaign} disabled={sending || recipientCount === 0}>
+                {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                Send to {Math.min(recipientCount, MAX_CAMPAIGN_RECIPIENTS)}
+              </Button>
+              <span className="text-sm text-muted-foreground"><Users className="mr-1 inline h-4 w-4" />Up to {MAX_CAMPAIGN_RECIPIENTS} recipients per campaign{recipientCount > MAX_CAMPAIGN_RECIPIENTS ? ", extra contacts will be skipped" : ""}.</span>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">This sends real email. Revvin checks suppression and opt-out records immediately before queueing each recipient.</p>
+          </div>
+        </>
+      )}
+
+      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        <div className="border-b border-border px-5 py-3 text-sm font-medium text-foreground">Campaign history</div>
+        {campaigns.length === 0 ? (
+          <div className="p-8 text-center text-sm text-muted-foreground">Your sent campaigns will appear here.</div>
         ) : (
           <div className="divide-y divide-border">
-            {campaigns.map((c) => {
-              const a = attributed[c.id];
-              return (
-                <div key={c.id} className="px-5 py-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <div className="text-sm font-medium text-foreground">{c.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {c.segment_label ?? "All contacts"} · {new Date(c.created_at).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
-                        {STATUS_LABEL[c.status] ?? c.status}
-                      </span>
-                      {["draft", "scheduled"].includes(c.status) && (
-                        <Button variant="ghost" size="sm" onClick={() => cancel(c.id)}>Cancel</Button>
-                      )}
-                    </div>
+            {campaigns.map((campaign) => (
+              <div key={campaign.id} className="px-5 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <div className="text-sm font-medium text-foreground">{campaign.name}</div>
+                    <div className="text-xs text-muted-foreground">{campaign.segment_label ?? "Customer group"} · {new Date(campaign.created_at).toLocaleDateString()}</div>
                   </div>
-                  <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-6">
-                    <Stat label="Recipients" value={c.total_recipients} />
-                    <Stat label="Sent" value={c.sent_count} />
-                    <Stat label="Failed" value={c.failed_count} />
-                    <Stat label="Opted out" value={c.opted_out_count} />
-                    <Stat label="Leads" value={a?.leads ?? 0} />
-                    <Stat label="Closed" value={a?.won ?? 0} />
-                  </div>
-                  {a && a.revenue > 0 && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      ${a.revenue.toLocaleString()} in closed deal value from people on this list since it went out.
-                    </p>
-                  )}
-                  {c.status === "failed" && (
-                    <p className="mt-2 flex items-center gap-1.5 text-xs text-destructive">
-                      <AlertCircle className="h-3.5 w-3.5" />
-                      Stopped before sending. Check that your page is live and you have confirmed the customer
-                      relationship.
-                    </p>
-                  )}
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{campaign.status}</span>
                 </div>
-              );
-            })}
+                <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-5">
+                  <Stat label="Recipients" value={campaign.total_recipients} />
+                  <Stat label="Sent" value={campaign.sent_count} />
+                  <Stat label="Failed" value={campaign.failed_count} />
+                  <Stat label="Opted out" value={campaign.opted_out_count} />
+                  <Stat label="Segment" value={campaign.segment_key ? 1 : 0} />
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

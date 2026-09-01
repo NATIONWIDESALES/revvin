@@ -27,6 +27,8 @@ export interface ReferralContact {
   status: "pending" | "sent";
   last_sent_at: string | null;
   send_channel: "sms" | "email" | "share" | null;
+  last_job_at: string | null;
+  opted_out?: boolean;
   is_mock: boolean;
   created_at: string;
 }
@@ -70,8 +72,22 @@ const TEMPLATE_PRESETS: Array<{ id: string; label: string; withReward: string; n
 
 const TEMPLATE_STORAGE_KEY = "revvin_customer_msg_template_v1";
 
-function parsePastedLines(text: string): Array<{ name: string; email?: string; phone?: string }> {
-  const out: Array<{ name: string; email?: string; phone?: string }> = [];
+type ParsedContact = { name: string; email?: string; phone?: string; last_job_at?: string };
+
+function parseJobDate(value: string | undefined): string | undefined {
+  const raw = value?.trim();
+  if (!raw) return undefined;
+  const normalized = raw.replace(/^(\d{1,2})[./](\d{1,2})[./](\d{2,4})$/, "$1/$2/$3");
+  const date = /^\d{4}-\d{1,2}-\d{1,2}$/.test(normalized)
+    ? new Date(`${normalized}T12:00:00Z`)
+    : new Date(normalized);
+  if (Number.isNaN(date.getTime())) return undefined;
+  if (date.getFullYear() < 1990 || date > new Date()) return undefined;
+  return date.toISOString();
+}
+
+function parsePastedLines(text: string): ParsedContact[] {
+  const out: ParsedContact[] = [];
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRe = /^[+()\d][\d\s().\-]{5,}$/;
@@ -81,38 +97,42 @@ function parsePastedLines(text: string): Array<{ name: string; email?: string; p
     let name = parts[0];
     let email: string | undefined;
     let phone: string | undefined;
+    let last_job_at: string | undefined;
     for (const p of parts.slice(1)) {
       if (!email && emailRe.test(p)) email = p;
       else if (!phone && phoneRe.test(p)) phone = p;
+      else if (!last_job_at) last_job_at = parseJobDate(p);
     }
-    // Single token: if it looks like email/phone, name fallback
     if (parts.length === 1) {
       if (emailRe.test(name)) { email = name; name = name.split("@")[0]; }
       else if (phoneRe.test(name)) { phone = name; name = "(no name)"; }
     }
-    if (name && (email || phone)) out.push({ name, email, phone });
+    if (name && (email || phone)) out.push({ name, email, phone, last_job_at });
   }
   return out;
 }
 
-function parseCsv(text: string): Array<{ name: string; email?: string; phone?: string }> {
+function parseCsv(text: string): ParsedContact[] {
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   if (lines.length === 0) return [];
   const header = lines[0].toLowerCase().split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
-  const hasHeader = header.some((h) => ["name", "email", "phone"].includes(h));
+  const dateHeaders = ["last_job_at", "last job date", "last_job_date", "last job", "date"];
+  const hasHeader = header.some((h) => ["name", "email", "phone", ...dateHeaders].includes(h));
   const idx = {
     name: hasHeader ? header.indexOf("name") : 0,
     email: hasHeader ? header.indexOf("email") : 1,
     phone: hasHeader ? header.indexOf("phone") : 2,
+    date: hasHeader ? header.findIndex((h) => dateHeaders.includes(h)) : 3,
   };
   const rows = hasHeader ? lines.slice(1) : lines;
-  const out: Array<{ name: string; email?: string; phone?: string }> = [];
+  const out: ParsedContact[] = [];
   for (const r of rows) {
     const cells = r.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
     const name = idx.name >= 0 ? cells[idx.name] : "";
     const email = idx.email >= 0 ? cells[idx.email] : "";
     const phone = idx.phone >= 0 ? cells[idx.phone] : "";
-    if (name && (email || phone)) out.push({ name, email: email || undefined, phone: phone || undefined });
+    const last_job_at = idx.date >= 0 ? parseJobDate(cells[idx.date]) : undefined;
+    if (name && (email || phone)) out.push({ name, email: email || undefined, phone: phone || undefined, last_job_at });
   }
   return out;
 }
@@ -135,8 +155,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const [contacts, setContacts] = useState<ReferralContact[]>([]);
   const [loading, setLoading] = useState(true);
   const [paste, setPaste] = useState("");
-  const [preview, setPreview] = useState<Array<{ name: string; email?: string; phone?: string }>>([]);
+  const [preview, setPreview] = useState<ParsedContact[]>([]);
   const [importing, setImporting] = useState(false);
+  const [savingDateId, setSavingDateId] = useState<string | null>(null);
   const hasReward = !!biz.offer_amount?.trim();
   const defaultTemplate = hasReward ? DEFAULT_TEMPLATE_WITH_REWARD : DEFAULT_TEMPLATE_NO_REWARD;
   const [template, setTemplate] = useState<string>(
@@ -237,6 +258,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       name: p.name,
       email: p.email || null,
       phone: p.phone || null,
+      last_job_at: p.last_job_at || null,
     }));
     const { error } = await (supabase as any).from("referral_contacts").insert(rows);
     setImporting(false);
@@ -257,7 +279,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       toast({ title: "No rows found in CSV", variant: "destructive" });
       return;
     }
-    setPaste(parsed.map((p) => [p.name, p.email, p.phone].filter(Boolean).join(", ")).join("\n"));
+    setPaste(parsed.map((p) => [p.name, p.email, p.phone, p.last_job_at?.slice(0, 10)].filter(Boolean).join(", ")).join("\n"));
     toast({ title: `Loaded ${parsed.length} rows into preview` });
   };
 
@@ -400,6 +422,26 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       return;
     }
     setContacts((cs) => cs.filter((c) => c.id !== id));
+  };
+
+  const saveLastJobDate = async (contact: ReferralContact, value: string) => {
+    const parsed = parseJobDate(value);
+    if (value && !parsed) {
+      toast({ title: "Use a valid past date", description: "Enter the date as YYYY-MM-DD.", variant: "destructive" });
+      return;
+    }
+    setSavingDateId(contact.id);
+    const { error } = await (supabase as any)
+      .from("referral_contacts")
+      .update({ last_job_at: parsed ?? null })
+      .eq("id", contact.id)
+      .eq("business_id", biz.id);
+    setSavingDateId(null);
+    if (error) {
+      toast({ title: "Could not save last job date", description: friendlyError(error), variant: "destructive" });
+      return;
+    }
+    setContacts((cs) => cs.map((c) => c.id === contact.id ? { ...c, last_job_at: parsed ?? null } : c));
   };
 
   // Manual add of a single contact. Requires name plus at least one of email/phone.
@@ -627,8 +669,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground">Import customers</h3>
         <p className="text-xs text-muted-foreground mt-1">
-          Paste your customer list. One per line, like <span className="font-mono">Name, phone</span> or{" "}
-          <span className="font-mono">Name, email</span>. We will dedupe against contacts you already have.
+          Paste your customer list. One per line, like <span className="font-mono">Name, email, phone, 2025-06-15</span>. The optional fourth column is the last job date. We will dedupe against contacts you already have.
         </p>
         <Textarea
           value={paste}
@@ -677,6 +718,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                   <th className="text-left px-3 py-2 font-medium">Name</th>
                   <th className="text-left px-3 py-2 font-medium">Phone</th>
                   <th className="text-left px-3 py-2 font-medium">Email</th>
+                  <th className="text-left px-3 py-2 font-medium">Last job</th>
                 </tr>
               </thead>
               <tbody>
@@ -685,6 +727,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                     <td className="px-3 py-2 text-foreground">{p.name}</td>
                     <td className="px-3 py-2 text-muted-foreground">{p.phone || "·"}</td>
                     <td className="px-3 py-2 text-muted-foreground">{p.email || "·"}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{p.last_job_at?.slice(0, 10) || "·"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -800,6 +843,17 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                           · {c.send_channel || "invite"} opened {new Date(c.last_sent_at).toLocaleDateString()}
                         </span>
                       )}
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <label htmlFor={`last-job-${c.id}`} className="text-[11px] text-muted-foreground">Last job</label>
+                      <Input
+                        id={`last-job-${c.id}`}
+                        type="date"
+                        defaultValue={c.last_job_at?.slice(0, 10) ?? ""}
+                        onBlur={(e) => { if (e.target.value !== (c.last_job_at?.slice(0, 10) ?? "")) void saveLastJobDate(c, e.target.value); }}
+                        disabled={savingDateId === c.id}
+                        className="h-8 w-[150px] text-xs"
+                      />
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
