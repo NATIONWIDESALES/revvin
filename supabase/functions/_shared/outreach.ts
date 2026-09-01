@@ -71,20 +71,87 @@ export async function unsubscribeUrlFor(
   return `${Deno.env.get("SUPABASE_URL")}/functions/v1/handle-unsubscribe?token=${token}`;
 }
 
-export function emailFooter(businessName: string, unsubscribeUrl: string) {
+/** Postal address block required in the footer of every campaign email. */
+export interface SenderAddress {
+  street_address: string;
+  city: string;
+  postal_code: string;
+  country: string;
+}
+
+export function emailFooter(
+  businessName: string,
+  unsubscribeUrl: string,
+  address?: SenderAddress | null,
+) {
+  const postal = address
+    ? `<p style="margin:8px 0 0;font-size:12px;color:#94a3b8">${esc(businessName)}, ${esc(address.street_address)}, ${esc(address.city)} ${esc(address.postal_code)}, ${esc(address.country)}</p>`
+    : "";
   return `<p style="margin:28px 0 0;font-size:12px;color:#94a3b8">You are getting this because you are a customer of ${esc(businessName)}. <a href="${unsubscribeUrl}" style="color:#64748b">Unsubscribe</a> to stop these messages.</p>
+    ${postal}
     <p style="margin:8px 0 0;font-size:12px;color:#94a3b8">Sent through Revvin on behalf of ${esc(businessName)}.</p>`;
 }
 
-export function emailShell(businessName: string, inner: string, unsubscribeUrl: string) {
+export function emailShell(
+  businessName: string,
+  inner: string,
+  unsubscribeUrl: string,
+  address?: SenderAddress | null,
+) {
   return `<!doctype html><html><body style="margin:0;padding:0;background:#f6f7f9;font-family:-apple-system,BlinkMacSystemFont,'Inter',Segoe UI,Roboto,sans-serif;color:#0f172a">
   <div style="max-width:560px;margin:0 auto;padding:32px 24px">
     <div style="font-size:13px;color:#15803d;font-weight:600;letter-spacing:.04em;text-transform:uppercase">${esc(businessName)}</div>
     ${inner}
-    ${emailFooter(businessName, unsubscribeUrl)}
+    ${emailFooter(businessName, unsubscribeUrl, address)}
   </div>
 </body></html>`;
 }
+
+/**
+ * Permanently stop sending to an address for one business.
+ *
+ * Revvin sends every business's campaign mail from one shared domain, so a hard
+ * bounce or a spam complaint has to be honoured immediately. Retrying a bad
+ * address is what gets the domain blocked, and that would take down signup and
+ * lead-notification email for every business on the platform.
+ *
+ * suppressed_contacts is the authoritative list: fn_contact_segments() and
+ * isSuppressed() both read it, so writing here removes the address from every
+ * future campaign. referral_contacts is marked too so the owner can see why.
+ */
+export async function suppressContact(
+  supabase: SupabaseClient,
+  businessId: string,
+  email: string,
+  reason: string,
+): Promise<void> {
+  const value = email.trim().toLowerCase();
+  if (!businessId || !value) return;
+
+  const { error } = await supabase
+    .from("suppressed_contacts")
+    .upsert(
+      {
+        business_id: businessId,
+        contact_type: "email",
+        contact_value: value,
+        reason,
+        source: "delivery_feedback",
+      } as never,
+      { onConflict: "business_id,contact_type,contact_value" },
+    );
+  if (error) {
+    console.error("[outreach] suppression write failed", { businessId, reason, error });
+    return;
+  }
+
+  await supabase
+    .from("referral_contacts")
+    .update({ status: "opted_out" } as never)
+    .eq("business_id", businessId)
+    .ilike("email", value);
+}
+
 
 export function button(href: string, label: string) {
   return `<a href="${href}" style="display:inline-block;background:#15803d;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px">${esc(label)}</a>`;
