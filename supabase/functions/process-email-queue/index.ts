@@ -234,12 +234,15 @@ Deno.serve(async (req) => {
   const ttlMinutes: Record<string, number> = {
     auth_emails: state?.auth_email_ttl_minutes ?? DEFAULT_AUTH_TTL_MINUTES,
     transactional_emails: state?.transactional_email_ttl_minutes ?? DEFAULT_TRANSACTIONAL_TTL_MINUTES,
+    [CAMPAIGN_QUEUE]: CAMPAIGN_TTL_MINUTES,
   }
 
   let totalProcessed = 0
 
-  // 2. Process auth_emails first (priority), then transactional_emails
-  for (const queue of ['auth_emails', 'transactional_emails']) {
+  // Auth and transactional mail always run before campaigns. Campaigns are last
+  // and each invocation still reads only batchSize messages, so a large campaign
+  // cannot delay account access or lead notifications.
+  for (const queue of ['auth_emails', 'transactional_emails', CAMPAIGN_QUEUE]) {
     const { data: messages, error: readError } = await supabase.rpc('read_email_batch', {
       queue_name: queue,
       batch_size: batchSize,
