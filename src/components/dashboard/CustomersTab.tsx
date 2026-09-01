@@ -727,6 +727,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                     <td className="px-3 py-2 text-foreground">{p.name}</td>
                     <td className="px-3 py-2 text-muted-foreground">{p.phone || "·"}</td>
                     <td className="px-3 py-2 text-muted-foreground">{p.email || "·"}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{p.last_job_at?.slice(0, 10) || "·"}</td>
                   </tr>
                 ))}
               </tbody>
