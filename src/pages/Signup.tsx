@@ -160,7 +160,7 @@ const Signup = () => {
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
               {inviteCode
-                ? "Free to publish. Your invite offer is applied at checkout."
+                ? "Publishing your page is free. Your invite also gets you Revvin Pro at a discount when you want it."
                 : `Build your referral page, offer, and QR code, and publish it free. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} when you want it working your whole list. Cancel anytime.`}
             </p>
 
@@ -187,6 +187,9 @@ const Signup = () => {
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create free account"}
               </Button>
               {inviteCode && <InviteTerms />}
+              <p className="text-center text-[11px] text-muted-foreground">
+                No card required. Your referral page is free to publish.
+              </p>
               <p className="text-[11px] text-muted-foreground text-center">
                 By signing up you agree to our <Link to="/terms" className="underline">Terms</Link> and <Link to="/privacy" className="underline">Privacy Policy</Link>.
               </p>
