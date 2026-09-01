@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
   const bodyTemplate = String(input.body || "").trim().slice(0, 20000);
   const segmentKey = String(input.segment_key || "");
   const segment = SEGMENTS[segmentKey];
-  if (!name || !subjectTemplate || !bodyTemplate || !segment) return json({ error: "Campaign name, subject, message, and a valid segment are required" }, 400);
+  if (!subjectTemplate || !bodyTemplate || !segment) return json({ error: "Subject, message, and a valid segment are required" }, 400);
   if (input.consent_confirmed !== true) return json({ error: "Customer relationship confirmation is required" }, 400);
 
   const { data: businesses, error: businessError } = await supabase
