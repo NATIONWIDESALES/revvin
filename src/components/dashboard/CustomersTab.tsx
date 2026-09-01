@@ -669,8 +669,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground">Import customers</h3>
         <p className="text-xs text-muted-foreground mt-1">
-          Paste your customer list. One per line, like <span className="font-mono">Name, phone</span> or{" "}
-          <span className="font-mono">Name, email</span>. We will dedupe against contacts you already have.
+          Paste your customer list. One per line, like <span className="font-mono">Name, email, phone, 2025-06-15</span>. The optional fourth column is the last job date. We will dedupe against contacts you already have.
         </p>
         <Textarea
           value={paste}
