@@ -163,7 +163,7 @@ export function renderTokens(
   tokens: Record<string, string>,
   escapeHtml: boolean,
 ): string {
-  return String(input ?? "").replace(/\{\{\s*([a-z_]+)\s*\}\}/gi, (_m, key: string) => {
+  return String(input ?? "").replace(/\{\{?\s*([a-z_]+)\s*\}\}?/gi, (_m, key: string) => {
     const value = tokens[key.toLowerCase()] ?? "";
     return escapeHtml ? esc(value) : value;
   });
