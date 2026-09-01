@@ -45,7 +45,8 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Idempotent: insert into suppressed_contacts and mark token used
+  // Idempotent: insert into suppressed_contacts and mark the matching customer
+  // opted out using the deployed referral_contacts schema.
   const contactValue = row.contact_type === 'email'
     ? String(row.contact_value).toLowerCase()
     : row.contact_value;
@@ -54,9 +55,17 @@ Deno.serve(async (req) => {
     business_id: row.business_id,
     contact_type: row.contact_type,
     contact_value: contactValue,
-    suppressed_at: new Date().toISOString(),
     reason: 'user_unsubscribe',
-  } as any, { onConflict: 'business_id,contact_value' });
+    source: 'unsubscribe_link',
+  } as any, { onConflict: 'business_id,contact_type,contact_value' });
+
+  if (row.contact_type === 'email') {
+    await supabase
+      .from('referral_contacts')
+      .update({ status: 'opted_out' } as any)
+      .eq('business_id', row.business_id)
+      .ilike('email', contactValue);
+  }
 
   if (!row.used_at) {
     await supabase
