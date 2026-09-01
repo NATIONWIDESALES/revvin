@@ -844,6 +844,17 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                         </span>
                       )}
                     </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <label htmlFor={`last-job-${c.id}`} className="text-[11px] text-muted-foreground">Last job</label>
+                      <Input
+                        id={`last-job-${c.id}`}
+                        type="date"
+                        defaultValue={c.last_job_at?.slice(0, 10) ?? ""}
+                        onBlur={(e) => { if (e.target.value !== (c.last_job_at?.slice(0, 10) ?? "")) void saveLastJobDate(c, e.target.value); }}
+                        disabled={savingDateId === c.id}
+                        className="h-8 w-[150px] text-xs"
+                      />
+                    </div>
                   </div>
                   <div className="flex items-center gap-1.5">
                     {c.phone && (
