@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 // outreach.ts is a Deno module, but its only import is type-only, so vitest can
 // load it directly. This keeps the test honest about the real shipped helpers.
-import { renderTokens, emailFooter } from "../../supabase/functions/_shared/outreach";
+import { renderTokens, emailFooter } from "../../supabase/functions/_shared/email-format";
 
 describe("renderTokens", () => {
   const tokens = { first_name: "Dana", business_name: "Summit Roofing" };
