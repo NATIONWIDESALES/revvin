@@ -8,9 +8,10 @@
 // auto-ask engine, no automated review requests, no reactivation segmentation,
 // no webhooks and no public API.
 //
-// The 8 industry routes are derived from INDUSTRIES so they can never drift.
+// Industry and guide routes are derived from content so they can never drift.
 
 import { INDUSTRIES } from "./industries";
+import { GUIDES } from "./guides";
 
 export interface PrerenderRoute {
   path: string;
@@ -43,6 +44,15 @@ const industryRoutes: PrerenderRoute[] = INDUSTRIES.map((i) => ({
     },
   ],
   faqs: i.faqs,
+}));
+
+const guideRoutes: PrerenderRoute[] = GUIDES.map((g) => ({
+  path: `/guides/${g.slug}`,
+  title: g.metaTitle,
+  description: g.metaDescription,
+  h1: g.question,
+  sections: g.sections,
+  faqs: g.faqs,
 }));
 
 const handwritten: PrerenderRoute[] = [
@@ -383,4 +393,4 @@ const handwritten: PrerenderRoute[] = [
   },
 ];
 
-export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...industryRoutes];
+export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...industryRoutes, ...guideRoutes];
