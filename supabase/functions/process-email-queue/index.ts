@@ -163,7 +163,7 @@ async function recordCampaignOutcome(
         failure_reason: null,
       }
     : {
-        status: outcome.suppressed ? 'suppressed' : 'failed',
+        status: 'failed',
         failure_reason: outcome.reason.slice(0, 500),
       }
 
