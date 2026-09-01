@@ -37,9 +37,6 @@ const js = transformSync(
 const factory = new Function(
   `${ESC_SRC}\n${js}\nreturn { renderTokens, emailFooter };`,
 );
-const OLD_FACTORY = new Function(
-  `${ESC_SRC}\n${extract("renderTokens")}\n${extract("emailFooter")}\nreturn { renderTokens, emailFooter };`,
-);
 const { renderTokens, emailFooter } = factory() as {
   renderTokens: (i: string, t: Record<string, string>, e: boolean) => string;
   emailFooter: (
