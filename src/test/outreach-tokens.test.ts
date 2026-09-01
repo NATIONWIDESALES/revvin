@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-// outreach.ts is a Deno module, but its only import is type-only, so vitest can
-// load it directly. This keeps the test honest about the real shipped helpers.
+// email-format.ts holds the pure helpers shared by every edge function, so the
+// app test suite can cover them directly.
 import { renderTokens, emailFooter } from "../../supabase/functions/_shared/email-format";
 
 describe("renderTokens", () => {
