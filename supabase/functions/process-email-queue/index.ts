@@ -104,6 +104,77 @@ async function moveToDlq(
   }
 }
 
+/**
+ * Reconcile one campaign's counters from its send rows and close it out when
+ * nothing is left in flight.
+ *
+ * Counters are recounted rather than incremented so a redelivered queue message
+ * or an overlapping worker run cannot double count. The deployed
+ * campaigns_status_check constraint has no 'completed' value, so a finished
+ * campaign is marked 'sent' with completed_at set.
+ */
+async function reconcileCampaign(
+  supabase: SupabaseClient<any, any, any>,
+  campaignId: string
+): Promise<void> {
+  const counts: Record<string, number> = {}
+  for (const status of ['sent', 'failed', 'suppressed', 'pending', 'sending']) {
+    const { count } = await supabase
+      .from('campaign_sends')
+      .select('id', { count: 'exact', head: true })
+      .eq('campaign_id', campaignId)
+      .eq('status', status)
+    counts[status] = count ?? 0
+  }
+
+  const inFlight = counts.pending + counts.sending
+  const update: Record<string, unknown> = {
+    sent_count: counts.sent,
+    failed_count: counts.failed,
+    opted_out_count: counts.suppressed,
+  }
+  if (inFlight === 0) {
+    update.status = 'sent'
+    update.completed_at = new Date().toISOString()
+  }
+
+  const { error } = await supabase.from('campaigns').update(update as any).eq('id', campaignId)
+  if (error) {
+    console.error('Failed to reconcile campaign counters', { campaignId, error })
+  }
+}
+
+/** Record the outcome of a campaign send on its campaign_sends row. */
+async function recordCampaignOutcome(
+  supabase: SupabaseClient<any, any, any>,
+  payload: Record<string, unknown>,
+  outcome: { ok: true } | { ok: false; reason: string; suppressed?: boolean }
+): Promise<void> {
+  const sendId = typeof payload.campaign_send_id === 'string' ? payload.campaign_send_id : null
+  if (!sendId) return
+
+  // 'queued' is not a permitted campaign_sends status in the deployed schema;
+  // rows start at 'pending'.
+  const update = outcome.ok
+    ? {
+        status: 'sent',
+        message_id: (payload.message_id as string) ?? null,
+        sent_at: new Date().toISOString(),
+        failure_reason: null,
+      }
+    : {
+        status: outcome.suppressed ? 'suppressed' : 'failed',
+        failure_reason: outcome.reason.slice(0, 500),
+      }
+
+  const { error } = await supabase.from('campaign_sends').update(update as any).eq('id', sendId)
+  if (error) {
+    console.error('Failed to update campaign_sends row', { sendId, error })
+  }
+}
+
+
+
 Deno.serve(async (req) => {
   const apiKey = Deno.env.get('LOVABLE_API_KEY')
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
