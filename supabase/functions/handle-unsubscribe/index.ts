@@ -6,11 +6,21 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
+function escHtml(value: unknown) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
 function htmlPage(title: string, msg: string) {
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>
+  const safeTitle = escHtml(title);
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${safeTitle}</title>
 <style>body{font-family:-apple-system,sans-serif;max-width:480px;margin:80px auto;padding:24px;color:#0F172A}
 h1{font-size:20px;margin:0 0 12px}p{color:#475569;line-height:1.5}</style></head>
-<body><h1>${title}</h1><p>${msg}</p></body></html>`;
+<body><h1>${safeTitle}</h1><p>${msg}</p></body></html>`;
 }
 
 Deno.serve(async (req) => {
@@ -26,10 +36,16 @@ Deno.serve(async (req) => {
     });
   }
 
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-  );
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!supabaseUrl || !serviceRoleKey) {
+    return new Response(htmlPage('Service unavailable', 'Unsubscribe is temporarily unavailable. Please try again later.'), {
+      status: 503,
+      headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+    });
+  }
+
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
 
   const { data: rows } = await supabase
     .from('unsubscribe_tokens')
@@ -74,8 +90,15 @@ Deno.serve(async (req) => {
       .eq('token', token);
   }
 
+  const { data: businesses } = await supabase
+    .from('businesses')
+    .select('name')
+    .eq('id', row.business_id)
+    .limit(1);
+  const businessName = String(businesses?.[0]?.name || 'this business');
+
   return new Response(
-    htmlPage('Unsubscribed', 'You will no longer receive messages from this business. You can close this tab.'),
+    htmlPage('Unsubscribed', `You have unsubscribed from ${escHtml(businessName)}. You will no longer receive messages from this business. You can close this tab.`),
     { headers: { ...corsHeaders, 'Content-Type': 'text/html' } },
   );
 });
