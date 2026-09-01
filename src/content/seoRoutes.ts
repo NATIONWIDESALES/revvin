@@ -8,9 +8,10 @@
 // auto-ask engine, no automated review requests, no reactivation segmentation,
 // no webhooks and no public API.
 //
-// The 8 industry routes are derived from INDUSTRIES so they can never drift.
+// Industry and guide routes are derived from content so they can never drift.
 
 import { INDUSTRIES } from "./industries";
+import { GUIDES } from "./guides";
 
 export interface PrerenderRoute {
   path: string;
@@ -44,6 +45,33 @@ const industryRoutes: PrerenderRoute[] = INDUSTRIES.map((i) => ({
   ],
   faqs: i.faqs,
 }));
+
+const guideRoutes: PrerenderRoute[] = GUIDES.map((g) => ({
+  path: `/guides/${g.slug}`,
+  title: g.metaTitle,
+  description: g.metaDescription,
+  h1: g.question,
+  sections: [{ heading: "The short answer", body: g.answer }, ...g.sections],
+  faqs: g.faqs,
+}));
+
+const guideIndexRoute: PrerenderRoute = {
+  path: "/guides",
+  title: "Referral Program Guides | Revvin",
+  description:
+    "Straight answers on referral programs for service businesses: how much to pay for a referral, referrals versus buying leads, how to start a program, whether they work, and how to ask.",
+  h1: "Referral program guides",
+  sections: [
+    {
+      heading: "Questions owners ask before they start",
+      body: "These direct guides cover referral rewards, referrals versus buying leads, starting a program, whether referral programs work for contractors, and how to ask a customer for a referral. They explain the mechanics without invented benchmarks, testimonials or results.",
+    },
+    {
+      heading: "Five practical guides",
+      body: GUIDES.map((g) => g.question).join("; "),
+    },
+  ],
+};
 
 const handwritten: PrerenderRoute[] = [
   {
@@ -383,4 +411,4 @@ const handwritten: PrerenderRoute[] = [
   },
 ];
 
-export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...industryRoutes];
+export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, guideIndexRoute, ...industryRoutes, ...guideRoutes];

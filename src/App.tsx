@@ -50,6 +50,8 @@ const Feedback = lazy(() => import("./pages/Feedback"));
 const PrintAssetPage = lazy(() => import("./pages/PrintAsset"));
 const ZapierDocs = lazy(() => import("./pages/docs/Zapier"));
 const IndustriesHub = lazy(() => import("./pages/IndustriesHub"));
+const GuidePage = lazy(() => import("./pages/GuidePage"));
+const GuidesHub = lazy(() => import("./pages/GuidesHub"));
 const IndustryLanding = lazy(() => import("./pages/IndustryLanding"));
 const SuperAdminCRM = lazy(() => import("./pages/SuperAdminCRM"));
 const ConnectionHealth = lazy(() => import("./pages/ConnectionHealth"));
@@ -102,6 +104,8 @@ const App = () => (
                   <Route path="/for-businesses" element={<ForBusinesses />} />
                   <Route path="/for-referrers" element={<ForReferrers />} />
                   <Route path="/ask-kit" element={<AskKit />} />
+                  <Route path="/guides" element={<GuidesHub />} />
+                  <Route path="/guides/:slug" element={<GuidePage />} />
                   <Route path="/referral-programs" element={<IndustriesHub />} />
                   <Route path="/referral-program/:industry" element={<IndustryLanding />} />
                   <Route path="/about-revvin-llm" element={<AboutRevvinLLM />} />
