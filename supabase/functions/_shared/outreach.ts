@@ -10,11 +10,9 @@
 //   - Every message carries a working unsubscribe link backed by
 //     unsubscribe_tokens and the handle-unsubscribe function.
 //
-// CAN-SPAM also requires a physical postal address in commercial email. Revvin
-// does not store one for the platform or for the business yet, so the footer
-// below deliberately leaves that gap visible rather than inventing an address.
-// FOUNDER TODO: add a verified postal address (platform and/or per business)
-// and render it in emailFooter().
+// Campaign messages receive the sending business's complete postal address in
+// the footer. Transactional and referral messages continue to use the compact
+// footer because they do not use the campaign composer.
 
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
