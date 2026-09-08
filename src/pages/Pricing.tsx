@@ -40,7 +40,6 @@ const proFeatureGroups: { label: string; features: string[] }[] = [
     features: [
       "Brand colour, cover image, custom headline and welcome message",
       "Testimonials on your referral page",
-      "Print pack: yard signs, door hangers, invoice inserts, business cards, truck magnets",
       "Stripe billing portal, cancel any time",
     ],
   },
@@ -49,6 +48,7 @@ const proFeatureGroups: { label: string; features: string[] }[] = [
 const freeFeatures = [
   "Your referral page on your own link",
   "QR code and share tools",
+  "Print pack: yard signs, door hangers, invoice inserts, business cards, truck magnets",
   "Unlimited referral leads",
   "Lead inbox with status tracking",
   "Offers",
@@ -347,7 +347,7 @@ const Pricing = () => {
             <AccordionItem value="p5">
               <AccordionTrigger>What do I actually get for the $49?</AccordionTrigger>
               <AccordionContent>
-                Everything in Free, plus the tools that work your existing customer list: import your past customers and send your referral ask to all of them in bulk, ROI reporting with a monthly email recap, and custom page branding with the print pack. Same on monthly and annual. There are no add-on tiers and no per-send charges.
+                Everything in Free, plus the tools that work your existing customer list: import your past customers and send your referral ask to all of them in bulk, ROI reporting with a monthly email recap, and custom page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. Same on monthly and annual. There are no add-on tiers and no per-send charges.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Plugin } from "vite";
 import { PRERENDER_ROUTES, type PrerenderRoute } from "../src/content/seoRoutes";
+import { PRICE_TEXT } from "../src/config/pricing";
 
 const SITE = "https://revvin.co";
 
@@ -20,8 +21,10 @@ const ORGANIZATION = {
   logo: `${SITE}/android-chrome-192x192.png`,
   sameAs: [SITE],
   slogan: "Your customer list, working for you",
-  description:
-    "Referral software for service businesses. Turns a past-customer list into referrals. Publishing your referral page is free; Revvin Pro is a flat $49/month USD. No platform fees. Businesses pay their referrers directly off-platform.",
+  // Prices come from the shared pricing facts so the structured data in every
+  // built document, including the one that overwrites index.html, cannot drift
+  // from the prices the pages show.
+  description: `Referral software for service businesses. Turns a past-customer list into referrals. Publishing your referral page is free; Revvin Pro is a flat ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once. No platform fees. Businesses pay their referrers directly off-platform.`,
 };
 
 /**
@@ -239,7 +242,7 @@ export default function prerenderPlugin(): Plugin {
         .replace("</head>", '  <meta name="robots" content="noindex,follow">\n  </head>')
         .replace(
           /<div id="root">\s*<\/div>/,
-          `<div id="root"><h1>Page not found</h1><p>The page you asked for does not exist on revvin.co. Publishing a referral page on Revvin is free; Revvin Pro is $49/month USD.</p><nav aria-label="Site pages"><h2>Go to</h2><ul>${PRERENDER_ROUTES.map(
+          `<div id="root"><h1>Page not found</h1><p>The page you asked for does not exist on revvin.co. Publishing a referral page on Revvin is free; Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD.</p><nav aria-label="Site pages"><h2>Go to</h2><ul>${PRERENDER_ROUTES.map(
             (r) => `<li><a href="${esc(r.path)}">${esc(r.h1)}</a></li>`,
           ).join("")}</ul></nav></div>`,
         )

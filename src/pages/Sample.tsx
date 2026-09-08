@@ -7,6 +7,7 @@ import PhoneMockup from "@/components/marketing/PhoneMockup";
 import MockReferralPage from "@/components/marketing/MockReferralPage";
 import ReferralDemo from "@/components/demo/ReferralDemo";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { SAMPLE_META } from "@/content/samplePage";
 
 const Sample = () => {
   useEffect(() => {
@@ -15,9 +16,12 @@ const Sample = () => {
 
   return (
     <>
+      {/* path is required: without it SEOHead canonicals this page at the
+          homepage. */}
       <SEOHead
-        title="Revvin | Try the referral loop (demo)"
-        description="Walk through a Revvin referral end to end: send a referral, see the owner's lead inbox, close the job, record the reward. Nothing is saved. Publishing your own page is free. Revvin Pro is $49/month USD."
+        title={SAMPLE_META.title}
+        description={SAMPLE_META.description}
+        path={SAMPLE_META.path}
       />
 
       <section className="border-b border-border bg-surface-warm">
@@ -53,7 +57,7 @@ const Sample = () => {
               Interactive demo
             </p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
-              Try the referral loop yourself
+              {SAMPLE_META.h1}
             </h1>
             <p className="mt-4 text-base text-muted-foreground md:text-lg">
               Four steps: a customer sends a referral, it lands in the owner's inbox, the job

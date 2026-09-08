@@ -19,6 +19,7 @@ import { PRIVACY_DOC, TERMS_DOC, legalPrerenderSections } from "./legal";
 // Relative, not aliased: this module is also imported by the build-time
 // prerender plugin, which is bundled outside the app's alias resolution.
 import { PRICE_TEXT } from "../config/pricing";
+import { SAMPLE_META } from "./samplePage";
 
 
 
@@ -108,7 +109,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: `Free page, Revvin Pro at ${PRO}`,
-        body: `Publishing is free and does not expire. Revvin Pro is ${PRO} USD, or $450 billed once for a year, and adds customer list import, bulk asks, reactivation email campaigns, ROI reporting with a monthly recap, and custom page branding. Cancel anytime: your page stays published and referrals keep arriving, you only lose the Pro tools.`,
+        body: `Publishing is free and does not expire. Revvin Pro is ${PRO}, or ${PRICE_TEXT.annualPerYear} billed once, and adds customer list import, bulk asks, reactivation email campaigns, ROI reporting with a monthly recap, and custom page branding. Cancel anytime: your page stays published and referrals keep arriving, you only lose the Pro tools.`,
       },
     ],
   },
@@ -330,12 +331,15 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/sample",
-    title: "Revvin | Sample referral page",
-    description: `Preview an example Revvin referral page: branded page, shareable link, QR code and lead inbox for service businesses. Free to publish. Revvin Pro is ${PRO}.`,
-    h1: "A sample Revvin referral page",
+    // The page at /sample is an interactive walkthrough, not a static preview,
+    // so the title, description and h1 here match what the page actually
+    // renders and Sample.tsx reads the same strings.
+    title: SAMPLE_META.title,
+    description: SAMPLE_META.description,
+    h1: SAMPLE_META.h1,
     sections: [
       {
-        heading: "What the page looks like",
+        heading: "What the referral page looks like",
         body: "This is an example of the branded page every business gets. It shows the business name, the offer, the reward on the table, and a short form where someone can submit a referral in under a minute. Share the link or the QR code with your customers and the leads land in your inbox.",
       },
       {
