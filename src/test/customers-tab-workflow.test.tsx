@@ -54,8 +54,9 @@ vi.mock("@/integrations/supabase/client", () => {
             updates.push({ values, id: v });
             return u;
           },
+          neq: () => u,
           in: () => u,
-          then: (res: any) => res({ data: null, error: null }),
+          then: (res: any) => res({ data: null, error: null, count: 1 }),
         };
         return u;
       },
@@ -77,6 +78,18 @@ vi.mock("@/lib/clipboard", () => ({ copyText: async () => true }));
 vi.mock("@/lib/track", () => ({ track: () => {} }));
 
 import CustomersTab from "@/components/dashboard/CustomersTab";
+
+// jsdom's Blob has no text(); the component reads the uploaded file with it.
+if (typeof Blob !== "undefined" && !Blob.prototype.text) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (Blob.prototype as any).text = function () {
+    return new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.readAsText(this as Blob);
+    });
+  };
+}
 
 const biz = {
   id: "biz-1",
