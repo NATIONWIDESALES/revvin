@@ -2,19 +2,24 @@
 // ClaudeBot, PerplexityBot, CCBot, and Googlebot's first pass).
 //
 // Every claim below must be true of the product: publishing a referral page is
-// free, Revvin Pro is $49/month USD, Revvin never sends email or SMS on a
-// business's behalf (it prepares the message and the owner's own device sends
-// it), and businesses pay their referrers directly off-platform. There is no
-// auto-ask engine, no automated review requests, no reactivation segmentation,
-// no webhooks and no public API.
+// free, Revvin Pro is $49/month USD, and businesses pay their referrers
+// directly off-platform. Personal referral asks are prepared by Revvin and sent
+// from the owner's own email or SMS app; the one thing Revvin sends itself is
+// Pro reactivation campaign email, by email only, with the business postal
+// address and an unsubscribe link, capped per send. There is no auto-ask
+// engine, no automated review requests, no webhooks and no public API.
 //
 // Industry and guide routes are derived from content so they can never drift.
+// Legal routes are derived from src/content/legal.ts, the same source the
+// rendered legal pages use.
 
 import { INDUSTRIES } from "./industries";
 import { GUIDES } from "./guides";
+import { PRIVACY_DOC, TERMS_DOC, legalPrerenderSections } from "./legal";
 // Relative, not aliased: this module is also imported by the build-time
 // prerender plugin, which is bundled outside the app's alias resolution.
 import { PRICE_TEXT } from "../config/pricing";
+
 
 
 
