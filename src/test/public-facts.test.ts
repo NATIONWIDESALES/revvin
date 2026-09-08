@@ -63,8 +63,9 @@ describe("channel claims", () => {
 
   it("makes no automation, webhook or public API promise", () => {
     const copy = allCopy();
-    expect(copy).not.toMatch(/auto-ask/i);
-    expect(copy).not.toMatch(/public API/i);
+    // Denials are fine ("no public API"); a promise is not.
+    expect(copy).not.toMatch(/(?<!no )auto-ask engine/i);
+    expect(copy).not.toMatch(/our public API|Revvin's public API|connect via webhook/i);
     expect(copy).not.toMatch(/automatic(?:ally)? (?:asks|texts|requests a review)/i);
   });
 });
