@@ -684,8 +684,8 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
           </div>
         )}
 
-        <div className="hidden">
-        </div>
+
+
 
         {dedupedPreview.length > 0 && (
           <div className="mt-4 overflow-x-auto rounded-xl border border-border bg-muted/30">
