@@ -823,6 +823,7 @@ export type Database = {
       leads: {
         Row: {
           business_id: string
+          closed_at: string | null
           consent_given: boolean
           created_at: string
           deal_value: number | null
@@ -847,6 +848,7 @@ export type Database = {
         }
         Insert: {
           business_id: string
+          closed_at?: string | null
           consent_given?: boolean
           created_at?: string
           deal_value?: number | null
@@ -871,6 +873,7 @@ export type Database = {
         }
         Update: {
           business_id?: string
+          closed_at?: string | null
           consent_given?: boolean
           created_at?: string
           deal_value?: number | null
@@ -1086,6 +1089,82 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_jobs: {
+        Row: {
+          attempts: number
+          business_id: string
+          claim_token: string | null
+          claimed_at: string | null
+          created_at: string
+          event: string
+          id: string
+          in_app_notified_at: string | null
+          last_error: string | null
+          lead_id: string | null
+          next_attempt_at: string
+          provider_message_id: string | null
+          sent_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          business_id: string
+          claim_token?: string | null
+          claimed_at?: string | null
+          created_at?: string
+          event: string
+          id?: string
+          in_app_notified_at?: string | null
+          last_error?: string | null
+          lead_id?: string | null
+          next_attempt_at?: string
+          provider_message_id?: string | null
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          business_id?: string
+          claim_token?: string | null
+          claimed_at?: string | null
+          created_at?: string
+          event?: string
+          id?: string
+          in_app_notified_at?: string | null
+          last_error?: string | null
+          lead_id?: string | null
+          next_attempt_at?: string
+          provider_message_id?: string | null
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_jobs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_jobs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_jobs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
         ]
@@ -1448,6 +1527,73 @@ export type Database = {
           },
         ]
       }
+      referral_rate_buckets: {
+        Row: {
+          bucket_key: string
+          hits: number
+          window_start: string
+        }
+        Insert: {
+          bucket_key: string
+          hits?: number
+          window_start: string
+        }
+        Update: {
+          bucket_key?: string
+          hits?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
+      referral_submissions: {
+        Row: {
+          business_id: string
+          created_at: string
+          fingerprint: string
+          id: string
+          lead_id: string
+          request_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          fingerprint: string
+          id?: string
+          lead_id: string
+          request_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          fingerprint?: string
+          id?: string
+          lead_id?: string
+          request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_submissions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_submissions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_submissions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referral_triggers: {
         Row: {
           amount_paid: number | null
@@ -1563,6 +1709,7 @@ export type Database = {
           status: string
           updated_at: string
           void_reason: string | null
+          won_at: string | null
         }
         Insert: {
           business_id: string
@@ -1586,6 +1733,7 @@ export type Database = {
           status?: string
           updated_at?: string
           void_reason?: string | null
+          won_at?: string | null
         }
         Update: {
           business_id?: string
@@ -1609,6 +1757,7 @@ export type Database = {
           status?: string
           updated_at?: string
           void_reason?: string | null
+          won_at?: string | null
         }
         Relationships: [
           {
@@ -1859,6 +2008,66 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      stripe_payments: {
+        Row: {
+          amount_paid_cents: number
+          billing_reason: string | null
+          business_id: string | null
+          collected: boolean
+          created_at: string
+          currency: string
+          id: string
+          kind: string
+          paid_at: string
+          stripe_customer_id: string | null
+          stripe_invoice_id: string
+          stripe_subscription_id: string | null
+        }
+        Insert: {
+          amount_paid_cents: number
+          billing_reason?: string | null
+          business_id?: string | null
+          collected: boolean
+          created_at?: string
+          currency: string
+          id?: string
+          kind: string
+          paid_at?: string
+          stripe_customer_id?: string | null
+          stripe_invoice_id: string
+          stripe_subscription_id?: string | null
+        }
+        Update: {
+          amount_paid_cents?: number
+          billing_reason?: string | null
+          business_id?: string | null
+          collected?: boolean
+          created_at?: string
+          currency?: string
+          id?: string
+          kind?: string
+          paid_at?: string
+          stripe_customer_id?: string | null
+          stripe_invoice_id?: string
+          stripe_subscription_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_payments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stripe_payments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       suppressed_contacts: {
         Row: {
@@ -2328,6 +2537,32 @@ export type Database = {
           uses: number
         }[]
       }
+      fn_claim_notification_jobs: {
+        Args: { p_limit?: number }
+        Returns: {
+          attempts: number
+          business_id: string
+          claim_token: string | null
+          claimed_at: string | null
+          created_at: string
+          event: string
+          id: string
+          in_app_notified_at: string | null
+          last_error: string | null
+          lead_id: string | null
+          next_attempt_at: string
+          provider_message_id: string | null
+          sent_at: string | null
+          status: string
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "notification_jobs"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       fn_claim_referrer_leads: { Args: never; Returns: number }
       fn_contact_segments: {
         Args: never
@@ -2369,6 +2604,20 @@ export type Database = {
         Args: { p_business_id: string; p_event: string; p_payload: Json }
         Returns: undefined
       }
+      fn_ensure_lead_notification: {
+        Args: { p_claim_token: string; p_job_id: string }
+        Returns: boolean
+      }
+      fn_finish_notification_job: {
+        Args: {
+          p_claim_token: string
+          p_error?: string
+          p_job_id: string
+          p_outcome: string
+          p_provider_message_id?: string
+        }
+        Returns: boolean
+      }
       fn_get_business_roi: {
         Args: { p_business_id: string; p_from?: string; p_to?: string }
         Returns: Json
@@ -2387,9 +2636,34 @@ export type Database = {
         Args: { p_category: string }
         Returns: boolean
       }
+      fn_page_live: {
+        Args: {
+          p_account_status: string
+          p_is_disabled: boolean
+          p_is_published: boolean
+        }
+        Returns: boolean
+      }
       fn_platform_counts: { Args: never; Returns: Json }
+      fn_rate_bucket_hit: {
+        Args: { p_key: string; p_max_hits: number; p_window: string }
+        Returns: boolean
+      }
       fn_record_satisfaction: {
         Args: { p_happy: boolean; p_token: string }
+        Returns: Json
+      }
+      fn_record_stripe_payment: {
+        Args: {
+          p_amount_paid_cents: number
+          p_billing_reason: string
+          p_business_id: string
+          p_currency: string
+          p_customer_id: string
+          p_invoice_id: string
+          p_paid_at: string
+          p_subscription_id: string
+        }
         Returns: Json
       }
       fn_referral_privileged_unchanged: {
@@ -2426,6 +2700,22 @@ export type Database = {
       fn_slug_rejection: { Args: { p_slug: string }; Returns: string }
       fn_slug_reserved_words: { Args: never; Returns: string[] }
       fn_slug_status: { Args: { p_slug: string }; Returns: string }
+      fn_submit_public_referral: {
+        Args: {
+          p_consent: boolean
+          p_lead_email?: string
+          p_lead_name: string
+          p_lead_need: string
+          p_lead_phone: string
+          p_referrer_email: string
+          p_referrer_name: string
+          p_referrer_phone?: string
+          p_relationship?: string
+          p_request_id: string
+          p_slug: string
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
