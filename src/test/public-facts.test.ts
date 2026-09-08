@@ -11,9 +11,16 @@ import { MONTHLY_PRICE, ANNUAL_PRICE, ANNUAL_TERMS_COPY } from "@/config/pricing
 
 const read = (p: string) => fs.readFileSync(path.resolve(process.cwd(), p), "utf8");
 
+/**
+ * Public copy with source comments stripped. Comments state what the product
+ * does NOT do ("no auto-ask engine"), which would otherwise trip these guards.
+ */
+const stripComments = (src: string) =>
+  src.replace(/^\s*\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+
 const allCopy = () =>
   ["src/content/industries.ts", "src/content/guides.ts", "src/content/seoRoutes.ts"]
-    .map(read)
+    .map((f) => stripComments(read(f)))
     .join("\n");
 
 describe("pricing facts", () => {
@@ -37,7 +44,7 @@ describe("pricing facts", () => {
 
 describe("channel claims", () => {
   it("never claims Revvin sends SMS on a business's behalf", () => {
-    const copy = allCopy() + read("src/content/legal.ts");
+    const copy = allCopy() + stripComments(read("src/content/legal.ts"));
     expect(copy).not.toMatch(/we (?:will )?text your customers/i);
     expect(copy).not.toMatch(/Revvin sends (?:the )?(?:text|SMS)/i);
   });
@@ -64,7 +71,7 @@ describe("channel claims", () => {
 
 describe("payout claims", () => {
   it("never claims Revvin pays, holds or guarantees reward money", () => {
-    const copy = allCopy() + read("src/content/legal.ts");
+    const copy = allCopy() + stripComments(read("src/content/legal.ts"));
     expect(copy).not.toMatch(/we pay your referrers/i);
     expect(copy).not.toMatch(/guaranteed payout/i);
     expect(copy).not.toMatch(/we hold the (?:reward|money)/i);
