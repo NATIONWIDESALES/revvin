@@ -38,7 +38,7 @@ export const TERMS_DOC: LegalDoc = {
   metaTitle: "Terms of Service | Revvin",
   metaDescription:
     "Revvin's Terms of Service: free referral pages, Revvin Pro at $49/month USD, and the fact that businesses pay referral rewards directly while Revvin never holds the money.",
-  lastUpdated: "July 8, 2026",
+  lastUpdated: "September 8, 2026",
   intro:
     'Welcome to Revvin. These Terms of Service ("Terms") are a plain-language agreement between you and Revvin ("Revvin", "we", "us") covering revvin.co, the branded referral pages we host for businesses, and related services (the "Service"). By creating an account or using the Service you agree to these Terms. If you do not agree, do not use the Service.',
   sections: [
@@ -89,7 +89,7 @@ export const TERMS_DOC: LegalDoc = {
           "Personal referral asks are prepared by Revvin and then sent from the business's own devices and accounts, using the business's own SMS and email apps. Revvin does not send those, and never sends SMS to your customers at all.",
         ),
         p(
-          "Reactivation campaigns are different and are the one case where Revvin sends on your behalf. On Revvin Pro, Revvin sends campaign email from your Revvin account to the contacts you selected, with your business postal address and a working unsubscribe link in every message, subject to a cap on recipients per send. By starting a campaign you confirm that every recipient gave you permission to email them. Recipients who unsubscribe or whose address bounces are suppressed and cannot be emailed again through Revvin.",
+          "Reactivation campaigns are different and are the one case where Revvin sends on your behalf. On Revvin Pro, Revvin sends campaign email from your Revvin account to the contacts you selected, with your business postal address and a working unsubscribe link in every message, subject to a cap on recipients per send. By starting a campaign you confirm that every recipient gave you permission to email them. Recipients can unsubscribe using that link. Campaign sending checks recorded opt-outs and delivery restrictions and skips matching recipients.",
         ),
       ],
     },
@@ -198,7 +198,7 @@ export const PRIVACY_DOC: LegalDoc = {
   metaTitle: "Privacy Policy | Revvin",
   metaDescription:
     "How Revvin collects, uses, and protects personal information across business accounts, referrer accounts, referral page leads, and reactivation campaign email.",
-  lastUpdated: "July 8, 2026",
+  lastUpdated: "September 8, 2026",
   intro:
     'This Privacy Policy explains how Revvin ("Revvin", "we", "us") collects, uses, shares, and protects personal information when you use revvin.co, our branded business referral pages, and related services (the "Service"). It applies to businesses that subscribe to Revvin, referrers who submit leads, and the prospective customers ("Leads") whose information is submitted through a referral page. If you do not agree with this Policy, do not use the Service.',
   sections: [
@@ -226,7 +226,7 @@ export const PRIVACY_DOC: LegalDoc = {
           "Usage and device information.",
         ),
         p(
-          "Messages you send us by email or in-app, and records of transactional emails, campaign emails or SMS sent through the Service, including delivery outcome, unsubscribes and bounces.",
+          "Messages you send us by email or in-app, records of transactional and campaign emails, and available delivery outcomes, unsubscribes and bounces. Personal SMS asks are prepared for you to send from your own phone; Revvin does not send those messages or read their replies.",
           "Communications.",
         ),
       ],
@@ -239,7 +239,7 @@ export const PRIVACY_DOC: LegalDoc = {
         "Process subscription billing through Stripe and send related receipts and notices.",
         "Send transactional messages about referral activity, account changes, and security events.",
         "Send reactivation campaign email on behalf of a business to the contacts that business selected, with its postal address and an unsubscribe link in every message.",
-        "Maintain unsubscribe and bounce records so a person who opts out is not contacted again through the Service.",
+        "Maintain recorded opt-outs and delivery restrictions used to suppress further campaign email.",
         "Provide customer support and respond to your requests.",
         "Detect, investigate, and prevent fraud, abuse, and terms violations.",
         "Improve the Service and develop new features, using aggregated or de-identified data where practical.",
@@ -294,7 +294,7 @@ export const PRIVACY_DOC: LegalDoc = {
       heading: "6. Data Retention",
       paragraphs: [
         p(
-          "We retain account information for as long as your account is active. Referral records, including the parties involved and status changes, are retained while either the referrer or the business account is active and for a reasonable period afterward so that disputes about closed deals can be resolved. Unsubscribe and bounce records are kept indefinitely, because deleting them would allow a suppressed address to be contacted again. We may keep limited records longer where required by law (for example, tax records) or for fraud prevention. You can request deletion of your account at any time as described in Section 8.",
+          "We retain account information for as long as your account is active. Referral records, including the parties involved and status changes, are retained while either the referrer or the business account is active and for a reasonable period afterward so that disputes about closed deals can be resolved. Unsubscribe and bounce records are kept indefinitely to preserve recorded opt-outs and delivery restrictions. We may keep limited records longer where required by law (for example, tax records) or for fraud prevention. You can request deletion of your account at any time as described in Section 8.",
         ),
       ],
     },
@@ -305,8 +305,8 @@ export const PRIVACY_DOC: LegalDoc = {
           "We use cookies and similar technologies for authentication, session management, security, and basic product analytics. You can control cookies through your browser settings; disabling essential cookies will prevent you from signing in.",
         ),
         p(
-          "We use the Meta (Facebook) advertising pixel on our public marketing pages to measure how our ads perform and to reach people who have visited our site. The pixel sets Meta advertising cookies and reports page views and non-personal conversion events, such as when a signup is completed. We do not share personal information with Meta: no names, email addresses, phone numbers, or lead details are sent to the pixel, and we do not use advanced matching. You can limit this tracking through your browser settings, your Meta ad preferences, or a tracking blocker.",
-          "Advertising measurement.",
+          "Browser Meta (Facebook) and Plausible measurement is currently paused. We use first-party measurement of public marketing page views, selected actions and labeled demo activity. These events exclude signed-in visitors, account and authentication routes, private receipt links, and preview environments. Recorded page paths and referring addresses omit query strings, fragments and private identifiers. We do not currently measure signup or account milestones through browser analytics.",
+          "Public marketing measurement.",
         ),
       ],
     },
@@ -321,7 +321,7 @@ export const PRIVACY_DOC: LegalDoc = {
           "For Leads.",
         ),
         p(
-          "You can opt out of marketing and reactivation email at any time using the unsubscribe link in the message. That address is then suppressed and cannot be emailed again through Revvin. Transactional email related to your account and referrals will continue.",
+          "You can opt out of marketing and reactivation email at any time using the unsubscribe link in the message. Recorded opt-outs are checked before further marketing and reactivation campaigns are sent. Transactional email related to your account and referrals will continue.",
           "Marketing and campaign email.",
         ),
         p(
@@ -376,9 +376,9 @@ export const PRIVACY_DOC: LegalDoc = {
  * carries the same words as the rendered page instead of a separate summary.
  */
 export function legalPrerenderSections(doc: LegalDoc): { heading: string; body: string }[] {
-  return doc.sections.map((s) => {
+  return [{ heading: "Introduction", body: `Last updated: ${doc.lastUpdated}. ${doc.intro}` }, ...doc.sections.map((s) => {
     const paras = (s.paragraphs ?? []).map((x) => (x.lead ? `${x.lead} ${x.text}` : x.text));
     const bullets = s.bullets ?? [];
     return { heading: s.heading, body: [...paras, ...bullets].join(" ") };
-  });
+  })];
 }

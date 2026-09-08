@@ -335,7 +335,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
 
   const markSent = async (c: ReferralContact, channel: Channel) => {
     // Never let a confirmation overwrite an opt-out.
-    const fresh = contactEligibility(c, suppression);
+    const fresh = contactEligibility(c, await refreshSuppression());
     if (!channelAllowed(fresh, channel)) {
       toast({
         title: "Nothing recorded",
@@ -349,17 +349,20 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     // Write first. Only reflect it in the UI once the database has accepted it,
     // so the screen never claims a contact was invited when nothing was recorded.
     // The status filter keeps an opt-out recorded elsewhere from being clobbered.
-    const { error } = await (supabase as any)
+    const { data: changed, error } = await (supabase as any)
       .from("referral_contacts")
       .update({ status: "sent", last_sent_at: nowIso, send_channel: channel })
+      .eq("business_id", biz.id)
       .eq("id", c.id)
-      .neq("status", "opted_out");
-    if (error) {
+      .neq("status", "opted_out")
+      .select("id");
+    if (error || !changed?.some((row: { id: string }) => row.id === c.id)) {
       toast({
         title: "Nothing was recorded",
-        description: friendlyError(error) + " This contact is still pending, so you can try again.",
+        description: error ? friendlyError(error) : "This contact changed or opted out. Refreshing your list.",
         variant: "destructive",
       });
+      if (!error) await load();
       return false;
     }
     setContacts((cs) =>
@@ -373,20 +376,32 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     // Each row records ONLY that the business tapped Send on a channel; Revvin never
     // sends these personal asks, so this is not proof of delivery. Failure here is
     // non-fatal.
-    void (supabase as any)
+    const { error: historyError } = await (supabase as any)
       .from("referral_contact_sends")
       .insert({ business_id: c.business_id, contact_id: c.id, channel });
+    if (historyError) toast({ title: "Invite recorded; history unavailable", description: "The contact status was saved, but the history entry could not be saved.", variant: "destructive" });
     return true;
   };
 
   const undoSend = async () => {
     if (!lastSent) return;
     const { prev } = lastSent;
-    setContacts((cs) => cs.map((x) => (x.id === prev.id ? prev : x)));
-    await (supabase as any)
+    const current = contacts.find((c) => c.id === prev.id);
+    if (!current) return;
+    const { data: changed, error } = await (supabase as any)
       .from("referral_contacts")
       .update({ status: prev.status, last_sent_at: prev.last_sent_at, send_channel: prev.send_channel })
-      .eq("id", prev.id);
+      .eq("business_id", biz.id)
+      .eq("id", prev.id)
+      .eq("status", "sent")
+      .eq("last_sent_at", current.last_sent_at)
+      .select("id");
+    if (error || !changed?.length) {
+      toast({ title: "Could not undo", description: error ? friendlyError(error) : "This contact changed or opted out. Your list has been refreshed.", variant: "destructive" });
+      await load();
+      return;
+    }
+    setContacts((cs) => cs.map((x) => (x.id === prev.id ? prev : x)));
     setLastSent(null);
   };
 
@@ -641,9 +656,14 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
 
   // Step 1: open the owner's mail app with this chunk in BCC. Nothing is recorded
   // here. This personal ask leaves from the owner's own device.
-  const openBulkDraft = () => {
-    if (bulkCurrent.length === 0) return;
-    const bcc = bulkCurrent.map((c) => c.email).filter(Boolean).join(",");
+  const openBulkDraft = async () => {
+    const snapshot = await refreshSuppression();
+    const allowed = bulkCurrent.filter((c) => channelAllowed(contactEligibility(c, snapshot), "email"));
+    if (allowed.length === 0) {
+      toast({ title: "Email is paused", description: "No eligible emails remain in this batch." });
+      return;
+    }
+    const bcc = allowed.map((c) => c.email).filter(Boolean).join(",");
     const href = `mailto:?bcc=${encodeURIComponent(bcc)}&subject=${encodeURIComponent(bulkSubject)}&body=${encodeURIComponent(bulkBody)}`;
     window.location.href = href;
     setBulkAwaitingConfirm(true);
@@ -654,31 +674,43 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   // process the same chunk twice.
   const confirmBulkChunkSent = async () => {
     if (bulkSending) return;
-    const chunk = bulkCurrent;
-    if (chunk.length === 0) return;
     setBulkSending(true);
+    const snapshot = await refreshSuppression();
+    const chunk = bulkCurrent.filter((c) => channelAllowed(contactEligibility(c, snapshot), "email"));
+    if (chunk.length === 0) {
+      setBulkSending(false);
+      toast({ title: "Nothing was recorded", description: "No eligible emails remain in this batch." });
+      return;
+    }
     const nowIso = new Date().toISOString();
     const ids = chunk.map((c) => c.id);
-    const { error } = await (supabase as any)
+    const { data: changed, error } = await (supabase as any)
       .from("referral_contacts")
       .update({ status: "sent", last_sent_at: nowIso, send_channel: "email" })
+      .eq("business_id", biz.id)
       .in("id", ids)
-      .neq("status", "opted_out");
-    setBulkSending(false);
-    if (error) {
+      .neq("status", "opted_out")
+      .select("id");
+    const changedIds: string[] = (changed ?? []).map((row: { id: string }) => row.id);
+    if (error || changedIds.length === 0) {
+      setBulkSending(false);
       toast({
         title: "Nothing was recorded",
-        description: friendlyError(error) + " These contacts are still pending, so you can try again.",
+        description: error ? friendlyError(error) : "These contacts changed or opted out. Refreshing your list.",
         variant: "destructive",
       });
+      if (!error) await load();
       return;
     }
     setContacts((cs) =>
-      cs.map((x) => (ids.includes(x.id) ? { ...x, status: "sent", last_sent_at: nowIso, send_channel: "email" } : x)),
+      cs.map((x) => (changedIds.includes(x.id) ? { ...x, status: "sent", last_sent_at: nowIso, send_channel: "email" } : x)),
     );
-    void (supabase as any)
+    const { error: historyError } = await (supabase as any)
       .from("referral_contact_sends")
-      .insert(ids.map((cid) => ({ business_id: biz.id, contact_id: cid, channel: "email" })));
+      .insert(changedIds.map((cid) => ({ business_id: biz.id, contact_id: cid, channel: "email" })));
+    setBulkSending(false);
+    if (historyError) toast({ title: "Invites recorded; history unavailable", description: "Contact statuses were saved, but their history entries could not be saved.", variant: "destructive" });
+    if (changedIds.length !== ids.length) await load();
     setBulkAwaitingConfirm(false);
     // Completion is decided by how many snapshot contacts are still pending after
     // this chunk, not by comparing indexes.
@@ -690,7 +722,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     setBulkIndex(nextIndex);
     if (remainingAfter === 0) {
       setBulkOpen(false);
-      toast({ title: "All batches confirmed", description: `Recorded ${ids.length} more invite${ids.length === 1 ? "" : "s"}.` });
+      toast({ title: "All batches confirmed", description: `Recorded ${changedIds.length} more invite${changedIds.length === 1 ? "" : "s"}.${changedIds.length !== ids.length ? " Changed or opted-out contacts were skipped." : ""}` });
     }
   };
 
@@ -701,8 +733,13 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   };
 
   const copyBulkBcc = async () => {
-    if (bulkCurrent.length === 0) return;
-    const bcc = bulkCurrent.map((c) => c.email).filter(Boolean).join(", ");
+    const snapshot = await refreshSuppression();
+    const allowed = bulkCurrent.filter((c) => channelAllowed(contactEligibility(c, snapshot), "email"));
+    if (allowed.length === 0) {
+      toast({ title: "Email is paused", description: "No eligible emails remain in this batch." });
+      return;
+    }
+    const bcc = allowed.map((c) => c.email).filter(Boolean).join(", ");
     try {
       const ok = await copyText(bcc);
       if (!ok) throw new Error("copy failed");

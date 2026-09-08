@@ -23,7 +23,7 @@
 --     SELECT command FROM cron.job WHERE jobname = 'nudge-stale-leads';
 --
 -- Do not commit the substituted value back into this repository, do not paste
--- it into chat, and do not log it. The four existing jobs (monthly-roi-recap,
+-- it into chat, and do not log it. The five existing jobs (monthly-roi-recap,
 -- process-referral-triggers, nudge-stale-leads, process-campaign-sends,
 -- dispatch-webhooks) already carry this header inline, so this file follows the
 -- established pattern rather than introducing a second credential scheme.
@@ -36,8 +36,9 @@
 -- entry for this worker.
 --
 -- Every two minutes is enough: the job is a durable queue drain, not a
--- real-time delivery path, and the worker leases rows so overlapping runs
--- cannot double-send.
+-- real-time delivery path. Claims use leases and a stable provider idempotency
+-- key. End-to-end duplicate prevention still depends on provider behavior and
+-- retention and requires isolated verification; leases alone are not proof.
 
 SELECT cron.schedule(
   'drain-notification-jobs',

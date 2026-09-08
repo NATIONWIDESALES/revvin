@@ -11,24 +11,20 @@ notification worker has no queue to drain.
 ## Files
 
 - `20260908_release_1.sql` — release 1. Replaces the earlier unsafe draft.
+- `20260908_contact_eligibility.sql` — owner-scoped global email suppression lookup.
+- `20260908_release_2_notification_schedule.sql` — authenticated queue schedule; requires the operator's existing secret before application.
 
 ## Deployment order
 
-1. **Apply `20260908_release_1.sql`.** It is one transaction (plus one optional,
-   commented-out cron block at the end) and is written to be re-runnable.
+1. **Apply the final reviewed `20260908_release_1.sql`, then `20260908_contact_eligibility.sql`.** Release 1 explicitly revokes guest/authenticated access to private tables and service functions inside its transaction, including privileges inherited from database defaults. Do not apply an earlier draft. Both files are written to be re-runnable.
 2. **Deploy the edge functions**, after the SQL, in any order:
    - `notify-new-lead` (now a service-role-only worker over `notification_jobs`)
    - `stripe-business-webhook` (writes `stripe_payments`)
    - `check-subscription` (new typed response)
    - `monthly-roi-recap` (aggregates through `fn_get_business_roi`)
    - `process-email-queue` is unchanged by this release.
-3. **Ship the frontend.** The client sends `p_request_id` to the submit RPC, so
-   it must go out after step 1.
-4. **Schedule the notification drain.** Either uncomment the cron block at the
-   end of the SQL file (fill in the project host and confirm the vault secret
-   name) or point the existing operator cron at `notify-new-lead` with a
-   service-role token and `{"drain":true}`. Jobs are durable either way: nothing
-   is lost while the schedule is missing, delivery is simply delayed.
+3. **Verify and schedule the notification drain.** Follow the concrete release-2 schedule file and the notes below. Its credential placeholder must be resolved before application; a placeholder is not a working schedule. Confirm appropriate isolated/provider behavior and the authenticated drain before describing notifications as operational.
+4. **Ship the frontend after its backend dependencies are ready.** The client sends `p_request_id` and consults the new eligibility helper, so it must follow both SQL files and the worker deployment. Review the analytics pause in `ANALYTICS_PRIVACY_RELEASE.md` before the next paid-traffic test.
 
 ## Rollback
 
@@ -71,11 +67,8 @@ or rewrites lead data.
 - **Pending SQL is unapplied.** Guest receipt privacy, the Free/canceled
   referral-page read rule, ROI authorisation and close-date attribution, the
   durable owner-notification job, the server-only payment record, and the
-  funnel event policy all live in the pending migration. Local tests do not
-  prove any of that SQL behaviour.
-- **`fn_suppressed_emails_for_business`** ships with the pending SQL. Until it
-  is applied, the Customers tab reports the global bounce/complaint list as
-  unchecked and says so in the UI; per-business suppression already works.
+  funnel event policy all live in the pending migration. Isolated SQL tests do not prove the deployed database, complete production policy/trigger set, concurrent transactions or provider behavior.
+- **`fn_suppressed_emails_for_business`** is defined in the separate `20260908_contact_eligibility.sql`. Until it is applied, or whenever its lookup fails, customer email preparation is paused. A separately permitted SMS channel remains available. See `CONTACT_ELIGIBILITY_README.md` for the exact behavior and privacy checks.
 - **Edge functions are not deployed** in this pass, including the rewritten
   `notify-new-lead` worker and its scheduler.
 - **HTTP 404 status.** The build now writes `dist/404.html`, a real noindex

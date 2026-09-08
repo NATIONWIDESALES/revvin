@@ -38,7 +38,7 @@ export interface SuppressionLookup {
   snapshot: SuppressionSnapshot | null;
   /** Set when the authoritative per-business lookup failed. Fail closed. */
   error?: string;
-  /** Set when only the global email list was unavailable. Degraded, not closed. */
+  /** Set when only the global email list was unavailable. Email is paused; eligible phone channels remain available. */
   warning?: string;
 }
 
@@ -113,7 +113,8 @@ export function contactEligibility(
   const blocked = new Set<Channel>();
   const emailSuppressed = !!email && snapshot.emails.has(email);
   const phoneSuppressed = !!phone && snapshot.phones.has(phone);
-  if (emailSuppressed) blocked.add("email");
+  const emailUnchecked = !!email && !snapshot.globalEmailsChecked;
+  if (emailSuppressed || emailUnchecked) blocked.add("email");
   if (phoneSuppressed) blocked.add("sms");
   if (!contact.email) blocked.add("email");
   if (!contact.phone) blocked.add("sms");
@@ -121,19 +122,22 @@ export function contactEligibility(
   // Copy and Share hand the message to any app, so they are only safe while at
   // least one recorded channel for this person is still allowed.
   const anyChannelLeft =
-    (!!contact.email && !emailSuppressed) || (!!contact.phone && !phoneSuppressed);
+    (!!email && !blocked.has("email")) || (!!phone && !blocked.has("sms"));
   const noRecordedChannel = !contact.email && !contact.phone;
   if (!anyChannelLeft && !noRecordedChannel) blocked.add("share");
 
   const canPrepare = !blocked.has("share") || anyChannelLeft || noRecordedChannel;
 
   let reason: string | undefined;
-  if (!canPrepare) reason = "Unsubscribed. Do not contact.";
+  if (emailUnchecked) reason = anyChannelLeft
+    ? "Email checks are unavailable. Text is still allowed."
+    : "Email checks are unavailable. Sending is paused.";
+  else if (!canPrepare) reason = "Unsubscribed. Do not contact.";
   else if (emailSuppressed && phoneSuppressed) reason = "Unsubscribed on email and text.";
   else if (emailSuppressed) reason = "Unsubscribed from email. Text is still allowed.";
   else if (phoneSuppressed) reason = "Unsubscribed from text. Email is still allowed.";
 
-  return { optedOut: !canPrepare, blocked, canPrepare, reason, unknown: false };
+  return { optedOut: !canPrepare && !emailUnchecked, blocked, canPrepare, reason, unknown: emailUnchecked };
 }
 
 /** True when this exact channel may be offered for this contact. */
@@ -150,9 +154,8 @@ interface MinimalClient {
  * Read the authoritative suppression state for one business.
  *
  * The per-business table is required: if it fails, callers get a null snapshot
- * and every send is disabled. The global email list is best effort, because the
- * RPC that exposes it to an owner ships with the pending migration; until then
- * the snapshot is flagged as unchecked and the UI says so.
+ * and every send is disabled. If the global email lookup fails, email is paused
+ * while an otherwise eligible phone channel remains available.
  */
 export async function loadSuppression(
   client: MinimalClient,
@@ -194,7 +197,7 @@ export async function loadSuppression(
     globalEmailsChecked = true;
   } catch {
     warning =
-      "Platform-wide unsubscribes could not be checked on this device. Your own do-not-contact list was applied.";
+      "Email is paused because platform-wide unsubscribes could not be checked. Eligible text messages are still available.";
   }
 
   return {

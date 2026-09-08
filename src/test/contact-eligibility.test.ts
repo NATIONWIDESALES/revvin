@@ -110,7 +110,7 @@ describe("loadSuppression", () => {
     expect(r.snapshot!.allChannels.has("gone@example.com")).toBe(true);
   });
 
-  it("degrades with a warning, not a block, when the global list is unavailable", async () => {
+  it("pauses unchecked email while retaining an eligible SMS channel", async () => {
     const r = await loadSuppression(
       client({ data: [], error: null }, { data: null, error: { message: "no function" } }) as any,
       "b1",
@@ -119,5 +119,12 @@ describe("loadSuppression", () => {
     expect(r.snapshot!.globalEmailsChecked).toBe(false);
     expect(r.warning).toBeTruthy();
     expect(r.error).toBeUndefined();
+    const e = contactEligibility(contact(), r.snapshot);
+    expect(channelAllowed(e, "email")).toBe(false);
+    expect(channelAllowed(e, "sms")).toBe(true);
+    expect(e.unknown).toBe(true);
+    const emailOnly = contactEligibility(contact({ phone: null }), r.snapshot);
+    expect(emailOnly.canPrepare).toBe(false);
+    expect(emailOnly.optedOut).toBe(false);
   });
 });
