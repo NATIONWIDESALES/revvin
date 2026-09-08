@@ -44,7 +44,7 @@ const RAW_CONFIG = {
 
 function config() {
   const result = resolveSandboxConfig(RAW_CONFIG);
-  if (!result.ok) throw new Error(`fixture config rejected: ${result.code}`);
+  if (!result.ok) throw new Error("fixture config rejected");
   return result.value;
 }
 

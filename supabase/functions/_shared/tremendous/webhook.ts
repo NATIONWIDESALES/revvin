@@ -213,10 +213,10 @@ export async function handleWebhookDelivery(
     signatureHeader: input.signatureHeader,
     secret: deps.secret,
   });
-  if (!signature.ok) return { kind: "rejected", message: signature.message };
+  if (!signature.ok) return { kind: "rejected", message: (signature as { message?: string }).message ?? "Webhook signature verification failed." };
 
   const parsed = parseWebhookEvent(input.rawBody);
-  if (!parsed.ok) return { kind: "rejected", message: parsed.message };
+  if (!parsed.ok) return { kind: "rejected", message: (parsed as { message?: string }).message ?? "Webhook body failed validation." };
 
   if (await deps.dedupe.seen(parsed.value.id)) {
     return { kind: "duplicate_ignored", eventId: parsed.value.id };
@@ -225,7 +225,7 @@ export async function handleWebhookDelivery(
   const projected = projectWebhookEvent(parsed.value);
   if (!projected.ok) {
     await deps.dedupe.record(parsed.value.id);
-    return { kind: "needs_reconciliation", eventId: parsed.value.id, message: projected.message };
+    return { kind: "needs_reconciliation", eventId: parsed.value.id, message: (projected as { message?: string }).message ?? "Event requires reconciliation." };
   }
 
   const { rewardId } = projected.value;

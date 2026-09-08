@@ -67,7 +67,7 @@ export async function createSandboxOrder(
   const externalId = externalIdFor(obligation);
   const target = sandboxUrl("orders");
   if (!target.ok) {
-    return { kind: "rejected", code: "invalid_path", message: target.message };
+    return { kind: "rejected", code: "invalid_path", message: (target as { message?: string }).message ?? "Rejected an unsupported sandbox API path." };
   }
   const payload = buildOrderPayload(obligation, config);
 
@@ -107,7 +107,7 @@ export async function createSandboxOrder(
         externalId,
         reason: "malformed_success",
         status: result.status,
-        message: verified.message,
+        message: (verified as { message?: string }).message ?? "Provider success response failed verification.",
       };
     }
     const evidence: IssuanceEvidence = { ...verified.value, replay: result.status === 201 };
