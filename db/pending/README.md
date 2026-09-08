@@ -1,32 +1,64 @@
-# Pending, unapplied SQL
+# Pending database changes
 
-Nothing in this folder has been applied. Preview and production share one
-database, so these statements were written for review rather than run.
+Preview and production share one database, so nothing in this folder is applied
+by the agent. Review the SQL, then apply it in the order below.
+
+**A user-facing release must not be described as ready while this SQL is
+unapplied.** Until it runs, guest referral submission fails (the RPC signature
+changed), the scoreboard reports through the old ROI function, and the
+notification worker has no queue to drain.
+
+## Files
+
+- `20260908_release_1.sql` — release 1. Replaces the earlier unsafe draft.
 
 ## Deployment order
 
-1. **Review and apply `20260908_release_1.sql`** through the migration tool.
-   It contains:
-   - `leads.closed_at` plus the trigger that sets it when a lead becomes
-     `closed_won` (historical rows stay NULL, they are genuinely unknown).
-   - `fn_submit_public_referral`, the security-definer function guest referral
-     submission now calls. It resolves the business from the slug, requires the
-     page to be published and the account healthy, does **not** require a
-     subscription, validates consent and input, rate limits, and returns a
-     minimal receipt. No public SELECT on `leads` is granted.
-   - Removal of the old direct public INSERT policy on `leads`, which also
-     removes the subscription requirement that stopped free and cancelled pages
-     from receiving referrals.
-   - `fn_get_business_roi` rewritten to attribute revenue by close date instead
-     of creation date.
+1. **Apply `20260908_release_1.sql`.** It is one transaction (plus one optional,
+   commented-out cron block at the end) and is written to be re-runnable.
+2. **Deploy the edge functions**, after the SQL, in any order:
+   - `notify-new-lead` (now a service-role-only worker over `notification_jobs`)
+   - `stripe-business-webhook` (writes `stripe_payments`)
+   - `check-subscription` (new typed response)
+   - `monthly-roi-recap` (aggregates through `fn_get_business_roi`)
+   - `process-email-queue` is unchanged by this release.
+3. **Ship the frontend.** The client sends `p_request_id` to the submit RPC, so
+   it must go out after step 1.
+4. **Schedule the notification drain.** Either uncomment the cron block at the
+   end of the SQL file (fill in the project host and confirm the vault secret
+   name) or point the existing operator cron at `notify-new-lead` with a
+   service-role token and `{"drain":true}`. Jobs are durable either way: nothing
+   is lost while the schedule is missing, delivery is simply delayed.
 
-2. **Deploy the edge functions.** `stripe-business-webhook` now records a
-   `payment_collected` funnel event on a paid invoice. Nothing depends on step 1.
+## Rollback
 
-3. **Deploy the frontend.**
+Rollback preserves every lead and every receipt. Nothing in this release deletes
+or rewrites lead data.
 
-## Until step 1 is applied
+1. Redeploy the previous edge function versions.
+2. Restore the previous `fn_submit_public_referral` and re-create the old
+   `leads` insert policy only if the previous frontend is also restored.
+3. `fn_get_business_roi` can be reverted on its own; `leads.closed_at`,
+   `referrals.won_at`, `referral_submissions`, `referral_rate_buckets`,
+   `notification_jobs` and `stripe_payments` are additive and safe to leave in
+   place. Leaving them avoids losing idempotency and notification history.
+4. Do not drop `notification_jobs` while jobs are pending: undelivered owner
+   emails live there.
 
-The public referral form calls `fn_submit_public_referral`, which does not exist
-yet, so guest referral submission will fail. This release is not user-facing
-ready before that migration runs.
+## Verification status (read this before claiming anything is proven)
+
+- The SQL in this folder has **not been executed**. There is no isolated
+  database available here, so the tests in `src/test/` model the intended
+  behaviour of the SQL against mocks. They do not prove SQL behaviour. The
+  matrix that still needs a real run: same-request replay, mismatched payload,
+  another person submitting the same prospect contact, owner/other-owner/anon
+  ROI authorization, Free and canceled versus disabled eligibility for both read
+  and submit, all-time versus dated revenue with unknown close dates, an
+  unrelated note edit keeping the close month, notification retry after a
+  provider failure, and a concurrent invoice replay.
+- Edge functions are type-checked individually. Pre-existing gap: several
+  unrelated functions in this project do not pass `deno check` today, so the
+  check is scoped to the functions this release touches.
+- Meta Purchase forwarding is **not implemented**. Paid conversions are reported
+  from the first-party `stripe_payments` record only.
+- Hosting-level 404 for unknown routes is a separate, still-open item.

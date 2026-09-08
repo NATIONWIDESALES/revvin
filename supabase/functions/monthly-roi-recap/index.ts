@@ -129,31 +129,33 @@ serve(async (req) => {
         continue;
       }
 
-      // Aggregate last month
-      const [leadsRes, refsRes] = await Promise.all([
-        supabase
-          .from("leads")
-          .select("id, status, deal_value, referrer_name, referrer_email", { count: "exact" })
-          .eq("business_id", biz.id)
-          .gte("created_at", start.toISOString())
-          .lt("created_at", end.toISOString()),
-        supabase
-          .from("referrals")
-          .select("id, status, deal_value, referrer_id", { count: "exact" })
-          .eq("business_id", biz.id)
-          .gte("created_at", start.toISOString())
-          .lt("created_at", end.toISOString()),
-      ]);
+      // Aggregate last month through the SAME function the dashboard uses, so a
+      // recap and the scoreboard can never disagree. Revenue is attributed by
+      // close date (leads.closed_at / referrals.won_at), not by updated_at, so
+      // editing a note or a payout cannot move revenue into another month.
+      const { data: roiJson, error: roiErr } = await supabase.rpc("fn_get_business_roi", {
+        p_business_id: biz.id,
+        p_from: start.toISOString(),
+        p_to: end.toISOString(),
+      } as any);
+      if (roiErr) {
+        results.push({ business_id: biz.id, skipped: "roi_unavailable", error: roiErr.message });
+        continue;
+      }
+      const roi = (roiJson ?? {}) as Record<string, unknown>;
+      const leadsTotal = Number(roi.leads_total ?? 0);
+      const closedCount = Number(roi.closed_count ?? 0);
+      const revenue = Number(roi.revenue ?? 0);
 
-      const leads = leadsRes.data ?? [];
-      const refs = refsRes.data ?? [];
-      const leadsTotal = leads.length + refs.length;
-      const closedLeads = leads.filter((l: any) => l.status === "closed_won");
-      const closedRefs = refs.filter((r: any) => r.status === "won");
-      const closedCount = closedLeads.length + closedRefs.length;
-      const revenue =
-        closedLeads.reduce((s: number, l: any) => s + (Number(l.deal_value) || 0), 0) +
-        closedRefs.reduce((s: number, r: any) => s + (Number(r.deal_value) || 0), 0);
+      // Top referrer still needs the rows themselves, by close date.
+      const { data: closedLeadRows } = await supabase
+        .from("leads")
+        .select("referrer_name")
+        .eq("business_id", biz.id)
+        .eq("status", "closed_won")
+        .gte("closed_at", start.toISOString())
+        .lt("closed_at", end.toISOString());
+      const closedLeads = (closedLeadRows ?? []) as any[];
 
       // Top referrer by closed count (from leads.referrer_name; refs would need a join)
       const referrerCounts = new Map<string, number>();
