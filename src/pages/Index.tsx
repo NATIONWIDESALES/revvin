@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
+import { track } from "@/lib/track";
 import {
   ArrowRight,
   Check,
@@ -247,20 +248,23 @@ const Index = () => {
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="shine-on-hover h-12 w-full px-5 text-sm shadow-product transition-transform hover:-translate-y-[1px] hover:bg-primary-deep sm:w-auto sm:px-6 sm:text-base" asChild>
-                  <Link to="/signup">
-                    <span className="sm:hidden">Build your page — free</span>
-                    <span className="hidden sm:inline">Build your page — free</span>
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                  <Link to="/signup" onClick={() => track("cta_clicked", { cta: "hero_signup" })}>
+                    Build your page — free
+                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
+                {/* Second CTA is the interactive demo, not more reading: a
+                    visitor who runs the loop once understands the product. */}
                 <Button size="lg" variant="outline" className="h-12 w-full px-6 text-base sm:w-auto" asChild>
-                  <Link to="/how-it-works">See the three loops</Link>
+                  <Link to="/sample" onClick={() => track("cta_clicked", { cta: "hero_demo" })}>
+                    Try the 60-second demo
+                  </Link>
                 </Button>
               </div>
             <p className="mt-4 text-sm text-muted-foreground">
-                Just browsing?{" "}
-                <Link to="/sample" className="font-medium text-foreground underline-offset-4 hover:underline">
-                  See a sample referral page
+                Prefer the detail?{" "}
+                <Link to="/how-it-works" className="font-medium text-foreground underline-offset-4 hover:underline">
+                  See how it works
                 </Link>
               </p>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
