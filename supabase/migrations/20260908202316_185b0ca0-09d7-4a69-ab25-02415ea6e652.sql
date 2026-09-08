@@ -776,26 +776,3 @@ CREATE POLICY "Anyone can record an allowed funnel event"
   );
 
 COMMIT;
-
--- ===========================================================================
--- 6. OPTIONAL, APPLY SEPARATELY: scheduled drain of notification_jobs
--- ===========================================================================
--- The email queue already runs this exact pattern (public.email_queue_dispatch
--- uses pg_cron + net.http_post + the vault-held service key). The statement
--- below reuses it for the notification worker so no visitor request is needed.
--- It is left commented out because it depends on operator-held infrastructure
--- (the vault secret name and cron availability) that cannot be verified from
--- this changeset. Until it is scheduled, the worker must be invoked by the
--- existing operator cron; jobs are durable either way and nothing is lost.
---
--- SELECT cron.schedule(
---   'drain-notification-jobs', '*/2 * * * *',
---   $cron$
---     SELECT net.http_post(
---       url := 'https://<project>.supabase.co/functions/v1/notify-new-lead',
---       headers := jsonb_build_object(
---         'Content-Type', 'application/json',
---         'Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets
---                                         WHERE name = 'email_queue_service_role_key')),
---       body := '{"drain":true}'::jsonb);
---   $cron$);
