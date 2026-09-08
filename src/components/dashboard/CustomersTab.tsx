@@ -1,7 +1,7 @@
 import { copyText } from "@/lib/clipboard";
 import { friendlyError } from "@/lib/errors";
 import { track } from "@/lib/track";
-import { parseCsv, parsePastedLines, type ParsedContact } from "@/lib/contactImport";
+import { parseCsv, parseJobDate, parsePastedLines, type ParsedContact } from "@/lib/contactImport";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
