@@ -72,70 +72,10 @@ const TEMPLATE_PRESETS: Array<{ id: string; label: string; withReward: string; n
 
 const TEMPLATE_STORAGE_KEY = "revvin_customer_msg_template_v1";
 
-type ParsedContact = { name: string; email?: string; phone?: string; last_job_at?: string };
+// Import parsing lives in src/lib/contactImport.ts so it can be unit tested:
+// dates must never be classified as phone numbers, and CSV cells may contain
+// quoted commas.
 
-function parseJobDate(value: string | undefined): string | undefined {
-  const raw = value?.trim();
-  if (!raw) return undefined;
-  const normalized = raw.replace(/^(\d{1,2})[./](\d{1,2})[./](\d{2,4})$/, "$1/$2/$3");
-  const date = /^\d{4}-\d{1,2}-\d{1,2}$/.test(normalized)
-    ? new Date(`${normalized}T12:00:00Z`)
-    : new Date(normalized);
-  if (Number.isNaN(date.getTime())) return undefined;
-  if (date.getFullYear() < 1990 || date > new Date()) return undefined;
-  return date.toISOString();
-}
-
-function parsePastedLines(text: string): ParsedContact[] {
-  const out: ParsedContact[] = [];
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phoneRe = /^[+()\d][\d\s().\-]{5,}$/;
-  for (const line of lines) {
-    const parts = line.split(/[,;\t]+/).map((p) => p.trim()).filter(Boolean);
-    if (parts.length === 0) continue;
-    let name = parts[0];
-    let email: string | undefined;
-    let phone: string | undefined;
-    let last_job_at: string | undefined;
-    for (const p of parts.slice(1)) {
-      if (!email && emailRe.test(p)) email = p;
-      else if (!phone && phoneRe.test(p)) phone = p;
-      else if (!last_job_at) last_job_at = parseJobDate(p);
-    }
-    if (parts.length === 1) {
-      if (emailRe.test(name)) { email = name; name = name.split("@")[0]; }
-      else if (phoneRe.test(name)) { phone = name; name = "(no name)"; }
-    }
-    if (name && (email || phone)) out.push({ name, email, phone, last_job_at });
-  }
-  return out;
-}
-
-function parseCsv(text: string): ParsedContact[] {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  if (lines.length === 0) return [];
-  const header = lines[0].toLowerCase().split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
-  const dateHeaders = ["last_job_at", "last job date", "last_job_date", "last job", "date"];
-  const hasHeader = header.some((h) => ["name", "email", "phone", ...dateHeaders].includes(h));
-  const idx = {
-    name: hasHeader ? header.indexOf("name") : 0,
-    email: hasHeader ? header.indexOf("email") : 1,
-    phone: hasHeader ? header.indexOf("phone") : 2,
-    date: hasHeader ? header.findIndex((h) => dateHeaders.includes(h)) : 3,
-  };
-  const rows = hasHeader ? lines.slice(1) : lines;
-  const out: ParsedContact[] = [];
-  for (const r of rows) {
-    const cells = r.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
-    const name = idx.name >= 0 ? cells[idx.name] : "";
-    const email = idx.email >= 0 ? cells[idx.email] : "";
-    const phone = idx.phone >= 0 ? cells[idx.phone] : "";
-    const last_job_at = idx.date >= 0 ? parseJobDate(cells[idx.date]) : undefined;
-    if (name && (email || phone)) out.push({ name, email: email || undefined, phone: phone || undefined, last_job_at });
-  }
-  return out;
-}
 
 function firstName(full: string) {
   return (full || "").trim().split(/\s+/)[0] || "there";
