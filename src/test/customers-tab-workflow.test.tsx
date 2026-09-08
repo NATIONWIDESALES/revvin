@@ -125,7 +125,7 @@ describe("upload -> preview -> insert payload", () => {
     expect(screen.getByText('Bob "Bobby" Jones')).toBeTruthy();
     expect(screen.getByText(/line 4/i)).toBeTruthy();
 
-    await user.click(screen.getByRole("button", { name: /^Import/i }));
+    await user.click(screen.getByRole("button", { name: /^Add 2 contacts$/ }));
 
     await waitFor(() => expect(inserted).toHaveLength(1));
     const rows = inserted[0];
