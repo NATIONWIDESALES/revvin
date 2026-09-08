@@ -85,3 +85,34 @@ or rewrites lead data.
   `/i/*`, `/guides/*`, `/dashboard`) must keep receiving the SPA fallback.
 - **Live billing, real message delivery and Meta purchase forwarding** remain
   unverified. Meta purchase forwarding is not implemented.
+
+## Notification scheduler (prepared, unapplied)
+
+Read-only inspection of the current scheduler, taken from `cron.job` and
+`vault.secrets` (names only; no secret value is reproduced here):
+
+| job | schedule | active |
+| --- | --- | --- |
+| monthly-roi-recap | `0 14 1 * *` | yes |
+| process-referral-triggers | `*/15 * * * *` | yes |
+| nudge-stale-leads | `*/15 * * * *` | yes |
+| process-campaign-sends | `*/5 * * * *` | yes |
+| dispatch-webhooks | `* * * * *` | yes |
+
+There is **no** job for the notification worker, so once the browser stops
+invoking `notify-new-lead` (this release), queued owner emails would sit
+undelivered until a schedule exists. `db/pending/20260908_release_2_notification_schedule.sql`
+adds `drain-notification-jobs` every two minutes.
+
+Credential facts observed: the existing jobs authenticate with an inline
+`x-cron-secret` header, which is the pattern `_shared/cron-auth.ts` expects. The
+vault holds exactly one entry, `email_queue_service_role_key`, used by the email
+queue dispatcher. The new file therefore follows the `x-cron-secret` pattern and
+requires the operator to substitute the existing shared secret before running
+it; the value is deliberately not stored in this repository.
+
+Deployment order for this piece: apply `20260908_release_1.sql`, deploy
+`notify-new-lead`, confirm one manual authenticated invocation drains cleanly,
+then apply the schedule file. Rollback is
+`SELECT cron.unschedule('drain-notification-jobs');`, which stops attempts
+without discarding queued jobs.
