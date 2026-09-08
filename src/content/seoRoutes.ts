@@ -12,6 +12,8 @@
 
 import { INDUSTRIES } from "./industries";
 import { GUIDES } from "./guides";
+import { PRICE_TEXT } from "@/config/pricing";
+
 
 export interface PrerenderRoute {
   path: string;
