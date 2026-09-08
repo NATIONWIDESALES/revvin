@@ -490,7 +490,16 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
           // `subscription_activated`.
           // NOT DEPLOYED in this changeset: deploy alongside the release.
           if (Number(inv.amount_paid ?? 0) > 0) {
-            await admin.from("funnel_events").insert({
+            // Dedupe on the invoice id so a redelivered webhook is not counted
+            // twice. (Best effort: two simultaneous deliveries of the same
+            // invoice could still both pass this check.)
+            const { data: already } = await admin
+              .from("funnel_events")
+              .select("id")
+              .eq("event", "payment_collected")
+              .eq("session_id", `stripe_invoice_${inv.id}`)
+              .limit(1);
+            if (!already?.length) await admin.from("funnel_events").insert({
               event: "payment_collected",
               session_id: `stripe_invoice_${inv.id}`,
               path: "/stripe/webhook",
