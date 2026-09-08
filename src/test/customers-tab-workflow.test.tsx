@@ -49,14 +49,19 @@ vi.mock("@/integrations/supabase/client", () => {
         return { data: null, error: null };
       },
       update: (values: any) => {
+        const filters: { col: string; value: any; neq?: boolean }[] = [];
+        let ids: string[] | undefined;
         const u: any = {
-          eq: (_c: string, v: string) => {
-            updates.push({ values, id: v });
-            return u;
+          eq: (col: string, value: any) => { filters.push({ col, value }); return u; },
+          neq: (col: string, value: any) => { filters.push({ col, value, neq: true }); return u; },
+          in: (col: string, values: string[]) => { if (col !== "id") throw new Error("Unexpected filter"); ids = values; return u; },
+          select: (columns: string) => { if (columns !== "id") throw new Error("Unexpected return contract"); return u; },
+          then: (res: any) => {
+            const matches = contactRows.filter((row) => (!ids || ids.includes(row.id)) &&
+              filters.every((f) => f.neq ? row[f.col] !== f.value : row[f.col] === f.value));
+            matches.forEach((row) => { updates.push({ values, id: row.id }); Object.assign(row, values); });
+            return res({ data: matches.map((row) => ({ id: row.id })), error: null });
           },
-          neq: () => u,
-          in: () => u,
-          then: (res: any) => res({ data: null, error: null, count: 1 }),
         };
         return u;
       },
@@ -66,7 +71,10 @@ vi.mock("@/integrations/supabase/client", () => {
     api.then = (res: any) => res({ data: [], error: null });
     return api;
   };
-  return { supabase: { from: (t: string) => builder(t), rpc: async () => ({ data: [], error: null }) } };
+  return { supabase: { from: (t: string) => builder(t), rpc: async (name: string, args: any) => {
+    if (name !== "fn_suppressed_emails_for_business" || args?.p_business_id !== "biz-1") throw new Error("Unexpected RPC fixture");
+    return { data: [], error: null };
+  } } };
 });
 
 const toasts: any[] = [];

@@ -87,12 +87,13 @@ describe("payout claims", () => {
 });
 
 describe("legal content is shared, not summarised twice", () => {
-  it("prerenders the same sections the pages render", () => {
+  it("prerenders the introduction, date and sections the pages render", () => {
     for (const doc of [TERMS_DOC, PRIVACY_DOC]) {
       const route = PRERENDER_ROUTES.find((r) => r.path === doc.path)!;
       expect(route.h1).toBe(doc.h1);
-      expect(route.sections).toHaveLength(doc.sections.length);
-      expect(route.sections.map((s) => s.heading)).toEqual(doc.sections.map((s) => s.heading));
+      expect(route.sections[0].body).toContain(doc.intro);
+      expect(route.sections[0].body).toContain(doc.lastUpdated);
+      expect(route.sections.slice(1).map((s) => s.heading)).toEqual(doc.sections.map((s) => s.heading));
     }
   });
 

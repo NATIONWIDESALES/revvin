@@ -41,13 +41,13 @@ export const GUIDES: Guide[] = [
     label: "How much to pay for a referral",
     metaTitle: "How Much Should You Pay for a Referral? | Revvin",
     metaDescription:
-      "How service business owners set a referral reward: a flat amount per closed job, tiers by job type, or a percentage they work out themselves. Revvin does not set or cap the reward and takes no cut.",
+      "How service business owners choose a referral reward and compare flat amounts, tiers and percentages. Revvin currently tracks a fixed dollar reward per offer and takes no cut.",
     answer:
       "There is no correct figure, and anyone quoting you one is guessing about your business. The amount you pay for a referral is a decision you make from two numbers you already have: what a customer is worth to you over the life of the relationship, and what you currently spend to acquire one somewhere else. A referral reward that sits comfortably below what an acquired customer already costs you is a reward you can afford to pay gladly and repeatedly. Revvin does not set the amount, does not cap it, and takes no cut of it.",
     sections: [
       {
         heading: "The three ways owners usually set it",
-        body: "The first is a flat amount per closed job: one number, advertised plainly, paid whenever a referral turns into paid work. It is the easiest to explain and the easiest for a customer to repeat to a neighbour, which is the whole point. The second is tiers by job type, where a small service call and a full replacement carry different rewards, because the value to you is not the same. The third is a percentage of the job, which you work out yourself and write in as the reward. Revvin does not calculate a percentage for you: whichever you choose, you type the reward onto your referral page and it displays exactly as you set it.",
+        body: "The first is a flat amount per closed job: one number, advertised plainly, paid whenever a referral turns into paid work. It is the easiest to explain and the easiest for a customer to repeat to a neighbour, which is the whole point. Other reward models include tiers by job type and a percentage of the job value. Revvin currently tracks one fixed dollar amount per offer. It does not calculate percentage rewards or select a reward tier based on the job, so choose a fixed amount for the offer you publish.",
       },
       {
         heading: "The real anchor is what a customer is worth to you",
@@ -73,7 +73,7 @@ export const GUIDES: Guide[] = [
       },
       {
         q: "Should a referral reward be a flat fee or a percentage?",
-        a: "Both are used. A flat amount is easier for a customer to remember and repeat, which matters more than precision. A percentage tracks the size of the job better when your ticket values vary widely. If your jobs fall into clear types, tiers by job type give you most of the benefit of a percentage while still being one line to say.",
+        a: "A flat amount is easier for a customer to remember and repeat. A percentage varies with the job value, while tiers use different amounts for different job types. Those are alternatives to consider when designing a program; Revvin currently tracks fixed dollar rewards and does not calculate percentages or tiered payouts.",
       },
       {
         q: "Do you pay for the referral or only when the job closes?",

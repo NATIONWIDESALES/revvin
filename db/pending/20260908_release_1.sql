@@ -158,10 +158,11 @@ CREATE TABLE IF NOT EXISTS public.referral_submissions (
   CONSTRAINT referral_submissions_tenant_request_key UNIQUE (business_id, request_id)
 );
 
+-- Explicit role revokes also remove grants inherited from deployment default ACLs.
 -- Server-only table. It is written and read exclusively by the definer function
 -- below, which runs as the table owner, so no client role gets any privilege and
 -- RLS with no policy denies everything else.
-REVOKE ALL ON TABLE public.referral_submissions FROM PUBLIC;
+REVOKE ALL ON TABLE public.referral_submissions FROM PUBLIC, anon, authenticated;
 GRANT ALL ON TABLE public.referral_submissions TO service_role;
 ALTER TABLE public.referral_submissions ENABLE ROW LEVEL SECURITY;
 
@@ -174,7 +175,7 @@ CREATE TABLE IF NOT EXISTS public.referral_rate_buckets (
   hits         integer     NOT NULL DEFAULT 0,
   PRIMARY KEY (bucket_key, window_start)
 );
-REVOKE ALL ON TABLE public.referral_rate_buckets FROM PUBLIC;
+REVOKE ALL ON TABLE public.referral_rate_buckets FROM PUBLIC, anon, authenticated;
 GRANT ALL ON TABLE public.referral_rate_buckets TO service_role;
 ALTER TABLE public.referral_rate_buckets ENABLE ROW LEVEL SECURITY;
 
@@ -208,7 +209,7 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.fn_rate_bucket_hit(text, interval, integer) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.fn_rate_bucket_hit(text, interval, integer) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.fn_rate_bucket_hit(text, interval, integer) TO service_role;
 
 -- Durable owner-notification work item. One row per (lead, event); the UNIQUE
@@ -236,7 +237,7 @@ CREATE TABLE IF NOT EXISTS public.notification_jobs (
 );
 ALTER TABLE public.notification_jobs ADD COLUMN IF NOT EXISTS claim_token uuid;
 ALTER TABLE public.notification_jobs ADD COLUMN IF NOT EXISTS in_app_notified_at timestamptz;
-REVOKE ALL ON TABLE public.notification_jobs FROM PUBLIC;
+REVOKE ALL ON TABLE public.notification_jobs FROM PUBLIC, anon, authenticated;
 GRANT ALL ON TABLE public.notification_jobs TO service_role;
 ALTER TABLE public.notification_jobs ENABLE ROW LEVEL SECURITY;
 
@@ -499,8 +500,8 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.fn_claim_notification_jobs(integer) FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.fn_finish_notification_job(uuid, uuid, text, text, text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.fn_claim_notification_jobs(integer) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.fn_finish_notification_job(uuid, uuid, text, text, text) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.fn_claim_notification_jobs(integer) TO service_role;
 GRANT EXECUTE ON FUNCTION public.fn_finish_notification_job(uuid, uuid, text, text, text) TO service_role;
 
@@ -530,7 +531,7 @@ BEGIN
   RETURN true;
 END;
 $$;
-REVOKE ALL ON FUNCTION public.fn_ensure_lead_notification(uuid, uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.fn_ensure_lead_notification(uuid, uuid) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.fn_ensure_lead_notification(uuid, uuid) TO service_role;
 
 -- Backfill work items for leads that arrived before this release and were never
@@ -672,7 +673,7 @@ ALTER TABLE public.stripe_payments DROP CONSTRAINT IF EXISTS stripe_payments_kin
 UPDATE public.stripe_payments SET kind = 'no_charge' WHERE kind = 'trial_no_charge';
 ALTER TABLE public.stripe_payments ADD CONSTRAINT stripe_payments_kind_check
   CHECK (kind IN ('first_payment','renewal','no_charge'));
-REVOKE ALL ON TABLE public.stripe_payments FROM PUBLIC;
+REVOKE ALL ON TABLE public.stripe_payments FROM PUBLIC, anon, authenticated;
 GRANT ALL ON TABLE public.stripe_payments TO service_role;
 ALTER TABLE public.stripe_payments ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Admins read payments" ON public.stripe_payments;

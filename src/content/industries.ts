@@ -89,7 +89,7 @@ export const INDUSTRIES: Industry[] = [
       ...sharedFaqs("roofing"),
       {
         q: "Can I pay referrers a percentage of the job instead of a flat amount?",
-        a: "You write the reward in your own words and pay it directly, so a flat amount, a tiered amount or a percentage you work out yourself all work. Revvin does not calculate a percentage of the job for you: it shows the offer exactly as you publish it and tracks the reward from owed to paid.",
+        a: "Revvin currently tracks a fixed dollar reward per offer. Percentage rewards are not supported. Choose the fixed amount you will pay when the published conditions are met, and pay your referrer directly.",
       },
     ],
   },
@@ -446,7 +446,7 @@ export const INDUSTRIES: Industry[] = [
       },
     ],
     rewardExample:
-      "You set the amount and pay it directly. Garage door work spans a small spring repair and a full insulated door replacement, so many owners publish two amounts, one for a repair referral and a larger one for a door installation, and Revvin shows the offer exactly as written.",
+      "You set a fixed reward amount and pay it directly. Garage door work spans small repairs and full replacements, so choose an amount that suits the work covered by your offer and state which jobs qualify. Revvin tracks one fixed amount per offer.",
     placements: [
       "Sticker on the opener motor unit",
       "Wall label beside the interior push button",
@@ -457,7 +457,7 @@ export const INDUSTRIES: Industry[] = [
       ...sharedFaqs("garage door"),
       {
         q: "Can I set a bigger reward for a full door replacement than for a repair?",
-        a: "Yes. You write the offer text and the amounts on your page, so a tiered reward that pays more for an installation than a service call is straightforward. You pay the referrer directly at whichever tier the closed job falls into, and Revvin tracks it.",
+        a: "Each offer tracks one fixed dollar reward. Choose that amount for the type of job you want referred, and state which jobs qualify. Revvin does not automatically choose different reward tiers for an installation and a repair.",
       },
     ],
   },
@@ -585,7 +585,7 @@ export const INDUSTRIES: Industry[] = [
       ...sharedFaqs("tree service"),
       {
         q: "Can I reward differently for a removal than for a trim?",
-        a: "Yes. You control the offer text and the amounts, and you pay the referrer directly, so a tiered reward that reflects the difference between a prune and a full removal with grinding is simple to publish and track.",
+        a: "Each offer tracks one fixed dollar reward. Choose an amount that suits the work covered by the offer and state which jobs qualify. Revvin does not calculate different tiers for pruning, removal and grinding.",
       },
       {
         q: "Can neighbours refer me even if they were never my customer?",
