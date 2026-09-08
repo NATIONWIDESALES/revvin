@@ -177,10 +177,6 @@ const handwritten: PrerenderRoute[] = [
         heading: "Cancel any time",
         body: "Cancel from the billing portal whenever you like. Your page stays live and your referrals keep coming in, you only lose the Pro tools. There are no platform fees on referral rewards: Revvin does not take a cut and does not move the money. You pay your referrer directly when a deal closes.",
       },
-      {
-        heading: "Optional Launch Package",
-        body: "A one-time $297 Launch Package is available if you want help getting started: a 1:1 setup call and done-for-you offer creation. It is optional and separate from the subscription.",
-      },
     ],
     faqs: [
       {
@@ -304,7 +300,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "Business model",
-        body: `Publishing a referral page is free, including the marketplace listing. Revvin Pro is ${PRO}, or an annual price billed once, with no contract and no setup fee, cancellable from the billing portal. An optional one-time $297 Launch Package adds a 1:1 setup call and done-for-you offer creation. Revvin takes no cut of referral rewards; referrers receive 100% of the advertised payout, paid directly by the business.`,
+        body: `Publishing a referral page is free, including the marketplace listing. Revvin Pro is ${PRO}, or an annual price billed once, with no contract and no setup fee, cancellable from the billing portal. Revvin takes no cut of referral rewards; referrers receive 100% of the advertised payout, paid directly by the business.`,
       },
       {
         heading: "How a referral flows",
