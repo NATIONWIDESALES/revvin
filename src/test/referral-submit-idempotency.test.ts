@@ -1,12 +1,12 @@
-import { describe, expect, it, beforeEach, vi } from "vitest";
+import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 
 /**
  * Request-scoped idempotency for guest referral submission.
  *
  * These tests exercise the client contract and a faithful in-memory model of the
  * SQL function's rules. They do NOT execute SQL: the pending migration has not
- * been applied and no isolated database is available here, so the SQL behaviour
- * itself remains unverified (see db/pending/README.md).
+ * been applied to Cloud. A separate in-memory PostgreSQL regression harness in
+ * Research/backend-regression executes the actual pending SQL on fixtures.
  */
 
 const rpc = vi.fn();
@@ -35,9 +35,11 @@ const input = {
 
 describe("request id", () => {
   beforeEach(() => {
+    clearReferralRequestId(input.slug);
     sessionStorage.clear();
     rpc.mockReset();
   });
+  afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
   it("generates a high-entropy id the server will accept", () => {
     const ids = new Set(Array.from({ length: 200 }, () => newRequestId()));
@@ -81,6 +83,25 @@ describe("request id", () => {
     expect(generic).toBeTruthy();
     expect(generic).toBe(referralSubmitMessage({ message: "invalid_request_id" }));
     expect(generic).not.toMatch(/already|duplicate|someone|existing/i);
+  });
+
+  it("keeps the same request through a failed call when session storage throws", async () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => { throw new Error("storage disabled"); });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("storage disabled"); });
+    rpc.mockResolvedValueOnce({ data: null, error: { message: "network unavailable" } });
+    rpc.mockResolvedValueOnce({ data: { lead_id: "fixture", status_token: "fixture-token", replay: true }, error: null });
+    await submitPublicReferral(input);
+    await submitPublicReferral(input);
+    expect(rpc.mock.calls[0][1].p_request_id).toBe(rpc.mock.calls[1][1].p_request_id);
+    expect(referralRequestId(input.slug)).not.toBe(rpc.mock.calls[1][1].p_request_id);
+  });
+
+  it("returns an error without submitting when secure randomness is unavailable", async () => {
+    vi.stubGlobal("crypto", undefined);
+    const result = await submitPublicReferral(input);
+    expect(result.receipt).toBeNull();
+    expect(result.error).toBeInstanceOf(Error);
+    expect(rpc).not.toHaveBeenCalled();
   });
 });
 

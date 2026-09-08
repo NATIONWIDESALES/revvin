@@ -1,5 +1,3 @@
-import Stripe from "https://esm.sh/stripe@18.5.0";
-
 /**
  * Shared subscription helpers. One definition, used by both the webhook and the
  * status endpoint, so they can never disagree about what "active" or "period
@@ -34,12 +32,17 @@ export function hasAccess(status: string | null | undefined): boolean {
  * webhook handlers. Read the item value first, fall back to `trial_end`, then to
  * the legacy top-level field, and return null rather than an invalid date.
  */
-export function subscriptionPeriodEnd(sub: Stripe.Subscription): string | null {
-  const anySub = sub as unknown as { current_period_end?: number | null };
+type SubscriptionPeriodSource = {
+  items?: { data?: Array<{ current_period_end?: number | null }> };
+  trial_end?: number | null;
+  current_period_end?: number | null;
+};
+
+export function subscriptionPeriodEnd(sub: SubscriptionPeriodSource): string | null {
   const seconds =
     sub.items?.data?.[0]?.current_period_end ??
     sub.trial_end ??
-    anySub.current_period_end ??
+    sub.current_period_end ??
     null;
   if (!seconds || !Number.isFinite(seconds)) return null;
   return new Date(seconds * 1000).toISOString();

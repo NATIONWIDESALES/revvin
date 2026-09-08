@@ -35,27 +35,30 @@ notification worker has no queue to drain.
 Rollback preserves every lead and every receipt. Nothing in this release deletes
 or rewrites lead data.
 
-1. Redeploy the previous edge function versions.
-2. Restore the previous `fn_submit_public_referral` and re-create the old
-   `leads` insert policy only if the previous frontend is also restored.
-3. `fn_get_business_roi` can be reverted on its own; `leads.closed_at`,
+1. Pause the notification schedule before changing worker versions. A worker
+   rollback must remain compatible with the claim-token completion contract.
+2. Keep corrected guest/reporting access controls. Never restore contact-based
+   receipt lookup, public lead reads, anonymous ROI or the paid-only Free-page
+   gate. If a rolled-back client cannot use the safe submission contract, show
+   a clear temporary unavailable state until a compatible client is restored.
+3. Any reporting rollback must retain NULL-safe authorization; `leads.closed_at`,
    `referrals.won_at`, `referral_submissions`, `referral_rate_buckets`,
    `notification_jobs` and `stripe_payments` are additive and safe to leave in
    place. Leaving them avoids losing idempotency and notification history.
-4. Do not drop `notification_jobs` while jobs are pending: undelivered owner
-   emails live there.
+4. Do not drop `notification_jobs` while jobs are pending or restore the old
+   unauthenticated browser-triggered sender. Undelivered emails and retry history
+   remain in the queue.
 
 ## Verification status (read this before claiming anything is proven)
 
-- The SQL in this folder has **not been executed**. There is no isolated
-  database available here, so the tests in `src/test/` model the intended
-  behaviour of the SQL against mocks. They do not prove SQL behaviour. The
-  matrix that still needs a real run: same-request replay, mismatched payload,
-  another person submitting the same prospect contact, owner/other-owner/anon
-  ROI authorization, Free and canceled versus disabled eligibility for both read
-  and submit, all-time versus dated revenue with unknown close dates, an
-  unrelated note edit keeping the close month, notification retry after a
-  provider failure, and a concurrent invoice replay.
+- This SQL has **not been applied to Lovable Cloud**. The separate
+  `Research/backend-regression` harness executes the exact candidate in an
+  in-memory PostgreSQL engine using a focused synthetic schema. It passes 38
+  SQL checks covering role/tenant privacy, Free/canceled eligibility, request
+  replay, historical totals, notification leases and invoice ordering. This does
+  not prove every production trigger, overlapping transactions or provider
+  integration. Those require an isolated integration environment. Client,
+  rendering and modeled tests in `src/test/` remain separate evidence.
 - Edge functions are type-checked individually. Pre-existing gap: several
   unrelated functions in this project do not pass `deno check` today, so the
   check is scoped to the functions this release touches.

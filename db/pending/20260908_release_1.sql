@@ -145,8 +145,8 @@ CREATE TRIGGER trg_stamp_referral_won_at
 -- 2. Guest submission: request-scoped idempotency, no cross-referrer leakage
 -- ===========================================================================
 -- One row per accepted client submission attempt. UNIQUE (business_id,
--- request_id) is the concurrency control: retries race into the same row
--- instead of SELECT-then-INSERT.
+-- request_id) is the final invariant. The submission function also takes a
+-- transaction-scoped request lock BEFORE creating a lead or trigger side effect.
 CREATE TABLE IF NOT EXISTS public.referral_submissions (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   business_id   uuid NOT NULL REFERENCES public.businesses(id) ON DELETE CASCADE,
@@ -224,6 +224,8 @@ CREATE TABLE IF NOT EXISTS public.notification_jobs (
   attempts            integer NOT NULL DEFAULT 0,
   next_attempt_at     timestamptz NOT NULL DEFAULT now(),
   claimed_at          timestamptz,
+  claim_token         uuid,
+  in_app_notified_at   timestamptz,
   sent_at             timestamptz,
   provider_message_id text,
   last_error          text,
@@ -232,6 +234,8 @@ CREATE TABLE IF NOT EXISTS public.notification_jobs (
   CONSTRAINT notification_jobs_status_check CHECK (status IN ('pending','claimed','sent','failed')),
   CONSTRAINT notification_jobs_lead_event_key UNIQUE (lead_id, event)
 );
+ALTER TABLE public.notification_jobs ADD COLUMN IF NOT EXISTS claim_token uuid;
+ALTER TABLE public.notification_jobs ADD COLUMN IF NOT EXISTS in_app_notified_at timestamptz;
 REVOKE ALL ON TABLE public.notification_jobs FROM PUBLIC;
 GRANT ALL ON TABLE public.notification_jobs TO service_role;
 ALTER TABLE public.notification_jobs ENABLE ROW LEVEL SECURITY;
@@ -289,7 +293,6 @@ DECLARE
   _need    text := btrim(coalesce(p_lead_need, ''));
   _rel     text := nullif(btrim(coalesce(p_relationship, '')), '');
   _fp      text;
-  _new_id  uuid;
 BEGIN
   IF p_consent IS NOT TRUE THEN
     RAISE EXCEPTION 'consent_required';
@@ -306,7 +309,7 @@ BEGIN
     FROM public.businesses
    WHERE slug = lower(btrim(coalesce(p_slug, '')))
      AND public.fn_page_live(account_status, is_published, is_disabled)
-   LIMIT 1;
+   LIMIT 1 FOR SHARE;
 
   IF _biz.id IS NULL THEN
     RAISE EXCEPTION 'page_not_live';
@@ -326,9 +329,13 @@ BEGIN
 
   -- Fingerprint of the NORMALISED payload. Same request id + same payload is a
   -- retry; same request id + different payload is rejected generically.
-  _fp := md5(concat_ws(
-    E'\x1f', _biz.id::text, _name, _email, coalesce(_rphone, ''), _lname, _lphone,
-    _lemail, _need, coalesce(_rel, '')));
+  _fp := md5(jsonb_build_array(
+    _biz.id, _name, _email, _rphone, _lname, _lphone, _lemail, _need, _rel)::text);
+
+  -- Serialize this request before INSERTing a lead. A hash collision only
+  -- serializes unrelated requests; tenant/request uniqueness remains exact.
+  -- This prevents losing retries from creating phantom lead.created webhooks.
+  PERFORM pg_advisory_xact_lock(hashtextextended('revvin-referral:' || _biz.id::text || ':' || _req, 0));
 
   -- Fast path for a retry that already succeeded. Scoped to (business,
   -- request_id) only: prospect contact details are never used to find a row, so
@@ -374,29 +381,11 @@ BEGIN
   )
   RETURNING * INTO _lead;
 
-  -- Concurrent retries of the SAME request id race here, not on a prior SELECT.
-  -- The loser of the race discards its lead and replays the winner's receipt.
+  -- The request lock is held until commit. The unique constraint also protects
+  -- against incompatible writers; an unexpected conflict rolls back the lead
+  -- AND every trigger effect rather than deleting only the lead afterwards.
   INSERT INTO public.referral_submissions (business_id, request_id, fingerprint, lead_id)
-  VALUES (_biz.id, _req, _fp, _lead.id)
-  ON CONFLICT (business_id, request_id) DO NOTHING
-  RETURNING id INTO _new_id;
-
-  IF _new_id IS NULL THEN
-    DELETE FROM public.leads WHERE id = _lead.id;
-    SELECT * INTO _sub
-      FROM public.referral_submissions
-     WHERE business_id = _biz.id AND request_id = _req
-     LIMIT 1;
-    IF _sub.id IS NULL OR _sub.fingerprint <> _fp THEN
-      RAISE EXCEPTION 'submission_conflict';
-    END IF;
-    SELECT * INTO _lead FROM public.leads WHERE id = _sub.lead_id LIMIT 1;
-    RETURN json_build_object(
-      'lead_id', _lead.id,
-      'status_token', _lead.status_token,
-      'business_name', _biz.name,
-      'replay', true);
-  END IF;
+  VALUES (_biz.id, _req, _fp, _lead.id);
 
   -- Durable owner notification, committed with the lead. The visitor does not
   -- have to call anything; the worker drains this queue. Recipients are resolved
@@ -434,13 +423,23 @@ DROP POLICY IF EXISTS "Public submit leads to published businesses" ON public.le
 -- by fn_finish_notification_job with provider evidence.
 CREATE OR REPLACE FUNCTION public.fn_claim_notification_jobs(p_limit integer DEFAULT 10)
 RETURNS SETOF public.notification_jobs
-LANGUAGE sql
+LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = pg_catalog, public
 AS $$
+BEGIN
+  -- A final worker crash must also become visible as a terminal failure.
+  UPDATE public.notification_jobs
+     SET status = 'failed', claim_token = NULL,
+         last_error = coalesce(last_error, 'Notification retry limit reached')
+   WHERE status IN ('pending', 'claimed') AND attempts >= 6
+     AND next_attempt_at <= now();
+
+  RETURN QUERY
   UPDATE public.notification_jobs j
      SET status = 'claimed',
          claimed_at = now(),
+         claim_token = gen_random_uuid(),
          attempts = j.attempts + 1,
          -- If the worker dies mid-flight the job becomes due again, with backoff.
          next_attempt_at = now() + (least(j.attempts + 1, 6) * interval '5 minutes')
@@ -453,39 +452,86 @@ AS $$
       FOR UPDATE SKIP LOCKED
       LIMIT greatest(1, least(coalesce(p_limit, 10), 50)))
   RETURNING j.*;
+END;
 $$;
 
+DROP FUNCTION IF EXISTS public.fn_finish_notification_job(uuid, text, text, text);
 CREATE OR REPLACE FUNCTION public.fn_finish_notification_job(
   p_job_id             uuid,
+  p_claim_token        uuid,
   p_outcome            text,          -- 'sent' | 'retry' | 'failed'
   p_provider_message_id text DEFAULT NULL,
   p_error              text DEFAULT NULL
 )
-RETURNS void
+RETURNS boolean
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = pg_catalog, public
 AS $$
+DECLARE
+  _changed integer;
+  _lead_id uuid;
 BEGIN
-  IF p_outcome NOT IN ('sent', 'retry', 'failed') THEN
+  IF p_outcome IS NULL OR p_outcome NOT IN ('sent', 'retry', 'failed') THEN
     RAISE EXCEPTION 'invalid_outcome';
+  END IF;
+  IF p_outcome = 'sent' AND nullif(btrim(p_provider_message_id), '') IS NULL THEN
+    RAISE EXCEPTION 'provider_evidence_required';
   END IF;
 
   UPDATE public.notification_jobs
      SET status = CASE p_outcome WHEN 'sent' THEN 'sent'
                                  WHEN 'failed' THEN 'failed'
+                                 WHEN 'retry' THEN CASE WHEN attempts >= 6 THEN 'failed' ELSE 'pending' END
                                  ELSE 'pending' END,
          sent_at = CASE WHEN p_outcome = 'sent' THEN now() ELSE sent_at END,
          provider_message_id = coalesce(p_provider_message_id, provider_message_id),
-         last_error = CASE WHEN p_outcome = 'sent' THEN NULL ELSE left(coalesce(p_error, ''), 500) END
-   WHERE id = p_job_id;
+         last_error = CASE WHEN p_outcome = 'sent' THEN NULL ELSE left(coalesce(p_error, ''), 500) END,
+         claim_token = NULL
+   WHERE id = p_job_id AND status = 'claimed'
+     AND claim_token = p_claim_token AND p_claim_token IS NOT NULL
+   RETURNING lead_id INTO _lead_id;
+  GET DIAGNOSTICS _changed = ROW_COUNT;
+  IF _changed = 1 AND p_outcome = 'sent' THEN
+    UPDATE public.leads SET owner_notified_at = coalesce(owner_notified_at, now()) WHERE id = _lead_id;
+  END IF;
+  RETURN _changed = 1;
 END;
 $$;
 
 REVOKE ALL ON FUNCTION public.fn_claim_notification_jobs(integer) FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.fn_finish_notification_job(uuid, text, text, text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.fn_finish_notification_job(uuid, uuid, text, text, text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.fn_claim_notification_jobs(integer) TO service_role;
-GRANT EXECUTE ON FUNCTION public.fn_finish_notification_job(uuid, text, text, text) TO service_role;
+GRANT EXECUTE ON FUNCTION public.fn_finish_notification_job(uuid, uuid, text, text, text) TO service_role;
+
+-- The notification and marker share a transaction, so every email retry sees
+-- the same single in-app notice. The worker never supplies its recipient/body.
+CREATE OR REPLACE FUNCTION public.fn_ensure_lead_notification(p_job_id uuid, p_claim_token uuid)
+RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $$
+DECLARE
+  _job public.notification_jobs%ROWTYPE;
+  _lead public.leads%ROWTYPE;
+  _biz public.businesses%ROWTYPE;
+BEGIN
+  SELECT * INTO _job FROM public.notification_jobs
+   WHERE id = p_job_id AND status = 'claimed' AND claim_token = p_claim_token
+   FOR UPDATE;
+  IF _job.id IS NULL THEN RETURN false; END IF;
+  IF _job.in_app_notified_at IS NOT NULL THEN RETURN true; END IF;
+  SELECT * INTO _lead FROM public.leads WHERE id = _job.lead_id AND business_id = _job.business_id;
+  SELECT * INTO _biz FROM public.businesses WHERE id = _job.business_id;
+  IF _lead.id IS NULL OR _biz.id IS NULL OR _biz.is_demo IS TRUE THEN RETURN false; END IF;
+  INSERT INTO public.notifications (user_id, title, body, type)
+  VALUES (_biz.user_id, 'New referral: ' || _lead.lead_name,
+          'Referred by ' || _lead.referrer_name || '. Reach out today while it is fresh.', 'referral_submitted');
+  UPDATE public.notification_jobs SET in_app_notified_at = now() WHERE id = _job.id;
+  RETURN true;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.fn_ensure_lead_notification(uuid, uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.fn_ensure_lead_notification(uuid, uuid) TO service_role;
 
 -- Backfill work items for leads that arrived before this release and were never
 -- notified, so nothing already in the table is silently dropped.
@@ -517,12 +563,11 @@ AS $$
 DECLARE
   _owner uuid;
   _uid   uuid := auth.uid();
-  _is_service boolean := coalesce(current_setting('request.jwt.claim.role', true) = 'service_role', false)
-                         OR session_user = 'service_role' OR current_user = 'service_role';
+  _is_service boolean := coalesce(auth.role() = 'service_role', false);
   _windowed boolean := (p_from IS NOT NULL OR p_to IS NOT NULL);
   _leads_total int; _leads_won int; _leads_revenue numeric;
   _refs_total int;  _refs_won int;  _refs_revenue numeric;
-  _unknown_close int; _unknown_referral_close int; _missing_amount int;
+  _unknown_close int; _unknown_referral_close int; _missing_amount int; _missing_referral_amount int;
 BEGIN
   SELECT user_id INTO _owner FROM public.businesses WHERE id = p_business_id;
   IF _owner IS NULL THEN RAISE EXCEPTION 'business_not_found'; END IF;
@@ -551,7 +596,9 @@ BEGIN
                             AND (p_from IS NULL OR closed_at >= p_from)
                             AND (p_to   IS NULL OR closed_at <  p_to)))), 0),
     count(*) FILTER (WHERE status = 'closed_won' AND closed_at IS NULL),
-    count(*) FILTER (WHERE status = 'closed_won' AND deal_value IS NULL)
+    count(*) FILTER (WHERE status = 'closed_won' AND deal_value IS NULL
+                       AND (NOT _windowed OR closed_at IS NULL OR
+                            ((p_from IS NULL OR closed_at >= p_from) AND (p_to IS NULL OR closed_at < p_to))))
   INTO _leads_total, _leads_won, _leads_revenue, _unknown_close, _missing_amount
   FROM public.leads
   WHERE business_id = p_business_id;
@@ -567,8 +614,11 @@ BEGIN
                        AND (NOT _windowed OR (won_at IS NOT NULL
                             AND (p_from IS NULL OR won_at >= p_from)
                             AND (p_to   IS NULL OR won_at <  p_to)))), 0),
-    count(*) FILTER (WHERE status = 'won' AND won_at IS NULL)
-  INTO _refs_total, _refs_won, _refs_revenue, _unknown_referral_close
+    count(*) FILTER (WHERE status = 'won' AND won_at IS NULL),
+    count(*) FILTER (WHERE status = 'won' AND deal_value IS NULL
+                       AND (NOT _windowed OR won_at IS NULL OR
+                            ((p_from IS NULL OR won_at >= p_from) AND (p_to IS NULL OR won_at < p_to))))
+  INTO _refs_total, _refs_won, _refs_revenue, _unknown_referral_close, _missing_referral_amount
   FROM public.referrals
   WHERE business_id = p_business_id;
 
@@ -580,7 +630,7 @@ BEGIN
                                      ELSE 'owner_reported_all_time' END,
     'windowed',                 _windowed,
     'unknown_close_date_count', _unknown_close + _unknown_referral_close,
-    'missing_amount_count',     _missing_amount
+    'missing_amount_count',     _missing_amount + _missing_referral_amount
   );
 END;
 $$;
@@ -616,14 +666,85 @@ CREATE TABLE IF NOT EXISTS public.stripe_payments (
   paid_at                timestamptz NOT NULL DEFAULT now(),
   created_at             timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT stripe_payments_invoice_key UNIQUE (stripe_invoice_id),
-  CONSTRAINT stripe_payments_kind_check CHECK (kind IN ('first_payment','renewal','trial_no_charge'))
+  CONSTRAINT stripe_payments_kind_check CHECK (kind IN ('first_payment','renewal','no_charge'))
 );
+ALTER TABLE public.stripe_payments DROP CONSTRAINT IF EXISTS stripe_payments_kind_check;
+UPDATE public.stripe_payments SET kind = 'no_charge' WHERE kind = 'trial_no_charge';
+ALTER TABLE public.stripe_payments ADD CONSTRAINT stripe_payments_kind_check
+  CHECK (kind IN ('first_payment','renewal','no_charge'));
 REVOKE ALL ON TABLE public.stripe_payments FROM PUBLIC;
 GRANT ALL ON TABLE public.stripe_payments TO service_role;
 ALTER TABLE public.stripe_payments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Admins read payments" ON public.stripe_payments;
 CREATE POLICY "Admins read payments" ON public.stripe_payments
   FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'));
 GRANT SELECT ON public.stripe_payments TO authenticated;
+
+-- Only the verified payment handler may call this. Business-row locking orders
+-- distinct invoice events as well as replay, and classification uses paid_at
+-- rather than arrival order. A delayed earlier invoice corrects first/renewal
+-- labels atomically without changing recorded invoice facts.
+CREATE OR REPLACE FUNCTION public.fn_record_stripe_payment(
+  p_invoice_id text,
+  p_subscription_id text,
+  p_customer_id text,
+  p_business_id uuid,
+  p_amount_paid_cents bigint,
+  p_currency text,
+  p_billing_reason text,
+  p_paid_at timestamptz
+)
+RETURNS json LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $$
+DECLARE
+  _biz public.businesses%ROWTYPE;
+  _payment public.stripe_payments%ROWTYPE;
+  _first_id uuid;
+  _inserted_id uuid;
+BEGIN
+  IF nullif(btrim(p_invoice_id), '') IS NULL OR char_length(p_invoice_id) > 255
+     OR nullif(btrim(p_subscription_id), '') IS NULL OR char_length(p_subscription_id) > 255
+     OR p_amount_paid_cents IS NULL OR p_amount_paid_cents < 0
+     OR p_currency IS NULL OR upper(p_currency) !~ '^[A-Z]{3}$' OR p_paid_at IS NULL THEN
+    RAISE EXCEPTION 'invalid_payment';
+  END IF;
+  SELECT * INTO _biz FROM public.businesses
+   WHERE id = p_business_id AND stripe_subscription_id = p_subscription_id
+   FOR UPDATE;
+  IF _biz.id IS NULL THEN RAISE EXCEPTION 'payment_business_not_found'; END IF;
+
+  INSERT INTO public.stripe_payments (
+    stripe_invoice_id, stripe_subscription_id, stripe_customer_id, business_id,
+    amount_paid_cents, currency, collected, billing_reason, kind, paid_at)
+  VALUES (p_invoice_id, p_subscription_id, p_customer_id, _biz.id,
+    p_amount_paid_cents, upper(p_currency), p_amount_paid_cents > 0, p_billing_reason,
+    CASE WHEN p_amount_paid_cents > 0 THEN 'renewal' ELSE 'no_charge' END, p_paid_at)
+  ON CONFLICT (stripe_invoice_id) DO NOTHING RETURNING id INTO _inserted_id;
+
+  SELECT * INTO _payment FROM public.stripe_payments WHERE stripe_invoice_id = p_invoice_id;
+  IF _payment.business_id IS DISTINCT FROM _biz.id
+     OR _payment.stripe_subscription_id IS DISTINCT FROM p_subscription_id
+     OR _payment.amount_paid_cents IS DISTINCT FROM p_amount_paid_cents
+     OR _payment.currency IS DISTINCT FROM upper(p_currency)
+     OR _payment.paid_at IS DISTINCT FROM p_paid_at THEN
+    RAISE EXCEPTION 'payment_conflict';
+  END IF;
+
+  SELECT id INTO _first_id FROM public.stripe_payments
+   WHERE business_id = _biz.id AND collected = true
+   ORDER BY paid_at, stripe_invoice_id LIMIT 1;
+  UPDATE public.stripe_payments
+     SET kind = CASE WHEN NOT collected THEN 'no_charge'
+                     WHEN id = _first_id THEN 'first_payment' ELSE 'renewal' END
+   WHERE business_id = _biz.id;
+  SELECT * INTO _payment FROM public.stripe_payments WHERE id = _payment.id;
+  RETURN json_build_object('id', _payment.id, 'duplicate', _inserted_id IS NULL,
+                           'kind', _payment.kind, 'collected', _payment.collected);
+END;
+$$;
+REVOKE ALL ON FUNCTION public.fn_record_stripe_payment(text,text,text,uuid,bigint,text,text,timestamptz) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.fn_record_stripe_payment(text,text,text,uuid,bigint,text,text,timestamptz) TO service_role;
 
 -- ===========================================================================
 -- 5. Funnel event RLS: allowed client events only, server facts stay server-side

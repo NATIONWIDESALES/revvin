@@ -1,61 +1,39 @@
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { useRef } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { track } from "@/lib/track";
+import { analyticsContext, setAnalyticsAudience } from "@/lib/analyticsPrivacy";
 
 /**
- * Privacy-friendly Plausible analytics.
- *
- * To enable: set VITE_PLAUSIBLE_DOMAIN in your environment (e.g. "revvin.co").
- * Until that env var is set, this component renders nothing — no script is
- * injected, no pageviews are sent.
- *
- * If you'd rather use PostHog or a different provider, swap the injected
- * script below; the route-change pageview pattern stays the same.
+ * First-party, public-only pageviews. Third-party script injection is paused:
+ * gating our own calls cannot stop an already-loaded automatic SPA tracker
+ * observing a later private URL. See the analytics privacy release note.
+ * Removing a script element would not unload its listeners or running code.
  */
-const PLAUSIBLE_DOMAIN = import.meta.env.VITE_PLAUSIBLE_DOMAIN as
-  | string
-  | undefined;
-const SCRIPT_ID = "plausible-analytics-script";
-
-declare global {
-  interface Window {
-    plausible?: (event: string, options?: Record<string, unknown>) => void;
-  }
-}
-
 const Analytics = () => {
   const location = useLocation();
-
-  // Inject the Plausible script once, only if a domain is configured.
-  useEffect(() => {
-    if (!PLAUSIBLE_DOMAIN) return;
-    if (document.getElementById(SCRIPT_ID)) return;
-    const s = document.createElement("script");
-    s.id = SCRIPT_ID;
-    s.defer = true;
-    s.setAttribute("data-domain", PLAUSIBLE_DOMAIN);
-    s.src = "https://plausible.io/js/script.js";
-    document.head.appendChild(s);
-  }, []);
-
-  // Fire a pageview on every client-side route change.
-  useEffect(() => {
-    if (!PLAUSIBLE_DOMAIN) return;
-    if (typeof window.plausible === "function") {
-      window.plausible("pageview");
-    }
-  }, [location.pathname, location.search]);
-
-  // First-party visit row for the in-app funnel view. Deduped per URL so a
-  // re-render never double counts.
+  const { user, loading } = useAuth();
+  const currentAudience = loading ? "unknown" : user ? "signed-in" : "anonymous";
   const lastPath = useRef<string | null>(null);
+
+  useLayoutEffect(() => {
+    setAnalyticsAudience(currentAudience);
+    return () => setAnalyticsAudience("unknown");
+  }, [currentAudience]);
+
   useEffect(() => {
-    const key = location.pathname + location.search;
-    if (lastPath.current === key) return;
-    lastPath.current = key;
+    const href = `${window.location.origin}${location.pathname}${location.search}${location.hash}`;
+    const context = analyticsContext(href, currentAudience);
+    if (!context) {
+      lastPath.current = null;
+      return;
+    }
+    // Query-only changes do not create duplicate pageviews. No token or query
+    // ever becomes a dedupe key, page path or analytics property.
+    if (lastPath.current === context.path) return;
+    lastPath.current = context.path;
     track("page_viewed");
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, location.hash, currentAudience]);
 
   return null;
 };

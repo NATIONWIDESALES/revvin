@@ -10,6 +10,7 @@ import {
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { PRICE_LAUNCH_PACKAGE_297 } from "../_shared/stripe-prices.ts";
 import { subscriptionPeriodEnd } from "../_shared/stripe-subscription.ts";
+import { handlePaidInvoice, invoiceSubscriptionId, updateBusinessBilling } from "../_shared/billing-handlers.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -86,16 +87,8 @@ serve(async (req) => {
   console.log("[stripe-business-webhook]", event.type);
 
   try {
-    const setBiz = async (
-      userId: string,
-      patch: Record<string, unknown>
-    ) => {
-      const { error } = await admin
-        .from("businesses")
-        .update(patch)
-        .eq("user_id", userId);
-      if (error) console.error("update businesses error", error);
-    };
+    const setBiz = (userId: string, patch: Record<string, unknown>) =>
+      updateBusinessBilling(admin, "user_id", userId, patch);
 
     const publishedStatuses = new Set(["active", "trialing", "paid", "past_due"]);
 
@@ -358,23 +351,23 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
           const customer = await stripe.customers.retrieve(customerId);
           const email = (customer as Stripe.Customer).email;
           if (email) {
-            const { data: usr } = await admin.auth.admin.listUsers();
+            const { data: usr, error: usersError } = await admin.auth.admin.listUsers();
+            if (usersError) throw usersError;
             const match = usr.users.find((u) => u.email === email);
             if (match) {
-              await admin
-                .from("businesses")
-                .update(
-                  status === "canceled"
-                    ? { subscription_status: "canceled" }
-                    : {
-                        stripe_subscription_id: sub.id,
-                        stripe_customer_id: customerId,
-                        subscription_status: status,
-                        current_period_end: periodEnd,
-                        ...(publishedStatuses.has(status) ? { account_status: "approved" } : {}),
-                      },
-                )
-                .eq("user_id", match.id);
+              await setBiz(match.id,
+                status === "canceled"
+                  ? { subscription_status: "canceled" }
+                  : {
+                      stripe_subscription_id: sub.id,
+                      stripe_customer_id: customerId,
+                      subscription_status: status,
+                      current_period_end: periodEnd,
+                      ...(publishedStatuses.has(status) ? { account_status: "approved" } : {}),
+                    },
+              );
+            } else {
+              throw new Error("Subscription owner not found");
             }
           }
         }
@@ -383,14 +376,17 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
       }
       case "invoice.payment_failed": {
         const inv = event.data.object as Stripe.Invoice;
-        const subId = typeof inv.subscription === "string" ? inv.subscription : inv.subscription?.id;
+        const subId = invoiceSubscriptionId(inv);
         if (subId) {
           // Keep the page live. A bank decline is recoverable; taking the
           // customer's page down turns it into a cancellation.
-          await admin
-            .from("businesses")
-            .update({ subscription_status: "past_due" })
-            .eq("stripe_subscription_id", subId);
+          const currentSub = await stripe.subscriptions.retrieve(subId);
+          await updateBusinessBilling(admin, "stripe_subscription_id", subId, {
+            subscription_status: currentSub.status,
+            current_period_end: subscriptionPeriodEnd(currentSub),
+          });
+          // Delayed failure events must not send a decline warning after recovery.
+          if (currentSub.status !== "past_due" && currentSub.status !== "unpaid") break;
 
           // At-most-once dunning email per billing period: atomically claim
           // dunning_notified_at (same conditional-UPDATE pattern as notify-new-lead).
@@ -401,7 +397,7 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
             .is("dunning_notified_at", null)
             .select("id, name, user_id, business_email")
             .limit(1);
-          if (claimErr) console.error("[stripe-business-webhook] dunning claim failed", claimErr);
+          if (claimErr) throw new Error(`Dunning claim failed: ${claimErr.message}`);
 
           const biz = claimed?.[0];
           if (biz) {
@@ -447,106 +443,10 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
         break;
       }
       case "invoice.payment_succeeded": {
-        const inv = event.data.object as Stripe.Invoice;
-        const subId = typeof inv.subscription === "string" ? inv.subscription : inv.subscription?.id;
-        if (subId) {
-          const sub = await stripe.subscriptions.retrieve(subId);
-          const periodEnd = subscriptionPeriodEnd(sub);
-          await admin
-            .from("businesses")
-            .update({
-              subscription_status: "active",
-              current_period_end: periodEnd,
-              account_status: "approved",
-              // Reset dunning so the next failed period can notify again.
-              dunning_notified_at: null,
-            })
-            .eq("stripe_subscription_id", subId);
-
-          // Authoritative payment record. Identity is the Stripe invoice, never a
-          // browser session, and the UNIQUE invoice id makes the write atomic and
-          // idempotent: no SELECT-then-INSERT, so two simultaneous deliveries
-          // cannot both be counted.
-          const amountCents = Number(inv.amount_paid ?? 0);
-          const { data: bizRows, error: bizErr } = await admin
-            .from("businesses")
-            .select("id")
-            .eq("stripe_subscription_id", subId)
-            .limit(1);
-          if (bizErr) {
-            // Transient: let Stripe retry rather than answering 200 on a lost write.
-            console.error("[stripe-business-webhook] business lookup failed", bizErr);
-            return new Response(JSON.stringify({ error: "business lookup failed" }), {
-              status: 500,
-              headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-          }
-          const businessId = (bizRows?.[0]?.id as string | undefined) ?? null;
-
-          // A zero-charge trial invoice is not collected money. It is recorded
-          // for completeness and excluded from revenue by `collected = false`.
-          const collected = amountCents > 0;
-          let kind: "first_payment" | "renewal" | "trial_no_charge" = "trial_no_charge";
-          if (collected) {
-            const { data: priorRows, error: priorErr } = await admin
-              .from("stripe_payments")
-              .select("id")
-              .eq("business_id", businessId)
-              .eq("collected", true)
-              .limit(1);
-            if (priorErr) {
-              console.error("[stripe-business-webhook] prior payment lookup failed", priorErr);
-              return new Response(JSON.stringify({ error: "payment lookup failed" }), {
-                status: 500,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-              });
-            }
-            kind = priorRows?.length ? "renewal" : "first_payment";
-          }
-
-          const { data: inserted, error: payErr } = await admin
-            .from("stripe_payments")
-            .upsert(
-              {
-                stripe_invoice_id: inv.id,
-                stripe_subscription_id: subId,
-                stripe_customer_id:
-                  typeof inv.customer === "string" ? inv.customer : inv.customer?.id ?? null,
-                business_id: businessId,
-                amount_paid_cents: amountCents,
-                currency: (inv.currency ?? "usd").toUpperCase(),
-                collected,
-                billing_reason: inv.billing_reason ?? null,
-                kind,
-                paid_at: new Date(((inv.status_transitions?.paid_at ?? inv.created) as number) * 1000).toISOString(),
-              },
-              { onConflict: "stripe_invoice_id", ignoreDuplicates: true },
-            )
-            .select("id");
-
-          if (payErr) {
-            // Distinguish duplicate from transient. A duplicate is already
-            // ignored by ignoreDuplicates, so anything left here is a real
-            // failure and must make Stripe retry.
-            console.error("[stripe-business-webhook] payment persist failed", payErr);
-            return new Response(JSON.stringify({ error: "payment persist failed" }), {
-              status: 500,
-              headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-          }
-
-          const isDuplicate = !inserted?.length;
-          console.log("[stripe-business-webhook] invoice paid", {
-            invoice: inv.id,
-            business_id: businessId,
-            collected,
-            kind,
-            duplicate: isDuplicate,
-          });
-          // Meta Purchase forwarding is NOT implemented. First-party reporting is
-          // the source of truth for paid conversions; the browser pixel mapping
-          // does not send a server-side Purchase event.
-        }
+        const recorded = await handlePaidInvoice(admin, stripe, event.data.object);
+        if (recorded) console.log("[stripe-business-webhook] invoice paid", recorded);
+        // Paid conversions live in the authoritative invoice ledger. No browser
+        // activation or Meta Purchase event is inferred from a checkout return.
         break;
       }
 

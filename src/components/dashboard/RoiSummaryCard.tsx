@@ -125,7 +125,9 @@ const RoiSummaryCard = ({ businessId }: Props) => {
 
   const revenue = roi?.revenue ?? 0;
   const isEmpty =
-    !loading && !roiError && (roi?.leads_total ?? 0) === 0 && revenue === 0;
+    !loading && !roiError && !rewardsError && (roi?.leads_total ?? 0) === 0 &&
+    (roi?.closed_count ?? 0) === 0 && (roi?.unknown_close_date_count ?? 0) === 0 &&
+    (roi?.missing_amount_count ?? 0) === 0 && (rewardsPaid ?? 0) === 0 && revenue === 0;
 
   const notes: string[] = [];
   if (roi && roi.unknown_close_date_count > 0) {
@@ -137,7 +139,7 @@ const RoiSummaryCard = ({ businessId }: Props) => {
   }
   if (roi && roi.missing_amount_count > 0) {
     notes.push(
-      `${roi.missing_amount_count} closed ${roi.missing_amount_count === 1 ? "job has" : "jobs have"} no job value entered, so ${roi.missing_amount_count === 1 ? "it adds" : "they add"} nothing to the total. Add the value on the lead to see it here.`,
+      `${roi.missing_amount_count} closed ${roi.missing_amount_count === 1 ? "job has" : "jobs have"} no job value entered, including any without a known close date. Add the value on the lead or referral to complete your totals.`,
     );
   }
 
