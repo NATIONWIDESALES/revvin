@@ -185,7 +185,7 @@ const handwritten: PrerenderRoute[] = [
 
       {
         heading: "Cancel any time",
-        body: "Cancel from the billing portal whenever you like. Your page stays live and your referrals keep coming in, you only lose the Pro tools. There are no platform fees on referral rewards: Revvin does not take a cut and does not move the money. You pay your referrer directly when a deal closes.",
+        body: "Cancel from the billing portal whenever you like. On the annual plan Pro keeps working to the end of the year you paid for. After Pro ends your page stays live and your referrals keep coming in, because publishing is free: you only lose the Pro tools. There are no platform fees on referral rewards: Revvin does not take a cut and does not move the money. You pay your referrer directly when a deal closes.",
       },
     ],
     faqs: [
@@ -195,8 +195,9 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         q: `What do I get for the ${PRO}?`,
-        a: "Revvin Pro adds importing your past-customer list and sending your referral ask in bulk from your own email app, ROI reporting with a monthly email recap, and custom page branding.",
+        a: "Revvin Pro adds importing your past-customer list, sending your referral ask in bulk from your own email app, reactivation campaigns that Revvin sends by email from your account, ROI reporting with a monthly email recap, and custom page branding.",
       },
+
       {
         q: "Does Revvin take a cut of referral payouts?",
         a: "No. Referrers receive 100% of the advertised payout. The business pays the referrer directly, off-platform, when the deal closes. Revvin never holds or moves the money.",
