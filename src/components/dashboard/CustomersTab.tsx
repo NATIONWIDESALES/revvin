@@ -1,5 +1,6 @@
 import { copyText } from "@/lib/clipboard";
 import { friendlyError } from "@/lib/errors";
+import { parseCsv, parsePastedLines, type ParsedContact } from "@/lib/contactImport";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -96,6 +97,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const [loading, setLoading] = useState(true);
   const [paste, setPaste] = useState("");
   const [preview, setPreview] = useState<ParsedContact[]>([]);
+  const [parseErrors, setParseErrors] = useState<{ line: number; reason: string }[]>([]);
   const [importing, setImporting] = useState(false);
   const [savingDateId, setSavingDateId] = useState<string | null>(null);
   const hasReward = !!biz.offer_amount?.trim();
@@ -151,7 +153,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
 
   // Re-parse paste as user types
   useEffect(() => {
-    setPreview(parsePastedLines(paste));
+    const result = parsePastedLines(paste);
+    setPreview(result.contacts);
+    setParseErrors(result.errors);
   }, [paste]);
 
   const existingKey = useMemo(() => {
@@ -215,12 +219,26 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const handleCsv = async (file: File) => {
     const text = await file.text();
     const parsed = parseCsv(text);
-    if (parsed.length === 0) {
-      toast({ title: "No rows found in CSV", variant: "destructive" });
+    if (parsed.contacts.length === 0) {
+      toast({
+        title: "No usable rows in that file",
+        description: parsed.errors.length
+          ? `First problem: line ${parsed.errors[0].line}, ${parsed.errors[0].reason.toLowerCase()}.`
+          : "Each row needs a name plus an email or phone number.",
+        variant: "destructive",
+      });
       return;
     }
-    setPaste(parsed.map((p) => [p.name, p.email, p.phone, p.last_job_at?.slice(0, 10)].filter(Boolean).join(", ")).join("\n"));
-    toast({ title: `Loaded ${parsed.length} rows into preview` });
+    setPaste(
+      parsed.contacts
+        .map((p) => [p.name, p.email, p.phone, p.last_job_at?.slice(0, 10)].filter(Boolean).join(", "))
+        .join("\n"),
+    );
+    const skipped = parsed.errors.length + parsed.duplicates;
+    toast({
+      title: `Loaded ${parsed.contacts.length} row${parsed.contacts.length === 1 ? "" : "s"} into preview`,
+      description: skipped ? `${skipped} row${skipped === 1 ? "" : "s"} skipped: check names, emails and repeats.` : undefined,
+    });
   };
 
   const messageFor = (c: ReferralContact) =>
