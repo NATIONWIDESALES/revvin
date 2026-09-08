@@ -2,19 +2,24 @@
 // ClaudeBot, PerplexityBot, CCBot, and Googlebot's first pass).
 //
 // Every claim below must be true of the product: publishing a referral page is
-// free, Revvin Pro is $49/month USD, Revvin never sends email or SMS on a
-// business's behalf (it prepares the message and the owner's own device sends
-// it), and businesses pay their referrers directly off-platform. There is no
-// auto-ask engine, no automated review requests, no reactivation segmentation,
-// no webhooks and no public API.
+// free, Revvin Pro is $49/month USD, and businesses pay their referrers
+// directly off-platform. Personal referral asks are prepared by Revvin and sent
+// from the owner's own email or SMS app; the one thing Revvin sends itself is
+// Pro reactivation campaign email, by email only, with the business postal
+// address and an unsubscribe link, capped per send. There is no auto-ask
+// engine, no automated review requests, no webhooks and no public API.
 //
 // Industry and guide routes are derived from content so they can never drift.
+// Legal routes are derived from src/content/legal.ts, the same source the
+// rendered legal pages use.
 
 import { INDUSTRIES } from "./industries";
 import { GUIDES } from "./guides";
+import { PRIVACY_DOC, TERMS_DOC, legalPrerenderSections } from "./legal";
 // Relative, not aliased: this module is also imported by the build-time
 // prerender plugin, which is bundled outside the app's alias resolution.
 import { PRICE_TEXT } from "../config/pricing";
+
 
 
 
@@ -387,49 +392,23 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     // /privacy and /terms are in the sitemap, so without an entry here crawlers
-    // received the SPA fallback (homepage content) at a legal URL. These are
-    // summaries; the page itself renders the full policy text.
-    path: "/privacy",
-    title: "Privacy Policy | Revvin",
-    description:
-      "How Revvin handles personal data for businesses, referrers and referred customers: what is collected, why, who it is shared with, and how to request deletion.",
-    h1: "Privacy Policy",
-    sections: [
-      {
-        heading: "What Revvin collects",
-        body: "Account details for business owners and referrers, referral submissions entered on a business's referral page, customer lists a business chooses to import, and first-party analytics about page and funnel usage. Analytics events never carry names, emails or phone numbers.",
-      },
-      {
-        heading: "Why it is held and who sees it",
-        body: "Referral details are shown to the business the referral was sent to, because that is the point of submitting one. Payment processing is handled by Stripe and email delivery by our email provider. Revvin does not sell personal data.",
-      },
-      {
-        heading: "Your choices",
-        body: "Every marketing or reactivation email includes an unsubscribe link, and unsubscribing suppresses that address. To access or delete your data, email info@revvin.co. The full policy on this page is the authoritative version.",
-      },
-    ],
+    // received the SPA fallback (homepage content) at a legal URL. The sections
+    // are generated from the same authoritative content the pages render, so
+    // the initial HTML and the rendered page always state identical terms.
+    path: PRIVACY_DOC.path,
+    title: PRIVACY_DOC.metaTitle,
+    description: PRIVACY_DOC.metaDescription,
+    h1: PRIVACY_DOC.h1,
+    sections: legalPrerenderSections(PRIVACY_DOC),
   },
   {
-    path: "/terms",
-    title: "Terms of Service | Revvin",
-    description:
-      "The terms for using Revvin: free referral pages, Revvin Pro at $49/month USD, and the fact that businesses pay referral rewards directly and Revvin never holds the money.",
-    h1: "Terms of Service",
-    sections: [
-      {
-        heading: "Accounts and plans",
-        body: `Publishing a referral page is free. Revvin Pro is ${PRO}, or an annual price billed once for the year, cancellable at any time from the billing portal. Cancelling Pro does not unpublish your referral page.`,
-      },
-      {
-        heading: "Rewards are between the business and the referrer",
-        body: "The business sets the reward and pays the referrer directly, off-platform. Revvin records referrals and reward status but never holds, moves or guarantees reward money, and takes no cut of it.",
-      },
-      {
-        heading: "Acceptable use",
-        body: "You may only import or contact customers you have permission to contact, and every outreach message must allow the recipient to opt out. Accounts used to send unsolicited messages or to submit referrals without the referred person's consent can be suspended. The full terms on this page are the authoritative version.",
-      },
-    ],
+    path: TERMS_DOC.path,
+    title: TERMS_DOC.metaTitle,
+    description: TERMS_DOC.metaDescription,
+    h1: TERMS_DOC.h1,
+    sections: legalPrerenderSections(TERMS_DOC),
   },
+
   {
     path: "/en-usd",
     // Legacy currency-variant URL. Revvin prices in USD only in every country,

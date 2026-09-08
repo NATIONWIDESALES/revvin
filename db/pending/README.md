@@ -62,3 +62,23 @@ or rewrites lead data.
 - Meta Purchase forwarding is **not implemented**. Paid conversions are reported
   from the first-party `stripe_payments` record only.
 - Hosting-level 404 for unknown routes is a separate, still-open item.
+
+## Deployment-only items (not verifiable here)
+
+- **Pending SQL is unapplied.** Guest receipt privacy, the Free/canceled
+  referral-page read rule, ROI authorisation and close-date attribution, the
+  durable owner-notification job, the server-only payment record, and the
+  funnel event policy all live in the pending migration. Local tests do not
+  prove any of that SQL behaviour.
+- **`fn_suppressed_emails_for_business`** ships with the pending SQL. Until it
+  is applied, the Customers tab reports the global bounce/complaint list as
+  unchecked and says so in the UI; per-business suppression already works.
+- **Edge functions are not deployed** in this pass, including the rewritten
+  `notify-new-lead` worker and its scheduler.
+- **HTTP 404 status.** The build now writes `dist/404.html`, a real noindex
+  not-found document. Serving it with a 404 status for unknown paths is hosting
+  configuration and is NOT done: today unknown paths still get the SPA fallback
+  with a 200 status and a client-side noindex tag. Dynamic routes (`/r/*`,
+  `/i/*`, `/guides/*`, `/dashboard`) must keep receiving the SPA fallback.
+- **Live billing, real message delivery and Meta purchase forwarding** remain
+  unverified. Meta purchase forwarding is not implemented.
