@@ -1,38 +1,41 @@
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { motion } from "framer-motion";
+import { MONTHLY_PRICE } from "@/config/pricing";
 
 /**
- * Cost-per-customer comparison.
+ * Contribution from referred work.
+ *
+ * This is deliberately NOT a cost-per-customer comparison against ads. That
+ * version asked for ad spend and then implied a saving that only existed if a
+ * referral replaced a bought customer, which is an assumption we cannot make on
+ * the owner's behalf.
  *
  * Honesty rules this component follows:
- *  - Zero customers from ads is a real answer, so the slider allows it and the
- *    output says the number cannot be computed rather than dividing by zero.
- *  - A referral is only cheaper under an assumption (that it would replace a
- *    customer you currently buy). The assumption is stated, not hidden.
- *  - When Revvin costs more, that is shown too. Suppressing the negative case
- *    turns a calculator into an advert.
+ *  - The input is ADDITIONAL jobs actually won from referrals, and zero is a
+ *    valid answer: the output then shows the month costing the Pro fee.
+ *  - Revenue is never shown as profit. Gross margin is an input, and the result
+ *    is estimated contribution after job costs, referral rewards and the
+ *    software fee.
+ *  - Nothing here is a forecast. The numbers are the owner's own assumptions.
  */
 const ROICalculator = () => {
-  const [adSpend, setAdSpend] = useState(2000);
-  const [adCustomers, setAdCustomers] = useState(3);
-  const [revvinPayout, setRevvinPayout] = useState(500);
+  const [jobsWon, setJobsWon] = useState(2);
+  const [jobValue, setJobValue] = useState(3000);
+  const [marginPct, setMarginPct] = useState(40);
+  const [reward, setReward] = useState(300);
 
-  const monthlySubscription = 49;
-  const hasAdCustomers = adCustomers > 0;
-  const adCostPerCustomer = hasAdCustomers ? Math.round(adSpend / adCustomers) : null;
-  const subscriptionShare = hasAdCustomers
-    ? Math.round(monthlySubscription / adCustomers)
-    : monthlySubscription;
-  const revvinCost = revvinPayout + subscriptionShare;
-  const difference = adCostPerCustomer === null ? null : adCostPerCustomer - revvinCost;
-  const monthlyDifference = difference === null ? null : difference * adCustomers;
+  const revenue = jobsWon * jobValue;
+  const grossProfit = Math.round(revenue * (marginPct / 100));
+  const rewards = jobsWon * reward;
+  const software = MONTHLY_PRICE;
+  const contribution = grossProfit - rewards - software;
 
-  const money = (n: number) => `$${Math.abs(n).toLocaleString("en-US")}`;
+  const money = (n: number) => `$${Math.abs(Math.round(n)).toLocaleString("en-US")}`;
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
-      <h3 className="mb-2 text-xl font-bold text-foreground">Compare your cost per customer</h3>
+      <h3 className="mb-2 text-xl font-bold text-foreground">What referred work is worth to you</h3>
       <p className="mb-6 text-sm text-muted-foreground">
         Your numbers, your assumptions. Nothing here is a promise of results.
       </p>
@@ -40,117 +43,117 @@ const ROICalculator = () => {
       <div className="space-y-6">
         <div>
           <div className="mb-2 flex justify-between text-sm">
-            <span className="text-muted-foreground">Monthly ad spend</span>
-            <span className="font-bold text-foreground">${adSpend.toLocaleString()}</span>
+            <span className="text-muted-foreground">Extra jobs you win from referrals in a month</span>
+            <span className="font-bold text-foreground">{jobsWon}</span>
           </div>
           <Slider
-            value={[adSpend]}
-            onValueChange={([v]) => setAdSpend(v)}
-            min={0}
-            max={10000}
-            step={250}
-            aria-label="Monthly ad spend in dollars"
-          />
-        </div>
-
-        <div>
-          <div className="mb-2 flex justify-between text-sm">
-            <span className="text-muted-foreground">Customers that spend won you last month</span>
-            <span className="font-bold text-foreground">{adCustomers}</span>
-          </div>
-          <Slider
-            value={[adCustomers]}
-            onValueChange={([v]) => setAdCustomers(v)}
+            value={[jobsWon]}
+            onValueChange={([v]) => setJobsWon(v)}
             min={0}
             max={20}
             step={1}
-            aria-label="Customers won from ads per month"
+            aria-label="Extra jobs won from referrals per month"
           />
         </div>
 
         <div>
           <div className="mb-2 flex justify-between text-sm">
-            <span className="text-muted-foreground">Reward you would pay per referral</span>
-            <span className="font-bold text-foreground">${revvinPayout}</span>
+            <span className="text-muted-foreground">Average job value</span>
+            <span className="font-bold text-foreground">${jobValue.toLocaleString()}</span>
           </div>
           <Slider
-            value={[revvinPayout]}
-            onValueChange={([v]) => setRevvinPayout(v)}
+            value={[jobValue]}
+            onValueChange={([v]) => setJobValue(v)}
+            min={100}
+            max={25000}
+            step={100}
+            aria-label="Average job value in dollars"
+          />
+        </div>
+
+        <div>
+          <div className="mb-2 flex justify-between text-sm">
+            <span className="text-muted-foreground">Gross margin on a job</span>
+            <span className="font-bold text-foreground">{marginPct}%</span>
+          </div>
+          <Slider
+            value={[marginPct]}
+            onValueChange={([v]) => setMarginPct(v)}
+            min={5}
+            max={90}
+            step={5}
+            aria-label="Gross margin percentage on a job"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            What is left of the job after materials, labour and subs. Revenue is not profit.
+          </p>
+        </div>
+
+        <div>
+          <div className="mb-2 flex justify-between text-sm">
+            <span className="text-muted-foreground">Reward you pay per closed referral</span>
+            <span className="font-bold text-foreground">${reward.toLocaleString()}</span>
+          </div>
+          <Slider
+            value={[reward]}
+            onValueChange={([v]) => setReward(v)}
             min={0}
             max={2000}
-            step={50}
-            aria-label="Reward paid per referral in dollars"
+            step={25}
+            aria-label="Reward paid per closed referral in dollars"
           />
         </div>
       </div>
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2">
+      <div className="mt-8 grid gap-3 sm:grid-cols-3">
         <div className="rounded-xl border border-border bg-muted/30 p-4 text-center">
-          <p className="mb-1 text-xs text-muted-foreground">Your ad cost per customer</p>
-          <p className="text-2xl font-bold text-foreground">
-            {adCostPerCustomer === null ? "n/a" : `$${adCostPerCustomer.toLocaleString()}`}
-          </p>
+          <p className="mb-1 text-xs text-muted-foreground">Gross profit on that work</p>
+          <p className="text-xl font-bold text-foreground">{money(grossProfit)}</p>
         </div>
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
-          <p className="mb-1 text-xs text-muted-foreground">Cost of one paid referral</p>
-          <p className="text-2xl font-bold text-primary">${revvinCost.toLocaleString()}</p>
+        <div className="rounded-xl border border-border bg-muted/30 p-4 text-center">
+          <p className="mb-1 text-xs text-muted-foreground">Rewards you pay out</p>
+          <p className="text-xl font-bold text-foreground">{money(rewards)}</p>
+        </div>
+        <div className="rounded-xl border border-border bg-muted/30 p-4 text-center">
+          <p className="mb-1 text-xs text-muted-foreground">Revvin Pro that month</p>
+          <p className="text-xl font-bold text-foreground">{money(software)}</p>
         </div>
       </div>
 
-      {adCostPerCustomer === null && (
-        <div className="mt-4 rounded-xl border border-border bg-muted/30 p-5 text-center">
-          <p className="text-sm text-foreground">
-            With zero customers from ads there is no cost per customer to compare against.
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        aria-live="polite"
+        className={`mt-4 rounded-xl border-2 p-5 text-center ${
+          contribution > 0 ? "border-primary/20 bg-primary/5" : "border-border bg-muted/30"
+        }`}
+      >
+        <p className="text-sm text-muted-foreground">
+          {jobsWon === 0
+            ? "With no extra jobs won, the month costs you"
+            : contribution >= 0
+              ? "Estimated contribution after job costs, rewards and software"
+              : "Estimated shortfall after job costs, rewards and software"}
+        </p>
+        <p className={`text-3xl font-bold ${contribution > 0 ? "text-primary" : "text-foreground"}`}>
+          {contribution < 0 ? "-" : ""}
+          {money(contribution)}
+        </p>
+        {jobsWon > 0 && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            {money(revenue)} of referred revenue at {marginPct}% margin, less {money(rewards)} in
+            rewards and {money(software)} for Pro.
           </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            A paid referral would cost you {money(revvinCost)}: the {money(revvinPayout)} reward
-            plus ${monthlySubscription} for Pro that month.
-          </p>
-        </div>
-      )}
-
-      {difference !== null && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          aria-live="polite"
-          className={`mt-4 rounded-xl border-2 p-5 text-center ${
-            difference > 0 ? "border-primary/20 bg-primary/5" : "border-border bg-muted/30"
-          }`}
-        >
-          <p className="text-sm text-muted-foreground">
-            {difference > 0
-              ? "Cheaper per customer by"
-              : difference < 0
-                ? "More expensive per customer by"
-                : "Same cost per customer"}
-          </p>
-          {difference !== 0 && (
-            <p
-              className={`text-3xl font-bold ${difference > 0 ? "text-primary" : "text-foreground"}`}
-            >
-              {money(difference)}
-            </p>
-          )}
-          {monthlyDifference !== null && difference !== 0 && (
-            <p className="mt-2 text-sm text-foreground">
-              {monthlyDifference > 0 ? "A difference of " : "A shortfall of "}
-              <span className={difference > 0 ? "text-primary" : ""}>
-                {money(monthlyDifference)}
-              </span>{" "}
-              across {adCustomers} customer{adCustomers === 1 ? "" : "s"} a month
-            </p>
-          )}
-          <p className="mt-3 text-xs text-muted-foreground">
-            Assumes each referral replaces one customer you currently buy with ads. If referrals
-            come on top of your ads instead, this is added cost for added revenue, not a saving.
-          </p>
-        </motion.div>
-      )}
+        )}
+        <p className="mt-3 text-xs text-muted-foreground">
+          This is contribution from the referred jobs only, not your total profit. It does not
+          include overheads, tax, or the time you spend asking.
+        </p>
+      </motion.div>
 
       <p className="mt-4 text-xs text-muted-foreground">
-        Publishing your page is free. Revvin Pro is $49/month USD with no per-referral fees. You
-        pay the referrer directly when the deal closes: Revvin never handles the money.
+        Publishing your page is free. Revvin Pro is ${MONTHLY_PRICE}/month USD with no per-referral
+        fees. You pay the referrer directly when the deal closes: Revvin never handles that money.
       </p>
     </div>
   );

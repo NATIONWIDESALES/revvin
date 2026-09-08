@@ -44,7 +44,7 @@ const sharedFaqs = (trade: string): IndustryFaq[] => [
   },
   {
     q: "Does Revvin text or email my customers for me?",
-    a: "No. Revvin never sends anything on your behalf. It prepares the message and opens your own email app or messaging app with the recipients and text filled in, in batches, and your device sends it from your own address or number. The relationship and the consent stay with you.",
+    a: "Not the personal asks. For those, Revvin prepares the message and opens your own email app or messaging app with the recipients and text filled in, in batches, and your device sends it from your own address or number. Reactivation campaigns are different: those are email only, and Revvin sends them from your account on Pro with your postal address and an unsubscribe link in every message. Text messages always go out from your own phone.",
   },
   {
     q: "Do I need a customer list to start?",
@@ -66,7 +66,7 @@ export const INDUSTRIES: Industry[] = [
     loops: [
       {
         title: "Referrals from finished roofs",
-        body: "You send the ask, Revvin catches the reply. Send your referral link to the homeowner after a completed job, or to your whole past-customer list in batches from your own email app. Every referral lands in your inbox with the lead's name, contact and what they need, so you can text or call back in one tap.",
+        body: "You send the ask, Revvin catches the referral. Send your referral link to the homeowner after a completed job, or to your whole past-customer list in batches from your own email app. Every referral submitted through your page lands in your inbox with the lead's name, contact and what they need, so you can text or call back in one tap. Replies to your own text or email go to your own phone or inbox.",
       },
       {
         title: "Repeat work on the rest of the exterior",
@@ -89,7 +89,7 @@ export const INDUSTRIES: Industry[] = [
       ...sharedFaqs("roofing"),
       {
         q: "Can I pay referrers a percentage of the job instead of a flat amount?",
-        a: "You set the reward however you want and pay it directly, so a flat amount, a tiered amount or a percentage you calculate yourself all work. Revvin displays the offer you publish and tracks it from pending to paid.",
+        a: "You write the reward in your own words and pay it directly, so a flat amount, a tiered amount or a percentage you work out yourself all work. Revvin does not calculate a percentage of the job for you: it shows the offer exactly as you publish it and tracks the reward from owed to paid.",
       },
     ],
   },
@@ -106,7 +106,7 @@ export const INDUSTRIES: Industry[] = [
     loops: [
       {
         title: "Referrals after an install",
-        body: "A new system is the moment a homeowner is most willing to recommend you. Send them your referral link while the job is fresh, and route any reply straight into your lead inbox with one-tap call back. With Pro, ask your whole installed base in batches from your own email app.",
+        body: "A new system is the moment a homeowner is most willing to recommend you. Send them your referral link while the job is fresh, and every referral submitted through the page lands in your lead inbox with one-tap call back. With Pro, ask your whole installed base in batches from your own email app.",
       },
       {
         title: "Repeat work on the maintenance clock",
@@ -214,7 +214,7 @@ export const INDUSTRIES: Industry[] = [
     loops: [
       {
         title: "Referrals from completed work",
-        body: "Panel upgrades, rewires and EV charger installs all end with a satisfied homeowner. Send your referral link before you pack up the van, and catch every reply in a lead inbox with one-tap call or text back and status tracking.",
+        body: "Panel upgrades, rewires and EV charger installs all end with a satisfied homeowner. Send your referral link before you pack up the van, and catch every referral submitted through the page in a lead inbox with one-tap call or text back and status tracking.",
       },
       {
         title: "Repeat work across the house",
@@ -282,7 +282,7 @@ export const INDUSTRIES: Industry[] = [
     loops: [
       {
         title: "Referrals from finished rooms and exteriors",
-        body: "Send your referral link at the walkthrough, while the customer is showing the room to family. The message reads like it came from you because it does: your device sends it, and every reply lands in your lead inbox with contact details and status tracking.",
+        body: "Send your referral link at the walkthrough, while the customer is showing the room to family. The message reads like it came from you because it does: your device sends it, and every referral submitted through the page lands in your lead inbox with contact details and status tracking.",
       },
       {
         title: "Repeat work room by room",
@@ -434,7 +434,7 @@ export const INDUSTRIES: Industry[] = [
     loops: [
       {
         title: "Referrals from a fast decision",
-        body: "Spring breaks, opener dies, door will not close. The homeowner wants a name now. Send your referral link to the customer you just finished so they have something to forward, and take the reply in your inbox with one-tap call back.",
+        body: "Spring breaks, opener dies, door will not close. The homeowner wants a name now. Send your referral link to the customer you just finished so they have something to forward, and take every referral submitted through the page in your inbox with one-tap call back.",
       },
       {
         title: "Repeat work on the hardware",
@@ -518,7 +518,7 @@ export const INDUSTRIES: Industry[] = [
     loops: [
       {
         title: "Referrals that shortcut the quote comparison",
-        body: "A homeowner who trusts your past customer starts the process already sold on you. Send your referral link after the install so it is in their messages when the question arrives, and take every reply in your inbox with full contact details and one-tap call back.",
+        body: "A homeowner who trusts your past customer starts the process already sold on you. Send your referral link after the install so it is in their messages when the question arrives, and take every referral submitted through the page in your inbox with full contact details and one-tap call back.",
       },
       {
         title: "Repeat work on the remaining windows",

@@ -12,6 +12,11 @@
 
 import { INDUSTRIES } from "./industries";
 import { GUIDES } from "./guides";
+// Relative, not aliased: this module is also imported by the build-time
+// prerender plugin, which is bundled outside the app's alias resolution.
+import { PRICE_TEXT } from "../config/pricing";
+
+
 
 export interface PrerenderRoute {
   path: string;
@@ -28,7 +33,11 @@ export interface PrerenderRoute {
   canonical?: string;
 }
 
-const PRO = "$49/month USD";
+// Derived from the single pricing source so the initial HTML can never quote a
+// figure the rendered page has moved on from.
+const PRO = `${PRICE_TEXT.monthlyPerMonth} USD`;
+const ANNUAL = `${PRICE_TEXT.annualPerYear} USD billed once, which saves ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off)`;
+
 
 const industryRoutes: PrerenderRoute[] = INDUSTRIES.map((i) => ({
   path: `/referral-program/${i.slug}`,
@@ -171,11 +180,12 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: `Revvin Pro, ${PRO}`,
-        body: "Everything in Free, plus importing your past-customer list and sending your referral ask in bulk from your own email app, ROI reporting with a monthly email recap, and custom page branding. Annual billing is available and is billed once for the year. No contract and no setup fee.",
+        body: `Everything in Free, plus importing your past-customer list and sending your referral ask in bulk from your own email app, reactivation campaigns that Revvin sends by email from your account with an unsubscribe link in every message and a cap of 500 recipients per send, ROI reporting with a monthly email recap, and custom page branding. Annual billing is ${ANNUAL}. No contract and no setup fee.`,
       },
+
       {
         heading: "Cancel any time",
-        body: "Cancel from the billing portal whenever you like. Your page stays live and your referrals keep coming in, you only lose the Pro tools. There are no platform fees on referral rewards: Revvin does not take a cut and does not move the money. You pay your referrer directly when a deal closes.",
+        body: "Cancel from the billing portal whenever you like. On the annual plan Pro keeps working to the end of the year you paid for. After Pro ends your page stays live and your referrals keep coming in, because publishing is free: you only lose the Pro tools. There are no platform fees on referral rewards: Revvin does not take a cut and does not move the money. You pay your referrer directly when a deal closes.",
       },
     ],
     faqs: [
@@ -185,8 +195,9 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         q: `What do I get for the ${PRO}?`,
-        a: "Revvin Pro adds importing your past-customer list and sending your referral ask in bulk from your own email app, ROI reporting with a monthly email recap, and custom page branding.",
+        a: "Revvin Pro adds importing your past-customer list, sending your referral ask in bulk from your own email app, reactivation campaigns that Revvin sends by email from your account, ROI reporting with a monthly email recap, and custom page branding.",
       },
+
       {
         q: "Does Revvin take a cut of referral payouts?",
         a: "No. Referrers receive 100% of the advertised payout. The business pays the referrer directly, off-platform, when the deal closes. Revvin never holds or moves the money.",
@@ -308,7 +319,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "Scope and limits",
-        body: "Revvin never sends email or SMS on a business's behalf: messages are prepared and sent from the owner's own device and accounts. There is no automatic asking engine, no automated review-request sending, no reactivation segmentation, and no public API or webhook product. Pricing is USD only in every supported country: the United States, Canada and the United Arab Emirates.",
+        body: "Personal referral asks are never sent by Revvin: they are prepared and then sent from the owner's own device and accounts. Reactivation campaigns are the one thing Revvin sends, by email only, from the owner's Pro account, with the business postal address and an unsubscribe link in every message and a cap of 500 recipients per send. There is no automatic asking engine, no automated review-request sending, no SMS sending by Revvin, and no public API or webhook product. Pricing is USD only in every supported country: the United States, Canada and the United Arab Emirates.",
       },
     ],
   },
@@ -366,7 +377,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "What happens instead",
-        body: "Jobs are marked done by hand in your dashboard, and every referral ask goes out from your own phone or email app, so it always comes from you. Revvin prepares the message and opens your own app with the recipients and the text filled in; it never sends email or SMS on your behalf.",
+        body: "Jobs are marked done by hand in your dashboard, and every personal referral ask goes out from your own phone or email app, so it always comes from you: Revvin prepares the message and opens your own app with the recipients and the text filled in. Reactivation campaigns work the other way round, and are the one thing Revvin sends for you, by email only, from your Pro account, with an unsubscribe link in every message.",
       },
       {
         heading: "Tell us if it matters",

@@ -2,7 +2,15 @@ import { copyText } from "@/lib/clipboard";
 import { friendlyError } from "@/lib/errors";
 import { track } from "@/lib/track";
 import { parseCsv, parseJobDate, parsePastedLines, type ParsedContact } from "@/lib/contactImport";
-import { useEffect, useMemo, useState } from "react";
+import {
+  channelAllowed,
+  contactEligibility,
+  loadSuppression,
+  type Channel,
+  type Eligibility,
+  type SuppressionSnapshot,
+} from "@/lib/contactEligibility";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -10,7 +18,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
-  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2, UserPlus, PlayCircle, ChevronRight, Copy, Users,
+  Inbox, Trash2, Upload, Check, Undo2, MessageSquare, Mail, Share2, Loader2, UserPlus, PlayCircle,
+  ChevronRight, Copy, Users, Ban, SkipForward,
 } from "lucide-react";
 
 export interface CustomersTabBusiness {
@@ -20,20 +29,28 @@ export interface CustomersTabBusiness {
   offer_trigger: string | null;
 }
 
+/**
+ * Mirrors the deployed `referral_contacts` columns exactly. `status` is text in
+ * the database and 'opted_out' is a real value, so it must be part of the type:
+ * the previous union of 'pending' | 'sent' made an opted-out contact render as
+ * Pending and offered every send button on it.
+ */
 export interface ReferralContact {
   id: string;
   business_id: string;
   name: string;
   email: string | null;
   phone: string | null;
-  status: "pending" | "sent";
+  status: "pending" | "sent" | "opted_out";
   last_sent_at: string | null;
   send_channel: "sms" | "email" | "share" | null;
   last_job_at: string | null;
-  opted_out?: boolean;
   is_mock: boolean;
   created_at: string;
 }
+
+const CONTACT_COLUMNS =
+  "id, business_id, name, email, phone, status, last_sent_at, send_channel, last_job_at, is_mock, created_at";
 
 // Default editable message template. Placeholders are filled from real business data.
 // No em dashes (project rule).
@@ -75,9 +92,10 @@ const TEMPLATE_PRESETS: Array<{ id: string; label: string; withReward: string; n
 const TEMPLATE_STORAGE_KEY = "revvin_customer_msg_template_v1";
 
 // Import parsing lives in src/lib/contactImport.ts so it can be unit tested:
-// dates must never be classified as phone numbers, and CSV cells may contain
-// quoted commas.
-
+// dates must never be classified as phone numbers, CSV cells may contain quoted
+// commas, and a parsed row is carried through as STRUCTURED data. It is never
+// re-serialised into a comma string and reparsed, which used to turn
+// "Smith, John" into "Smith" and shift every later column.
 
 function firstName(full: string) {
   return (full || "").trim().split(/\s+/)[0] || "there";
@@ -97,7 +115,11 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const [contacts, setContacts] = useState<ReferralContact[]>([]);
   const [loading, setLoading] = useState(true);
   const [paste, setPaste] = useState("");
-  const [preview, setPreview] = useState<ParsedContact[]>([]);
+  // Rows parsed from an uploaded file. Kept as structured contacts so the
+  // preview, the error list and the insert payload all see the same values.
+  const [fileRows, setFileRows] = useState<ParsedContact[]>([]);
+  const [source, setSource] = useState<"paste" | "file">("paste");
+  const [pasteRows, setPasteRows] = useState<ParsedContact[]>([]);
   const [parseErrors, setParseErrors] = useState<{ line: number; reason: string }[]>([]);
   const [importing, setImporting] = useState(false);
   const [savingDateId, setSavingDateId] = useState<string | null>(null);
@@ -108,28 +130,32 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   );
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [lastSent, setLastSent] = useState<{ id: string; prev: ReferralContact } | null>(null);
+  // Suppression state. A null snapshot means "we could not check", and every
+  // preparation control is disabled until it can be read.
+  const [suppression, setSuppression] = useState<SuppressionSnapshot | null>(null);
+  const [suppressionError, setSuppressionError] = useState<string | null>(null);
+  const [suppressionWarning, setSuppressionWarning] = useState<string | null>(null);
   // Manual add form state.
   const [manualName, setManualName] = useState("");
   const [manualEmail, setManualEmail] = useState("");
   const [manualPhone, setManualPhone] = useState("");
   const [manualLastJob, setManualLastJob] = useState("");
   const [manualSaving, setManualSaving] = useState(false);
-  // Tap-through composer: step through pending contacts one at a time.
+  // Tap-through composer. The run order is FROZEN when the dialog opens: walking
+  // a live shrinking array made confirming A skip straight past B to C.
   const [tapOpen, setTapOpen] = useState(false);
+  const [tapRunIds, setTapRunIds] = useState<string[]>([]);
   const [tapIndex, setTapIndex] = useState(0);
+  const [tapVisited, setTapVisited] = useState<string[]>([]);
   // Bulk BCC email composer: step through 50-address chunks of pending emails.
   const BULK_CHUNK_SIZE = 50;
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkIndex, setBulkIndex] = useState(0);
   const [bulkSending, setBulkSending] = useState(false);
-  // Stable snapshot of the chunks, taken once when the dialog opens. The pending
-  // list mutates as chunks are confirmed, so we must not re-derive from it.
   const [bulkChunks, setBulkChunks] = useState<ReferralContact[][]>([]);
-  // A draft was opened for the current chunk and we are waiting for the owner to
-  // tell us whether it actually went out. Opening a mail draft is not a send.
   const [bulkAwaitingConfirm, setBulkAwaitingConfirm] = useState(false);
   // Single-contact confirmation: which contact/channel is awaiting "Did that send?".
-  const [confirmSend, setConfirmSend] = useState<{ contact: ReferralContact; channel: "sms" | "email" | "share" } | null>(null);
+  const [confirmSend, setConfirmSend] = useState<{ contact: ReferralContact; channel: Channel } | null>(null);
   const [confirmSaving, setConfirmSaving] = useState(false);
 
   const reward = biz.offer_amount?.trim() || "";
@@ -139,7 +165,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     setLoading(true);
     const { data, error } = await (supabase as any)
       .from("referral_contacts")
-      .select("*")
+      .select(CONTACT_COLUMNS)
       .eq("business_id", biz.id)
       .order("created_at", { ascending: false });
     if (error) {
@@ -150,14 +176,31 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     setLoading(false);
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [biz.id]);
+  /**
+   * Refresh the do-not-contact state. Called on mount and again whenever a
+   * composer opens, so an unsubscribe recorded a minute ago is honoured before
+   * the owner prepares anything.
+   */
+  const refreshSuppression = useCallback(async () => {
+    const result = await loadSuppression(supabase as any, biz.id);
+    setSuppression(result.snapshot);
+    setSuppressionError(result.error ?? null);
+    setSuppressionWarning(result.warning ?? null);
+    return result.snapshot;
+  }, [biz.id]);
 
-  // Re-parse paste as user types
+  useEffect(() => { load(); void refreshSuppression(); /* eslint-disable-next-line */ }, [biz.id]);
+
+  // Re-parse pasted text as the owner types. File rows are held separately so a
+  // keystroke never rewrites what was parsed out of an uploaded file.
   useEffect(() => {
+    if (source !== "paste") return;
     const result = parsePastedLines(paste);
-    setPreview(result.contacts);
+    setPasteRows(result.contacts);
     setParseErrors(result.errors);
-  }, [paste]);
+  }, [paste, source]);
+
+  const preview = source === "file" ? fileRows : pasteRows;
 
   const existingKey = useMemo(() => {
     const s = new Set<string>();
@@ -170,7 +213,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
 
   const dedupedPreview = useMemo(() => {
     const seen = new Set<string>();
-    const out: typeof preview = [];
+    const out: ParsedContact[] = [];
     for (const p of preview) {
       const k = (p.email ? "e:" + p.email.toLowerCase() : "") + "|" + (p.phone ? "p:" + p.phone.replace(/\D/g, "") : "");
       if (seen.has(k)) continue;
@@ -184,13 +227,22 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     return out;
   }, [preview, existingKey]);
 
+  const clearImport = () => {
+    setPaste("");
+    setPasteRows([]);
+    setFileRows([]);
+    setParseErrors([]);
+    setSource("paste");
+  };
+
   const handleImport = async () => {
     // Explain the no-op instead of returning quietly: pasted rows can all be
     // duplicates or unparseable, which looks identical to a broken button.
     if (dedupedPreview.length === 0) {
+      const hasInput = source === "file" ? fileRows.length > 0 || parseErrors.length > 0 : !!paste.trim();
       toast({
-        title: paste.trim() ? "Nothing new to add" : "Paste your customers first",
-        description: paste.trim()
+        title: hasInput ? "Nothing new to add" : "Paste your customers first",
+        description: hasInput
           ? "Every row is already on your list or is missing a name with an email or phone number."
           : "One customer per line, for example: Jane Smith, 555-123-4567",
         variant: "destructive",
@@ -212,14 +264,20 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       return;
     }
     toast({ title: `Imported ${rows.length} contact${rows.length === 1 ? "" : "s"}` });
-    setPaste("");
-    setPreview([]);
+    clearImport();
     load();
+    // A reimport must never resurrect someone who unsubscribed, so re-read the
+    // suppression list before any of the new rows can be prepared.
+    void refreshSuppression();
   };
 
   const handleCsv = async (file: File) => {
     const text = await file.text();
     const parsed = parseCsv(text);
+    setSource("file");
+    setPaste("");
+    setFileRows(parsed.contacts);
+    setParseErrors(parsed.errors);
     if (parsed.contacts.length === 0) {
       toast({
         title: "No usable rows in that file",
@@ -230,15 +288,10 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       });
       return;
     }
-    setPaste(
-      parsed.contacts
-        .map((p) => [p.name, p.email, p.phone, p.last_job_at?.slice(0, 10)].filter(Boolean).join(", "))
-        .join("\n"),
-    );
     const skipped = parsed.errors.length + parsed.duplicates;
     toast({
       title: `Loaded ${parsed.contacts.length} row${parsed.contacts.length === 1 ? "" : "s"} into preview`,
-      description: skipped ? `${skipped} row${skipped === 1 ? "" : "s"} skipped: check names, emails and repeats.` : undefined,
+      description: skipped ? `${skipped} row${skipped === 1 ? "" : "s"} skipped: see the list below.` : undefined,
     });
   };
 
@@ -251,15 +304,56 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       referralLink: publicUrl,
     });
 
-  const markSent = async (c: ReferralContact, channel: "sms" | "email" | "share") => {
+  // Eligibility for every loaded contact, recomputed whenever the contact list
+  // or the suppression snapshot changes.
+  const eligibility = useMemo(() => {
+    const map = new Map<string, Eligibility>();
+    for (const c of contacts) map.set(c.id, contactEligibility(c, suppression));
+    return map;
+  }, [contacts, suppression]);
+
+  const eligibilityFor = (c: ReferralContact): Eligibility =>
+    eligibility.get(c.id) ?? contactEligibility(c, suppression);
+
+  /**
+   * Last gate before anything is prepared. Re-reads suppression so a change made
+   * while the composer was open is honoured, and fails closed on a lookup error.
+   */
+  const guardChannel = async (c: ReferralContact, channel: Channel): Promise<boolean> => {
+    const snapshot = await refreshSuppression();
+    const fresh = contactEligibility(c, snapshot);
+    if (!channelAllowed(fresh, channel)) {
+      toast({
+        title: "Not allowed for this contact",
+        description: fresh.reason ?? "This contact cannot be messaged on that channel.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const markSent = async (c: ReferralContact, channel: Channel) => {
+    // Never let a confirmation overwrite an opt-out.
+    const fresh = contactEligibility(c, suppression);
+    if (!channelAllowed(fresh, channel)) {
+      toast({
+        title: "Nothing recorded",
+        description: fresh.reason ?? "This contact is on your do-not-contact list.",
+        variant: "destructive",
+      });
+      return false;
+    }
     const prev = { ...c };
     const nowIso = new Date().toISOString();
     // Write first. Only reflect it in the UI once the database has accepted it,
     // so the screen never claims a contact was invited when nothing was recorded.
+    // The status filter keeps an opt-out recorded elsewhere from being clobbered.
     const { error } = await (supabase as any)
       .from("referral_contacts")
       .update({ status: "sent", last_sent_at: nowIso, send_channel: channel })
-      .eq("id", c.id);
+      .eq("id", c.id)
+      .neq("status", "opted_out");
     if (error) {
       toast({
         title: "Nothing was recorded",
@@ -277,7 +371,8 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     if (!contacts.some((x) => x.status === "sent" && x.id !== c.id)) track("first_ask_prepared");
     // Append a history row so re-asks and nudges can reason over real sends later.
     // Each row records ONLY that the business tapped Send on a channel; Revvin never
-    // sends, so this is not proof of delivery. Failure here is non-fatal.
+    // sends these personal asks, so this is not proof of delivery. Failure here is
+    // non-fatal.
     void (supabase as any)
       .from("referral_contact_sends")
       .insert({ business_id: c.business_id, contact_id: c.id, channel });
@@ -295,24 +390,23 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     setLastSent(null);
   };
 
-  const sendSms = (c: ReferralContact) => {
+  const sendSms = async (c: ReferralContact) => {
     if (!c.phone) return;
+    if (!(await guardChannel(c, "sms"))) return;
     const body = encodeURIComponent(messageFor(c));
     // iOS historically uses &body= when there is a phone number, Android accepts ?body=.
-    // We use the separator that matches the platform; both modern OSes accept either.
     const sep = isIOS() ? "&" : "?";
-    const href = `sms:${c.phone}${sep}body=${body}`;
-    window.location.href = href;
+    window.location.href = `sms:${c.phone}${sep}body=${body}`;
     // Opening the Messages app is not a send. Ask before recording anything.
     setConfirmSend({ contact: c, channel: "sms" });
   };
 
-  const sendEmail = (c: ReferralContact) => {
+  const sendEmail = async (c: ReferralContact) => {
     if (!c.email) return;
+    if (!(await guardChannel(c, "email"))) return;
     const subject = encodeURIComponent(`A referral opportunity from ${biz.name}`);
     const body = encodeURIComponent(messageFor(c));
-    const href = `mailto:${c.email}?subject=${subject}&body=${body}`;
-    window.location.href = href;
+    window.location.href = `mailto:${c.email}?subject=${subject}&body=${body}`;
     setConfirmSend({ contact: c, channel: "email" });
   };
 
@@ -322,10 +416,16 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     setConfirmSaving(true);
     const ok = await markSent(confirmSend.contact, confirmSend.channel);
     setConfirmSaving(false);
-    if (ok) setConfirmSend(null);
+    if (ok) {
+      const id = confirmSend.contact.id;
+      setConfirmSend(null);
+      // Advance the guided run exactly once, and only for the contact on screen.
+      if (tapOpen && tapRunIds[tapIndex] === id) advanceTap(id);
+    }
   };
 
   const sendShare = async (c: ReferralContact) => {
+    if (!(await guardChannel(c, "share"))) return;
     setSendingId(c.id);
     const text = messageFor(c);
     try {
@@ -363,6 +463,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   // Share are not available. Copying only PREPARES the ask, so the contact
   // stays pending until the owner confirms they actually sent it.
   const copyMessage = async (c: ReferralContact) => {
+    if (!(await guardChannel(c, "share"))) return;
     setSendingId(c.id);
     try {
       const ok = await copyText(messageFor(c));
@@ -409,7 +510,6 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   };
 
   // Manual add of a single contact. Requires name plus at least one of email/phone.
-  // Deduped against existing rows the same way the paste importer dedupes.
   const addManual = async () => {
     const name = manualName.trim();
     const email = manualEmail.trim();
@@ -428,6 +528,11 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       toast({ title: "Already in your list", description: "This contact matches one you already added.", variant: "destructive" });
       return;
     }
+    const jobDate = manualLastJob ? parseJobDate(manualLastJob) : undefined;
+    if (manualLastJob && !jobDate) {
+      toast({ title: "Check the last job date", description: "Use a real past date, for example 2026-01-15.", variant: "destructive" });
+      return;
+    }
     setManualSaving(true);
     const { error } = await (supabase as any).from("referral_contacts").insert({
       business_id: biz.id,
@@ -436,7 +541,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       phone: phone || null,
       // Optional. Campaign segmenting uses this when present and falls back to
       // the date you added them when it is not.
-      last_job_at: manualLastJob ? new Date(manualLastJob).toISOString() : null,
+      last_job_at: jobDate ?? null,
     });
     setManualSaving(false);
     if (error) {
@@ -460,23 +565,35 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
 
   const pending = contacts.filter((c) => c.status === "pending");
   const sent = contacts.filter((c) => c.status === "sent");
-
-  // Only pending contacts with a valid email are eligible for BCC batching.
-  // SMS BCC does not exist reliably across iOS/Android, so this flow is email only.
-  const pendingEmails = useMemo(
-    () => pending.filter((c) => !!c.email),
-    [pending],
+  const optedOut = contacts.filter(
+    (c) => c.status === "opted_out" || eligibilityFor(c).optedOut,
   );
-  // Current chunk comes from the frozen snapshot, narrowed to rows that are still
-  // pending (a row could have been invited elsewhere while the dialog was open).
+
+  /** Pending contacts we are actually allowed to prepare something for. */
+  const askable = useMemo(
+    () => pending.filter((c) => eligibilityFor(c).canPrepare),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pending, eligibility],
+  );
+
+  // Only pending contacts with an email we are allowed to use are eligible for
+  // BCC batching. SMS BCC does not exist reliably across iOS/Android.
+  const pendingEmails = useMemo(
+    () => pending.filter((c) => !!c.email && channelAllowed(eligibilityFor(c), "email")),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pending, eligibility],
+  );
+
   const pendingIds = useMemo(() => new Set(pending.map((c) => c.id)), [pending]);
   const bulkCurrent = useMemo(
-    () => (bulkChunks[bulkIndex] ?? []).filter((c) => pendingIds.has(c.id)),
-    [bulkChunks, bulkIndex, pendingIds],
+    () => (bulkChunks[bulkIndex] ?? []).filter((c) => pendingIds.has(c.id) && channelAllowed(eligibilityFor(c), "email")),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [bulkChunks, bulkIndex, pendingIds, eligibility],
   );
   const bulkRemaining = useMemo(
-    () => bulkChunks.slice(bulkIndex).flat().filter((c) => pendingIds.has(c.id)).length,
-    [bulkChunks, bulkIndex, pendingIds],
+    () => bulkChunks.slice(bulkIndex).flat().filter((c) => pendingIds.has(c.id) && channelAllowed(eligibilityFor(c), "email")).length,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [bulkChunks, bulkIndex, pendingIds, eligibility],
   );
 
   // Generic (non-personalized) body for BCC: {firstName} becomes "there" because
@@ -494,25 +611,36 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   );
   const bulkSubject = `A referral opportunity from ${biz.name}`;
 
-  const openBulk = () => {
-    if (pendingEmails.length === 0) {
-      toast({ title: "No pending emails", description: "Import contacts with email addresses first." });
+  const openBulk = async () => {
+    // Re-check before building the batch: an unsubscribe from ten minutes ago
+    // must not end up in a BCC field.
+    const snapshot = await refreshSuppression();
+    const allowed = pending.filter(
+      (c) => !!c.email && channelAllowed(contactEligibility(c, snapshot), "email"),
+    );
+    if (allowed.length === 0) {
+      toast({
+        title: "No emails you can use",
+        description: snapshot
+          ? "Import contacts with email addresses, or every pending email is unsubscribed."
+          : "We could not check the do-not-contact list, so sending is paused.",
+      });
       return;
     }
     // Freeze the working set once. Chunking off live state made the closure read
     // a stale length and skip batches.
-    const snapshot: ReferralContact[][] = [];
-    for (let i = 0; i < pendingEmails.length; i += BULK_CHUNK_SIZE) {
-      snapshot.push(pendingEmails.slice(i, i + BULK_CHUNK_SIZE));
+    const snapshotChunks: ReferralContact[][] = [];
+    for (let i = 0; i < allowed.length; i += BULK_CHUNK_SIZE) {
+      snapshotChunks.push(allowed.slice(i, i + BULK_CHUNK_SIZE));
     }
-    setBulkChunks(snapshot);
+    setBulkChunks(snapshotChunks);
     setBulkIndex(0);
     setBulkAwaitingConfirm(false);
     setBulkOpen(true);
   };
 
   // Step 1: open the owner's mail app with this chunk in BCC. Nothing is recorded
-  // here. Revvin never transmits; the draft leaves from the owner's own device.
+  // here. This personal ask leaves from the owner's own device.
   const openBulkDraft = () => {
     if (bulkCurrent.length === 0) return;
     const bcc = bulkCurrent.map((c) => c.email).filter(Boolean).join(",");
@@ -534,7 +662,8 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     const { error } = await (supabase as any)
       .from("referral_contacts")
       .update({ status: "sent", last_sent_at: nowIso, send_channel: "email" })
-      .in("id", ids);
+      .in("id", ids)
+      .neq("status", "opted_out");
     setBulkSending(false);
     if (error) {
       toast({
@@ -572,7 +701,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   };
 
   const copyBulkBcc = async () => {
-    if (!bulkCurrent) return;
+    if (bulkCurrent.length === 0) return;
     const bcc = bulkCurrent.map((c) => c.email).filter(Boolean).join(", ");
     try {
       const ok = await copyText(bcc);
@@ -583,25 +712,66 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     }
   };
 
-  // Tap-through: walk the pending list one at a time. When the current index
-  // moves past the last pending row, close the dialog.
-  const tapCurrent = pending[tapIndex];
-  const openTapThrough = () => {
-    if (pending.length === 0) {
-      toast({ title: "No pending contacts", description: "All caught up." });
+  // ---------------------------------------------------------------------------
+  // Guided one-by-one run.
+  //
+  // The run order is a frozen list of contact IDs. The old version read
+  // pending[tapIndex] from live state, so confirming A removed A from pending
+  // and index 1 then pointed at C: B was silently skipped. Now the current
+  // contact is looked up by ID, and the index advances exactly once per
+  // contact, whether that came from a confirmation or an explicit Skip.
+  // ---------------------------------------------------------------------------
+  const tapCurrentId = tapRunIds[tapIndex];
+  const tapCurrent = tapCurrentId ? contacts.find((c) => c.id === tapCurrentId) : undefined;
+  const tapUnvisited = tapRunIds.filter(
+    (id) => !tapVisited.includes(id) && pending.some((c) => c.id === id),
+  );
+
+  const openTapThrough = async () => {
+    const snapshot = await refreshSuppression();
+    const run = pending.filter((c) => contactEligibility(c, snapshot).canPrepare);
+    if (run.length === 0) {
+      toast({
+        title: snapshot ? "No contacts to ask" : "Sending is paused",
+        description: snapshot
+          ? "Everyone pending is either unsubscribed or already invited."
+          : "We could not check the do-not-contact list.",
+      });
       return;
     }
+    setTapRunIds(run.map((c) => c.id));
     setTapIndex(0);
+    setTapVisited([]);
     setTapOpen(true);
   };
-  const tapNext = () => {
-    if (tapIndex + 1 >= pending.length) {
+
+  /** Move past one contact, once. Used by both confirmation and Skip. */
+  const advanceTap = (id: string) => {
+    setTapVisited((v) => (v.includes(id) ? v : [...v, id]));
+    const nextIndex = tapIndex + 1;
+    if (nextIndex >= tapRunIds.length) {
       setTapOpen(false);
-      toast({ title: "Done", description: "You've been through every pending contact." });
+      const left = tapRunIds.filter(
+        (rid) => rid !== id && !tapVisited.includes(rid) && pending.some((c) => c.id === rid),
+      ).length;
+      toast({
+        title: left === 0 ? "Done" : "End of the list",
+        description:
+          left === 0
+            ? "You have been through every contact in this run."
+            : `${left} contact${left === 1 ? "" : "s"} are still pending. Start the run again when you are ready.`,
+      });
       return;
     }
-    setTapIndex((i) => i + 1);
+    setTapIndex(nextIndex);
   };
+
+  const skipTap = () => {
+    if (!tapCurrentId) return;
+    advanceTap(tapCurrentId);
+  };
+
+  const suppressionNotice = suppressionError ?? suppressionWarning;
 
   return (
     <div className="space-y-6">
@@ -633,14 +803,15 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground">Import customers</h3>
         <p className="text-xs text-muted-foreground mt-1">
-          Paste your customer list. One per line, like <span className="font-mono">Name, email, phone, 2025-06-15</span>. The optional fourth column is the last job date. We will dedupe against contacts you already have.
+          Paste your customer list. One per line, like <span className="font-mono">Name, email, phone, 2025-06-15</span>. The optional fourth column is the last job date, written as YYYY-MM-DD. We will dedupe against contacts you already have.
         </p>
         <Textarea
           value={paste}
-          onChange={(e) => setPaste(e.target.value)}
+          onChange={(e) => { setSource("paste"); setPaste(e.target.value); }}
           placeholder={"Jane Smith, 555-123-4567\nMike Lee, mike@example.com\nSara Patel, 555-987-6543, sara@example.com"}
           rows={6}
           className="mt-4 font-mono text-xs"
+          aria-label="Paste customers"
         />
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <Button
@@ -657,6 +828,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
               type="file"
               accept=".csv,text/csv"
               className="hidden"
+              aria-label="CSV upload"
               onChange={(e) => {
                 const f = e.target.files?.[0];
                 if (f) handleCsv(f);
@@ -677,19 +849,16 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
         {parseErrors.length > 0 && (
           <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
             <p className="font-semibold">
-              {parseErrors.length} line{parseErrors.length === 1 ? "" : "s"} could not be used
+              {parseErrors.length} row{parseErrors.length === 1 ? "" : "s"} could not be used
             </p>
             <ul className="mt-1 space-y-0.5">
-              {parseErrors.slice(0, 4).map((e) => (
-                <li key={e.line}>Line {e.line}: {e.reason}</li>
+              {parseErrors.slice(0, 6).map((e, i) => (
+                <li key={`${e.line}-${i}`}>Line {e.line}: {e.reason}</li>
               ))}
-              {parseErrors.length > 4 && <li>and {parseErrors.length - 4} more</li>}
+              {parseErrors.length > 6 && <li>and {parseErrors.length - 6} more</li>}
             </ul>
           </div>
         )}
-
-
-
 
         {dedupedPreview.length > 0 && (
           <div className="mt-4 overflow-x-auto rounded-xl border border-border bg-muted/30">
@@ -704,7 +873,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
               </thead>
               <tbody>
                 {dedupedPreview.slice(0, 50).map((p, i) => (
-                  <tr key={i} className="border-t border-border">
+                  <tr key={`${p.sourceLine}-${i}`} className="border-t border-border">
                     <td className="px-3 py-2 text-foreground">{p.name}</td>
                     <td className="px-3 py-2 text-muted-foreground">{p.phone || "·"}</td>
                     <td className="px-3 py-2 text-muted-foreground">{p.email || "·"}</td>
@@ -753,6 +922,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
           onChange={(e) => setTemplate(e.target.value)}
           rows={4}
           className="mt-3 text-sm"
+          aria-label="Invite message template"
         />
         <p className="mt-2 text-[11px] text-muted-foreground">
           Available: <span className="font-mono">{"{firstName}"}</span>,{" "}
@@ -762,17 +932,31 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
         </p>
       </div>
 
+      {suppressionNotice && (
+        <div
+          role="status"
+          className={`rounded-xl border p-3 text-xs ${
+            suppressionError
+              ? "border-destructive/40 bg-destructive/10 text-destructive"
+              : "border-amber-300 bg-amber-50 text-amber-900"
+          }`}
+        >
+          {suppressionNotice}
+        </div>
+      )}
+
       {/* List */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-border">
           <div>
             <h3 className="text-sm font-semibold text-foreground">Your customers</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {pending.length} pending · {sent.length} invite{sent.length === 1 ? "" : "s"} opened
+              {askable.length} ready to ask · {sent.length} invite{sent.length === 1 ? "" : "s"} opened
+              {optedOut.length > 0 ? ` · ${optedOut.length} opted out` : ""}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {pending.length > 0 && (
+            {askable.length > 0 && (
               <Button size="sm" variant="outline" onClick={openTapThrough} className="gap-1.5">
                 <PlayCircle className="h-3.5 w-3.5" /> Send one by one
               </Button>
@@ -802,12 +986,17 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
           <ul className="divide-y divide-border">
             {contacts.map((c) => {
               const isSending = sendingId === c.id;
+              const e = eligibilityFor(c);
               return (
                 <li key={c.id} className="flex flex-wrap items-center gap-3 p-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-sm text-foreground truncate">{c.name}</span>
-                      {c.status === "sent" ? (
+                      {e.optedOut ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
+                          <Ban className="h-3 w-3" /> {e.unknown ? "Paused" : "Opted out"}
+                        </span>
+                      ) : c.status === "sent" ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
                           <Check className="h-3 w-3" /> Invite opened
                         </span>
@@ -825,43 +1014,43 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
                         </span>
                       )}
                     </div>
+                    {e.reason && (
+                      <p className="mt-1 text-[11px] text-destructive">{e.reason}</p>
+                    )}
                     <div className="mt-2 flex items-center gap-2">
                       <label htmlFor={`last-job-${c.id}`} className="text-[11px] text-muted-foreground">Last job</label>
                       <Input
                         id={`last-job-${c.id}`}
                         type="date"
                         defaultValue={c.last_job_at?.slice(0, 10) ?? ""}
-                        onBlur={(e) => { if (e.target.value !== (c.last_job_at?.slice(0, 10) ?? "")) void saveLastJobDate(c, e.target.value); }}
+                        onBlur={(e2) => { if (e2.target.value !== (c.last_job_at?.slice(0, 10) ?? "")) void saveLastJobDate(c, e2.target.value); }}
                         disabled={savingDateId === c.id}
                         className="h-8 w-[150px] text-xs"
                       />
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    {c.phone && (
-                      <Button size="sm" variant={c.status === "pending" ? "default" : "outline"} onClick={() => sendSms(c)} disabled={isSending} className="h-8 text-xs gap-1.5">
+                    {channelAllowed(e, "sms") && (
+                      <Button size="sm" variant={c.status === "pending" ? "default" : "outline"} onClick={() => void sendSms(c)} disabled={isSending} className="h-8 text-xs gap-1.5">
                         <MessageSquare className="h-3.5 w-3.5" /> Text
                       </Button>
                     )}
-                    {c.email && (
-                      <Button size="sm" variant="outline" onClick={() => sendEmail(c)} disabled={isSending} className="h-8 text-xs gap-1.5">
+                    {channelAllowed(e, "email") && (
+                      <Button size="sm" variant="outline" onClick={() => void sendEmail(c)} disabled={isSending} className="h-8 text-xs gap-1.5">
                         <Mail className="h-3.5 w-3.5" /> Email
                       </Button>
                     )}
-                    {!c.phone && !c.email && (
-                      <Button size="sm" variant="outline" onClick={() => sendShare(c)} disabled={isSending} className="h-8 text-xs gap-1.5">
-                        <Share2 className="h-3.5 w-3.5" /> Share
-                      </Button>
+                    {channelAllowed(e, "share") && (
+                      <>
+                        <Button size="sm" variant="ghost" onClick={() => void copyMessage(c)} disabled={isSending} className="h-11 w-11 sm:h-8 sm:w-8 p-0" aria-label={`Copy message for ${c.name}`}>
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => void sendShare(c)} disabled={isSending} className="h-11 w-11 sm:h-8 sm:w-8 p-0" aria-label={`Share message for ${c.name}`}>
+                          <Share2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </>
                     )}
-                    <Button size="sm" variant="ghost" onClick={() => copyMessage(c)} disabled={isSending} className="h-11 w-11 sm:h-8 sm:w-8 p-0" aria-label="Copy message">
-                      <Copy className="h-3.5 w-3.5" />
-                    </Button>
-                    {(c.phone || c.email) && (
-                      <Button size="sm" variant="ghost" onClick={() => sendShare(c)} disabled={isSending} className="h-11 w-11 sm:h-8 sm:w-8 p-0" aria-label="Share">
-                        <Share2 className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
-                    <Button size="sm" variant="ghost" onClick={() => removeContact(c.id)} className="h-11 w-11 sm:h-8 sm:w-8 p-0 text-muted-foreground hover:text-destructive" aria-label="Remove">
+                    <Button size="sm" variant="ghost" onClick={() => removeContact(c.id)} className="h-11 w-11 sm:h-8 sm:w-8 p-0 text-muted-foreground hover:text-destructive" aria-label={`Remove ${c.name}`}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -873,19 +1062,19 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       </div>
 
       <p className="text-[11px] text-muted-foreground">
-        Note: each invite opens in your own Messages or Mail app, or copies the message so you can paste it.
-        Revvin never sends messages on your behalf, and cannot confirm delivery. Status shows "Invite opened",
-        not "Sent".
+        Note: these personal asks open in your own Messages or Mail app, or copy the message so you can paste it.
+        Revvin does not send them for you and cannot confirm delivery, so status shows "Invite opened", not "Sent".
+        Reactivation campaigns on the Campaigns tab are different: those are sent by Revvin from your account.
       </p>
 
-      {/* Tap-through composer: step through pending contacts one at a time. */}
+      {/* Guided one-by-one composer. */}
       <Dialog open={tapOpen} onOpenChange={setTapOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
               Invite {tapCurrent ? firstName(tapCurrent.name) : ""}{" "}
               <span className="text-xs font-normal text-muted-foreground">
-                {tapCurrent ? `(${tapIndex + 1} of ${pending.length})` : ""}
+                {tapCurrent ? `(${tapIndex + 1} of ${tapRunIds.length})` : ""}
               </span>
             </DialogTitle>
           </DialogHeader>
@@ -894,35 +1083,49 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
               <div className="text-xs text-muted-foreground">
                 {[tapCurrent.phone, tapCurrent.email].filter(Boolean).join(" · ") || "No contact info"}
               </div>
-              <Textarea readOnly rows={5} value={messageFor(tapCurrent)} className="text-xs" />
+              <Textarea readOnly rows={5} value={messageFor(tapCurrent)} className="text-xs" aria-label="Message preview" />
               <div className="flex flex-wrap gap-2">
-                {tapCurrent.phone && (
-                  <Button size="sm" onClick={() => sendSms(tapCurrent)} className="gap-1.5">
+                {channelAllowed(eligibilityFor(tapCurrent), "sms") && (
+                  <Button size="sm" onClick={() => void sendSms(tapCurrent)} className="gap-1.5">
                     <MessageSquare className="h-3.5 w-3.5" /> Text
                   </Button>
                 )}
-                {tapCurrent.email && (
-                  <Button size="sm" variant="outline" onClick={() => sendEmail(tapCurrent)} className="gap-1.5">
+                {channelAllowed(eligibilityFor(tapCurrent), "email") && (
+                  <Button size="sm" variant="outline" onClick={() => void sendEmail(tapCurrent)} className="gap-1.5">
                     <Mail className="h-3.5 w-3.5" /> Email
                   </Button>
                 )}
-                <Button size="sm" variant="outline" onClick={() => sendShare(tapCurrent)} className="gap-1.5">
-                  <Share2 className="h-3.5 w-3.5" /> Share
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => copyMessage(tapCurrent)} className="gap-1.5">
-                  <Copy className="h-3.5 w-3.5" /> Copy
-                </Button>
+                {channelAllowed(eligibilityFor(tapCurrent), "share") && (
+                  <>
+                    <Button size="sm" variant="outline" onClick={() => void sendShare(tapCurrent)} className="gap-1.5">
+                      <Share2 className="h-3.5 w-3.5" /> Share
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => void copyMessage(tapCurrent)} className="gap-1.5">
+                      <Copy className="h-3.5 w-3.5" /> Copy
+                    </Button>
+                  </>
+                )}
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Opens in your own app. Come back and tap Next when you're done.
+                Opens in your own app. Confirming a send moves you on. Use Skip to leave someone for later.
               </p>
             </div>
           )}
+          {!tapCurrent && (
+            <p className="py-4 text-sm text-muted-foreground">
+              This contact is no longer on your pending list. Skip to move on.
+            </p>
+          )}
           <DialogFooter className="flex-row justify-between sm:justify-between gap-2">
             <Button variant="ghost" size="sm" onClick={() => setTapOpen(false)}>Close</Button>
-            <Button size="sm" onClick={tapNext} className="gap-1.5">
-              Next <ChevronRight className="h-3.5 w-3.5" />
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={skipTap} className="gap-1.5">
+                <SkipForward className="h-3.5 w-3.5" /> Skip
+              </Button>
+              <Button size="sm" onClick={skipTap} className="gap-1.5">
+                Next <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -934,13 +1137,13 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
             <DialogTitle>
               Bulk email draft{" "}
               <span className="text-xs font-normal text-muted-foreground">
-                {bulkCurrent
+                {bulkCurrent.length > 0
                   ? `(batch ${Math.min(bulkIndex + 1, Math.max(bulkChunks.length, 1))} of ${Math.max(bulkChunks.length, 1)} · ${bulkCurrent.length} recipient${bulkCurrent.length === 1 ? "" : "s"} · ${bulkRemaining} left)`
                   : ""}
               </span>
             </DialogTitle>
           </DialogHeader>
-          {bulkCurrent && bulkCurrent.length > 0 ? (
+          {bulkCurrent.length > 0 ? (
             <div className="space-y-3">
               <div className="rounded-md border border-border bg-muted/40 p-2 text-[11px] text-muted-foreground max-h-24 overflow-y-auto break-all">
                 <span className="font-medium text-foreground">BCC:</span>{" "}
@@ -948,11 +1151,11 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
               </div>
               <div>
                 <div className="text-[11px] font-medium text-foreground mb-1">Subject</div>
-                <Input readOnly value={bulkSubject} className="text-xs" />
+                <Input readOnly value={bulkSubject} className="text-xs" aria-label="Subject" />
               </div>
               <div>
                 <div className="text-[11px] font-medium text-foreground mb-1">Message</div>
-                <Textarea readOnly rows={5} value={bulkBody} className="text-xs" />
+                <Textarea readOnly rows={5} value={bulkBody} className="text-xs" aria-label="Bulk message" />
               </div>
               {bulkAwaitingConfirm ? (
                 <div className="rounded-md border border-border bg-muted/40 p-3">

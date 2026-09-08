@@ -47,7 +47,7 @@ export const GUIDES: Guide[] = [
     sections: [
       {
         heading: "The three ways owners usually set it",
-        body: "The first is a flat amount per closed job: one number, advertised plainly, paid whenever a referral turns into paid work. It is the easiest to explain and the easiest for a customer to repeat to a neighbour, which is the whole point. The second is tiers by job type, where a small service call and a full replacement carry different rewards, because the value to you is not the same. The third is a percentage of the job, which you calculate yourself and enter as the reward. All three are supported the same way: you type the reward onto your referral page and it displays exactly as you set it.",
+        body: "The first is a flat amount per closed job: one number, advertised plainly, paid whenever a referral turns into paid work. It is the easiest to explain and the easiest for a customer to repeat to a neighbour, which is the whole point. The second is tiers by job type, where a small service call and a full replacement carry different rewards, because the value to you is not the same. The third is a percentage of the job, which you work out yourself and write in as the reward. Revvin does not calculate a percentage for you: whichever you choose, you type the reward onto your referral page and it displays exactly as you set it.",
       },
       {
         heading: "The real anchor is what a customer is worth to you",
@@ -117,7 +117,7 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "How this works on Revvin",
-        body: "You publish a branded referral page on your own link, free, with a QR code and a print pack for signage and paperwork. Referrals land in one lead inbox with status tracking and one-tap call or text back. You set the reward, you confirm the close, and you pay your referrer directly when it happens. Revvin takes no cut of the reward and never sends messages on your behalf. Revvin Pro, at $49/month USD, adds importing your past-customer list, sending your ask in bulk from your own email app, ROI reporting and custom page branding.",
+        body: "You publish a branded referral page on your own link, free, with a QR code and a print pack for signage and paperwork. Referrals land in one lead inbox with status tracking and one-tap call or text back. You set the reward, you confirm the close, and you pay your referrer directly when it happens. Revvin takes no cut of the reward and does not send your personal asks for you. Revvin Pro, at $49/month USD, adds importing your past-customer list, sending your ask in bulk from your own email app, reactivation campaigns that Revvin does send by email from your account, ROI reporting and custom page branding.",
       },
     ],
     faqs: [
@@ -197,7 +197,7 @@ export const GUIDES: Guide[] = [
       },
       {
         q: "Does Revvin send the referral asks for me?",
-        a: "No. Revvin never sends email or SMS on your behalf. It prepares the message and opens your own email app or messaging app with the recipients and the text filled in, in batches, so it sends from your own address or number and the relationship stays yours.",
+        a: "Not the personal ones. Revvin prepares those and opens your own email app or messaging app with the recipients and the text filled in, in batches, so they send from your own address or number. Reactivation campaigns on Pro are the exception: Revvin sends those by email from your account, with your postal address and an unsubscribe link in every message.",
       },
     ],
   },
@@ -279,7 +279,7 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "Asking your past customers, in batches",
-        body: "The people who have already paid you are the fastest source of referrals and the one most owners never touch. On Revvin Pro you can paste in that list and send your ask in batches: Revvin prepares the message and opens your own email app with the recipients filled in, so it goes out from your address, not from a platform. It never sends on your behalf, which is also why it always looks like you.",
+        body: "The people who have already paid you are the fastest source of referrals and the one most owners never touch. On Revvin Pro you can paste in that list and send your ask in batches: Revvin prepares the message and opens your own email app with the recipients filled in, so it goes out from your address, not from a platform. That is why the ask always looks like you. If you would rather Revvin sent it, the Campaigns tab does that by email instead, with an unsubscribe link in every message.",
       },
       {
         heading: "The scripts",
@@ -305,7 +305,7 @@ export const GUIDES: Guide[] = [
       },
       {
         q: "Can Revvin send the referral ask for me?",
-        a: "No. Revvin never sends email or SMS on your behalf. On Pro it prepares the message and opens your own email app with the recipients and text filled in, in batches, so the message comes from you.",
+        a: "Not the personal ask. On Pro, Revvin prepares it and opens your own email app with the recipients and text filled in, in batches, so the message comes from you. Reactivation campaigns are the one thing Revvin sends itself, by email only, from your account, with an unsubscribe link in every message.",
       },
     ],
   },

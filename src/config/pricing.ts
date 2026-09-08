@@ -28,6 +28,8 @@ export const PRICE_TEXT = {
   effectiveMonthly: `${money(ANNUAL_EFFECTIVE_MONTHLY)}/month`, // $37.50/month
 } as const;
 
-// Reusable, factual cancellation copy for the annual plan.
+// Reusable, factual cancellation copy for the annual plan. Two separate facts,
+// stated separately: Pro access runs to the end of the term you paid for, and
+// the referral page is free, so it stays live after Pro ends.
 export const ANNUAL_TERMS_COPY =
-  `Billed once at ${PRICE_TEXT.annual} for the year. Cancel anytime, your page stays live through the end of the paid year. No partial refunds.`;
+  `Billed once at ${PRICE_TEXT.annual} for the year. Cancel anytime and Pro keeps working to the end of the year you paid for. After that your referral page stays live and keeps taking referrals, because publishing is free. No partial refunds.`;
