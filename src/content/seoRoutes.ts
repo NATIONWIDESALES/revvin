@@ -76,25 +76,25 @@ const guideIndexRoute: PrerenderRoute = {
 const handwritten: PrerenderRoute[] = [
   {
     path: "/",
-    title: "Revvin · Your customer list, working for you",
-    description: `Your referral page is free: publish it and take referrals. Revvin Pro is ${PRO} for the tools that ask your whole customer list for you.`,
-    h1: "Your customer list, working for you.",
+    title: "Revvin | Referral software for service businesses",
+    description: `Turn past customers into your next booked job. Create a free referral page, prepare a personal ask, and track the leads and rewards that follow. Revvin Pro is ${PRO}.`,
+    h1: "Turn past customers into your next booked job.",
     sections: [
       {
-        heading: "Three revenue loops from one list",
-        body: "You already have a list of people who paid you and never heard from you again. Revvin turns that one list into three loops: referrals, repeat work and reviews. You publish a branded referral page on your own link, share it with the customers you already have, and every lead they send lands in one inbox you can work from your phone.",
+        heading: "Create a referral page, free",
+        body: "Add your business, write the offer, set the fixed reward you will pay, pick your link, and publish. Creating and publishing your referral page is free, with no card, and you get a shareable link, a QR code and a printable pack. Every referral submitted through the page lands in a lead inbox you can work from your phone, with statuses and one-tap call or text back.",
       },
       {
-        heading: "Publishing is free",
-        body: `Building and publishing your referral page costs nothing, and your listing appears in the Revvin marketplace at no cost. Revvin Pro is ${PRO} and adds importing your past-customer list, sending your referral ask in bulk from your own email app, ROI reporting with a monthly email recap, and custom page branding. Cancel any time: your page stays live and your referrals keep coming in, you only lose the Pro tools.`,
+        heading: "Prepare and share the ask",
+        body: "Revvin drafts the personal ask and opens it in your own texting or email app, so it sends from your number or your address. On Revvin Pro you can import your past-customer list, draft asks for the whole list at once, and have Revvin email a reactivation campaign to a segment you choose, with your business address and an unsubscribe link in every email.",
       },
       {
-        heading: "You stay in control of every message",
-        body: "Revvin never sends email or SMS on your behalf. It prepares the message and opens your own email or messaging app with the recipients and text filled in, so it sends from your address or your number. The relationship and the consent stay with you.",
+        heading: "Track referrals and record rewards",
+        body: "Referral-form submissions arrive in your inbox and you are emailed about them. Replies to a personal text or email go to your own phone or inbox and are not synced back. Rewards are one fixed amount that you pay your referrer directly: Revvin tracks each one from owed to paid and notifies the referrer at both moments, holds no money and takes no cut.",
       },
       {
-        heading: "Rewards you set, paid directly",
-        body: "You decide the referral reward. Revvin tracks each one from pending to paid and notifies the referrer at both moments, but it never holds or moves money and takes no cut of the reward. When a deal closes you pay your referrer directly, off-platform.",
+        heading: `Free page, Revvin Pro at ${PRO}`,
+        body: `Publishing is free and does not expire. Revvin Pro is ${PRO} USD, or $450 billed once for a year, and adds customer list import, bulk asks, reactivation email campaigns, ROI reporting with a monthly recap, and custom page branding. Cancel anytime: your page stays published and referrals keep arriving, you only lose the Pro tools.`,
       },
     ],
   },
