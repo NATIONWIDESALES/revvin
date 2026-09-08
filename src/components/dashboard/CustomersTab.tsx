@@ -128,7 +128,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   // tell us whether it actually went out. Opening a mail draft is not a send.
   const [bulkAwaitingConfirm, setBulkAwaitingConfirm] = useState(false);
   // Single-contact confirmation: which contact/channel is awaiting "Did that send?".
-  const [confirmSend, setConfirmSend] = useState<{ contact: ReferralContact; channel: "sms" | "email" } | null>(null);
+  const [confirmSend, setConfirmSend] = useState<{ contact: ReferralContact; channel: "sms" | "email" | "share" } | null>(null);
   const [confirmSaving, setConfirmSaving] = useState(false);
 
   const reward = biz.offer_amount?.trim() || "";
@@ -327,15 +327,17 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     try {
       if (typeof navigator !== "undefined" && (navigator as any).share) {
         await (navigator as any).share({ title: biz.name, text });
-        await markSent(c, "share");
+        // Handing the message to the share sheet is not a send. Ask, exactly
+        // like the Messages and Mail paths do.
+        setConfirmSend({ contact: c, channel: "share" });
       } else {
         const ok = await copyText(text);
         if (!ok) {
           toast({ title: "Could not copy the message", description: "Select the message and copy it manually.", variant: "destructive" });
           return;
         }
-        toast({ title: "Message copied", description: "Paste it into any app to send." });
-        await markSent(c, "share");
+        toast({ title: "Message copied", description: "Paste it into any app, then confirm you sent it." });
+        setConfirmSend({ contact: c, channel: "share" });
       }
     } catch (e: any) {
       // A cancelled share sheet is a normal outcome. Anything else is a real
@@ -354,8 +356,8 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   };
 
   // Explicit copy-to-clipboard action. Useful on desktop where sms: and Web
-  // Share are not available. Marks the contact as invited under the "share"
-  // channel because that is the closest match to a device-native handoff.
+  // Share are not available. Copying only PREPARES the ask, so the contact
+  // stays pending until the owner confirms they actually sent it.
   const copyMessage = async (c: ReferralContact) => {
     setSendingId(c.id);
     try {
@@ -364,8 +366,8 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
         toast({ title: "Could not copy", description: "Select the message and copy it manually.", variant: "destructive" });
         return;
       }
-      toast({ title: "Message copied", description: "Paste it into any app to send." });
-      await markSent(c, "share");
+      toast({ title: "Message copied", description: "Paste it into any app, then confirm you sent it." });
+      setConfirmSend({ contact: c, channel: "share" });
     } catch {
       toast({ title: "Could not copy", description: "Copy the text manually.", variant: "destructive" });
     } finally {
@@ -666,6 +668,23 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
               ? `${preview.length} parsed, ${preview.length - dedupedPreview.length} duplicate${preview.length - dedupedPreview.length === 1 ? "" : "s"}`
               : ""}
           </span>
+        </div>
+
+        {parseErrors.length > 0 && (
+          <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
+            <p className="font-semibold">
+              {parseErrors.length} line{parseErrors.length === 1 ? "" : "s"} could not be used
+            </p>
+            <ul className="mt-1 space-y-0.5">
+              {parseErrors.slice(0, 4).map((e) => (
+                <li key={e.line}>Line {e.line}: {e.reason}</li>
+              ))}
+              {parseErrors.length > 4 && <li>and {parseErrors.length - 4} more</li>}
+            </ul>
+          </div>
+        )}
+
+        <div className="hidden">
         </div>
 
         {dedupedPreview.length > 0 && (
@@ -988,7 +1007,11 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
             <DialogTitle>Did that send?</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            {confirmSend ? `We opened your ${confirmSend.channel === "sms" ? "Messages" : "Mail"} app for ${firstName(confirmSend.contact.name)}. ` : ""}
+            {confirmSend
+              ? confirmSend.channel === "share"
+                ? `Your message for ${firstName(confirmSend.contact.name)} is ready to paste or share. `
+                : `We opened your ${confirmSend.channel === "sms" ? "Messages" : "Mail"} app for ${firstName(confirmSend.contact.name)}. `
+              : ""}
             We cannot see inside it, so nothing is recorded until you confirm. Choose Not yet and they stay
             pending so you can try again.
           </p>
