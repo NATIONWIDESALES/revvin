@@ -700,55 +700,29 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Why it fits each trade's job rhythm */}
+      {/* The per-trade rundown used to be duplicated here. It repeated the
+          three loops in different words and pushed the pricing and FAQ far down
+          the page, so it now lives only on the industry pages, linked below. */}
       <section className="border-b border-border bg-surface-warm">
-        <div className="container py-20">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-              Built around how the work actually happens
-            </p>
-            <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
-              Why this fits your trade
+        <div className="container py-14">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+              Written for your trade
             </h2>
-          </div>
-          <div className="mx-auto grid max-w-5xl gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {[
-              {
-                trade: "Roofing",
-                body:
-                  "A finished roof is visible from the street, so neighbors already ask who did it. Give the customer a link and a reward so that conversation turns into a lead.",
-              },
-              {
-                trade: "HVAC",
-                body:
-                  "Filter changes and seasonal changeovers give you a real reason to reach out again. The same list you rebook is the list you ask for referrals.",
-              },
-              {
-                trade: "Plumbing",
-                body:
-                   "Right after you fix a leak is when goodwill is highest. Send the ask while the customer is still relieved, with a pre-written message that comes from you.",
-              },
-              {
-                trade: "Landscaping",
-                body:
-                  "A QR code on a yard sign puts the ask where the work is. Anyone walking past the finished yard can scan it and send you a lead.",
-              },
-              {
-                trade: "Painting",
-                body:
-                  "People show off a finished room. One house on a block often leads to the next, and a shareable link makes that easy to pass along.",
-              },
-              {
-                trade: "Electrical",
-                body:
-                  "Panel upgrades, rewires, and fixture work spread by word of mouth in older neighborhoods where everyone needs the same thing eventually.",
-              },
-            ].map((c) => (
-              <article key={c.trade} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-                <h3 className="text-base font-bold text-foreground">{c.trade}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.body}</p>
-              </article>
-            ))}
+            <p className="mt-3 text-base text-muted-foreground">
+              Roofing, HVAC, plumbing, landscaping, painting, electrical and more: each page covers
+              how the ask fits that job cycle.
+            </p>
+            <div className="mt-6">
+              <Button variant="outline" size="lg" asChild>
+                <Link
+                  to="/referral-programs"
+                  onClick={() => track("cta_clicked", { cta: "home_industries" })}
+                >
+                  See referral programs by trade
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
