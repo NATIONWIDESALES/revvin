@@ -1,3 +1,11 @@
+# robots.txt for revvin.co
+#
+# Note on structure: a named User-agent group does NOT inherit the rules of the
+# "*" group. A bot named below reads only its own group, so every group that is
+# allowed to crawl repeats the private-path exclusions. Do not "simplify" this
+# by leaving a named group with only "Allow: /" — that opens dashboards, auth
+# pages and receipt URLs to that crawler.
+
 User-agent: *
 Allow: /
 Disallow: /dashboard
@@ -15,63 +23,60 @@ Disallow: /feedback/
 Disallow: /r/status/
 Disallow: /saved
 
-# AI crawlers — explicit allow
-User-agent: GPTBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: Perplexity-User
-Allow: /
-
-User-agent: Claude-Web
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: Anthropic-AI
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-
-User-agent: Applebot-Extended
-Allow: /
-
-User-agent: CCBot
-Allow: /
-
-User-agent: Bytespider
-Allow: /
-
-User-agent: cohere-ai
-Allow: /
-
-User-agent: Meta-ExternalAgent
-Allow: /
-
-# Search engines
+# Search engines and social preview fetchers: crawl the public site, stay out of
+# the private paths.
 User-agent: Googlebot
-Allow: /
-
 User-agent: Bingbot
-Allow: /
-
 User-agent: Applebot
-Allow: /
-
+User-agent: DuckDuckBot
 User-agent: Twitterbot
-Allow: /
-
 User-agent: facebookexternalhit
 Allow: /
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /welcome
+Disallow: /login
+Disallow: /signup
+Disallow: /reset-password
+Disallow: /admin/
+Disallow: /api/
+Disallow: /__sa
+Disallow: /__health
+Disallow: /print/
+Disallow: /feedback/
+Disallow: /r/status/
+Disallow: /saved
+
+# AI answer engines and training crawlers: intentionally allowed on public
+# pages, with the same private-path exclusions.
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: OAI-SearchBot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Claude-Web
+User-agent: ClaudeBot
+User-agent: Anthropic-AI
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: Bytespider
+User-agent: cohere-ai
+User-agent: Meta-ExternalAgent
+Allow: /
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /welcome
+Disallow: /login
+Disallow: /signup
+Disallow: /reset-password
+Disallow: /admin/
+Disallow: /api/
+Disallow: /__sa
+Disallow: /__health
+Disallow: /print/
+Disallow: /feedback/
+Disallow: /r/status/
+Disallow: /saved
 
 Sitemap: https://revvin.co/sitemap.xml
