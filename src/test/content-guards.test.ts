@@ -44,7 +44,13 @@ const SKIP_PATHS = [
   "src/components/invite/",
   "src/components/admin/InviteCodesPanel",
   "src/lib/invite.ts",
+  // Inactive, internal-only provider sandbox foundation. The provider name is
+  // still banned in all public marketing copy; these are the only exceptions,
+  // and neither path is user-facing or imported by the frontend.
+  "supabase/functions/_shared/tremendous/",
+  "docs/internal/tremendous-sandbox-foundation.md",
 ];
+
 
 // To add a new guard: append one row. No other changes required.
 const FORBIDDEN: ForbiddenPattern[] = [
