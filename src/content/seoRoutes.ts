@@ -12,7 +12,10 @@
 
 import { INDUSTRIES } from "./industries";
 import { GUIDES } from "./guides";
-import { PRICE_TEXT } from "@/config/pricing";
+// Relative, not aliased: this module is also imported by the build-time
+// prerender plugin, which is bundled outside the app's alias resolution.
+import { PRICE_TEXT } from "../config/pricing";
+
 
 
 export interface PrerenderRoute {
