@@ -222,7 +222,34 @@ export default function prerenderPlugin(): Plugin {
         count++;
       }
 
-      console.log(`[prerender] wrote ${count} static route documents to dist/`);
+      // A real static not-found document. The SPA fallback's inline script sets
+      // a noindex meta tag on unprerendered paths, which is NOT an HTTP 404: the
+      // server still answers 200. This file gives the host something correct to
+      // serve with a 404 status for genuinely unknown paths. Wiring it up is
+      // hosting configuration and is not done by this build; until then unknown
+      // paths still return the SPA fallback with a 200 status. Dynamic app
+      // routes (/r/*, /i/*, /dashboard, /guides/*) must continue to be served
+      // the SPA fallback, never this file.
+      const notFound = template
+        .replace(/<title>[\s\S]*?<\/title>/, "<title>Page not found | Revvin</title>")
+        .replace(
+          /<meta\s+name="description"\s+content="[\s\S]*?"\s*\/?>/,
+          '<meta name="description" content="This Revvin page does not exist. Find referral pages, guides and pricing from the links below.">',
+        )
+        .replace("</head>", '  <meta name="robots" content="noindex,follow">\n  </head>')
+        .replace(
+          /<div id="root">\s*<\/div>/,
+          `<div id="root"><h1>Page not found</h1><p>The page you asked for does not exist on revvin.co. Publishing a referral page on Revvin is free; Revvin Pro is $49/month USD.</p><nav aria-label="Site pages"><h2>Go to</h2><ul>${PRERENDER_ROUTES.map(
+            (r) => `<li><a href="${esc(r.path)}">${esc(r.h1)}</a></li>`,
+          ).join("")}</ul></nav></div>`,
+        )
+        .replace(/<noscript>[\s\S]*?<\/noscript>\s*/, "");
+      fs.writeFileSync(path.join(dist, "404.html"), notFound, "utf8");
+
+      console.log(
+        `[prerender] wrote ${count} static route documents plus 404.html to dist/ (404 status requires host routing)`,
+      );
     },
+
   };
 }
