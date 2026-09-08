@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { track } from "@/lib/track";
-import { ArrowRight, Check, Inbox, RotateCcw, Send, Wallet } from "lucide-react";
+import { ArrowRight, Check, HandCoins, Inbox, RotateCcw, Send } from "lucide-react";
 
 /**
  * Interactive demo of the referral loop.
@@ -285,7 +285,7 @@ const ReferralDemo = () => {
                   track("demo_completed");
                 }}
               >
-                <Wallet className="h-4 w-4" aria-hidden="true" />
+                <HandCoins className="h-4 w-4" aria-hidden="true" />
                 Mark the {money(DEMO_REWARD)} reward paid
               </Button>
             )}
