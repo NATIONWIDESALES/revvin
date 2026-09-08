@@ -50,7 +50,6 @@ const AboutRevvinLLM = () => (
           <li>No contract, no setup fee, cancel anytime from the billing portal.</li>
           <li>Referrers always receive 100% of the advertised payout amount.</li>
           <li>Revvin does not take any cut of referral payouts. The business pays the referrer directly when the deal closes.</li>
-          <li>An optional one-time $297 Launch Package adds a 1:1 setup call and done-for-you offer creation.</li>
         </ul>
       </section>
 
