@@ -12,6 +12,8 @@ import SEOHead from "@/components/SEOHead";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, HandCoins, Quote, Eye, Lock } from "lucide-react";
 import { friendlyError } from "@/lib/errors";
+import { submitPublicReferral, referralSubmitMessage } from "@/lib/referralSubmit";
+
 
 interface Business {
   id: string;
@@ -152,7 +154,7 @@ const PublicReferralPage = () => {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!biz) return;
+    if (!biz || !slug) return;
     if (ownerPreview) return; // preview only, never writes a lead
     if (form.website) return; // honeypot
     if (!form.consent_given) {
@@ -160,47 +162,28 @@ const PublicReferralPage = () => {
       return;
     }
     setSubmitting(true);
-    const { data: sess } = await supabase.auth.getSession();
-    const referrerUserId = sess.session?.user?.id ?? null;
-    const { data: inserted, error } = await supabase
-      .from("leads")
-      .insert(({
-        business_id: biz.id,
-        referrer_name: form.referrer_name.trim(),
-        referrer_email: form.referrer_email.trim(),
-        referrer_phone: form.referrer_phone.trim() || null,
-        lead_name: form.lead_name.trim(),
-        lead_phone: form.lead_phone.trim(),
-        lead_email: form.lead_email.trim() || null,
-        lead_need: form.lead_need.trim(),
-        relationship_to_lead: form.relationship_to_lead.trim() || null,
-        consent_given: true,
-        lead_source: "public_page",
-        status: "new",
-        referrer_user_id: referrerUserId,
-      } as any))
-      .select("id, status_token")
-      .limit(1);
+    const { receipt, error } = await submitPublicReferral({ slug, ...form });
     setSubmitting(false);
-    if (error) {
-      toast({ title: "Could not submit", description: friendlyError(error), variant: "destructive" });
+    if (error || !receipt) {
+      toast({
+        title: "Could not submit",
+        description: referralSubmitMessage(error) ?? friendlyError(error),
+        variant: "destructive",
+      });
       return;
     }
-    const newLeadId = inserted?.[0]?.id;
-    const token = (inserted?.[0] as any)?.status_token as string | undefined;
-    if (token) {
-      setStatusUrl(`${window.location.origin}/r/status/${token}`);
-    }
-    if (newLeadId) {
-      // Fire-and-forget email notification to business owner
+    setStatusUrl(`${window.location.origin}/r/status/${receipt.status_token}`);
+    if (!receipt.duplicate) {
+      // Fire-and-forget email notification to the business owner.
       supabase.functions
-        .invoke("notify-new-lead", { body: { lead_id: newLeadId } })
+        .invoke("notify-new-lead", { body: { lead_id: receipt.lead_id } })
         .catch((err) => console.warn("[notify-new-lead] failed", err));
+      track("referral_submitted");
     }
-    track("referral_submitted");
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
 
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;

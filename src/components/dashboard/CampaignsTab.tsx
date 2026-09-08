@@ -177,7 +177,13 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
     setSavingReadiness(true);
     const { error } = await supabase
       .from("businesses")
-      .update(Object.fromEntries(missing.map((field) => [field, readinessForm[field as keyof typeof readinessForm].trim()])))
+      // Built from a fixed set of readiness fields, so the loose index type the
+      // generated row type rejects is narrowed here.
+      .update(
+        Object.fromEntries(
+          missing.map((field) => [field, readinessForm[field as keyof typeof readinessForm].trim()]),
+        ) as Partial<Record<keyof typeof readinessForm, string>>,
+      )
       .eq("id", biz.id);
     setSavingReadiness(false);
     if (error) {

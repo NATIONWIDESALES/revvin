@@ -143,9 +143,11 @@ const Pricing = () => {
 
             {/* Pro, featured */}
             <div className="relative flex flex-col rounded-2xl border-2 border-primary bg-card p-8 shadow-product md:-mt-4">
+              {/* No popularity claim: we have no data to support one. The
+                  badge states what the plan is for instead. */}
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                 <span className="inline-flex items-center rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground">
-                  Most popular
+                  For growing lists
                 </span>
               </div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pro</p>

@@ -24,18 +24,32 @@ const ORGANIZATION = {
     "Referral software for service businesses. Turns a past-customer list into referrals. Publishing your referral page is free; Revvin Pro is a flat $49/month USD. No platform fees. Businesses pay their referrers directly off-platform.",
 };
 
+/**
+ * A breadcrumb must only ever point at a URL that exists. Deriving ancestors
+ * from path segments produced /referral-program, which is not a page: the hub
+ * lives at /referral-programs. Ancestors are therefore mapped explicitly, and
+ * a segment with no real parent page is skipped rather than invented.
+ */
+const PARENT_PAGES: { prefix: string; name: string; item: string }[] = [
+  { prefix: "/referral-program/", name: "Referral Programs", item: `${SITE}/referral-programs` },
+  { prefix: "/guides/", name: "Guides", item: `${SITE}/guides` },
+  { prefix: "/docs/", name: "Documentation", item: `${SITE}/docs/zapier` },
+];
+
+const titleCase = (segment: string) =>
+  segment.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
 const breadcrumbs = (route: PrerenderRoute) => {
   const items = [{ name: "Home", item: SITE }];
   if (route.path !== "/") {
-    const parts = route.path.replace(/^\//, "").split("/");
-    let acc = "";
-    for (const part of parts) {
-      acc += `/${part}`;
-      items.push({
-        name: part.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-        item: `${SITE}${acc}`,
-      });
+    const parent = PARENT_PAGES.find((p) => route.path.startsWith(p.prefix));
+    if (parent && `${parent.prefix.replace(/\/$/, "")}` !== route.path) {
+      items.push({ name: parent.name, item: parent.item });
     }
+    items.push({
+      name: titleCase(route.path.split("/").filter(Boolean).pop() ?? ""),
+      item: `${SITE}${route.path}`,
+    });
   }
   return {
     "@type": "BreadcrumbList",
@@ -92,12 +106,14 @@ const bodyHtml = (route: PrerenderRoute) => {
 
   // dist/index.html is also the SPA fallback for every unprerendered route
   // (/r/*, /dashboard, /auth, /i/*). Without this, those routes would flash the
-  // homepage copy until React boots. The script runs before first paint, so
+  // homepage copy until React boots, and a crawler reading the fallback would
+  // see homepage content and title under another URL. The guard also marks the
+  // fallback noindex; SEOHead sets the real per-route tags once React boots. The script runs before first paint, so
   // crawlers on "/" still get the static content and real visitors elsewhere
   // never see it.
   const guard =
     route.path === "/"
-      ? `<script>if(location.pathname!=="/"){var r=document.getElementById("root");if(r)r.textContent="";}</script>`
+      ? `<script>if(location.pathname!=="/"){var r=document.getElementById("root");if(r)r.textContent="";document.title="Revvin";var m=document.querySelector('meta[name="robots"]');if(!m){m=document.createElement("meta");m.setAttribute("name","robots");document.head.appendChild(m);}m.setAttribute("content","noindex,follow");}</script>`
       : "";
   return `<div id="root">${parts.join("")}</div>${guard}`;
 };

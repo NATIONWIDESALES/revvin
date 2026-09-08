@@ -1,6 +1,9 @@
 export default function MockReferralPage() {
   return (
-    <div className="flex h-full w-full flex-col bg-background">
+    // Decorative illustration of a referral page. Hidden from assistive tech so
+    // a screen reader is not walked through a form that cannot be submitted.
+    <div aria-hidden="true" className="flex h-full w-full flex-col bg-background">
+
       {/* status bar spacer */}
       <div className="h-9" />
       <div className="flex-1 overflow-hidden px-5 pt-2">
@@ -28,10 +31,15 @@ export default function MockReferralPage() {
           </p>
         </div>
 
-        {/* CTA */}
-        <button className="mt-4 h-10 w-full rounded-lg bg-primary text-[12px] font-semibold text-primary-foreground shadow-sm">
+        {/* CTA: a picture of a button, not a button. Rendering a real <button>
+            here gave visitors a control that did nothing when clicked. */}
+        <div
+          role="presentation"
+          className="mt-4 flex h-10 w-full items-center justify-center rounded-lg bg-primary text-[12px] font-semibold text-primary-foreground shadow-sm"
+        >
           Submit a referral
-        </button>
+        </div>
+
 
         {/* form hint */}
         <div className="mt-4 space-y-2">

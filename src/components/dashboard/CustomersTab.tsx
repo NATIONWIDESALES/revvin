@@ -1,5 +1,7 @@
 import { copyText } from "@/lib/clipboard";
 import { friendlyError } from "@/lib/errors";
+import { track } from "@/lib/track";
+import { parseCsv, parseJobDate, parsePastedLines, type ParsedContact } from "@/lib/contactImport";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -72,70 +74,10 @@ const TEMPLATE_PRESETS: Array<{ id: string; label: string; withReward: string; n
 
 const TEMPLATE_STORAGE_KEY = "revvin_customer_msg_template_v1";
 
-type ParsedContact = { name: string; email?: string; phone?: string; last_job_at?: string };
+// Import parsing lives in src/lib/contactImport.ts so it can be unit tested:
+// dates must never be classified as phone numbers, and CSV cells may contain
+// quoted commas.
 
-function parseJobDate(value: string | undefined): string | undefined {
-  const raw = value?.trim();
-  if (!raw) return undefined;
-  const normalized = raw.replace(/^(\d{1,2})[./](\d{1,2})[./](\d{2,4})$/, "$1/$2/$3");
-  const date = /^\d{4}-\d{1,2}-\d{1,2}$/.test(normalized)
-    ? new Date(`${normalized}T12:00:00Z`)
-    : new Date(normalized);
-  if (Number.isNaN(date.getTime())) return undefined;
-  if (date.getFullYear() < 1990 || date > new Date()) return undefined;
-  return date.toISOString();
-}
-
-function parsePastedLines(text: string): ParsedContact[] {
-  const out: ParsedContact[] = [];
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phoneRe = /^[+()\d][\d\s().\-]{5,}$/;
-  for (const line of lines) {
-    const parts = line.split(/[,;\t]+/).map((p) => p.trim()).filter(Boolean);
-    if (parts.length === 0) continue;
-    let name = parts[0];
-    let email: string | undefined;
-    let phone: string | undefined;
-    let last_job_at: string | undefined;
-    for (const p of parts.slice(1)) {
-      if (!email && emailRe.test(p)) email = p;
-      else if (!phone && phoneRe.test(p)) phone = p;
-      else if (!last_job_at) last_job_at = parseJobDate(p);
-    }
-    if (parts.length === 1) {
-      if (emailRe.test(name)) { email = name; name = name.split("@")[0]; }
-      else if (phoneRe.test(name)) { phone = name; name = "(no name)"; }
-    }
-    if (name && (email || phone)) out.push({ name, email, phone, last_job_at });
-  }
-  return out;
-}
-
-function parseCsv(text: string): ParsedContact[] {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  if (lines.length === 0) return [];
-  const header = lines[0].toLowerCase().split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
-  const dateHeaders = ["last_job_at", "last job date", "last_job_date", "last job", "date"];
-  const hasHeader = header.some((h) => ["name", "email", "phone", ...dateHeaders].includes(h));
-  const idx = {
-    name: hasHeader ? header.indexOf("name") : 0,
-    email: hasHeader ? header.indexOf("email") : 1,
-    phone: hasHeader ? header.indexOf("phone") : 2,
-    date: hasHeader ? header.findIndex((h) => dateHeaders.includes(h)) : 3,
-  };
-  const rows = hasHeader ? lines.slice(1) : lines;
-  const out: ParsedContact[] = [];
-  for (const r of rows) {
-    const cells = r.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
-    const name = idx.name >= 0 ? cells[idx.name] : "";
-    const email = idx.email >= 0 ? cells[idx.email] : "";
-    const phone = idx.phone >= 0 ? cells[idx.phone] : "";
-    const last_job_at = idx.date >= 0 ? parseJobDate(cells[idx.date]) : undefined;
-    if (name && (email || phone)) out.push({ name, email: email || undefined, phone: phone || undefined, last_job_at });
-  }
-  return out;
-}
 
 function firstName(full: string) {
   return (full || "").trim().split(/\s+/)[0] || "there";
@@ -156,6 +98,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const [loading, setLoading] = useState(true);
   const [paste, setPaste] = useState("");
   const [preview, setPreview] = useState<ParsedContact[]>([]);
+  const [parseErrors, setParseErrors] = useState<{ line: number; reason: string }[]>([]);
   const [importing, setImporting] = useState(false);
   const [savingDateId, setSavingDateId] = useState<string | null>(null);
   const hasReward = !!biz.offer_amount?.trim();
@@ -186,7 +129,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   // tell us whether it actually went out. Opening a mail draft is not a send.
   const [bulkAwaitingConfirm, setBulkAwaitingConfirm] = useState(false);
   // Single-contact confirmation: which contact/channel is awaiting "Did that send?".
-  const [confirmSend, setConfirmSend] = useState<{ contact: ReferralContact; channel: "sms" | "email" } | null>(null);
+  const [confirmSend, setConfirmSend] = useState<{ contact: ReferralContact; channel: "sms" | "email" | "share" } | null>(null);
   const [confirmSaving, setConfirmSaving] = useState(false);
 
   const reward = biz.offer_amount?.trim() || "";
@@ -211,7 +154,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
 
   // Re-parse paste as user types
   useEffect(() => {
-    setPreview(parsePastedLines(paste));
+    const result = parsePastedLines(paste);
+    setPreview(result.contacts);
+    setParseErrors(result.errors);
   }, [paste]);
 
   const existingKey = useMemo(() => {
@@ -275,12 +220,26 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   const handleCsv = async (file: File) => {
     const text = await file.text();
     const parsed = parseCsv(text);
-    if (parsed.length === 0) {
-      toast({ title: "No rows found in CSV", variant: "destructive" });
+    if (parsed.contacts.length === 0) {
+      toast({
+        title: "No usable rows in that file",
+        description: parsed.errors.length
+          ? `First problem: line ${parsed.errors[0].line}, ${parsed.errors[0].reason.toLowerCase()}.`
+          : "Each row needs a name plus an email or phone number.",
+        variant: "destructive",
+      });
       return;
     }
-    setPaste(parsed.map((p) => [p.name, p.email, p.phone, p.last_job_at?.slice(0, 10)].filter(Boolean).join(", ")).join("\n"));
-    toast({ title: `Loaded ${parsed.length} rows into preview` });
+    setPaste(
+      parsed.contacts
+        .map((p) => [p.name, p.email, p.phone, p.last_job_at?.slice(0, 10)].filter(Boolean).join(", "))
+        .join("\n"),
+    );
+    const skipped = parsed.errors.length + parsed.duplicates;
+    toast({
+      title: `Loaded ${parsed.contacts.length} row${parsed.contacts.length === 1 ? "" : "s"} into preview`,
+      description: skipped ? `${skipped} row${skipped === 1 ? "" : "s"} skipped: check names, emails and repeats.` : undefined,
+    });
   };
 
   const messageFor = (c: ReferralContact) =>
@@ -313,6 +272,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       cs.map((x) => (x.id === c.id ? { ...x, status: "sent", last_sent_at: nowIso, send_channel: channel } : x)),
     );
     setLastSent({ id: c.id, prev });
+    // Measurement only: the owner confirmed they sent their first ask. No
+    // contact details are ever attached to a funnel event.
+    if (!contacts.some((x) => x.status === "sent" && x.id !== c.id)) track("first_ask_prepared");
     // Append a history row so re-asks and nudges can reason over real sends later.
     // Each row records ONLY that the business tapped Send on a channel; Revvin never
     // sends, so this is not proof of delivery. Failure here is non-fatal.
@@ -369,15 +331,17 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     try {
       if (typeof navigator !== "undefined" && (navigator as any).share) {
         await (navigator as any).share({ title: biz.name, text });
-        await markSent(c, "share");
+        // Handing the message to the share sheet is not a send. Ask, exactly
+        // like the Messages and Mail paths do.
+        setConfirmSend({ contact: c, channel: "share" });
       } else {
         const ok = await copyText(text);
         if (!ok) {
           toast({ title: "Could not copy the message", description: "Select the message and copy it manually.", variant: "destructive" });
           return;
         }
-        toast({ title: "Message copied", description: "Paste it into any app to send." });
-        await markSent(c, "share");
+        toast({ title: "Message copied", description: "Paste it into any app, then confirm you sent it." });
+        setConfirmSend({ contact: c, channel: "share" });
       }
     } catch (e: any) {
       // A cancelled share sheet is a normal outcome. Anything else is a real
@@ -396,8 +360,8 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
   };
 
   // Explicit copy-to-clipboard action. Useful on desktop where sms: and Web
-  // Share are not available. Marks the contact as invited under the "share"
-  // channel because that is the closest match to a device-native handoff.
+  // Share are not available. Copying only PREPARES the ask, so the contact
+  // stays pending until the owner confirms they actually sent it.
   const copyMessage = async (c: ReferralContact) => {
     setSendingId(c.id);
     try {
@@ -406,8 +370,8 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
         toast({ title: "Could not copy", description: "Select the message and copy it manually.", variant: "destructive" });
         return;
       }
-      toast({ title: "Message copied", description: "Paste it into any app to send." });
-      await markSent(c, "share");
+      toast({ title: "Message copied", description: "Paste it into any app, then confirm you sent it." });
+      setConfirmSend({ contact: c, channel: "share" });
     } catch {
       toast({ title: "Could not copy", description: "Copy the text manually.", variant: "destructive" });
     } finally {
@@ -709,6 +673,23 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
               : ""}
           </span>
         </div>
+
+        {parseErrors.length > 0 && (
+          <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
+            <p className="font-semibold">
+              {parseErrors.length} line{parseErrors.length === 1 ? "" : "s"} could not be used
+            </p>
+            <ul className="mt-1 space-y-0.5">
+              {parseErrors.slice(0, 4).map((e) => (
+                <li key={e.line}>Line {e.line}: {e.reason}</li>
+              ))}
+              {parseErrors.length > 4 && <li>and {parseErrors.length - 4} more</li>}
+            </ul>
+          </div>
+        )}
+
+
+
 
         {dedupedPreview.length > 0 && (
           <div className="mt-4 overflow-x-auto rounded-xl border border-border bg-muted/30">
@@ -1030,7 +1011,11 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
             <DialogTitle>Did that send?</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            {confirmSend ? `We opened your ${confirmSend.channel === "sms" ? "Messages" : "Mail"} app for ${firstName(confirmSend.contact.name)}. ` : ""}
+            {confirmSend
+              ? confirmSend.channel === "share"
+                ? `Your message for ${firstName(confirmSend.contact.name)} is ready to paste or share. `
+                : `We opened your ${confirmSend.channel === "sms" ? "Messages" : "Mail"} app for ${firstName(confirmSend.contact.name)}. `
+              : ""}
             We cannot see inside it, so nothing is recorded until you confirm. Choose Not yet and they stay
             pending so you can try again.
           </p>

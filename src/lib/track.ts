@@ -19,7 +19,10 @@ export const FUNNEL_EVENTS = [
   "go_live_clicked",
   "publish_page_clicked",
   "checkout_redirected",
-  "checkout_succeeded",
+  // Verified against the billing provider, never inferred from a URL parameter.
+  // Activation of a subscription is NOT the same fact as money collected.
+  "subscription_activated",
+  "payment_collected",
   "checkout_canceled",
   "email_lead_submitted",
   "referral_submitted",
@@ -31,6 +34,11 @@ export const FUNNEL_EVENTS = [
   "invite_landing_viewed",
   "signup_form_started",
   "invite_cta_clicked",
+  "cta_clicked",
+  "demo_started",
+  "demo_completed",
+  "page_published",
+  "first_ask_prepared",
 ] as const;
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];
@@ -44,7 +52,8 @@ const SESSION_KEY = "revvin_session_id";
 const META_STANDARD_EVENTS: Partial<Record<FunnelEvent, string>> = {
   signup_succeeded: "CompleteRegistration",
   checkout_redirected: "InitiateCheckout",
-  checkout_succeeded: "Purchase",
+  subscription_activated: "Subscribe",
+  payment_collected: "Purchase",
   email_lead_submitted: "Lead",
 };
 

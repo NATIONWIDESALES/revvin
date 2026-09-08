@@ -154,13 +154,32 @@ const BusinessDashboard = () => {
 
   useEffect(() => { if (user) loadAll(); }, [user]);
 
-  // Stripe returns to the dashboard with ?checkout=success|cancel.
+  // Stripe returns to the dashboard with ?checkout=success|cancel. The URL
+  // parameter alone proves nothing: it survives a back button and can be typed
+  // by hand. A success is only reported once the billing provider confirms the
+  // subscription, and only once per subscription.
   useEffect(() => {
     const outcome = new URLSearchParams(window.location.search).get("checkout");
-    if (outcome === "success") track("checkout_succeeded");
-    else if (outcome === "cancel" || outcome === "canceled" || outcome === "cancelled") {
+    if (outcome === "cancel" || outcome === "canceled" || outcome === "cancelled") {
       track("checkout_canceled");
+      return;
     }
+    if (outcome !== "success") return;
+    void (async () => {
+      const { data, error } = await supabase.functions.invoke("check-subscription");
+      if (error) return;
+      const status = String((data as { subscription_status?: string } | null)?.subscription_status ?? "");
+      if (!["active", "trialing", "paid"].includes(status)) return;
+      const subId = String((data as { subscription_id?: string } | null)?.subscription_id ?? status);
+      const key = `revvin_sub_activated_${subId}`;
+      try {
+        if (localStorage.getItem(key)) return;
+        localStorage.setItem(key, "1");
+      } catch {
+        /* private mode: reporting once per load is acceptable */
+      }
+      track("subscription_activated");
+    })();
   }, []);
 
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -523,6 +542,7 @@ const PublishBanner = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void 
       toast({ title: "Could not publish your page", description: error.message, variant: "destructive" });
       return;
     }
+    track("page_published");
     toast({ title: "Your referral page is live" });
     onUpdate();
   };

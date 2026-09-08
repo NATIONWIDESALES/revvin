@@ -482,9 +482,39 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
               dunning_notified_at: null,
             })
             .eq("stripe_subscription_id", subId);
+
+          // Money actually collected. This is the only place a payment is
+          // reported, and it is keyed on the Stripe invoice id so a redelivered
+          // webhook cannot double count. Subscription activation is a separate,
+          // weaker fact and is recorded by the client as
+          // `subscription_activated`.
+          // NOT DEPLOYED in this changeset: deploy alongside the release.
+          if (Number(inv.amount_paid ?? 0) > 0) {
+            // Dedupe on the invoice id so a redelivered webhook is not counted
+            // twice. (Best effort: two simultaneous deliveries of the same
+            // invoice could still both pass this check.)
+            const { data: already } = await admin
+              .from("funnel_events")
+              .select("id")
+              .eq("event", "payment_collected")
+              .eq("session_id", `stripe_invoice_${inv.id}`)
+              .limit(1);
+            if (!already?.length) await admin.from("funnel_events").insert({
+              event: "payment_collected",
+              session_id: `stripe_invoice_${inv.id}`,
+              path: "/stripe/webhook",
+              meta: {
+                amount_paid_cents: inv.amount_paid,
+                currency: inv.currency,
+                invoice_id: inv.id,
+                subscription_id: subId,
+              },
+            });
+          }
         }
         break;
       }
+
     }
 
     return new Response(JSON.stringify({ received: true }), {

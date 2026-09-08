@@ -19,10 +19,16 @@ const FUNNEL_ORDER: { event: string; label: string }[] = [
   { event: "go_live_clicked", label: "Go live clicked" },
   { event: "publish_page_clicked", label: "Publish page clicked" },
   { event: "checkout_redirected", label: "Checkout redirected" },
-  { event: "checkout_succeeded", label: "Checkout succeeded" },
+  { event: "subscription_activated", label: "Subscription activated (verified)" },
+  { event: "payment_collected", label: "Payment collected (invoice paid)" },
   { event: "checkout_canceled", label: "Checkout canceled" },
   { event: "email_lead_submitted", label: "Email lead submitted" },
   { event: "referral_submitted", label: "Referral submitted" },
+  { event: "cta_clicked", label: "Primary CTA clicked" },
+  { event: "demo_started", label: "Demo started" },
+  { event: "demo_completed", label: "Demo completed" },
+  { event: "page_published", label: "Page published" },
+  { event: "first_ask_prepared", label: "First ask prepared" },
 ];
 
 /** Steps that form the actual conversion path (drop-off is computed on these). */
@@ -34,7 +40,7 @@ const DROPOFF_CHAIN = [
   "onboarding_completed",
   "go_live_clicked",
   "checkout_redirected",
-  "checkout_succeeded",
+  "subscription_activated",
 ];
 
 type Counts = Record<string, number>;
