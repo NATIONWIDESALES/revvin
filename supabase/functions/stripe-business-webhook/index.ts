@@ -129,7 +129,7 @@ serve(async (req) => {
               limit: 20,
               expand: ["data.price.product"],
             });
-            const hasLaunchLineItem = items.data.some((li) => {
+            const hasLaunchLineItem = items.data.some((li: Stripe.LineItem) => {
               if (li.price?.id === PRICE_LAUNCH_PACKAGE_297) return true;
               const product = li.price?.product as Stripe.Product | string | undefined;
               if (product && typeof product !== "string") {

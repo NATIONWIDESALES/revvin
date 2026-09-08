@@ -76,7 +76,7 @@ serve(async (req) => {
       limit: 10,
     });
     const sub =
-      subscriptions.data.find((s) => hasAccess(s.status)) ?? subscriptions.data[0] ?? null;
+      subscriptions.data.find((s: Stripe.Subscription) => hasAccess(s.status)) ?? subscriptions.data[0] ?? null;
     if (!sub) return json({ ...NONE, customer_id: customerId });
 
     // Money collected is read from the authoritative server-side payment record,
