@@ -100,7 +100,11 @@ const Onboarding = () => {
     })();
   }, [user]);
 
-  const saveStep = async (patch: Record<string, any>, nextStep?: number) => {
+  type BusinessPatch = Parameters<
+    ReturnType<typeof supabase.from<"businesses">>["update"]
+  >[0];
+
+  const saveStep = async (patch: BusinessPatch, nextStep?: number) => {
     if (!bizId) return;
     setSaving(true);
     const { error } = await supabase.from("businesses").update(patch).eq("id", bizId);
