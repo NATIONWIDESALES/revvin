@@ -2716,6 +2716,12 @@ export type Database = {
         }
         Returns: Json
       }
+      fn_suppressed_emails_for_business: {
+        Args: { p_business_id: string }
+        Returns: {
+          email: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
