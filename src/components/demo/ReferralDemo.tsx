@@ -4,15 +4,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
 import { track } from "@/lib/track";
 import { ArrowRight, Check, HandCoins, Inbox, RotateCcw, Send } from "lucide-react";
+import { MONTHLY_PRICE, PRICE_TEXT } from "@/config/pricing";
 
 /**
  * Interactive demo of the referral loop.
  *
- * Everything here is synthetic and lives in React state. There are no database
- * writes, no notifications, no email, no SMS and no checkout. Nothing typed here
- * leaves the browser. Every stage is labelled DEMO.
+ * Everything is synthetic and lives in React state: no database writes, no
+ * leads, no notifications, no email, no SMS, no checkout. Nothing typed here is
+ * saved or transmitted, and nothing typed here is ever put into an analytics
+ * event: the only events are `demo_started` and `demo_completed`, fired at most
+ * once per run, with no payload. Those are marketing events and never feed
+ * commercial totals.
+ *
+ * The fields arrive pre-filled so a visitor can press one button and watch the
+ * whole loop.
  */
 
 type Stage = "form" | "inbox" | "won" | "paid";
@@ -20,7 +28,13 @@ type Stage = "form" | "inbox" | "won" | "paid";
 const DEMO_BUSINESS = "Summit Roofing (demo)";
 const DEMO_REWARD = 250;
 const DEMO_JOB_VALUE = 6400;
-const PRO_MONTHLY = 49;
+const DEFAULT_MARGIN = 40;
+
+const PREFILL = {
+  name: "Dana Whitfield",
+  lead: "Chris Alvarez",
+  need: "Roof leak above the garage after last week's storm",
+} as const;
 
 const STEPS: { id: Stage; label: string }[] = [
   { id: "form", label: "Referral sent" },
@@ -29,7 +43,8 @@ const STEPS: { id: Stage; label: string }[] = [
   { id: "paid", label: "Reward paid" },
 ];
 
-const money = (n: number) => `$${n.toLocaleString("en-US")}`;
+const money = (n: number) =>
+  `${n < 0 ? "-" : ""}$${Math.abs(Math.round(n)).toLocaleString("en-US")}`;
 
 const DemoBadge = ({ className = "" }: { className?: string }) => (
   <span
@@ -41,33 +56,53 @@ const DemoBadge = ({ className = "" }: { className?: string }) => (
 
 const ReferralDemo = () => {
   const [stage, setStage] = useState<Stage>("form");
-  const [name, setName] = useState("");
-  const [lead, setLead] = useState("");
-  const [need, setNeed] = useState("");
-  const [consent, setConsent] = useState(false);
+  const [name, setName] = useState<string>(PREFILL.name);
+  const [lead, setLead] = useState<string>(PREFILL.lead);
+  const [need, setNeed] = useState<string>(PREFILL.need);
+  const [consent, setConsent] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [jobValue, setJobValue] = useState(String(DEMO_JOB_VALUE));
-  const [started, setStarted] = useState(false);
+  const [margin, setMargin] = useState(DEFAULT_MARGIN);
+  const [rewardPaid, setRewardPaid] = useState(false);
+
+  // Per-run bookkeeping. Each run fires at most one started and one completed
+  // event; Reset arms a fresh run so a second pass is counted once, not twice.
+  const runStarted = useRef(false);
+  const runCompleted = useRef(false);
+
+  const firstFieldRef = useRef<HTMLInputElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const liveRef = useRef<HTMLParagraphElement>(null);
+  const resetRequested = useRef(false);
 
   // Move focus to the stage heading on each change so keyboard and screen
-  // reader users are not stranded at the bottom of the previous stage.
+  // reader users are not stranded at the bottom of the previous stage. After a
+  // reset, focus goes back to the first field instead.
   useEffect(() => {
+    if (resetRequested.current) {
+      resetRequested.current = false;
+      firstFieldRef.current?.focus();
+      return;
+    }
     if (stage !== "form") headingRef.current?.focus();
   }, [stage]);
 
-  const referrerName = name.trim() || "Dana (demo referrer)";
-  const leadName = lead.trim() || "Chris (demo lead)";
+  const referrerName = name.trim() || PREFILL.name;
+  const leadName = lead.trim() || PREFILL.lead;
+  const leadNeed = need.trim() || PREFILL.need;
+
   const parsedJob = Number(jobValue.replace(/[^0-9.]/g, ""));
-  const jobAmount = Number.isFinite(parsedJob) && parsedJob > 0 ? parsedJob : 0;
-  const contribution = useMemo(() => jobAmount - DEMO_REWARD - PRO_MONTHLY, [jobAmount]);
+  const revenue = Number.isFinite(parsedJob) && parsedJob > 0 ? parsedJob : 0;
+  // Revenue minus the reward is not what the owner keeps: the job has costs.
+  // The margin is the owner's own estimate, exactly as on the ROI calculator.
+  const grossProfit = useMemo(() => revenue * (margin / 100), [revenue, margin]);
+  const contribution = grossProfit - DEMO_REWARD - MONTHLY_PRICE;
 
   const stageIndex = STEPS.findIndex((s) => s.id === stage);
 
-  const beginIfNeeded = () => {
-    if (started) return;
-    setStarted(true);
+  const beginRun = () => {
+    if (runStarted.current) return;
+    runStarted.current = true;
     track("demo_started");
   };
 
@@ -78,18 +113,32 @@ const ReferralDemo = () => {
       return;
     }
     setError(null);
-    beginIfNeeded();
+    beginRun();
     setStage("inbox");
   };
 
+  const finishRun = () => {
+    setRewardPaid(true);
+    setStage("paid");
+    if (runCompleted.current) return;
+    runCompleted.current = true;
+    track("demo_completed");
+  };
+
   const reset = () => {
+    resetRequested.current = true;
+    runStarted.current = false;
+    runCompleted.current = false;
     setStage("form");
-    setName("");
-    setLead("");
-    setNeed("");
-    setConsent(false);
+    setName(PREFILL.name);
+    setLead(PREFILL.lead);
+    setNeed(PREFILL.need);
+    setConsent(true);
     setJobValue(String(DEMO_JOB_VALUE));
+    setMargin(DEFAULT_MARGIN);
+    setRewardPaid(false);
     setError(null);
+    firstFieldRef.current?.focus();
     if (liveRef.current) liveRef.current.textContent = "Demo reset. Back to the referral form.";
   };
 
@@ -112,9 +161,7 @@ const ReferralDemo = () => {
           <li
             key={s.id}
             aria-current={s.id === stage ? "step" : undefined}
-            className={
-              i <= stageIndex ? "font-semibold text-foreground" : "text-muted-foreground"
-            }
+            className={i <= stageIndex ? "font-semibold text-foreground" : "text-muted-foreground"}
           >
             {i + 1}. {s.label}
           </li>
@@ -131,19 +178,17 @@ const ReferralDemo = () => {
                 Step 1. Send a referral <DemoBadge className="ml-1 align-middle" />
               </h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                Play the customer. Use made-up details: nothing here is saved or sent anywhere.
+                Already filled in with made-up people, so you can just press send. Change anything
+                you like: nothing is saved or sent anywhere.
               </p>
             </div>
             <div>
               <Label htmlFor="demo-name">Your name</Label>
               <Input
                 id="demo-name"
+                ref={firstFieldRef}
                 value={name}
-                onChange={(e) => {
-                  beginIfNeeded();
-                  setName(e.target.value);
-                }}
-                placeholder="Dana (demo referrer)"
+                onChange={(e) => setName(e.target.value)}
                 autoComplete="off"
                 className="mt-1.5 h-11"
               />
@@ -154,7 +199,6 @@ const ReferralDemo = () => {
                 id="demo-lead"
                 value={lead}
                 onChange={(e) => setLead(e.target.value)}
-                placeholder="Chris (demo lead)"
                 autoComplete="off"
                 className="mt-1.5 h-11"
               />
@@ -165,7 +209,6 @@ const ReferralDemo = () => {
                 id="demo-need"
                 value={need}
                 onChange={(e) => setNeed(e.target.value)}
-                placeholder="Roof leak above the garage"
                 rows={2}
                 className="mt-1.5"
               />
@@ -203,13 +246,16 @@ const ReferralDemo = () => {
               >
                 {stage === "inbox" && "Step 2. The owner's lead inbox"}
                 {stage === "won" && "Step 3. Job won, reward owed"}
-                {stage === "paid" && "Step 4. Reward marked paid"}
+                {stage === "paid" && "Step 4. Reward recorded as paid"}
                 <DemoBadge className="ml-2 align-middle" />
               </h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                {stage === "inbox" && "This is what lands in the owner's dashboard the moment a referral comes in."}
-                {stage === "won" && "The owner records what the job was worth. Revvin never touches the money."}
-                {stage === "paid" && "The owner pays the referrer directly and records it here."}
+                {stage === "inbox" &&
+                  "This is what lands in the owner's dashboard when a referral is submitted through the page."}
+                {stage === "won" &&
+                  "The owner records what the job was worth. The reward is owed at this point, and nothing has been paid yet."}
+                {stage === "paid" &&
+                  "The owner paid the referrer directly and recorded it here. Revvin recorded the fact, it did not move the money."}
               </p>
             </div>
 
@@ -217,7 +263,7 @@ const ReferralDemo = () => {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-foreground">{leadName}</p>
                 <span className="rounded-full bg-background px-2 py-0.5 text-[11px] font-semibold text-foreground">
-                  {stage === "inbox" ? "New" : stage === "won" ? "Won" : "Won, reward paid"}
+                  {stage === "inbox" ? "New" : rewardPaid ? "Won · reward recorded paid" : "Won · reward owed"}
                 </span>
               </div>
               <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
@@ -227,7 +273,7 @@ const ReferralDemo = () => {
                 </div>
                 <div>
                   <dt className="text-xs text-muted-foreground">What they need</dt>
-                  <dd className="text-foreground">{need.trim() || "Roof leak above the garage"}</dd>
+                  <dd className="text-foreground">{leadNeed}</dd>
                 </div>
               </dl>
             </div>
@@ -241,52 +287,78 @@ const ReferralDemo = () => {
 
             {stage !== "inbox" && (
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="demo-value">Job revenue the owner recorded</Label>
-                  <Input
-                    id="demo-value"
-                    value={jobValue}
-                    onChange={(e) => setJobValue(e.target.value)}
-                    inputMode="decimal"
-                    aria-describedby="demo-value-note"
-                    className="mt-1.5 h-11"
-                  />
-                  <p id="demo-value-note" className="mt-1 text-xs text-muted-foreground">
-                    Owner-reported. Revvin does not see invoices or payments.
-                  </p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="demo-value">Job revenue the owner recorded</Label>
+                    <Input
+                      id="demo-value"
+                      value={jobValue}
+                      onChange={(e) => setJobValue(e.target.value)}
+                      inputMode="decimal"
+                      aria-describedby="demo-value-note"
+                      className="mt-1.5 h-11"
+                    />
+                    <p id="demo-value-note" className="mt-1 text-xs text-muted-foreground">
+                      Owner-reported. Revvin does not see invoices or payments.
+                    </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="demo-margin">Your profit margin on a job: {margin}%</Label>
+                    <Slider
+                      id="demo-margin"
+                      value={[margin]}
+                      min={10}
+                      max={80}
+                      step={5}
+                      onValueChange={([v]) => setMargin(v)}
+                      className="mt-4"
+                      aria-label={`Profit margin on a job: ${margin} percent`}
+                    />
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Your own estimate. Revvin has no way to know your job costs.
+                    </p>
+                  </div>
                 </div>
-                <dl className="grid gap-2 sm:grid-cols-3">
+
+                <dl className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                   <div className="rounded-xl border border-border bg-muted/30 p-3">
                     <dt className="text-xs text-muted-foreground">Job revenue</dt>
-                    <dd className="text-lg font-semibold text-foreground">{money(jobAmount)}</dd>
+                    <dd className="text-lg font-semibold text-foreground">{money(revenue)}</dd>
                   </div>
                   <div className="rounded-xl border border-border bg-muted/30 p-3">
-                    <dt className="text-xs text-muted-foreground">Referral reward</dt>
+                    <dt className="text-xs text-muted-foreground">Gross profit at {margin}%</dt>
+                    <dd className="text-lg font-semibold text-foreground">{money(grossProfit)}</dd>
+                  </div>
+                  <div className="rounded-xl border border-border bg-muted/30 p-3">
+                    <dt className="text-xs text-muted-foreground">
+                      Referral reward {rewardPaid ? "(recorded paid)" : "(owed)"}
+                    </dt>
                     <dd className="text-lg font-semibold text-foreground">-{money(DEMO_REWARD)}</dd>
                   </div>
-                  <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
-                    <dt className="text-xs text-muted-foreground">After reward and Pro</dt>
-                    <dd className="text-lg font-semibold text-primary">{money(contribution)}</dd>
+                  <div className="rounded-xl border border-border bg-muted/30 p-3">
+                    <dt className="text-xs text-muted-foreground">Revvin Pro, one month</dt>
+                    <dd className="text-lg font-semibold text-foreground">-{money(MONTHLY_PRICE)}</dd>
                   </div>
                 </dl>
-                <p className="text-xs text-muted-foreground">
-                  Contribution after the {money(DEMO_REWARD)} reward and one month of Pro at{" "}
-                  {money(PRO_MONTHLY)}. It is not net profit: your own job costs are not in here.
-                </p>
+
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                  <p className="text-xs text-muted-foreground">
+                    Estimated contribution from this one job
+                  </p>
+                  <p className="text-2xl font-extrabold tracking-tight text-primary">
+                    {money(contribution)}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {`Gross profit at ${margin}% of ${money(revenue)}, less the ${money(DEMO_REWARD)} reward and one month of Pro at ${PRICE_TEXT.monthlyPerMonth}. An estimate from figures you chose, not a forecast.`}
+                  </p>
+                </div>
               </div>
             )}
 
             {stage === "won" && (
-              <Button
-                size="lg"
-                className="h-12 w-full gap-2"
-                onClick={() => {
-                  setStage("paid");
-                  track("demo_completed");
-                }}
-              >
+              <Button size="lg" className="h-12 w-full gap-2" onClick={finishRun}>
                 <HandCoins className="h-4 w-4" aria-hidden="true" />
-                Mark the {money(DEMO_REWARD)} reward paid
+                Record the {money(DEMO_REWARD)} reward as paid
               </Button>
             )}
 
@@ -297,8 +369,9 @@ const ReferralDemo = () => {
                   Loop closed, in the demo
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {referrerName} was paid {money(DEMO_REWARD)} directly by the business. Revvin
-                  recorded it. No money moved through Revvin, and nothing in this demo was saved.
+                  The owner marked the {money(DEMO_REWARD)} reward paid to {referrerName}, who is
+                  notified when it is owed and again when it is marked paid. No money moved through
+                  Revvin, and nothing in this demo was saved.
                 </p>
                 <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                   <Button asChild className="h-11 gap-2">
