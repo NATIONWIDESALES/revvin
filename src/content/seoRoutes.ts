@@ -180,8 +180,9 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: `Revvin Pro, ${PRO}`,
-        body: "Everything in Free, plus importing your past-customer list and sending your referral ask in bulk from your own email app, ROI reporting with a monthly email recap, and custom page branding. Annual billing is available and is billed once for the year. No contract and no setup fee.",
+        body: `Everything in Free, plus importing your past-customer list and sending your referral ask in bulk from your own email app, reactivation campaigns that Revvin sends by email from your account with an unsubscribe link in every message and a cap of 500 recipients per send, ROI reporting with a monthly email recap, and custom page branding. Annual billing is ${ANNUAL}. No contract and no setup fee.`,
       },
+
       {
         heading: "Cancel any time",
         body: "Cancel from the billing portal whenever you like. Your page stays live and your referrals keep coming in, you only lose the Pro tools. There are no platform fees on referral rewards: Revvin does not take a cut and does not move the money. You pay your referrer directly when a deal closes.",
