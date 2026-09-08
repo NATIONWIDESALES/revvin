@@ -173,11 +173,11 @@ const PublicReferralPage = () => {
       return;
     }
     setStatusUrl(`${window.location.origin}/r/status/${receipt.status_token}`);
-    if (!receipt.duplicate) {
-      // Fire-and-forget email notification to the business owner.
-      supabase.functions
-        .invoke("notify-new-lead", { body: { lead_id: receipt.lead_id } })
-        .catch((err) => console.warn("[notify-new-lead] failed", err));
+    // The owner's email is NOT sent from here. The submit RPC commits a durable
+    // notification job alongside the lead, and the worker delivers it, so
+    // closing this tab or a provider outage can no longer lose the notification.
+    if (!receipt.replay) {
+      // No PII and no receipt token in instrumentation.
       track("referral_submitted");
     }
     setSubmitted(true);

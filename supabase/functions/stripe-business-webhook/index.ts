@@ -9,6 +9,7 @@ import {
 } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { PRICE_LAUNCH_PACKAGE_297 } from "../_shared/stripe-prices.ts";
+import { subscriptionPeriodEnd } from "../_shared/stripe-subscription.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,27 +29,8 @@ function flaggedLaunchPackage(meta: Stripe.Metadata | null | undefined): boolean
   return raw === "1" || raw === "true";
 }
 
-/**
- * Resolve the end of the current billing period for a subscription.
- *
- * Stripe API 2025-08-27.basil moved `current_period_end` off the Subscription
- * object and onto each subscription item, so the top-level field is now
- * `undefined`. The old code did `new Date(sub.current_period_end * 1000)`,
- * which produced an Invalid Date and made `.toISOString()` THROW — aborting the
- * whole `checkout.session.completed` handler before it could write
- * `current_period_end` or `invite_code`. Read the item value first, fall back
- * to `trial_end` (trialing subs), then to the legacy top-level field.
- */
-function subscriptionPeriodEnd(sub: Stripe.Subscription): string | null {
-  const anySub = sub as unknown as { current_period_end?: number | null };
-  const seconds =
-    sub.items?.data?.[0]?.current_period_end ??
-    sub.trial_end ??
-    anySub.current_period_end ??
-    null;
-  if (!seconds || !Number.isFinite(seconds)) return null;
-  return new Date(seconds * 1000).toISOString();
-}
+// subscriptionPeriodEnd now lives in ../_shared/stripe-subscription.ts so this
+// webhook and check-subscription cannot disagree about the billing period.
 
 function escapeHtml(str: string): string {
   return String(str ?? "")
@@ -465,7 +447,6 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
         break;
       }
       case "invoice.payment_succeeded": {
-        // FIX 6: Keep current_period_end fresh on renewals
         const inv = event.data.object as Stripe.Invoice;
         const subId = typeof inv.subscription === "string" ? inv.subscription : inv.subscription?.id;
         if (subId) {
@@ -476,41 +457,95 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
             .update({
               subscription_status: "active",
               current_period_end: periodEnd,
-              
               account_status: "approved",
               // Reset dunning so the next failed period can notify again.
               dunning_notified_at: null,
             })
             .eq("stripe_subscription_id", subId);
 
-          // Money actually collected. This is the only place a payment is
-          // reported, and it is keyed on the Stripe invoice id so a redelivered
-          // webhook cannot double count. Subscription activation is a separate,
-          // weaker fact and is recorded by the client as
-          // `subscription_activated`.
-          // NOT DEPLOYED in this changeset: deploy alongside the release.
-          if (Number(inv.amount_paid ?? 0) > 0) {
-            // Dedupe on the invoice id so a redelivered webhook is not counted
-            // twice. (Best effort: two simultaneous deliveries of the same
-            // invoice could still both pass this check.)
-            const { data: already } = await admin
-              .from("funnel_events")
-              .select("id")
-              .eq("event", "payment_collected")
-              .eq("session_id", `stripe_invoice_${inv.id}`)
-              .limit(1);
-            if (!already?.length) await admin.from("funnel_events").insert({
-              event: "payment_collected",
-              session_id: `stripe_invoice_${inv.id}`,
-              path: "/stripe/webhook",
-              meta: {
-                amount_paid_cents: inv.amount_paid,
-                currency: inv.currency,
-                invoice_id: inv.id,
-                subscription_id: subId,
-              },
+          // Authoritative payment record. Identity is the Stripe invoice, never a
+          // browser session, and the UNIQUE invoice id makes the write atomic and
+          // idempotent: no SELECT-then-INSERT, so two simultaneous deliveries
+          // cannot both be counted.
+          const amountCents = Number(inv.amount_paid ?? 0);
+          const { data: bizRows, error: bizErr } = await admin
+            .from("businesses")
+            .select("id")
+            .eq("stripe_subscription_id", subId)
+            .limit(1);
+          if (bizErr) {
+            // Transient: let Stripe retry rather than answering 200 on a lost write.
+            console.error("[stripe-business-webhook] business lookup failed", bizErr);
+            return new Response(JSON.stringify({ error: "business lookup failed" }), {
+              status: 500,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
             });
           }
+          const businessId = (bizRows?.[0]?.id as string | undefined) ?? null;
+
+          // A zero-charge trial invoice is not collected money. It is recorded
+          // for completeness and excluded from revenue by `collected = false`.
+          const collected = amountCents > 0;
+          let kind: "first_payment" | "renewal" | "trial_no_charge" = "trial_no_charge";
+          if (collected) {
+            const { data: priorRows, error: priorErr } = await admin
+              .from("stripe_payments")
+              .select("id")
+              .eq("business_id", businessId)
+              .eq("collected", true)
+              .limit(1);
+            if (priorErr) {
+              console.error("[stripe-business-webhook] prior payment lookup failed", priorErr);
+              return new Response(JSON.stringify({ error: "payment lookup failed" }), {
+                status: 500,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              });
+            }
+            kind = priorRows?.length ? "renewal" : "first_payment";
+          }
+
+          const { data: inserted, error: payErr } = await admin
+            .from("stripe_payments")
+            .upsert(
+              {
+                stripe_invoice_id: inv.id,
+                stripe_subscription_id: subId,
+                stripe_customer_id:
+                  typeof inv.customer === "string" ? inv.customer : inv.customer?.id ?? null,
+                business_id: businessId,
+                amount_paid_cents: amountCents,
+                currency: (inv.currency ?? "usd").toUpperCase(),
+                collected,
+                billing_reason: inv.billing_reason ?? null,
+                kind,
+                paid_at: new Date(((inv.status_transitions?.paid_at ?? inv.created) as number) * 1000).toISOString(),
+              },
+              { onConflict: "stripe_invoice_id", ignoreDuplicates: true },
+            )
+            .select("id");
+
+          if (payErr) {
+            // Distinguish duplicate from transient. A duplicate is already
+            // ignored by ignoreDuplicates, so anything left here is a real
+            // failure and must make Stripe retry.
+            console.error("[stripe-business-webhook] payment persist failed", payErr);
+            return new Response(JSON.stringify({ error: "payment persist failed" }), {
+              status: 500,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+
+          const isDuplicate = !inserted?.length;
+          console.log("[stripe-business-webhook] invoice paid", {
+            invoice: inv.id,
+            business_id: businessId,
+            collected,
+            kind,
+            duplicate: isDuplicate,
+          });
+          // Meta Purchase forwarding is NOT implemented. First-party reporting is
+          // the source of truth for paid conversions; the browser pixel mapping
+          // does not send a server-side Purchase event.
         }
         break;
       }

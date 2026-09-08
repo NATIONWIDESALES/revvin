@@ -6,7 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
  * The browser never inserts into `leads` and never reads it back. It calls the
  * narrowly scoped `fn_submit_public_referral` RPC, which resolves the business
  * from the public slug server-side, validates the input, checks consent,
- * generates the status token and returns only a limited receipt.
+ * generates the receipt token and returns only this caller's own receipt.
+ *
+ * Idempotency is keyed on a request id that this module generates once per real
+ * submission and keeps for retries of that submission. The request id is NOT the
+ * receipt token and is never used to look anything up by the prospect's phone or
+ * email, so a retry can only ever replay its own receipt.
  */
 export interface ReferralSubmitInput {
   slug: string;
@@ -25,7 +30,8 @@ export interface ReferralReceipt {
   lead_id: string;
   status_token: string;
   business_name: string;
-  duplicate: boolean;
+  /** True when the server replayed the receipt for this same request id. */
+  replay: boolean;
 }
 
 /** Codes raised by the RPC, mapped to copy a visitor can act on. */
@@ -40,6 +46,10 @@ const RPC_MESSAGES: Record<string, string> = {
   invalid_lead_need: "Please say a little about what they need.",
   invalid_input: "One of those answers is too long. Please shorten it and try again.",
   rate_limited: "That is a lot of referrals in a short time. Please try again in a little while.",
+  // Deliberately generic: the server will not say whose submission it clashed
+  // with, and the visitor's fix is the same either way.
+  submission_conflict: "Something changed while we were saving that. Please reload the page and send it again.",
+  invalid_request_id: "Something changed while we were saving that. Please reload the page and send it again.",
 };
 
 export function referralSubmitMessage(raw: unknown): string | null {
@@ -50,10 +60,54 @@ export function referralSubmitMessage(raw: unknown): string | null {
   return null;
 }
 
+const REQUEST_KEY_PREFIX = "revvin_referral_request_";
+
+/** 32 chars of URL-safe entropy. Matches the server's ^[A-Za-z0-9_-]{24,64}$. */
+export function newRequestId(): string {
+  const bytes = new Uint8Array(24);
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < bytes.length; i += 1) bytes[i] = Math.floor(Math.random() * 256);
+  }
+  let out = "";
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+  for (const b of bytes) out += alphabet[b % alphabet.length];
+  return out;
+}
+
+/**
+ * One request id per (page, visitor) submission attempt, held across a retry,
+ * a refresh and a network failure. Cleared once the submission has succeeded so
+ * a genuinely new referral gets a new id.
+ */
+export function referralRequestId(slug: string): string {
+  const key = `${REQUEST_KEY_PREFIX}${slug}`;
+  try {
+    const existing = sessionStorage.getItem(key);
+    if (existing && /^[A-Za-z0-9_-]{24,64}$/.test(existing)) return existing;
+    const fresh = newRequestId();
+    sessionStorage.setItem(key, fresh);
+    return fresh;
+  } catch {
+    // Private mode: still safe, the id just does not survive a reload.
+    return newRequestId();
+  }
+}
+
+export function clearReferralRequestId(slug: string): void {
+  try {
+    sessionStorage.removeItem(`${REQUEST_KEY_PREFIX}${slug}`);
+  } catch {
+    /* ignore */
+  }
+}
+
 export async function submitPublicReferral(
   input: ReferralSubmitInput,
 ): Promise<{ receipt: ReferralReceipt | null; error: unknown }> {
   const { data, error } = await supabase.rpc("fn_submit_public_referral" as never, {
+    p_request_id: referralRequestId(input.slug),
     p_slug: input.slug,
     p_referrer_name: input.referrer_name.trim(),
     p_referrer_email: input.referrer_email.trim(),
@@ -67,5 +121,9 @@ export async function submitPublicReferral(
   } as never);
 
   if (error) return { receipt: null, error };
-  return { receipt: (data as unknown as ReferralReceipt) ?? null, error: null };
+  const receipt = (data as unknown as ReferralReceipt) ?? null;
+  // The submission is settled, so the next referral from this device starts a
+  // new request id rather than replaying this receipt.
+  if (receipt) clearReferralRequestId(input.slug);
+  return { receipt, error: null };
 }

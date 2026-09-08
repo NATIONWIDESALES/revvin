@@ -168,9 +168,16 @@ const BusinessDashboard = () => {
     void (async () => {
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error) return;
-      const status = String((data as { subscription_status?: string } | null)?.subscription_status ?? "");
-      if (!["active", "trialing", "paid"].includes(status)) return;
-      const subId = String((data as { subscription_id?: string } | null)?.subscription_id ?? status);
+      // Typed contract shared with the function: has_access is access (active,
+      // trialing, past_due, paid) and collected_payment is money. Only access is
+      // reported here; the paid-invoice fact is recorded server-side.
+      const status = data as {
+        subscription_status?: string;
+        has_access?: boolean;
+        subscription_id?: string | null;
+      } | null;
+      if (status?.has_access !== true) return;
+      const subId = String(status?.subscription_id ?? status?.subscription_status ?? "unknown");
       const key = `revvin_sub_activated_${subId}`;
       try {
         if (localStorage.getItem(key)) return;

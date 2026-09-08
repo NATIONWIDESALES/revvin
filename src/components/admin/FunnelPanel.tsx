@@ -78,6 +78,7 @@ const FunnelPanel = () => {
   const [mode, setMode] = useState<Mode>("human");
   const [botCounts, setBotCounts] = useState<Record<string, number>>({});
   const [filtered, setFiltered] = useState({ bots: 0, total: 0 });
+  const [paid, setPaid] = useState<{ first: number; renewals: number } | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -131,7 +132,15 @@ const FunnelPanel = () => {
         const e = row.event ?? "";
         const recent = (row.created_at ?? "") >= since7;
         const sid = row.session_id;
-        if (sid) {
+        const meta0 = (row.meta ?? {}) as Record<string, unknown>;
+        // Visits are real browser sessions only. Server-written rows carry a
+        // synthetic session id (for example a Stripe invoice), and demo or staging
+        // activity is flagged in meta; neither is a visitor and neither belongs in
+        // commercial totals.
+        const isVisitorSession =
+          !!sid && !sid.startsWith("stripe_") && !sid.startsWith("server_") &&
+          meta0.demo !== true && meta0.staging !== true;
+        if (isVisitorSession && sid) {
           sessions30.add(sid);
           if (recent) sessions7.add(sid);
         }
@@ -181,6 +190,30 @@ const FunnelPanel = () => {
         [...attr.values()].sort((x, y) => y.events30 - x.events30).slice(0, 50),
       );
       setBotCounts(counts);
+
+      // Money comes from the authoritative payment record, not from funnel rows:
+      // a new paying business and a renewal are different facts and are reported
+      // separately. Cast because the table lands with the pending migration and
+      // is not in the generated types yet.
+      const { data: payRows } = await (supabase as unknown as {
+        from: (t: string) => {
+          select: (c: string) => {
+            eq: (c: string, v: unknown) => {
+              gte: (c: string, v: string) => Promise<{ data: { kind: string }[] | null }>;
+            };
+          };
+        };
+      })
+        .from("stripe_payments")
+        .select("kind")
+        .eq("collected", true)
+        .gte("paid_at", since30);
+      const payments = payRows ?? [];
+      setPaid({
+        first: payments.filter((p) => p.kind === "first_payment").length,
+        renewals: payments.filter((p) => p.kind === "renewal").length,
+      });
+
       setLoading(false);
     };
     void load();
@@ -210,6 +243,11 @@ const FunnelPanel = () => {
         {filtered.bots > 0 && filtered.total > 0
           ? `${filtered.bots} of ${filtered.total} sessions (${Math.round((filtered.bots / filtered.total) * 100)}%) filtered as automated — spoofed user agents, headless browsers and declared crawlers.`
           : "No automated traffic detected."}
+      </p>
+      <p className="-mt-3 mb-4 text-xs text-muted-foreground">
+        {paid
+          ? `Collected payments in the last 30 days: ${paid.first} new paying ${paid.first === 1 ? "business" : "businesses"}, ${paid.renewals} ${paid.renewals === 1 ? "renewal" : "renewals"}. Counted from paid invoices. Meta Purchase forwarding is not implemented, so this first-party record is the only paid-conversion source.`
+          : "Collected payments are not available."}
       </p>
 
       <div className="mb-4 inline-flex rounded-lg border border-border p-0.5">

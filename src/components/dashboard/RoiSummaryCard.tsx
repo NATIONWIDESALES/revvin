@@ -1,13 +1,29 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { TrendingUp, DollarSign, Target, Inbox, HandCoins, CreditCard, ArrowRight } from "lucide-react";
+import { friendlyError } from "@/lib/errors";
+import {
+  TrendingUp,
+  DollarSign,
+  Target,
+  Inbox,
+  HandCoins,
+  ArrowRight,
+  AlertCircle,
+} from "lucide-react";
 
-// The scoreboard that answers "is this worth $49?". Every number here comes
-// from real rows: fn_get_business_roi for lead/close/revenue counts, the
-// rewards table for payouts, and the business subscription state for cost.
-// Nothing is estimated or projected. If a figure cannot be known honestly the
-// tile is omitted rather than filled with a placeholder.
+// The scoreboard that answers "is this worth $49?". Every number here comes from
+// real rows: fn_get_business_roi for lead/close/revenue counts and the rewards
+// table for payouts. Nothing is estimated or projected.
+//
+// Honesty rules this component follows:
+//   * a failed read is shown as an error, never as $0;
+//   * revenue is what the owner reported on their own closed jobs, and is
+//     labelled that way;
+//   * closed jobs with no close date on record are excluded from a dated view
+//     and reported as unknown rather than folded into the total;
+//   * what the owner has paid Revvin is not claimed here. Subscription status is
+//     access, not a receipt, so the cost tile is gone.
 
 interface Props {
   businessId: string;
@@ -21,9 +37,6 @@ const PERIOD_LABEL: Record<Period, string> = {
   all: "All time",
 };
 
-const MONTHLY_PRICE = 49;
-const PAID_STATUSES = ["active", "trialing", "paid", "past_due"];
-
 const fmtUsd = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
@@ -31,6 +44,9 @@ interface RoiResult {
   leads_total: number;
   closed_count: number;
   revenue: number;
+  windowed: boolean;
+  unknown_close_date_count: number;
+  missing_amount_count: number;
 }
 
 function periodRange(period: Period): { from: string | null; to: string | null } {
@@ -46,8 +62,9 @@ const RoiSummaryCard = ({ businessId }: Props) => {
   const [period, setPeriod] = useState<Period>("month");
   const [loading, setLoading] = useState(true);
   const [roi, setRoi] = useState<RoiResult | null>(null);
+  const [roiError, setRoiError] = useState<string | null>(null);
   const [rewardsPaid, setRewardsPaid] = useState<number | null>(null);
-  const [subscribed, setSubscribed] = useState<boolean | null>(null);
+  const [rewardsError, setRewardsError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -61,35 +78,43 @@ const RoiSummaryCard = ({ businessId }: Props) => {
     if (from) rewardsQuery.gte("marked_paid_at", from);
     if (to) rewardsQuery.lt("marked_paid_at", to);
 
-    const [roiRes, rewardsRes, bizRes] = await Promise.all([
+    const [roiRes, rewardsRes] = await Promise.all([
       supabase.rpc("fn_get_business_roi", {
         p_business_id: businessId,
         p_from: from,
         p_to: to,
       }),
       rewardsQuery,
-      supabase.from("businesses").select("subscription_status").eq("id", businessId).limit(1),
     ]);
 
-    const r = roiRes.data as unknown as RoiResult | null;
-    setRoi(
-      r
-        ? {
-            leads_total: Number(r.leads_total || 0),
-            closed_count: Number(r.closed_count || 0),
-            revenue: Number(r.revenue || 0),
-          }
-        : null,
-    );
+    if (roiRes.error) {
+      setRoi(null);
+      setRoiError(friendlyError(roiRes.error, "We could not load your scoreboard."));
+    } else {
+      const r = roiRes.data as unknown as Record<string, unknown> | null;
+      setRoiError(null);
+      setRoi(
+        r
+          ? {
+              leads_total: Number(r.leads_total ?? 0),
+              closed_count: Number(r.closed_count ?? 0),
+              revenue: Number(r.revenue ?? 0),
+              windowed: Boolean(r.windowed),
+              unknown_close_date_count: Number(r.unknown_close_date_count ?? 0),
+              missing_amount_count: Number(r.missing_amount_count ?? 0),
+            }
+          : null,
+      );
+    }
 
-    const paidRows = (rewardsRes.data as { amount: number | null }[] | null) ?? null;
-    setRewardsPaid(
-      rewardsRes.error ? null : (paidRows ?? []).reduce((s, x) => s + Number(x.amount || 0), 0),
-    );
-
-    const status = (bizRes.data as { subscription_status: string | null }[] | null)?.[0]
-      ?.subscription_status;
-    setSubscribed(status ? PAID_STATUSES.includes(status) : false);
+    if (rewardsRes.error) {
+      setRewardsPaid(null);
+      setRewardsError(friendlyError(rewardsRes.error, "We could not load your rewards paid."));
+    } else {
+      const paidRows = (rewardsRes.data as { amount: number | null }[] | null) ?? [];
+      setRewardsError(null);
+      setRewardsPaid(paidRows.reduce((s, x) => s + Number(x.amount || 0), 0));
+    }
 
     setLoading(false);
   }, [businessId, period]);
@@ -98,16 +123,23 @@ const RoiSummaryCard = ({ businessId }: Props) => {
     load();
   }, [load]);
 
-  // Revvin cost. A draft account pays nothing, so $0 is the true figure. For a
-  // subscribed account one billing period is one month, which we can state for
-  // the month and 30 day views. For all time we do not know how many periods
-  // have been billed, so that tile is omitted rather than guessed.
-  let cost: number | null = null;
-  if (subscribed === false) cost = 0;
-  else if (subscribed === true && period !== "all") cost = MONTHLY_PRICE;
-
   const revenue = roi?.revenue ?? 0;
-  const isEmpty = !loading && (roi?.leads_total ?? 0) === 0 && revenue === 0;
+  const isEmpty =
+    !loading && !roiError && (roi?.leads_total ?? 0) === 0 && revenue === 0;
+
+  const notes: string[] = [];
+  if (roi && roi.unknown_close_date_count > 0) {
+    notes.push(
+      roi.windowed
+        ? `${roi.unknown_close_date_count} closed ${roi.unknown_close_date_count === 1 ? "job has" : "jobs have"} no close date on record, so ${roi.unknown_close_date_count === 1 ? "it is" : "they are"} not counted in this date range. They are included in All time.`
+        : `${roi.unknown_close_date_count} closed ${roi.unknown_close_date_count === 1 ? "job has" : "jobs have"} no close date on record. Their value is counted here but cannot be placed in a month.`,
+    );
+  }
+  if (roi && roi.missing_amount_count > 0) {
+    notes.push(
+      `${roi.missing_amount_count} closed ${roi.missing_amount_count === 1 ? "job has" : "jobs have"} no job value entered, so ${roi.missing_amount_count === 1 ? "it adds" : "they add"} nothing to the total. Add the value on the lead to see it here.`,
+    );
+  }
 
   return (
     <section className="mb-8 rounded-2xl border border-border bg-card overflow-hidden">
@@ -139,7 +171,21 @@ const RoiSummaryCard = ({ businessId }: Props) => {
         </div>
       </div>
 
-      {isEmpty ? (
+      {roiError ? (
+        <div className="px-5 py-6 flex items-start gap-2 text-sm text-foreground">
+          <AlertCircle className="h-4 w-4 mt-0.5 text-destructive shrink-0" />
+          <div>
+            <p className="font-medium">{roiError}</p>
+            <button
+              type="button"
+              onClick={() => void load()}
+              className="mt-2 text-xs font-medium text-primary underline"
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      ) : isEmpty ? (
         <EmptyState />
       ) : (
         <>
@@ -156,56 +202,42 @@ const RoiSummaryCard = ({ businessId }: Props) => {
             />
             <Stat
               icon={<DollarSign className="h-4 w-4" />}
-              label="Revenue attributed"
+              label="Job value you reported"
               value={loading ? "…" : fmtUsd(revenue)}
               emphasis
             />
-            {rewardsPaid !== null && (
-              <Stat
-                icon={<HandCoins className="h-4 w-4" />}
-                label="Rewards paid out"
-                value={loading ? "…" : fmtUsd(rewardsPaid)}
-              />
-            )}
-            {cost !== null && (
-              <Stat
-                icon={<CreditCard className="h-4 w-4" />}
-                label="Revvin cost"
-                value={loading ? "…" : fmtUsd(cost)}
-              />
-            )}
+            <Stat
+              icon={<HandCoins className="h-4 w-4" />}
+              label="Rewards paid out"
+              value={loading ? "…" : rewardsPaid === null ? "Not available" : fmtUsd(rewardsPaid)}
+            />
           </div>
 
-          <div className="px-5 py-3 text-xs text-muted-foreground">
-            {loading ? null : cost === null ? (
-              <span>
+          <div className="px-5 py-3 space-y-1.5 text-xs text-muted-foreground">
+            {loading ? null : (
+              <p>
                 {revenue > 0 ? (
                   <>
-                    <span className="text-foreground font-medium">{fmtUsd(revenue)}</span> in tracked
-                    work came from referrals.
+                    <span className="text-foreground font-medium">{fmtUsd(revenue)}</span> of work
+                    you marked as won came from referrals
+                    {roi?.windowed ? ", by the date you closed it." : "."}
                   </>
                 ) : (
-                  "No revenue attributed to referrals in this period yet."
+                  "No job value reported on referral work in this period yet."
                 )}
-              </span>
-            ) : revenue > 0 ? (
-              <span>
-                <span className="text-foreground font-medium">{fmtUsd(revenue)}</span> in tracked work
-                against <span className="text-foreground font-medium">{fmtUsd(cost)}</span> paid to
-                Revvin.
-              </span>
-            ) : (
-              <span>
-                No revenue attributed yet this period. You have paid Revvin{" "}
-                <span className="text-foreground font-medium">{fmtUsd(cost)}</span>.
-              </span>
+              </p>
             )}
+            {rewardsError && <p>{rewardsError}</p>}
+            {notes.map((n) => (
+              <p key={n}>{n}</p>
+            ))}
           </div>
         </>
       )}
     </section>
   );
 };
+
 
 // Zero is shown honestly, with the three things that actually move the number.
 const EmptyState = () => (
