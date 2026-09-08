@@ -61,15 +61,14 @@ export function referralSubmitMessage(raw: unknown): string | null {
 }
 
 const REQUEST_KEY_PREFIX = "revvin_referral_request_";
+const inMemoryRequestIds = new Map<string, string>();
 
-/** 32 chars of URL-safe entropy. Matches the server's ^[A-Za-z0-9_-]{24,64}$. */
+/** 24 cryptographically random URL-safe chars. */
 export function newRequestId(): string {
   const bytes = new Uint8Array(24);
   if (typeof crypto !== "undefined" && crypto.getRandomValues) {
     crypto.getRandomValues(bytes);
-  } else {
-    for (let i = 0; i < bytes.length; i += 1) bytes[i] = Math.floor(Math.random() * 256);
-  }
+  } else throw new Error("Secure referral submission requires a secure browser context.");
   let out = "";
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
   for (const b of bytes) out += alphabet[b % alphabet.length];
@@ -83,19 +82,23 @@ export function newRequestId(): string {
  */
 export function referralRequestId(slug: string): string {
   const key = `${REQUEST_KEY_PREFIX}${slug}`;
+  const memoryId = inMemoryRequestIds.get(key);
+  if (memoryId) return memoryId;
   try {
     const existing = sessionStorage.getItem(key);
-    if (existing && /^[A-Za-z0-9_-]{24,64}$/.test(existing)) return existing;
-    const fresh = newRequestId();
-    sessionStorage.setItem(key, fresh);
-    return fresh;
-  } catch {
-    // Private mode: still safe, the id just does not survive a reload.
-    return newRequestId();
-  }
+    if (existing && /^[A-Za-z0-9_-]{24,64}$/.test(existing)) {
+      inMemoryRequestIds.set(key, existing);
+      return existing;
+    }
+  } catch { /* Keep retries stable in memory when storage is unavailable. */ }
+  const fresh = newRequestId();
+  inMemoryRequestIds.set(key, fresh);
+  try { sessionStorage.setItem(key, fresh); } catch { /* Reload persistence is unavailable. */ }
+  return fresh;
 }
 
 export function clearReferralRequestId(slug: string): void {
+  inMemoryRequestIds.delete(`${REQUEST_KEY_PREFIX}${slug}`);
   try {
     sessionStorage.removeItem(`${REQUEST_KEY_PREFIX}${slug}`);
   } catch {
@@ -106,8 +109,11 @@ export function clearReferralRequestId(slug: string): void {
 export async function submitPublicReferral(
   input: ReferralSubmitInput,
 ): Promise<{ receipt: ReferralReceipt | null; error: unknown }> {
+  let requestId: string;
+  try { requestId = referralRequestId(input.slug); }
+  catch (error) { return { receipt: null, error }; }
   const { data, error } = await supabase.rpc("fn_submit_public_referral" as never, {
-    p_request_id: referralRequestId(input.slug),
+    p_request_id: requestId,
     p_slug: input.slug,
     p_referrer_name: input.referrer_name.trim(),
     p_referrer_email: input.referrer_email.trim(),

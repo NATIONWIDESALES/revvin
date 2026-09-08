@@ -2,18 +2,19 @@
 //
 // A request is authorized when EITHER:
 //   1. it carries `x-cron-secret` matching the CRON_SECRET function secret, OR
-//   2. its bearer JWT has role === 'service_role' (manual/admin invocation).
+//   2. its bearer token exactly matches the configured service-role credential.
 //
 // Fails closed: if CRON_SECRET is unset, header auth is impossible and only a
-// service-role JWT gets through.
+// configured service-role credential gets through. Decoding a JWT is never
+// authentication: a caller can put any role in an unsigned payload.
 
-/** Length-independent, timing-safe-ish string comparison. */
+/** Compare every byte without exiting at the first mismatch. */
 function safeEqual(a: string, b: string): boolean {
   const enc = new TextEncoder();
   const ab = enc.encode(a);
   const bb = enc.encode(b);
-  // Compare a fixed-size digest-ish accumulation so length alone does not
-  // short-circuit the loop.
+  // This avoids an early mismatch return; JavaScript does not guarantee
+  // constant-time execution.
   const len = Math.max(ab.length, bb.length);
   let diff = ab.length ^ bb.length;
   for (let i = 0; i < len; i++) {
@@ -22,27 +23,29 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-function jwtRole(token: string): string | null {
-  try {
-    const part = token.split(".")[1];
-    if (!part) return null;
-    const b64 = part.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = b64 + "=".repeat((4 - (b64.length % 4)) % 4);
-    const payload = JSON.parse(atob(padded));
-    return typeof payload?.role === "string" ? payload.role : null;
-  } catch {
-    return null;
-  }
-}
-
 export interface CronAuthResult {
   ok: boolean;
   via?: "cron_secret" | "service_role";
   reason?: string;
 }
 
-export function checkCronAuth(req: Request): CronAuthResult {
-  const configured = Deno.env.get("CRON_SECRET") ?? "";
+export interface CronCredentials {
+  cronSecret: string;
+  serviceRoleKey: string;
+}
+
+function runtimeCredentials(): CronCredentials {
+  const env = (globalThis as typeof globalThis & {
+    Deno?: { env: { get(name: string): string | undefined } };
+  }).Deno?.env;
+  return {
+    cronSecret: env?.get("CRON_SECRET") ?? "",
+    serviceRoleKey: env?.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+  };
+}
+
+export function checkCronAuth(req: Request, credentials: CronCredentials = runtimeCredentials()): CronAuthResult {
+  const configured = credentials.cronSecret;
 
   const provided = req.headers.get("x-cron-secret");
   if (provided && configured && safeEqual(provided, configured)) {
@@ -52,11 +55,8 @@ export function checkCronAuth(req: Request): CronAuthResult {
   const auth = req.headers.get("Authorization") ?? "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
   if (token) {
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const serviceKey = credentials.serviceRoleKey;
     if (serviceKey && safeEqual(token, serviceKey)) {
-      return { ok: true, via: "service_role" };
-    }
-    if (jwtRole(token) === "service_role") {
       return { ok: true, via: "service_role" };
     }
   }

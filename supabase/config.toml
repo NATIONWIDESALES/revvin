@@ -13,3 +13,7 @@ project_id = "olmpplfgzegzqdcznlrp"
     verify_jwt = false
   [functions.twilio-inbound-webhook]
     verify_jwt = false
+  # Worker authenticates a configured x-cron-secret or exact service-role key.
+  # Gateway JWT decoding must not substitute for that credential verification.
+  [functions.notify-new-lead]
+    verify_jwt = false

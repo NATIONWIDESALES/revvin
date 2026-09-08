@@ -126,7 +126,8 @@ const ReferralDemo = () => {
   };
 
   const reset = () => {
-    resetRequested.current = true;
+    // Defer focus only if resetting will actually change the rendered stage.
+    resetRequested.current = stage !== "form";
     runStarted.current = false;
     runCompleted.current = false;
     setStage("form");

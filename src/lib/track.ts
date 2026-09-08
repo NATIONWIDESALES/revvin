@@ -1,5 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
 import { captureAttribution, getAttribution } from "@/lib/attribution";
+import {
+  analyticsContext,
+  analyticsEventAllowed,
+  safeAnalyticsAttribution,
+  safeAnalyticsMeta,
+  sanitizeAnalyticsReferrer,
+  type AnalyticsContext,
+} from "@/lib/analyticsPrivacy";
 
 /**
  * First-party funnel instrumentation.
@@ -19,10 +27,6 @@ export const FUNNEL_EVENTS = [
   "go_live_clicked",
   "publish_page_clicked",
   "checkout_redirected",
-  // Verified against the billing provider, never inferred from a URL parameter.
-  // Activation of a subscription is NOT the same fact as money collected.
-  "subscription_activated",
-  "payment_collected",
   "checkout_canceled",
   "email_lead_submitted",
   "referral_submitted",
@@ -44,18 +48,6 @@ export const FUNNEL_EVENTS = [
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];
 
 const SESSION_KEY = "revvin_session_id";
-
-/**
- * Our events mapped onto Meta standard events so the ad platform can optimise
- * on them. Anything not listed fires as a custom event under our own name.
- */
-const META_STANDARD_EVENTS: Partial<Record<FunnelEvent, string>> = {
-  signup_succeeded: "CompleteRegistration",
-  checkout_redirected: "InitiateCheckout",
-  subscription_activated: "Subscribe",
-  payment_collected: "Purchase",
-  email_lead_submitted: "Lead",
-};
 
 function getSessionId(): string | null {
   try {
@@ -79,38 +71,22 @@ function getSessionId(): string | null {
  */
 export function track(event: FunnelEvent, meta?: Record<string, unknown>): void {
   try {
-    if (event === "page_viewed") {
-      // Pageviews are already sent to Plausible and the Meta pixel by their own
-      // components. Only record the first-party row here.
-      recordFunnelEvent(event, meta);
-      return;
-    }
-    window.plausible?.(event, meta ? { props: meta } : undefined);
+    const context = analyticsContext(typeof location !== "undefined" ? location.href : "");
+    if (!context || !analyticsEventAllowed(event, context)) return;
+    // Never forward to browser provider globals: a previously loaded SDK may
+    // read the current URL/referrer independently of our event arguments.
+    recordFunnelEvent(event, context, meta);
   } catch {
-    /* ignore */
+    /* instrumentation must never break the UI */
   }
-
-  // Meta pixel. No PII is ever forwarded — only the event name.
-  try {
-    const standard = META_STANDARD_EVENTS[event];
-    if (standard) {
-      window.fbq?.("track", standard);
-    } else {
-      window.fbq?.("trackCustom", event);
-    }
-  } catch {
-    /* fbq may be missing or blocked by an ad blocker */
-  }
-
-  recordFunnelEvent(event, meta);
 }
 
-function recordFunnelEvent(event: FunnelEvent, meta?: Record<string, unknown>): void {
-  let attribution: Record<string, unknown> | null = null;
+function recordFunnelEvent(event: FunnelEvent, context: AnalyticsContext, meta?: Record<string, unknown>): void {
+  let attribution: Record<string, string> = {};
   try {
-    attribution = captureAttribution() ?? getAttribution();
+    attribution = safeAnalyticsAttribution(captureAttribution() ?? getAttribution());
   } catch {
-    attribution = null;
+    attribution = {};
   }
 
   try {
@@ -119,14 +95,14 @@ function recordFunnelEvent(event: FunnelEvent, meta?: Record<string, unknown>): 
       .insert({
         event,
         session_id: getSessionId(),
-        path: typeof location !== "undefined" ? location.pathname.slice(0, 512) : null,
+        path: context.path,
         referrer:
           typeof document !== "undefined" && document.referrer
-            ? document.referrer.slice(0, 512)
+            ? sanitizeAnalyticsReferrer(document.referrer)
             : null,
         user_agent:
           typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 512) : null,
-        meta: { ...(meta ?? {}), ...(attribution ?? {}) } as never,
+        meta: { ...attribution, ...safeAnalyticsMeta(event, context, meta) } as never,
       })
       .then(
         () => undefined,

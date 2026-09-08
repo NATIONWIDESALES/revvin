@@ -154,40 +154,22 @@ const BusinessDashboard = () => {
 
   useEffect(() => { if (user) loadAll(); }, [user]);
 
-  // Stripe returns to the dashboard with ?checkout=success|cancel. The URL
-  // parameter alone proves nothing: it survives a back button and can be typed
-  // by hand. A success is only reported once the billing provider confirms the
-  // subscription, and only once per subscription.
+  // A checkout return may refresh billing, but it is not a verified conversion.
+  // Paid conversions are reported from the server's invoice records.
   useEffect(() => {
     const outcome = new URLSearchParams(window.location.search).get("checkout");
     if (outcome === "cancel" || outcome === "canceled" || outcome === "cancelled") {
       track("checkout_canceled");
       return;
     }
-    if (outcome !== "success") return;
+    if (outcome !== "success" || !user) return;
+    let current = true;
     void (async () => {
-      const { data, error } = await supabase.functions.invoke("check-subscription");
-      if (error) return;
-      // Typed contract shared with the function: has_access is access (active,
-      // trialing, past_due, paid) and collected_payment is money. Only access is
-      // reported here; the paid-invoice fact is recorded server-side.
-      const status = data as {
-        subscription_status?: string;
-        has_access?: boolean;
-        subscription_id?: string | null;
-      } | null;
-      if (status?.has_access !== true) return;
-      const subId = String(status?.subscription_id ?? status?.subscription_status ?? "unknown");
-      const key = `revvin_sub_activated_${subId}`;
-      try {
-        if (localStorage.getItem(key)) return;
-        localStorage.setItem(key, "1");
-      } catch {
-        /* private mode: reporting once per load is acceptable */
-      }
-      track("subscription_activated");
+      const { error } = await supabase.functions.invoke("check-subscription");
+      if (!error && current) await loadAll();
     })();
-  }, []);
+    return () => { current = false; };
+  }, [user]);
 
   const [loadError, setLoadError] = useState<string | null>(null);
 
