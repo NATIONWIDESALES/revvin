@@ -375,6 +375,51 @@ const handwritten: PrerenderRoute[] = [
     ],
   },
   {
+    // /privacy and /terms are in the sitemap, so without an entry here crawlers
+    // received the SPA fallback (homepage content) at a legal URL. These are
+    // summaries; the page itself renders the full policy text.
+    path: "/privacy",
+    title: "Privacy Policy | Revvin",
+    description:
+      "How Revvin handles personal data for businesses, referrers and referred customers: what is collected, why, who it is shared with, and how to request deletion.",
+    h1: "Privacy Policy",
+    sections: [
+      {
+        heading: "What Revvin collects",
+        body: "Account details for business owners and referrers, referral submissions entered on a business's referral page, customer lists a business chooses to import, and first-party analytics about page and funnel usage. Analytics events never carry names, emails or phone numbers.",
+      },
+      {
+        heading: "Why it is held and who sees it",
+        body: "Referral details are shown to the business the referral was sent to, because that is the point of submitting one. Payment processing is handled by Stripe and email delivery by our email provider. Revvin does not sell personal data.",
+      },
+      {
+        heading: "Your choices",
+        body: "Every marketing or reactivation email includes an unsubscribe link, and unsubscribing suppresses that address. To access or delete your data, email info@revvin.co. The full policy on this page is the authoritative version.",
+      },
+    ],
+  },
+  {
+    path: "/terms",
+    title: "Terms of Service | Revvin",
+    description:
+      "The terms for using Revvin: free referral pages, Revvin Pro at $49/month USD, and the fact that businesses pay referral rewards directly and Revvin never holds the money.",
+    h1: "Terms of Service",
+    sections: [
+      {
+        heading: "Accounts and plans",
+        body: `Publishing a referral page is free. Revvin Pro is ${PRO}, or an annual price billed once for the year, cancellable at any time from the billing portal. Cancelling Pro does not unpublish your referral page.`,
+      },
+      {
+        heading: "Rewards are between the business and the referrer",
+        body: "The business sets the reward and pays the referrer directly, off-platform. Revvin records referrals and reward status but never holds, moves or guarantees reward money, and takes no cut of it.",
+      },
+      {
+        heading: "Acceptable use",
+        body: "You may only import or contact customers you have permission to contact, and every outreach message must allow the recipient to opt out. Accounts used to send unsolicited messages or to submit referrals without the referred person's consent can be suspended. The full terms on this page are the authoritative version.",
+      },
+    ],
+  },
+  {
     path: "/en-usd",
     // Legacy currency-variant URL. Revvin prices in USD only in every country,
     // so this variant has no distinct content: it redirects to the homepage and
