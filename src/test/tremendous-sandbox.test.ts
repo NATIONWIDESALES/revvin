@@ -130,7 +130,8 @@ describe("tremendous sandbox config", () => {
   it("is disabled unless explicitly enabled", () => {
     const result = resolveSandboxConfig({ ...RAW_CONFIG, enabled: false });
     expect(result.ok).toBe(false);
-    expect(result.ok === false && result.code).toBe("disabled");
+    expect(result).toMatchObject({ ok: false, code: "disabled" });
+
   });
 
   it("rejects a production environment and a production host", () => {
