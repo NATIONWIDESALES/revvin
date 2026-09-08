@@ -18,9 +18,9 @@ export interface OrderPayload {
   };
 }
 
-export function buildOrderPayload(obligation: RewardObligation, config: SandboxConfig): OrderPayload {
+export async function buildOrderPayload(obligation: RewardObligation, config: SandboxConfig): Promise<OrderPayload> {
   return {
-    external_id: externalIdFor(obligation),
+    external_id: await externalIdFor(obligation),
     payment: { funding_source_id: config.fundingSourceId },
     reward: {
       campaign_id: config.campaignId,

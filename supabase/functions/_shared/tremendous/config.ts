@@ -20,6 +20,9 @@ export interface RawSandboxConfig {
   baseUrl?: string;
   credentialKind?: CredentialKind;
   credential?: string;
+  /** Server-resolved connection to which this credential belongs. */
+  businessId?: string;
+  connectionId?: string;
   /** Explicitly approved sandbox campaign/program. Never guessed. */
   campaignId?: string;
   /** Only BALANCE is supported here. */
@@ -31,6 +34,8 @@ export interface SandboxConfig {
   baseUrl: typeof SANDBOX_BASE_URL;
   credentialKind: CredentialKind;
   credential: string;
+  businessId: string;
+  connectionId: string;
   campaignId: string;
   fundingSourceId: "BALANCE";
 }
@@ -42,6 +47,8 @@ export type ConfigFailureCode =
   | "missing_credential"
   | "production_credential_prefix"
   | "invalid_sandbox_api_key_prefix"
+  | "invalid_credential_kind"
+  | "missing_connection_binding"
   | "missing_campaign"
   | "unsupported_funding_source";
 
@@ -77,6 +84,13 @@ export function resolveSandboxConfig(raw: RawSandboxConfig | null | undefined): 
   }
 
   const credentialKind: CredentialKind = input.credentialKind ?? "api_key";
+  if (credentialKind !== "api_key" && credentialKind !== "oauth_access_token") {
+    return fail("invalid_credential_kind", "Credential kind is not supported.");
+  }
+  if (typeof input.businessId !== "string" || !input.businessId.trim() ||
+      typeof input.connectionId !== "string" || !input.connectionId.trim()) {
+    return fail("missing_connection_binding", "An explicit business and connection binding is required.");
+  }
   // OAuth access tokens are NOT expected to carry API key prefixes, so the
   // prefix rule applies to API keys only.
   if (credentialKind === "api_key" && !credential.startsWith(SANDBOX_API_KEY_PREFIX)) {
@@ -99,6 +113,8 @@ export function resolveSandboxConfig(raw: RawSandboxConfig | null | undefined): 
       baseUrl: SANDBOX_BASE_URL,
       credentialKind,
       credential,
+      businessId: input.businessId,
+      connectionId: input.connectionId,
       campaignId,
       fundingSourceId: "BALANCE",
     },

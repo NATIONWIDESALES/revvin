@@ -12,6 +12,7 @@ import {
   type TransportRequest,
   type TransportResult,
   type TremendousTransport,
+  type AttemptStore,
 } from "../../supabase/functions/_shared/tremendous/order-client";
 import {
   handleWebhookDelivery,
@@ -20,7 +21,7 @@ import {
   type EvidenceStore,
   type RewardEvidence,
 } from "../../supabase/functions/_shared/tremendous/webhook";
-import { redact } from "../../supabase/functions/_shared/tremendous/redact";
+import { redact, safeErrorMessage } from "../../supabase/functions/_shared/tremendous/redact";
 import type {
   ActorContext,
   ConnectionContext,
@@ -40,12 +41,24 @@ const RAW_CONFIG = {
   credentialKind: "api_key" as const,
   credential: "TEST_fixture-key-not-real",
   campaignId: "CAMPAIGN_APPROVED_FIXTURE",
+  businessId: "biz-fixture-1",
+  connectionId: "conn-fixture-1",
 };
 
-function config() {
-  const result = resolveSandboxConfig(RAW_CONFIG);
-  if (!result.ok) throw new Error("fixture config rejected");
-  return result.value;
+function config() { return { ...RAW_CONFIG }; }
+
+function attemptStore(): AttemptStore {
+  const fingerprints = new Map<string, string>();
+  return { claim: async ({externalId, fingerprint}) => {
+    const prior = fingerprints.get(externalId);
+    if (prior && prior !== fingerprint) return "conflict";
+    fingerprints.set(externalId, fingerprint);
+    return prior ? "same" : "new";
+  }};
+}
+
+function issue(candidate: RewardObligation, raw: typeof RAW_CONFIG, transport: TremendousTransport, attempts = attemptStore()) {
+  return createSandboxOrder(candidate, raw, context(), attempts, transport);
 }
 
 const obligation = (over: Partial<RewardObligation> = {}): RewardObligation => ({
@@ -104,11 +117,12 @@ function recordingTransport(results: TransportResult[] | (() => Promise<Transpor
   return { transport, requests };
 }
 
-function successBody(over: { denomination?: number; currency?: string; email?: string; rewardId?: string } = {}) {
+async function successBody(over: { denomination?: number; currency?: string; email?: string; rewardId?: string } = {}) {
   return {
     order: {
       id: "ORDER_FIXTURE_1",
-      external_id: externalIdFor(obligation()),
+      status: "EXECUTED",
+      external_id: await externalIdFor(obligation()),
       rewards: [
         {
           id: over.rewardId ?? "REWARD_FIXTURE_1",
@@ -185,8 +199,7 @@ describe("tremendous sandbox config", () => {
     ]) {
       const resolved = resolveSandboxConfig(raw);
       expect(resolved.ok).toBe(false);
-      // The caller cannot reach createSandboxOrder without a resolved config.
-      if (resolved.ok) await createSandboxOrder(obligation(), resolved.value, transport);
+      await expect(createSandboxOrder(obligation(), raw, context(), attemptStore(), transport)).resolves.toMatchObject({kind: "rejected"});
     }
     expect(send).not.toHaveBeenCalled();
     expect(requests).toHaveLength(0);
@@ -242,9 +255,9 @@ describe("reward obligation validation", () => {
     });
   });
 
-  it("derives a stable external ID per snapshot and a different one when the snapshot changes", () => {
-    expect(externalIdFor(obligation())).toBe(externalIdFor(obligation()));
-    expect(externalIdFor(obligation({ snapshotVersion: 2 }))).not.toBe(externalIdFor(obligation()));
+  it("keeps one opaque external ID across snapshot changes and separates businesses", async () => {
+    expect(await externalIdFor(obligation({snapshotVersion: 2}))).toBe(await externalIdFor(obligation()));
+    expect(await externalIdFor(obligation({businessId: "biz-other"}))).not.toBe(await externalIdFor(obligation()));
   });
 });
 
@@ -253,10 +266,12 @@ describe("reward obligation validation", () => {
 // ---------------------------------------------------------------------------
 
 describe("sandbox order payload and provider contract", () => {
-  it("builds one email reward from the approved campaign with minor-unit conversion", () => {
-    const payload = buildOrderPayload(obligation(), config());
+  it("builds one email reward from the approved campaign with minor-unit conversion", async () => {
+    const resolved = resolveSandboxConfig(config());
+    if (!resolved.ok) throw new Error("fixture configuration failed");
+    const payload = await buildOrderPayload(obligation(), resolved.value);
     expect(payload).toEqual({
-      external_id: externalIdFor(obligation()),
+      external_id: await externalIdFor(obligation()),
       payment: { funding_source_id: "BALANCE" },
       reward: {
         campaign_id: "CAMPAIGN_APPROVED_FIXTURE",
@@ -268,16 +283,16 @@ describe("sandbox order payload and provider contract", () => {
   });
 
   it("treats 200 as issued and 201 as a replay of the same external ID", async () => {
-    const created = recordingTransport([{ kind: "response", status: 200, json: successBody() }]);
-    await expect(createSandboxOrder(obligation(), config(), created.transport)).resolves.toMatchObject({
+    const created = recordingTransport([{ kind: "response", status: 200, json: await successBody() }]);
+    await expect(issue(obligation(), config(), created.transport)).resolves.toMatchObject({
       kind: "issued",
       evidence: { orderId: "ORDER_FIXTURE_1", rewardId: "REWARD_FIXTURE_1", replay: false },
     });
     expect(created.requests[0].url).toBe(`${SANDBOX_BASE_URL}orders`);
     expect(created.requests[0].redirect).toBe("error");
 
-    const replay = recordingTransport([{ kind: "response", status: 201, json: successBody() }]);
-    await expect(createSandboxOrder(obligation(), config(), replay.transport)).resolves.toMatchObject({
+    const replay = recordingTransport([{ kind: "response", status: 201, json: await successBody() }]);
+    await expect(issue(obligation(), config(), replay.transport)).resolves.toMatchObject({
       kind: "replayed",
       evidence: { replay: true },
     });
@@ -287,35 +302,35 @@ describe("sandbox order payload and provider contract", () => {
     const cases = [
       {},
       { order: { id: "ORDER_FIXTURE_1", external_id: "wrong-id", rewards: [] } },
-      successBody({ denomination: 50 }),
-      successBody({ currency: "CAD" }),
-      successBody({ email: "someone.else@example.test" }),
-      successBody({ rewardId: "" }),
+      await successBody({ denomination: 50 }),
+      await successBody({ currency: "CAD" }),
+      await successBody({ email: "someone.else@example.test" }),
+      await successBody({ rewardId: "" }),
     ];
     for (const json of cases) {
       await expect(
-        createSandboxOrder(obligation(), config(), recordingTransport([{ kind: "response", status: 200, json }]).transport),
+        issue(obligation(), config(), recordingTransport([{ kind: "response", status: 200, json }]).transport),
       ).resolves.toMatchObject({ kind: "reconciliation_required", reason: "malformed_success" });
     }
   });
 
   it("maps 409 to a payload conflict and 402 to insufficient funds", async () => {
     await expect(
-      createSandboxOrder(obligation(), config(), recordingTransport([{ kind: "response", status: 409, json: {} }]).transport),
+      issue(obligation(), config(), recordingTransport([{ kind: "response", status: 409, json: {} }]).transport),
     ).resolves.toMatchObject({ kind: "payload_conflict", requiresReconciliation: true });
     await expect(
-      createSandboxOrder(obligation(), config(), recordingTransport([{ kind: "response", status: 402, json: {} }]).transport),
+      issue(obligation(), config(), recordingTransport([{ kind: "response", status: 402, json: {} }]).transport),
     ).resolves.toMatchObject({ kind: "insufficient_funds", requiresFunding: true });
   });
 
   it("reconciles a timeout with the same external ID and never mints a new one", async () => {
     const first = recordingTransport([{ kind: "timeout" }]);
-    const timedOut = await createSandboxOrder(obligation(), config(), first.transport);
+    const timedOut = await issue(obligation(), config(), first.transport);
     expect(timedOut).toMatchObject({ kind: "reconciliation_required", reason: "timeout" });
 
     const externalId = timedOut.kind === "reconciliation_required" ? timedOut.externalId : "";
-    const retry = recordingTransport([{ kind: "response", status: 201, json: successBody() }]);
-    const reconciled = await createSandboxOrder(obligation(), config(), retry.transport);
+    const retry = recordingTransport([{ kind: "response", status: 201, json: await successBody() }]);
+    const reconciled = await issue(obligation(), config(), retry.transport);
     expect(reconciled).toMatchObject({ kind: "replayed" });
     expect(reconciled.kind === "replayed" && reconciled.evidence.externalId).toBe(externalId);
     expect(JSON.parse(retry.requests[0].body ?? "{}").external_id).toBe(externalId);
@@ -325,7 +340,7 @@ describe("sandbox order payload and provider contract", () => {
     const { transport } = recordingTransport(async () => {
       throw new Error("socket hang up while calling Bearer TEST_fixture-key-not-real");
     });
-    const outcome = await createSandboxOrder(obligation(), config(), transport);
+    const outcome = await issue(obligation(), config(), transport);
     expect(outcome).toMatchObject({ kind: "reconciliation_required", reason: "timeout" });
     expect(JSON.stringify(outcome)).not.toContain("TEST_fixture-key-not-real");
   });
@@ -340,6 +355,11 @@ describe("sandbox order payload and provider contract", () => {
     expect(serialized).not.toContain("TEST_fixture-key-not-real");
     expect(serialized).not.toContain("/rewards/abc123");
     expect(redact("sha256=deadbeefdeadbeef")).toBe("[redacted]");
+    const opaqueSecret = "opaque-oauth-credential-with-no-known-prefix";
+    const safeMessage = safeErrorMessage(new Error(`Provider failed: ${opaqueSecret} https://arbitrary.example/redeem/private-token`));
+    expect(safeMessage).toBe("Tremendous sandbox request failed. The result may require reconciliation.");
+    expect(safeMessage).not.toContain(opaqueSecret);
+    expect(safeMessage).not.toContain("private-token");
   });
 });
 
@@ -384,10 +404,10 @@ function fakeStores() {
 
 const event = (over: Record<string, unknown> = {}) =>
   JSON.stringify({
-    id: "3f1a6b8c-9d2e-4f0a-8b7c-1d2e3f4a5b6c",
-    created_at: "2026-09-05T12:00:00Z",
+    uuid: "3f1a6b8c-9d2e-4f0a-8b7c-1d2e3f4a5b6c",
+    created_utc: "2026-09-05T12:00:00Z",
     event: "REWARDS.DELIVERY.SUCCEEDED",
-    payload: { reward: { id: "REWARD_FIXTURE_1", order_id: "ORDER_FIXTURE_1" } },
+    payload: { resource: { id: "REWARD_FIXTURE_1", type: "rewards" } },
     ...over,
   });
 
@@ -428,12 +448,12 @@ describe("tremendous webhook handling", () => {
     const stores = fakeStores();
     const deps = { secret: SECRET, dedupe: stores.dedupe, evidence: stores.evidence };
 
-    const newer = event({ id: "11111111-1111-4111-8111-111111111111", created_at: "2026-09-06T12:00:00Z" });
+    const newer = event({ uuid: "11111111-1111-4111-8111-111111111111", created_utc: "2026-09-06T12:00:00Z" });
     await handleWebhookDelivery({ rawBody: newer, signatureHeader: await sign(newer) }, deps);
 
     const delayed = event({
-      id: "22222222-2222-4222-8222-222222222222",
-      created_at: "2026-09-04T12:00:00Z",
+      uuid: "22222222-2222-4222-8222-222222222222",
+      created_utc: "2026-09-04T12:00:00Z",
       event: "REWARDS.DELIVERY.FAILED",
     });
     await expect(
@@ -442,6 +462,7 @@ describe("tremendous webhook handling", () => {
     expect(stores.rows.get("REWARD_FIXTURE_1")).toEqual({
       observedAt: "2026-09-06T12:00:00Z",
       state: "delivery_succeeded",
+      delivery: { observedAt: "2026-09-06T12:00:00Z", state: "delivery_succeeded" },
     });
   });
 
@@ -450,12 +471,12 @@ describe("tremendous webhook handling", () => {
       const stores = fakeStores();
       return { secret: SECRET, dedupe: stores.dedupe, evidence: stores.evidence };
     };
-    const flagged = event({ id: "33333333-3333-4333-8333-333333333333", event: "REWARDS.FLAGGED" });
+    const flagged = event({ uuid: "33333333-3333-4333-8333-333333333333", event: "REWARDS.FLAGGED" });
     await expect(
       handleWebhookDelivery({ rawBody: flagged, signatureHeader: await sign(flagged) }, deps()),
     ).resolves.toMatchObject({ kind: "needs_reconciliation" });
 
-    const unknown = event({ id: "44444444-4444-4444-8444-444444444444", event: "REWARDS.TELEPORTED" });
+    const unknown = event({ uuid: "44444444-4444-4444-8444-444444444444", event: "REWARDS.TELEPORTED" });
     const result = await handleWebhookDelivery({ rawBody: unknown, signatureHeader: await sign(unknown) }, deps());
     expect(result).toMatchObject({ kind: "needs_reconciliation" });
     expect(JSON.stringify(result)).not.toMatch(/redeem|cashed/i);

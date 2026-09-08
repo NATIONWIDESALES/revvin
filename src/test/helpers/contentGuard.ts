@@ -11,6 +11,8 @@ export type ContentGuardConfig = {
   skipDirs?: Iterable<string>;
   /** POSIX path fragments to skip (substring match on the full file path). */
   skipPaths?: string[];
+  /** Exact POSIX paths for narrowly scoped internal-file exceptions. */
+  skipExactPaths?: string[];
   /** File extensions (including the dot) considered text and worth scanning. */
   textExtensions?: Iterable<string>;
   /** Absolute-from-repo path of the test file itself, so it doesn't scan its own patterns. */
@@ -47,11 +49,13 @@ export function collectFiles(config: ContentGuardConfig): string[] {
   const skipDirs = new Set([...(config.skipDirs ?? []), ...DEFAULT_SKIP_DIRS]);
   const textExt = new Set([...(config.textExtensions ?? []), ...DEFAULT_TEXT_EXT]);
   const skipPaths = config.skipPaths ?? [];
+  const skipExactPaths = new Set(config.skipExactPaths ?? []);
   const self = config.selfPath;
   const all = config.roots.flatMap((r) => walk(r, skipDirs, textExt));
   return Array.from(new Set(all)).filter((f) => {
     const p = f.replace(/\\/g, "/");
     if (self && p === self) return false;
+    if (skipExactPaths.has(p)) return false;
     return !skipPaths.some((s) => p.includes(s));
   });
 }

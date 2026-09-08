@@ -35,16 +35,28 @@ export function validateObligation(
   obligation: RewardObligation,
   context: ObligationContext,
 ): Validated<RewardObligation> {
+  if (!obligation || typeof obligation !== "object" || !context || typeof context !== "object" ||
+      !context.actor || !context.source || !context.connection) {
+    return no("invalid_context", "A structured obligation and trusted context are required.");
+  }
   const { actor, source, connection } = context;
+  const ids = [obligation.businessId, obligation.sourceId, obligation.connectionId, obligation.programId,
+    actor.actorUserId, actor.actorBusinessId, source.sourceId, source.businessId,
+    connection.connectionId, connection.businessId];
+  if (ids.some((id) => typeof id !== "string" || !id.trim()) ||
+      !["closed_job", "closed_referral"].includes(obligation.sourceKind) ||
+      !Array.isArray(connection.approvedProgramIds)) {
+    return no("invalid_context", "Source, actor, business and connection identifiers are required.");
+  }
 
   if (typeof obligation.obligationId !== "string" || obligation.obligationId.trim().length < 8) {
     return no("invalid_obligation_id", "Obligation is missing a stable identifier.");
   }
-  if (!Number.isInteger(obligation.snapshotVersion) || obligation.snapshotVersion < 1) {
+  if (!Number.isSafeInteger(obligation.snapshotVersion) || obligation.snapshotVersion < 1) {
     return no("invalid_snapshot_version", "Obligation snapshot version must be a positive integer.");
   }
 
-  if (!actor.isBusinessOwner) {
+  if (actor.isBusinessOwner !== true) {
     return no("actor_not_owner", "Only a business owner may act on a reward obligation.");
   }
   if (actor.actorBusinessId !== obligation.businessId) {
@@ -56,7 +68,7 @@ export function validateObligation(
   if (source.sourceKind !== obligation.sourceKind || source.sourceId !== obligation.sourceId) {
     return no("source_mismatch", "Obligation source does not match the source record.");
   }
-  if (!source.isClosed) {
+  if (source.isClosed !== true) {
     return no("source_not_closed", "The qualifying job or referral is not closed.");
   }
 
@@ -87,26 +99,33 @@ export function validateObligation(
   if (typeof obligation.recipientEmail !== "string" || !EMAIL.test(obligation.recipientEmail)) {
     return no("invalid_recipient_email", "A reviewed recipient email is required.");
   }
+  if (typeof obligation.recipientName !== "string" || !obligation.recipientName.trim()) {
+    return no("invalid_context", "A reviewed recipient name is required.");
+  }
 
-  if (!obligation.approval || !obligation.approval.approvedByUserId || !obligation.approval.approvedAt) {
+  if (!obligation.approval || obligation.approval.approvedByUserId !== actor.actorUserId ||
+      typeof obligation.approval.approvedAt !== "string" || !Number.isFinite(Date.parse(obligation.approval.approvedAt))) {
     return no("not_approved_for_issuance", "A closed job creates a candidate only. Explicit approval is required.");
   }
 
   return { ok: true, value: obligation };
 }
 
-/**
- * Stable opaque external ID bound to the immutable obligation snapshot.
- * The same obligation + snapshot always produces the same ID, so retries and
- * reconciliation reuse it. A changed snapshot produces a different ID, which is
- * how a conflicting payload surfaces as a provider 409 instead of a silent
- * second payout.
- */
-export function externalIdFor(obligation: Pick<RewardObligation, "obligationId" | "snapshotVersion">): string {
-  return `revvin-obl-${obligation.obligationId}-v${obligation.snapshotVersion}`;
+/** Stable opaque ID per business obligation. Snapshot edits NEVER mint another order ID. */
+export async function externalIdFor(obligation: Pick<RewardObligation, "businessId" | "obligationId">): Promise<string> {
+  const key = JSON.stringify([obligation.businessId, obligation.obligationId]);
+  return `rvn-${await sha256Hex(key)}`;
 }
 
-/** Minor units to the provider's decimal denomination. No display parsing. */
+export async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), (n) => n.toString(16).padStart(2, "0")).join("");
+}
+
+/** Minor units to the provider's decimal denomination; invalid values are rejected, never rounded. */
 export function denominationFromMinorUnits(amountMinorUnits: number): number {
-  return Math.round(amountMinorUnits) / 100;
+  if (!Number.isSafeInteger(amountMinorUnits) || amountMinorUnits <= 0 || amountMinorUnits > 100_000_00) {
+    throw new Error("Reward amount must be valid integer minor units.");
+  }
+  return amountMinorUnits / 100;
 }

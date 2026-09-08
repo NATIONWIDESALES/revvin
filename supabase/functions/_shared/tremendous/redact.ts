@@ -33,9 +33,11 @@ export function redactValue<T>(value: T): unknown {
   return value;
 }
 
-/** Turn any thrown value into a redacted, browser-safe message. */
-export function safeErrorMessage(error: unknown, fallback = "Tremendous sandbox request failed."): string {
-  const raw = error instanceof Error ? error.message : typeof error === "string" ? error : "";
-  const message = redact(raw).trim();
-  return message.length > 0 ? message : fallback;
+/**
+ * Return a fixed public error message. Opaque OAuth tokens and recipient data
+ * cannot be reliably discovered by pattern matching arbitrary exception text.
+ * Do not accept caller-supplied fallback text: it could itself contain a secret.
+ */
+export function safeErrorMessage(_error: unknown): string {
+  return "Tremendous sandbox request failed. The result may require reconciliation.";
 }
