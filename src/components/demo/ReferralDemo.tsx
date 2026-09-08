@@ -229,7 +229,7 @@ const ReferralDemo = () => {
                 {error}
               </p>
             )}
-            <Button type="submit" size="lg" className="h-12 w-full gap-2">
+            <Button type="submit" size="lg" className="h-auto min-h-12 w-full gap-2 whitespace-normal py-3 text-center leading-tight">
               <Send className="h-4 w-4" aria-hidden="true" />
               Send demo referral
             </Button>
@@ -279,7 +279,7 @@ const ReferralDemo = () => {
             </div>
 
             {stage === "inbox" && (
-              <Button size="lg" className="h-12 w-full gap-2" onClick={() => setStage("won")}>
+              <Button size="lg" className="h-auto min-h-12 w-full gap-2 whitespace-normal py-3 text-center leading-tight" onClick={() => setStage("won")}>
                 <Inbox className="h-4 w-4" aria-hidden="true" />
                 Move this job to won
               </Button>
@@ -356,7 +356,7 @@ const ReferralDemo = () => {
             )}
 
             {stage === "won" && (
-              <Button size="lg" className="h-12 w-full gap-2" onClick={finishRun}>
+              <Button size="lg" className="h-auto min-h-12 w-full gap-2 whitespace-normal py-3 text-center leading-tight" onClick={finishRun}>
                 <HandCoins className="h-4 w-4" aria-hidden="true" />
                 Record the {money(DEMO_REWARD)} reward as paid
               </Button>

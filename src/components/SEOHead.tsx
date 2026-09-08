@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { PRICE_TEXT } from "@/config/pricing";
 
 const BASE_URL = "https://revvin.co";
 const DEFAULT_OG_IMAGE = "https://revvin.co/og-image.png";
@@ -8,7 +9,7 @@ const DEFAULT_OG_IMAGE = "https://revvin.co/og-image.png";
 // fallback all describe the same free-to-build, $49/month-to-publish model.
 export const DEFAULT_TITLE = "Revvin · Your customer list, working for you";
 export const DEFAULT_DESCRIPTION =
-  "Your referral page is free: publish it, share it, and take referrals. Revvin Pro is $49/month USD for the tools that ask your whole customer list for you.";
+  `Your referral page is free: publish it, share it, and take referrals. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD for the tools that ask your whole customer list for you.`;
 
 interface SEOHeadProps {
   title: string;

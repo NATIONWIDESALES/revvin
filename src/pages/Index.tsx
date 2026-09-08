@@ -84,8 +84,9 @@ const FAQS = [
   {
     question: "Where do referrals actually land?",
     answer:
-      "Anything submitted through your referral page arrives in your lead inbox with the referrer's details, and you get an email about it. If someone replies to a personal text or email you sent, that reply goes to your own phone or inbox: Revvin does not read or sync it, so you add it as a lead yourself if you want it tracked.",
+      "Anything submitted through your referral page arrives in your lead inbox with the referrer's details, and you get an email about it. If someone replies to a personal text or email you sent, that reply goes to your own phone or inbox: Revvin does not read or sync it, so only referrals sent through your page are tracked here.",
   },
+
   {
     question: "Does Revvin pay my referrers?",
     answer:
@@ -298,12 +299,21 @@ const Index = () => (
                   <span>{f}</span>
                 </li>
               ))}
+              {/* Not-included rows must not rely on the grey text and the dash
+                  alone: the meaning is spelled out for screen readers and as a
+                  visible label. */}
               {PRO_FEATURES.map((f) => (
                 <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
                   <Minus className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span>{f}</span>
+                  <span>
+                    {f}{" "}
+                    <span className="whitespace-nowrap font-medium text-foreground/70">
+                      (not included in Free)
+                    </span>
+                  </span>
                 </li>
               ))}
+
             </ul>
             <Button variant="outline" size="lg" className="mt-7 h-12 w-full text-base" asChild>
               <Link to="/signup" onClick={() => track("cta_clicked", { cta: "plans_free" })}>
