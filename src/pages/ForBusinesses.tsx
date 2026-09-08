@@ -103,7 +103,7 @@ const ForBusinesses = () => (
           <div className="grid gap-12 md:gap-8 md:grid-cols-4 text-center">
             {[
               { num: "01", title: "Set up and import", desc: "Add your business details, logo, and service area, then import the customers who already paid you." },
-              { num: "02", title: "Set your payout", desc: "Define what you'll pay a referrer for a closed deal: flat fee or percentage." },
+              { num: "02", title: "Set your payout", desc: "Write what you'll pay a referrer for a closed deal. A flat fee, or a percentage you work out yourself and write in. Revvin shows it exactly as you set it." },
               { num: "03", title: "Send the ask", desc: "Share your link and QR code, and send a pre-written referral ask to your customer list from your own phone or email app." },
               { num: "04", title: "Close and pay", desc: "Work leads in your inbox, close deals, and pay your referrer directly. They are notified at pending and at paid." },
             ].map((item, i) => (

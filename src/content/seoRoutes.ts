@@ -308,7 +308,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "Scope and limits",
-        body: "Revvin never sends email or SMS on a business's behalf: messages are prepared and sent from the owner's own device and accounts. There is no automatic asking engine, no automated review-request sending, no reactivation segmentation, and no public API or webhook product. Pricing is USD only in every supported country: the United States, Canada and the United Arab Emirates.",
+        body: "Personal referral asks are never sent by Revvin: they are prepared and then sent from the owner's own device and accounts. Reactivation campaigns are the one thing Revvin sends, by email only, from the owner's Pro account, with the business postal address and an unsubscribe link in every message and a cap of 500 recipients per send. There is no automatic asking engine, no automated review-request sending, no SMS sending by Revvin, and no public API or webhook product. Pricing is USD only in every supported country: the United States, Canada and the United Arab Emirates.",
       },
     ],
   },
@@ -366,7 +366,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "What happens instead",
-        body: "Jobs are marked done by hand in your dashboard, and every referral ask goes out from your own phone or email app, so it always comes from you. Revvin prepares the message and opens your own app with the recipients and the text filled in; it never sends email or SMS on your behalf.",
+        body: "Jobs are marked done by hand in your dashboard, and every personal referral ask goes out from your own phone or email app, so it always comes from you: Revvin prepares the message and opens your own app with the recipients and the text filled in. Reactivation campaigns work the other way round, and are the one thing Revvin sends for you, by email only, from your Pro account, with an unsubscribe link in every message.",
       },
       {
         heading: "Tell us if it matters",
