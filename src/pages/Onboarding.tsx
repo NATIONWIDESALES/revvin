@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type BusinessUpdate = Database["public"]["Tables"]["businesses"]["Update"];
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -100,11 +103,7 @@ const Onboarding = () => {
     })();
   }, [user]);
 
-  type BusinessPatch = Parameters<
-    ReturnType<typeof supabase.from<"businesses">>["update"]
-  >[0];
-
-  const saveStep = async (patch: BusinessPatch, nextStep?: number) => {
+  const saveStep = async (patch: BusinessUpdate, nextStep?: number) => {
     if (!bizId) return;
     setSaving(true);
     const { error } = await supabase.from("businesses").update(patch).eq("id", bizId);
