@@ -84,6 +84,7 @@ export interface ConnectionContext {
 }
 
 export type ValidationFailureCode =
+  | "invalid_context"
   | "actor_not_owner"
   | "actor_business_mismatch"
   | "business_mismatch"

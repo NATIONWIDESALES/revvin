@@ -30,6 +30,10 @@ export interface RewardEvidence {
   /** Provider `created_at` of the newest event already applied. */
   observedAt: string;
   state: ProjectedState;
+  /** Delivery and adverse evidence are independent; an email cannot clear fraud. */
+  delivery?: { state: "delivery_succeeded" | "delivery_failed"; observedAt: string };
+  adverse?: { state: "reward_canceled" | "reward_flagged"; observedAt: string };
+  requiresReconciliation?: boolean;
 }
 
 export interface EvidenceStore {
@@ -114,19 +118,28 @@ export function parseWebhookEvent(rawBody: string): { ok: true; value: WebhookEv
     return { ok: false, message: "Webhook body was not an object." };
   }
   const body = parsed as Record<string, unknown>;
-  if (typeof body.id !== "string" || !UUID.test(body.id)) {
+  if (typeof body.uuid !== "string" || !UUID.test(body.uuid)) {
     return { ok: false, message: "Webhook event ID was missing or not a UUID." };
   }
-  if (typeof body.created_at !== "string" || Number.isNaN(Date.parse(body.created_at))) {
+  if (typeof body.created_utc !== "string" || Number.isNaN(Date.parse(body.created_utc))) {
     return { ok: false, message: "Webhook event timestamp was missing or invalid." };
   }
   if (typeof body.event !== "string" || body.event.length === 0) {
     return { ok: false, message: "Webhook event name was missing." };
   }
-  const payload = body.payload && typeof body.payload === "object" && !Array.isArray(body.payload)
-    ? (body.payload as Record<string, unknown>)
-    : {};
-  return { ok: true, value: { id: body.id, created_at: body.created_at, event: body.event, payload } };
+  const payload = body.payload;
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return { ok: false, message: "Webhook payload was missing or malformed." };
+  }
+  const resource = (payload as Record<string, unknown>).resource;
+  if (!resource || typeof resource !== "object" || Array.isArray(resource) ||
+      typeof (resource as Record<string, unknown>).id !== "string" ||
+      !/^[A-Za-z0-9_-]{3,64}$/.test((resource as Record<string, unknown>).id as string) ||
+      typeof (resource as Record<string, unknown>).type !== "string") {
+    return { ok: false, message: "Webhook resource reference was missing or malformed." };
+  }
+  // Normalize the provider's documented uuid/created_utc envelope internally.
+  return { ok: true, value: { id: body.uuid, created_at: body.created_utc, event: body.event, payload: payload as Record<string, unknown> } };
 }
 
 const STATE_BY_EVENT: Record<string, ProjectedState> = {
@@ -168,10 +181,14 @@ export function projectWebhookEvent(
       message: `Unrecognized provider event requires reconciliation: ${redact(event.event)}`,
     };
   }
-  const reward = event.payload.reward as Record<string, unknown> | undefined;
-  const order = event.payload.order as Record<string, unknown> | undefined;
-  const rewardId = typeof reward?.id === "string" ? reward.id : null;
-  const orderId = typeof order?.id === "string" ? order.id : typeof reward?.order_id === "string" ? reward.order_id : null;
+  // The provider sends payload.resource, not fabricated payload.reward/order objects.
+  const resource = event.payload.resource as { id?: unknown; type?: unknown } | undefined;
+  const rewardId = event.event.startsWith("REWARDS.") && resource?.type === "rewards" &&
+    typeof resource.id === "string" ? resource.id : null;
+  const orderId = event.event.startsWith("ORDERS.") && resource?.type === "orders" &&
+    typeof resource.id === "string" ? resource.id : null;
+  // Order events cannot safely be projected into a reward without an authoritative
+  // order-to-reward lookup. Leave that work to the future reconciliation handler.
 
   return {
     ok: true,
@@ -201,8 +218,11 @@ export interface WebhookHandlerDeps {
 
 /**
  * Verify, validate, project and apply a single webhook delivery.
- * Duplicate events cause no repeated side effect. A delayed event never
- * overwrites newer evidence for the same reward.
+ * Sequential duplicate events cause no repeated side effect. Delivery evidence
+ * stays separate from adverse evidence, including late fraud/cancellation.
+ * Before registration, a durable wrapper MUST commit deduplication, evidence
+ * and reconciliation queue writes in one transaction; these interfaces alone
+ * do not provide concurrency or crash safety.
  */
 export async function handleWebhookDelivery(
   input: { rawBody: string; signatureHeader: string | null | undefined },
@@ -239,20 +259,54 @@ export async function handleWebhookDelivery(
   }
 
   const existing = await deps.evidence.get(rewardId);
-  if (existing && Date.parse(existing.observedAt) >= Date.parse(projected.value.observedAt)) {
-    await deps.dedupe.record(parsed.value.id);
-    return {
-      kind: "stale_ignored",
-      eventId: parsed.value.id,
-      message: "Out-of-order event did not overwrite newer evidence.",
-    };
+  const incoming = projected.value;
+  const incomingAt = Date.parse(incoming.observedAt);
+  const existingAt = existing ? Date.parse(existing.observedAt) : -Infinity;
+  const adverseState = incoming.state === "reward_canceled" || incoming.state === "reward_flagged";
+  const deliveryState = incoming.state === "delivery_succeeded" || incoming.state === "delivery_failed";
+  const legacyAdverse = existing && (existing.state === "reward_canceled" || existing.state === "reward_flagged")
+    ? { state: existing.state as "reward_canceled" | "reward_flagged", observedAt: existing.observedAt }
+    : undefined;
+  let adverse = existing?.adverse ?? legacyAdverse;
+  let delivery = existing?.delivery ?? (existing && (existing.state === "delivery_succeeded" || existing.state === "delivery_failed")
+    ? { state: existing.state as "delivery_succeeded" | "delivery_failed", observedAt: existing.observedAt }
+    : undefined);
+  let needsReconciliation = existing?.requiresReconciliation === true || !!adverse || incoming.requiresReconciliation;
+
+  // Delayed adverse evidence must still be retained. A newer email delivery is
+  // never proof that fraud review or cancellation has been resolved.
+  if (adverseState) {
+    if (!adverse || incomingAt > Date.parse(adverse.observedAt)) {
+      adverse = { state: incoming.state as "reward_canceled" | "reward_flagged", observedAt: incoming.observedAt };
+    }
+    needsReconciliation = true;
+  } else if (deliveryState) {
+    const deliveryAt = delivery ? Date.parse(delivery.observedAt) : -Infinity;
+    if (incomingAt < deliveryAt || (incomingAt === deliveryAt && incoming.state === delivery?.state)) {
+      await deps.dedupe.record(parsed.value.id);
+      return { kind: "stale_ignored", eventId: parsed.value.id, message: "Out-of-order delivery did not overwrite newer evidence." };
+    }
+    if (incomingAt === deliveryAt && incoming.state !== delivery?.state) {
+      // Equal timestamps do not establish ordering. Preserve and reconcile.
+      needsReconciliation = true;
+    } else {
+      delivery = { state: incoming.state as "delivery_succeeded" | "delivery_failed", observedAt: incoming.observedAt };
+    }
   }
 
-  await deps.evidence.apply(rewardId, { observedAt: projected.value.observedAt, state: projected.value.state });
+  const next: RewardEvidence = {
+    observedAt: incomingAt > existingAt ? incoming.observedAt : existing!.observedAt,
+    state: adverse?.state ?? delivery?.state ?? incoming.state,
+    ...(delivery ? { delivery } : {}),
+    ...(adverse ? { adverse } : {}),
+    ...(needsReconciliation ? { requiresReconciliation: true } : {}),
+  };
+  await deps.evidence.apply(rewardId, next);
   await deps.dedupe.record(parsed.value.id);
 
-  if (projected.value.requiresReconciliation) {
-    return { kind: "needs_reconciliation", eventId: parsed.value.id, message: "Event requires reconciliation." };
+  if (needsReconciliation) {
+    return { kind: "needs_reconciliation", eventId: parsed.value.id, message: "Provider evidence requires reconciliation." };
   }
+
   return { kind: "applied", projected: projected.value };
 }

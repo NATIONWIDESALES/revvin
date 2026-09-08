@@ -5,10 +5,10 @@
 // status is treated as issuance evidence only: it is never treated as delivery
 // to, or redemption by, the recipient.
 
-import { type SandboxConfig, sandboxUrl } from "./config.ts";
+import { type SandboxConfig, type RawSandboxConfig, resolveSandboxConfig, sandboxUrl } from "./config.ts";
 import { buildOrderPayload, type OrderPayload } from "./order-payload.ts";
-import { denominationFromMinorUnits, externalIdFor } from "./obligation.ts";
-import { redactValue, safeErrorMessage } from "./redact.ts";
+import { denominationFromMinorUnits, externalIdFor, sha256Hex, validateObligation, type ObligationContext } from "./obligation.ts";
+import { redactValue } from "./redact.ts";
 import type { RewardObligation } from "./types.ts";
 
 export interface TransportRequest {
@@ -26,6 +26,15 @@ export type TransportResult =
 
 export interface TremendousTransport {
   send(request: TransportRequest): Promise<TransportResult>;
+}
+
+/**
+ * Required attempt fingerprint gate. A durable implementation must compare and
+ * reserve in one transaction. A fake fixture store establishes no deployed
+ * concurrency or crash guarantees. Retries of one fingerprint reuse its ID.
+ */
+export interface AttemptStore {
+  claim(attempt: { externalId: string; fingerprint: string }): Promise<"new" | "same" | "conflict">;
 }
 
 export interface IssuanceEvidence {
@@ -55,21 +64,68 @@ function authHeaders(config: SandboxConfig): Record<string, string> {
 }
 
 /**
- * Create one email reward order for an already-validated obligation.
- * Callers must run `validateObligation` first; this adapter re-derives the
- * external ID from the immutable snapshot so retries cannot mint a new one.
+ * Single issuing entry point. Runtime configuration, authority and immutable
+ * request binding are checked here before the injected transport can run.
+ * Context/configuration must be resolved by future authenticated server code;
+ * these identifier fields do not provide authentication by themselves.
  */
 export async function createSandboxOrder(
   obligation: RewardObligation,
-  config: SandboxConfig,
+  rawConfig: RawSandboxConfig,
+  context: ObligationContext,
+  attempts: AttemptStore,
   transport: TremendousTransport,
 ): Promise<OrderOutcome> {
-  const externalId = externalIdFor(obligation);
-  const target = sandboxUrl("orders");
-  if (!target.ok) {
-    return { kind: "rejected", code: "invalid_path", message: (target as { message?: string }).message ?? "Rejected an unsupported sandbox API path." };
+  const resolved = resolveSandboxConfig(rawConfig);
+  if (resolved.ok === false) {
+    return { kind: "rejected", code: resolved.code, message: resolved.message };
   }
-  const payload = buildOrderPayload(obligation, config);
+  const config = resolved.value;
+  const validated = validateObligation(obligation, context);
+  if (validated.ok === false) {
+    return { kind: "rejected", code: validated.code, message: validated.message };
+  }
+  if (config.businessId !== obligation.businessId || config.connectionId !== obligation.connectionId ||
+      config.businessId !== context.connection.businessId || config.connectionId !== context.connection.connectionId ||
+      config.campaignId !== obligation.programId) {
+    return { kind: "rejected", code: "config_binding_mismatch", message: "Configuration does not match the approved business, connection and program." };
+  }
+  if (!attempts || typeof attempts.claim !== "function" || !transport || typeof transport.send !== "function") {
+    return { kind: "rejected", code: "missing_dependencies", message: "An attempt gate and explicit transport are required." };
+  }
+  // Copy the approved snapshot before the first await so outside mutation cannot
+  // change the payload after validation or while reserving its fingerprint.
+  const snapshot: RewardObligation = { ...obligation, approval: obligation.approval ? { ...obligation.approval } : null };
+  const externalId = await externalIdFor(snapshot);
+  const target = sandboxUrl("orders");
+  if (target.ok === false) {
+    return { kind: "rejected", code: "invalid_path", message: target.message };
+  }
+  const payload = await buildOrderPayload(snapshot, config);
+  const fingerprint = await sha256Hex(JSON.stringify({
+    version: snapshot.snapshotVersion,
+    businessId: snapshot.businessId,
+    connectionId: snapshot.connectionId,
+    sourceKind: snapshot.sourceKind,
+    sourceId: snapshot.sourceId,
+    approval: {
+      approvedByUserId: snapshot.approval!.approvedByUserId,
+      approvedAt: snapshot.approval!.approvedAt,
+    },
+    payload,
+  }));
+  let claim: "new" | "same" | "conflict";
+  try {
+    claim = await attempts.claim({ externalId, fingerprint });
+  } catch {
+    return { kind: "rejected", code: "attempt_gate_unavailable", message: "The reward attempt could not be verified. No provider request was made." };
+  }
+  if (claim === "conflict") {
+    return { kind: "payload_conflict", externalId, requiresReconciliation: true, message: "An earlier attempt used a different approved snapshot. Reconciliation is required." };
+  }
+  if (claim !== "new" && claim !== "same") {
+    return { kind: "rejected", code: "invalid_attempt_gate_result", message: "The reward attempt could not be verified. No provider request was made." };
+  }
 
   let result: TransportResult;
   try {
@@ -80,13 +136,13 @@ export async function createSandboxOrder(
       body: JSON.stringify(payload),
       redirect: "error",
     });
-  } catch (error) {
+  } catch {
     // An ambiguous failure must be reconciled with the SAME external_id.
     return {
       kind: "reconciliation_required",
       externalId,
       reason: "timeout",
-      message: safeErrorMessage(error, "Sandbox order result is unknown and must be reconciled."),
+      message: "Sandbox order result is unknown and must be reconciled.",
     };
   }
 
@@ -100,7 +156,7 @@ export async function createSandboxOrder(
   }
 
   if (result.status === 200 || result.status === 201) {
-    const verified = verifyOrderResponse(result.json, obligation, payload);
+    const verified = verifyOrderResponse(result.json, snapshot, payload);
     if (!verified.ok) {
       return {
         kind: "reconciliation_required",
@@ -153,6 +209,9 @@ export function verifyOrderResponse(
   if (!order || typeof order !== "object") {
     return { ok: false, message: "Provider success response contained no order." };
   }
+  if (order.status !== "EXECUTED") {
+    return { ok: false, message: "Provider order has not been confirmed as executed." };
+  }
   const orderId = order.id;
   if (typeof orderId !== "string" || !ID.test(orderId)) {
     return { ok: false, message: "Provider success response contained no valid order ID." };
@@ -169,6 +228,12 @@ export function verifyOrderResponse(
   const rewardId = reward.id;
   if (typeof rewardId !== "string" || !ID.test(rewardId)) {
     return { ok: false, message: "Provider reward ID was missing or invalid." };
+  }
+  if (reward.order_id !== orderId) {
+    return { ok: false, message: "Provider reward was not bound to the expected order." };
+  }
+  if (reward.campaign_id !== undefined && reward.campaign_id !== payload.reward.campaign_id) {
+    return { ok: false, message: "Provider reward campaign did not match the approved program." };
   }
   const value = reward.value as { denomination?: unknown; currency_code?: unknown } | undefined;
   if (!value || value.denomination !== denominationFromMinorUnits(obligation.amountMinorUnits)) {
