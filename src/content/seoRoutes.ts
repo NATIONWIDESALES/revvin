@@ -28,7 +28,11 @@ export interface PrerenderRoute {
   canonical?: string;
 }
 
-const PRO = "$49/month USD";
+// Derived from the single pricing source so the initial HTML can never quote a
+// figure the rendered page has moved on from.
+const PRO = `${PRICE_TEXT.monthlyPerMonth} USD`;
+const ANNUAL = `${PRICE_TEXT.annualPerYear} USD billed once, which saves ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off)`;
+
 
 const industryRoutes: PrerenderRoute[] = INDUSTRIES.map((i) => ({
   path: `/referral-program/${i.slug}`,
