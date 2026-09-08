@@ -542,6 +542,7 @@ const PublishBanner = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void 
       toast({ title: "Could not publish your page", description: error.message, variant: "destructive" });
       return;
     }
+    track("page_published");
     toast({ title: "Your referral page is live" });
     onUpdate();
   };

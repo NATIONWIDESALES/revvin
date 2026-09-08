@@ -1,5 +1,6 @@
 import { copyText } from "@/lib/clipboard";
 import { friendlyError } from "@/lib/errors";
+import { track } from "@/lib/track";
 import { parseCsv, parsePastedLines, type ParsedContact } from "@/lib/contactImport";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -271,6 +272,9 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       cs.map((x) => (x.id === c.id ? { ...x, status: "sent", last_sent_at: nowIso, send_channel: channel } : x)),
     );
     setLastSent({ id: c.id, prev });
+    // Measurement only: the owner confirmed they sent their first ask. No
+    // contact details are ever attached to a funnel event.
+    if (!contacts.some((x) => x.status === "sent" && x.id !== c.id)) track("first_ask_prepared");
     // Append a history row so re-asks and nudges can reason over real sends later.
     // Each row records ONLY that the business tapped Send on a channel; Revvin never
     // sends, so this is not proof of delivery. Failure here is non-fatal.
