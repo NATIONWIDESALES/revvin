@@ -1270,6 +1270,14 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
   const [savingMarketplace, setSavingMarketplace] = useState(false);
   const [billingPlan, setBillingPlan] = useState<BillingPlan>("monthly");
 
+  // Someone who picked a plan on a public page (the free tools, for example)
+  // arrives here with that choice already made. Preselect it, never charge it.
+  useEffect(() => {
+    const pending = takePendingPlan();
+    if (pending) setBillingPlan(pending);
+  }, []);
+
+
   const toggleMarketplace = async (next: boolean) => {
     setMarketplaceListed(next);
     setSavingMarketplace(true);
