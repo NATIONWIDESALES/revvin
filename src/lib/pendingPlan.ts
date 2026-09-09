@@ -1,7 +1,7 @@
 import type { BillingPlan } from "@/config/pricing";
 
 /**
- * When a visitor picks a Pro plan on a public page (the free tools, for example)
+ * When a visitor picks a Pro plan on a public page such as a toolkit page
  * they are not signed in yet, so we cannot open Stripe Checkout for them. We
  * remember only which plan they chose, for this browser session, and preselect
  * it once they land in their dashboard. No card, no charge, no personal data.
