@@ -25,6 +25,16 @@
 - [Painting referral program](/referral-program/painting): Referrals from finished rooms plus room-by-room repeat work.
 - [Auto detailing referral program](/referral-program/auto-detailing): Referrals at handover plus short-cycle rebooking.
 
+## Referral program guides
+
+- [How much to pay for a referral](/guides/how-much-to-pay-for-a-referral): Setting a referral reward from your own customer value and acquisition cost.
+- [Referral program vs buying leads](/guides/referral-program-vs-buying-leads): Exclusivity, trust, and when the money leaves your account.
+- [Alternative to buying leads](/guides/alternative-to-buying-leads): What a referral program replaces when you stop buying shared leads, and what it cannot replace.
+- [How to start a referral program](/guides/how-to-start-a-referral-program): The steps to a published referral page and a first ask.
+- [Do referral programs work for contractors](/guides/do-referral-programs-work-for-contractors): An honest answer with no invented benchmarks.
+- [How to ask a customer for a referral](/guides/how-to-ask-a-customer-for-a-referral): Timing and wording for the ask.
+- [Referral ask kit](/ask-kit): Copy-and-paste scripts for each moment.
+
 ## Optional
 
 - [Terms of service](/terms)
