@@ -22,6 +22,32 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
+// One source for the questions and answers. The page renders them and the
+// structured data describes them, so a visitor and an answer engine can never
+// be shown different answers.
+const FAQS: { q: string; a: string }[] = [
+  {
+    q: "How much does Revvin cost?",
+    a: "Publishing your referral page and taking referrals on it is free. Revvin Pro costs a flat $49/month and adds the tools that ask your whole customer list for you: import, the bulk referral ask, ROI reporting and custom branding. Cancel anytime, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close.",
+  },
+  {
+    q: "What are the three loops?",
+    a: "Loop one is referrals: a branded referral page, shareable link and QR code, a lead inbox, and a pre-written referral ask you send from your own phone or email app. Loop two is repeat work: pre-written seasonal and maintenance messages to past customers. Loop three is reviews: a review ask after a job, followed by a referral ask to happy customers. All three run off the same past-customer list.",
+  },
+  {
+    q: "What happens if a referral does not close?",
+    a: "You pay your referrer nothing because they only earn when a deal closes. Your referral page costs nothing, and the only optional cost is the flat $49/month Revvin Pro subscription.",
+  },
+  {
+    q: "Who decides the referral payout amount?",
+    a: "The business sets the payout based on what a closed customer is worth. Referrers receive 100% of that advertised amount.",
+  },
+  {
+    q: "How is this different from Google Ads or Facebook Ads?",
+    a: "Ads charge per click or impression with no guarantee of conversion. With Revvin your referral page is free, and Revvin Pro is a flat $49/month subscription with no platform fees. You pay your referrers directly when deals close.",
+  },
+];
+
 const ForBusinesses = () => (
   <div>
     <SEOHead
@@ -45,14 +71,12 @@ const ForBusinesses = () => (
         {
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          "mainEntity": [
-            { "@type": "Question", "name": "How much does Revvin cost?", "acceptedAnswer": { "@type": "Answer", "text": "Publishing your referral page and taking referrals on it is free. Revvin Pro costs a flat $49/month and adds the tools that ask your whole customer list for you: import, the bulk referral ask, ROI reporting and custom branding. Cancel anytime, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close." } },
-            { "@type": "Question", "name": "What are the three loops?", "acceptedAnswer": { "@type": "Answer", "text": "Loop one is referrals: a branded referral page, shareable link and QR code, a lead inbox, and a pre-written referral ask you send from your own phone or email app. Loop two is repeat work: pre-written seasonal and maintenance messages to past customers. Loop three is reviews: a review ask after a job, followed by a referral ask to happy customers. All three run off the same past-customer list." } },
-            { "@type": "Question", "name": "What happens if a referral doesn't close?", "acceptedAnswer": { "@type": "Answer", "text": "You pay your referrer nothing because they only earn when a deal closes. Your referral page costs nothing, and the only optional cost is the flat $49/month Revvin Pro subscription." } },
-            { "@type": "Question", "name": "Who decides the referral payout amount?", "acceptedAnswer": { "@type": "Answer", "text": "The business sets the payout based on what a closed customer is worth. Referrers receive 100% of that advertised amount." } },
-            { "@type": "Question", "name": "How is this different from Google Ads or Facebook Ads?", "acceptedAnswer": { "@type": "Answer", "text": "Ads charge per click or impression with no guarantee of conversion. With Revvin your referral page is free, and Revvin Pro is a flat $49/month subscription with no platform fees. You pay your referrers directly when deals close." } }
-          ]
-        }
+          "mainEntity": FAQS.map((f) => ({
+            "@type": "Question",
+            "name": f.q,
+            "acceptedAnswer": { "@type": "Answer", "text": f.a },
+          })),
+        },
       ]}
     />
 
@@ -191,6 +215,21 @@ const ForBusinesses = () => (
             <p className="mt-3 text-xs text-muted-foreground">Referrer accounts are always free.</p>
           </motion.div>
         </motion.div>
+      </div>
+    </section>
+
+    {/* Questions, rendered from the same data as the structured answers above */}
+    <section className="py-20 lg:py-28">
+      <div className="container max-w-3xl">
+        <h2 className="mb-10 text-3xl md:text-4xl font-bold tracking-tight text-center">Common questions</h2>
+        <dl className="space-y-8">
+          {FAQS.map((f) => (
+            <div key={f.q}>
+              <dt className="text-base font-semibold text-foreground">{f.q}</dt>
+              <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.a}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
 

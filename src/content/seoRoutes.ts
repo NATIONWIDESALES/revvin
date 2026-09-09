@@ -152,6 +152,31 @@ const handwritten: PrerenderRoute[] = [
         body: "A branded referral page on your own link, a QR code and print pack for yard signs, invoices and business cards, a lead inbox with status tracking and one-tap reply, offers you control, and reward tracking from pending to paid. Referrer accounts are always free, so the people sending you work never pay anything either.",
       },
     ],
+    // The same five questions the rendered /for-businesses page shows, so the
+    // initial HTML a crawler or an answer engine reads carries the answers a
+    // visitor sees rather than a shorter summary of them.
+    faqs: [
+      {
+        q: "How much does Revvin cost?",
+        a: `Publishing your referral page and taking referrals on it is free. Revvin Pro costs a flat ${PRO} and adds the tools that ask your whole customer list for you: import, the bulk referral ask, ROI reporting and custom branding. Cancel anytime, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close.`,
+      },
+      {
+        q: "What are the three loops?",
+        a: "Loop one is referrals: a branded referral page, shareable link and QR code, a lead inbox, and a pre-written referral ask you send from your own phone or email app. Loop two is repeat work: pre-written seasonal and maintenance messages to past customers. Loop three is reviews: a review ask after a job, followed by a referral ask to happy customers. All three run off the same past-customer list.",
+      },
+      {
+        q: "What happens if a referral does not close?",
+        a: `You pay your referrer nothing because they only earn when a deal closes. Your referral page costs nothing, and the only optional cost is the flat ${PRO} Revvin Pro subscription.`,
+      },
+      {
+        q: "Who decides the referral payout amount?",
+        a: "The business sets the payout based on what a closed customer is worth. Referrers receive 100% of that advertised amount.",
+      },
+      {
+        q: "How is this different from Google Ads or Facebook Ads?",
+        a: `Ads charge per click or impression with no guarantee of conversion. With Revvin your referral page is free, and Revvin Pro is a flat ${PRO} subscription with no platform fees. You pay your referrers directly when deals close.`,
+      },
+    ],
   },
   {
     path: "/for-referrers",

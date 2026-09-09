@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Plugin } from "vite";
 import { PRERENDER_ROUTES, type PrerenderRoute } from "../src/content/seoRoutes";
-import { PRICE_TEXT } from "../src/config/pricing";
+import { PRICE_TEXT, MONTHLY_PRICE, ANNUAL_PRICE } from "../src/config/pricing";
 
 const SITE = "https://revvin.co";
 
@@ -14,17 +14,97 @@ const esc = (s: string) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
+// Stable node identifiers. Every document points at the SAME @id for the
+// organization, the website and the software, so a search engine or an answer
+// engine reading two pages understands them as one entity rather than as two
+// unrelated mentions of a similar name.
+const ORG_ID = `${SITE}/#organization`;
+const SITE_ID = `${SITE}/#website`;
+const APP_ID = `${SITE}/#software`;
+
 const ORGANIZATION = {
   "@type": "Organization",
+  "@id": ORG_ID,
   name: "Revvin",
   url: SITE,
-  logo: `${SITE}/android-chrome-192x192.png`,
-  sameAs: [SITE],
+  logo: {
+    "@type": "ImageObject",
+    url: `${SITE}/android-chrome-192x192.png`,
+    width: 192,
+    height: 192,
+  },
+  image: `${SITE}/og-image.png`,
+  email: "info@revvin.co",
+  areaServed: ["US", "CA", "AE"],
   slogan: "Your customer list, working for you",
   // Prices come from the shared pricing facts so the structured data in every
   // built document, including the one that overwrites index.html, cannot drift
   // from the prices the pages show.
   description: `Referral software for service businesses. Turns a past-customer list into referrals. Publishing your referral page is free; Revvin Pro is a flat ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once. No platform fees. Businesses pay their referrers directly off-platform.`,
+};
+
+const WEBSITE = {
+  "@type": "WebSite",
+  "@id": SITE_ID,
+  url: SITE,
+  name: "Revvin",
+  inLanguage: "en-US",
+  publisher: { "@id": ORG_ID },
+  // /browse reads its query from ?q=, so this action describes a search that
+  // actually works rather than an invented endpoint.
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${SITE}/browse?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
+
+/**
+ * The product itself, priced from the single pricing source. Answer engines
+ * asked "what does Revvin cost" read this: a free tier at 0 and Revvin Pro
+ * with both the monthly and the annual price, in USD, with no platform fee.
+ */
+const SOFTWARE = {
+  "@type": "SoftwareApplication",
+  "@id": APP_ID,
+  name: "Revvin",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web browser",
+  url: SITE,
+  publisher: { "@id": ORG_ID },
+  description: `Referral software for service businesses. Publishing a referral page and taking referrals on it is free. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once, and adds customer list import, the bulk referral ask, reactivation campaigns, ROI reporting and custom page branding. Businesses pay their referrers directly off-platform; Revvin takes no cut.`,
+  offers: [
+    {
+      "@type": "Offer",
+      name: "Free",
+      price: "0",
+      priceCurrency: "USD",
+      url: `${SITE}/pricing`,
+      description:
+        "Your referral page on your own link, QR code and share tools, print pack, unlimited referral leads, lead inbox with status tracking, offers, payout tracking and a marketplace listing.",
+    },
+    {
+      "@type": "Offer",
+      name: "Revvin Pro, monthly",
+      price: String(MONTHLY_PRICE),
+      priceCurrency: "USD",
+      url: `${SITE}/pricing`,
+      description:
+        "Customer list import, the bulk referral ask sent from your own email app, reactivation campaigns, ROI reporting with a monthly recap and custom page branding. Billed monthly, cancel any time.",
+    },
+    {
+      "@type": "Offer",
+      name: "Revvin Pro, annual",
+      price: String(ANNUAL_PRICE),
+      priceCurrency: "USD",
+      url: `${SITE}/pricing`,
+      description:
+        "The same Revvin Pro tools, billed once for a year. Cancel any time; Pro keeps working to the end of the paid year and the free referral page stays live afterwards.",
+    },
+  ],
 };
 
 /**
@@ -56,6 +136,7 @@ const breadcrumbs = (route: PrerenderRoute) => {
   }
   return {
     "@type": "BreadcrumbList",
+    "@id": `${SITE}${route.path === "/" ? "/" : route.path}#breadcrumb`,
     itemListElement: items.map((it, i) => ({
       "@type": "ListItem",
       position: i + 1,
@@ -66,19 +147,33 @@ const breadcrumbs = (route: PrerenderRoute) => {
 };
 
 const jsonLd = (route: PrerenderRoute) => {
+  const url = `${SITE}${route.path === "/" ? "/" : route.path}`;
   const graph: unknown[] = [
     ORGANIZATION,
+    WEBSITE,
     {
       "@type": "WebPage",
+      "@id": `${url}#webpage`,
+      url,
       name: route.title,
       description: route.description,
-      url: `${SITE}${route.path}`,
+      isPartOf: { "@id": SITE_ID },
+      about: { "@id": ORG_ID },
+      inLanguage: "en-US",
+      breadcrumb: { "@id": `${url}#breadcrumb` },
+      primaryImageOfPage: `${SITE}/og-image.png`,
     },
     breadcrumbs(route),
   ];
+  // The priced product description belongs on the pages that are actually about
+  // buying it, not on every document.
+  if (route.path === "/" || route.path === "/pricing" || route.path === "/for-businesses") {
+    graph.push(SOFTWARE);
+  }
   if (route.faqs?.length) {
     graph.push({
       "@type": "FAQPage",
+      "@id": `${url}#faq`,
       mainEntity: route.faqs.map((f) => ({
         "@type": "Question",
         name: f.q,
@@ -86,9 +181,10 @@ const jsonLd = (route: PrerenderRoute) => {
       })),
     });
   }
-  return JSON.stringify(
-    graph.map((g) => ({ "@context": "https://schema.org", ...(g as object) })),
-  );
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": graph,
+  });
 };
 
 const bodyHtml = (route: PrerenderRoute) => {

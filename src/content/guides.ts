@@ -309,6 +309,60 @@ export const GUIDES: Guide[] = [
       },
     ],
   },
+  {
+    slug: "alternative-to-buying-leads",
+    question: "What is the alternative to buying leads from Thumbtack, Angi or HomeAdvisor?",
+    label: "Alternative to buying leads",
+    metaTitle: "Alternative to Buying Leads (Thumbtack, Angi, HomeAdvisor) | Revvin",
+    metaDescription:
+      "A factual look at what a referral program replaces when you stop buying shared leads, what it cannot replace, and what running one on Revvin costs: free to publish, $49/month for Pro.",
+    answer:
+      "The alternative most service businesses already own is the list of customers who have paid them before. Instead of buying an enquiry that several contractors receive at the same time, you publish a referral page on your own link, tell your past customers what you will pay for a closed referral, and pay that reward only when a job actually closes. That does not make lead marketplaces a mistake. They sell volume from strangers on demand, which a referral program cannot do. It means your cost moves from the top of the funnel, where you pay for contacts, to the bottom, where you pay for outcomes. Publishing a referral page on Revvin is free, Revvin Pro is $49/month USD, and Revvin takes no cut of the reward you pay.",
+    sections: [
+      {
+        heading: "What you are actually buying in each model",
+        body: "A lead marketplace sells you a contact. Whether that contact answers, is in your service area, has a budget or has already booked someone else is not what you paid for. A referral program buys you an introduction from a person the customer trusts, and on Revvin the reward is owed only once you confirm the job became paid work. Compare the two on your own numbers rather than on anyone's averages: your spend per acquired customer on your current lead source, against the fixed reward you would be willing to pay for a closed job.",
+      },
+      {
+        heading: "Check the current rates yourself",
+        body: "Lead prices, membership fees and lead-credit rules on the marketplaces change, differ by trade and differ by area, so no honest comparison quotes a single figure for them. Look at your own last few invoices from whichever platform you use, and at that platform's current published pricing, before you decide what a referral is worth to you. Revvin's side of the comparison is fixed and public: free to publish and take referrals, $49/month USD for Revvin Pro, $450 billed once for a year, no platform fee and no per-lead charge.",
+      },
+      {
+        heading: "What a referral program will not do",
+        body: "It will not fill next week from nothing. It compounds off customers you have already served, so a business with no past customers and no list has nothing to ask yet, and buying leads may genuinely be the right thing to do while that list is built. It also needs you to ask; a published page nobody has been told about produces nothing. If you want work immediately and referrals as the cheaper channel later, running both at once is normal.",
+      },
+      {
+        heading: "Moving your own past customers into a channel",
+        body: "The practical work is small: publish your page, set one fixed reward, and tell every customer you have ever served that it exists. Revvin gives you a shareable link, a QR code and a printable pack for invoices, yard signs, vans and business cards, all on the free plan. On Revvin Pro you can import your past-customer list and send the ask in bulk from your own email app, so the message still comes from your address, and Revvin reports what those asks produced.",
+      },
+      {
+        heading: "What the switch costs",
+        body: "Nothing to try. Building and publishing your referral page, your lead inbox, your offers, your QR code and print pack, and your marketplace listing are all free, with no card. The only money that moves is the reward you set, paid by you directly to your referrer after you confirm a close, and the optional $49/month USD for Revvin Pro. Revvin never holds the reward, never processes it and takes no percentage of it.",
+      },
+    ],
+    faqs: [
+      {
+        q: "Is there an alternative to buying leads from Thumbtack, Angi or HomeAdvisor?",
+        a: "Yes: asking the customers who already paid you. A referral program gives you exclusive, pre-trusted introductions and, on Revvin, costs you only the reward you set and only when a job closes. It does not produce volume on demand the way a lead marketplace does, so many businesses run both while their referral channel grows.",
+      },
+      {
+        q: "Is a referral program cheaper than buying leads?",
+        a: "It depends on your close rate and on the reward you choose, so work it out on your own figures. The structural difference is when you pay: lead fees are charged for the contact regardless of outcome, while a Revvin reward is owed only after you confirm the referral became paid work. Publishing the page is free and Revvin charges no per-lead fee.",
+      },
+      {
+        q: "Can I keep buying leads and run a referral program at the same time?",
+        a: "Yes. Revvin requires no exclusivity and does not replace any lead source. It runs off your own past customers and your own link, so it sits alongside whatever else brings you work.",
+      },
+      {
+        q: "What does Revvin cost compared with a lead platform?",
+        a: "Revvin is free to publish and take referrals on, with no per-lead charge and no cut of the reward. Revvin Pro is $49/month USD, or $450 billed once for a year. Lead platform pricing varies by trade and area and changes over time, so check their current published rates and your own recent invoices rather than a quoted average.",
+      },
+      {
+        q: "How long before a referral program produces work?",
+        a: "Longer than buying a lead, and it depends entirely on how many past customers you ask and how soon. There is no benchmark worth quoting here. The honest sequence is to publish the page, ask everyone you have already served, and keep asking after every finished job.",
+      },
+    ],
+  },
 ];
 
 export const getGuide = (slug?: string) => GUIDES.find((g) => g.slug === slug);
