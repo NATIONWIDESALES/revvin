@@ -116,7 +116,7 @@ const toolkitRoutes: PrerenderRoute[] = [
       },
       {
         heading: "From free tool to working system",
-        body: `The tools prepare the decisions; Revvin runs the loop. Choose the offer, create the page, share the link and QR code, track the referral, close the job, record the reward. Publishing your referral page is free with no card, and you pay your referrer directly when a job closes, with no fee on the reward. Revvin Pro is ${PRO} and adds importing your past-customer list, preparing the ask for that whole list, reactivation email campaigns, ROI reporting and custom page branding.`,
+        body: `The tools prepare the decisions; Revvin runs the loop. Choose the offer, create the page, share the link and QR code, track the referral, close the job, record the reward. Publishing your referral page is free with no card, and you pay your referrer directly when a job closes and your stated condition is met. Revvin adds no platform fee; your payment method may charge its own fees. Revvin Pro is ${PRO} and adds importing your past-customer list, preparing the ask for that whole list, reactivation email campaigns, ROI reporting and custom page branding.`,
       },
     ],
     faqs: [
