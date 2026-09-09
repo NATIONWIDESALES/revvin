@@ -88,6 +88,125 @@ const guideIndexRoute: PrerenderRoute = {
   ],
 };
 
+// Free toolkit. The tools themselves are interactive and client-side, so the
+// prerendered document describes honestly what each one does and what it does
+// not do, rather than pretending a crawler can see a result.
+const toolkitRoutes: PrerenderRoute[] = [
+  {
+    path: "/tools",
+    title: "Contractor Growth Toolkit | Free Referral Tools | Revvin",
+    description: `Free tools for service businesses: grade your referral program, check what a reward leaves you per job, and write the ask. No account, no card. Revvin Pro is ${PRO}.`,
+    h1: "Turn the customers you already have into the next job.",
+    sections: [
+      {
+        heading: "Free tools for service businesses",
+        body: "Free, practical tools to design the offer, check the economics, write the ask and put the system live. They are written first for home-service contractors, because that is who asks us most, and they work for any service business with a list of past customers. No account, no card and no email address is required, and nothing you type is saved or sent.",
+      },
+      {
+        heading: "Referral Program Grader",
+        body: "Eight yes or no questions about how referrals work in your business today: whether the reward is one fixed amount, whether the qualifying event and payout timing are written down, whether customers have one link or QR code, whether you ask close to the end of the job, whether one named person follows up, whether you record the source and the outcome, and whether you keep the referrer updated. You get a score out of 100, a plain label, and the three things to fix first. It is an operational checklist, not a forecast.",
+      },
+      {
+        heading: "Referral Reward Calculator",
+        body: `Enter your average collected job revenue, your gross margin and the fixed reward you are considering. You see the gross profit on a closed referred job before and after the reward, what the rewards cost at the monthly volume you choose, the contribution left over, and how many closed referred jobs would cover Revvin Pro at ${PRO} or ${PRICE_TEXT.annualPerYear} billed once. It does not recommend an amount, promise profit or count as accounting advice. All figures are USD.`,
+      },
+      {
+        heading: "Referral Message Generator",
+        body: "Pick your trade, when you are asking and the tone, and add anything else you want included: the customer's first name, your business name, your name, the job, the reward as you want it written and your referral page link. You get a text message, an email with a subject line and a script you can say out loud. Revvin does not send any of them: you copy the text and send it from your own phone or email app.",
+      },
+      {
+        heading: "From free tool to working system",
+        body: `The tools prepare the decisions; Revvin runs the loop. Choose the offer, create the page, share the link and QR code, track the referral, close the job, record the reward. Publishing your referral page is free with no card, and you pay your referrer directly when a job closes, with no fee on the reward. Revvin Pro is ${PRO} and adds importing your past-customer list, preparing the ask for that whole list, reactivation email campaigns, ROI reporting and custom page branding.`,
+      },
+    ],
+    faqs: [
+      {
+        q: "Are these tools really free?",
+        a: "Yes. All three tools run in your browser with no account, no card and no email required. Building and publishing your referral page on Revvin is free too.",
+      },
+      {
+        q: "Do you save what I type into the tools?",
+        a: "No. Nothing you type is sent to us, saved, put in the web address or included in our analytics. Close the tab and it is gone. We only count anonymous facts such as a tool being opened and finished.",
+      },
+      {
+        q: "Do these work if I am not a contractor?",
+        a: "Yes. The wording is written first for home-service businesses, because that is who asks us most, but the checklist, the reward arithmetic and the messages work for any service business with past customers.",
+      },
+      {
+        q: "What does Revvin Pro add?",
+        a: `Your referral page, lead inbox, QR code and print pack are free. Revvin Pro is ${PRO}, or ${PRICE_TEXT.annualPerYear} billed once, and adds importing your past-customer list, preparing the ask for that whole list, reactivation email campaigns, ROI reporting and custom page branding.`,
+      },
+    ],
+  },
+  {
+    path: "/tools/referral-program-grader",
+    title: "Referral Program Grader | Score Your Referral Program | Revvin",
+    description:
+      "Answer eight yes or no questions about how referrals work in your business today and get a score out of 100 plus the three things to fix first. Free, no account, nothing saved.",
+    h1: "Grade your referral program in eight questions.",
+    sections: [
+      {
+        heading: "What the grader checks",
+        body: "Eight things a referral program either has in place or does not: one clear fixed reward, a defined qualifying event, written payout timing, one link or QR code destination for customers, asks that happen close to the end of the job, one named person who follows up, a record of where each referral came from and how it ended, and updates for the referrer and the customer.",
+      },
+      {
+        heading: "How the score works",
+        body: "Each of the eight items is worth the same 12.5 points, which is a stated choice rather than a measurement: we have no evidence that would justify weighting one above another, so we do not pretend to. The score is the share of items in place, out of 100, with a plain label of Foundation needed, Good start or Ready to run. It is a checklist of what is set up, not a prediction of referral volume, and it is not professional advice.",
+      },
+      {
+        heading: "What you get at the end",
+        body: "Your score out of 100, the label, and exactly three prioritized actions taken from the items you have not put in place yet, in a fixed order so the same answers always give the same advice. You can retake it as often as you like. Answers stay in your browser: nothing is saved, sent or added to a web address.",
+      },
+    ],
+  },
+  {
+    path: "/tools/referral-reward-calculator",
+    title: "Referral Reward Calculator | What a Referral Reward Costs You | Revvin",
+    description:
+      "Enter your average job revenue, your gross margin and the reward you are considering, and see what a closed referred job leaves you. Free, no account, nothing saved.",
+    h1: "See what a referral reward leaves you per closed job.",
+    sections: [
+      {
+        heading: "What you enter",
+        body: "Your average collected job revenue in USD, your gross margin as a percentage, the fixed reward you are considering in USD, and optionally how many closed referred jobs a month you expect, which defaults to one. Figures are bounded and validated, no formatted marketing text is parsed, and there is no currency conversion: Revvin prices in USD everywhere.",
+      },
+      {
+        heading: "What it works out",
+        body: "The gross profit on one closed referred job before the reward, which is revenue multiplied by margin. The gross profit after the reward. The total rewards you would pay at the monthly volume you chose. The contribution left after those rewards, which is not net profit because your overheads are not included. If the reward is the same as or larger than the gross profit, it says so plainly so you can revisit the economics.",
+      },
+      {
+        heading: "Compared with the cost of Revvin Pro",
+        body: `When the post-reward contribution is positive, the calculator shows how many closed referred jobs would cover Revvin Pro at ${PRO}, and how many would cover ${PRICE_TEXT.annualPerYear} billed once for a year. When the reward leaves nothing, it says no number of jobs would cover it rather than showing a figure. Publishing your referral page is free either way, so Pro is the only subscription in the comparison.`,
+      },
+      {
+        heading: "What it is not",
+        body: "It does not recommend a reward, a percentage or a payout rule, it does not promise profit or results, it never treats revenue as profit, and it is not accounting advice. It is your own arithmetic, done for you, on figures only you can supply. Nothing you type is saved or sent, and the copyable summary is copied to your own clipboard.",
+      },
+    ],
+  },
+  {
+    path: "/tools/referral-message-generator",
+    title: "Referral Message Generator | Write Your Referral Ask | Revvin",
+    description:
+      "Generate a text, an email and a spoken script for asking a customer for a referral, written around your trade, your timing and your reward. Free, no account, nothing saved.",
+    h1: "Write the referral ask you will actually send.",
+    sections: [
+      {
+        heading: "What you choose",
+        body: "Your trade or service from a list, plus other for anything not on it. When you are asking: the job just finished, checking in a while later, or a customer you have not spoken to in a long time. The tone, direct or warm. Everything else is optional: the customer's first name, your business name, your name or team name, what the job was, the reward exactly as you want it written, and your referral page link.",
+      },
+      {
+        heading: "What you get",
+        body: "Three versions of the same ask: a text message, an email with a subject line, and something you can say out loud while you are packing up. Leave fields blank and the wording stays natural rather than leaving gaps or placeholders behind. The same choices always produce the same messages.",
+      },
+      {
+        heading: "You send it, not Revvin",
+        body: "The copy buttons put the text on your own clipboard so you can send it from your own phone or email app, which is why it arrives from your number or your address. Revvin does not send these messages and does not see them. Ask once, say what actually earns the reward, and only use contact details the customer gave you for contact like this.",
+      },
+    ],
+  },
+];
+
 const handwritten: PrerenderRoute[] = [
   {
     path: "/",
@@ -471,4 +590,4 @@ const handwritten: PrerenderRoute[] = [
   },
 ];
 
-export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, guideIndexRoute, ...industryRoutes, ...guideRoutes];
+export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...toolkitRoutes, guideIndexRoute, ...industryRoutes, ...guideRoutes];

@@ -55,6 +55,10 @@ const GuidesHub = lazy(() => import("./pages/GuidesHub"));
 const IndustryLanding = lazy(() => import("./pages/IndustryLanding"));
 const SuperAdminCRM = lazy(() => import("./pages/SuperAdminCRM"));
 const ConnectionHealth = lazy(() => import("./pages/ConnectionHealth"));
+const ToolkitHub = lazy(() => import("./pages/tools/ToolkitHub"));
+const ProgramGrader = lazy(() => import("./pages/tools/ProgramGrader"));
+const RewardCalculator = lazy(() => import("./pages/tools/RewardCalculator"));
+const MessageGenerator = lazy(() => import("./pages/tools/MessageGenerator"));
 
 // Deliberately quiet: same background as every page, fixed viewport height, no
 // text or skeleton, so a route chunk arriving does not shift layout or flash.
@@ -104,6 +108,10 @@ const App = () => (
                   <Route path="/for-businesses" element={<ForBusinesses />} />
                   <Route path="/for-referrers" element={<ForReferrers />} />
                   <Route path="/ask-kit" element={<AskKit />} />
+                  <Route path="/tools" element={<ToolkitHub />} />
+                  <Route path="/tools/referral-program-grader" element={<ProgramGrader />} />
+                  <Route path="/tools/referral-reward-calculator" element={<RewardCalculator />} />
+                  <Route path="/tools/referral-message-generator" element={<MessageGenerator />} />
                   <Route path="/guides" element={<GuidesHub />} />
                   <Route path="/guides/:slug" element={<GuidePage />} />
                   <Route path="/referral-programs" element={<IndustriesHub />} />

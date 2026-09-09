@@ -117,6 +117,7 @@ const PARENT_PAGES: { prefix: string; name: string; item: string }[] = [
   { prefix: "/referral-program/", name: "Referral Programs", item: `${SITE}/referral-programs` },
   { prefix: "/guides/", name: "Guides", item: `${SITE}/guides` },
   { prefix: "/docs/", name: "Documentation", item: `${SITE}/docs/zapier` },
+  { prefix: "/tools/", name: "Contractor Growth Toolkit", item: `${SITE}/tools` },
 ];
 
 const titleCase = (segment: string) =>

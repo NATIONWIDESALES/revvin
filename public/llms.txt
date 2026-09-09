@@ -25,6 +25,13 @@
 - [Painting referral program](/referral-program/painting): Referrals from finished rooms plus room-by-room repeat work.
 - [Auto detailing referral program](/referral-program/auto-detailing): Referrals at handover plus short-cycle rebooking.
 
+## Free tools
+
+- [Contractor Growth Toolkit](/tools): Free client-side tools for service businesses. No account, no card, no saved input.
+- [Referral Program Grader](/tools/referral-program-grader): Eight-question operational checklist scored out of 100, with the three fixes to make first. Not a forecast.
+- [Referral Reward Calculator](/tools/referral-reward-calculator): Gross profit before and after a fixed reward, monthly reward cost and how many closed referred jobs cover Revvin Pro. USD only, not accounting advice.
+- [Referral Message Generator](/tools/referral-message-generator): Deterministic text, email and spoken referral ask built from trade, timing and tone. The business sends them, not Revvin.
+
 ## Referral program guides
 
 - [How much to pay for a referral](/guides/how-much-to-pay-for-a-referral): Setting a referral reward from your own customer value and acquisition cost.

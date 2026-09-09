@@ -154,7 +154,7 @@ const Index = () => (
         <div className="grid items-center gap-12 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-              Referral software for service businesses.
+              Referral software built first for home-service businesses.
             </p>
             <h1 className="mt-4 text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
               Turn past customers into your{" "}
@@ -162,7 +162,8 @@ const Index = () => (
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               Create a referral page, prepare a personal ask, and track the leads and rewards that
-              follow.
+              follow. Written for roofers, HVAC, plumbers and the trades, and it works for any
+              service business with a list of past customers.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button
@@ -224,7 +225,60 @@ const Index = () => (
       </div>
     </section>
 
+    {/* 2b · Free tools. Useful before signing up, and no account required. */}
+    <section className="border-b border-border">
+      <div className="container py-16 md:py-20">
+        <div className="max-w-2xl">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+            Free tools
+          </p>
+          <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
+            Start with one useful tool.
+          </h2>
+          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+            No account, no card, and nothing you type is saved or sent.
+          </p>
+        </div>
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          {[
+            {
+              to: "/tools/referral-program-grader",
+              title: "Referral Program Grader",
+              body: "Eight questions, a score out of 100, and the three things to fix first.",
+            },
+            {
+              to: "/tools/referral-reward-calculator",
+              title: "Referral Reward Calculator",
+              body: "See what a fixed reward leaves you on a closed referred job.",
+            },
+            {
+              to: "/tools/referral-message-generator",
+              title: "Referral Message Generator",
+              body: "A text, an email and a script you can say out loud. You send them.",
+            },
+          ].map((tool) => (
+            <Link
+              key={tool.to}
+              to={tool.to}
+              onClick={() => track("cta_clicked", { cta: "home_tools" })}
+              className="rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
+            >
+              <h3 className="text-sm font-bold text-foreground">{tool.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{tool.body}</p>
+            </Link>
+          ))}
+        </div>
+        <p className="mt-6 text-sm">
+          <Link to="/tools" className="font-semibold text-primary hover:underline">
+            See all free tools
+            <ArrowRight className="ml-1 inline h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
+        </p>
+      </div>
+    </section>
+
     {/* 3 · Three steps */}
+
     <section className="border-b border-border">
       <div className="container py-16 md:py-24">
         <div className="max-w-2xl">
