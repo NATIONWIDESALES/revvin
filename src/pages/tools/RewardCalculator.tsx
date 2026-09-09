@@ -85,7 +85,7 @@ const RewardCalculator = () => {
     {
       label: `Rewards at ${result.jobsPerMonth} closed referred job${result.jobsPerMonth === 1 ? "" : "s"} a month`,
       value: formatUsd(result.totalRewards),
-      help: "What you would pay your referrers in a month at that volume, directly, with no fee on top.",
+      help: "Your proposed reward amounts at that volume. This excludes any fee charged by the payment method you choose.",
     },
     {
       label: "Contribution after rewards, that month",

@@ -129,7 +129,7 @@ export function generateMessages(input: MessageInputs): GeneratedMessages {
     ? `If anyone you know needs ${phrase}, I would look after them the same way.`
     : `If anyone you know needs ${phrase}, send them my way.`;
 
-  const rewardLine = reward ? `There is ${reward} in it for you if it turns into a booked job.` : "";
+  const rewardLine = reward ? `There is ${reward} in it for you if it turns into a completed job that qualifies under our offer.` : "";
 
   const linkLine = link ? `Here is the link to pass on: ${link}` : "";
 
