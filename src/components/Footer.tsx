@@ -26,6 +26,8 @@ const Footer = () => {
             </h4>
             <div className="space-y-3">
               <Link to="/how-it-works" className="block text-sm text-white/80 transition-colors hover:text-white">How it works</Link>
+              <Link to="/tools" className="block text-sm text-white/80 transition-colors hover:text-white">Contractor Growth Toolkit</Link>
+              <Link to="/marketplace" className="block text-sm text-white/80 transition-colors hover:text-white">Referral marketplace</Link>
               <Link to="/pricing" className="block text-sm text-white/80 transition-colors hover:text-white">Pricing</Link>
               <Link to="/referral-programs" className="block text-sm text-white/80 transition-colors hover:text-white">Referral programs by industry</Link>
               <Link to="/ask-kit" className="block text-sm text-white/80 transition-colors hover:text-white">Referral ask kit</Link>

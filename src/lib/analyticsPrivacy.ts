@@ -1,4 +1,6 @@
 /** Explicit public-analytics boundary. This is data minimization, not consent. */
+import { TOOLKIT_CTA_LABELS } from "@/lib/toolkit/analytics";
+
 export type AnalyticsAudience = "unknown" | "anonymous" | "signed-in";
 export type AnalyticsTraffic = "marketing" | "demo" | "referral";
 export interface AnalyticsContext { path: string; traffic: AnalyticsTraffic }
@@ -13,8 +15,12 @@ const PUBLIC_PATHS = new Set([
   "/browse", "/marketplace", "/sample", "/ask-kit", "/guides",
   "/referral-programs", "/about-revvin-llm", "/trust", "/terms", "/privacy",
   "/referral-agreement", "/docs/zapier",
+  // Free toolkit. The tools never put input in the URL, so an approved path here
+  // can only ever be one of these four fixed strings.
+  "/tools", "/tools/referral-program-grader", "/tools/referral-reward-calculator",
+  "/tools/referral-message-generator",
   ...["roofing", "hvac", "plumbing", "solar", "electrical", "landscaping", "painting", "auto-detailing", "pest-control", "pool-service", "garage-door", "flooring", "window-replacement", "tree-service", "house-cleaning", "remodeling", "fencing", "pressure-washing", "carpet-cleaning", "handyman"].map(slug => `/referral-program/${slug}`),
-  ...["how-much-to-pay-for-a-referral", "referral-program-vs-buying-leads", "how-to-start-a-referral-program", "do-referral-programs-work-for-contractors", "how-to-ask-a-customer-for-a-referral"].map(slug => `/guides/${slug}`),
+  ...["how-much-to-pay-for-a-referral", "referral-program-vs-buying-leads", "how-to-start-a-referral-program", "do-referral-programs-work-for-contractors", "how-to-ask-a-customer-for-a-referral", "alternative-to-buying-leads"].map(slug => `/guides/${slug}`),
 ]);
 const CAMPAIGN_KEYS = new Set(["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid", "gclid"]);
 
@@ -54,7 +60,14 @@ export function sanitizeAnalyticsReferrer(raw: string): string | null {
   } catch { return null; }
 }
 
-const CTA_LABELS = new Set(["hero_signup", "hero_demo", "home_industries", "plans_free", "plans_pro", "footer_signup", "sample_top", "sample_bottom", "demo_signup"]);
+// Toolkit steps ride on cta_clicked with a fixed label, so measuring the free
+// tools needs no new event name. A label names the tool and the step and nothing
+// else: no score, no dollar figure, no percentage and no typed text.
+const CTA_LABELS = new Set([
+  "hero_signup", "hero_demo", "home_industries", "plans_free", "plans_pro", "footer_signup",
+  "sample_top", "sample_bottom", "demo_signup", "home_tools",
+  ...TOOLKIT_CTA_LABELS,
+]);
 const SOURCE_LABELS = new Set(["landing", "playbook", "sample", "marketplace_notify"]);
 export function safeAnalyticsMeta(event: string, context: AnalyticsContext, input?: Record<string, unknown>) {
   const demo = context.traffic === "demo" || event.startsWith("demo_") || input?.cta === "demo_signup";
