@@ -17,6 +17,8 @@ export const TOOLKIT_CTAS = {
   generatorStarted: "tool_generator_start",
   generatorCompleted: "tool_generator_done",
   generatorSignup: "tool_generator_signup",
+  graderPro: "tool_grader_pro",
+  calculatorPro: "tool_calculator_pro",
 } as const;
 
 export type ToolkitCta = (typeof TOOLKIT_CTAS)[keyof typeof TOOLKIT_CTAS];
