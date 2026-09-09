@@ -17,6 +17,7 @@ import {
   MAX_REWARD,
 } from "@/lib/toolkit/rewardMath";
 import { copyText } from "@/lib/clipboard";
+import ProCheckoutCard from "@/components/billing/ProCheckoutCard";
 import { Check, Copy } from "lucide-react";
 
 /**
@@ -234,6 +235,15 @@ const RewardCalculator = () => {
                 </p>
               )}
             </div>
+
+            {result.jobsToCoverMonthlyPro !== null && (
+              <ProCheckoutCard
+                className="mt-6"
+                heading={`${result.jobsToCoverMonthlyPro} closed referred job${result.jobsToCoverMonthlyPro === 1 ? "" : "s"} covers Pro`}
+                body="Pro is the part that asks your whole past customer list for you and reports what came back. Your page and your referrals stay free."
+                cta={TOOLKIT_CTAS.calculatorPro}
+              />
+            )}
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Button variant="outline" size="lg" className="h-12 sm:px-6" onClick={copySummary}>

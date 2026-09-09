@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ToolShell from "@/components/toolkit/ToolShell";
+import ProCheckoutCard from "@/components/billing/ProCheckoutCard";
 import { track } from "@/lib/track";
 import { TOOLKIT_CTAS } from "@/lib/toolkit/analytics";
 import {
@@ -159,6 +160,13 @@ const ProgramGrader = () => {
               Retake the grader
             </Button>
           </div>
+
+          <ProCheckoutCard
+            className="mt-6 text-left"
+            heading="Want the asking done for you?"
+            body="Building and publishing the page is free. Revvin Pro imports your past customers, sends your referral ask to all of them, and reports the leads and closed jobs it produced."
+            cta={TOOLKIT_CTAS.graderPro}
+          />
 
           <p className="mt-6 text-sm text-muted-foreground">
             Working out the amount next?{" "}
