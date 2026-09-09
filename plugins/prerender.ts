@@ -136,6 +136,7 @@ const breadcrumbs = (route: PrerenderRoute) => {
   }
   return {
     "@type": "BreadcrumbList",
+    "@id": `${SITE}${route.path === "/" ? "/" : route.path}#breadcrumb`,
     itemListElement: items.map((it, i) => ({
       "@type": "ListItem",
       position: i + 1,
@@ -146,19 +147,33 @@ const breadcrumbs = (route: PrerenderRoute) => {
 };
 
 const jsonLd = (route: PrerenderRoute) => {
+  const url = `${SITE}${route.path === "/" ? "/" : route.path}`;
   const graph: unknown[] = [
     ORGANIZATION,
+    WEBSITE,
     {
       "@type": "WebPage",
+      "@id": `${url}#webpage`,
+      url,
       name: route.title,
       description: route.description,
-      url: `${SITE}${route.path}`,
+      isPartOf: { "@id": SITE_ID },
+      about: { "@id": ORG_ID },
+      inLanguage: "en-US",
+      breadcrumb: { "@id": `${url}#breadcrumb` },
+      primaryImageOfPage: `${SITE}/og-image.png`,
     },
     breadcrumbs(route),
   ];
+  // The priced product description belongs on the pages that are actually about
+  // buying it, not on every document.
+  if (route.path === "/" || route.path === "/pricing" || route.path === "/for-businesses") {
+    graph.push(SOFTWARE);
+  }
   if (route.faqs?.length) {
     graph.push({
       "@type": "FAQPage",
+      "@id": `${url}#faq`,
       mainEntity: route.faqs.map((f) => ({
         "@type": "Question",
         name: f.q,
@@ -166,9 +181,10 @@ const jsonLd = (route: PrerenderRoute) => {
       })),
     });
   }
-  return JSON.stringify(
-    graph.map((g) => ({ "@context": "https://schema.org", ...(g as object) })),
-  );
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": graph,
+  });
 };
 
 const bodyHtml = (route: PrerenderRoute) => {
