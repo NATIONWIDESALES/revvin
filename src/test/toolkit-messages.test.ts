@@ -56,6 +56,13 @@ describe("referral message generator", () => {
     expect(all(m).join("\n")).toContain("a $50 gift card or a free service call");
   });
 
+  it("states the reward condition accurately and never promises payment on booking", () => {
+    const joined = all(generateMessages({ ...base, rewardDisplay: "$100" })).join("\n");
+    expect(joined).toContain("if it turns into a completed job that qualifies under our offer");
+    expect(joined.toLowerCase()).not.toContain("booked job");
+    expect(all(generateMessages(base)).join("\n")).not.toContain("booked job");
+  });
+
   it("changes wording with timing and with tone", () => {
     const timings = TIMING_OPTIONS.map((t) => generateMessages({ ...base, timing: t.value }).sms);
     expect(new Set(timings).size).toBe(TIMING_OPTIONS.length);
