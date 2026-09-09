@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Plugin } from "vite";
 import { PRERENDER_ROUTES, type PrerenderRoute } from "../src/content/seoRoutes";
-import { PRICE_TEXT } from "../src/config/pricing";
+import { PRICE_TEXT, MONTHLY_PRICE, ANNUAL_PRICE } from "../src/config/pricing";
 
 const SITE = "https://revvin.co";
 
@@ -89,7 +89,7 @@ const SOFTWARE = {
     {
       "@type": "Offer",
       name: "Revvin Pro, monthly",
-      price: String(PRICE_TEXT.monthlyAmount),
+      price: String(MONTHLY_PRICE),
       priceCurrency: "USD",
       url: `${SITE}/pricing`,
       description:
@@ -98,7 +98,7 @@ const SOFTWARE = {
     {
       "@type": "Offer",
       name: "Revvin Pro, annual",
-      price: String(PRICE_TEXT.annualAmount),
+      price: String(ANNUAL_PRICE),
       priceCurrency: "USD",
       url: `${SITE}/pricing`,
       description:
