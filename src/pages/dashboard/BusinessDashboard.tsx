@@ -30,6 +30,7 @@ import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
 import PlanPicker from "@/components/billing/PlanPicker";
+import BillingHistoryCard from "@/components/billing/BillingHistoryCard";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 import { friendlyError } from "@/lib/errors";
 
@@ -1335,6 +1336,16 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     window.open(data.url, "_blank");
   };
 
+  // Reads the provider status for this owner and refreshes the card from it.
+  const refreshStatus = async () => {
+    setBusy(true);
+    const { error } = await supabase.functions.invoke("check-subscription");
+    setBusy(false);
+    if (error) { toast({ title: "Could not refresh billing status", description: friendlyError(error), variant: "destructive" }); return; }
+    onUpdate();
+    toast({ title: "Billing status up to date" });
+  };
+
   const startSubscription = async () => {
     track("go_live_clicked");
     setBusy(true);
@@ -1437,7 +1448,19 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
             </Button>
           </>
         )}
+        <button
+          type="button"
+          onClick={refreshStatus}
+          disabled={busy}
+          className="mt-3 w-full text-center text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground disabled:opacity-60"
+        >
+          Refresh subscription status
+        </button>
       </div>
+
+      <BillingHistoryCard />
+
+
 
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-4">Lead notifications</h3>
