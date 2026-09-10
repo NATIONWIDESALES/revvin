@@ -1437,7 +1437,19 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
             </Button>
           </>
         )}
+        <button
+          type="button"
+          onClick={refreshStatus}
+          disabled={busy}
+          className="mt-3 w-full text-center text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground disabled:opacity-60"
+        >
+          Refresh subscription status
+        </button>
       </div>
+
+      <BillingHistoryCard />
+
+
 
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-4">Lead notifications</h3>
