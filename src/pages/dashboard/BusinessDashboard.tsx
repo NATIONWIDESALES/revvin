@@ -1335,6 +1335,16 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     window.open(data.url, "_blank");
   };
 
+  // Reads the provider status for this owner and refreshes the card from it.
+  const refreshStatus = async () => {
+    setBusy(true);
+    const { error } = await supabase.functions.invoke("check-subscription");
+    setBusy(false);
+    if (error) { toast({ title: "Could not refresh billing status", description: friendlyError(error), variant: "destructive" }); return; }
+    onUpdate();
+    toast({ title: "Billing status up to date" });
+  };
+
   const startSubscription = async () => {
     track("go_live_clicked");
     setBusy(true);
