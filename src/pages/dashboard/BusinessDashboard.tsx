@@ -30,6 +30,7 @@ import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
 import PlanPicker from "@/components/billing/PlanPicker";
+import BillingHistoryCard from "@/components/billing/BillingHistoryCard";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 import { friendlyError } from "@/lib/errors";
 
