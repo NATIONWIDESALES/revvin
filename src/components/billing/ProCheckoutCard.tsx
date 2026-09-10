@@ -81,7 +81,11 @@ const ProCheckoutCard = ({
   const start = async () => {
     track("cta_clicked", { cta });
 
-    if (!canCheckOutHere) {
+    if (isBusinessOwner) {
+      // Signed-in owner: only ever start checkout when we know they are not
+      // already paying. Anything else is a no-op here.
+      if (!canCheckOutHere) return;
+    } else {
       setPendingPlan(plan);
       navigate(`/signup?plan=${plan}`);
       return;
