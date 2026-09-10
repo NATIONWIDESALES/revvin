@@ -86,6 +86,24 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     const customerId = customers.data[0]?.id;
 
+    // Never open a second subscription for someone who already pays. Any UI
+    // that offers checkout can be reached twice, so the guard lives here too.
+    if (customerId) {
+      const existing = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 20 });
+      const live = existing.data.some((s) =>
+        ["active", "trialing", "past_due", "unpaid", "incomplete"].includes(s.status)
+      );
+      if (live) {
+        return new Response(
+          JSON.stringify({
+            error: "You already have a Revvin Pro subscription. Manage it from your billing settings.",
+            already_subscribed: true,
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 409 }
+        );
+      }
+    }
+
     const origin = req.headers.get("origin") || "https://revvin.co";
 
     const line_items: Array<{ price: string; quantity: number }> = [
