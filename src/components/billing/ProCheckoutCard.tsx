@@ -109,6 +109,30 @@ const ProCheckoutCard = ({
     window.location.href = data.url;
   };
 
+  // Owners who already pay for Pro see their status and a way to manage
+  // billing, never a second checkout.
+  if (isBusinessOwner && alreadyPro) {
+    return (
+      <div className={`rounded-2xl border border-primary/30 bg-primary/5 p-6 ${className}`}>
+        <h3 className="text-base font-bold text-foreground">You are already on Revvin Pro</h3>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+          Nothing to buy here. You can change your billing period or cancel anytime.
+        </p>
+        <Button
+          size="lg"
+          variant="outline"
+          className="mt-4 h-12 w-full"
+          onClick={openPortal}
+          disabled={busy}
+        >
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : "Manage billing"}
+        </Button>
+      </div>
+    );
+  }
+
+  const checking = isBusinessOwner && alreadyPro === null;
+
   return (
     <div className={`rounded-2xl border border-primary/30 bg-primary/5 p-6 ${className}`}>
       <h3 className="text-base font-bold text-foreground">{heading}</h3>
@@ -116,8 +140,8 @@ const ProCheckoutCard = ({
 
       <PlanPicker plan={plan} onChange={setPlan} className="mt-4" />
 
-      <Button size="lg" className="mt-4 h-12 w-full" onClick={start} disabled={busy}>
-        {busy ? (
+      <Button size="lg" className="mt-4 h-12 w-full" onClick={start} disabled={busy || checking}>
+        {busy || checking ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
         ) : canCheckOutHere ? (
           `Start Revvin Pro, ${plan === "annual" ? PRICE_TEXT.annualPerYear : PRICE_TEXT.monthlyPerMonth}`
