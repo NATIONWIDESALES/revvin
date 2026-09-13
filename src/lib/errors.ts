@@ -78,6 +78,10 @@ const RULES: Array<{ match: (raw: string, code: string) => boolean; message: str
     message: "Too many attempts in a row. Please wait a minute and try again.",
   },
   {
+    match: (raw) => raw.includes("already have a revvin pro subscription") || raw.includes("already_subscribed"),
+    message: "You already have a Revvin Pro subscription. Use Manage billing to change or cancel it.",
+  },
+  {
     match: (raw) => raw.includes("no such customer") || raw.includes("stripe"),
     message: "There was a problem with billing. Please try again, and contact us if it keeps happening.",
   },
