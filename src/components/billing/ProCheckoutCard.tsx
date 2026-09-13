@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PRICE_TEXT, type BillingPlan } from "@/config/pricing";
 import { setPendingPlan } from "@/lib/pendingPlan";
-import { friendlyError } from "@/lib/errors";
+import { friendlyError, friendlyInvokeError } from "@/lib/errors";
 import { toast } from "@/hooks/use-toast";
 import { track } from "@/lib/track";
 import type { ToolkitCta } from "@/lib/toolkit/analytics";

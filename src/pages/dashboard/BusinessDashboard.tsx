@@ -32,7 +32,7 @@ import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
 import PlanPicker from "@/components/billing/PlanPicker";
 import BillingHistoryCard from "@/components/billing/BillingHistoryCard";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
-import { friendlyError } from "@/lib/errors";
+import { friendlyError, friendlyInvokeError } from "@/lib/errors";
 
 interface Business {
   id: string;
