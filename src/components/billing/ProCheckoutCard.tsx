@@ -98,9 +98,16 @@ const ProCheckoutCard = ({
     setBusy(false);
 
     if (error || !data?.url) {
+      const parsed = await friendlyInvokeError(error);
+      if (parsed.alreadySubscribed) {
+        // Stripe says this owner already pays; swap the card to the
+        // Manage billing view instead of a dead-end error.
+        setAlreadyPro(true);
+        return;
+      }
       toast({
         title: "Could not start checkout",
-        description: friendlyError(error),
+        description: parsed.message,
         variant: "destructive",
       });
       return;
