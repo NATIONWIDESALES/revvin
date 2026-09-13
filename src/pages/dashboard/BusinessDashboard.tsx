@@ -32,7 +32,7 @@ import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
 import PlanPicker from "@/components/billing/PlanPicker";
 import BillingHistoryCard from "@/components/billing/BillingHistoryCard";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
-import { friendlyError } from "@/lib/errors";
+import { friendlyError, friendlyInvokeError } from "@/lib/errors";
 
 interface Business {
   id: string;
@@ -1354,7 +1354,15 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     });
     setBusy(false);
     if (error || !data?.url) {
-      toast({ title: "Could not start checkout", description: friendlyError(error), variant: "destructive" });
+      const parsed = await friendlyInvokeError(error);
+      if (parsed.alreadySubscribed) {
+        // Stripe knows about a live subscription our cached status missed.
+        // Reload the business row so the CTA flips to Manage billing.
+        toast({ title: "You are already on Revvin Pro", description: parsed.message });
+        onUpdate();
+        return;
+      }
+      toast({ title: "Could not start checkout", description: parsed.message, variant: "destructive" });
       return;
     }
     track("checkout_redirected");

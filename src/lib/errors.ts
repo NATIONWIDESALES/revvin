@@ -78,6 +78,10 @@ const RULES: Array<{ match: (raw: string, code: string) => boolean; message: str
     message: "Too many attempts in a row. Please wait a minute and try again.",
   },
   {
+    match: (raw) => raw.includes("already have a revvin pro subscription") || raw.includes("already_subscribed"),
+    message: "You already have a Revvin Pro subscription. Use Manage billing to change or cancel it.",
+  },
+  {
     match: (raw) => raw.includes("no such customer") || raw.includes("stripe"),
     message: "There was a problem with billing. Please try again, and contact us if it keeps happening.",
   },
@@ -112,4 +116,29 @@ export function friendlyError(error: AnyError, fallback = "Something went wrong.
   if (!looksTechnical && original.length <= 140 && isAuthoredForHumans(original)) return original;
 
   return fallback;
+}
+
+/**
+ * supabase.functions.invoke collapses any non-2xx response into a generic
+ * FunctionsHttpError, dropping the JSON body our edge functions write (for
+ * example the 409 "already subscribed" payload). This reads the real message
+ * out of the response body so the owner sees the actual reason, then runs it
+ * through the same human-copy rules as everything else.
+ */
+export async function friendlyInvokeError(
+  error: AnyError,
+  fallback = "Something went wrong. Please try again.",
+): Promise<{ message: string; alreadySubscribed: boolean }> {
+  try {
+    const ctx = (error as { context?: { json?: () => Promise<unknown> } } | null)?.context;
+    if (ctx && typeof ctx.json === "function") {
+      const body = (await ctx.json()) as { error?: string; already_subscribed?: boolean } | null;
+      if (body?.error) {
+        return { message: friendlyError(body.error, fallback), alreadySubscribed: !!body.already_subscribed };
+      }
+    }
+  } catch {
+    // Body unreadable; fall through to the generic error.
+  }
+  return { message: friendlyError(error, fallback), alreadySubscribed: false };
 }
