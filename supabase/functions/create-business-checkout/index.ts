@@ -81,6 +81,32 @@ serve(async (req) => {
       }
     }
 
+    // Invite codes: monthly only, validated and CLAIMED server-side with the
+    // service role. The client's code is never trusted. A bad code must not
+    // break checkout, so failures fall through to normal pricing. This runs
+    // AFTER the existing-subscription guard above so a refused checkout never
+    // burns a code.
+    let invite: { id: string; code: string; trial_days: number } | null = null;
+    let inviteApplied = false;
+    let inviteRejected = false;
+    if (rawInviteCode && plan === "monthly") {
+      // Atomic claim: a single conditional UPDATE ... RETURNING inside the
+      // function. No row back means missing, inactive, expired, or exhausted.
+      const { data: claimed, error: claimErr } = await admin.rpc("fn_claim_invite_code", {
+        p_code: rawInviteCode,
+      });
+      if (claimErr) console.error("[create-business-checkout] invite claim failed", claimErr);
+      const row = Array.isArray(claimed) ? claimed[0] : claimed;
+      if (row?.id) {
+        invite = { id: row.id, code: row.code, trial_days: row.trial_days ?? 90 };
+        inviteApplied = true;
+      } else {
+        inviteRejected = true;
+      }
+    } else if (rawInviteCode) {
+      inviteRejected = true; // invites are monthly only
+    }
+
     const origin = req.headers.get("origin") || "https://revvin.co";
 
     const line_items: Array<{ price: string; quantity: number }> = [
