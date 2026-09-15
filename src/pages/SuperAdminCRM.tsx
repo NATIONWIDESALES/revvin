@@ -558,7 +558,7 @@ const SuperAdminCRM = () => {
                         <div key={biz.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-3">
                           <div>
                             <p className="text-sm font-medium">{biz.name}</p>
-                            <p className="text-xs text-muted-foreground">{biz.industry ?? "·"} • {biz.city ?? "·"}</p>
+                            <p className="text-xs text-muted-foreground">{[biz.industry, biz.city].filter(Boolean).join(" • ") || "No details yet"}</p>
                           </div>
                           <Badge variant={biz.verified ? "default" : "secondary"}>{biz.verified ? "Verified" : "Pending"}</Badge>
                         </div>
@@ -632,7 +632,7 @@ const SuperAdminCRM = () => {
                       <div key={biz.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-4">
                         <div className="flex-1">
                           <p className="font-medium">{biz.name}</p>
-                          <p className="text-xs text-muted-foreground">{biz.industry ?? "·"} • {biz.city ?? "No location"} • {(biz as any).phone ? `📞 ${(biz as any).phone} • ` : ""}Joined {new Date(biz.created_at).toLocaleDateString()}</p>
+                          <p className="text-xs text-muted-foreground">{[biz.industry, biz.city, (biz as any).phone, `Joined ${new Date(biz.created_at).toLocaleDateString()}`].filter(Boolean).join(" • ")}</p>
                           <div className="flex items-center gap-2 mt-2">
                             <Badge variant={biz.verified ? "default" : "secondary"}>{biz.verified ? "Verified" : "Unverified"}</Badge>
                             <Badge variant={accountStatus === "approved" ? "default" : accountStatus === "rejected" ? "destructive" : "secondary"}>
