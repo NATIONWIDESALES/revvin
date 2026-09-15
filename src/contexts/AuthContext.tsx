@@ -27,13 +27,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userRole, setUserRole] = useState<"business" | "referrer" | "admin" | null>(null);
 
   const fetchRole = async (userId: string) => {
+    // A user can hold several roles (e.g. business + admin). Fetch them all and
+    // prefer the most privileged one, otherwise a multi-role account resolves to null.
     const { data } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
-      .maybeSingle();
-    setUserRole((data?.role as "business" | "referrer" | "admin") ?? null);
-    return (data?.role as "business" | "referrer" | "admin") ?? null;
+      .limit(10);
+    const roles = (data ?? []).map((r) => r.role as "business" | "referrer" | "admin");
+    const resolved = roles.includes("admin")
+      ? "admin"
+      : roles.includes("business")
+        ? "business"
+        : roles.includes("referrer")
+          ? "referrer"
+          : null;
+    setUserRole(resolved);
+    return resolved;
   };
 
   // Safety net: ensure profile exists on login (recovers from partial signup failures)
