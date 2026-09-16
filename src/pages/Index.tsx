@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import { track } from "@/lib/track";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -21,6 +21,7 @@ import { PRICE_TEXT } from "@/config/pricing";
 import { MONTHLY_PRICE } from "@/config/pricing";
 import { FREE_FEATURES, PRO_FEATURES } from "@/config/planFeatures";
 import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
+import PlanFeatureList from "@/components/marketing/PlanFeatureList";
 
 /**
  * Homepage. Deliberately short: hero, a demo a visitor can actually run, three
@@ -101,7 +102,7 @@ const Index = () => (
           "@type": "Product",
           name: "Revvin",
           description:
-            "Referral software for service businesses. Create a referral page free, prepare a personal referral ask, and track the referrals and fixed rewards that follow. Revvin Pro adds customer list import, bulk asks, reactivation email campaigns, ROI reporting and custom page branding. Businesses pay their referrers directly.",
+            `Referral software for service businesses. Free includes ${FREE_FEATURES.map((feature) => feature.label).join(", ")}. Revvin Pro adds ${PRO_FEATURES.map((feature) => feature.label).join(", ")}. Businesses pay their referrers directly.`,
           brand: { "@type": "Brand", name: "Revvin" },
           offers: [
             {
@@ -331,14 +332,7 @@ const Index = () => (
             </p>
             <p className="mt-2 text-4xl font-extrabold tracking-tight text-foreground">$0</p>
             <p className="mt-1 text-sm text-muted-foreground">No card. Does not expire.</p>
-            <ul className="mt-6 space-y-2.5 border-t border-border pt-6">
-              {FREE_FEATURES.map((feature) => (
-                <li key={feature.label} className="flex items-start gap-2.5 text-sm text-foreground">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                  <span><span className="font-medium">{feature.label}.</span> {feature.description}</span>
-                </li>
-              ))}
-            </ul>
+            <PlanFeatureList features={FREE_FEATURES} />
             <Button variant="outline" size="lg" className="mt-7 h-12 w-full text-base" asChild>
               <Link to="/signup" onClick={() => track("cta_clicked", { cta: "plans_free" })}>
                 Build my free referral page
@@ -359,14 +353,7 @@ const Index = () => (
             <p className="mt-1 text-sm text-muted-foreground">
               {`Or ${PRICE_TEXT.annualPerYear} billed once. Cancel anytime.`}
             </p>
-            <ul className="mt-6 space-y-2.5 border-t border-border pt-6">
-              {PRO_FEATURES.map((feature) => (
-                <li key={feature.label} className="flex items-start gap-2.5 text-sm text-foreground">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                  <span><span className="font-medium">{feature.label}.</span> {feature.description}</span>
-                </li>
-              ))}
-            </ul>
+            <PlanFeatureList features={PRO_FEATURES} />
             <Button size="lg" className="mt-7 h-12 w-full text-base hover:bg-primary-deep" asChild>
               <Link to="/pricing" onClick={() => track("cta_clicked", { cta: "plans_pro" })}>
                 See Pro in detail

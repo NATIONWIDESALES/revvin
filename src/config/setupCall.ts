@@ -1,1 +1,1 @@
-export const SETUP_CALL_URL = "";
+export const SETUP_CALL_URL: string = "";

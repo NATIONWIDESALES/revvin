@@ -8,14 +8,15 @@ import path from "node:path";
 import { PRERENDER_ROUTES } from "@/content/seoRoutes";
 import { SAMPLE_META } from "@/content/samplePage";
 import { PRICE_TEXT } from "@/config/pricing";
+import { FREE_FEATURES, PRO_FEATURES } from "@/config/planFeatures";
 
 const read = (p: string) => fs.readFileSync(path.resolve(process.cwd(), p), "utf8");
 
 describe("homepage claims", () => {
   const index = read("src/pages/Index.tsx");
 
-  it("spells out that greyed rows are excluded from Free, not just dashes and colour", () => {
-    expect(index).toContain("(not included in Free)");
+  it("does not repeat Pro features as unavailable rows under Free", () => {
+    expect(index).not.toContain("(not included in Free)");
   });
 
   it("drops the manual add-lead claim, since no such workflow exists in the dashboard", () => {
@@ -35,19 +36,17 @@ describe("print pack entitlement", () => {
     expect(shareTab).not.toMatch(/isPro|ProUpsell/);
   });
 
-  it("is listed under Free, and not under Pro, on the pricing page", () => {
-    const pricing = read("src/pages/Pricing.tsx");
-    const free = pricing.match(/const freeFeatures[\s\S]*?\];/)![0];
-    const pro = pricing.match(/const proFeatureGroups[\s\S]*?\n\];/)![0];
-    expect(free).toMatch(/Print pack/);
-    expect(pro).not.toMatch(/Print pack/);
+  it("is listed under Free, and not under Pro", () => {
+    expect(FREE_FEATURES.some((feature) => /print pack/i.test(feature.label))).toBe(true);
+    expect(PRO_FEATURES.some((feature) => /print pack/i.test(`${feature.label} ${feature.description}`))).toBe(false);
   });
 
-  it("is listed under Free on the homepage", () => {
-    const free = read("src/pages/Index.tsx").match(/const FREE_FEATURES[\s\S]*?\];/)![0];
-    expect(free).toMatch(/pack/i);
-    const pro = read("src/pages/Index.tsx").match(/const PRO_FEATURES[\s\S]*?\];/)![0];
-    expect(pro).not.toMatch(/pack/i);
+  it("has both public pages render the same shared Free and Pro lists", () => {
+    for (const file of ["src/pages/Index.tsx", "src/pages/Pricing.tsx"]) {
+      const source = read(file);
+      expect(source).toContain('<PlanFeatureList features={FREE_FEATURES} />');
+      expect(source).toContain('<PlanFeatureList features={PRO_FEATURES} />');
+    }
   });
 });
 

@@ -18,6 +18,7 @@ import HowPayoutsWork from "@/components/marketing/HowPayoutsWork";
 import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
 import { FREE_FEATURES, PRO_FEATURES } from "@/config/planFeatures";
 import { SETUP_CALL_URL } from "@/config/setupCall";
+import PlanFeatureList from "@/components/marketing/PlanFeatureList";
 
 const launchFeatures = [
   "1:1 onboarding call",
@@ -93,14 +94,7 @@ const Pricing = () => {
                 <Link to="/signup">Create free account</Link>
               </Button>
 
-              <ul className="mt-8 space-y-2.5 border-t border-border pt-6">
-                {FREE_FEATURES.map((feature) => (
-                  <li key={feature.label} className="flex items-start gap-2.5 text-sm text-foreground">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span><span className="font-medium">{feature.label}.</span> {feature.description}</span>
-                  </li>
-                ))}
-              </ul>
+              <PlanFeatureList features={FREE_FEATURES} />
             </div>
 
             {/* Pro, featured */}
@@ -187,16 +181,7 @@ const Pricing = () => {
                   </Label>
                 </div>
               )}
-               <div className="mt-8 border-t border-border pt-6">
-                 <ul className="space-y-2.5">
-                   {PRO_FEATURES.map((feature) => (
-                     <li key={feature.label} className="flex items-start gap-2.5 text-sm text-foreground">
-                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                       <span><span className="font-medium">{feature.label}.</span> {feature.description}</span>
-                     </li>
-                   ))}
-                 </ul>
-              </div>
+               <PlanFeatureList features={PRO_FEATURES} />
             </div>
 
             {/* Launch Package add-on (gated by LAUNCH_PACKAGE_ENABLED) */}
