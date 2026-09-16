@@ -100,6 +100,15 @@ describe("registration guard", () => {
   });
 });
 
+describe("build output", () => {
+  it("fills in every service worker placeholder, including the ones named in its own comment", () => {
+    const plugin = readFileSync("plugins/pwa.ts", "utf8");
+    for (const token of ["__VERSION__", "__PRECACHE__", "__VAPID_PUBLIC_KEY__", "__RESUBSCRIBE_URL__"]) {
+      expect(plugin).toContain(`replaceAll("${token}"`);
+    }
+  });
+});
+
 describe("push failure handling", () => {
   it("treats a gone endpoint as permanently gone so dead devices stop being retried", () => {
     expect(pushSource).toMatch(/404[\s\S]{0,40}410/);
