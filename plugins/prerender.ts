@@ -275,7 +275,7 @@ export const jsonLd = (route: PrerenderRoute) => {
  */
 const FALLBACK_GUARD = `<script>(function(){var p=location.pathname;if(p==="/")return;var r=document.getElementById("root");if(r)r.textContent="";var c=document.querySelector('link[rel="canonical"]');if(c)c.parentNode.removeChild(c);var legacy=${JSON.stringify(
   LEGACY_STORE_PREFIXES,
-)}.some(function(x){return p===x||p.indexOf(x+"/")===0||p.indexOf(x+"?")===0;});document.title=legacy?"Page not found | Revvin":"Revvin";var m=document.querySelector('meta[name="robots"]');if(!m){m=document.createElement("meta");m.setAttribute("name","robots");document.head.appendChild(m);}m.setAttribute("content",legacy?"noindex,nofollow":"noindex,follow");if(legacy&&r){r.innerHTML='<h1>Page not found</h1><p>This address does not exist on revvin.co.</p>';}})();</script>`;
+)}.some(function(x){return p===x||p.indexOf(x+"/")===0||p.indexOf(x+"?")===0;});document.title=legacy?"Page not found | Revvin":"Revvin";var m=document.querySelector('meta[name="robots"]');if(!m){m=document.createElement("meta");m.setAttribute("name","robots");document.head.appendChild(m);}m.setAttribute("content",legacy?"noindex,nofollow":"noindex,follow");if(legacy&&r){var h=document.createElement("h1");h.textContent="Page not found";r.appendChild(h);var q=document.createElement("p");q.textContent="This address does not exist on revvin.co.";r.appendChild(q);}})();</script>`;
 
 const bodyHtml = (route: PrerenderRoute) => {
   const parts: string[] = [`<h1>${esc(route.h1)}</h1>`];
