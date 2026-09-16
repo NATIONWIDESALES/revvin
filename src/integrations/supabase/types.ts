@@ -130,6 +130,7 @@ export type Database = {
           current_period_end: string | null
           description: string | null
           dunning_notified_at: string | null
+          first_share_at: string | null
           geocode_status: string | null
           geocoded_at: string | null
           google_review_url: string | null
@@ -195,6 +196,7 @@ export type Database = {
           current_period_end?: string | null
           description?: string | null
           dunning_notified_at?: string | null
+          first_share_at?: string | null
           geocode_status?: string | null
           geocoded_at?: string | null
           google_review_url?: string | null
@@ -260,6 +262,7 @@ export type Database = {
           current_period_end?: string | null
           description?: string | null
           dunning_notified_at?: string | null
+          first_share_at?: string | null
           geocode_status?: string | null
           geocoded_at?: string | null
           google_review_url?: string | null
