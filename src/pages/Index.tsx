@@ -9,8 +9,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import PhoneMockup from "@/components/marketing/PhoneMockup";
-import MockReferralPage from "@/components/marketing/MockReferralPage";
 import MockLeadsTable from "@/components/marketing/MockLeadsTable";
 import MockQRCard from "@/components/marketing/MockQRCard";
 import MockPageBuilder from "@/components/marketing/MockPageBuilder";
@@ -22,6 +20,9 @@ import { MONTHLY_PRICE } from "@/config/pricing";
 import { FREE_FEATURES, PRO_FEATURES } from "@/config/planFeatures";
 import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
 import PlanFeatureList from "@/components/marketing/PlanFeatureList";
+import HeroPhoneScene from "@/components/marketing/HeroPhoneScene";
+import ScrollReveal from "@/components/ScrollReveal";
+import { motion, useReducedMotion } from "framer-motion";
 
 /**
  * Homepage. Deliberately short: hero, a demo a visitor can actually run, three
@@ -90,8 +91,17 @@ const FAQS = [
   },
 ];
 
-const Index = () => (
-  <>
+const Index = () => {
+  const prefersReduced = useReducedMotion();
+  const heroItem = prefersReduced
+    ? {}
+    : {
+        hidden: { opacity: 0, y: 14 },
+        visible: { opacity: 1, y: 0 },
+      };
+
+  return (
+    <>
     <SEOHead
       title="Revvin | Referral software for service businesses"
       description={`Turn past customers into your next booked job. Create a free referral page, prepare a personal ask, and track the leads and rewards that follow. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD.`}
@@ -134,32 +144,39 @@ const Index = () => (
     />
 
     {/* 1 · Hero */}
-    <section className="relative overflow-hidden border-b border-border hero-radial">
+    <section className="hero-premium relative overflow-hidden border-b border-border">
+      <div aria-hidden className="hero-aurora absolute inset-0" />
       <div aria-hidden className="absolute inset-0 grid-faint" />
+      <div aria-hidden className="hero-spotlight absolute inset-y-0 left-0 w-3/5" />
       <div className="container relative py-14 md:py-24">
         <div className="grid items-center gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-7">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+          <motion.div
+            className="lg:col-span-7"
+            initial={prefersReduced ? false : "hidden"}
+            animate="visible"
+            variants={prefersReduced ? undefined : { visible: { transition: { staggerChildren: 0.1 } } }}
+          >
+            <motion.p variants={heroItem} transition={{ duration: 0.42 }} className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
               Referral software built first for home-service businesses.
-            </p>
-            <h1 className="mt-4 text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
+            </motion.p>
+            <motion.h1 variants={heroItem} transition={{ duration: 0.42 }} className="mt-4 text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
               Turn past customers into your{" "}
-              <span className="text-gradient-green">next booked job.</span>
-            </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              <span className="shimmer-text">next booked job.</span>
+            </motion.h1>
+            <motion.p variants={heroItem} transition={{ duration: 0.42 }} className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               Create a referral page, prepare a personal ask, and track the leads and rewards that
               follow. Written for roofers, HVAC, plumbers and the trades, and it works for any
               service business with a list of past customers.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            </motion.p>
+            <motion.div variants={heroItem} transition={{ duration: 0.42 }} className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button
                 size="lg"
-                className="h-12 w-full px-6 text-base shadow-product hover:bg-primary-deep sm:w-auto"
+                className="shine-on-hover hero-primary-button group h-12 w-full px-6 text-base shadow-product hover:bg-primary-deep sm:w-auto"
                 asChild
               >
                 <Link to="/signup" onClick={() => track("cta_clicked", { cta: "hero_signup" })}>
                   Build my free referral page
-                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" className="h-12 w-full px-6 text-base sm:w-auto" asChild>
@@ -167,22 +184,15 @@ const Index = () => (
                   Try the demo
                 </Link>
               </Button>
-            </div>
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+            </motion.div>
+            <motion.p variants={heroItem} transition={{ duration: 0.42 }} className="mt-4 text-sm leading-relaxed text-muted-foreground">
               {`Your referral page is free and no card is needed to create it. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD when you want the list tools.`}
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Compact, clearly labelled product example. */}
           <div className="lg:col-span-5">
-            <figure className="mx-auto max-w-[300px]">
-              <PhoneMockup rotate={0}>
-                <MockReferralPage />
-              </PhoneMockup>
-              <figcaption className="mt-3 text-center text-xs text-muted-foreground">
-                Example of a published referral page. Not a real business.
-              </figcaption>
-            </figure>
+            <HeroPhoneScene />
           </div>
         </div>
       </div>
@@ -191,6 +201,7 @@ const Index = () => (
     {/* 2 · Demo teaser with a real action */}
     <section className="border-b border-border bg-surface-warm">
       <div className="container py-16 md:py-20">
+        <ScrollReveal>
         <div className="mx-auto max-w-3xl">
           <div className="max-w-xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
@@ -208,12 +219,14 @@ const Index = () => (
             <ReferralDemo />
           </div>
         </div>
+        </ScrollReveal>
       </div>
     </section>
 
     {/* 2b · Free tools. Useful before signing up, and no account required. */}
     <section className="border-b border-border">
       <div className="container py-16 md:py-20">
+        <ScrollReveal>
         <div className="max-w-2xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
             Free tools
@@ -247,7 +260,7 @@ const Index = () => (
               key={tool.to}
               to={tool.to}
               onClick={() => track("cta_clicked", { cta: "home_tools" })}
-              className="rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/40"
+              className="home-lift-card rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40"
             >
               <h3 className="text-sm font-bold text-foreground">{tool.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{tool.body}</p>
@@ -260,6 +273,7 @@ const Index = () => (
             <ArrowRight className="ml-1 inline h-3.5 w-3.5" aria-hidden="true" />
           </Link>
         </p>
+        </ScrollReveal>
       </div>
     </section>
 
@@ -267,6 +281,7 @@ const Index = () => (
 
     <section className="border-b border-border">
       <div className="container py-16 md:py-24">
+        <ScrollReveal>
         <div className="max-w-2xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
             How it works
@@ -280,7 +295,7 @@ const Index = () => (
           {STEPS.map((s, i) => (
             <div key={s.n} className="grid items-center gap-8 md:grid-cols-12">
               <div className={`md:col-span-6 ${i % 2 === 1 ? "md:order-2" : ""}`}>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                <p className="step-number text-[11px] font-semibold uppercase tracking-[0.16em]">
                   Step {s.n}
                 </p>
                 <h3 className="mt-2 text-xl font-extrabold tracking-tight text-foreground md:text-2xl">
@@ -289,7 +304,7 @@ const Index = () => (
                 <p className="mt-3 text-base leading-relaxed text-muted-foreground">{s.body}</p>
               </div>
               <div className={`md:col-span-6 ${i % 2 === 1 ? "md:order-1" : ""}`}>
-                <div className="mx-auto max-w-md">{s.visual}</div>
+                <div className={`step-visual-frame mx-auto max-w-md ${i % 2 === 1 ? "step-tilt-right" : "step-tilt-left"}`}>{s.visual}</div>
               </div>
             </div>
           ))}
@@ -310,12 +325,14 @@ const Index = () => (
           </Link>
           .
         </p>
+        </ScrollReveal>
       </div>
     </section>
 
     {/* 4 · Free vs Pro */}
     <section className="border-b border-border bg-surface-warm">
       <div className="container py-16 md:py-24">
+        <ScrollReveal>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
             Free page. Pro when you want the list tools.
@@ -326,7 +343,7 @@ const Index = () => (
         </div>
 
         <div className="mx-auto mt-10 grid max-w-4xl gap-5 md:grid-cols-2">
-          <div className="rounded-2xl border border-border bg-card p-7 shadow-soft">
+          <div className="home-lift-card rounded-2xl border border-border bg-card p-7 shadow-soft">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               Free
             </p>
@@ -340,7 +357,7 @@ const Index = () => (
             </Button>
           </div>
 
-          <div className="rounded-2xl border-2 border-primary bg-card p-7 shadow-product">
+          <div className="pro-plan-card home-lift-card rounded-2xl bg-card p-7 shadow-product">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
               Revvin Pro
             </p>
@@ -361,21 +378,23 @@ const Index = () => (
             </Button>
           </div>
         </div>
+        </ScrollReveal>
       </div>
     </section>
 
-    <WorksWithJobSoftware />
+    <ScrollReveal><WorksWithJobSoftware /></ScrollReveal>
 
     {/* 5 · Note from the team */}
-    <FounderNote />
+    <ScrollReveal><FounderNote /></ScrollReveal>
 
     {/* 6 · Five questions */}
     <section className="border-b border-border">
       <div className="container max-w-3xl py-16 md:py-24">
+        <ScrollReveal>
         <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
           Questions people actually ask.
         </h2>
-        <Accordion type="single" collapsible className="mt-8 w-full">
+        <Accordion type="single" collapsible className="home-lift-card mt-8 w-full rounded-lg border border-border bg-card px-5 shadow-soft">
           {FAQS.map((f, i) => (
             <AccordionItem key={f.question} value={`q${i}`}>
               <AccordionTrigger className="text-left">{f.question}</AccordionTrigger>
@@ -385,12 +404,14 @@ const Index = () => (
             </AccordionItem>
           ))}
         </Accordion>
+        </ScrollReveal>
       </div>
     </section>
 
     {/* 7 · Final action */}
-    <section className="bg-ink text-white">
+    <section className="final-cta-glow relative overflow-hidden bg-ink text-white">
       <div className="container py-16 text-center md:py-24">
+        <ScrollReveal>
         <Wordmark size="xl" variant="white" />
         <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-extrabold tracking-tight md:text-5xl">
           Build the page, then make the ask.
@@ -408,9 +429,11 @@ const Index = () => (
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </Link>
         </Button>
+        </ScrollReveal>
       </div>
     </section>
-  </>
-);
+    </>
+  );
+};
 
 export default Index;
