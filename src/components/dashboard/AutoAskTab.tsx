@@ -190,6 +190,8 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
           later, using their first name, the service and who did the work. Automatic asks go by email only.
           Texts are sent from your own phone.
         </p>
+        <SenderLine businessName={biz.name} replyTo={biz.business_email} className="mt-2" />
+
 
         <div className="mt-5 grid gap-4 md:grid-cols-2">
           <div>
