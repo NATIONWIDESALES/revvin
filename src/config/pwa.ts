@@ -1,11 +1,8 @@
 // Installable app and web push configuration.
-//
-// The VAPID public key is meant to be public: the browser needs it to create a
-// push subscription. The matching private key lives only in backend secrets as
-// VAPID_PRIVATE_KEY and is never shipped to the client.
 
-export const VAPID_PUBLIC_KEY =
-  "BOtPUsZxzNrKoCZA_tIeLZ_YUpdLSKUmWcfYfORgZ5Gk0dRzGJmeKmEya_FoEaKf8pbDfb_mezvYKUpydRNgaVs";
+export { VAPID_PUBLIC_KEY } from "@/config/vapid";
+import { VAPID_PUBLIC_KEY } from "@/config/vapid";
+void VAPID_PUBLIC_KEY;
 
 /** Where the service worker is served from, and the scope it controls. */
 export const SERVICE_WORKER_PATH = "/sw.js";

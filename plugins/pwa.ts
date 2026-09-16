@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { Plugin } from "vite";
-import { VAPID_PUBLIC_KEY } from "../src/config/pwa";
+import { VAPID_PUBLIC_KEY } from "../src/config/vapid";
 
 /**
  * Emits /sw.js from src/pwa/service-worker.js with the build version, the
