@@ -73,7 +73,7 @@ const ForReferrers = () => (
     {/* Factual claim ticker. No earnings averages or payout timing claims here:
         the business pays the referrer directly, so Revvin cannot promise speed. */}
     <section className="py-3 bg-muted/30 border-y border-border overflow-hidden">
-      <MarqueeTicker items={["100% of the advertised payout", "Paid directly by the business", "Every referral is timestamped", "Revvin does not take a cut of your reward", "Businesses publish their own payout terms", "Free to join"]} />
+      <MarqueeTicker items={["The full advertised fixed reward", "Paid directly by the business", "Every referral is timestamped", "Revvin does not take a cut of your reward", "Businesses publish their own payout terms", "Free to join"]} />
     </section>
     <section className="py-24 lg:py-32 bg-surface">
       <div className="container">
