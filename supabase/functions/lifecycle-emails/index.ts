@@ -110,7 +110,6 @@ Deno.serve(async (req) => {
       if (plan === "pro" && contacts === 0 && campaigns === 0) {
         candidates.push({
           template: "pro_welcome",
-          category: "setup",
           data: { businessName: biz.name, customersUrl: appUrl("/dashboard?tab=customers") },
         });
       }
@@ -119,14 +118,12 @@ Deno.serve(async (req) => {
       if (plan === "pro" && proWelcomeAge >= 48 && contacts === 0) {
         candidates.push({
           template: "pro_no_import_d2",
-          category: "setup",
           data: { businessName: biz.name, customersUrl: appUrl("/dashboard?tab=customers") },
         });
       }
       if (plan === "pro" && proWelcomeAge >= 24 * 7 && contacts > 0 && contactSends === 0 && campaigns === 0) {
         candidates.push({
           template: "pro_no_ask_d7",
-          category: "setup",
           data: { businessName: biz.name, askMessage, customersUrl: appUrl("/dashboard?tab=customers") },
         });
       }
@@ -134,7 +131,6 @@ Deno.serve(async (req) => {
       if (inCohort && !biz.is_published && ageHours >= 24) {
         candidates.push({
           template: "not_published_d1",
-          category: "setup",
           data: {
             businessName: biz.name,
             hasReward,
@@ -147,7 +143,6 @@ Deno.serve(async (req) => {
       if (inCohort && !biz.is_published && ageHours >= 72 && sentTemplates.includes("not_published_d1")) {
         candidates.push({
           template: "not_published_d3",
-          category: "setup",
           data: {
             businessName: biz.name,
             publishUrl: appUrl("/dashboard?tab=page"),
@@ -159,7 +154,6 @@ Deno.serve(async (req) => {
       if (inCohort && biz.is_published && biz.slug && !biz.first_share_at && ageHours >= 72) {
         candidates.push({
           template: "no_share_d3",
-          category: "setup",
           data: { businessName: biz.name, askMessage, dashboardUrl: appUrl("/dashboard") },
         });
       }
@@ -167,14 +161,12 @@ Deno.serve(async (req) => {
       if (inCohort && biz.is_published && leads === 0 && ageHours >= 24 * 7 && SETUP_CALL_URL) {
         candidates.push({
           template: "no_leads_d7",
-          category: "setup",
           data: { businessName: biz.name, setupCallUrl: SETUP_CALL_URL },
         });
       }
       if (inCohort && biz.is_published && leads === 0 && ageHours >= 24 * 30 && SETUP_CALL_URL) {
         candidates.push({
           template: "no_leads_d30",
-          category: "setup",
           data: { businessName: biz.name, setupCallUrl: SETUP_CALL_URL },
         });
       }
@@ -183,42 +175,36 @@ Deno.serve(async (req) => {
       if (plan !== "pro" && firstLeadAt && hoursSince(firstLeadAt, now) >= 24) {
         candidates.push({
           template: "first_lead_next_day",
-          category: "promo",
           data: { businessName: biz.name, pricingUrl: appUrl("/pricing") },
         });
       }
       if (inCohort && biz.is_published && plan !== "pro" && ageHours >= 24 * 5) {
         candidates.push({
           template: "free_d5",
-          category: "promo",
           data: { businessName: biz.name, askMessage, dashboardUrl: appUrl("/dashboard") },
         });
       }
       if (inCohort && biz.is_published && plan !== "pro" && ageHours >= 24 * 10) {
         candidates.push({
           template: "free_d10",
-          category: "promo",
           data: { businessName: biz.name, pricingUrl: appUrl("/pricing") },
         });
       }
       if (inCohort && plan !== "pro" && ageHours >= 24 * 14 && FOUNDER_STORY_APPROVED) {
         candidates.push({
           template: "free_d14",
-          category: "promo",
           data: { businessName: biz.name, setupCallUrl: SETUP_CALL_URL },
         });
       }
       if (inCohort && plan !== "pro" && ageHours >= 24 * 21) {
         candidates.push({
           template: "free_d21",
-          category: "promo",
           data: { businessName: biz.name, pricingUrl: appUrl("/pricing") },
         });
       }
       if (plan !== "pro" && hoursSince(sentAtOf("cancel_feedback"), now) >= 24 * 30) {
         candidates.push({
           template: "winback_d30",
-          category: "promo",
           data: { businessName: biz.name, publicUrl, pricingUrl: appUrl("/pricing") },
         });
       }

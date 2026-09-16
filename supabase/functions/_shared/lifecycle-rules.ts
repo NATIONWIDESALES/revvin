@@ -2,7 +2,9 @@
 // imports live here on purpose: the app's vitest suite imports this file so the
 // caps and the promotional-email rules are covered by tests.
 
-export type LifecycleCategory = "setup" | "promo";
+import { templateCategory, type LifecycleCategory } from "./lifecycle-categories.ts";
+
+export type { LifecycleCategory };
 
 export const MAX_PER_24H = 1;
 export const MAX_PER_7D = 3;
@@ -53,7 +55,6 @@ export function promoAllowed(input: PromoGateInput): { allowed: boolean; reason?
 
 export interface Candidate {
   template: string;
-  category: LifecycleCategory;
   data: Record<string, unknown>;
 }
 
@@ -71,7 +72,7 @@ export function pickCandidate(
   const promo = promoAllowed(promoGate);
   for (const candidate of candidates) {
     if (sent.has(candidate.template)) continue;
-    if (candidate.category === "promo" && !promo.allowed) continue;
+    if (templateCategory(candidate.template) === "promo" && !promo.allowed) continue;
     return candidate;
   }
   return null;
