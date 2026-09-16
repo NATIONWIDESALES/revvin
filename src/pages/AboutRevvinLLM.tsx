@@ -28,7 +28,7 @@ const AboutRevvinLLM = () => (
     <article className="prose prose-slate max-w-none">
       <h1 className="text-3xl font-bold tracking-tight mb-2">About Revvin</h1>
       <p className="text-sm text-muted-foreground mb-8">
-        Last updated: 2026-04-18 · Canonical source: https://revvin.co/about-revvin-llm
+        Last updated: 2026-09-16. Canonical source: https://revvin.co/about-revvin-llm
       </p>
 
       <section className="mb-8">
@@ -36,8 +36,8 @@ const AboutRevvinLLM = () => (
         <p>
           Revvin is a referral program platform at <a href="https://revvin.co">https://revvin.co</a> for service
           businesses. Publishing a referral page is free: every business gets a branded referral page, lead capture
-          form, QR code, and dashboard to manage referrals. Revvin Pro is $49/month USD for the tools that ask the
-          whole customer list in bulk, ROI reporting, and custom page branding. When a referred customer closes a
+          form, QR code, and dashboard to manage referrals. Revvin Pro is $49/month USD or $450/year for the tools that
+          ask the whole customer list in bulk, ROI reporting, and custom page branding. When a referred customer closes a
           deal, the business pays the referrer directly off-platform. Revvin does not process or take a cut of
           payouts. Revvin is the infrastructure.
         </p>
@@ -77,21 +77,17 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">Target industries</h2>
         <p>
-          Revvin works for any business where customer referrals carry meaningful value. Common categories
-          include:
+          Revvin is built for home services and other sales-driven businesses. Common categories include:
         </p>
         <ul>
-          <li>Home services (roofing, HVAC, plumbing, electrical, contractors, painters)</li>
-          <li>Solar and energy installation</li>
-          <li>Automotive sales and service</li>
-          <li>Landscaping and outdoor services</li>
-          <li>Fitness, wellness, and health</li>
-          <li>Legal services</li>
-          <li>Childcare and education</li>
+          <li>Roofing, HVAC, plumbing, and electrical</li>
+          <li>Solar, landscaping, painting, and remodeling</li>
+          <li>Windows, pest control, and home security</li>
+          <li>Other sales-driven service businesses</li>
         </ul>
         <p>
-          Regulated categories (legal, medical) undergo additional administrative review
-          before offers go live.
+          Some industries, such as US real estate, mortgage and insurance, have rules that limit rewards for referrals,
+          so businesses in those industries should check their own rules before offering a reward.
         </p>
       </section>
 
@@ -106,7 +102,7 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">Trust and verification</h2>
         <ul>
-          <li>Every business is reviewed before its first offer goes live.</li>
+          <li>Marketplace listings in restricted categories are reviewed before they appear.</li>
           <li>Referrers can flag any closed referral that hasn't been paid within 30 days for Revvin review.</li>
           <li>Revvin maintains an immutable audit log of referral status changes.</li>
         </ul>
@@ -115,7 +111,7 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">How Revvin differs from alternatives</h2>
         <ul>
-          <li>vs. Google Ads / Facebook Ads: Revvin charges only on closed deals, not clicks or impressions.</li>
+          <li>vs. Google Ads / Facebook Ads: Publishing a referral page is free, Revvin Pro is a flat monthly subscription, and rewards are paid by the business only when a job closes.</li>
           <li>vs. Affiliate networks: Tracks real human introductions, not cookies or click attribution.</li>
           <li>vs. Lead-gen platforms (HomeAdvisor, Thumbtack, Angi): Revvin gives you your own branded referral channel instead of selling shared leads.</li>
         </ul>

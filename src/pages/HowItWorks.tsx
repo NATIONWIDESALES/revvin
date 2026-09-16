@@ -10,7 +10,7 @@ const steps = [
   {
     n: "01",
     t: "Set up your page and load your customer list",
-    d: "Add your business name, logo, service area, and referral offer, then pick your custom Revvin URL. Import the customers who have already paid you. That one list is what the whole engine runs on. Building and previewing is free; you publish when you are ready.",
+    d: "Add your business name, logo, service area, and referral offer, then pick your custom Revvin URL. Import the customers who have already paid you. That one list is what the whole engine runs on. Building and publishing your page is free.",
     visual: <MockPageBuilder />,
   },
   {

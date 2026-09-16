@@ -186,6 +186,7 @@ const Browse = () => {
         <SEOHead
           title="Revvin | Browse referral offers"
           description="Launch a referral program for your service business. Branded page, link, QR code, and lead inbox. Free to publish, and listed in the marketplace at no cost."
+          noindex
           path="/browse"
         />
         <div className="container">
@@ -253,6 +254,7 @@ const Browse = () => {
       <SEOHead
         title="Revvin | Browse referral offers"
         description="Browse referral offers from verified service businesses on Revvin. Refer a customer, earn the full advertised payout when the deal closes. Free to join as a referrer."
+        noindex
         path="/browse"
         jsonLd={filtered.length > 0 ? {
           "@context": "https://schema.org",

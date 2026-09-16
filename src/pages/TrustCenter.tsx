@@ -37,11 +37,11 @@ const TrustCenter = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-3">How Payouts Work</motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-muted-foreground mb-10 max-w-xl">
-              Revvin coordinates every payout from submission to close to payment. Here's the flow:
+              Revvin records every reward from owed to paid. Here's the flow:
             </motion.p>
             <div className="space-y-4">
               {[
-                { step: "1", title: "Business Posts Offer", desc: "The business sets a payout amount (flat fee or percentage) and publishes their referral offer to the marketplace.", icon: Briefcase, color: "text-primary" },
+                { step: "1", title: "Business Posts Offer", desc: "The business sets a fixed reward amount and publishes their referral offer.", icon: Briefcase, color: "text-primary" },
                 { step: "2", title: "Referrer Submits a Lead", desc: "A referrer submits a qualified lead with contact details and notes. First submission wins, timestamped for fairness.", icon: Users, color: "text-earnings" },
                 { step: "3", title: "Business Accepts & Works the Deal", desc: "The business reviews the referral, accepts it, and works toward closing the deal. Payout terms are locked at acceptance.", icon: CheckCircle2, color: "text-primary" },
                 { step: "4", title: "Deal Closes → Business Pays Referrer", desc: "When the deal is marked as won, the business pays the referrer directly using whatever method they prefer (e-transfer, Zelle, check, etc.). Revvin does not touch the money. The referrer receives the full advertised amount.", icon: DollarSign, color: "text-earnings" },
@@ -89,7 +89,7 @@ const TrustCenter = () => {
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn the full advertised payout. Businesses pay the referrer directly off-platform. Revvin takes no platform fees. The business's only cost to Revvin is the flat $49/month subscription.</p>
+              <p className="text-xs text-muted-foreground mt-4 text-center">Referrers always earn the full advertised payout. Businesses pay the referrer directly off-platform. Revvin takes no platform fees. Publishing is free. Revvin Pro is an optional flat subscription.</p>
             </motion.div>
           </motion.div>
         </div>
