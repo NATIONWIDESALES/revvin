@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
       const candidates: Candidate[] = [];
 
       if (status === "canceled") {
-        candidates.push({ template: "cancel_feedback", category: "setup", data: { businessName: biz.name } });
+        candidates.push({ template: "cancel_feedback", data: { businessName: biz.name } });
       }
 
       if (plan === "pro" && contacts === 0 && campaigns === 0) {
