@@ -428,8 +428,11 @@ const Onboarding = () => {
                       }}
                       aria-invalid={showOfferReason && !offerAmount.trim()}
                       className="mt-1.5"
-                      placeholder="$500 or 10%"
+                      placeholder="$100"
                     />
+                    <p className="mt-1.5 text-xs text-muted-foreground">
+                      A fixed dollar amount you pay when a referred job closes.
+                    </p>
                     {showOfferReason && (
                       <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">
                         Enter what you pay for a closed referral, for example 100 dollars.
@@ -493,19 +496,29 @@ const Onboarding = () => {
                       {!slug
                         ? "Pick a link name first."
                         : slugAvailable === null
-                          ? "Give us a second to check that link, then tap Finish setup again."
+                          ? "Give us a second to check that link, then tap Publish my page again."
                           : "That link will not work. Try one of the suggestions above."}
                     </p>
                   )}
                 </div>
                 <div className="mt-8 flex justify-between">
                   <Button variant="ghost" onClick={() => setStep(3)}>Back</Button>
-                  <Button onClick={finalize} disabled={saving} className="h-11 sm:h-10">
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Finish setup"}
+                  <Button onClick={publishAndFinish} disabled={saving} className="h-11 sm:h-10">
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Publish my page"}
                   </Button>
                 </div>
+                <div className="mt-3 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={saveAsDraft}
+                    disabled={saving}
+                    className="text-xs font-medium text-muted-foreground underline hover:text-foreground"
+                  >
+                    Save as draft
+                  </button>
+                </div>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Your page stays in draft until you go live. You can preview it any time from your dashboard.
+                  Publishing is free. You can edit your page any time.
                 </p>
               </>
             )}
