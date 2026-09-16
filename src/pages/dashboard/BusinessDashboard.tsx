@@ -26,6 +26,7 @@ import IntegrationsTab from "@/components/dashboard/IntegrationsTab";
 import PrintPack from "@/components/dashboard/PrintPack";
 import AttestationGate from "@/components/dashboard/AttestationGate";
 import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
+import WelcomeLiveCard from "@/components/dashboard/WelcomeLiveCard";
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
@@ -59,6 +60,7 @@ interface Business {
   contact_outreach_consent_at?: string | null;
   google_review_url?: string | null;
   qr_downloaded_at?: string | null;
+  first_share_at?: string | null;
 }
 
 interface Lead {
