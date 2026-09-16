@@ -1237,18 +1237,26 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
               ) : (
                 <>
                   <p className="text-[11px] text-muted-foreground">
-                    Tap Open draft to launch your mail app with everyone in BCC. Because one email
-                    goes to many people, {"{firstName}"} is replaced with "there". You send it from
-                    your own mail app, and we will ask you to confirm afterwards.
+                    Tap Open draft to launch your mail app with everyone in BCC, or open the same
+                    draft in Gmail or Outlook. Because one email goes to many people,{" "}
+                    {"{firstName}"} is replaced with "there". You send it from your own mail
+                    account, and we will ask you to confirm afterwards.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Button size="sm" onClick={openBulkDraft} className="gap-1.5">
                       <Mail className="h-3.5 w-3.5" /> Open draft
                     </Button>
+                    <Button size="sm" variant="outline" onClick={() => openBulkWebmail("gmail")} className="gap-1.5">
+                      <Mail className="h-3.5 w-3.5" /> Open in Gmail
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => openBulkWebmail("outlook")} className="gap-1.5">
+                      <Mail className="h-3.5 w-3.5" /> Open in Outlook
+                    </Button>
                     <Button size="sm" variant="outline" onClick={copyBulkBcc} className="gap-1.5">
                       <Copy className="h-3.5 w-3.5" /> Copy addresses
                     </Button>
                   </div>
+
                 </>
               )}
             </div>
