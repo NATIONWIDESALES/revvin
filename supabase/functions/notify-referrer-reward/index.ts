@@ -246,15 +246,23 @@ Deno.serve(async (req) => {
   </div>
 </body></html>`;
 
+    // The referrer hears from the business, and replies reach the business.
+    let ownerEmail = "";
+    if (!String(biz.business_email ?? "").trim() && biz.user_id) {
+      const { data: ownerData } = await supabase.auth.admin.getUserById(biz.user_id);
+      ownerEmail = ownerData?.user?.email ?? "";
+    }
+
     const idempotencyKey = `reward-${kind}-${reward.id}`;
     const send = await sendEmailViaGateway({
-      from: RESEND_FROM_ADDRESS,
+      from: customerFromAddress(biz.name, RESEND_FROM_ADDRESS),
       to: email,
-      reply_to: RESEND_REPLY_TO,
+      reply_to: customerReplyTo(biz.business_email, ownerEmail),
       subject,
       html,
       idempotencyKey,
     });
+
 
     await supabase.from("email_send_log").insert({
       message_id: idempotencyKey,
