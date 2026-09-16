@@ -1,11 +1,11 @@
 /**
  * Lifecycle email configuration.
  *
- * SETUP_CALL_URL is intentionally empty until a real booking link exists. While
- * it is empty the no_leads_d7 email is skipped entirely, so we never send an
+ * SETUP_CALL_URL is the real booking link for the free setup call. While it
+ * is empty the no_leads_d7 email is skipped entirely, so we never send an
  * offer with a dead link.
  */
-export const SETUP_CALL_URL = "";
+export const SETUP_CALL_URL = "https://cal.com/revvin/30min";
 
 /**
  * Lifecycle nudges (not_published_d1, no_share_d3, no_leads_d7) only apply to

@@ -228,8 +228,8 @@ const Pricing = () => {
                 Charged once, at checkout, on top of your Revvin subscription.
               </p>
               {SETUP_CALL_URL && (
-                <a href={SETUP_CALL_URL} className="mt-4 text-sm font-medium text-primary underline underline-offset-4">
-                  Book a 15-minute setup call
+                <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" className="mt-4 text-sm font-medium text-primary underline underline-offset-4">
+                  Book a 30-minute setup call
                 </a>
               )}
             </div>
