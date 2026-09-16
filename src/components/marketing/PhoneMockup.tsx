@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import { BatteryFull, Signal, Wifi } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
 
@@ -28,6 +28,8 @@ export default function PhoneMockup({
   const pointerY = useMotionValue(0);
   const extraX = useSpring(pointerY, { stiffness: 90, damping: 18, mass: 0.7 });
   const extraY = useSpring(pointerX, { stiffness: 90, damping: 18, mass: 0.7 });
+  const rotateX = useTransform(extraX, (value) => baseX + value);
+  const rotateY = useTransform(extraY, (value) => baseY + value);
 
   useEffect(() => {
     const query = window.matchMedia("(pointer: fine)");
@@ -70,8 +72,8 @@ export default function PhoneMockup({
         <motion.div
           className="phone-frame relative mx-auto h-[660px] w-[320px] p-[7px]"
           style={{
-            rotateX: desktopMotion ? extraX : baseX,
-            rotateY: desktopMotion ? extraY : baseY,
+            rotateX: desktopMotion ? rotateX : baseX,
+            rotateY: desktopMotion ? rotateY : baseY,
             rotateZ: baseZ,
             transformStyle: "preserve-3d",
           }}
