@@ -8,4 +8,4 @@
 //   - Signup's checkout call ignores any stale revvin_addon_launch session flag.
 // The Stripe price + webhook plumbing remains in place so flipping this to
 // true (and redeploying) is the only change needed to re-enable it.
-export const LAUNCH_PACKAGE_ENABLED = false;
+export const LAUNCH_PACKAGE_ENABLED = true;

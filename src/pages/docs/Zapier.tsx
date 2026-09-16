@@ -5,20 +5,19 @@ const ZapierDocs = () => (
   <div className="min-h-screen bg-background">
     <SEOHead
       title="Zapier and integrations | Revvin"
-      description="Zapier, webhooks and API integrations are not available in Revvin yet."
+      description="Connect job software to Revvin through Zapier or the API so a completed job can schedule an automatic email ask."
       path="/docs/zapier"
     />
 
     <article className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="text-3xl font-semibold tracking-tight text-foreground">Zapier and integrations</h1>
       <p className="mt-3 text-muted-foreground">
-        Zapier, webhook and API integrations are not available yet. Today, jobs are marked done by hand in your
-        dashboard, and every ask goes out from your own phone or email app, so it always comes from you.
+        Connect tools that work with Zapier to Revvin through Webhooks by Zapier, or use a Revvin API key. When
+        your software reports a completed job, Revvin schedules the same automatic email ask as the Job done tab.
       </p>
       <p className="mt-4 text-sm text-muted-foreground">
-        If an integration matters to how you work, tell us at{" "}
-        <a href="mailto:info@revvin.co" className="underline">info@revvin.co</a> and we will factor it into what
-        gets built next. You can also <Link to="/how-it-works" className="underline">see how Revvin works today</Link>.
+        There is no Revvin app in the Zapier directory. Use Webhooks by Zapier with the endpoint and API key shown
+        in your Integrations tab. You can also <Link to="/how-it-works" className="underline">see how Revvin works</Link>.
       </p>
     </article>
   </div>

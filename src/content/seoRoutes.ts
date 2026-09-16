@@ -269,7 +269,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "What you get on day one",
-        body: "A branded referral page on your own link, a QR code and print pack for yard signs, invoices and business cards, a lead inbox with status tracking and one-tap reply, offers you control, and reward tracking from pending to paid. Referrer accounts are always free, so the people sending you work never pay anything either.",
+        body: "A branded referral page on your own link, a QR code and print pack for yard signs, invoices and business cards, a lead inbox with status tracking and one-tap reply, offers you control, and reward tracking from owed to paid. Referrer accounts are always free, so the people sending you work never pay anything either.",
       },
     ],
     // The same five questions the rendered /for-businesses page shows, so the
@@ -328,7 +328,7 @@ const handwritten: PrerenderRoute[] = [
     sections: [
       {
         heading: "Free, $0",
-        body: "Your referral page on your own link, a QR code and share tools, unlimited referral leads, a lead inbox with status tracking, offers, payout tracking from pending to paid, and a listing in the marketplace. Build it, publish it and take referrals on it without paying anything.",
+        body: "Your referral page on your own link, a QR code and share tools, unlimited referral leads, a lead inbox with status tracking, offers, payout tracking from owed to paid, and a listing in the marketplace. Build it, publish it and take referrals on it without paying anything.",
       },
       {
         heading: `Revvin Pro, ${PRO}`,
@@ -460,7 +460,7 @@ const handwritten: PrerenderRoute[] = [
     sections: [
       {
         heading: "What Revvin is",
-        body: "Revvin is referral software for service businesses. It turns a past-customer list into referrals, repeat work and reviews. A business gets a branded referral page on its own link, a shareable link and QR code, a lead inbox with status tracking, offers it controls, and reward tracking from pending to paid.",
+        body: "Revvin is referral software for service businesses. It turns a past-customer list into referrals, repeat work and reviews. A business gets a branded referral page on its own link, a shareable link and QR code, a lead inbox with status tracking, offers it controls, and reward tracking from owed to paid.",
       },
       {
         heading: "Business model",
@@ -525,12 +525,12 @@ const handwritten: PrerenderRoute[] = [
     path: "/docs/zapier",
     title: "Zapier and integrations | Revvin",
     description:
-      "Zapier, webhook and API integrations are not available in Revvin yet. Here is how the work actually gets done today.",
+      "Connect job software to Revvin through Zapier or the API so a completed job can schedule an automatic email ask.",
     h1: "Zapier and integrations",
     sections: [
       {
         heading: "These integrations do not exist yet",
-        body: "Revvin has no Zapier app, no webhooks and no public API. Nothing on this page is a preview or a waitlist for one. If you are looking for a way to connect Revvin to another tool automatically, it is not available today.",
+        body: "Revvin does not have an app in the Zapier directory. Use Webhooks by Zapier with the endpoint and API key shown in the Integrations tab. When your software reports a completed job, Revvin schedules the same automatic email ask as the Job done tab.",
       },
       {
         heading: "What happens instead",
