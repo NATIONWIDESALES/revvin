@@ -1,5 +1,6 @@
 import { Share, Plus, X } from "lucide-react";
 import { isInAppBrowser } from "@/config/pwa";
+import { INSTALL_COPY } from "@/config/installCopy";
 
 interface Props {
   open: boolean;
@@ -10,12 +11,17 @@ interface Props {
 const IosInstallSheet = ({ open, onClose }: Props) => {
   if (!open) return null;
   const inApp = isInAppBrowser();
+  const stepIcons = [
+    <Share key="share" className="h-4 w-4" aria-label="the Share button" />,
+    <Plus key="plus" className="h-4 w-4" aria-hidden />,
+    null,
+  ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-black/40" onClick={onClose}>
       <div
         role="dialog"
-        aria-label="Add Revvin to your Home Screen"
+        aria-label={INSTALL_COPY.iosTitle}
         className="w-full rounded-t-2xl border-t border-border bg-card p-5"
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 20px)" }}
         onClick={(e) => e.stopPropagation()}
@@ -23,7 +29,7 @@ const IosInstallSheet = ({ open, onClose }: Props) => {
         <div className="mb-4 flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
             <img src="/icons/icon-192.png" alt="" className="h-10 w-10 rounded-xl" />
-            <p className="text-base font-bold text-foreground">Add Revvin to your Home Screen</p>
+            <p className="text-base font-bold text-foreground">{INSTALL_COPY.iosTitle}</p>
           </div>
           <button
             type="button"
@@ -36,35 +42,19 @@ const IosInstallSheet = ({ open, onClose }: Props) => {
         </div>
 
         {inApp ? (
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            You are inside another app's browser, which cannot add to the Home Screen. Open
-            revvin.co in Safari, then come back to these steps.
-          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">{INSTALL_COPY.inAppBrowser}</p>
         ) : (
-          <ol className="space-y-3 text-sm text-foreground">
-            <li className="flex items-center gap-3">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                1
-              </span>
-              <span className="flex items-center gap-2">
-                Tap <Share className="h-4 w-4" aria-label="the Share button" /> Share in Safari
-              </span>
-            </li>
-            <li className="flex items-center gap-3">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                2
-              </span>
-              <span className="flex items-center gap-2">
-                Choose <Plus className="h-4 w-4" aria-hidden /> Add to Home Screen
-              </span>
-            </li>
-            <li className="flex items-center gap-3">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                3
-              </span>
-              <span>Open Revvin from your home screen, then turn on notifications</span>
-            </li>
-          </ol>
+          <>
+            <ol className="space-y-3 text-sm text-foreground">
+              {INSTALL_COPY.iosSteps.map((step, i) => (
+                <li key={step} className="flex items-center gap-2">
+                  <span>{step}</span>
+                  {stepIcons[i]}
+                </li>
+              ))}
+            </ol>
+            <p className="mt-4 text-xs leading-relaxed text-muted-foreground">{INSTALL_COPY.iosNote}</p>
+          </>
         )}
       </div>
     </div>
