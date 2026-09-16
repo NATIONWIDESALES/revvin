@@ -56,11 +56,13 @@ export default function pwaPlugin(): Plugin {
         ? `${env.VITE_SUPABASE_URL}/functions/v1/push-resubscribe`
         : "/functions/v1/push-resubscribe";
 
+      // replaceAll, not replace: the file's own comment mentions the tokens, so a
+      // single replacement would leave the real placeholders untouched.
       const out = source
-        .replace("__VERSION__", version)
-        .replace("__PRECACHE__", JSON.stringify([...precache].sort()))
-        .replace("__VAPID_PUBLIC_KEY__", VAPID_PUBLIC_KEY)
-        .replace("__RESUBSCRIBE_URL__", resubscribeUrl);
+        .replaceAll("__VERSION__", version)
+        .replaceAll("__PRECACHE__", JSON.stringify([...precache].sort()))
+        .replaceAll("__VAPID_PUBLIC_KEY__", VAPID_PUBLIC_KEY)
+        .replaceAll("__RESUBSCRIBE_URL__", resubscribeUrl);
 
       fs.writeFileSync(path.join(dist, "sw.js"), out, "utf8");
       console.log(`[pwa] wrote sw.js (version ${version}, ${precache.size} precached files)`);
