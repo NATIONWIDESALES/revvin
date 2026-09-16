@@ -23,8 +23,14 @@ export {
   emailShell,
   button,
   renderTokens,
+  customerFromAddress,
+  customerReplyTo,
+  mailboxOf,
+  postalAddressOf,
+  PLATFORM_MAILBOX,
 } from "./email-format.ts";
 export type { SenderAddress } from "./email-format.ts";
+
 
 export async function isSuppressed(
   supabase: SupabaseClient,
