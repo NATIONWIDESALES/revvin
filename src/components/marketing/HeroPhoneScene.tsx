@@ -1,4 +1,4 @@
-import { Check, Gift, Signal, UserRound } from "lucide-react";
+import { Check, Gift, UserRound } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import PhoneMockup from "@/components/marketing/PhoneMockup";
 import MockReferralPage from "@/components/marketing/MockReferralPage";
