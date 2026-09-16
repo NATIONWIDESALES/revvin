@@ -58,6 +58,9 @@ export function analyticsContext(href: string, currentAudience = audience): Anal
  */
 const MILESTONE_EVENTS = new Set([
   "signup_succeeded", "onboarding_started", "onboarding_completed", "page_published",
+  // Installing the app happens on the dashboard, which is private, so these two
+  // need the same narrow lane as the other product milestones.
+  "pwa_install_prompted", "pwa_installed",
 ]);
 const MILESTONE_PATHS = new Set(["/signup", "/auth", "/welcome", "/dashboard"]);
 
