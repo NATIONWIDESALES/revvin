@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { Plugin } from "vite";
-import { loadEnv } from "vite";
 import { PRERENDER_ROUTES, type PrerenderRoute } from "../src/content/seoRoutes";
 import { PRICE_TEXT, MONTHLY_PRICE, ANNUAL_PRICE } from "../src/config/pricing";
 import {
@@ -529,15 +528,33 @@ const writeDoc = (dist: string, routePath: string, html: string) => {
   fs.writeFileSync(path.join(dir, "index.html"), html, "utf8");
 };
 
-export default function prerenderPlugin(): Plugin {
-  let env: Record<string, string> = {};
+/**
+ * Read the build environment without importing Vite at module scope: this file
+ * is also imported by tests, and pulling Vite (and esbuild) in there is not
+ * worth it for two variables. Process env wins over .env, as Vite does.
+ */
+const readBuildEnv = (): Record<string, string> => {
+  const out: Record<string, string> = {};
+  for (const file of [".env", ".env.local", ".env.production"]) {
+    const full = path.resolve(process.cwd(), file);
+    if (!fs.existsSync(full)) continue;
+    for (const line of fs.readFileSync(full, "utf8").split(/\r?\n/)) {
+      const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
+      if (!m) continue;
+      out[m[1]] = m[2].replace(/^["']|["']$/g, "");
+    }
+  }
+  for (const key of ["VITE_SUPABASE_URL", "VITE_SUPABASE_PUBLISHABLE_KEY"]) {
+    const v = process.env[key];
+    if (v) out[key] = v;
+  }
+  return out;
+};
 
+export default function prerenderPlugin(): Plugin {
   return {
     name: "revvin-prerender",
     apply: "build",
-    configResolved(config) {
-      env = loadEnv(config.mode, process.cwd(), "");
-    },
     async closeBundle() {
       const dist = path.resolve(process.cwd(), "dist");
       const indexPath = path.join(dist, "index.html");
@@ -581,6 +598,7 @@ export default function prerenderPlugin(): Plugin {
       // see the business. If the public view cannot be read at build time the
       // pages simply fall back to the SPA, which still renders correctly for
       // real visitors.
+      const env = readBuildEnv();
       const supabaseUrl = env.VITE_SUPABASE_URL;
       const anonKey = env.VITE_SUPABASE_PUBLISHABLE_KEY;
       let businessCount = 0;
