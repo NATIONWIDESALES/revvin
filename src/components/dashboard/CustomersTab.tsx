@@ -669,6 +669,25 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     setBulkAwaitingConfirm(true);
   };
 
+  // Same draft, opened in webmail for owners who do not have a desktop mail app
+  // set up. Still the owner's own account sending it, never Revvin.
+  const openBulkWebmail = async (provider: "gmail" | "outlook") => {
+    const snapshot = await refreshSuppression();
+    const allowed = bulkCurrent.filter((c) => channelAllowed(contactEligibility(c, snapshot), "email"));
+    if (allowed.length === 0) {
+      toast({ title: "Email is paused", description: "No eligible emails remain in this batch." });
+      return;
+    }
+    const bcc = allowed.map((c) => c.email).filter(Boolean).join(",");
+    const href =
+      provider === "gmail"
+        ? `https://mail.google.com/mail/?view=cm&fs=1&bcc=${encodeURIComponent(bcc)}&su=${encodeURIComponent(bulkSubject)}&body=${encodeURIComponent(bulkBody)}`
+        : `https://outlook.office.com/mail/deeplink/compose?bcc=${encodeURIComponent(bcc)}&subject=${encodeURIComponent(bulkSubject)}&body=${encodeURIComponent(bulkBody)}`;
+    window.open(href, "_blank", "noopener,noreferrer");
+    setBulkAwaitingConfirm(true);
+  };
+
+
   // Step 2: the owner confirms the draft actually went out. Write first, then
   // update local state, then advance. Re-entry is guarded so a double-tap cannot
   // process the same chunk twice.
