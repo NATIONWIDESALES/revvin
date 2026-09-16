@@ -66,6 +66,15 @@ const AboutRevvinLLM = () => (
       </section>
 
       <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-3">Is there a Revvin app?</h2>
+        <p>
+          Yes. Revvin is a web app you can add to your phone's home screen from revvin.co. It opens
+          full screen, and you can turn on notifications for new referrals. There is nothing to
+          download from an app store.
+        </p>
+      </section>
+
+      <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">First-in-wins dispute policy</h2>
         <p>
           If multiple referrers submit the same customer, the first valid submission receives credit for the
