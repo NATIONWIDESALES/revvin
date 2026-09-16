@@ -63,9 +63,33 @@ Deno.serve(async (req) => {
 
   // Idempotent: insert into suppressed_contacts and mark the matching customer
   // opted out using the deployed referral_contacts schema.
-  const contactValue = row.contact_type === 'email'
+  const contactValue = row.contact_type === 'promo' || row.contact_type === 'email'
     ? String(row.contact_value).toLowerCase()
     : row.contact_value;
+
+  // Promotional opt-out from a Revvin lifecycle email. It stops promotional
+  // mail to the business owner only and never touches their customer list.
+  if (row.contact_type === 'promo') {
+    await supabase
+      .from('businesses')
+      .update({ promo_emails_opt_out: true } as any)
+      .eq('id', row.business_id);
+
+    if (!row.used_at) {
+      await supabase
+        .from('unsubscribe_tokens')
+        .update({ used_at: new Date().toISOString() })
+        .eq('token', token);
+    }
+
+    return new Response(
+      htmlPage(
+        'Unsubscribed',
+        'You will no longer get emails from Revvin about Revvin Pro or setup offers. Emails about your own account and your referrals still come through. You can close this tab.',
+      ),
+      { headers: { ...corsHeaders, 'Content-Type': 'text/html' } },
+    );
+  }
 
   await supabase.from('suppressed_contacts').upsert({
     business_id: row.business_id,
