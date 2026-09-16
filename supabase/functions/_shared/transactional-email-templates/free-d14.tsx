@@ -38,7 +38,6 @@ const Email = ({ setupCallUrl, unsubscribeUrl, postalAddress }: Props) => (
 
 export const template = {
   component: Email,
-  category: 'promo',
   subject: 'Why I built Revvin',
   displayName: 'Free, day 14 (founder story, draft)',
   previewData: {

@@ -32,7 +32,6 @@ const Email = ({ businessName, askMessage, dashboardUrl, unsubscribeUrl, postalA
 
 export const template = {
   component: Email,
-  category: 'promo',
   subject: 'The fastest referrals come from customers you already finished',
   displayName: 'Free, day 5',
   previewData: {

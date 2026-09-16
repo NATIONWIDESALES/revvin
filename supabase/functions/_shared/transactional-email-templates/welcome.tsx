@@ -31,7 +31,6 @@ const Email = ({ businessName, publicUrl, publishUrl, isPublished, unsubscribeUr
 
 export const template = {
   component: Email,
-  category: 'setup',
   subject: 'Your Revvin page is ready',
   displayName: 'Welcome',
   previewData: {

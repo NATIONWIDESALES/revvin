@@ -49,7 +49,6 @@ const Email = (props: Props) => (props.hasReward ? <NotPublished {...props} /> :
 
 export const template = {
   component: Email,
-  category: 'setup',
   subject: (data: Record<string, any>) =>
     data?.hasReward ? "Your referral page isn't live yet" : 'One step left: your referral reward',
   displayName: 'Not published after 1 day',

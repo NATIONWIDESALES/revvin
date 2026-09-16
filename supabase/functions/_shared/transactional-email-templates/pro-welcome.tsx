@@ -29,7 +29,6 @@ const Email = ({ businessName, customersUrl, unsubscribeUrl }: Props) => (
 
 export const template = {
   component: Email,
-  category: 'setup',
   subject: 'Welcome to Revvin Pro. Here is where to start',
   displayName: 'Pro welcome',
   previewData: {

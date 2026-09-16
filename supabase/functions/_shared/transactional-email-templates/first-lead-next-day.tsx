@@ -31,7 +31,6 @@ const Email = ({ businessName, pricingUrl, unsubscribeUrl, postalAddress }: Prop
 
 export const template = {
   component: Email,
-  category: 'promo',
   subject: 'Nice work on your first referral',
   displayName: 'Day after first lead',
   previewData: {

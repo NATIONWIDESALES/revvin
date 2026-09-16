@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { isPlatformAdmin } from "../_shared/admin-auth.ts";
 import { appUrl as getAppUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
-import { templateCategory } from "../_shared/transactional-email-templates/registry.ts";
+import { templateCategory } from "../_shared/lifecycle-categories.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

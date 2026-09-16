@@ -37,7 +37,6 @@ const Email = ({ businessName, pricingUrl, unsubscribeUrl, postalAddress }: Prop
 
 export const template = {
   component: Email,
-  category: 'promo',
   subject: 'Ask your whole customer list in about 10 minutes',
   displayName: 'Free, day 10',
   previewData: {

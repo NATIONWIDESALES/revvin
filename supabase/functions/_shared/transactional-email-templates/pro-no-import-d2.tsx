@@ -27,7 +27,6 @@ const Email = ({ businessName, customersUrl, unsubscribeUrl }: Props) => (
 
 export const template = {
   component: Email,
-  category: 'setup',
   subject: 'Need a hand importing your customer list?',
   displayName: 'Pro, no import after 2 days',
   previewData: {

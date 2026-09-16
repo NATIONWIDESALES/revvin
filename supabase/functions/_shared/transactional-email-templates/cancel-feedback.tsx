@@ -24,7 +24,6 @@ const Email = ({ businessName, unsubscribeUrl }: Props) => (
 
 export const template = {
   component: Email,
-  category: 'setup',
   subject: "Can I ask what didn't work?",
   displayName: 'Cancel feedback',
   previewData: {

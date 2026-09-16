@@ -29,7 +29,6 @@ const Email = ({ businessName, askMessage, customersUrl, unsubscribeUrl }: Props
 
 export const template = {
   component: Email,
-  category: 'setup',
   subject: 'Your list is ready. Here is the first ask to send',
   displayName: 'Pro, no ask after 7 days',
   previewData: {

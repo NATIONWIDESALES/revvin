@@ -32,7 +32,6 @@ const Email = ({ businessName, publicUrl, pricingUrl, unsubscribeUrl, postalAddr
 
 export const template = {
   component: Email,
-  category: 'promo',
   subject: 'Your page is still live',
   displayName: 'Win back, 30 days after cancel',
   previewData: {
