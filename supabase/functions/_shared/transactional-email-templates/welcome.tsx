@@ -26,6 +26,9 @@ const Email = ({ businessName, publicUrl, publishUrl, isPublished, unsubscribeUr
         <Text style={{ margin: '0 0 20px' }}>{ctaButton(publishUrl, 'Publish my page')}</Text>
       </>
     ) : null}
+    <Text style={paragraph}>
+      {INSTALL_EMAIL_TIP} <a href="https://revvin.co/dashboard">revvin.co/dashboard</a>
+    </Text>
     <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to me. Karm</Text>
   </RevvinShell>
 )
