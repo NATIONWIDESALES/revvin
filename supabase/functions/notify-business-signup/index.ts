@@ -6,7 +6,7 @@ import {
   RESEND_REPLY_TO,
 } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
-import { ownerEmail, sendLifecycleEmail } from "../_shared/lifecycle-email.ts";
+import { sendLifecycleEmail } from "../_shared/lifecycle-email.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -163,6 +163,35 @@ Deno.serve(async (req) => {
     });
 
     console.log(`📧 Business signup notification [${emailStatus}]: ${businessName}`);
+
+    // Welcome email to the owner. The admin notification above is unchanged;
+    // this is a second, separate send and a failure here never fails signup.
+    // The unique claim row keeps it at most once per business.
+    try {
+      if (record.is_demo !== true && ownerUser?.email) {
+        const { error: claimErr } = await supabase
+          .from("business_lifecycle_emails")
+          .insert({ business_id: record.id, template: "welcome" });
+        if (!claimErr) {
+          await sendLifecycleEmail({
+            supabase,
+            businessId: record.id,
+            templateName: "welcome",
+            to: ownerUser.email,
+            idempotencyKey: `welcome-${record.id}`,
+            data: {
+              businessName,
+              publicUrl: record.slug ? appUrl(`/r/${record.slug}`) : null,
+              publishUrl: appUrl("/dashboard?tab=page"),
+              isPublished: record.is_published === true,
+            },
+          });
+        }
+      }
+    } catch (welcomeErr) {
+      console.error("notify-business-signup welcome email failed:", welcomeErr);
+    }
+
 
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
