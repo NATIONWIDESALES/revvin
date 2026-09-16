@@ -220,8 +220,8 @@ const TrustCenter = () => {
                 </div>
                 <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-5">
                   <Users className="mx-auto mb-2 h-6 w-6 text-earnings" />
-                  <div className="text-3xl font-bold text-earnings">100%</div>
-                  <p className="text-xs text-muted-foreground mt-1">Of payout to referrer, direct</p>
+                  <div className="text-3xl font-bold text-earnings">Full</div>
+                  <p className="text-xs text-muted-foreground mt-1">Fixed reward paid to referrer</p>
                 </div>
                 <div className="rounded-xl bg-muted/50 border border-border p-5">
                   <Briefcase className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
