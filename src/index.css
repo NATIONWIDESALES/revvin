@@ -52,6 +52,10 @@
     --surface-warm: 40 20% 96%;     /* #F5F4F1 alt section bg */
     --ink: 0 0% 4%;                 /* #0A0A0A near-black */
     --primary-deep: 142 70% 21%;    /* #0F5E2D hover */
+    --phone-frame-light: 220 9% 68%;
+    --phone-frame-mid: 220 8% 33%;
+    --phone-frame-dark: 222 13% 12%;
+    --phone-highlight: 0 0% 100%;
   }
 
   .dark {
@@ -243,6 +247,28 @@
       linear-gradient(180deg, hsl(var(--background)) 0%, hsl(40 20% 98%) 100%);
   }
 
+  .hero-premium {
+    background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--surface-warm) / 0.7) 100%);
+  }
+
+  .hero-aurora {
+    background:
+      radial-gradient(ellipse 44% 58% at 80% 38%, hsl(var(--primary) / 0.18), transparent 70%),
+      radial-gradient(ellipse 30% 46% at 68% 15%, hsl(156 62% 48% / 0.12), transparent 72%),
+      radial-gradient(ellipse 36% 40% at 93% 77%, hsl(var(--accent) / 0.07), transparent 72%);
+    animation: hero-aurora-drift 14s ease-in-out infinite alternate;
+    will-change: transform, opacity;
+  }
+
+  .hero-spotlight {
+    background: radial-gradient(ellipse 70% 55% at 42% 44%, hsl(var(--background) / 0.96), transparent 72%);
+  }
+
+  @keyframes hero-aurora-drift {
+    from { transform: translate3d(0, 0, 0) scale(1); opacity: 0.85; }
+    to { transform: translate3d(-2%, 1.5%, 0) scale(1.04); opacity: 1; }
+  }
+
   .grid-faint {
     background-image:
       linear-gradient(hsl(var(--foreground) / 0.04) 1px, transparent 1px),
@@ -263,6 +289,153 @@
     box-shadow:
       0 1px 2px rgba(15, 23, 42, 0.04),
       0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  }
+
+  .phone-stage {
+    perspective: 1400px;
+    width: 320px;
+    max-width: 100%;
+    min-height: 660px;
+  }
+
+  .phone-aura {
+    background: radial-gradient(circle at 50% 40%, hsl(var(--primary) / 0.2), transparent 62%);
+  }
+
+  .phone-ground-shadow {
+    background: hsl(var(--ink) / 0.28);
+    filter: blur(15px);
+    transform: translateX(-50%) rotateX(65deg);
+  }
+
+  .phone-frame {
+    border-radius: 58px;
+    background:
+      linear-gradient(145deg, hsl(var(--phone-highlight) / 0.76) 0%, hsl(var(--phone-frame-light)) 9%, hsl(var(--phone-frame-dark)) 42%, hsl(var(--phone-frame-mid)) 77%, hsl(var(--phone-highlight) / 0.42) 100%);
+    box-shadow:
+      inset 0 0 0 1px hsl(var(--phone-highlight) / 0.42),
+      inset 0 0 0 2px hsl(var(--ink) / 0.55),
+      0 2px 4px hsl(var(--ink) / 0.18),
+      0 26px 58px -18px hsl(var(--ink) / 0.42);
+  }
+
+  .phone-screen {
+    border-radius: 51px;
+    box-shadow: inset 0 0 0 1px hsl(var(--phone-highlight) / 0.1);
+  }
+
+  .phone-button {
+    position: absolute;
+    display: block;
+    width: 3px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, hsl(var(--phone-frame-light)), hsl(var(--phone-frame-dark)));
+    box-shadow: 0 1px 1px hsl(var(--phone-highlight) / 0.35), -1px 1px 2px hsl(var(--ink) / 0.28);
+  }
+
+  .phone-action { left: -3px; top: 116px; height: 31px; }
+  .phone-volume-up { left: -3px; top: 165px; height: 58px; }
+  .phone-volume-down { left: -3px; top: 235px; height: 58px; }
+  .phone-power { right: -3px; top: 186px; height: 88px; }
+
+  .phone-sheen {
+    background: linear-gradient(124deg, transparent 0%, transparent 47%, hsl(var(--phone-highlight) / 0.075) 53%, transparent 61%);
+  }
+
+  .hero-float-card {
+    border: 1px solid hsl(var(--phone-highlight) / 0.72);
+    border-radius: 10px;
+    background: hsl(var(--card) / 0.86);
+    box-shadow: 0 12px 30px -12px hsl(var(--ink) / 0.22);
+    backdrop-filter: blur(14px);
+  }
+
+  .hero-primary-button {
+    box-shadow: 0 10px 25px -12px hsl(var(--primary) / 0.72);
+  }
+
+  .home-lift-card {
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  }
+
+  .home-lift-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 38px -20px hsl(var(--ink) / 0.28);
+  }
+
+  .step-visual-frame {
+    border-radius: 12px;
+    box-shadow: 0 18px 44px -24px hsl(var(--ink) / 0.28);
+    transition: transform 300ms ease, box-shadow 300ms ease;
+    will-change: transform;
+  }
+
+  .step-tilt-left { transform: rotate(-1.25deg); }
+  .step-tilt-right { transform: rotate(1.25deg); }
+  .step-visual-frame:hover { transform: rotate(0deg) translateY(-3px); box-shadow: 0 22px 48px -22px hsl(var(--ink) / 0.34); }
+
+  .step-number {
+    background: linear-gradient(100deg, hsl(var(--primary)), hsl(155 68% 41%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .pro-plan-card {
+    position: relative;
+    border: 2px solid transparent;
+    background:
+      linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+      linear-gradient(120deg, hsl(var(--primary)), hsl(151 64% 47%), hsl(var(--primary))) border-box;
+    background-size: 100% 100%, 220% 100%;
+    animation: pro-border-shift 8s linear infinite;
+  }
+
+  @keyframes pro-border-shift {
+    to { background-position: 0 0, 220% 0; }
+  }
+
+  .final-cta-glow::before {
+    content: '';
+    position: absolute;
+    width: 680px;
+    height: 320px;
+    left: 50%;
+    top: 15%;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(ellipse, hsl(var(--primary) / 0.34), transparent 70%);
+    filter: blur(45px);
+    animation: final-glow 9s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+
+  .final-cta-glow > * { position: relative; }
+
+  @keyframes final-glow {
+    from { opacity: 0.55; transform: translateX(-50%) scale(0.92); }
+    to { opacity: 0.9; transform: translateX(-50%) scale(1.08); }
+  }
+
+  @media (max-width: 767px) {
+    .hero-spotlight { width: 100%; }
+    .hero-aurora { opacity: 0.72; }
+    .phone-frame { transform-origin: center center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-aurora,
+    .pro-plan-card,
+    .final-cta-glow::before {
+      animation: none !important;
+    }
+
+    .step-tilt-left,
+    .step-tilt-right,
+    .step-visual-frame:hover,
+    .home-lift-card:hover {
+      transform: none;
+    }
   }
 
   .watermark-num {

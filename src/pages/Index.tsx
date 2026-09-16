@@ -9,8 +9,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import PhoneMockup from "@/components/marketing/PhoneMockup";
-import MockReferralPage from "@/components/marketing/MockReferralPage";
 import MockLeadsTable from "@/components/marketing/MockLeadsTable";
 import MockQRCard from "@/components/marketing/MockQRCard";
 import MockPageBuilder from "@/components/marketing/MockPageBuilder";
