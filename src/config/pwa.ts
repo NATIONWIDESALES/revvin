@@ -1,8 +1,6 @@
 // Installable app and web push configuration.
 
 export { VAPID_PUBLIC_KEY } from "@/config/vapid";
-import { VAPID_PUBLIC_KEY } from "@/config/vapid";
-void VAPID_PUBLIC_KEY;
 
 /** Where the service worker is served from, and the scope it controls. */
 export const SERVICE_WORKER_PATH = "/sw.js";
