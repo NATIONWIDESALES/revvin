@@ -540,6 +540,9 @@ const PublicReferralPage = () => {
                   </div>
                 </div>
               )}
+              <div className="mt-5 mx-auto max-w-sm text-left">
+                <AddToHomeScreen surface="referral_success" line={referrerInstallLine(biz.name)} />
+              </div>
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-4">
