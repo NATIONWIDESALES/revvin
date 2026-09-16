@@ -571,3 +571,13 @@
     animation: shimmer-text 6s linear infinite;
   }
 }
+
+/* Installed app: the phone's own top bar and home indicator overlap the page
+   because the viewport is edge to edge, so the app shell keeps clear of them. */
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    overscroll-behavior-y: none;
+  }
+}

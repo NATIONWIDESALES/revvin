@@ -12,7 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Search, CheckCircle2, Clock, AlertTriangle, XCircle, Shield, Building2, Users, DollarSign, Activity, BadgeCheck, History, FileText, Pause, Play, TrendingUp, BarChart3, Send, Loader2, MapPin } from "lucide-react";
+import { ChevronDown, ChevronRight, Search, CheckCircle2, Clock, AlertTriangle, XCircle, Shield, Building2, Users, DollarSign, Activity, BadgeCheck, History, FileText, Pause, Play, TrendingUp, BarChart3, Send, Loader2, MapPin, Bell } from "lucide-react";
+import PushSettings from "@/components/pwa/PushSettings";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -75,6 +76,12 @@ interface PayoutRecord {
 interface LifecycleEmailRow {
   id: string; business_id: string; business_name: string | null; template: string; category: string; sent_at: string;
 }
+interface PushSendRow {
+  id: string; business_id: string | null; title: string | null; status: string; status_code: number | null; created_at: string;
+}
+interface PushStats {
+  devices: number; disabled: number; by_platform: Record<string, number>;
+}
 interface OfferRecord {
   id: string; business_id: string; status: string; title: string; approval_status: string | null; category: string; payout: number; payout_type: string; deposit_status?: string; deposit_amount?: number; stripe_payment_intent_id?: string; businesses?: { name: string }; deposit_paid_at?: string;
 }
@@ -85,6 +92,7 @@ const SuperAdminCRM = () => {
   const [overview, setOverview] = useState<{
     businesses: Business[]; profiles: Profile[]; referral_summary: ReferralSummary[];
     payouts: PayoutRecord[]; offers: OfferRecord[]; lifecycle_emails?: LifecycleEmailRow[];
+    push_stats?: PushStats; push_sends?: PushSendRow[];
   } | null>(null);
   
   // Data for tabs
@@ -475,6 +483,7 @@ const SuperAdminCRM = () => {
                   <DollarSign className="h-3.5 w-3.5" /> Payments
                 </TabsTrigger>
                 <TabsTrigger value="emails" className="gap-1"><Send className="h-3.5 w-3.5" /> Emails</TabsTrigger>
+                <TabsTrigger value="push" className="gap-1"><Bell className="h-3.5 w-3.5" /> Push</TabsTrigger>
                 <TabsTrigger value="audit" className="gap-1"><History className="h-3.5 w-3.5" /> Audit Log</TabsTrigger>
               </TabsList>
               </div>
@@ -780,6 +789,65 @@ const SuperAdminCRM = () => {
                               </td>
                               <td className="px-3 py-2 text-muted-foreground">
                                 {format(new Date(row.sent_at), "MMM d, yyyy h:mm a")}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              {/* PUSH NOTIFICATION TAB */}
+              <TabsContent value="push">
+                <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+                  <h2 className="text-base font-bold mb-1 flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-primary" /> Push notifications
+                  </h2>
+                  <p className="text-xs text-muted-foreground mb-4">Installed devices and sends in the last 30 days.</p>
+                  <div className="grid grid-cols-2 gap-3 mb-5 sm:grid-cols-3">
+                    <div className="rounded-xl border border-border bg-muted/30 p-3">
+                      <p className="text-xs text-muted-foreground">Active devices</p>
+                      <p className="text-xl font-bold text-foreground">{overview?.push_stats?.devices ?? 0}</p>
+                    </div>
+                    <div className="rounded-xl border border-border bg-muted/30 p-3">
+                      <p className="text-xs text-muted-foreground">Expired devices</p>
+                      <p className="text-xl font-bold text-foreground">{overview?.push_stats?.disabled ?? 0}</p>
+                    </div>
+                    <div className="rounded-xl border border-border bg-muted/30 p-3">
+                      <p className="text-xs text-muted-foreground">By platform</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {Object.entries(overview?.push_stats?.by_platform ?? {}).map(([key, count]) => `${key}: ${count}`).join(", ") || "None yet"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mb-5">
+                    <PushSettings compact />
+                  </div>
+                  {(overview?.push_sends ?? []).length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-8 text-center">No push notifications sent yet</p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead className="bg-muted/40 text-muted-foreground">
+                          <tr>
+                            <th className="text-left font-medium px-3 py-2">Title</th>
+                            <th className="text-left font-medium px-3 py-2">Status</th>
+                            <th className="text-left font-medium px-3 py-2">Code</th>
+                            <th className="text-left font-medium px-3 py-2">Sent</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(overview?.push_sends ?? []).map((row) => (
+                            <tr key={row.id} className="border-t border-border">
+                              <td className="px-3 py-2 font-medium text-foreground">{row.title || "Notification"}</td>
+                              <td className="px-3 py-2">
+                                <Badge variant={row.status === "sent" ? "outline" : "secondary"}>{row.status}</Badge>
+                              </td>
+                              <td className="px-3 py-2 text-muted-foreground">{row.status_code ?? ""}</td>
+                              <td className="px-3 py-2 text-muted-foreground">
+                                {format(new Date(row.created_at), "MMM d, yyyy h:mm a")}
                               </td>
                             </tr>
                           ))}

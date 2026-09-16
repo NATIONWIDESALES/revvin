@@ -1221,6 +1221,7 @@ export type Database = {
           id: string
           notification_email: string | null
           notification_phone: string | null
+          push_on_new_lead: boolean
           sms_notifications_enabled: boolean
           updated_at: string
         }
@@ -1233,6 +1234,7 @@ export type Database = {
           id?: string
           notification_email?: string | null
           notification_phone?: string | null
+          push_on_new_lead?: boolean
           sms_notifications_enabled?: boolean
           updated_at?: string
         }
@@ -1245,6 +1247,7 @@ export type Database = {
           id?: string
           notification_email?: string | null
           notification_phone?: string | null
+          push_on_new_lead?: boolean
           sms_notifications_enabled?: boolean
           updated_at?: string
         }
@@ -1462,6 +1465,111 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      push_send_log: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          endpoint: string | null
+          error: string | null
+          id: string
+          status: string
+          status_code: number | null
+          subscription_id: string | null
+          tag: string | null
+          title: string | null
+          url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          endpoint?: string | null
+          error?: string | null
+          id?: string
+          status: string
+          status_code?: number | null
+          subscription_id?: string | null
+          tag?: string | null
+          title?: string | null
+          url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          endpoint?: string | null
+          error?: string | null
+          id?: string
+          status?: string
+          status_code?: number | null
+          subscription_id?: string | null
+          tag?: string | null
+          title?: string | null
+          url?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          business_id: string | null
+          created_at: string
+          disabled_at: string | null
+          endpoint: string
+          failed_count: number
+          id: string
+          last_used_at: string | null
+          p256dh: string
+          platform: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          business_id?: string | null
+          created_at?: string
+          disabled_at?: string | null
+          endpoint: string
+          failed_count?: number
+          id?: string
+          last_used_at?: string | null
+          p256dh: string
+          platform?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          business_id?: string | null
+          created_at?: string
+          disabled_at?: string | null
+          endpoint?: string
+          failed_count?: number
+          id?: string
+          last_used_at?: string | null
+          p256dh?: string
+          platform?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referral_contact_sends: {
         Row: {

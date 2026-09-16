@@ -10,6 +10,19 @@ export interface NotificationWorkerDependencies {
   dashboardUrl: string;
   fromAddress: string;
   replyTo: string;
+  /**
+   * Optional web push send. Injected by the entrypoint so this module stays
+   * free of npm imports and testable without a provider. A push failure never
+   * affects the email outcome or the durable job.
+   */
+  sendPush?: (args: {
+    business_id: string;
+    user_id: string | null;
+    title: string;
+    body: string;
+    url: string;
+    tag: string;
+  }) => Promise<void>;
 }
 
 type Job = { id: string; business_id: string; lead_id: string | null; event: string; attempts: number; claim_token: string };
@@ -78,7 +91,7 @@ async function runJob(db: any, job: Job, deps: NotificationWorkerDependencies): 
   if (ensured !== true) return { outcome: "stale" };
 
   const { data: settingsRows, error: settingsErr } = await db.from("notification_settings")
-    .select("email_notifications_enabled, email_on_new_lead, notification_email").eq("business_id", biz.id).limit(1);
+    .select("email_notifications_enabled, email_on_new_lead, notification_email, push_on_new_lead").eq("business_id", biz.id).limit(1);
   if (settingsErr) return { outcome: "retry", error: `notification settings read failed: ${settingsErr.message}` };
   const settings = settingsRows?.[0];
   if (settings?.email_notifications_enabled === false || settings?.email_on_new_lead === false) {
@@ -100,6 +113,27 @@ async function runJob(db: any, job: Job, deps: NotificationWorkerDependencies): 
       .select("id", { count: "exact", head: true }).eq("business_id", biz.id);
     isFirstLead = !countErr && (count ?? 0) === 1;
   } catch { isFirstLead = false; }
+
+  // Web push for the owner, once per lead, alongside the email. Demo
+  // businesses already returned above. Push is skipped when the owner turned
+  // push off for new leads, and a push failure is swallowed on purpose: the
+  // email is the delivery of record.
+  if (deps.sendPush && settings?.push_on_new_lead !== false) {
+    const firstName = String(lead.lead_name || "").trim().split(" ")[0] || "someone";
+    const need = String(lead.lead_need || "").trim();
+    try {
+      await deps.sendPush({
+        business_id: biz.id,
+        user_id: biz.user_id ?? null,
+        title: `New referral: ${firstName}`,
+        body: `${lead.referrer_name} sent you a lead${need ? ` for ${need}` : ""}`,
+        url: "/dashboard?tab=leads",
+        tag: `lead-${job.lead_id}`,
+      });
+    } catch (err) {
+      console.error("[notify-new-lead] push failed", String((err as Error)?.message ?? err));
+    }
+  }
 
   const idempotencyKey = `new-lead-${job.lead_id}`;
   const result = await deps.sendEmail({
