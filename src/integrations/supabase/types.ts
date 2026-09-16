@@ -194,6 +194,7 @@ export type Database = {
           phone: string | null
           plan: string
           postal_code: string | null
+          promo_emails_opt_out: boolean
           qr_downloaded_at: string | null
           referral_cta_label: string | null
           service_area: string | null
@@ -260,6 +261,7 @@ export type Database = {
           phone?: string | null
           plan?: string
           postal_code?: string | null
+          promo_emails_opt_out?: boolean
           qr_downloaded_at?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
@@ -326,6 +328,7 @@ export type Database = {
           phone?: string | null
           plan?: string
           postal_code?: string | null
+          promo_emails_opt_out?: boolean
           qr_downloaded_at?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
