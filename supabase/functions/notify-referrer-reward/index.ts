@@ -78,11 +78,12 @@ Deno.serve(async (req) => {
 
     const { data: bizRows } = await supabase
       .from("businesses")
-      .select("id, name, slug, user_id, is_demo")
+      .select("id, name, slug, user_id, is_demo, business_email")
       .eq("id", reward.business_id)
       .limit(1);
     const biz = bizRows?.[0];
     if (!biz) return json({ error: "business not found" }, 404);
+
 
     // ---- Authorize: caller owns the business, or is a platform admin.
     if (biz.user_id !== user.id) {
