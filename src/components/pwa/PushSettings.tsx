@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Bell, BellOff, Loader2, Send } from "lucide-react";
+import { Bell, BellOff, Loader2, Send, Share } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   currentSubscription,
@@ -11,6 +11,8 @@ import {
   type PushState,
 } from "@/lib/push";
 import IosInstallSheet from "@/components/pwa/IosInstallSheet";
+import { INSTALL_COPY } from "@/config/installCopy";
+import { track } from "@/lib/track";
 
 interface Props {
   businessId?: string | null;
