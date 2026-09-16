@@ -1,5 +1,6 @@
 /** Explicit public-analytics boundary. This is data minimization, not consent. */
 import { TOOLKIT_CTA_LABELS } from "@/lib/toolkit/analytics";
+import { INSTALL_SURFACES } from "@/config/installCopy";
 
 export type AnalyticsAudience = "unknown" | "anonymous" | "signed-in";
 export type AnalyticsTraffic = "marketing" | "demo" | "referral" | "product";
@@ -97,15 +98,18 @@ const CTA_LABELS = new Set([
   ...TOOLKIT_CTA_LABELS,
 ]);
 const SOURCE_LABELS = new Set(["landing", "playbook", "sample", "marketplace_notify"]);
+// Where an install prompt was shown. Six fixed strings, no business or person.
+const SURFACE_LABELS = new Set([...INSTALL_SURFACES]);
 export function safeAnalyticsMeta(event: string, context: AnalyticsContext, input?: Record<string, unknown>) {
   const demo = context.traffic === "demo" || event.startsWith("demo_") || input?.cta === "demo_signup";
   const result: Record<string, string | boolean> = { traffic: demo ? "demo" : context.traffic, is_demo: demo };
   if (typeof input?.cta === "string" && CTA_LABELS.has(input.cta)) result.cta = input.cta;
   if (typeof input?.source === "string" && SOURCE_LABELS.has(input.source)) result.source = input.source;
+  if (typeof input?.surface === "string" && SURFACE_LABELS.has(input.surface as never)) result.surface = input.surface;
   return result;
 }
 
-const PUBLIC_EVENTS = new Set(["page_viewed", "cta_clicked", "demo_started", "demo_completed", "sample_page_viewed", "email_lead_submitted", "referral_submitted", "promo_popup_shown", "promo_cta_clicked"]);
+const PUBLIC_EVENTS = new Set(["page_viewed", "cta_clicked", "demo_started", "demo_completed", "sample_page_viewed", "email_lead_submitted", "referral_submitted", "promo_popup_shown", "promo_cta_clicked", "pwa_install_cta_shown", "pwa_install_cta_clicked"]);
 export function analyticsEventAllowed(event: string, context: AnalyticsContext): boolean {
   if (context.traffic === "product") return MILESTONE_EVENTS.has(event);
   if (!PUBLIC_EVENTS.has(event)) return false;
