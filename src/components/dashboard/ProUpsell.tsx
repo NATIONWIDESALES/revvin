@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PRICE_TEXT } from "@/config/pricing";
+import { PRO_FEATURES } from "@/config/planFeatures";
 
 // Publishing a referral page is free. Revvin Pro buys leverage: the tools that
 // ask a whole customer list for you, the reporting that shows what it produced,
@@ -9,16 +10,16 @@ import { PRICE_TEXT } from "@/config/pricing";
 // differently.
 export const PRO_COPY = {
   customers: {
-    title: "Send the ask to your whole list",
-    body: "Pro imports your past customers and sends your referral ask to all of them, instead of you texting people one at a time.",
+    title: PRO_FEATURES[1].label,
+    body: `${PRO_FEATURES[0].description} ${PRO_FEATURES[1].description}`,
   },
   reporting: {
-    title: "See what referrals are actually worth",
-    body: "Pro tracks leads, closed deals and attributed revenue, and emails you a monthly recap.",
+    title: PRO_FEATURES[3].label,
+    body: PRO_FEATURES[3].description,
   },
   branding: {
-    title: "Make the page yours",
-    body: "Pro unlocks your brand colour, cover image, custom headline, welcome message and testimonials.",
+    title: PRO_FEATURES[4].label,
+    body: PRO_FEATURES[4].description,
   },
 } as const;
 

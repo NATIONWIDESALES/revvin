@@ -39,11 +39,9 @@ const Navbar = () => {
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? "U";
 
   const navLinks = [
-    { to: "/", label: "Home" },
-    { to: "/tools", label: "Free tools" },
-    { to: "/marketplace", label: "Marketplace" },
     { to: "/how-it-works", label: "How it works" },
     { to: "/pricing", label: "Pricing" },
+    { to: "/tools", label: "Free tools" },
   ];
 
   const roleLabel = userRole === "business" ? "Business" : userRole === "admin" ? "Admin" : "Referrer";
@@ -166,7 +164,7 @@ const Navbar = () => {
                   Log In
                 </Link>
                 <Button size="sm" className="px-5" asChild>
-                  <Link to="/signup">Build your page free</Link>
+                   <Link to="/signup">Get my free page</Link>
                 </Button>
               </>
             )}
@@ -230,7 +228,7 @@ const Navbar = () => {
                       <Link to="/auth" onClick={() => setOpen(false)}>Log In</Link>
                     </Button>
                     <Button size="sm" className="flex-1" asChild>
-                      <Link to="/signup" onClick={() => setOpen(false)}>Build your page free</Link>
+                       <Link to="/signup" onClick={() => setOpen(false)}>Get my free page</Link>
                     </Button>
                   </>
                 )}
