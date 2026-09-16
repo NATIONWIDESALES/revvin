@@ -35,9 +35,8 @@ describe("lifecycle email copy", () => {
     expect(tips).toContain("same day");
   });
 
-  it("keeps the setup call offer switched off until a booking link exists", () => {
-    // When this becomes a real URL the no_leads_d7 email starts sending.
-    expect(typeof SETUP_CALL_URL).toBe("string");
+  it("uses the configured booking link so the no_leads_d7 email can send", () => {
+    expect(SETUP_CALL_URL).toBe("https://cal.com/revvin/30min");
   });
 
   it("never emails businesses created before the cohort start", () => {
