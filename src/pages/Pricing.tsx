@@ -18,6 +18,8 @@ import HowPayoutsWork from "@/components/marketing/HowPayoutsWork";
 import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
 import { FREE_FEATURES, PRO_FEATURES } from "@/config/planFeatures";
 import { SETUP_CALL_URL } from "@/config/setupCall";
+import { APP_ID, ORG_ID, SITE_URL } from "@/config/brand";
+import { MONTHLY_PRICE, ANNUAL_PRICE } from "@/config/pricing";
 import PlanFeatureList from "@/components/marketing/PlanFeatureList";
 
 const launchFeatures = [
@@ -59,7 +61,47 @@ const Pricing = () => {
         title="Revvin | Pricing"
         description="Your referral page is free, published and collecting referrals. Revvin Pro is $49/month USD for the tools that ask your whole customer list for you. You pay your referrers directly."
         path="/pricing"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "@id": APP_ID,
+          name: "Revvin",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          url: SITE_URL,
+          publisher: { "@id": ORG_ID },
+          offers: [
+            {
+              "@type": "Offer",
+              name: "Free",
+              price: "0",
+              priceCurrency: "USD",
+              url: `${SITE_URL}/pricing`,
+              description:
+                "Your referral page on your own link, QR code and print pack, unlimited referral leads, a lead inbox with status tracking, and reward tracking from owed to paid.",
+            },
+            {
+              "@type": "Offer",
+              name: "Revvin Pro, monthly",
+              price: String(MONTHLY_PRICE),
+              priceCurrency: "USD",
+              url: `${SITE_URL}/pricing`,
+              description:
+                "Customer list import, the bulk referral ask from your own email app, reactivation campaigns, ROI reporting and custom page branding. Billed monthly, cancel any time.",
+            },
+            {
+              "@type": "Offer",
+              name: "Revvin Pro, annual",
+              price: String(ANNUAL_PRICE),
+              priceCurrency: "USD",
+              url: `${SITE_URL}/pricing`,
+              description:
+                "The same Revvin Pro tools billed once for a year. Cancel any time; the free referral page stays live afterwards.",
+            },
+          ],
+        }}
       />
+
 
       <section className="relative overflow-hidden border-b border-border hero-radial">
         <div aria-hidden className="absolute inset-0 grid-faint" />

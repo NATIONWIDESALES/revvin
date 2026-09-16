@@ -4,6 +4,7 @@ import SEOHead from "@/components/SEOHead";
 import NotFound from "@/pages/NotFound";
 import { INDUSTRIES, getIndustry } from "@/content/industries";
 import { PRICE_TEXT } from "@/config/pricing";
+import { REWARD_CALCULATOR_PATH, guidesForTrade } from "@/content/related";
 
 const BASE = "https://revvin.co";
 
@@ -15,6 +16,7 @@ const IndustryLanding = () => {
 
   const path = `/referral-program/${industry.slug}`;
   const others = INDUSTRIES.filter((i) => i.slug !== industry.slug);
+  const relatedGuides = guidesForTrade(industry.slug);
 
   return (
     <>
@@ -156,6 +158,31 @@ const IndustryLanding = () => {
               </div>
             ))}
           </dl>
+        </div>
+      </section>
+
+      <section className="border-b border-border">
+        <div className="container max-w-4xl py-16">
+          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Read next
+          </h2>
+          <div className="mt-5 flex flex-wrap gap-3">
+            {relatedGuides.map((g) => (
+              <Link
+                key={g.slug}
+                to={`/guides/${g.slug}`}
+                className="rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                {g.label}
+              </Link>
+            ))}
+            <Link
+              to={REWARD_CALCULATOR_PATH}
+              className="rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              Referral reward calculator
+            </Link>
+          </div>
         </div>
       </section>
 

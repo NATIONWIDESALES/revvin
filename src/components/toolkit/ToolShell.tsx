@@ -116,9 +116,13 @@ const ToolShell = ({
           <Link to="/ask-kit" className="underline hover:text-white">
             Open the referral ask kit
           </Link>{" "}
-          or browse{" "}
+          , browse{" "}
           <Link to="/tools" className="underline hover:text-white">
             all free tools
+          </Link>{" "}
+          or read the{" "}
+          <Link to="/guides" className="underline hover:text-white">
+            referral program guides
           </Link>
           .
         </p>

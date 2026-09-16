@@ -4,6 +4,13 @@ import SEOHead from "@/components/SEOHead";
 import NotFound from "@/pages/NotFound";
 import { GUIDES, getGuide } from "@/content/guides";
 import { PRICE_TEXT } from "@/config/pricing";
+import {
+  CONTENT_AUTHOR,
+  GUIDES_PUBLISHED_AT,
+  GUIDES_UPDATED_AT,
+  formatContentDate,
+} from "@/config/brand";
+import { REWARD_CALCULATOR_PATH, tradesForGuide } from "@/content/related";
 
 const BASE = "https://revvin.co";
 
@@ -16,6 +23,7 @@ const GuidePage = () => {
   const path = `/guides/${guide.slug}`;
   const others = GUIDES.filter((g) => g.slug !== guide.slug);
   const isAskGuide = guide.slug === "how-to-ask-a-customer-for-a-referral";
+  const relatedTrades = tradesForGuide(guide.slug);
 
   return (
     <>
@@ -30,8 +38,14 @@ const GuidePage = () => {
             headline: guide.question,
             description: guide.metaDescription,
             mainEntityOfPage: `${BASE}${path}`,
-            author: { "@type": "Organization", name: "Revvin", url: BASE },
-            publisher: { "@type": "Organization", name: "Revvin", url: BASE },
+            author: {
+              "@type": "Person",
+              name: CONTENT_AUTHOR.name,
+              jobTitle: CONTENT_AUTHOR.jobTitle,
+            },
+            publisher: { "@id": `${BASE}/#organization` },
+            datePublished: GUIDES_PUBLISHED_AT,
+            dateModified: GUIDES_UPDATED_AT,
           },
           {
             "@context": "https://schema.org",
@@ -72,6 +86,11 @@ const GuidePage = () => {
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
             {guide.question}
           </h1>
+          <p className="mt-4 text-xs text-muted-foreground">
+            {`By ${CONTENT_AUTHOR.name}, ${CONTENT_AUTHOR.jobTitle} of Revvin`}
+            <span aria-hidden> · </span>
+            {`Last updated ${formatContentDate(GUIDES_UPDATED_AT)}`}
+          </p>
           <p className="mt-6 text-lg leading-relaxed text-foreground">{guide.answer}</p>
         </div>
       </section>
@@ -137,6 +156,31 @@ const GuidePage = () => {
                 {o.label}
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-surface-warm">
+        <div className="container max-w-4xl py-14">
+          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Referral programs by trade
+          </h2>
+          <div className="mt-5 flex flex-wrap gap-3">
+            {relatedTrades.map((t) => (
+              <Link
+                key={t.slug}
+                to={`/referral-program/${t.slug}`}
+                className="rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                {`${t.label} referral programs`}
+              </Link>
+            ))}
+            <Link
+              to={REWARD_CALCULATOR_PATH}
+              className="rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              Referral reward calculator
+            </Link>
           </div>
         </div>
       </section>
