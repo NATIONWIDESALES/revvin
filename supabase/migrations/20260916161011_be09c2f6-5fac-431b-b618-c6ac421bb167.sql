@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS promo_emails_opt_out boolean NOT NULL DEFAULT false;

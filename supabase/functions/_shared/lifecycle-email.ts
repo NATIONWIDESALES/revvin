@@ -1,14 +1,20 @@
 import * as React from "npm:react@18.3.1";
 import { renderAsync } from "npm:@react-email/components@0.0.22";
 import { TEMPLATES } from "./transactional-email-templates/registry.ts";
+import { templateCategory } from "./lifecycle-categories.ts";
 import { sendEmailViaGateway } from "./resend-gateway.ts";
 import { isSuppressed, unsubscribeUrlFor } from "./outreach.ts";
-import { LIFECYCLE_FROM, LIFECYCLE_REPLY_TO } from "./lifecycle-config.ts";
+import { LIFECYCLE_FROM, LIFECYCLE_REPLY_TO, REVVIN_POSTAL_ADDRESS } from "./lifecycle-config.ts";
+import { promoAllowed } from "./lifecycle-rules.ts";
 
 /**
  * Renders a registered template and sends it through the existing Resend
  * gateway. Suppression is checked immediately before the send and every message
  * carries a working unsubscribe link.
+ *
+ * Promotional templates carry Revvin's postal address and their own opt-out
+ * link, which sets businesses.promo_emails_opt_out. A setup unsubscribe writes
+ * suppressed_contacts, which stops promotional email too.
  */
 export interface LifecycleSendInput {
   supabase: any;
@@ -17,11 +23,43 @@ export interface LifecycleSendInput {
   to: string;
   data?: Record<string, unknown>;
   idempotencyKey?: string;
+  /** Read from businesses as they are today; used for the promo gate. */
+  plan?: string | null;
+  subscriptionStatus?: string | null;
+  promoOptOut?: boolean | null;
 }
 
 export type LifecycleSendResult =
   | { sent: true; id: string | null }
   | { sent: false; reason: string };
+
+/** One reusable promo opt-out token per (business, email). */
+export async function promoUnsubscribeUrlFor(
+  supabase: any,
+  businessId: string,
+  email: string,
+): Promise<string | null> {
+  const value = String(email).trim().toLowerCase();
+  const { data: existing } = await supabase
+    .from("unsubscribe_tokens")
+    .select("token")
+    .eq("business_id", businessId)
+    .eq("contact_type", "promo")
+    .eq("contact_value", value)
+    .limit(1);
+  let token = existing?.[0]?.token as string | undefined;
+  if (!token) {
+    token = crypto.randomUUID().replace(/-/g, "");
+    const { error } = await supabase.from("unsubscribe_tokens").insert({
+      token,
+      business_id: businessId,
+      contact_type: "promo",
+      contact_value: value,
+    });
+    if (error) return null;
+  }
+  return `${Deno.env.get("SUPABASE_URL")}/functions/v1/handle-unsubscribe?token=${token}`;
+}
 
 export async function sendLifecycleEmail(input: LifecycleSendInput): Promise<LifecycleSendResult> {
   const { supabase, businessId, templateName, data = {} } = input;
@@ -31,14 +69,29 @@ export async function sendLifecycleEmail(input: LifecycleSendInput): Promise<Lif
   const entry = TEMPLATES[templateName];
   if (!entry) return { sent: false, reason: "unknown_template" };
 
+  const category = templateCategory(templateName);
+  if (category === "promo") {
+    const gate = promoAllowed({
+      postalAddress: REVVIN_POSTAL_ADDRESS,
+      plan: input.plan,
+      subscriptionStatus: input.subscriptionStatus,
+      promoOptOut: input.promoOptOut,
+    });
+    if (!gate.allowed) return { sent: false, reason: gate.reason ?? "promo_blocked" };
+  }
+
   if (await isSuppressed(supabase, businessId, to)) {
     return { sent: false, reason: "recipient_suppressed" };
   }
 
-  const unsubscribeUrl = await unsubscribeUrlFor(supabase, businessId, to);
+  const unsubscribeUrl = category === "promo"
+    ? await promoUnsubscribeUrlFor(supabase, businessId, to)
+    : await unsubscribeUrlFor(supabase, businessId, to);
   if (!unsubscribeUrl) return { sent: false, reason: "unsubscribe_token_failed" };
 
-  const templateData = { ...data, unsubscribeUrl };
+  const templateData: Record<string, unknown> = { ...data, unsubscribeUrl };
+  if (category === "promo") templateData.postalAddress = REVVIN_POSTAL_ADDRESS;
+
   const html = await renderAsync(React.createElement(entry.component, templateData));
   const subject = typeof entry.subject === "function" ? entry.subject(templateData) : entry.subject;
 
@@ -57,7 +110,7 @@ export async function sendLifecycleEmail(input: LifecycleSendInput): Promise<Lif
     recipient_email: to,
     status: result.success ? "sent" : "failed",
     error_message: result.success ? null : String(result.error || "send failed").slice(0, 500),
-    metadata: { business_id: businessId, lifecycle: true },
+    metadata: { business_id: businessId, lifecycle: true, category },
   });
 
   if (!result.success) {
