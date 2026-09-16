@@ -33,6 +33,10 @@ export const FREE_FEATURES = [
     description: "Let your job software tell Revvin when a job is finished.",
   },
   {
+    label: "Works on your phone",
+    description: "Add Revvin to your home screen, no app store needed.",
+  },
+  {
     label: "Optional marketplace listing",
     description: "Choose whether your published offer appears in the marketplace.",
   },
