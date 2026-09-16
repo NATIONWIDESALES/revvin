@@ -24,6 +24,10 @@ export default function PhoneMockup({
 }: PhoneMockupProps) {
   const prefersReduced = useReducedMotion();
   const [finePointer, setFinePointer] = useState(false);
+  const desktopMotion = interactive && finePointer && !prefersReduced;
+  const baseX = finePointer ? tiltX : tiltX * 0.45;
+  const baseY = finePointer ? tiltY : tiltY * 0.45;
+  const baseZ = tiltZ ?? rotate;
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
   const extraX = useSpring(pointerY, { stiffness: 90, damping: 18, mass: 0.7 });
@@ -38,11 +42,6 @@ export default function PhoneMockup({
     query.addEventListener("change", update);
     return () => query.removeEventListener("change", update);
   }, []);
-
-  const desktopMotion = interactive && finePointer && !prefersReduced;
-  const baseX = finePointer ? tiltX : tiltX * 0.45;
-  const baseY = finePointer ? tiltY : tiltY * 0.45;
-  const baseZ = tiltZ ?? rotate;
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!desktopMotion) return;
