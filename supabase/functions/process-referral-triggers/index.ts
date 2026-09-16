@@ -23,10 +23,20 @@
 //     monthly-roi-recap.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
+import { appUrl, RESEND_FROM_ADDRESS } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { checkCronAuth } from "../_shared/cron-auth.ts";
-import { button, emailShell, esc, isSuppressed, unsubscribeUrlFor } from "../_shared/outreach.ts";
+import {
+  button,
+  customerFromAddress,
+  customerReplyTo,
+  emailShell,
+  esc,
+  isSuppressed,
+  postalAddressOf,
+  unsubscribeUrlFor,
+} from "../_shared/outreach.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,6 +52,7 @@ const GATED_ASK_EXPIRY_DAYS = 21;
 
 interface Biz {
   id: string;
+  user_id: string | null;
   name: string;
   slug: string | null;
   offer_amount: string | null;
@@ -50,6 +61,11 @@ interface Biz {
   is_disabled: boolean;
   contact_outreach_consent_at: string | null;
   is_demo: boolean | null;
+  business_email: string | null;
+  street_address: string | null;
+  city: string | null;
+  postal_code: string | null;
+  country: string | null;
 }
 
 Deno.serve(async (req) => {
@@ -75,7 +91,7 @@ Deno.serve(async (req) => {
     const { data } = await supabase
       .from("businesses")
       .select(
-        "id, name, slug, offer_amount, google_review_url, is_published, is_disabled, contact_outreach_consent_at, is_demo",
+        "id, user_id, name, slug, offer_amount, google_review_url, is_published, is_disabled, contact_outreach_consent_at, is_demo, business_email, street_address, city, postal_code, country",
       )
       .eq("id", id)
       .limit(1);
@@ -83,6 +99,23 @@ Deno.serve(async (req) => {
     bizCache.set(id, biz);
     return biz;
   };
+
+  // Replies belong to the business, not to Revvin. business_email first, then the
+  // owner's account email, then the platform mailbox.
+  const replyToCache = new Map<string, string>();
+  const replyToFor = async (biz: Biz): Promise<string> => {
+    const cached = replyToCache.get(biz.id);
+    if (cached) return cached;
+    let ownerEmail = "";
+    if (!String(biz.business_email ?? "").trim() && biz.user_id) {
+      const { data } = await supabase.auth.admin.getUserById(biz.user_id);
+      ownerEmail = data?.user?.email ?? "";
+    }
+    const value = customerReplyTo(biz.business_email, ownerEmail);
+    replyToCache.set(biz.id, value);
+    return value;
+  };
+
 
   try {
     const nowIso = new Date().toISOString();
@@ -150,13 +183,14 @@ Deno.serve(async (req) => {
 
       const idempotencyKey = `review-request-${row.id}`;
       const send = await sendEmailViaGateway({
-        from: RESEND_FROM_ADDRESS,
+        from: customerFromAddress(biz.name, RESEND_FROM_ADDRESS),
         to: email,
-        reply_to: RESEND_REPLY_TO,
+        reply_to: await replyToFor(biz),
         subject: service ? `How did your ${service} go?` : `How did we do, ${first}?`,
-        html: emailShell(biz.name, inner, unsubscribeUrl),
+        html: emailShell(biz.name, inner, unsubscribeUrl, postalAddressOf(biz)),
         idempotencyKey,
       });
+
 
       await supabase.from("email_send_log").insert({
         message_id: idempotencyKey,
@@ -302,13 +336,14 @@ Deno.serve(async (req) => {
 
       const idempotencyKey = `auto-ask-${row.id}`;
       const send = await sendEmailViaGateway({
-        from: RESEND_FROM_ADDRESS,
+        from: customerFromAddress(biz.name, RESEND_FROM_ADDRESS),
         to: email,
-        reply_to: RESEND_REPLY_TO,
+        reply_to: await replyToFor(biz),
         subject,
-        html: emailShell(biz.name, inner, unsubscribeUrl),
+        html: emailShell(biz.name, inner, unsubscribeUrl, postalAddressOf(biz)),
         idempotencyKey,
       });
+
 
       await supabase.from("email_send_log").insert({
         message_id: idempotencyKey,

@@ -669,6 +669,25 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     setBulkAwaitingConfirm(true);
   };
 
+  // Same draft, opened in webmail for owners who do not have a desktop mail app
+  // set up. Still the owner's own account sending it, never Revvin.
+  const openBulkWebmail = async (provider: "gmail" | "outlook") => {
+    const snapshot = await refreshSuppression();
+    const allowed = bulkCurrent.filter((c) => channelAllowed(contactEligibility(c, snapshot), "email"));
+    if (allowed.length === 0) {
+      toast({ title: "Email is paused", description: "No eligible emails remain in this batch." });
+      return;
+    }
+    const bcc = allowed.map((c) => c.email).filter(Boolean).join(",");
+    const href =
+      provider === "gmail"
+        ? `https://mail.google.com/mail/?view=cm&fs=1&bcc=${encodeURIComponent(bcc)}&su=${encodeURIComponent(bulkSubject)}&body=${encodeURIComponent(bulkBody)}`
+        : `https://outlook.office.com/mail/deeplink/compose?bcc=${encodeURIComponent(bcc)}&subject=${encodeURIComponent(bulkSubject)}&body=${encodeURIComponent(bulkBody)}`;
+    window.open(href, "_blank", "noopener,noreferrer");
+    setBulkAwaitingConfirm(true);
+  };
+
+
   // Step 2: the owner confirms the draft actually went out. Write first, then
   // update local state, then advance. Re-entry is guarded so a double-tap cannot
   // process the same chunk twice.
@@ -1218,18 +1237,26 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
               ) : (
                 <>
                   <p className="text-[11px] text-muted-foreground">
-                    Tap Open draft to launch your mail app with everyone in BCC. Because one email
-                    goes to many people, {"{firstName}"} is replaced with "there". You send it from
-                    your own mail app, and we will ask you to confirm afterwards.
+                    Tap Open draft to launch your mail app with everyone in BCC, or open the same
+                    draft in Gmail or Outlook. Because one email goes to many people,{" "}
+                    {"{firstName}"} is replaced with "there". You send it from your own mail
+                    account, and we will ask you to confirm afterwards.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Button size="sm" onClick={openBulkDraft} className="gap-1.5">
                       <Mail className="h-3.5 w-3.5" /> Open draft
                     </Button>
+                    <Button size="sm" variant="outline" onClick={() => openBulkWebmail("gmail")} className="gap-1.5">
+                      <Mail className="h-3.5 w-3.5" /> Open in Gmail
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => openBulkWebmail("outlook")} className="gap-1.5">
+                      <Mail className="h-3.5 w-3.5" /> Open in Outlook
+                    </Button>
                     <Button size="sm" variant="outline" onClick={copyBulkBcc} className="gap-1.5">
                       <Copy className="h-3.5 w-3.5" /> Copy addresses
                     </Button>
                   </div>
+
                 </>
               )}
             </div>

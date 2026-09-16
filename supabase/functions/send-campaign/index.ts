@@ -1,6 +1,15 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { appUrl, RESEND_FROM_ADDRESS } from "../_shared/app-config.ts";
-import { emailShell, esc, isSuppressed, renderTokens, unsubscribeUrlFor } from "../_shared/outreach.ts";
+import {
+  customerFromAddress,
+  customerReplyTo,
+  emailShell,
+  esc,
+  isSuppressed,
+  renderTokens,
+  unsubscribeUrlFor,
+} from "../_shared/outreach.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -205,8 +214,9 @@ Deno.serve(async (req) => {
       idempotency_key: messageId,
       queued_at: new Date().toISOString(),
       to: contact.email,
-      from: `${String(business.name).replace(/[<>]/g, "")} <${RESEND_FROM_ADDRESS.match(/<([^>]+)>/)?.[1] || "info@revvin.co"}>`,
-      reply_to: String(business.business_email),
+      from: customerFromAddress(business.name, RESEND_FROM_ADDRESS),
+      reply_to: customerReplyTo(business.business_email),
+
       subject,
       html: emailShell(String(business.name), inner, tokenUrl, address),
       label: "reactivation-campaign",

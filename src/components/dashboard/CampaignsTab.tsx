@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Send, Users, AlertCircle, CheckCircle2 } from "lucide-react";
 import { inSegment, segmentByKey, type RecencyContact } from "@/lib/campaignSegments";
 import { friendlyError } from "@/lib/errors";
+import SenderLine from "@/components/dashboard/SenderLine";
 
 const SEGMENT_ORDER = ["m24_plus", "m12_24", "m6_12", "recent", "unknown"];
 const MAX_CAMPAIGN_RECIPIENTS = 500;
@@ -49,7 +50,7 @@ interface CampaignRow {
 }
 
 interface Props {
-  biz: { id: string; name: string; offer_amount: string | null };
+  biz: { id: string; name: string; offer_amount: string | null; business_email: string | null };
   publicUrl: string;
 }
 
@@ -307,6 +308,8 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
           <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
             <h2 className="text-base font-semibold text-foreground">New reactivation campaign</h2>
             <p className="mt-1 text-sm text-muted-foreground">Email only. Referral asks still open your own email or messaging app. Reactivation campaigns are sent by Revvin from your business name, with replies going to your reply-to email.</p>
+            <SenderLine businessName={biz.name} replyTo={biz.business_email || readinessForm.business_email} className="mt-2" />
+
             <div className="mt-5 flex flex-wrap gap-2">
               {STARTER_TEMPLATES.map((template) => (
                 <Button key={template.id} type="button" size="sm" variant="outline" onClick={() => applyTemplate(template)}>{template.label}</Button>

@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, CheckCircle2, Clock, XCircle, MessageSquare, Star, ThumbsUp } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { friendlyError } from "@/lib/errors";
+import SenderLine from "@/components/dashboard/SenderLine";
 
 // "Job done" auto-ask. The owner logs a finished job, we schedule a single
 // personalised referral ask about two hours later.
@@ -55,7 +56,7 @@ const STATUS_META: Record<string, { label: string; className: string }> = {
 };
 
 interface Props {
-  biz: { id: string; name: string; offer_amount: string | null; google_review_url: string | null };
+  biz: { id: string; name: string; offer_amount: string | null; google_review_url: string | null; business_email: string | null };
   publicUrl: string;
 }
 
@@ -190,6 +191,8 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
           later, using their first name, the service and who did the work. Automatic asks go by email only.
           Texts are sent from your own phone.
         </p>
+        <SenderLine businessName={biz.name} replyTo={biz.business_email} className="mt-2" />
+
 
         <div className="mt-5 grid gap-4 md:grid-cols-2">
           <div>

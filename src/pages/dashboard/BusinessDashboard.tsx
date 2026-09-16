@@ -456,7 +456,7 @@ const BusinessDashboard = () => {
               consentedAt={biz.contact_outreach_consent_at ?? null}
               onConsented={() => loadAll()}
             >
-              <AutoAskTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, google_review_url: biz.google_review_url ?? null }} publicUrl={publicUrl} />
+              <AutoAskTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, google_review_url: biz.google_review_url ?? null, business_email: biz.business_email ?? null }} publicUrl={publicUrl} />
             </AttestationGate>
           )}
         </TabsContent>
@@ -472,7 +472,7 @@ const BusinessDashboard = () => {
               consentedAt={biz.contact_outreach_consent_at ?? null}
               onConsented={() => loadAll()}
             >
-              <CampaignsTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount }} publicUrl={publicUrl} />
+              <CampaignsTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, business_email: biz.business_email ?? null }} publicUrl={publicUrl} />
             </AttestationGate>
           )}
         </TabsContent>

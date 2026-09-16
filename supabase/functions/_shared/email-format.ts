@@ -17,6 +17,66 @@ export interface SenderAddress {
   country: string;
 }
 
+/** Fallback sending mailbox when nothing better is configured. */
+export const PLATFORM_MAILBOX = "info@revvin.co";
+
+/** Pull the bare mailbox out of "Name <mailbox>" or a plain address. */
+export function mailboxOf(address: string, fallback = PLATFORM_MAILBOX): string {
+  const match = String(address ?? "").match(/<([^>]+)>/);
+  const value = (match?.[1] ?? String(address ?? "")).trim();
+  return value.includes("@") ? value : fallback;
+}
+
+/**
+ * From header for anything Revvin sends to a business's own customers or
+ * referrers. The customer sees the business first, and "via Revvin" keeps the
+ * shared sending domain honest instead of impersonating the business outright.
+ */
+export function customerFromAddress(businessName: unknown, platformFrom: string): string {
+  const mailbox = mailboxOf(platformFrom);
+  const name = String(businessName ?? "").replace(/[<>"]/g, "").trim();
+  return name ? `${name} via Revvin <${mailbox}>` : `Revvin <${mailbox}>`;
+}
+
+/** What the business's customers see when they hit reply. */
+export function customerReplyTo(
+  businessEmail?: unknown,
+  ownerEmail?: unknown,
+  fallback: string = PLATFORM_MAILBOX,
+): string {
+  for (const candidate of [businessEmail, ownerEmail]) {
+    const value = String(candidate ?? "").trim().toLowerCase();
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return value;
+  }
+  return fallback;
+}
+
+/**
+ * The business's postal address, but only when every part is on file. A partial
+ * address in a footer is worse than the compact footer.
+ */
+export interface PostalSource {
+  street_address?: unknown;
+  city?: unknown;
+  postal_code?: unknown;
+  country?: unknown;
+}
+
+export function postalAddressOf(biz: PostalSource | null | undefined): SenderAddress | null {
+  if (!biz) return null;
+  const values = [biz.street_address, biz.city, biz.postal_code, biz.country].map((v) =>
+    String(v ?? "").trim(),
+  );
+  if (values.some((value) => !value)) return null;
+  return {
+    street_address: values[0],
+    city: values[1],
+    postal_code: values[2],
+    country: values[3],
+  };
+}
+
+
 export function emailFooter(
   businessName: string,
   unsubscribeUrl: string,

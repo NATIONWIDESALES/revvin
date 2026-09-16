@@ -18,8 +18,10 @@
 //     sees the business name, the amount, and their own links.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
+import { appUrl, RESEND_FROM_ADDRESS } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
+import { customerFromAddress, customerReplyTo } from "../_shared/email-format.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -78,11 +80,12 @@ Deno.serve(async (req) => {
 
     const { data: bizRows } = await supabase
       .from("businesses")
-      .select("id, name, slug, user_id, is_demo")
+      .select("id, name, slug, user_id, is_demo, business_email")
       .eq("id", reward.business_id)
       .limit(1);
     const biz = bizRows?.[0];
     if (!biz) return json({ error: "business not found" }, 404);
+
 
     // ---- Authorize: caller owns the business, or is a platform admin.
     if (biz.user_id !== user.id) {
@@ -245,15 +248,23 @@ Deno.serve(async (req) => {
   </div>
 </body></html>`;
 
+    // The referrer hears from the business, and replies reach the business.
+    let ownerEmail = "";
+    if (!String(biz.business_email ?? "").trim() && biz.user_id) {
+      const { data: ownerData } = await supabase.auth.admin.getUserById(biz.user_id);
+      ownerEmail = ownerData?.user?.email ?? "";
+    }
+
     const idempotencyKey = `reward-${kind}-${reward.id}`;
     const send = await sendEmailViaGateway({
-      from: RESEND_FROM_ADDRESS,
+      from: customerFromAddress(biz.name, RESEND_FROM_ADDRESS),
       to: email,
-      reply_to: RESEND_REPLY_TO,
+      reply_to: customerReplyTo(biz.business_email, ownerEmail),
       subject,
       html,
       idempotencyKey,
     });
+
 
     await supabase.from("email_send_log").insert({
       message_id: idempotencyKey,
