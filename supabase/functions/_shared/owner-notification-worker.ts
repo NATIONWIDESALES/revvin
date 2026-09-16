@@ -92,12 +92,22 @@ async function runJob(db: any, job: Job, deps: NotificationWorkerDependencies): 
   }
   if (!to) return { outcome: "failed", error: "no recipient on file for this business" };
 
+  // Lead #1 gets a short coaching block inside this same email. No second
+  // email is ever sent for a first lead. A failed count read just omits it.
+  let isFirstLead = false;
+  try {
+    const { count, error: countErr } = await db.from("leads")
+      .select("id", { count: "exact", head: true }).eq("business_id", biz.id);
+    isFirstLead = !countErr && (count ?? 0) === 1;
+  } catch { isFirstLead = false; }
+
   const idempotencyKey = `new-lead-${job.lead_id}`;
   const result = await deps.sendEmail({
     from: deps.fromAddress, to, reply_to: lead.referrer_email || deps.replyTo,
     subject: `New referral for ${biz.name}: ${lead.lead_name}`,
-    html: buildHtml(biz, lead, deps.dashboardUrl), idempotencyKey,
+    html: buildHtml(biz, lead, deps.dashboardUrl, isFirstLead), idempotencyKey,
   });
+
   const messageId = typeof result.id === "string" ? result.id.trim() : "";
   const evidenced = result.success === true && messageId.length > 0;
   // The durable job is the delivery ledger. A failed diagnostic log cannot
