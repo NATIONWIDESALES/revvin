@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Send, Users, AlertCircle, CheckCircle2 } from "lucide-react";
 import { inSegment, segmentByKey, type RecencyContact } from "@/lib/campaignSegments";
 import { friendlyError } from "@/lib/errors";
+import SenderLine from "@/components/dashboard/SenderLine";
 
 const SEGMENT_ORDER = ["m24_plus", "m12_24", "m6_12", "recent", "unknown"];
 const MAX_CAMPAIGN_RECIPIENTS = 500;
@@ -49,7 +50,7 @@ interface CampaignRow {
 }
 
 interface Props {
-  biz: { id: string; name: string; offer_amount: string | null };
+  biz: { id: string; name: string; offer_amount: string | null; business_email: string | null };
   publicUrl: string;
 }
 
