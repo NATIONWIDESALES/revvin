@@ -41,6 +41,10 @@ const PushSettings = ({ businessId = null, compact = false }: Props) => {
     void refresh();
   }, []);
 
+  useEffect(() => {
+    if (state === "needs-install") track("pwa_install_cta_shown", { surface: "notifications_card" });
+  }, [state]);
+
   const turnOn = async () => {
     setBusy(true);
     const result = await enablePush(businessId);
