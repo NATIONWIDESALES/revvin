@@ -23,9 +23,11 @@ export interface ShellProps {
   previewText: string
   children: React.ReactNode
   unsubscribeUrl?: string
+  /** Set for promotional email only. Required in the footer by CAN-SPAM and CASL. */
+  postalAddress?: string
 }
 
-export const RevvinShell = ({ previewText, children, unsubscribeUrl }: ShellProps) => (
+export const RevvinShell = ({ previewText, children, unsubscribeUrl, postalAddress }: ShellProps) => (
   <Html lang="en" dir="ltr">
     <Head />
     <Preview>{previewText}</Preview>
@@ -42,10 +44,11 @@ export const RevvinShell = ({ previewText, children, unsubscribeUrl }: ShellProp
               <Link href={unsubscribeUrl} style={footerLink}>
                 Unsubscribe
               </Link>{' '}
-              to stop these setup emails.
+              to stop these emails.
             </>
           ) : null}
         </Text>
+        {postalAddress ? <Text style={footer}>{postalAddress}</Text> : null}
       </Container>
     </Body>
   </Html>
