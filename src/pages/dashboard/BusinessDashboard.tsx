@@ -341,8 +341,25 @@ const BusinessDashboard = () => {
     },
   ];
 
+  const dismissWelcome = () => {
+    setShowWelcome(false);
+    const next = new URLSearchParams(searchParams);
+    next.delete("welcome");
+    setSearchParams(next, { replace: true });
+  };
+
   return (
     <div className="container py-10 max-w-6xl">
+      {showWelcome && isLive && (
+        <WelcomeLiveCard
+          businessName={biz.name}
+          offerAmount={biz.offer_amount}
+          publicUrl={publicUrl}
+          onShared={markFirstShare}
+          onOpenPrintPack={() => changeTab("share")}
+          onDismiss={dismissWelcome}
+        />
+      )}
       {/* Stacks on phones: heading owns its own row, actions wrap underneath and
           split the width. From sm: upward it returns to the side-by-side layout. */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
