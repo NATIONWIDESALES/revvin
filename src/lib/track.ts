@@ -72,8 +72,15 @@ function getSessionId(): string | null {
  */
 export function track(event: FunnelEvent, meta?: Record<string, unknown>): void {
   try {
-    const context = analyticsContext(typeof location !== "undefined" ? location.href : "");
-    if (!context || !analyticsEventAllowed(event, context)) return;
+    const href = typeof location !== "undefined" ? location.href : "";
+    // Signup and activation milestones live on private, signed-in routes, so the
+    // public boundary drops them. The milestone lane records those four fixed
+    // events from four fixed route names under the same minimization rules.
+    const publicContext = analyticsContext(href);
+    const context = publicContext && analyticsEventAllowed(event, publicContext)
+      ? publicContext
+      : milestoneContext(href, event);
+    if (!context) return;
     // Never forward to browser provider globals: a previously loaded SDK may
     // read the current URL/referrer independently of our event arguments.
     recordFunnelEvent(event, context, meta);
@@ -97,8 +104,10 @@ function recordFunnelEvent(event: FunnelEvent, context: AnalyticsContext, meta?:
         event,
         session_id: getSessionId(),
         path: context.path,
+        // A private route's referrer can itself be a private URL, so milestone
+        // rows carry no referrer at all.
         referrer:
-          typeof document !== "undefined" && document.referrer
+          context.traffic !== "product" && typeof document !== "undefined" && document.referrer
             ? sanitizeAnalyticsReferrer(document.referrer)
             : null,
         user_agent:
