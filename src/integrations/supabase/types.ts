@@ -155,6 +155,7 @@ export type Database = {
       businesses: {
         Row: {
           account_status: string
+          app_installed_at: string | null
           brand_color: string | null
           business_email: string | null
           category: string | null
@@ -222,6 +223,7 @@ export type Database = {
         }
         Insert: {
           account_status?: string
+          app_installed_at?: string | null
           brand_color?: string | null
           business_email?: string | null
           category?: string | null
@@ -289,6 +291,7 @@ export type Database = {
         }
         Update: {
           account_status?: string
+          app_installed_at?: string | null
           brand_color?: string | null
           business_email?: string | null
           category?: string | null
