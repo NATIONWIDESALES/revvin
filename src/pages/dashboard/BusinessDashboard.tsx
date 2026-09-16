@@ -331,6 +331,13 @@ const BusinessDashboard = () => {
       actionLabel: "Open share tools",
     },
     {
+      // Ticked once Revvin has actually been opened from a home screen, or the
+      // browser install prompt was accepted, so it survives a device change.
+      label: INSTALL_COPY.checklistStep,
+      done: !!biz.app_installed_at,
+      content: <HomeScreenChecklistStep />,
+    },
+    {
       label: "Download your QR code or print pack",
       done: !!biz.qr_downloaded_at,
       onClick: goToQr,
