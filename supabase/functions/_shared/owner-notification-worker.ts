@@ -1,5 +1,6 @@
 import { checkCronAuth, type CronCredentials } from "./cron-auth.ts";
 import { FIRST_LEAD_TIPS, FIRST_LEAD_TIPS_TITLE } from "./lifecycle-copy.ts";
+import { INSTALL_LEAD_EMAIL_FOOTER } from "./install-copy.ts";
 
 // Dependency injection keeps the actual HTTP worker testable without provider
 // calls. The production entrypoint supplies the real database and email gateway.
@@ -64,6 +65,7 @@ function buildHtml(biz: Record<string, any>, lead: Record<string, any>, dashboar
     </div>` : ""}
     <a href="${dashboardUrl}" style="display:inline-block;background:#15803d;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px">Open dashboard</a>
     <p style="margin:28px 0 0;font-size:12px;color:#94a3b8">Reminder: once the deal closes, pay your referrer directly. Revvin doesn't take a cut of the payout.</p>
+    <p style="margin:10px 0 0;font-size:12px;color:#94a3b8"><a href="${dashboardUrl}?tab=account" style="color:#94a3b8">${esc(INSTALL_LEAD_EMAIL_FOOTER)}</a></p>
 
   </div>
 </body></html>`;
