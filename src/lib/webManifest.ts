@@ -58,29 +58,53 @@ export const buildStatusManifest = (statusPath: string, businessName: string) =>
   icons: REVVIN_ICONS,
 });
 
+/** Where the build writes a published business's own manifest. */
+export const businessManifestPath = (slug: string) => `/manifests/r-${slug}.webmanifest`;
+
 /**
- * Swaps the document's manifest link for this page's own manifest, served from
- * a blob so no request leaves the browser, and puts the site manifest back on
- * the way out. Pages published after the last build have no build-time manifest
- * file, so this is what makes their shortcut open the right page.
+ * Points the document's manifest link at this page's own manifest, and puts the
+ * site manifest back on the way out. The build writes a real file for every page
+ * that was published at build time; a page published since then has no file, so
+ * the manifest is served from a blob instead. Either way the shortcut someone
+ * saves reopens this page.
  */
-export function useDocumentManifest(manifest: Record<string, unknown> | null) {
-  if (typeof document === "undefined" || !manifest) return () => undefined;
+export function applyPageManifest(options: {
+  staticHref?: string;
+  manifest: Record<string, unknown>;
+}): () => void {
+  if (typeof document === "undefined") return () => undefined;
   const link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
   if (!link) return () => undefined;
   const previous = link.getAttribute("href");
-  let url = "";
-  try {
-    url = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" }));
-  } catch {
-    return () => undefined;
+  let blobUrl = "";
+  let cancelled = false;
+
+  const setHref = (href: string) => {
+    if (!cancelled) link.setAttribute("href", href);
+  };
+
+  const useBlob = () => {
+    try {
+      blobUrl = URL.createObjectURL(
+        new Blob([JSON.stringify(options.manifest)], { type: "application/manifest+json" }),
+      );
+      setHref(blobUrl);
+    } catch {
+      /* nothing to swap in: the site manifest stays */
+    }
+  };
+
+  if (options.staticHref) {
+    void fetch(options.staticHref, { method: "GET" })
+      .then((res) => (res.ok ? setHref(options.staticHref as string) : useBlob()))
+      .catch(useBlob);
+  } else {
+    useBlob();
   }
-  // A blob manifest cannot be same-origin credentialed, so keep it anonymous.
-  link.setAttribute("crossorigin", "anonymous");
-  link.setAttribute("href", url);
+
   return () => {
+    cancelled = true;
     if (previous) link.setAttribute("href", previous);
-    link.removeAttribute("crossorigin");
-    URL.revokeObjectURL(url);
+    if (blobUrl) URL.revokeObjectURL(blobUrl);
   };
 }
