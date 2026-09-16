@@ -97,7 +97,7 @@ export const GUIDES: Guide[] = [
     metaDescription:
       "The mechanical difference between a referral program and a lead marketplace: exclusivity, trust and when you pay. A factual comparison for service businesses.",
     answer:
-      "The difference is mechanical, and it comes down to three things: who else gets the lead, how much the customer already trusts you, and when the money leaves your account. Lead marketplaces such as Angi, Thumbtack and HomeAdvisor typically sell an enquiry to several businesses at once, so you are competing on response speed and price against companies the customer has never met either, and you generally pay per lead whether or not it turns into work. A referral is exclusive to you, arrives already trusted because someone the customer knows sent them, and on Revvin costs you nothing until the job actually closes. Neither model is dishonest; they simply price different things.",
+      "The difference is mechanical, and it comes down to three things: who else gets the lead, how much the customer already trusts you, and when the money leaves your account. Lead marketplaces such as Angi, Thumbtack and HomeAdvisor typically sell an enquiry to several businesses at once, so you are competing on response speed and price against companies the customer has never met either, and you generally pay per lead whether or not it turns into work. On Revvin, publishing a referral page is free and Revvin Pro is optional. A referral is exclusive to you, arrives already trusted because someone the customer knows sent them, and the reward is paid by your business only when the job closes. Neither model is dishonest; they simply price different things.",
     sections: [
       {
         heading: "Exclusivity: who else is calling",

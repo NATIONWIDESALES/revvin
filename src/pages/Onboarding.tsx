@@ -334,9 +334,10 @@ const Onboarding = () => {
                       <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">Pick a category to continue.</p>
                     )}
                     {isRestrictedCategory(category) && (
-                      <p className="mt-1.5 text-xs text-muted-foreground">
-                        Offers in this category are reviewed before they appear on the public marketplace. Your branded referral page works either way.
-                      </p>
+                      <div className="mt-1.5 space-y-1.5 text-xs text-muted-foreground">
+                        <p>Offers in this category are reviewed before they appear on the public marketplace. Your branded referral page works either way.</p>
+                        <p>Rules on paying for referrals differ in your industry. In many US states, real estate, mortgage and insurance professionals cannot pay unlicensed people for referrals. Check your own rules before you publish a reward.</p>
+                      </div>
                     )}
                   </div>
                   <div>

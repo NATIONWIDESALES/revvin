@@ -10,7 +10,7 @@ const steps = [
   {
     n: "01",
     t: "Set up your page and load your customer list",
-    d: "Add your business name, logo, service area, and referral offer, then pick your custom Revvin URL. Import the customers who have already paid you. That one list is what the whole engine runs on. Building and previewing is free; you publish when you are ready.",
+    d: "Add your business name, logo, service area, and referral offer, then pick your custom Revvin URL. Import the customers who have already paid you. That one list is what the whole engine runs on. Building and publishing your page is free.",
     visual: <MockPageBuilder />,
   },
   {
@@ -76,7 +76,7 @@ const HowItWorks = () => {
             {`Free to publish and take referrals. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD for the tools that ask your whole customer list for you. Cancel anytime, no contract.`}
           </p>
           <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
-            <Link to="/signup">Build your page — free</Link>
+            <Link to="/signup">Build your page for free</Link>
           </Button>
         </div>
       </section>

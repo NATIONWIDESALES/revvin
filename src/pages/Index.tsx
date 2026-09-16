@@ -95,7 +95,7 @@ const FAQS = [
   {
     question: "Does Revvin message my customers for me?",
     answer:
-      "Personal asks are drafted for you and open in your own texting or email app, so you press send and it comes from you. The one thing Revvin's own servers send is a reactivation email campaign on Pro, to the customers you imported, with your business address and an unsubscribe link in every email.",
+      "Personal asks are drafted for you and open in your own texting or email app, so you press send and it comes from you. Texts always go from your own phone. Revvin sends email to your customers in two cases: the Job done automatic ask and Pro reactivation campaigns. Those emails include your business address and an unsubscribe link.",
   },
   {
     question: "What happens if I cancel?",

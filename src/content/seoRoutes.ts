@@ -31,6 +31,7 @@ export interface PrerenderRoute {
   h1: string;
   sections: { heading: string; body: string }[];
   faqs?: { q: string; a: string }[];
+  noindex?: boolean;
   /**
    * Absolute canonical URL. Set this only for pages that are genuine variants
    * or aliases of another page and must not compete with it in the index.
@@ -299,14 +300,15 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/for-referrers",
-    title: "Monetize Your Network | Earn Referral Fees | Revvin",
+    title: "How Referring Works | Revvin",
     description:
-      "Turn your introductions into income. Refer customers to verified businesses on Revvin and earn 100% of the advertised payout when the deal closes.",
-    h1: "Know someone who needs a service? Get paid for the intro.",
+      "Someone sent you a Revvin link? Learn how to submit a referral, when a fixed reward becomes owed, and how the business pays you directly.",
+    h1: "Someone sent you a link? Here is how referring works.",
+    noindex: true,
     sections: [
       {
-        heading: "How referrers earn",
-        body: "Browse businesses that publish a referral reward, submit the customer's details on the business's referral page, and earn when the deal closes. The business contacts the customer, qualifies them and works the deal, then pays you directly. You receive the full advertised amount, because Revvin takes no cut of the reward.",
+        heading: "Read the business's offer",
+        body: "The link shows the business, its fixed reward, what qualifies, and when it pays. If the job closes and qualifies under the offer, the business pays you directly. Revvin does not hold, move, or take a cut of reward money.",
       },
       {
         heading: "Free to join, nothing to sell",
@@ -360,6 +362,7 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/browse",
+    noindex: true,
     title: "Revvin | Browse referral offers",
     description:
       "Browse referral offers from verified service businesses on Revvin. Refer a customer, earn the full advertised payout when the deal closes. Free to join as a referrer.",
@@ -498,6 +501,7 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/marketplace",
+    noindex: true,
     // Alias route: /marketplace renders the same Browse component and the same
     // offer listing as /browse, so it canonicals there and is kept out of the
     // sitemap.
