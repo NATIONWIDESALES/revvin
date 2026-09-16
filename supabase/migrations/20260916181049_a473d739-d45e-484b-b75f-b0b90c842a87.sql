@@ -1,0 +1,2 @@
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS app_installed_at timestamp with time zone;
+COMMENT ON COLUMN public.businesses.app_installed_at IS 'First time the owner opened Revvin from a phone home screen, or accepted the install prompt.';

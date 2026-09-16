@@ -29,6 +29,9 @@ import ActivationChecklist, { ActivationStep } from "@/components/dashboard/Acti
 import WelcomeLiveCard from "@/components/dashboard/WelcomeLiveCard";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import InstallAppButton from "@/components/pwa/InstallAppButton";
+import HomeScreenChecklistStep from "@/components/pwa/HomeScreenChecklistStep";
+import { INSTALL_COPY } from "@/config/installCopy";
+import { watchAppInstalled } from "@/lib/appInstalled";
 import IosInstallSheet from "@/components/pwa/IosInstallSheet";
 import PushSettings from "@/components/pwa/PushSettings";
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
@@ -65,6 +68,7 @@ interface Business {
   google_review_url?: string | null;
   qr_downloaded_at?: string | null;
   first_share_at?: string | null;
+  app_installed_at?: string | null;
 }
 
 interface Lead {
@@ -143,6 +147,17 @@ const BusinessDashboard = () => {
     if (t && VALID_TABS.includes(t)) setActiveTab(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
+
+  // Records the first home screen launch, and the install prompt being accepted
+  // later in the same session, so the activation step can tick itself.
+  const installedAt = biz?.app_installed_at ?? null;
+  const bizId = biz?.id ?? null;
+  useEffect(() => {
+    if (!bizId || installedAt) return;
+    return watchAppInstalled(bizId, (stamp) =>
+      setBiz((prev) => (prev ? { ...prev, app_installed_at: stamp } : prev)),
+    );
+  }, [bizId, installedAt]);
 
   // Without an explicit tab, a free business lands on the sharing tools and a
   // Pro business lands on its customer list.
@@ -325,6 +340,13 @@ const BusinessDashboard = () => {
       done: !!biz.first_share_at,
       onClick: () => changeTab("share"),
       actionLabel: "Open share tools",
+    },
+    {
+      // Ticked once Revvin has actually been opened from a home screen, or the
+      // browser install prompt was accepted, so it survives a device change.
+      label: INSTALL_COPY.checklistStep,
+      done: !!biz.app_installed_at,
+      content: <HomeScreenChecklistStep />,
     },
     {
       label: "Download your QR code or print pack",

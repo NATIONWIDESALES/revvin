@@ -18,9 +18,9 @@ describe("homepage", () => {
     expect(home.split("\n").length).toBeLessThan(500);
   });
 
-  it("shows exactly five FAQs, and the schema is built from the same five", () => {
+  it("shows exactly six FAQs, and the schema is built from the same six", () => {
     const faqs = home.match(/^\s{2}\{\n\s{4}question:/gm) ?? [];
-    expect(faqs).toHaveLength(5);
+    expect(faqs).toHaveLength(6);
     expect(home).toContain("mainEntity: FAQS.map(");
   });
 

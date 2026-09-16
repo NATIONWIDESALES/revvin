@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Bell, BellOff, Loader2, Send } from "lucide-react";
+import { Bell, BellOff, Loader2, Send, Share } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   currentSubscription,
@@ -11,6 +11,8 @@ import {
   type PushState,
 } from "@/lib/push";
 import IosInstallSheet from "@/components/pwa/IosInstallSheet";
+import { INSTALL_COPY } from "@/config/installCopy";
+import { track } from "@/lib/track";
 
 interface Props {
   businessId?: string | null;
@@ -38,6 +40,10 @@ const PushSettings = ({ businessId = null, compact = false }: Props) => {
   useEffect(() => {
     void refresh();
   }, []);
+
+  useEffect(() => {
+    if (state === "needs-install") track("pwa_install_cta_shown", { surface: "notifications_card" });
+  }, [state]);
 
   const turnOn = async () => {
     setBusy(true);
@@ -83,14 +89,28 @@ const PushSettings = ({ businessId = null, compact = false }: Props) => {
       return <p className="text-sm text-muted-foreground">Checking this device.</p>;
     }
     if (state === "needs-install") {
+      // On an iPhone in a normal Safari tab notifications are impossible, so the
+      // home screen steps are the whole answer here.
       return (
         <>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Add Revvin to your Home Screen first, then turn on notifications here.
+            {INSTALL_COPY.mainLabel} first, then turn on notifications here.
           </p>
-          <Button variant="outline" size="sm" className="mt-4" onClick={() => setShowSteps(true)}>
-            Show me how
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-4"
+            onClick={() => {
+              track("pwa_install_cta_clicked", { surface: "notifications_card" });
+              setShowSteps(true);
+            }}
+          >
+            <Share className="mr-2 h-3.5 w-3.5" />
+            {INSTALL_COPY.mainLabel}
           </Button>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+            {INSTALL_COPY.supportingLine}
+          </p>
         </>
       );
     }

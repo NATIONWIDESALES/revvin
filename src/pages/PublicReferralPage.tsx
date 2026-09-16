@@ -13,6 +13,10 @@ import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, HandCoins, Quote, Eye, Lock } from "lucide-react";
 import { friendlyError } from "@/lib/errors";
 import { submitPublicReferral, referralSubmitMessage } from "@/lib/referralSubmit";
+import AddToHomeScreen from "@/components/pwa/AddToHomeScreen";
+import { referrerInstallLine } from "@/config/installCopy";
+import { buildBusinessManifest, businessManifestPath } from "@/lib/webManifest";
+import { applyPageManifest } from "@/lib/pageManifest";
 
 
 interface Business {
@@ -107,6 +111,16 @@ const PublicReferralPage = () => {
     // honeypot
     website: "",
   });
+
+  // A shortcut saved from this page must reopen this page, not the dashboard,
+  // so the page swaps in its own app metadata while it is open.
+  useEffect(() => {
+    if (!biz?.slug) return;
+    return applyPageManifest({
+      staticHref: businessManifestPath(biz.slug),
+      manifest: buildBusinessManifest({ slug: biz.slug, name: biz.name, logoUrl: biz.logo_url }),
+    });
+  }, [biz?.slug, biz?.name, biz?.logo_url]);
 
   useEffect(() => {
     if (!slug) return;
@@ -540,6 +554,9 @@ const PublicReferralPage = () => {
                   </div>
                 </div>
               )}
+              <div className="mt-5 mx-auto max-w-sm text-left">
+                <AddToHomeScreen surface="referral_success" line={referrerInstallLine(biz.name)} />
+              </div>
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-4">

@@ -50,6 +50,10 @@ Rewards on Revvin are fixed dollar amounts. Publishing a referral page is free. 
 - [How to ask a customer for a referral](/guides/how-to-ask-a-customer-for-a-referral): Timing and wording for the ask.
 - [Referral ask kit](/ask-kit): Copy-and-paste scripts for each moment.
 
+## Is there a Revvin app?
+
+Yes. Revvin is a web app you can add to your phone's home screen from revvin.co. It opens full screen, and you can turn on notifications for new referrals. There is nothing to download from an app store.
+
 ## Optional
 
 - [Terms of service](/terms)
