@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { isPlatformAdmin } from "../_shared/admin-auth.ts";
 import { appUrl as getAppUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
+import { templateCategory } from "../_shared/transactional-email-templates/registry.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -208,18 +209,26 @@ ${isApproved ? `
     }
 
     // Full overview load
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 3600_000).toISOString();
     const [
       { data: businesses },
       { data: profiles },
       { data: referralCounts },
       { data: payouts },
       { data: offers },
+      { data: lifecycleEmails },
     ] = await Promise.all([
       admin.from("businesses").select("*").order("created_at", { ascending: false }),
       admin.from("profiles").select("*"),
       admin.from("referrals").select("id, business_id, status, payout_status"),
       admin.from("payouts").select("id, business_id, status, amount"),
       admin.from("offers").select("id, business_id, status, title"),
+      admin
+        .from("business_lifecycle_emails")
+        .select("id, business_id, template, sent_at, businesses(name)")
+        .gte("sent_at", thirtyDaysAgo)
+        .order("sent_at", { ascending: false })
+        .limit(500),
     ]);
 
     return new Response(
@@ -229,6 +238,14 @@ ${isApproved ? `
         referral_summary: referralCounts || [],
         payouts: payouts || [],
         offers: offers || [],
+        lifecycle_emails: (lifecycleEmails || []).map((row: any) => ({
+          id: row.id,
+          business_id: row.business_id,
+          business_name: row.businesses?.name ?? null,
+          template: row.template,
+          category: templateCategory(String(row.template)),
+          sent_at: row.sent_at,
+        })),
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
