@@ -68,6 +68,7 @@ const RouteFallback = () => (
 
 const queryClient = new QueryClient();
 
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -79,6 +80,8 @@ const App = () => (
             <CountryProvider>
               <Analytics />
               <MetaPixel />
+              <UpdateToast />
+
               <Suspense fallback={<RouteFallback />}>
               <Routes>
                 <Route path="/auth" element={<Auth />} />
