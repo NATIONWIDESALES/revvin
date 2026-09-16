@@ -17,3 +17,7 @@ project_id = "olmpplfgzegzqdcznlrp"
   # Gateway JWT decoding must not substitute for that credential verification.
   [functions.notify-new-lead]
     verify_jwt = false
+  # Hourly cron worker; authenticates x-cron-secret or the service-role key.
+  [functions.lifecycle-emails]
+    verify_jwt = false
+

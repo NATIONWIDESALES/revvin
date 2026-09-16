@@ -1,4 +1,5 @@
 import { checkCronAuth, type CronCredentials } from "./cron-auth.ts";
+import { FIRST_LEAD_TIPS, FIRST_LEAD_TIPS_TITLE } from "./lifecycle-copy.ts";
 
 // Dependency injection keeps the actual HTTP worker testable without provider
 // calls. The production entrypoint supplies the real database and email gateway.
@@ -16,7 +17,7 @@ type Outcome = { outcome: "sent"; messageId: string } | { outcome: "retry" | "fa
 const esc = (value: unknown) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
-function buildHtml(biz: Record<string, any>, lead: Record<string, any>, dashboardUrl: string): string {
+function buildHtml(biz: Record<string, any>, lead: Record<string, any>, dashboardUrl: string, isFirstLead = false): string {
   const leadNumber = String(lead.lead_phone || "").replace(/[^\d+]/g, "");
   const smsBody = encodeURIComponent(
     `Hi ${String(lead.lead_name || "").split(" ")[0]}, ${lead.referrer_name} passed your details along about ${lead.lead_need}. Is now a good time?`,
@@ -42,8 +43,15 @@ function buildHtml(biz: Record<string, any>, lead: Record<string, any>, dashboar
       <div style="font-size:14px;color:#334155;margin-top:4px">${esc(lead.referrer_email)}${lead.referrer_phone ? ` · ${esc(lead.referrer_phone)}` : ""}</div>
       ${lead.relationship_to_lead ? `<div style="font-size:13px;color:#64748b;margin-top:8px">Relationship: ${esc(lead.relationship_to_lead)}</div>` : ""}
     </div>
+    ${isFirstLead ? `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:20px;margin-bottom:24px">
+      <div style="font-size:11px;color:#15803d;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:10px">${esc(FIRST_LEAD_TIPS_TITLE)}</div>
+      <ul style="margin:0;padding-left:18px;color:#334155;font-size:14px;line-height:1.6">
+        ${FIRST_LEAD_TIPS.map((tip) => `<li style="margin-bottom:6px">${esc(tip)}</li>`).join("")}
+      </ul>
+    </div>` : ""}
     <a href="${dashboardUrl}" style="display:inline-block;background:#15803d;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px">Open dashboard</a>
-    <p style="margin:28px 0 0;font-size:12px;color:#94a3b8">Reminder: once the deal closes, pay your referrer directly — Revvin doesn't take a cut of the payout.</p>
+    <p style="margin:28px 0 0;font-size:12px;color:#94a3b8">Reminder: once the deal closes, pay your referrer directly. Revvin doesn't take a cut of the payout.</p>
+
   </div>
 </body></html>`;
 }
@@ -84,12 +92,22 @@ async function runJob(db: any, job: Job, deps: NotificationWorkerDependencies): 
   }
   if (!to) return { outcome: "failed", error: "no recipient on file for this business" };
 
+  // Lead #1 gets a short coaching block inside this same email. No second
+  // email is ever sent for a first lead. A failed count read just omits it.
+  let isFirstLead = false;
+  try {
+    const { count, error: countErr } = await db.from("leads")
+      .select("id", { count: "exact", head: true }).eq("business_id", biz.id);
+    isFirstLead = !countErr && (count ?? 0) === 1;
+  } catch { isFirstLead = false; }
+
   const idempotencyKey = `new-lead-${job.lead_id}`;
   const result = await deps.sendEmail({
     from: deps.fromAddress, to, reply_to: lead.referrer_email || deps.replyTo,
     subject: `New referral for ${biz.name}: ${lead.lead_name}`,
-    html: buildHtml(biz, lead, deps.dashboardUrl), idempotencyKey,
+    html: buildHtml(biz, lead, deps.dashboardUrl, isFirstLead), idempotencyKey,
   });
+
   const messageId = typeof result.id === "string" ? result.id.trim() : "";
   const evidenced = result.success === true && messageId.length > 0;
   // The durable job is the delivery ledger. A failed diagnostic log cannot

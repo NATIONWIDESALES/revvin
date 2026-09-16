@@ -116,6 +116,42 @@ export type Database = {
         }
         Relationships: []
       }
+      business_lifecycle_emails: {
+        Row: {
+          business_id: string
+          id: string
+          sent_at: string
+          template: string
+        }
+        Insert: {
+          business_id: string
+          id?: string
+          sent_at?: string
+          template: string
+        }
+        Update: {
+          business_id?: string
+          id?: string
+          sent_at?: string
+          template?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_lifecycle_emails_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_lifecycle_emails_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           account_status: string
