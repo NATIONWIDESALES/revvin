@@ -3,6 +3,7 @@ import path from "node:path";
 import type { Plugin } from "vite";
 import { PRERENDER_ROUTES, type PrerenderRoute } from "../src/content/seoRoutes";
 import { PRICE_TEXT, MONTHLY_PRICE, ANNUAL_PRICE } from "../src/config/pricing";
+import { buildBusinessManifest, businessManifestPath } from "../src/lib/webManifest";
 import {
   APP_ID,
   CONTENT_AUTHOR,
@@ -496,6 +497,12 @@ export const renderBusinessDoc = (template: string, biz: PublicBusiness) => {
       ],
     })}</script>`,
   );
+  // A shortcut saved from this page must reopen this page, so it gets its own
+  // manifest instead of the site one, which starts at the dashboard.
+  html = html.replace(
+    /<link rel="manifest" href="[^"]*"\s*\/?>/,
+    `<link rel="manifest" href="${businessManifestPath(biz.slug)}" />`,
+  );
   html = html.replace(
     /<div id="root">\s*<\/div>/,
     `<div id="root"><h1>Refer a customer to ${esc(biz.name)}</h1><p>${esc(description)}</p><p><a href="/r/${esc(
@@ -606,6 +613,16 @@ export default function prerenderPlugin(): Plugin {
         const businesses = await fetchPublishedBusinesses(supabaseUrl, anonKey);
         for (const biz of businesses) {
           writeDoc(dist, `/r/${biz.slug}`, renderBusinessDoc(template, biz));
+          fs.mkdirSync(path.join(dist, "manifests"), { recursive: true });
+          fs.writeFileSync(
+            path.join(dist, `manifests/r-${biz.slug}.webmanifest`),
+            JSON.stringify(
+              buildBusinessManifest({ slug: biz.slug, name: biz.name, logoUrl: biz.logo_url }),
+              null,
+              2,
+            ),
+            "utf8",
+          );
           businessCount++;
         }
       }
