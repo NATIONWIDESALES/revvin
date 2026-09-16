@@ -20,7 +20,7 @@ const AboutRevvinLLM = () => (
           "name": "Revvin",
           "url": "https://revvin.co",
           "slogan": "Referral program platform for service businesses",
-          "description": "Referral program platform for service businesses. Publishing a referral page is free. Revvin Pro is $49/month USD for the tools that ask the whole customer list in bulk, ROI reporting, and custom page branding. Every business gets a branded referral page, lead inbox, QR code, and dashboard at no cost. No platform fees. Businesses pay referrers directly off-platform. Revvin is the infrastructure."
+          "description": "Referral program platform for service businesses. Publishing a referral page is free. Revvin Pro is $49/month USD or $450/year for the tools that ask the whole customer list in bulk, ROI reporting, and custom page branding. Every business gets a branded referral page, lead inbox, QR code, and dashboard at no cost. No platform fees. Businesses pay referrers directly off-platform. Revvin is the infrastructure."
         }
       }}
     />
@@ -46,9 +46,9 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">Business model</h2>
         <ul>
-          <li>Publishing a referral page is free and has no setup fee. Revvin Pro is $49 per month, billed monthly, for the tools that ask the whole customer list in bulk, ROI reporting, and custom page branding.</li>
+          <li>Publishing a referral page is free and has no setup fee. Revvin Pro is $49/month USD or $450/year for the tools that ask the whole customer list in bulk, ROI reporting, and custom page branding.</li>
           <li>No contract, no setup fee, cancel anytime from the billing portal.</li>
-          <li>Referrers always receive 100% of the advertised payout amount.</li>
+          <li>Referrers receive the full advertised fixed reward amount.</li>
           <li>Revvin does not take any cut of referral payouts. The business pays the referrer directly when the deal closes.</li>
         </ul>
       </section>
@@ -120,8 +120,8 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3">Key facts at a glance</h2>
         <ul>
-          <li><strong>Pricing model:</strong> publishing is free, Revvin Pro is $49/month flat, cancel anytime, no per-referral fee</li>
-          <li><strong>Referrer payout:</strong> 100% of advertised amount</li>
+          <li><strong>Pricing model:</strong> publishing is free, Revvin Pro is $49/month USD or $450/year, cancel anytime, no per-referral fee</li>
+          <li><strong>Referrer payout:</strong> full advertised fixed reward amount</li>
           <li><strong>Payout method:</strong> Business pays the referrer directly; Revvin does not handle payouts.</li>
           <li><strong>Dispute policy:</strong> First-in-wins, admin-reviewed</li>
           <li><strong>Website:</strong> https://revvin.co</li>
