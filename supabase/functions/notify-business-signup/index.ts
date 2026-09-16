@@ -6,6 +6,7 @@ import {
   RESEND_REPLY_TO,
 } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
+import { ownerEmail, sendLifecycleEmail } from "../_shared/lifecycle-email.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
