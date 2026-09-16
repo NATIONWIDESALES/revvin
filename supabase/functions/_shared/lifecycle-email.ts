@@ -1,6 +1,7 @@
 import * as React from "npm:react@18.3.1";
 import { renderAsync } from "npm:@react-email/components@0.0.22";
 import { TEMPLATES } from "./transactional-email-templates/registry.ts";
+import { templateCategory } from "./lifecycle-categories.ts";
 import { sendEmailViaGateway } from "./resend-gateway.ts";
 import { isSuppressed, unsubscribeUrlFor } from "./outreach.ts";
 import { LIFECYCLE_FROM, LIFECYCLE_REPLY_TO, REVVIN_POSTAL_ADDRESS } from "./lifecycle-config.ts";
@@ -68,7 +69,7 @@ export async function sendLifecycleEmail(input: LifecycleSendInput): Promise<Lif
   const entry = TEMPLATES[templateName];
   if (!entry) return { sent: false, reason: "unknown_template" };
 
-  const category = entry.category ?? "setup";
+  const category = templateCategory(templateName);
   if (category === "promo") {
     const gate = promoAllowed({
       postalAddress: REVVIN_POSTAL_ADDRESS,

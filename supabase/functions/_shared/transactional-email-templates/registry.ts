@@ -16,19 +16,14 @@ import { template as freeD21Template } from './free-d21.tsx'
 import { template as firstLeadNextDayTemplate } from './first-lead-next-day.tsx'
 import { template as winbackD30Template } from './winback-d30.tsx'
 
-/**
- * "setup" email helps someone use the account they created and can send now.
- * "promo" email exists to promote Pro, the Launch Package or a win back. It is
- * commercial email under CAN-SPAM and CASL, so it carries Revvin's postal
- * address and its own opt-out link, and it is skipped entirely while
- * REVVIN_POSTAL_ADDRESS is empty.
- */
-export type TemplateCategory = 'setup' | 'promo'
+// Every template's category lives in _shared/lifecycle-categories.ts, which is
+// plain TypeScript so the app's test suite can cover the promotional rules.
+export { templateCategory, LIFECYCLE_CATEGORIES } from '../lifecycle-categories.ts'
+export type { LifecycleCategory as TemplateCategory } from '../lifecycle-categories.ts'
 
 export interface TemplateEntry {
   component: ComponentType<any>
   subject: string | ((data: Record<string, any>) => string)
-  category?: TemplateCategory
   displayName?: string
   previewData?: Record<string, any>
   /** Fixed recipient — overrides caller-provided recipientEmail when set. */
@@ -62,8 +57,4 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   free_d21: freeD21Template,
   first_lead_next_day: firstLeadNextDayTemplate,
   winback_d30: winbackD30Template,
-}
-
-export function templateCategory(name: string): TemplateCategory {
-  return TEMPLATES[name]?.category ?? 'setup'
 }
