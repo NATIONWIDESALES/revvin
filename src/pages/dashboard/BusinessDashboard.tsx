@@ -293,42 +293,51 @@ const BusinessDashboard = () => {
     setBiz((prev) => (prev ? { ...prev, qr_downloaded_at: stamp } : prev));
   };
 
+  // Stamped the first time the owner actually shares, copies or texts the link
+  // from this dashboard. Stored on the business row so it survives devices.
+  const markFirstShare = () => {
+    if (!biz || biz.first_share_at) return;
+    const stamp = new Date().toISOString();
+    void (async () => {
+      const { error } = await supabase
+        .from("businesses")
+        .update({ first_share_at: stamp })
+        .eq("id", biz.id);
+      if (error) return;
+      setBiz((prev) => (prev ? { ...prev, first_share_at: stamp } : prev));
+    })();
+  };
+
   const activationSteps: ActivationStep[] = [
     {
-      label: "Add your offer (reward and description)",
-      done: !!(biz.offer_amount && biz.offer_trigger),
-      href: "/welcome",
-      actionLabel: "Add offer",
+      label: "Publish your page",
+      done: !!biz.is_published,
+      href: "/dashboard?tab=page",
+      actionLabel: "Publish",
     },
     {
-      label: "Customize your referral page (upload a logo)",
-      done: !!biz.logo_url,
-      href: "/welcome",
-      actionLabel: "Upload logo",
+      label: "Send your link to 5 customers",
+      done: !!biz.first_share_at,
+      onClick: () => changeTab("share"),
+      actionLabel: "Open share tools",
     },
     {
-      label: "Create a marketplace offer to attract outside referrers",
-      done: offers.length > 0,
-      href: "/dashboard/create-offer",
-      actionLabel: "Create offer",
-    },
-    {
-      label: "Import your customers",
-      done: contactStats.total > 0,
-      href: "/dashboard/invite-customers",
-      actionLabel: "Add customers",
-    },
-    {
-      label: "Send your first batch",
-      done: contactStats.sent > 0,
-      href: "/dashboard/invite-customers",
-      actionLabel: "Open composer",
-    },
-    {
-      label: "Download your QR code",
+      label: "Download your QR code or print pack",
       done: !!biz.qr_downloaded_at,
       onClick: goToQr,
       actionLabel: "Open QR",
+    },
+    {
+      label: "Add your Google review link",
+      done: !!biz.google_review_url,
+      onClick: () => changeTab("page"),
+      actionLabel: "Add link",
+    },
+    {
+      label: "Get your first referral",
+      done: leads.length > 0,
+      onClick: () => changeTab("leads"),
+      actionLabel: "View leads",
     },
   ];
 
