@@ -72,6 +72,9 @@ interface AuditEntry {
 interface PayoutRecord {
   id: string; business_id: string; status: string; amount: number; referral_id: string; currency: string; created_at: string; method?: string; provider_reference?: string; paid_at?: string;
 }
+interface LifecycleEmailRow {
+  id: string; business_id: string; business_name: string | null; template: string; category: string; sent_at: string;
+}
 interface OfferRecord {
   id: string; business_id: string; status: string; title: string; approval_status: string | null; category: string; payout: number; payout_type: string; deposit_status?: string; deposit_amount?: number; stripe_payment_intent_id?: string; businesses?: { name: string }; deposit_paid_at?: string;
 }
@@ -81,7 +84,7 @@ const SuperAdminCRM = () => {
   const { toast } = useToast();
   const [overview, setOverview] = useState<{
     businesses: Business[]; profiles: Profile[]; referral_summary: ReferralSummary[];
-    payouts: PayoutRecord[]; offers: OfferRecord[];
+    payouts: PayoutRecord[]; offers: OfferRecord[]; lifecycle_emails?: LifecycleEmailRow[];
   } | null>(null);
   
   // Data for tabs
@@ -471,6 +474,7 @@ const SuperAdminCRM = () => {
                 <TabsTrigger value="payments" className="gap-1">
                   <DollarSign className="h-3.5 w-3.5" /> Payments
                 </TabsTrigger>
+                <TabsTrigger value="emails" className="gap-1"><Send className="h-3.5 w-3.5" /> Emails</TabsTrigger>
                 <TabsTrigger value="audit" className="gap-1"><History className="h-3.5 w-3.5" /> Audit Log</TabsTrigger>
               </TabsList>
               </div>
@@ -743,6 +747,46 @@ const SuperAdminCRM = () => {
                       <p className="text-xl font-bold text-foreground">${totalPayoutsAmount.toLocaleString()}</p>
                     </div>
                   </div>
+                </div>
+              </TabsContent>
+
+              {/* LIFECYCLE EMAIL TAB */}
+              <TabsContent value="emails">
+                <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+                  <h2 className="text-base font-bold mb-1 flex items-center gap-2">
+                    <Send className="h-4 w-4 text-primary" /> Lifecycle emails
+                  </h2>
+                  <p className="text-xs text-muted-foreground mb-4">Sent in the last 30 days.</p>
+                  {(overview?.lifecycle_emails ?? []).length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-8 text-center">No lifecycle emails sent yet</p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead className="bg-muted/40 text-muted-foreground">
+                          <tr>
+                            <th className="text-left font-medium px-3 py-2">Business</th>
+                            <th className="text-left font-medium px-3 py-2">Template</th>
+                            <th className="text-left font-medium px-3 py-2">Category</th>
+                            <th className="text-left font-medium px-3 py-2">Sent</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(overview?.lifecycle_emails ?? []).map((row) => (
+                            <tr key={row.id} className="border-t border-border">
+                              <td className="px-3 py-2 font-medium text-foreground">{row.business_name || "Unknown"}</td>
+                              <td className="px-3 py-2">{row.template}</td>
+                              <td className="px-3 py-2">
+                                <Badge variant={row.category === "promo" ? "secondary" : "outline"}>{row.category}</Badge>
+                              </td>
+                              <td className="px-3 py-2 text-muted-foreground">
+                                {format(new Date(row.sent_at), "MMM d, yyyy h:mm a")}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
 
