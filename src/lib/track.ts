@@ -3,6 +3,7 @@ import { captureAttribution, getAttribution } from "@/lib/attribution";
 import {
   analyticsContext,
   analyticsEventAllowed,
+  milestoneContext,
   safeAnalyticsAttribution,
   safeAnalyticsMeta,
   sanitizeAnalyticsReferrer,
