@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Users, ArrowRight, BadgeCheck, Trophy, DollarSign, Search, Shield, CheckCircle2, FileText } from "lucide-react";
+import { Users, ArrowRight, DollarSign, Shield, CheckCircle2, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 import MarqueeTicker from "@/components/MarqueeTicker";
-import EarningsEstimator from "@/components/EarningsEstimator";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -25,15 +24,16 @@ const stagger = {
 const ForReferrers = () => (
   <div>
     <SEOHead
-      title="Monetize Your Network | Earn Referral Fees | Revvin"
-      description="Turn your introductions into income. Refer customers to verified businesses on Revvin and earn 100% of the advertised payout when the deal closes."
+      title="How Referring Works | Revvin"
+      description="Someone sent you a Revvin link? Learn how to submit a referral, when a fixed reward becomes owed, and how the business pays you directly."
       path="/for-referrers"
+      noindex
       jsonLd={{
         "@context": "https://schema.org",
         "@type": "FAQPage",
         "mainEntity": [
           { "@type": "Question", "name": "How do I get paid as a referrer?", "acceptedAnswer": { "@type": "Answer", "text": "When the business confirms the referred customer closed a deal, the business pays you directly for the full advertised amount, using whatever method they publish on their offer. Revvin does not hold or send the money." } },
-          { "@type": "Question", "name": "Does Revvin take a cut of my earnings?", "acceptedAnswer": { "@type": "Answer", "text": "No. You always receive 100% of the advertised payout, directly from the business. Revvin only charges the business a flat monthly subscription." } },
+          { "@type": "Question", "name": "Does Revvin take a cut of my earnings?", "acceptedAnswer": { "@type": "Answer", "text": "No. You receive the full advertised fixed reward directly from the business. Revvin does not hold, move, or take a cut of reward money." } },
           { "@type": "Question", "name": "Do I need to be a professional to refer?", "acceptedAnswer": { "@type": "Answer", "text": "No. Anyone with a network, friends, family, neighbors, clients, can submit referrals and earn." } },
           { "@type": "Question", "name": "What if someone else refers the same customer first?", "acceptedAnswer": { "@type": "Answer", "text": "Revvin uses a first-in-wins policy. The first valid referral submitted for a given customer receives credit for the close." } }
         ]
@@ -51,25 +51,20 @@ const ForReferrers = () => (
             </span>
           </motion.div>
           <motion.h1 variants={fadeUp} custom={1} className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.08] tracking-tight text-foreground">
-            Know someone who
+            Someone sent you a link?
             <br />
-            <span className="text-earnings">needs a service?</span>
-            <br />
-            Get paid for the intro.
+            <span className="text-earnings">Here is how referring works.</span>
           </motion.h1>
           <motion.p variants={fadeUp} custom={2} className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Browse businesses willing to pay real money for customer referrals. Submit a referral. Earn when the deal closes.
+            Open the business's referral page, read its terms, and send someone who needs that service. If the referred job closes and qualifies, the business pays you the fixed reward directly.
           </motion.p>
           <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
-            <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/signup">Start Earning <ArrowRight className="h-4 w-4" /></Link>
-            </Button>
             <Button size="lg" variant="outline" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/browse"><Search className="h-4 w-4" /> Browse Offers</Link>
+              <Link to="/trust">How rewards are tracked <ArrowRight className="h-4 w-4" /></Link>
             </Button>
           </motion.div>
           <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
-            Free to join · Revvin takes no cut · Paid directly by the business
+            No account is required to use the link. Revvin takes no cut. The business pays you directly.
           </motion.p>
         </motion.div>
       </div>
@@ -83,15 +78,15 @@ const ForReferrers = () => (
     <section className="py-24 lg:py-32 bg-surface">
       <div className="container">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-4xl mx-auto">
-          <motion.p variants={fadeUp} custom={0} className="section-label text-center mb-3">How referrers earn</motion.p>
+          <motion.p variants={fadeUp} custom={0} className="section-label text-center mb-3">How it works</motion.p>
           <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold text-center mb-16 tracking-tight">
-            You're already making introductions. Now get paid.
+            Follow the terms on the business's page
           </motion.h2>
           <div className="grid gap-12 md:gap-8 md:grid-cols-3 text-center">
             {[
-              { num: "01", title: "Find an opportunity", desc: "Browse live referral offers from real businesses. See what they'll pay for a new customer." },
-              { num: "02", title: "Submit a referral", desc: "Know someone who needs the service? Submit their info through Revvin. First submission wins." },
-              { num: "03", title: "Earn when it closes", desc: "When the business closes the deal, they pay you the full advertised amount directly, on the terms they published. Revvin records the reward and tracks it from pending to paid." },
+              { num: "01", title: "Read the offer", desc: "The link shows the business, its fixed reward, what qualifies, and when it pays." },
+              { num: "02", title: "Submit the referral", desc: "Share the customer's details with their permission. The first valid submission receives credit if more than one person refers the same customer." },
+              { num: "03", title: "Follow the result", desc: "If the job closes and qualifies under the offer, the business pays you the fixed amount directly. Revvin records the reward from owed to paid." },
             ].map((item, i) => (
               <motion.div key={item.num} variants={fadeUp} custom={i + 1}>
                 <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-earnings/5 text-sm font-bold text-earnings">
@@ -110,18 +105,16 @@ const ForReferrers = () => (
     <section className="py-24 lg:py-32">
       <div className="container">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-4xl mx-auto">
-          <motion.p variants={fadeUp} custom={0} className="section-label text-center mb-3">Why referrers choose Revvin</motion.p>
+          <motion.p variants={fadeUp} custom={0} className="section-label text-center mb-3">What to expect</motion.p>
           <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold text-center mb-16 tracking-tight">
-            Your network is worth more than you think
+            Clear terms and a clear record
           </motion.h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: DollarSign, title: "100% of the payout is yours", desc: "Paid directly by the business. Revvin charges the business a flat $49/month and does not take a cut of your reward." },
-              { icon: BadgeCheck, title: "Real businesses", desc: "You are referring to active, subscribed businesses with a live public page and contact details." },
+              { icon: DollarSign, title: "The reward is fixed", desc: "The business publishes one dollar amount and pays it directly when the referred job closes and qualifies." },
               { icon: Shield, title: "A clear record", desc: "Every referral is timestamped in your dashboard, and each reward is tracked from pending to paid, so there is always a record of who referred whom and when." },
               { icon: FileText, title: "Terms you can read first", desc: "Businesses publish their own payout terms on their offer, so you know the reward and when it pays before you send a lead." },
-              { icon: Search, title: "Browse real opportunities", desc: "Filter by category, city, and payout amount. Find offers that match your network." },
-              { icon: CheckCircle2, title: "Works for anyone", desc: "Whether you're a professional connector or just know the right people, Revvin works for you." },
+              { icon: CheckCircle2, title: "No cut from Revvin", desc: "Revvin does not hold, move, or take a cut of reward money. The business handles payment directly." },
             ].map((item, i) => (
               <motion.div key={item.title} variants={fadeUp} custom={i + 1} className="rounded-xl border bg-card p-6">
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-earnings/5">
@@ -136,38 +129,6 @@ const ForReferrers = () => (
       </div>
     </section>
 
-    {/* Earnings Estimator */}
-    <section className="py-24 lg:py-32">
-      <div className="container">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger} className="max-w-2xl mx-auto">
-          <motion.p variants={fadeUp} custom={0} className="section-label text-center mb-3">Your earnings</motion.p>
-          <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-4xl font-bold text-center mb-8 tracking-tight">
-            How much could you earn?
-          </motion.h2>
-          <motion.div variants={fadeUp} custom={1}>
-            <EarningsEstimator />
-          </motion.div>
-          {/* Persona examples */}
-          <motion.div variants={fadeUp} custom={2} className="mt-10 space-y-4">
-            <p className="text-sm font-semibold text-foreground text-center mb-4">Real-world examples</p>
-            {[
-              { name: "Sarah", role: "property manager", desc: "Refers tenants to roofers, plumbers, and HVAC techs.", refs: 3, payout: 500 },
-              { name: "Mike", role: "condo manager", desc: "Refers residents to movers, cleaners, and contractors.", refs: 5, payout: 200 },
-              { name: "Lisa", role: "gym member", desc: "Refers friends to her personal trainer.", refs: 2, payout: 100 },
-            ].map((p) => (
-              <div key={p.name} className="rounded-xl border border-border bg-card p-4">
-                <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">{p.name}</strong> is a {p.role}. {p.desc}{" "}
-                  {p.refs} referrals/month × ${p.payout} = <strong className="text-earnings">${(p.refs * p.payout).toLocaleString()}/month.</strong>
-                </p>
-              </div>
-            ))}
-            <p className="text-xs text-muted-foreground text-center italic">These are illustrative examples showing potential earnings.</p>
-          </motion.div>
-        </motion.div>
-      </div>
-    </section>
-
     {/* Who can be a referrer */}
     <section className="py-24 lg:py-32 bg-surface">
       <div className="container">
@@ -178,10 +139,8 @@ const ForReferrers = () => (
           </motion.h2>
           <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
             {[
-              "Property managers",
               "Home service pros",
               "Handymen",
-              "Car salespeople",
               "Community leaders",
               "Content creators",
               "Entrepreneurs",
@@ -206,17 +165,13 @@ const ForReferrers = () => (
           transition={{ duration: 0.7, ease }}
           className="max-w-xl mx-auto"
         >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Start earning from referrals</h2>
-          <p className="text-muted-foreground mb-8">Create your free account, browse live offers, and start making introductions that pay.</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Have a referral link?</h2>
+          <p className="text-muted-foreground mb-8">Return to the business's page, read the offer, and submit the referral there.</p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/signup">Create Free Account <ArrowRight className="h-4 w-4" /></Link>
-            </Button>
-            <Button size="lg" variant="outline" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/browse">Browse Offers</Link>
+              <Link to="/trust">Read about trust and rewards <ArrowRight className="h-4 w-4" /></Link>
             </Button>
           </div>
-          <p className="mt-4 text-xs text-muted-foreground">Free forever. No credit card required.</p>
         </motion.div>
       </div>
     </section>

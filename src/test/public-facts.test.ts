@@ -86,6 +86,26 @@ describe("payout claims", () => {
   });
 });
 
+describe("retired public claims", () => {
+  const publicSources = [
+    "src/pages/AboutRevvinLLM.tsx",
+    "src/pages/TrustCenter.tsx",
+    "src/pages/ForReferrers.tsx",
+    "public/llms.txt",
+  ];
+
+  it.each([
+    "only on closed deals",
+    "coordinates every payout",
+    "or percentage",
+    "active, subscribed businesses",
+    "Browse live referral offers",
+  ])("does not reintroduce %s", (phrase) => {
+    const copy = publicSources.map((file) => stripComments(read(file))).join("\n");
+    expect(copy.toLowerCase()).not.toContain(phrase.toLowerCase());
+  });
+});
+
 describe("legal content is shared, not summarised twice", () => {
   it("prerenders the introduction, date and sections the pages render", () => {
     for (const doc of [TERMS_DOC, PRIVACY_DOC]) {
