@@ -2,7 +2,7 @@
 import { TOOLKIT_CTA_LABELS } from "@/lib/toolkit/analytics";
 
 export type AnalyticsAudience = "unknown" | "anonymous" | "signed-in";
-export type AnalyticsTraffic = "marketing" | "demo" | "referral";
+export type AnalyticsTraffic = "marketing" | "demo" | "referral" | "product";
 export interface AnalyticsContext { path: string; traffic: AnalyticsTraffic }
 
 let audience: AnalyticsAudience = "unknown";
@@ -48,6 +48,30 @@ export function analyticsContext(href: string, currentAudience = audience): Anal
   } catch { return null; }
 }
 
+/**
+ * Product milestones. Signup and activation only ever happen on private,
+ * signed-in routes, so the public boundary above drops them by design and the
+ * funnel loses its most important steps. These four fixed event names are
+ * allowed from a fixed list of route names with the same minimization rules:
+ * the query string and hash are never read, the path is one of four literal
+ * strings, and no business, offer or person identifier can be carried.
+ */
+const MILESTONE_EVENTS = new Set([
+  "signup_succeeded", "onboarding_started", "onboarding_completed", "page_published",
+]);
+const MILESTONE_PATHS = new Set(["/signup", "/auth", "/welcome", "/dashboard"]);
+
+export function milestoneContext(href: string, event: string): AnalyticsContext | null {
+  if (!MILESTONE_EVENTS.has(event)) return null;
+  try {
+    const url = new URL(href);
+    if (url.protocol !== "https:" || !PRODUCTION_HOSTS.has(url.hostname) || url.port || url.username || url.password) return null;
+    const normalized = url.pathname === "/" ? "/" : url.pathname.replace(/\/$/, "");
+    if (!MILESTONE_PATHS.has(normalized)) return null;
+    return { path: normalized, traffic: "product" };
+  } catch { return null; }
+}
+
 export function sanitizeAnalyticsReferrer(raw: string): string | null {
   try {
     const url = new URL(raw);
@@ -79,6 +103,7 @@ export function safeAnalyticsMeta(event: string, context: AnalyticsContext, inpu
 
 const PUBLIC_EVENTS = new Set(["page_viewed", "cta_clicked", "demo_started", "demo_completed", "sample_page_viewed", "email_lead_submitted", "referral_submitted", "promo_popup_shown", "promo_cta_clicked"]);
 export function analyticsEventAllowed(event: string, context: AnalyticsContext): boolean {
+  if (context.traffic === "product") return MILESTONE_EVENTS.has(event);
   if (!PUBLIC_EVENTS.has(event)) return false;
   if (context.traffic === "demo") return ["page_viewed", "sample_page_viewed", "cta_clicked", "demo_started", "demo_completed"].includes(event);
   return event !== "referral_submitted" || context.traffic === "referral";

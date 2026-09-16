@@ -172,10 +172,11 @@ const Onboarding = () => {
     }
   };
 
-  const finalize = async () => {
+  /** Saves the chosen link. Returns false when nothing was saved. */
+  const saveSlug = async (): Promise<boolean> => {
     if (!slug || slugAvailable !== true) {
       setShowSlugReason(true);
-      return;
+      return false;
     }
     setShowSlugReason(false);
     if (!bizId) {
@@ -184,10 +185,8 @@ const Onboarding = () => {
         description: "Refresh the page and try again. Nothing you entered is lost.",
         variant: "destructive",
       });
-      return;
+      return false;
     }
-    // Free to build: saving the slug finishes setup. The page stays in draft
-    // (is_published = false) until the business publishes it from the dashboard.
     setSaving(true);
     const { error } = await supabase
       .from("businesses")
@@ -203,8 +202,39 @@ const Onboarding = () => {
           : friendlyError(error),
         variant: "destructive",
       });
+      return false;
+    }
+    return true;
+  };
+
+  /** Publishing is free, so setup finishes with a live page by default. */
+  const publishAndFinish = async () => {
+    if (!(await saveSlug())) return;
+    setSaving(true);
+    const { error } = await supabase.rpc("fn_set_business_published", { p_published: true });
+    setSaving(false);
+    if (error) {
+      // The link is saved either way. The dashboard's publish banner lets them retry.
+      toast({
+        title: "Could not publish your page",
+        description: friendlyError(error),
+        variant: "destructive",
+      });
+      track("onboarding_completed");
+      navigate("/dashboard");
       return;
     }
+    toast({
+      title: "Your referral page is live",
+      description: "Send it to your last few customers while it is fresh.",
+    });
+    track("page_published");
+    track("onboarding_completed");
+    navigate("/dashboard?welcome=1");
+  };
+
+  const saveAsDraft = async () => {
+    if (!(await saveSlug())) return;
     toast({
       title: "Your referral page is ready",
       description: "It is in draft. Publish it from your dashboard whenever you're ready.",
@@ -398,8 +428,11 @@ const Onboarding = () => {
                       }}
                       aria-invalid={showOfferReason && !offerAmount.trim()}
                       className="mt-1.5"
-                      placeholder="$500 or 10%"
+                      placeholder="$100"
                     />
+                    <p className="mt-1.5 text-xs text-muted-foreground">
+                      A fixed dollar amount you pay when a referred job closes.
+                    </p>
                     {showOfferReason && (
                       <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">
                         Enter what you pay for a closed referral, for example 100 dollars.
@@ -463,19 +496,29 @@ const Onboarding = () => {
                       {!slug
                         ? "Pick a link name first."
                         : slugAvailable === null
-                          ? "Give us a second to check that link, then tap Finish setup again."
+                          ? "Give us a second to check that link, then tap Publish my page again."
                           : "That link will not work. Try one of the suggestions above."}
                     </p>
                   )}
                 </div>
                 <div className="mt-8 flex justify-between">
                   <Button variant="ghost" onClick={() => setStep(3)}>Back</Button>
-                  <Button onClick={finalize} disabled={saving} className="h-11 sm:h-10">
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Finish setup"}
+                  <Button onClick={publishAndFinish} disabled={saving} className="h-11 sm:h-10">
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Publish my page"}
                   </Button>
                 </div>
+                <div className="mt-3 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={saveAsDraft}
+                    disabled={saving}
+                    className="text-xs font-medium text-muted-foreground underline hover:text-foreground"
+                  >
+                    Save as draft
+                  </button>
+                </div>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Your page stays in draft until you go live. You can preview it any time from your dashboard.
+                  Publishing is free. You can edit your page any time.
                 </p>
               </>
             )}

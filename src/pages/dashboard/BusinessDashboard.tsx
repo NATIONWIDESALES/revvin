@@ -26,6 +26,7 @@ import IntegrationsTab from "@/components/dashboard/IntegrationsTab";
 import PrintPack from "@/components/dashboard/PrintPack";
 import AttestationGate from "@/components/dashboard/AttestationGate";
 import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
+import WelcomeLiveCard from "@/components/dashboard/WelcomeLiveCard";
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
@@ -59,6 +60,7 @@ interface Business {
   contact_outreach_consent_at?: string | null;
   google_review_url?: string | null;
   qr_downloaded_at?: string | null;
+  first_share_at?: string | null;
 }
 
 interface Lead {
@@ -123,8 +125,10 @@ const BusinessDashboard = () => {
   const [offers, setOffers] = useState<OfferRow[]>([]);
   const [contactStats, setContactStats] = useState<{ total: number; sent: number }>({ total: 0, sent: 0 });
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<string>("customers");
+  const [activeTab, setActiveTab] = useState<string>("share");
   const [loading, setLoading] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(searchParams.get("welcome") === "1");
+  const defaultedTab = useRef(false);
 
   // ?tab= lets other surfaces (the scoreboard empty state, emails) deep link
   // straight to the action they are recommending.
@@ -134,6 +138,17 @@ const BusinessDashboard = () => {
     if (t && VALID_TABS.includes(t)) setActiveTab(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
+
+  // Without an explicit tab, a free business lands on the sharing tools and a
+  // Pro business lands on its customer list.
+  useEffect(() => {
+    if (defaultedTab.current || !biz) return;
+    defaultedTab.current = true;
+    const t = searchParams.get("tab");
+    if (t && VALID_TABS.includes(t)) return;
+    setActiveTab((biz.plan || "free") === "pro" ? "customers" : "share");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [biz]);
 
   const changeTab = (t: string) => {
     setActiveTab(t);
@@ -278,47 +293,73 @@ const BusinessDashboard = () => {
     setBiz((prev) => (prev ? { ...prev, qr_downloaded_at: stamp } : prev));
   };
 
+  // Stamped the first time the owner actually shares, copies or texts the link
+  // from this dashboard. Stored on the business row so it survives devices.
+  const markFirstShare = () => {
+    if (!biz || biz.first_share_at) return;
+    const stamp = new Date().toISOString();
+    void (async () => {
+      const { error } = await supabase
+        .from("businesses")
+        .update({ first_share_at: stamp })
+        .eq("id", biz.id);
+      if (error) return;
+      setBiz((prev) => (prev ? { ...prev, first_share_at: stamp } : prev));
+    })();
+  };
+
   const activationSteps: ActivationStep[] = [
     {
-      label: "Add your offer (reward and description)",
-      done: !!(biz.offer_amount && biz.offer_trigger),
-      href: "/welcome",
-      actionLabel: "Add offer",
+      label: "Publish your page",
+      done: !!biz.is_published,
+      href: "/dashboard?tab=page",
+      actionLabel: "Publish",
     },
     {
-      label: "Customize your referral page (upload a logo)",
-      done: !!biz.logo_url,
-      href: "/welcome",
-      actionLabel: "Upload logo",
+      label: "Send your link to 5 customers",
+      done: !!biz.first_share_at,
+      onClick: () => changeTab("share"),
+      actionLabel: "Open share tools",
     },
     {
-      label: "Create a marketplace offer to attract outside referrers",
-      done: offers.length > 0,
-      href: "/dashboard/create-offer",
-      actionLabel: "Create offer",
-    },
-    {
-      label: "Import your customers",
-      done: contactStats.total > 0,
-      href: "/dashboard/invite-customers",
-      actionLabel: "Add customers",
-    },
-    {
-      label: "Send your first batch",
-      done: contactStats.sent > 0,
-      href: "/dashboard/invite-customers",
-      actionLabel: "Open composer",
-    },
-    {
-      label: "Download your QR code",
+      label: "Download your QR code or print pack",
       done: !!biz.qr_downloaded_at,
       onClick: goToQr,
       actionLabel: "Open QR",
     },
+    {
+      label: "Add your Google review link",
+      done: !!biz.google_review_url,
+      onClick: () => changeTab("page"),
+      actionLabel: "Add link",
+    },
+    {
+      label: "Get your first referral",
+      done: leads.length > 0,
+      onClick: () => changeTab("leads"),
+      actionLabel: "View leads",
+    },
   ];
+
+  const dismissWelcome = () => {
+    setShowWelcome(false);
+    const next = new URLSearchParams(searchParams);
+    next.delete("welcome");
+    setSearchParams(next, { replace: true });
+  };
 
   return (
     <div className="container py-10 max-w-6xl">
+      {showWelcome && isLive && (
+        <WelcomeLiveCard
+          businessName={biz.name}
+          offerAmount={biz.offer_amount}
+          publicUrl={publicUrl}
+          onShared={markFirstShare}
+          onOpenPrintPack={() => changeTab("share")}
+          onDismiss={dismissWelcome}
+        />
+      )}
       {/* Stacks on phones: heading owns its own row, actions wrap underneath and
           split the width. From sm: upward it returns to the side-by-side layout. */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -357,11 +398,11 @@ const BusinessDashboard = () => {
 
       {isPro ? (
         <RoiSummaryCard businessId={biz.id} />
-      ) : (
+      ) : leads.length > 0 ? (
         <div className="mb-8">
           <ProUpsell title={PRO_COPY.reporting.title} body={PRO_COPY.reporting.body} />
         </div>
-      )}
+      ) : null}
 
 
       <Tabs value={activeTab} onValueChange={changeTab}>
@@ -457,8 +498,8 @@ const BusinessDashboard = () => {
           )}
         </TabsContent>
         <TabsContent value="payouts"><PayoutsPage businessId={biz.id} /></TabsContent>
-        <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} /></TabsContent>
-        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} onQrDownloaded={markQrDownloaded} /></TabsContent>
+        <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} onShared={markFirstShare} /></TabsContent>
+        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} onQrDownloaded={markQrDownloaded} onShared={markFirstShare} /></TabsContent>
         <TabsContent value="integrations"><IntegrationsTab biz={{ id: biz.id, contact_outreach_consent_at: biz.contact_outreach_consent_at ?? null }} /></TabsContent>
         <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
       </Tabs>
@@ -1045,12 +1086,13 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
 };
 
 // ============= PAGE TAB =============
-const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: string; onUpdate: () => void }) => {
+const PageTab = ({ biz, publicUrl, onUpdate, onShared }: { biz: Business; publicUrl: string; onUpdate: () => void; onShared: () => void }) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [reviewUrl, setReviewUrl] = useState(biz.google_review_url ?? "");
   const [savingReview, setSavingReview] = useState(false);
   const copy = async () => {
+    onShared();
     const ok = await copyText(publicUrl);
     if (!ok) {
       toast({ title: "Could not copy the link", description: "Select the link and copy it manually.", variant: "destructive" });
@@ -1141,7 +1183,7 @@ const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: strin
 };
 
 // ============= SHARE TAB =============
-const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded }: { biz: Business; publicUrl: string; isLive: boolean; onQrDownloaded: () => void | Promise<void> }) => {
+const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded, onShared }: { biz: Business; publicUrl: string; isLive: boolean; onQrDownloaded: () => void | Promise<void>; onShared: () => void }) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -1193,6 +1235,7 @@ const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded }: { biz: Business; p
   const smsTemplate = `Hey, quick favor: if you know anyone who needs ${biz.category || "our services"}, send them here: ${publicUrl}`;
 
   const copy = async (value: string, label: string) => {
+    onShared();
     const ok = await copyText(value);
     toast(
       ok
