@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Settings, Lock, Mail, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import PushSettings from "@/components/pwa/PushSettings";
 import { motion } from "framer-motion";
 import { friendlyError } from "@/lib/errors";
 
@@ -69,6 +70,11 @@ const AccountSettings = () => {
             <p className="text-sm text-muted-foreground">
               Your account email is <span className="font-medium text-foreground">{user?.email}</span>
             </p>
+          </div>
+
+          {/* Push notifications for this device */}
+          <div className="mb-5">
+            <PushSettings />
           </div>
 
           {/* Password change */}

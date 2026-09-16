@@ -4,6 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
 import prerenderPlugin from "./plugins/prerender";
+import pwaPlugin from "./plugins/pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -14,7 +15,7 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), mode === "development" && componentTagger(), mcpPlugin(), prerenderPlugin()].filter(Boolean),
+  plugins: [react(), mode === "development" && componentTagger(), mcpPlugin(), prerenderPlugin(), pwaPlugin()].filter(Boolean),
   build: {
     rollupOptions: {
       output: {
