@@ -1,6 +1,8 @@
-- [ ] Add last-job-date parsing, import, inline editing, and truthful customer-list copy
-- [ ] Gate and wire campaign composer to readiness/segments/templates with consent and live preview
-- [ ] Add authenticated send-campaign edge function with validation, suppression, cap, queueing
-- [ ] Extend process-email-queue for campaign emails after priority queues with status/counters
-- [ ] Update public messaging for device-native referral asks versus Revvin-sent campaigns
-- [ ] Typecheck, test, and verify build/logs
+- [ ] Confirm actual Free and Pro plan gating
+- [ ] Create shared plan feature source
+- [ ] Unify homepage, pricing, and dashboard upsells
+- [ ] Add pricing audience, launch package, and setup call content
+- [ ] Update desktop and mobile navigation
+- [ ] Add Zapier strips where supported
+- [ ] Add shared-list regression coverage
+- [ ] Run tests and verify preview build
