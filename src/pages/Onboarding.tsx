@@ -172,10 +172,11 @@ const Onboarding = () => {
     }
   };
 
-  const finalize = async () => {
+  /** Saves the chosen link. Returns false when nothing was saved. */
+  const saveSlug = async (): Promise<boolean> => {
     if (!slug || slugAvailable !== true) {
       setShowSlugReason(true);
-      return;
+      return false;
     }
     setShowSlugReason(false);
     if (!bizId) {
@@ -184,10 +185,8 @@ const Onboarding = () => {
         description: "Refresh the page and try again. Nothing you entered is lost.",
         variant: "destructive",
       });
-      return;
+      return false;
     }
-    // Free to build: saving the slug finishes setup. The page stays in draft
-    // (is_published = false) until the business publishes it from the dashboard.
     setSaving(true);
     const { error } = await supabase
       .from("businesses")
@@ -203,8 +202,39 @@ const Onboarding = () => {
           : friendlyError(error),
         variant: "destructive",
       });
+      return false;
+    }
+    return true;
+  };
+
+  /** Publishing is free, so setup finishes with a live page by default. */
+  const publishAndFinish = async () => {
+    if (!(await saveSlug())) return;
+    setSaving(true);
+    const { error } = await supabase.rpc("fn_set_business_published", { p_published: true });
+    setSaving(false);
+    if (error) {
+      // The link is saved either way. The dashboard's publish banner lets them retry.
+      toast({
+        title: "Could not publish your page",
+        description: friendlyError(error),
+        variant: "destructive",
+      });
+      track("onboarding_completed");
+      navigate("/dashboard");
       return;
     }
+    toast({
+      title: "Your referral page is live",
+      description: "Send it to your last few customers while it is fresh.",
+    });
+    track("page_published");
+    track("onboarding_completed");
+    navigate("/dashboard?welcome=1");
+  };
+
+  const saveAsDraft = async () => {
+    if (!(await saveSlug())) return;
     toast({
       title: "Your referral page is ready",
       description: "It is in draft. Publish it from your dashboard whenever you're ready.",
