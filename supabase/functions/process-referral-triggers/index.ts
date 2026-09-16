@@ -336,13 +336,14 @@ Deno.serve(async (req) => {
 
       const idempotencyKey = `auto-ask-${row.id}`;
       const send = await sendEmailViaGateway({
-        from: RESEND_FROM_ADDRESS,
+        from: customerFromAddress(biz.name, RESEND_FROM_ADDRESS),
         to: email,
-        reply_to: RESEND_REPLY_TO,
+        reply_to: await replyToFor(biz),
         subject,
-        html: emailShell(biz.name, inner, unsubscribeUrl),
+        html: emailShell(biz.name, inner, unsubscribeUrl, postalAddressOf(biz)),
         idempotencyKey,
       });
+
 
       await supabase.from("email_send_log").insert({
         message_id: idempotencyKey,
