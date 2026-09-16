@@ -46,6 +46,8 @@ export const FUNNEL_EVENTS = [
   "first_ask_prepared",
   "pwa_install_prompted",
   "pwa_installed",
+  "pwa_install_cta_shown",
+  "pwa_install_cta_clicked",
 ] as const;
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];
