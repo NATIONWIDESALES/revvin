@@ -29,6 +29,9 @@ import ActivationChecklist, { ActivationStep } from "@/components/dashboard/Acti
 import WelcomeLiveCard from "@/components/dashboard/WelcomeLiveCard";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import InstallAppButton from "@/components/pwa/InstallAppButton";
+import HomeScreenChecklistStep from "@/components/pwa/HomeScreenChecklistStep";
+import { INSTALL_COPY } from "@/config/installCopy";
+import { watchAppInstalled } from "@/lib/appInstalled";
 import IosInstallSheet from "@/components/pwa/IosInstallSheet";
 import PushSettings from "@/components/pwa/PushSettings";
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
@@ -65,6 +68,7 @@ interface Business {
   google_review_url?: string | null;
   qr_downloaded_at?: string | null;
   first_share_at?: string | null;
+  app_installed_at?: string | null;
 }
 
 interface Lead {
