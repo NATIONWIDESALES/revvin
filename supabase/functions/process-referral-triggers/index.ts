@@ -52,6 +52,7 @@ const GATED_ASK_EXPIRY_DAYS = 21;
 
 interface Biz {
   id: string;
+  user_id: string | null;
   name: string;
   slug: string | null;
   offer_amount: string | null;
@@ -60,6 +61,11 @@ interface Biz {
   is_disabled: boolean;
   contact_outreach_consent_at: string | null;
   is_demo: boolean | null;
+  business_email: string | null;
+  street_address: string | null;
+  city: string | null;
+  postal_code: string | null;
+  country: string | null;
 }
 
 Deno.serve(async (req) => {
@@ -85,7 +91,7 @@ Deno.serve(async (req) => {
     const { data } = await supabase
       .from("businesses")
       .select(
-        "id, name, slug, offer_amount, google_review_url, is_published, is_disabled, contact_outreach_consent_at, is_demo",
+        "id, user_id, name, slug, offer_amount, google_review_url, is_published, is_disabled, contact_outreach_consent_at, is_demo, business_email, street_address, city, postal_code, country",
       )
       .eq("id", id)
       .limit(1);
@@ -93,6 +99,23 @@ Deno.serve(async (req) => {
     bizCache.set(id, biz);
     return biz;
   };
+
+  // Replies belong to the business, not to Revvin. business_email first, then the
+  // owner's account email, then the platform mailbox.
+  const replyToCache = new Map<string, string>();
+  const replyToFor = async (biz: Biz): Promise<string> => {
+    const cached = replyToCache.get(biz.id);
+    if (cached) return cached;
+    let ownerEmail = "";
+    if (!String(biz.business_email ?? "").trim() && biz.user_id) {
+      const { data } = await supabase.auth.admin.getUserById(biz.user_id);
+      ownerEmail = data?.user?.email ?? "";
+    }
+    const value = customerReplyTo(biz.business_email, ownerEmail);
+    replyToCache.set(biz.id, value);
+    return value;
+  };
+
 
   try {
     const nowIso = new Date().toISOString();
