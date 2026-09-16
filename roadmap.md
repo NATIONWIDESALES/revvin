@@ -1,8 +1,8 @@
-- [ ] Confirm actual Free and Pro plan gating
-- [ ] Create shared plan feature source
-- [ ] Unify homepage, pricing, and dashboard upsells
-- [ ] Add pricing audience, launch package, and setup call content
-- [ ] Update desktop and mobile navigation
-- [ ] Add Zapier strips where supported
-- [ ] Add shared-list regression coverage
-- [ ] Run tests and verify preview build
+- [x] Confirm actual Free and Pro plan gating
+- [x] Create shared plan feature source
+- [x] Unify homepage, pricing, and dashboard upsells
+- [x] Add pricing audience, launch package, and setup call content
+- [x] Update desktop and mobile navigation
+- [x] Add Zapier strips where supported
+- [x] Add shared-list regression coverage
+- [x] Run tests and verify preview build
