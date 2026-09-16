@@ -103,6 +103,7 @@ export function safeAnalyticsMeta(event: string, context: AnalyticsContext, inpu
 
 const PUBLIC_EVENTS = new Set(["page_viewed", "cta_clicked", "demo_started", "demo_completed", "sample_page_viewed", "email_lead_submitted", "referral_submitted", "promo_popup_shown", "promo_cta_clicked"]);
 export function analyticsEventAllowed(event: string, context: AnalyticsContext): boolean {
+  if (context.traffic === "product") return MILESTONE_EVENTS.has(event);
   if (!PUBLIC_EVENTS.has(event)) return false;
   if (context.traffic === "demo") return ["page_viewed", "sample_page_viewed", "cta_clicked", "demo_started", "demo_completed"].includes(event);
   return event !== "referral_submitted" || context.traffic === "referral";
