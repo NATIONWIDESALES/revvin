@@ -18,7 +18,7 @@ const Email = ({ businessName, askMessage, dashboardUrl, unsubscribeUrl }: Props
       the customers you finished with recently. Copy this and send it to five of them.
     </Text>
     {askMessage ? <Text style={quoted}>{askMessage}</Text> : null}
-    <Text style={paragraph}>That is the whole task. Most owners get their first referral within a week of sending it.</Text>
+    <Text style={paragraph}>That is the whole task. It takes about five minutes.</Text>
     {dashboardUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(dashboardUrl, 'Open my dashboard')}</Text> : null}
     <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to me. Karm</Text>
   </RevvinShell>
