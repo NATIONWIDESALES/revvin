@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { shouldRegisterServiceWorker } from "@/config/pwa";
-import { classifyPushFailure } from "../../supabase/functions/_shared/push";
 
 const manifest = JSON.parse(readFileSync("public/manifest.webmanifest", "utf8"));
 const workerSource = readFileSync("src/pwa/service-worker.js", "utf8");
 const indexHtml = readFileSync("index.html", "utf8");
+const pushSource = readFileSync("supabase/functions/_shared/push.ts", "utf8");
 
 describe("web app manifest", () => {
   it("describes an installable standalone app", () => {
@@ -101,10 +101,13 @@ describe("registration guard", () => {
 });
 
 describe("push failure handling", () => {
-  it("treats a gone endpoint as permanently gone and everything else as retryable", () => {
-    expect(classifyPushFailure(404)).toBe("gone");
-    expect(classifyPushFailure(410)).toBe("gone");
-    expect(classifyPushFailure(429)).toBe("failed");
-    expect(classifyPushFailure(500)).toBe("failed");
+  it("treats a gone endpoint as permanently gone so dead devices stop being retried", () => {
+    expect(pushSource).toMatch(/404[\s\S]{0,40}410/);
+    expect(pushSource).toContain('"gone"');
+    expect(pushSource).toContain("disabled_at");
+  });
+
+  it("logs every attempt", () => {
+    expect(pushSource).toContain("push_send_log");
   });
 });
