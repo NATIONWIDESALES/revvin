@@ -26,7 +26,17 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { checkCronAuth } from "../_shared/cron-auth.ts";
-import { button, emailShell, esc, isSuppressed, unsubscribeUrlFor } from "../_shared/outreach.ts";
+import {
+  button,
+  customerFromAddress,
+  customerReplyTo,
+  emailShell,
+  esc,
+  isSuppressed,
+  postalAddressOf,
+  unsubscribeUrlFor,
+} from "../_shared/outreach.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
