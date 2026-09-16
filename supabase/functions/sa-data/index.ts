@@ -229,6 +229,16 @@ ${isApproved ? `
         .gte("sent_at", thirtyDaysAgo)
         .order("sent_at", { ascending: false })
         .limit(500),
+      admin
+        .from("push_subscriptions")
+        .select("id, platform, disabled_at, created_at")
+        .limit(2000),
+      admin
+        .from("push_send_log")
+        .select("id, business_id, title, status, status_code, created_at")
+        .gte("created_at", thirtyDaysAgo)
+        .order("created_at", { ascending: false })
+        .limit(300),
     ]);
 
     return new Response(
