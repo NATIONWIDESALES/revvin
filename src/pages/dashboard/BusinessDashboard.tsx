@@ -381,11 +381,11 @@ const BusinessDashboard = () => {
 
       {isPro ? (
         <RoiSummaryCard businessId={biz.id} />
-      ) : (
+      ) : leads.length > 0 ? (
         <div className="mb-8">
           <ProUpsell title={PRO_COPY.reporting.title} body={PRO_COPY.reporting.body} />
         </div>
-      )}
+      ) : null}
 
 
       <Tabs value={activeTab} onValueChange={changeTab}>
