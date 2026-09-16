@@ -20,8 +20,8 @@ const Email = ({ businessName, publicUrl, pricingUrl, unsubscribeUrl, postalAddr
   >
     <Text style={heading}>Your page is still live</Text>
     <Text style={paragraph}>
-      Hi, it's Karm. Just so you know, {businessName || 'your'} referral page is still live and still free, and your leads
-      and your customer list are all still there.
+      Hi, it's Karm. Just so you know, the referral page for {businessName || 'your business'} is still live and still
+      free, and your leads and your customer list are all still there.
       {publicUrl ? ` ${publicUrl}` : ''}
     </Text>
     <Text style={paragraph}>{PRO_PRICE_LINE}</Text>
