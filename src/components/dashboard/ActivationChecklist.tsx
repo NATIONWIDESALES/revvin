@@ -49,33 +49,34 @@ const ActivationChecklist = ({ steps }: Props) => {
         {steps.map((s, i) => (
           <li
             key={i}
-            className={`flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm ${
-              s.done ? "text-muted-foreground" : "text-foreground"
-            }`}
+            className={`rounded-lg px-3 py-2 text-sm ${s.done ? "text-muted-foreground" : "text-foreground"}`}
           >
-            <span className="flex items-center gap-2">
-              {s.done ? (
-                <CheckCircle2 className="h-4 w-4 text-primary" />
-              ) : (
-                <Circle className="h-4 w-4 text-muted-foreground/50" />
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex items-center gap-2">
+                {s.done ? (
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                ) : (
+                  <Circle className="h-4 w-4 text-muted-foreground/50" />
+                )}
+                <span className={s.done ? "line-through" : ""}>{s.label}</span>
+              </span>
+              {!s.done && (s.href || s.onClick) && (
+                s.href ? (
+                  <Link to={s.href} className="inline-flex min-h-11 items-center px-2 text-sm font-medium text-primary hover:underline sm:min-h-0 sm:px-0 sm:text-xs">
+                    {s.actionLabel ?? "Do it"}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={s.onClick}
+                    className="inline-flex min-h-11 items-center px-2 text-sm font-medium text-primary hover:underline sm:min-h-0 sm:px-0 sm:text-xs"
+                  >
+                    {s.actionLabel ?? "Do it"}
+                  </button>
+                )
               )}
-              <span className={s.done ? "line-through" : ""}>{s.label}</span>
-            </span>
-            {!s.done && (s.href || s.onClick) && (
-              s.href ? (
-                <Link to={s.href} className="inline-flex min-h-11 items-center px-2 text-sm font-medium text-primary hover:underline sm:min-h-0 sm:px-0 sm:text-xs">
-                  {s.actionLabel ?? "Do it"}
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={s.onClick}
-                  className="inline-flex min-h-11 items-center px-2 text-sm font-medium text-primary hover:underline sm:min-h-0 sm:px-0 sm:text-xs"
-                >
-                  {s.actionLabel ?? "Do it"}
-                </button>
-              )
-            )}
+            </div>
+            {!s.done && s.content ? <div className="mt-2 pl-6">{s.content}</div> : null}
           </li>
         ))}
       </ul>
