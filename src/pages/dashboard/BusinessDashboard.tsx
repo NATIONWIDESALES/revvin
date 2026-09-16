@@ -148,6 +148,17 @@ const BusinessDashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
+  // Records the first home screen launch, and the install prompt being accepted
+  // later in the same session, so the activation step can tick itself.
+  const installedAt = biz?.app_installed_at ?? null;
+  const bizId = biz?.id ?? null;
+  useEffect(() => {
+    if (!bizId || installedAt) return;
+    return watchAppInstalled(bizId, (stamp) =>
+      setBiz((prev) => (prev ? { ...prev, app_installed_at: stamp } : prev)),
+    );
+  }, [bizId, installedAt]);
+
   // Without an explicit tab, a free business lands on the sharing tools and a
   // Pro business lands on its customer list.
   useEffect(() => {
