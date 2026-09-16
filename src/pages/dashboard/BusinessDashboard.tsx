@@ -1092,6 +1092,7 @@ const PageTab = ({ biz, publicUrl, onUpdate, onShared }: { biz: Business; public
   const [reviewUrl, setReviewUrl] = useState(biz.google_review_url ?? "");
   const [savingReview, setSavingReview] = useState(false);
   const copy = async () => {
+    onShared();
     const ok = await copyText(publicUrl);
     if (!ok) {
       toast({ title: "Could not copy the link", description: "Select the link and copy it manually.", variant: "destructive" });
@@ -1234,6 +1235,7 @@ const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded, onShared }: { biz: B
   const smsTemplate = `Hey, quick favor: if you know anyone who needs ${biz.category || "our services"}, send them here: ${publicUrl}`;
 
   const copy = async (value: string, label: string) => {
+    onShared();
     const ok = await copyText(value);
     toast(
       ok
