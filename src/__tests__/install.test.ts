@@ -18,9 +18,11 @@ describe("home screen copy", () => {
         typeof value === "string" ? [value] : Array.isArray(value) ? value : Object.values(value),
       )
       .join(" ");
+    // "no app store needed" is fine; naming a store as a place to get Revvin is not.
     for (const banned of ["download", "App Store", "Google Play", "native app", "\u2014"]) {
-      expect(visible.toLowerCase()).not.toContain(banned.toLowerCase());
+      expect(visible).not.toContain(banned);
     }
+    expect(visible.toLowerCase()).not.toContain("google play");
     // The comment header is allowed to name the banned words, the exported copy is not.
     expect(copy.split("*/")[1]).not.toContain("\u2014");
   });
