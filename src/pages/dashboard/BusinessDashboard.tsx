@@ -498,8 +498,8 @@ const BusinessDashboard = () => {
           )}
         </TabsContent>
         <TabsContent value="payouts"><PayoutsPage businessId={biz.id} /></TabsContent>
-        <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} /></TabsContent>
-        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} onQrDownloaded={markQrDownloaded} /></TabsContent>
+        <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} onShared={markFirstShare} /></TabsContent>
+        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} onQrDownloaded={markQrDownloaded} onShared={markFirstShare} /></TabsContent>
         <TabsContent value="integrations"><IntegrationsTab biz={{ id: biz.id, contact_outreach_consent_at: biz.contact_outreach_consent_at ?? null }} /></TabsContent>
         <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
       </Tabs>
@@ -1086,7 +1086,7 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
 };
 
 // ============= PAGE TAB =============
-const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: string; onUpdate: () => void }) => {
+const PageTab = ({ biz, publicUrl, onUpdate, onShared }: { biz: Business; publicUrl: string; onUpdate: () => void; onShared: () => void }) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [reviewUrl, setReviewUrl] = useState(biz.google_review_url ?? "");
@@ -1182,7 +1182,7 @@ const PageTab = ({ biz, publicUrl, onUpdate }: { biz: Business; publicUrl: strin
 };
 
 // ============= SHARE TAB =============
-const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded }: { biz: Business; publicUrl: string; isLive: boolean; onQrDownloaded: () => void | Promise<void> }) => {
+const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded, onShared }: { biz: Business; publicUrl: string; isLive: boolean; onQrDownloaded: () => void | Promise<void>; onShared: () => void }) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
