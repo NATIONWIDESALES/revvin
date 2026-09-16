@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle2, Circle } from "lucide-react";
 
@@ -7,6 +8,8 @@ export interface ActivationStep {
   href?: string;
   onClick?: () => void;
   actionLabel?: string;
+  /** Rendered under the row when the step is not done, for steps that need their own controls. */
+  content?: ReactNode;
 }
 
 interface Props {

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { copyText } from "@/lib/clipboard";
 import SimpleQRCode from "@/components/marketplace/SimpleQRCode";
+import AddToHomeScreen from "@/components/pwa/AddToHomeScreen";
 
 interface Props {
   businessName: string;
@@ -91,6 +92,7 @@ const WelcomeLiveCard = ({ businessName, offerAmount, publicUrl, onShared, onOpe
               <Printer className="mr-2 h-3.5 w-3.5" /> Download print pack
             </Button>
           </div>
+          <AddToHomeScreen surface="welcome_card" className="mt-4" />
         </div>
       </div>
     </div>
