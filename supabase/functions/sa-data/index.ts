@@ -217,6 +217,8 @@ ${isApproved ? `
       { data: payouts },
       { data: offers },
       { data: lifecycleEmails },
+      { data: pushSubs },
+      { data: pushSends },
     ] = await Promise.all([
       admin.from("businesses").select("*").order("created_at", { ascending: false }),
       admin.from("profiles").select("*"),
@@ -255,6 +257,24 @@ ${isApproved ? `
           template: row.template,
           category: templateCategory(String(row.template)),
           sent_at: row.sent_at,
+        })),
+        push_stats: {
+          devices: (pushSubs || []).filter((row: any) => !row.disabled_at).length,
+          disabled: (pushSubs || []).filter((row: any) => row.disabled_at).length,
+          by_platform: (pushSubs || []).reduce((acc: Record<string, number>, row: any) => {
+            if (row.disabled_at) return acc;
+            const key = String(row.platform || "unknown");
+            acc[key] = (acc[key] || 0) + 1;
+            return acc;
+          }, {}),
+        },
+        push_sends: (pushSends || []).map((row: any) => ({
+          id: row.id,
+          business_id: row.business_id,
+          title: row.title,
+          status: row.status,
+          status_code: row.status_code,
+          created_at: row.created_at,
         })),
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
