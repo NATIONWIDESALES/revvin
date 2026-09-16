@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import AddToHomeScreen from "@/components/pwa/AddToHomeScreen";
+import { INSTALL_COPY } from "@/config/installCopy";
+import { buildStatusManifest } from "@/lib/webManifest";
+import { applyPageManifest } from "@/lib/pageManifest";
 
 interface StatusData {
   business_name: string;
@@ -24,6 +28,15 @@ const ReferralStatus = () => {
       setLoading(false);
     })();
   }, [token]);
+
+  // A shortcut saved here should reopen this receipt, so this page carries its
+  // own app metadata while it is open. The page stays noindex.
+  useEffect(() => {
+    if (!data || !token) return;
+    return applyPageManifest({
+      manifest: buildStatusManifest(`/r/status/${token}`, data.business_name),
+    });
+  }, [data, token]);
 
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
@@ -74,6 +87,8 @@ const ReferralStatus = () => {
           <p className="mt-8 text-xs text-muted-foreground">
             This page shows only your referral's stage and reward status. The business handles payment directly.
           </p>
+
+          <AddToHomeScreen surface="referral_status" line={INSTALL_COPY.statusLine} className="mt-6" />
         </div>
       </div>
       <footer className="py-6 text-center text-xs text-muted-foreground">
