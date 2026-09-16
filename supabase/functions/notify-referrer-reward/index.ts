@@ -18,8 +18,10 @@
 //     sees the business name, the amount, and their own links.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
+import { appUrl, RESEND_FROM_ADDRESS } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
+import { customerFromAddress, customerReplyTo } from "../_shared/email-format.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
