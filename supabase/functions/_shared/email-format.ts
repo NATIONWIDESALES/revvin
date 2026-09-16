@@ -55,12 +55,18 @@ export function customerReplyTo(
  * The business's postal address, but only when every part is on file. A partial
  * address in a footer is worse than the compact footer.
  */
-export function postalAddressOf(
-  biz: Record<string, unknown> | null | undefined,
-): SenderAddress | null {
+export interface PostalSource {
+  street_address?: unknown;
+  city?: unknown;
+  postal_code?: unknown;
+  country?: unknown;
+}
+
+export function postalAddressOf(biz: PostalSource | null | undefined): SenderAddress | null {
   if (!biz) return null;
-  const fields = ["street_address", "city", "postal_code", "country"] as const;
-  const values = fields.map((field) => String(biz[field] ?? "").trim());
+  const values = [biz.street_address, biz.city, biz.postal_code, biz.country].map((v) =>
+    String(v ?? "").trim(),
+  );
   if (values.some((value) => !value)) return null;
   return {
     street_address: values[0],
