@@ -27,6 +27,7 @@ const Email = ({ businessName, setupCallUrl, unsubscribeUrl }: Props) => (
 
 export const template = {
   component: Email,
+  category: 'setup',
   subject: 'Want me to set this up with you?',
   displayName: 'No leads after 7 days',
   previewData: {

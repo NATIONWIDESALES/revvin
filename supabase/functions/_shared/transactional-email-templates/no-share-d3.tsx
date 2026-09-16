@@ -26,6 +26,7 @@ const Email = ({ businessName, askMessage, dashboardUrl, unsubscribeUrl }: Props
 
 export const template = {
   component: Email,
+  category: 'setup',
   subject: 'The text to send your last 5 customers',
   displayName: 'No share after 3 days',
   previewData: {
