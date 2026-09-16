@@ -27,6 +27,10 @@ import PrintPack from "@/components/dashboard/PrintPack";
 import AttestationGate from "@/components/dashboard/AttestationGate";
 import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
 import WelcomeLiveCard from "@/components/dashboard/WelcomeLiveCard";
+import InstallPrompt from "@/components/pwa/InstallPrompt";
+import InstallAppButton from "@/components/pwa/InstallAppButton";
+import IosInstallSheet from "@/components/pwa/IosInstallSheet";
+import PushSettings from "@/components/pwa/PushSettings";
 import RoiSummaryCard from "@/components/dashboard/RoiSummaryCard";
 import PayoutsPage from "@/pages/dashboard/PayoutsPage";
 import { notifyRewardCreatedForLead } from "@/lib/rewardNotify";
@@ -126,6 +130,7 @@ const BusinessDashboard = () => {
   const [contactStats, setContactStats] = useState<{ total: number; sent: number }>({ total: 0, sent: 0 });
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<string>("share");
+  const [showIosSteps, setShowIosSteps] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(searchParams.get("welcome") === "1");
   const defaultedTab = useRef(false);
@@ -350,6 +355,8 @@ const BusinessDashboard = () => {
 
   return (
     <div className="container py-10 max-w-6xl">
+      <InstallPrompt />
+      <IosInstallSheet open={showIosSteps} onClose={() => setShowIosSteps(false)} />
       {showWelcome && isLive && (
         <WelcomeLiveCard
           businessName={biz.name}
@@ -387,6 +394,7 @@ const BusinessDashboard = () => {
               {isLive ? "View public page" : "Preview page"} <ExternalLink className="ml-2 h-3.5 w-3.5" />
             </a>
           </Button>
+          <InstallAppButton className="h-11 flex-1 sm:h-10 sm:flex-none" onIosSteps={() => setShowIosSteps(true)} />
         </div>
       </div>
 
@@ -395,6 +403,12 @@ const BusinessDashboard = () => {
       {!isLive && <PublishBanner biz={biz} onUpdate={loadAll} />}
 
       <ActivationChecklist steps={activationSteps} />
+
+      {isLive && (
+        <div className="mb-8">
+          <PushSettings businessId={biz.id} compact />
+        </div>
+      )}
 
       {isPro ? (
         <RoiSummaryCard businessId={biz.id} />

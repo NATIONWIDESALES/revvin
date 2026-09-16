@@ -62,6 +62,8 @@ const MessageGenerator = lazy(() => import("./pages/tools/MessageGenerator"));
 
 // Deliberately quiet: same background as every page, fixed viewport height, no
 // text or skeleton, so a route chunk arriving does not shift layout or flash.
+import UpdateToast from "@/components/pwa/UpdateToast";
+
 const RouteFallback = () => (
   <div className="min-h-screen bg-background" aria-busy="true" />
 );
