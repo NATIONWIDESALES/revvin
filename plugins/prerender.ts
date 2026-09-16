@@ -275,6 +275,13 @@ const renderRoute = (template: string, route: PrerenderRoute) => {
     );
   }
 
+  if (route.noindex) {
+    html = html.replace(
+      "</head>",
+      '  <meta name="robots" content="noindex, nofollow">\n  </head>',
+    );
+  }
+
   // JSON-LD
   html = replaceTag(
     html,

@@ -239,7 +239,7 @@ const Browse = () => {
               headline="Tell me when offers go live in my area."
               subhead="We'll email you once when the marketplace has live offers worth browsing. No drip campaign."
               ctaLabel="Notify me"
-              successCopy="Thanks — we'll email you when there's something worth a click."
+              successCopy="Thanks. We'll email you when there's something worth a click."
               disclaimer="One email when offers go live near you. No spam."
               withSection={false}
             />

@@ -76,7 +76,7 @@ const HowItWorks = () => {
             {`Free to publish and take referrals. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD for the tools that ask your whole customer list for you. Cancel anytime, no contract.`}
           </p>
           <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
-            <Link to="/signup">Build your page — free</Link>
+            <Link to="/signup">Build your page for free</Link>
           </Button>
         </div>
       </section>
