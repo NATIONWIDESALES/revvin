@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import { track } from "@/lib/track";
-import { ArrowRight, Check, Minus } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -18,6 +18,9 @@ import FounderNote from "@/components/marketing/FounderNote";
 import ReferralDemo from "@/components/demo/ReferralDemo";
 import Wordmark from "@/components/brand/Wordmark";
 import { PRICE_TEXT } from "@/config/pricing";
+import { MONTHLY_PRICE } from "@/config/pricing";
+import { FREE_FEATURES, PRO_FEATURES } from "@/config/planFeatures";
+import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
 
 /**
  * Homepage. Deliberately short: hero, a demo a visitor can actually run, three
@@ -55,24 +58,6 @@ const STEPS = [
       "Every referral submitted through your page lands in your lead inbox. Move it through to closed, then record the reward as paid once you have paid your referrer directly. They are notified when it is owed and when you mark it paid.",
     visual: <MockLeadsTable />,
   },
-];
-
-const FREE_FEATURES = [
-  "Referral page on your own Revvin link, published free",
-  "Shareable link, QR code and printable pack",
-  "Lead inbox with statuses and one-tap call or text back",
-  "Email notification when a referral comes in",
-  "Fixed reward tracked from owed to paid, referrer notified at both",
-  "Optional marketplace listing",
-];
-
-// Everything gated behind plan === "pro" in the app today, and nothing else.
-const PRO_FEATURES = [
-  "Import your past-customer list",
-  "Bulk personal asks drafted for your whole list",
-  "Reactivation email campaigns sent by Revvin to a segment you pick",
-  "ROI reporting and a monthly email recap",
-  "Custom page branding: colour, cover image, headline, testimonials",
 ];
 
 // Exactly five, and the same five feed the FAQPage schema below.
@@ -129,7 +114,7 @@ const Index = () => (
             {
               "@type": "Offer",
               name: "Revvin Pro",
-              price: "49.00",
+              price: MONTHLY_PRICE.toFixed(2),
               priceCurrency: "USD",
               url: "https://revvin.co/pricing",
             },
@@ -347,27 +332,12 @@ const Index = () => (
             <p className="mt-2 text-4xl font-extrabold tracking-tight text-foreground">$0</p>
             <p className="mt-1 text-sm text-muted-foreground">No card. Does not expire.</p>
             <ul className="mt-6 space-y-2.5 border-t border-border pt-6">
-              {FREE_FEATURES.map((f) => (
-                <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+              {FREE_FEATURES.map((feature) => (
+                <li key={feature.label} className="flex items-start gap-2.5 text-sm text-foreground">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                  <span>{f}</span>
+                  <span><span className="font-medium">{feature.label}.</span> {feature.description}</span>
                 </li>
               ))}
-              {/* Not-included rows must not rely on the grey text and the dash
-                  alone: the meaning is spelled out for screen readers and as a
-                  visible label. */}
-              {PRO_FEATURES.map((f) => (
-                <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-                  <Minus className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span>
-                    {f}{" "}
-                    <span className="whitespace-nowrap font-medium text-foreground/70">
-                      (not included in Free)
-                    </span>
-                  </span>
-                </li>
-              ))}
-
             </ul>
             <Button variant="outline" size="lg" className="mt-7 h-12 w-full text-base" asChild>
               <Link to="/signup" onClick={() => track("cta_clicked", { cta: "plans_free" })}>
@@ -390,14 +360,10 @@ const Index = () => (
               {`Or ${PRICE_TEXT.annualPerYear} billed once. Cancel anytime.`}
             </p>
             <ul className="mt-6 space-y-2.5 border-t border-border pt-6">
-              <li className="flex items-start gap-2.5 text-sm text-foreground">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                <span>Everything in Free</span>
-              </li>
-              {PRO_FEATURES.map((f) => (
-                <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+              {PRO_FEATURES.map((feature) => (
+                <li key={feature.label} className="flex items-start gap-2.5 text-sm text-foreground">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                  <span>{f}</span>
+                  <span><span className="font-medium">{feature.label}.</span> {feature.description}</span>
                 </li>
               ))}
             </ul>
@@ -410,6 +376,8 @@ const Index = () => (
         </div>
       </div>
     </section>
+
+    <WorksWithJobSoftware />
 
     {/* 5 · Note from the team */}
     <FounderNote />

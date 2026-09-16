@@ -525,12 +525,12 @@ const handwritten: PrerenderRoute[] = [
     path: "/docs/zapier",
     title: "Zapier and integrations | Revvin",
     description:
-      "Zapier, webhook and API integrations are not available in Revvin yet. Here is how the work actually gets done today.",
+      "Connect job software to Revvin through Zapier or the API so a completed job can schedule an automatic email ask.",
     h1: "Zapier and integrations",
     sections: [
       {
         heading: "These integrations do not exist yet",
-        body: "Revvin has no Zapier app, no webhooks and no public API. Nothing on this page is a preview or a waitlist for one. If you are looking for a way to connect Revvin to another tool automatically, it is not available today.",
+        body: "Revvin does not have an app in the Zapier directory. Use Webhooks by Zapier with the endpoint and API key shown in the Integrations tab. When your software reports a completed job, Revvin schedules the same automatic email ask as the Job done tab.",
       },
       {
         heading: "What happens instead",

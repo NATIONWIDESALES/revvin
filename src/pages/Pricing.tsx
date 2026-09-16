@@ -15,47 +15,9 @@ import {
 import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 import HowPayoutsWork from "@/components/marketing/HowPayoutsWork";
-
-// Publishing is free, so the free column now carries the whole referral loop.
-// Pro is grouped by what it does for you: it asks your customer list on your
-// behalf, reports what came back, and makes the page yours.
-const proFeatureGroups: { label: string; features: string[] }[] = [
-  {
-    label: "Asks your list for you",
-    features: [
-      "Import your past customer list",
-      "Send your referral ask to all of them in bulk, instead of texting people one at a time",
-    ],
-  },
-  {
-    label: "Shows you what it produced",
-    features: [
-      "ROI reporting: leads, closed deals and attributed revenue",
-      "Monthly email recap",
-      "Reward tracking from pending to paid, with the referrer notified at both moments",
-    ],
-  },
-  {
-    label: "Makes the page yours",
-    features: [
-      "Brand colour, cover image, custom headline and welcome message",
-      "Testimonials on your referral page",
-      "Stripe billing portal, cancel any time",
-    ],
-  },
-];
-
-const freeFeatures = [
-  "Your referral page on your own link",
-  "QR code and share tools",
-  "Print pack: yard signs, door hangers, invoice inserts, business cards, truck magnets",
-  "Unlimited referral leads",
-  "Lead inbox with status tracking",
-  "Offers",
-  "Payout tracking",
-  "Listed in the marketplace",
-];
-
+import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
+import { FREE_FEATURES, PRO_FEATURES } from "@/config/planFeatures";
+import { SETUP_CALL_URL } from "@/config/setupCall";
 
 const launchFeatures = [
   "1:1 onboarding call",
@@ -132,10 +94,10 @@ const Pricing = () => {
               </Button>
 
               <ul className="mt-8 space-y-2.5 border-t border-border pt-6">
-                {freeFeatures.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+                {FREE_FEATURES.map((feature) => (
+                  <li key={feature.label} className="flex items-start gap-2.5 text-sm text-foreground">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span>{f}</span>
+                    <span><span className="font-medium">{feature.label}.</span> {feature.description}</span>
                   </li>
                 ))}
               </ul>
@@ -225,22 +187,15 @@ const Pricing = () => {
                   </Label>
                 </div>
               )}
-              <div className="mt-8 space-y-6 border-t border-border pt-6">
-                {proFeatureGroups.map((group) => (
-                  <div key={group.label}>
-                    <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                      {group.label}
-                    </p>
-                    <ul className="space-y-2.5">
-                      {group.features.map((f) => (
-                        <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
-                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+               <div className="mt-8 border-t border-border pt-6">
+                 <ul className="space-y-2.5">
+                   {PRO_FEATURES.map((feature) => (
+                     <li key={feature.label} className="flex items-start gap-2.5 text-sm text-foreground">
+                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                       <span><span className="font-medium">{feature.label}.</span> {feature.description}</span>
+                     </li>
+                   ))}
+                 </ul>
               </div>
             </div>
 
@@ -287,6 +242,11 @@ const Pricing = () => {
               <p className="mt-6 text-[11px] text-muted-foreground">
                 Charged once, at checkout, on top of your Revvin subscription.
               </p>
+              {SETUP_CALL_URL && (
+                <a href={SETUP_CALL_URL} className="mt-4 text-sm font-medium text-primary underline underline-offset-4">
+                  Book a 15-minute setup call
+                </a>
+              )}
             </div>
             )}
           </div>
@@ -310,6 +270,31 @@ const Pricing = () => {
 
           <div className="mx-auto mt-6 max-w-3xl">
             <HowPayoutsWork />
+          </div>
+        </div>
+      </section>
+
+      <WorksWithJobSoftware />
+
+      <section className="border-b border-border">
+        <div className="container max-w-5xl py-20">
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Who Revvin is for</h2>
+          <div className="mt-8 grid gap-10 md:grid-cols-2">
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">For</h3>
+              <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+                <li>Home-service and sales-driven businesses, built for teams of 1 to 10.</li>
+                <li>Owners who want referrals without buying leads.</li>
+                <li>Businesses with a list of past customers.</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">Not for, yet</h3>
+              <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+                <li>Businesses that want Revvin to pay referrers for them.</li>
+                <li>Industries with referral-fee rules, including US real estate, mortgage and insurance, should check their own rules first.</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
@@ -347,7 +332,7 @@ const Pricing = () => {
             <AccordionItem value="p5">
               <AccordionTrigger>What do I actually get for the $49?</AccordionTrigger>
               <AccordionContent>
-                Everything in Free, plus the tools that work your existing customer list: import your past customers and send your referral ask to all of them in bulk, ROI reporting with a monthly email recap, and custom page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. Same on monthly and annual. There are no add-on tiers and no per-send charges.
+                Pro adds the tools that work your existing customer list: import your past customers, work through them in batches with each ask opening in your own phone or email app, send reactivation email campaigns, see ROI reporting with a monthly recap, and customize your page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. The Pro features are the same on monthly and annual. There are no per-send charges.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">
