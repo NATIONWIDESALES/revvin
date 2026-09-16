@@ -125,8 +125,10 @@ const BusinessDashboard = () => {
   const [offers, setOffers] = useState<OfferRow[]>([]);
   const [contactStats, setContactStats] = useState<{ total: number; sent: number }>({ total: 0, sent: 0 });
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<string>("customers");
+  const [activeTab, setActiveTab] = useState<string>("share");
   const [loading, setLoading] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(searchParams.get("welcome") === "1");
+  const defaultedTab = useRef(false);
 
   // ?tab= lets other surfaces (the scoreboard empty state, emails) deep link
   // straight to the action they are recommending.
@@ -136,6 +138,17 @@ const BusinessDashboard = () => {
     if (t && VALID_TABS.includes(t)) setActiveTab(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
+
+  // Without an explicit tab, a free business lands on the sharing tools and a
+  // Pro business lands on its customer list.
+  useEffect(() => {
+    if (defaultedTab.current || !biz) return;
+    defaultedTab.current = true;
+    const t = searchParams.get("tab");
+    if (t && VALID_TABS.includes(t)) return;
+    setActiveTab((biz.plan || "free") === "pro" ? "customers" : "share");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [biz]);
 
   const changeTab = (t: string) => {
     setActiveTab(t);
