@@ -6,6 +6,17 @@
 # by leaving a named group with only "Allow: /" — that opens dashboards, auth
 # pages and receipt URLs to that crawler.
 
+# Auth and account paths (/auth, /login, /signup, /reset-password, /welcome) are
+# intentionally left crawlable while Google still has old listings for them.
+# Each one serves a real static document with <meta name="robots" content=
+# "noindex, nofollow">, and a crawler has to fetch the page to read that tag. A
+# Disallow rule here would block the fetch and the old listings would stay in
+# the index. Add them below only after they have dropped out of search results.
+# The same applies to the old store paths (/products, /collections, /cart,
+# /pages, /blogs, /account) left over from the previous owner of this domain:
+# they now serve a noindex "Page not found" document and must stay crawlable
+# until Google drops them.
+
 User-agent: *
 Allow: /
 Disallow: /dashboard
