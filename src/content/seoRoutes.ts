@@ -14,6 +14,7 @@
 // rendered legal pages use.
 
 import { INDUSTRIES } from "./industries";
+import { PARTNER_TERMS_DOC } from "./partnerTerms";
 import { GUIDES } from "./guides";
 import { PRIVACY_DOC, TERMS_DOC, legalPrerenderSections } from "./legal";
 // Relative, not aliased: this module is also imported by the build-time
@@ -594,4 +595,69 @@ const handwritten: PrerenderRoute[] = [
   },
 ];
 
-export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...toolkitRoutes, guideIndexRoute, ...industryRoutes, ...guideRoutes];
+// Partner program. Public and indexable: the marketing page and the terms.
+// The partner dashboard is private and never prerendered.
+const partnerRoutes: PrerenderRoute[] = [
+  {
+    path: "/partners",
+    title: "Revvin Partner Program | Earn 40% on every business you refer",
+    description:
+      "Share Revvin with contractors and home-service owners. Approved partners earn 40% of what their referred customers pay, for as long as those customers keep paying. Free to join.",
+    h1: "Earn 40% on every business you send to Revvin.",
+    sections: [
+      {
+        heading: "What you earn",
+        body: `Revvin Pro monthly at ${PRO} pays ${'$'}19.60 every month the customer pays. Revvin Pro yearly at ${PRICE_TEXT.annualPerYear} pays ${'$'}180 every year the customer pays. The ${'$'}297 Launch Package pays ${'$'}118.80. Earnings depend entirely on the customers you refer. There is no base pay and no guaranteed income.`,
+      },
+      {
+        heading: "How it works",
+        body:
+          "Apply and tell us where you will share Revvin; every application is reviewed personally. Approved partners get a personal link and a partner code, and anyone who signs up within 60 days of clicking the link is attributed to them. Commissions clear 30 days after the customer's payment, and payouts go out on the 15th of each month once the payable balance reaches $50 USD.",
+      },
+      {
+        heading: "Who it is for",
+        body:
+          "Creators who make content for contractors, trades and home-service owners; marketing agencies and business coaches with home-service clients; sales trainers and team leaders; and anyone whose audience runs a service business.",
+      },
+      {
+        heading: "What you are sharing",
+        body: `Revvin gives home-service businesses a free referral page, QR code and print pack. Revvin Pro at ${PRO} asks their whole customer list for them.`,
+      },
+    ],
+    faqs: [
+      {
+        q: "Do I need to be a Revvin customer?",
+        a: "No, but you should understand the product before you talk about it. Build a free page yourself so you can show it honestly.",
+      },
+      {
+        q: "When do I get paid?",
+        a: "Each commission becomes payable 30 days after the customer's payment clears. We pay on the 15th of each month once your approved balance is $50 or more.",
+      },
+      {
+        q: "What happens if a customer gets a refund?",
+        a: "No commission is paid on refunded or disputed payments. If a refund happens after we have paid you, it is taken off your next payout.",
+      },
+      {
+        q: "How do I get paid?",
+        a: "PayPal or bank transfer, in US dollars. US partners provide a W-9 before their first payout. Partners outside the US provide the matching tax form.",
+      },
+      {
+        q: "Is there a cost to join?",
+        a: "No. It is free, with no minimum sales.",
+      },
+    ],
+  },
+  {
+    path: "/partners/terms",
+    title: "Revvin Partner Program Terms",
+    description:
+      "The rules of the Revvin Partner Program: commission, attribution, payment timing, refunds, taxes, disclosure and prohibited promotion methods.",
+    h1: "Revvin Partner Program Terms",
+    sections: PARTNER_TERMS_DOC.sections.map((section) => ({
+      heading: section.heading,
+      body: section.body,
+    })),
+  },
+];
+
+export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...toolkitRoutes, ...partnerRoutes, guideIndexRoute, ...industryRoutes, ...guideRoutes];
