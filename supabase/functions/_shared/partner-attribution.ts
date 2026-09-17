@@ -55,7 +55,7 @@ export async function attributeBusinessToPartner(input: AttributeInput): Promise
     alreadyAttributed: Boolean(business.partner_id),
     now: input.now,
   });
-  if (!decision.attribute) return { attributed: false, reason: decision.reason };
+  if (decision.attribute !== true) return { attributed: false, reason: decision.reason };
 
   // Conditional update: attribution is set only while it is still unset, so a
   // repeat call or a race can never move a business between partners.
