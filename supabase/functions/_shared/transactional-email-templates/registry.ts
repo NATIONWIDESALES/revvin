@@ -15,6 +15,10 @@ import { template as freeD14Template } from './free-d14.tsx'
 import { template as freeD21Template } from './free-d21.tsx'
 import { template as firstLeadNextDayTemplate } from './first-lead-next-day.tsx'
 import { template as winbackD30Template } from './winback-d30.tsx'
+import { template as partnerApplicationReceivedTemplate } from './partner-application-received.tsx'
+import { template as partnerApprovedTemplate } from './partner-approved.tsx'
+import { template as partnerPayoutSentTemplate } from './partner-payout-sent.tsx'
+import { template as partnerAdminNewApplicationTemplate } from './partner-admin-new-application.tsx'
 
 // Every template's category lives in _shared/lifecycle-categories.ts, which is
 // plain TypeScript so the app's test suite can cover the promotional rules.
@@ -57,4 +61,9 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   free_d21: freeD21Template,
   first_lead_next_day: firstLeadNextDayTemplate,
   winback_d30: winbackD30Template,
+  // Partner Program. Transactional: each one answers something the partner did.
+  partner_application_received: partnerApplicationReceivedTemplate,
+  partner_approved: partnerApprovedTemplate,
+  partner_payout_sent: partnerPayoutSentTemplate,
+  partner_admin_new_application: partnerAdminNewApplicationTemplate,
 }

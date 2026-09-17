@@ -152,3 +152,42 @@ describe("robots.txt", () => {
     expect(robots).toContain("Sitemap: https://revvin.co/sitemap.xml");
   });
 });
+
+describe("partner program pages", () => {
+  const partnerText = () =>
+    [
+      "src/config/partners.ts",
+      "src/content/partnerTerms.ts",
+      "src/pages/partners/Partners.tsx",
+      "src/pages/partners/PartnerTerms.tsx",
+    ]
+      .map((f) => stripComments(read(f)))
+      .join("\n");
+
+  it("never promises income and never uses an em dash", () => {
+    // The only allowed use of the phrase is the disclaimer that says there is none.
+    const copy = partnerText().replace(/no guaranteed income/gi, "");
+    expect(copy).not.toMatch(/guaranteed income/i);
+    expect(copy).not.toMatch(/make \$/i);
+    expect(copy).not.toContain("\u2014");
+  });
+
+  it("prerenders both partner documents and keeps the dashboard out of them", () => {
+    const paths = PRERENDER_ROUTES.map((r) => r.path);
+    expect(paths).toContain("/partners");
+    expect(paths).toContain("/partners/terms");
+    expect(paths).not.toContain("/partners/dashboard");
+  });
+
+  it("lists both partner pages in the sitemap and never the dashboard", () => {
+    const sitemap = read("public/sitemap.xml");
+    expect(sitemap).toContain("https://revvin.co/partners<");
+    expect(sitemap).toContain("https://revvin.co/partners/terms");
+    expect(sitemap).not.toContain("/partners/dashboard");
+  });
+
+  it("states that businesses pay their own referrers, not Revvin", () => {
+    const terms = stripComments(read("src/content/partnerTerms.ts"));
+    expect(terms).toMatch(/businesses pay their own referrers/i);
+  });
+});

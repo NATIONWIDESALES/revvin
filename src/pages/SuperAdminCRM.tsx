@@ -12,8 +12,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Search, CheckCircle2, Clock, AlertTriangle, XCircle, Shield, Building2, Users, DollarSign, Activity, BadgeCheck, History, FileText, Pause, Play, TrendingUp, BarChart3, Send, Loader2, MapPin, Bell } from "lucide-react";
+import { ChevronDown, ChevronRight, Search, CheckCircle2, Clock, AlertTriangle, XCircle, Shield, Building2, Users, DollarSign, Activity, BadgeCheck, History, FileText, Pause, Play, TrendingUp, BarChart3, Send, Loader2, MapPin, Bell, Handshake } from "lucide-react";
 import PushSettings from "@/components/pwa/PushSettings";
+import PartnersPanel from "@/components/admin/PartnersPanel";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -484,6 +485,7 @@ const SuperAdminCRM = () => {
                 </TabsTrigger>
                 <TabsTrigger value="emails" className="gap-1"><Send className="h-3.5 w-3.5" /> Emails</TabsTrigger>
                 <TabsTrigger value="push" className="gap-1"><Bell className="h-3.5 w-3.5" /> Push</TabsTrigger>
+                <TabsTrigger value="partners" className="gap-1"><Handshake className="h-3.5 w-3.5" /> Partners</TabsTrigger>
                 <TabsTrigger value="audit" className="gap-1"><History className="h-3.5 w-3.5" /> Audit Log</TabsTrigger>
               </TabsList>
               </div>
@@ -859,6 +861,10 @@ const SuperAdminCRM = () => {
               </TabsContent>
 
               {/* AUDIT LOG TAB */}
+              <TabsContent value="partners">
+                <PartnersPanel />
+              </TabsContent>
+
               <TabsContent value="audit">
                 <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
                   <h2 className="text-base font-bold mb-4 flex items-center gap-2"><History className="h-4 w-4 text-primary" /> Audit Log</h2>

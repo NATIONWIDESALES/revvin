@@ -11,6 +11,7 @@ import Layout from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Analytics from "@/components/Analytics";
 import MetaPixel from "@/components/MetaPixel";
+import PartnerCapture from "@/components/partners/PartnerCapture";
 
 // Eager: the homepage is the most requested route and the LCP target, and
 // NotFound is tiny. Everything else is route-split so a marketing visitor
@@ -59,6 +60,9 @@ const ToolkitHub = lazy(() => import("./pages/tools/ToolkitHub"));
 const ProgramGrader = lazy(() => import("./pages/tools/ProgramGrader"));
 const RewardCalculator = lazy(() => import("./pages/tools/RewardCalculator"));
 const MessageGenerator = lazy(() => import("./pages/tools/MessageGenerator"));
+const Partners = lazy(() => import("./pages/partners/Partners"));
+const PartnerTerms = lazy(() => import("./pages/partners/PartnerTerms"));
+const PartnerDashboard = lazy(() => import("./pages/partners/PartnerDashboard"));
 
 // Deliberately quiet: same background as every page, fixed viewport height, no
 // text or skeleton, so a route chunk arriving does not shift layout or flash.
@@ -82,6 +86,7 @@ const App = () => (
             <CountryProvider>
               <Analytics />
               <MetaPixel />
+              <PartnerCapture />
               <UpdateToast />
 
               <Suspense fallback={<RouteFallback />}>
@@ -122,6 +127,9 @@ const App = () => (
                   <Route path="/referral-programs" element={<IndustriesHub />} />
                   <Route path="/referral-program/:industry" element={<IndustryLanding />} />
                   <Route path="/about-revvin-llm" element={<AboutRevvinLLM />} />
+                  <Route path="/partners" element={<Partners />} />
+                  <Route path="/partners/terms" element={<PartnerTerms />} />
+                  <Route path="/partners/dashboard" element={<PartnerDashboard />} />
                   
                   <Route path="/referrer/:userId" element={<ReferrerProfile />} />
                   <Route path="/terms" element={<Terms />} />
