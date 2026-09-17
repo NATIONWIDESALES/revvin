@@ -380,7 +380,8 @@ describe("partner page copy", () => {
   ].join(" ");
 
   it("never promises income and never uses an em dash", () => {
-    expect(text).not.toMatch(/guaranteed income/i);
+    // The only allowed use of the phrase is the disclaimer that says there is none.
+    expect(text.replace(/no guaranteed income/gi, "")).not.toMatch(/guaranteed income/i);
     expect(text).not.toMatch(/make \$/i);
     expect(text).not.toContain("\u2014");
   });
