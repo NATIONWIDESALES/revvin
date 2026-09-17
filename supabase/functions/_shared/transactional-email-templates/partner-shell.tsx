@@ -22,7 +22,7 @@ import {
  */
 export interface PartnerShellProps {
   previewText: string
-  children: React.ReactNode
+  children?: React.ReactNode
   /** Set for an internal alert so the footer does not address a partner. */
   internal?: boolean
 }
