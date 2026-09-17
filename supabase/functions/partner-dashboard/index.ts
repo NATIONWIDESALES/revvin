@@ -114,7 +114,9 @@ Deno.serve(async (req) => {
 
     const unapplied = (adjustmentsRes.data ?? []).filter((a: any) => !a.payout_id);
     const payableBalance = payableBalanceCents(
-      commissions.filter((c) => c.status === "payable"),
+      commissions
+        .filter((c) => c.status === "payable")
+        .map((c) => ({ commission_cents: c.commissionCents })),
       unapplied,
     );
 

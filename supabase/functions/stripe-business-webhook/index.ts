@@ -239,7 +239,7 @@ serve(async (req) => {
             let priceIds: string[] = [];
             try {
               const li = await stripe.checkout.sessions.listLineItems(s.id, { limit: 20 });
-              priceIds = li.data.map((row) => row.price?.id).filter(Boolean) as string[];
+              priceIds = li.data.map((row: Stripe.LineItem) => row.price?.id).filter(Boolean) as string[];
             } catch (_) { /* fall through with no price ids */ }
             const outcome = await handlePartnerCheckoutCompleted(admin, s, priceIds);
             console.log("[stripe-business-webhook] partner checkout commission", outcome);
