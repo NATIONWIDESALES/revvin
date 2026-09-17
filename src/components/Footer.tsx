@@ -42,6 +42,7 @@ const Footer = () => {
               Company
             </h4>
             <div className="space-y-3">
+              <Link to="/partners" className="block text-sm text-white/80 transition-colors hover:text-white">Partners</Link>
               <Link to="/terms" className="block text-sm text-white/80 transition-colors hover:text-white">Terms</Link>
               <Link to="/privacy" className="block text-sm text-white/80 transition-colors hover:text-white">Privacy</Link>
               <a href="mailto:info@revvin.co" className="block text-sm text-white/80 transition-colors hover:text-white">Contact: info@revvin.co</a>

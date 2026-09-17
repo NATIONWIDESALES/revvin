@@ -7,6 +7,7 @@ import {
 } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { sendLifecycleEmail } from "../_shared/lifecycle-email.ts";
+import { attributeBusinessToPartner } from "../_shared/partner-attribution.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -49,6 +50,32 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ ok: true, skipped: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Partner attribution, before the at-most-once notification claim so a
+    // repeat call still attributes a business the first call could not.
+    // Written with the service role: a client can never set these columns.
+    try {
+      const { data: attrData } = await supabase.auth.admin.getUserById(record.user_id);
+      // A code that arrives with a click timestamp is treated as a stored click
+      // (so the 60 day window applies). A code with no timestamp was typed.
+      const rawCode = typeof payload.partner_code === "string" ? payload.partner_code : null;
+      const clickedAt = typeof payload.partner_clicked_at === "string"
+        ? payload.partner_clicked_at
+        : null;
+      if (rawCode) {
+        const outcome = await attributeBusinessToPartner({
+          db: supabase,
+          business: record,
+          ownerEmail: attrData?.user?.email ?? null,
+          typedCode: clickedAt ? null : rawCode,
+          clickCode: clickedAt ? rawCode : null,
+          clickedAt,
+        });
+        console.log("[notify-business-signup] partner attribution", outcome);
+      }
+    } catch (attrErr) {
+      console.error("[notify-business-signup] partner attribution failed", attrErr);
     }
 
     // At-most-once claim. Called right after signUp when a session may not yet

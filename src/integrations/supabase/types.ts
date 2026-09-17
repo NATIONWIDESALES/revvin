@@ -192,6 +192,8 @@ export type Database = {
           offer_amount: string | null
           offer_fine_print: string | null
           offer_trigger: string | null
+          partner_attributed_at: string | null
+          partner_id: string | null
           phone: string | null
           plan: string
           postal_code: string | null
@@ -260,6 +262,8 @@ export type Database = {
           offer_amount?: string | null
           offer_fine_print?: string | null
           offer_trigger?: string | null
+          partner_attributed_at?: string | null
+          partner_id?: string | null
           phone?: string | null
           plan?: string
           postal_code?: string | null
@@ -328,6 +332,8 @@ export type Database = {
           offer_amount?: string | null
           offer_fine_print?: string | null
           offer_trigger?: string | null
+          partner_attributed_at?: string | null
+          partner_id?: string | null
           phone?: string | null
           plan?: string
           postal_code?: string | null
@@ -357,7 +363,15 @@ export type Database = {
           website?: string | null
           welcome_message?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "businesses_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       callback_requests: {
         Row: {
@@ -1429,6 +1443,268 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      partner_adjustments: {
+        Row: {
+          amount_cents: number
+          commission_id: string | null
+          created_at: string
+          id: string
+          partner_id: string
+          payout_id: string | null
+          reason: string | null
+        }
+        Insert: {
+          amount_cents: number
+          commission_id?: string | null
+          created_at?: string
+          id?: string
+          partner_id: string
+          payout_id?: string | null
+          reason?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          commission_id?: string | null
+          created_at?: string
+          id?: string
+          partner_id?: string
+          payout_id?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_adjustments_commission_id_fkey"
+            columns: ["commission_id"]
+            isOneToOne: false
+            referencedRelation: "partner_commissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_adjustments_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_adjustments_payout_id_fkey"
+            columns: ["payout_id"]
+            isOneToOne: false
+            referencedRelation: "partner_payouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_clicks: {
+        Row: {
+          created_at: string
+          id: string
+          landed_path: string | null
+          partner_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          landed_path?: string | null
+          partner_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          landed_path?: string | null
+          partner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_clicks_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_commissions: {
+        Row: {
+          amount_collected_cents: number
+          business_id: string | null
+          commission_cents: number
+          created_at: string
+          currency: string
+          id: string
+          paid_at: string
+          partner_id: string
+          payable_at: string
+          payout_id: string | null
+          product: string
+          reversal_reason: string | null
+          source_type: string
+          status: string
+          stripe_charge_id: string | null
+          stripe_object_id: string
+        }
+        Insert: {
+          amount_collected_cents: number
+          business_id?: string | null
+          commission_cents: number
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string
+          partner_id: string
+          payable_at: string
+          payout_id?: string | null
+          product: string
+          reversal_reason?: string | null
+          source_type: string
+          status?: string
+          stripe_charge_id?: string | null
+          stripe_object_id: string
+        }
+        Update: {
+          amount_collected_cents?: number
+          business_id?: string | null
+          commission_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string
+          partner_id?: string
+          payable_at?: string
+          payout_id?: string | null
+          product?: string
+          reversal_reason?: string | null
+          source_type?: string
+          status?: string
+          stripe_charge_id?: string | null
+          stripe_object_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_commissions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_commissions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_commissions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_commissions_payout_id_fkey"
+            columns: ["payout_id"]
+            isOneToOne: false
+            referencedRelation: "partner_payouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_payouts: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          created_by: string | null
+          id: string
+          method: string
+          paid_at: string
+          partner_id: string
+          reference: string | null
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          method: string
+          paid_at?: string
+          partner_id: string
+          reference?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          method?: string
+          paid_at?: string
+          partner_id?: string
+          reference?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_payouts_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partners: {
+        Row: {
+          approved_at: string | null
+          audience_size: string | null
+          channels: string | null
+          code: string | null
+          country: string | null
+          created_at: string
+          dashboard_token: string | null
+          email: string
+          id: string
+          name: string
+          notes: string | null
+          payout_method: string
+          promo_plan: string | null
+          status: string
+          tax_form_received: boolean
+        }
+        Insert: {
+          approved_at?: string | null
+          audience_size?: string | null
+          channels?: string | null
+          code?: string | null
+          country?: string | null
+          created_at?: string
+          dashboard_token?: string | null
+          email: string
+          id?: string
+          name: string
+          notes?: string | null
+          payout_method?: string
+          promo_plan?: string | null
+          status?: string
+          tax_form_received?: boolean
+        }
+        Update: {
+          approved_at?: string | null
+          audience_size?: string | null
+          channels?: string | null
+          code?: string | null
+          country?: string | null
+          created_at?: string
+          dashboard_token?: string | null
+          email?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          payout_method?: string
+          promo_plan?: string | null
+          status?: string
+          tax_form_received?: boolean
+        }
+        Relationships: []
       }
       profiles: {
         Row: {

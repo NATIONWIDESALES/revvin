@@ -28,6 +28,12 @@ export const LIFECYCLE_CATEGORIES: Record<string, LifecycleCategory> = {
   free_d21: "promo",
   first_lead_next_day: "promo",
   winback_d30: "promo",
+  // Partner Program mail answers an application, an approval or a payout, so it
+  // is setup email, never promotional.
+  partner_application_received: "setup",
+  partner_approved: "setup",
+  partner_payout_sent: "setup",
+  partner_admin_new_application: "setup",
 };
 
 export function templateCategory(name: string): LifecycleCategory {

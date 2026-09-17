@@ -11,6 +11,7 @@ import { PRICE_TEXT } from "@/config/pricing";
 import InviteBanner, { InviteTerms } from "@/components/invite/InviteBanner";
 import { captureInviteFromSearch, getInviteCode } from "@/lib/invite";
 import { friendlyError } from "@/lib/errors";
+import { getPartnerClick } from "@/lib/partnerLink";
 
 /**
  * The one signup form. Rendered on /signup and embedded in the invite landing
@@ -36,11 +37,22 @@ const SignupForm = ({
   const [confirmPending, setConfirmPending] = useState(false);
   const [resending, setResending] = useState(false);
   const [inviteCode, setInviteCodeState] = useState<string | null>(null);
+  const [partnerCode, setPartnerCode] = useState("");
+  const [partnerClickedAt, setPartnerClickedAt] = useState<string | null>(null);
+  const [showPartnerField, setShowPartnerField] = useState(false);
   const startedRef = useRef(false);
 
   useEffect(() => {
     captureInviteFromSearch();
     setInviteCodeState(getInviteCode());
+    // Prefill a held partner click. The code is never trusted here: the server
+    // revalidates it before attributing the business to anyone.
+    const held = getPartnerClick();
+    if (held) {
+      setPartnerCode(held.code);
+      setPartnerClickedAt(held.clicked_at);
+      setShowPartnerField(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -104,7 +116,13 @@ const SignupForm = ({
     // Fire admin notification (info@revvin.co). Non-blocking.
     if (data.user?.id) {
       supabase.functions
-        .invoke("notify-business-signup", { body: { user_id: data.user.id } })
+        .invoke("notify-business-signup", {
+          body: {
+            user_id: data.user.id,
+            partner_code: partnerCode.trim() || null,
+            partner_clicked_at: partnerClickedAt,
+          },
+        })
         .catch((err) => console.warn("[notify-business-signup] failed", err));
     }
     if (!data.session) {
@@ -168,6 +186,27 @@ const SignupForm = ({
           <Label htmlFor={`${formId}-pw`}>Password</Label>
           <Input id={`${formId}-pw`} type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" className="mt-1.5" required />
         </div>
+        {showPartnerField ? (
+          <div>
+            <Label htmlFor={`${formId}-partner`}>Partner code</Label>
+            <Input
+              id={`${formId}-partner`}
+              value={partnerCode}
+              onChange={(e) => setPartnerCode(e.target.value)}
+              placeholder="Optional"
+              className="mt-1.5"
+              autoComplete="off"
+            />
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="text-[11px] text-muted-foreground underline"
+            onClick={() => setShowPartnerField(true)}
+          >
+            Have a partner code?
+          </button>
+        )}
         <Button type="submit" size="lg" className={showStickyMobileBar ? "hidden w-full h-11 sm:flex" : "w-full h-11"} disabled={busy}>
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create free account"}
         </Button>

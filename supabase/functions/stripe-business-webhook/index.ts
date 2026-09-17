@@ -11,6 +11,11 @@ import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { PRICE_LAUNCH_PACKAGE_297 } from "../_shared/stripe-prices.ts";
 import { subscriptionPeriodEnd } from "../_shared/stripe-subscription.ts";
 import { handlePaidInvoice, invoiceSubscriptionId, updateBusinessBilling } from "../_shared/billing-handlers.ts";
+import {
+  handlePartnerChargeReversal,
+  handlePartnerCheckoutCompleted,
+  handlePartnerInvoicePaid,
+} from "../_shared/partner-commissions.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -225,6 +230,21 @@ serve(async (req) => {
               "[stripe-business-webhook] launch_package not detected on this session",
               { session: s.id, user: userId, metadata_keys: Object.keys(s.metadata ?? {}) }
             );
+          }
+
+          // Partner commission for a one-off Launch Package purchase. Only
+          // payment-mode sessions are considered here: subscription revenue is
+          // recorded from invoice.paid, so nothing is counted twice.
+          try {
+            let priceIds: string[] = [];
+            try {
+              const li = await stripe.checkout.sessions.listLineItems(s.id, { limit: 20 });
+              priceIds = li.data.map((row) => row.price?.id).filter(Boolean) as string[];
+            } catch (_) { /* fall through with no price ids */ }
+            const outcome = await handlePartnerCheckoutCompleted(admin, s, priceIds);
+            console.log("[stripe-business-webhook] partner checkout commission", outcome);
+          } catch (e) {
+            console.error("[stripe-business-webhook] partner checkout commission failed", e);
           }
 
           // 💰 Admin alert: new paying customer
@@ -442,11 +462,49 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
         }
         break;
       }
+      case "invoice.paid":
       case "invoice.payment_succeeded": {
         const recorded = await handlePaidInvoice(admin, stripe, event.data.object);
         if (recorded) console.log("[stripe-business-webhook] invoice paid", recorded);
+        // Partner commission on collected subscription revenue. The UNIQUE
+        // stripe_object_id means invoice.paid and invoice.payment_succeeded for
+        // the same invoice record a single commission.
+        try {
+          const outcome = await handlePartnerInvoicePaid(admin, event.data.object);
+          console.log("[stripe-business-webhook] partner invoice commission", outcome);
+        } catch (e) {
+          console.error("[stripe-business-webhook] partner invoice commission failed", e);
+        }
         // Paid conversions live in the authoritative invoice ledger. No browser
         // activation or Meta Purchase event is inferred from a checkout return.
+        break;
+      }
+
+      case "charge.refunded":
+      case "charge.dispute.created": {
+        // Reverse, reduce or claw back commissions tied to this charge.
+        try {
+          const isDispute = event.type === "charge.dispute.created";
+          const object = event.data.object as Record<string, unknown>;
+          const charge = isDispute
+            ? await stripe.charges.retrieve(String((object as Stripe.Dispute).charge))
+            : (object as unknown as Stripe.Charge);
+          const dispute = isDispute ? (object as unknown as Stripe.Dispute) : null;
+          const paymentIntentId = typeof charge.payment_intent === "string"
+            ? charge.payment_intent
+            : charge.payment_intent?.id ?? null;
+          const summary = await handlePartnerChargeReversal(admin, {
+            chargeIds: [charge.id, paymentIntentId],
+            refundedCents: isDispute
+              ? Number(dispute?.amount ?? charge.amount ?? 0)
+              : Number(charge.amount_refunded ?? 0),
+            chargeAmountCents: Number(charge.amount ?? 0),
+            reason: isDispute ? "dispute" : "refund",
+          });
+          console.log("[stripe-business-webhook] partner reversal", event.type, summary);
+        } catch (e) {
+          console.error("[stripe-business-webhook] partner reversal failed", e);
+        }
         break;
       }
 
