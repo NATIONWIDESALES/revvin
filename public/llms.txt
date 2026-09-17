@@ -33,6 +33,11 @@ Some industries, such as US real estate, mortgage and insurance, have rules that
 
 Rewards on Revvin are fixed dollar amounts. Publishing a referral page is free. Revvin Pro is $49/month USD or $450/year. The business pays referrers directly only when a job closes. Revvin does not hold, move, or take a cut of reward money.
 
+## Partner program
+
+- [Partner Program](/partners): Approved partners earn 40% of the cash Revvin collects from customers they refer, for as long as those customers keep paying. Free to join, applications reviewed manually. Commissions clear 30 days after the customer's payment; payouts on the 15th of each month once the payable balance reaches $50 USD. No base pay and no guaranteed income.
+- [Partner Terms](/partners/terms): Commission, attribution (60 day click window, last click wins), payment timing, refunds and disputes, taxes, disclosure requirements and prohibited promotion methods.
+
 ## Free tools
 
 - [Contractor Growth Toolkit](/tools): Free client-side tools for service businesses. No account, no card, no saved input.
