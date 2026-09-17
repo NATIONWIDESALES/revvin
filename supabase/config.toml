@@ -21,3 +21,16 @@ project_id = "olmpplfgzegzqdcznlrp"
   [functions.lifecycle-emails]
     verify_jwt = false
 
+  # Public partner-program endpoints: no session exists when they are called.
+  # Each validates and rate-limits its own input.
+  [functions.partner-click]
+    verify_jwt = false
+  [functions.partner-apply]
+    verify_jwt = false
+  [functions.partner-resend-link]
+    verify_jwt = false
+  [functions.partner-dashboard]
+    verify_jwt = false
+  # Daily cron worker; authenticates x-cron-secret or the service-role key.
+  [functions.partner-commissions-mature]
+    verify_jwt = false
