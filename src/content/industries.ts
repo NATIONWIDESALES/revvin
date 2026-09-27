@@ -1,9 +1,10 @@
 // Industry landing page content. Every claim here must be true of the product:
 // free to publish; $49/month USD for Pro, businesses pay referrers directly
-// off-platform, and every message is sent by the owner from their own device.
-// Revvin never sends email or SMS on a business's behalf: the bulk ask tool
-// prepares the message and opens the owner's own email app with recipients
-// filled in, in batches. Real capabilities referenced below: branded referral
+// off-platform. Referral asks open the owner's own phone or email app with
+// recipients filled in, in batches, and the owner's device sends them.
+// Reactivation campaigns (Pro) are sent by Revvin by email from the business
+// name, with replies going to the owner's own email. Revvin never auto-sends
+// SMS to a business's list. Real capabilities referenced below: branded referral
 // page, QR code and print pack, lead inbox with status tracking and one-tap
 // call/text back, reward tracking from pending to paid, ROI reporting with a
 // monthly email recap (Pro), and custom page branding (Pro).
@@ -44,7 +45,7 @@ const sharedFaqs = (trade: string): IndustryFaq[] => [
   },
   {
     q: "Does Revvin text or email my customers for me?",
-    a: "Not the personal asks. For those, Revvin prepares the message and opens your own email app or messaging app with the recipients and text filled in, in batches, and your device sends it from your own address or number. Reactivation campaigns are different: those are email only, and Revvin sends them from your account on Pro with your postal address and an unsubscribe link in every message. Text messages always go out from your own phone.",
+    a: "It depends on the message. Referral asks open your own phone or email app with the recipients and text filled in, and your device sends them from your own number or address. Reactivation campaigns (Pro) are sent by Revvin by email from your business name, with replies going to your own email, and every one includes your postal address and an unsubscribe link. Revvin never auto-sends SMS to your list.",
   },
   {
     q: "Do I need a customer list to start?",
