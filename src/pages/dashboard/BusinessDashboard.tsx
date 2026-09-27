@@ -27,6 +27,7 @@ import PrintPack from "@/components/dashboard/PrintPack";
 import AttestationGate from "@/components/dashboard/AttestationGate";
 import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
 import WelcomeLiveCard from "@/components/dashboard/WelcomeLiveCard";
+import PublishPrompt, { PUBLISH_COPY } from "@/components/dashboard/PublishPrompt";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import InstallAppButton from "@/components/pwa/InstallAppButton";
 import HomeScreenChecklistStep from "@/components/pwa/HomeScreenChecklistStep";
@@ -191,6 +192,15 @@ const BusinessDashboard = () => {
 
   useEffect(() => { if (user) loadAll(); }, [user]);
 
+  // One row per dashboard visit with a loaded business, so drop-off after
+  // onboarding is visible in the funnel.
+  const dashboardViewed = useRef(false);
+  useEffect(() => {
+    if (!bizId || dashboardViewed.current) return;
+    dashboardViewed.current = true;
+    track("dashboard_viewed");
+  }, [bizId]);
+
   // A checkout return may refresh billing, but it is not a verified conversion.
   // Paid conversions are reported from the server's invoice records.
   useEffect(() => {
@@ -330,12 +340,6 @@ const BusinessDashboard = () => {
 
   const activationSteps: ActivationStep[] = [
     {
-      label: "Publish your page",
-      done: !!biz.is_published,
-      href: "/dashboard?tab=page",
-      actionLabel: "Publish",
-    },
-    {
       label: "Send your link to 5 customers",
       done: !!biz.first_share_at,
       onClick: () => changeTab("share"),
@@ -366,6 +370,13 @@ const BusinessDashboard = () => {
       onClick: () => changeTab("leads"),
       actionLabel: "View leads",
     },
+    {
+      // Always the final item, and the checklist has no dismiss control, so
+      // it stays in view until the page is actually live.
+      label: "Publish your page",
+      done: isLive,
+      content: isLive ? undefined : <p className="text-xs text-muted-foreground">{PUBLISH_COPY.body} Use the Publish my page button at the top.</p>,
+    },
   ];
 
   const dismissWelcome = () => {
@@ -377,6 +388,7 @@ const BusinessDashboard = () => {
 
   return (
     <div className="container py-10 max-w-6xl">
+      {!isLive && <PublishPrompt surface="dashboard_banner" onPublished={loadAll} />}
       <InstallPrompt />
       <IosInstallSheet open={showIosSteps} onClose={() => setShowIosSteps(false)} />
       {showWelcome && isLive && (
@@ -421,8 +433,6 @@ const BusinessDashboard = () => {
       </div>
 
       {subStatus === "past_due" && <PastDueBanner />}
-
-      {!isLive && <PublishBanner biz={biz} onUpdate={loadAll} />}
 
       <ActivationChecklist steps={activationSteps} />
 
@@ -534,8 +544,8 @@ const BusinessDashboard = () => {
           )}
         </TabsContent>
         <TabsContent value="payouts"><PayoutsPage businessId={biz.id} /></TabsContent>
-        <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} onUpdate={loadAll} onShared={markFirstShare} /></TabsContent>
-        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} onQrDownloaded={markQrDownloaded} onShared={markFirstShare} /></TabsContent>
+        <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} isLive={isLive} onUpdate={loadAll} onShared={markFirstShare} /></TabsContent>
+        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} onPublished={loadAll} onQrDownloaded={markQrDownloaded} onShared={markFirstShare} /></TabsContent>
         <TabsContent value="integrations"><IntegrationsTab biz={{ id: biz.id, contact_outreach_consent_at: biz.contact_outreach_consent_at ?? null }} /></TabsContent>
         <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
       </Tabs>
@@ -591,48 +601,6 @@ const PastDueBanner = () => {
     </div>
   );
 };
-
-/**
- * Publishing is free. This is one server call, and the RPC owns the rules
- * (a slug and a reward have to exist first) along with the wording of the
- * errors, so they are shown to the owner verbatim.
- */
-const PublishBanner = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) => {
-  const { toast } = useToast();
-  const [busy, setBusy] = useState(false);
-
-  const goLive = async () => {
-    track("go_live_clicked");
-    setBusy(true);
-    const { error } = await supabase.rpc("fn_set_business_published", { p_published: true });
-    setBusy(false);
-    if (error) {
-      toast({ title: "Could not publish your page", description: error.message, variant: "destructive" });
-      return;
-    }
-    track("page_published");
-    toast({ title: "Your referral page is live" });
-    onUpdate();
-  };
-
-  return (
-    <div className="mb-6 rounded-2xl border border-primary/30 bg-primary/5 p-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-base font-semibold text-foreground">Your referral page is ready</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Publishing is free. Your page goes live at your own link and you can start collecting
-            referrals today.
-          </p>
-        </div>
-        <Button onClick={goLive} disabled={busy} size="lg" className="w-full shrink-0 sm:w-auto">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Publish my page"}
-        </Button>
-      </div>
-    </div>
-  );
-};
-
 
 // ============= OFFERS TAB =============
 const OffersTab = ({ offers }: { offers: OfferRow[] }) => {
@@ -1122,7 +1090,7 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
 };
 
 // ============= PAGE TAB =============
-const PageTab = ({ biz, publicUrl, onUpdate, onShared }: { biz: Business; publicUrl: string; onUpdate: () => void; onShared: () => void }) => {
+const PageTab = ({ biz, publicUrl, isLive, onUpdate, onShared }: { biz: Business; publicUrl: string; isLive: boolean; onUpdate: () => void; onShared: () => void }) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [reviewUrl, setReviewUrl] = useState(biz.google_review_url ?? "");
@@ -1162,11 +1130,17 @@ const PageTab = ({ biz, publicUrl, onUpdate, onShared }: { biz: Business; public
     <div className="grid gap-6 md:grid-cols-2">
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-3">Your public referral page</h3>
-        <div className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm font-mono text-foreground break-all">{publicUrl}</div>
-        <div className="mt-3 flex gap-2">
-          <Button variant="outline" size="sm" onClick={copy}>{copied ? <><Check className="mr-2 h-3.5 w-3.5" /> Copied</> : <><Copy className="mr-2 h-3.5 w-3.5" /> Copy link</>}</Button>
-          <Button variant="outline" size="sm" asChild><a href={publicUrl} target="_blank" rel="noopener noreferrer">Open <ExternalLink className="ml-2 h-3.5 w-3.5" /></a></Button>
-        </div>
+        {isLive ? (
+          <>
+            <div className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm font-mono text-foreground break-all">{publicUrl}</div>
+            <div className="mt-3 flex gap-2">
+              <Button variant="outline" size="sm" onClick={copy}>{copied ? <><Check className="mr-2 h-3.5 w-3.5" /> Copied</> : <><Copy className="mr-2 h-3.5 w-3.5" /> Copy link</>}</Button>
+              <Button variant="outline" size="sm" asChild><a href={publicUrl} target="_blank" rel="noopener noreferrer">Open <ExternalLink className="ml-2 h-3.5 w-3.5" /></a></Button>
+            </div>
+          </>
+        ) : (
+          <PublishPrompt surface="dashboard_banner" onPublished={onUpdate} note={PUBLISH_COPY.shareBody} />
+        )}
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-6">
@@ -1219,12 +1193,14 @@ const PageTab = ({ biz, publicUrl, onUpdate, onShared }: { biz: Business; public
 };
 
 // ============= SHARE TAB =============
-const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded, onShared }: { biz: Business; publicUrl: string; isLive: boolean; onQrDownloaded: () => void | Promise<void>; onShared: () => void }) => {
+const ShareTab = ({ biz, publicUrl, isLive, onPublished, onQrDownloaded, onShared }: { biz: Business; publicUrl: string; isLive: boolean; onPublished: () => void; onQrDownloaded: () => void | Promise<void>; onShared: () => void }) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  useEffect(() => { track("share_tools_viewed"); }, []);
+
   useEffect(() => {
-    if (!qrRef.current) return;
+    if (!isLive || !qrRef.current) return;
     const qr = new QRCodeStyling({
       width: 240, height: 240, data: publicUrl,
       dotsOptions: { color: "#0F172A", type: "rounded" },
@@ -1235,7 +1211,7 @@ const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded, onShared }: { biz: B
     });
     qrRef.current.innerHTML = "";
     qr.append(qrRef.current);
-  }, [publicUrl]);
+  }, [publicUrl, isLive]);
 
   const download = async (ext: "png" | "svg") => {
     const hq = new QRCodeStyling({
@@ -1280,13 +1256,14 @@ const ShareTab = ({ biz, publicUrl, isLive, onQrDownloaded, onShared }: { biz: B
     );
   };
 
+  // A QR code or link for a page nobody can load is worse than nothing, so
+  // every share action is replaced by the publish prompt until it is live.
+  if (!isLive) {
+    return <PublishPrompt surface="share_tools" onPublished={onPublished} note={PUBLISH_COPY.shareBody} />;
+  }
+
   return (
     <>
-    {!isLive && (
-      <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        Your page is in draft, so this link and QR code will not work for anyone else yet. Publish your page to activate them.
-      </div>
-    )}
     <div className="grid gap-6 md:grid-cols-2">
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-4">QR code</h3>
