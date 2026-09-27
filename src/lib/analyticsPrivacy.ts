@@ -63,6 +63,10 @@ const MILESTONE_EVENTS = new Set([
   // need the same narrow lane as the other product milestones. The two CTA
   // events carry one fixed surface name and nothing else.
   "pwa_install_prompted", "pwa_installed", "pwa_install_cta_shown", "pwa_install_cta_clicked",
+  // Activation diagnostics on /welcome and /dashboard. They carry at most one
+  // fixed onboarding step name, never a business, slug or typed value.
+  "dashboard_viewed", "onboarding_step_completed", "publish_banner_seen",
+  "publish_succeeded", "publish_failed", "share_tools_viewed",
 ]);
 const MILESTONE_PATHS = new Set(["/signup", "/auth", "/welcome", "/dashboard"]);
 
@@ -100,12 +104,17 @@ const CTA_LABELS = new Set([
 const SOURCE_LABELS = new Set(["landing", "playbook", "sample", "marketplace_notify"]);
 // Where an install prompt was shown. Six fixed strings, no business or person.
 const SURFACE_LABELS = new Set([...INSTALL_SURFACES]);
+// Onboarding step names and publish surfaces. Fixed strings only.
+export const ONBOARDING_STEP_LABELS = ["basics", "logo", "reward", "link", "publish"] as const;
+const STEP_LABELS = new Set<string>(ONBOARDING_STEP_LABELS);
+const PUBLISH_SURFACES = new Set(["onboarding", "dashboard_banner", "share_tools", "checklist"]);
 export function safeAnalyticsMeta(event: string, context: AnalyticsContext, input?: Record<string, unknown>) {
   const demo = context.traffic === "demo" || event.startsWith("demo_") || input?.cta === "demo_signup";
   const result: Record<string, string | boolean> = { traffic: demo ? "demo" : context.traffic, is_demo: demo };
   if (typeof input?.cta === "string" && CTA_LABELS.has(input.cta)) result.cta = input.cta;
   if (typeof input?.source === "string" && SOURCE_LABELS.has(input.source)) result.source = input.source;
-  if (typeof input?.surface === "string" && SURFACE_LABELS.has(input.surface as never)) result.surface = input.surface;
+  if (typeof input?.surface === "string" && (SURFACE_LABELS.has(input.surface as never) || PUBLISH_SURFACES.has(input.surface))) result.surface = input.surface;
+  if (typeof input?.step === "string" && STEP_LABELS.has(input.step)) result.step = input.step;
   return result;
 }
 

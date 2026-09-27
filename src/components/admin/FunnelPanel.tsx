@@ -15,8 +15,15 @@ const PUBLIC_EVENTS = [
   ["referral_submitted", "Referrals submitted"],
   ["promo_popup_shown", "Promotion views"],
   ["promo_cta_clicked", "Promotion clicks"],
+  // Signed-in activation steps, recorded under the "product" group.
+  ["onboarding_step_completed", "Onboarding steps completed"],
+  ["dashboard_viewed", "Dashboard views"],
+  ["publish_banner_seen", "Not-live banner seen"],
+  ["share_tools_viewed", "Share tools views"],
+  ["publish_succeeded", "Publish succeeded"],
+  ["publish_failed", "Publish failed"],
 ] as const;
-const COHORTS = ["marketing", "demo", "referral"] as const;
+const COHORTS = ["marketing", "demo", "referral", "product"] as const;
 type Cohort = typeof COHORTS[number];
 type Row = { event: string; created_at: string | null; session_id: string | null; meta: Record<string, unknown> | null };
 type CohortStats = { events: Record<string, { d7: number; d30: number }>; visitors7: number; visitors30: number };
@@ -100,13 +107,13 @@ const FunnelPanel = () => {
         {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
       </div>
       <p className="mb-3 text-xs text-muted-foreground">
-        Anonymous production activity is grouped by marketing, demo and public referral pages.
+        Production activity is grouped by marketing, demo, public referral pages and signed-in product steps.
         Counts cover reviewed traffic labels from the reporting update onward; older unlabelled rows are excluded.
         These are separate activity groups, so no conversion drop-off is calculated between them.
       </p>
       <p className="mb-4 text-xs text-muted-foreground">
-        Signup, account and activation browser measurements are unavailable while those routes are excluded for privacy.
-        Reviewed server events are required before a signup-to-payment funnel can be reported.
+        Signed-in activation steps appear in the product column: onboarding steps, dashboard views, the not-live banner,
+        share tools and publish attempts. They carry no business or person details.
       </p>
       <p className="mb-4 text-sm" role={paidError ? "alert" : undefined}>
         {paid ? `Paid invoices in the last 30 days: ${paid.first} new paying ${paid.first === 1 ? "business" : "businesses"}, ${paid.renewals} ${paid.renewals === 1 ? "renewal" : "renewals"}.` : paidError ?? "Paid invoice reporting is loading."}
