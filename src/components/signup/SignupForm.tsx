@@ -12,7 +12,7 @@ import InviteBanner, { InviteTerms } from "@/components/invite/InviteBanner";
 import { captureInviteFromSearch, getInviteCode } from "@/lib/invite";
 import { friendlyError } from "@/lib/errors";
 import { getPartnerClick } from "@/lib/partnerLink";
-import { CHECKOUT_FALLBACK_TOAST, holdCheckoutIntent, parsePlan, peekCheckoutIntent, startHeldCheckout } from "@/lib/proCheckoutIntent";
+import { CHECKOUT_FALLBACK_TOAST, holdCheckoutIntent, parsePlan, startHeldCheckout } from "@/lib/proCheckoutIntent";
 import type { BillingPlan } from "@/config/pricing";
 
 /**
@@ -51,8 +51,6 @@ const SignupForm = ({
     if (fromUrl) {
       holdCheckoutIntent(fromUrl);
       setPlan(fromUrl);
-    } else if (new URLSearchParams(window.location.search).has("plan")) {
-      setPlan(peekCheckoutIntent());
     }
     captureInviteFromSearch();
     setInviteCodeState(getInviteCode());
