@@ -1139,7 +1139,7 @@ const PageTab = ({ biz, publicUrl, isLive, onUpdate, onShared }: { biz: Business
             </div>
           </>
         ) : (
-          <PublishPrompt surface="dashboard_banner" onPublished={onUpdate} note={PUBLISH_COPY.shareBody} />
+          <PublishPrompt surface="share_tools" onPublished={onUpdate} note={PUBLISH_COPY.shareBody} />
         )}
       </div>
 

@@ -21,6 +21,13 @@ import { track } from "@/lib/track";
 import { BUSINESS_CATEGORIES, isRestrictedCategory } from "@/lib/offerUtils";
 import { suggestSlug, slugRejectionMessage, type SlugRejection } from "@/lib/slugRules";
 import { friendlyError } from "@/lib/errors";
+import { publishPage } from "@/lib/publishPage";
+import { copyText } from "@/lib/clipboard";
+import type { ONBOARDING_STEP_LABELS } from "@/lib/analyticsPrivacy";
+
+type StepName = (typeof ONBOARDING_STEP_LABELS)[number];
+const STEP_NAMES: Record<number, StepName> = { 1: "basics", 2: "logo", 3: "reward", 4: "link", 5: "publish" };
+const TOTAL_STEPS = 5;
 
 const Onboarding = () => {
   const { user } = useAuth();
@@ -55,6 +62,12 @@ const Onboarding = () => {
   const [offerFinePrint, setOfferFinePrint] = useState("");
   const [slug, setSlug] = useState("");
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [liveUrl, setLiveUrl] = useState<string | null>(null);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const completeStep = (n: number) => track("onboarding_step_completed", { step: STEP_NAMES[n] });
+  const goToStep = (from: number, to: number) => { completeStep(from); setStep(to); };
 
   // Continue buttons stay enabled so a tap always produces feedback. These flags
   // drive the inline "what is missing" message instead of a dead disabled button.
@@ -98,6 +111,8 @@ const Onboarding = () => {
         } else if (b.name) {
           setSlug(suggestSlug(b.name));
         }
+        // Returning from the dashboard's publish prompt lands on the final screen.
+        if (params.get("step") === "publish") setStep(5);
       }
       setLoading(false);
     })();
@@ -112,7 +127,7 @@ const Onboarding = () => {
       toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
       return;
     }
-    if (nextStep) setStep(nextStep);
+    if (nextStep) goToStep(nextStep - 1, nextStep);
   };
 
   /**
@@ -207,40 +222,50 @@ const Onboarding = () => {
     return true;
   };
 
-  /** Publishing is free, so setup finishes with a live page by default. */
-  const publishAndFinish = async () => {
+  /** Step 4: the link is saved, then setup ends on the publish screen. */
+  const saveLinkAndContinue = async () => {
     if (!(await saveSlug())) return;
-    setSaving(true);
-    const { error } = await supabase.rpc("fn_set_business_published", { p_published: true });
-    setSaving(false);
-    if (error) {
-      // The link is saved either way. The dashboard's publish banner lets them retry.
-      toast({
-        title: "Could not publish your page",
-        description: friendlyError(error),
-        variant: "destructive",
-      });
-      track("onboarding_completed");
-      navigate("/dashboard");
-      return;
-    }
-    toast({
-      title: "Your referral page is live",
-      description: "Send it to your last few customers while it is fresh.",
-    });
-    track("page_published");
-    track("onboarding_completed");
-    navigate("/dashboard?welcome=1");
+    goToStep(4, 5);
   };
 
-  const saveAsDraft = async () => {
+  // What the server requires before publishing. The final screen asks for
+  // exactly the missing ones instead of sending the owner elsewhere.
+  const missingName = !name.trim();
+  const missingReward = !offerAmount.trim();
+  const missingSlug = !slug || slugAvailable !== true;
+
+  /** Publishing is free and is the last step of setup, on its own screen. */
+  const publishFromFinalStep = async () => {
+    setPublishError(null);
+    if (missingName || missingReward) {
+      setPublishError(missingName ? "Add your business name first." : "Add the reward you pay first.");
+      return;
+    }
     if (!(await saveSlug())) return;
-    toast({
-      title: "Your referral page is ready",
-      description: "It is in draft. Publish it from your dashboard whenever you're ready.",
-    });
+    if (bizId) {
+      setSaving(true);
+      const { error } = await supabase.from("businesses").update({ name: name.trim(), offer_amount: offerAmount.trim() }).eq("id", bizId);
+      setSaving(false);
+      if (error) { setPublishError(friendlyError(error)); return; }
+    }
+    setSaving(true);
+    const result = await publishPage("onboarding");
+    setSaving(false);
+    if (!result.ok) { setPublishError(result.message); return; }
+    completeStep(5);
     track("onboarding_completed");
-    navigate("/dashboard");
+    setLiveUrl(`${window.location.origin}/r/${slug}`);
+  };
+
+  const copyLive = async () => {
+    if (!liveUrl) return;
+    const ok = await copyText(liveUrl);
+    if (!ok) {
+      toast({ title: "Could not copy the link", description: "Select the link and copy it manually.", variant: "destructive" });
+      return;
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   if (loading || !user) {
@@ -287,11 +312,11 @@ const Onboarding = () => {
 
           {/* Stepper */}
           <div className="mb-8 flex items-center gap-2">
-            {[1,2,3,4].map((n) => (
+            {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((n) => (
               <div key={n} className={`h-1 flex-1 rounded-full ${n <= step ? "bg-primary" : "bg-border"}`} />
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mb-2">Step {step} of 4</p>
+          <p className="text-xs text-muted-foreground mb-2">Step {step} of {TOTAL_STEPS}</p>
 
           <div className="rounded-2xl border border-border bg-background p-8 shadow-sm">
             {step === 1 && (
@@ -405,8 +430,8 @@ const Onboarding = () => {
                 <div className="mt-8 flex justify-between">
                   <Button variant="ghost" onClick={() => setStep(1)}>Back</Button>
                   <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => setStep(3)}>Skip</Button>
-                    <Button onClick={() => setStep(3)}>Continue <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                    <Button variant="outline" onClick={() => goToStep(2, 3)}>Skip</Button>
+                    <Button onClick={() => goToStep(2, 3)}>Continue <ArrowRight className="ml-2 h-4 w-4" /></Button>
                   </div>
                 </div>
               </>
@@ -504,23 +529,64 @@ const Onboarding = () => {
                 </div>
                 <div className="mt-8 flex justify-between">
                   <Button variant="ghost" onClick={() => setStep(3)}>Back</Button>
-                  <Button onClick={publishAndFinish} disabled={saving} className="h-11 sm:h-10">
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Publish my page"}
+                  <Button onClick={saveLinkAndContinue} disabled={saving} className="h-11 sm:h-10">
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Continue <ArrowRight className="ml-2 h-4 w-4" /></>}
                   </Button>
                 </div>
-                <div className="mt-3 flex justify-end">
-                  <button
-                    type="button"
-                    onClick={saveAsDraft}
-                    disabled={saving}
-                    className="text-xs font-medium text-muted-foreground underline hover:text-foreground"
-                  >
-                    Save as draft
-                  </button>
-                </div>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  Publishing is free. You can edit your page any time.
+              </>
+            )}
+
+            {step === 5 && !liveUrl && (
+              <>
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your page is ready. Publish it.</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Publishing is free. It is what makes your page reachable, so customers can open your link and send you referrals.
                 </p>
+                {(missingName || missingReward || missingSlug) && (
+                  <div className="mt-6 space-y-4">
+                    {missingName && (
+                      <div>
+                        <Label htmlFor="final-name">Business name</Label>
+                        <Input id="final-name" value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5" />
+                      </div>
+                    )}
+                    {missingReward && (
+                      <div>
+                        <Label htmlFor="final-reward">Reward you pay per referral</Label>
+                        <Input id="final-reward" value={offerAmount} onChange={(e) => setOfferAmount(e.target.value)} placeholder="$100" className="mt-1.5" />
+                      </div>
+                    )}
+                    {missingSlug && (
+                      <SlugField value={slug} onChange={setSlug} businessName={name} onValidityChange={setSlugAvailable} />
+                    )}
+                  </div>
+                )}
+                {publishError && <p role="alert" className="mt-4 text-sm font-medium text-destructive">{publishError}</p>}
+                <Button onClick={publishFromFinalStep} disabled={saving} size="lg" className="mt-8 h-12 w-full">
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Publish my page"}
+                </Button>
+                <div className="mt-3 flex justify-start">
+                  <Button variant="ghost" size="sm" onClick={() => setStep(4)}>Back</Button>
+                </div>
+              </>
+            )}
+
+            {step === 5 && liveUrl && (
+              <>
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your page is live</h1>
+                <p className="mt-1 text-sm text-muted-foreground">Anyone with this link can now send you referrals.</p>
+                <div className="mt-6 rounded-lg border border-border bg-muted/30 px-3 py-2 font-mono text-sm text-foreground break-all">{liveUrl}</div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button variant="outline" onClick={copyLive}>
+                    {copied ? <><Check className="mr-2 h-4 w-4" /> Copied</> : "Copy link"}
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <a href={liveUrl} target="_blank" rel="noopener noreferrer">Open page</a>
+                  </Button>
+                </div>
+                <Button className="mt-8 h-11 w-full" onClick={() => navigate("/dashboard?welcome=1")}>
+                  Go to my dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
               </>
             )}
           </div>

@@ -15,8 +15,15 @@ const PUBLIC_EVENTS = [
   ["referral_submitted", "Referrals submitted"],
   ["promo_popup_shown", "Promotion views"],
   ["promo_cta_clicked", "Promotion clicks"],
+  // Signed-in activation steps, recorded under the "product" group.
+  ["onboarding_step_completed", "Onboarding steps completed"],
+  ["dashboard_viewed", "Dashboard views"],
+  ["publish_banner_seen", "Not-live banner seen"],
+  ["share_tools_viewed", "Share tools views"],
+  ["publish_succeeded", "Publish succeeded"],
+  ["publish_failed", "Publish failed"],
 ] as const;
-const COHORTS = ["marketing", "demo", "referral"] as const;
+const COHORTS = ["marketing", "demo", "referral", "product"] as const;
 type Cohort = typeof COHORTS[number];
 type Row = { event: string; created_at: string | null; session_id: string | null; meta: Record<string, unknown> | null };
 type CohortStats = { events: Record<string, { d7: number; d30: number }>; visitors7: number; visitors30: number };
