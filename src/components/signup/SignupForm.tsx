@@ -12,6 +12,8 @@ import InviteBanner, { InviteTerms } from "@/components/invite/InviteBanner";
 import { captureInviteFromSearch, getInviteCode } from "@/lib/invite";
 import { friendlyError } from "@/lib/errors";
 import { getPartnerClick } from "@/lib/partnerLink";
+import { CHECKOUT_FALLBACK_TOAST, holdCheckoutIntent, parsePlan, startHeldCheckout, clearCheckoutIntent } from "@/lib/proCheckoutIntent";
+import type { BillingPlan } from "@/config/pricing";
 
 /**
  * The one signup form. Rendered on /signup and embedded in the invite landing
@@ -41,8 +43,18 @@ const SignupForm = ({
   const [partnerClickedAt, setPartnerClickedAt] = useState<string | null>(null);
   const [showPartnerField, setShowPartnerField] = useState(false);
   const startedRef = useRef(false);
+  const [plan, setPlan] = useState<BillingPlan | null>(null);
 
   useEffect(() => {
+    // Purchase intent from /pricing. Anything other than monthly|annual is ignored.
+    const fromUrl = parsePlan(new URLSearchParams(window.location.search).get("plan"));
+    if (fromUrl) {
+      holdCheckoutIntent(fromUrl);
+      setPlan(fromUrl);
+    } else {
+      // Plain signup: drop any stale intent so /welcome never jumps to checkout.
+      clearCheckoutIntent();
+    }
     captureInviteFromSearch();
     setInviteCodeState(getInviteCode());
     // Prefill a held partner click. The code is never trusted here: the server
@@ -67,12 +79,15 @@ const SignupForm = ({
     track("signup_form_started", inviteCode ? { invite_code: inviteCode } : undefined);
   };
 
+  const welcomeUrl = `${window.location.origin}/welcome${plan ? `?plan=${plan}` : ""}`;
+  const submitLabel = plan ? "Create account & continue to Pro" : "Create free account";
+
   const resendConfirmation = async () => {
     setResending(true);
     const { error } = await supabase.auth.resend({
       type: "signup",
       email,
-      options: { emailRedirectTo: `${window.location.origin}/welcome` },
+      options: { emailRedirectTo: welcomeUrl },
     });
     setResending(false);
     if (error) {
@@ -98,7 +113,7 @@ const SignupForm = ({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/welcome`,
+        emailRedirectTo: welcomeUrl,
         data: {
           role: "business",
           full_name: fullName.trim() || email.split("@")[0],
@@ -129,6 +144,11 @@ const SignupForm = ({
       setConfirmPending(true);
       setBusy(false);
       return;
+    }
+    if (plan && data.user?.id) {
+      const redirected = await startHeldCheckout(data.user.id, plan);
+      if (redirected) return;
+      toast(CHECKOUT_FALLBACK_TOAST);
     }
     navigate("/welcome", { replace: true });
   };
@@ -208,10 +228,14 @@ const SignupForm = ({
           </button>
         )}
         <Button type="submit" size="lg" className={showStickyMobileBar ? "hidden w-full h-11 sm:flex" : "w-full h-11"} disabled={busy}>
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create free account"}
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : submitLabel}
         </Button>
         {inviteCode ? (
           <InviteTerms />
+        ) : plan ? (
+          <p className="text-center text-[11px] text-muted-foreground">
+            Next you'll add a card to start Pro at {plan === "annual" ? PRICE_TEXT.annualPerYear : PRICE_TEXT.monthlyPerMonth}. Your referral page stays free either way.
+          </p>
         ) : (
           <p className="text-center text-[11px] text-muted-foreground">
             No card required. Your referral page is free to publish.
@@ -229,7 +253,7 @@ const SignupForm = ({
       {showStickyMobileBar && (
         <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden">
           <Button type="submit" form={formId} size="lg" className="w-full h-11" disabled={busy}>
-            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create free account"}
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : submitLabel}
           </Button>
         </div>
       )}

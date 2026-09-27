@@ -429,6 +429,11 @@ const BusinessDashboard = () => {
             </a>
           </Button>
           <InstallAppButton className="h-11 flex-1 sm:h-10 sm:flex-none" onIosSteps={() => setShowIosSteps(true)} />
+          {!isPro && !["active", "trialing", "past_due", "unpaid", "incomplete"].includes(subStatus) && (
+            <Button variant="outline" className="h-11 flex-1 sm:h-10 sm:flex-none" onClick={() => changeTab("account")}>
+              Start Pro
+            </Button>
+          )}
         </div>
       </div>
 
