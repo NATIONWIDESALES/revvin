@@ -39,11 +39,11 @@ describe("actual public activity reporting", () => {
     render(<FunnelPanel />);
     await screen.findByText(/0 new paying businesses, 0 renewals/);
     const cells = (label: string) => within(screen.getByText(label).closest("tr")!).getAllByRole("cell").map(c => c.textContent);
-    expect(cells("Page views")).toEqual(["Page views", "1 / 1", "0 / 0", "1 / 1"]);
-    expect(cells("Demo completions")).toEqual(["Demo completions", "0 / 0", "1 / 1", "0 / 0"]);
-    expect(cells("Unique sessions")).toEqual(["Unique sessions", "1 / 1", "1 / 1", "1 / 1"]);
+    expect(cells("Page views")).toEqual(["Page views", "1 / 1", "0 / 0", "1 / 1", "0 / 0"]);
+    expect(cells("Demo completions")).toEqual(["Demo completions", "0 / 0", "1 / 1", "0 / 0", "0 / 0"]);
+    expect(cells("Unique sessions")).toEqual(["Unique sessions", "1 / 1", "1 / 1", "1 / 1", "0 / 0"]);
     expect(screen.queryByText("Signup succeeded")).not.toBeInTheDocument();
-    expect(screen.getByText(/Signup, account and activation browser measurements are unavailable/)).toBeInTheDocument();
+    expect(screen.getByText(/Signed-in activation steps appear in the product column/)).toBeInTheDocument();
   });
   it("shows unavailable money as a reporting error instead of a false zero", async () => {
     fixture.paymentError = { message: "ledger unavailable" };
@@ -69,6 +69,6 @@ describe("actual public activity reporting", () => {
     fixture.payments = [{ kind: "first_payment" }, { kind: "renewal" }, { kind: "renewal" }];
     render(<FunnelPanel />);
     expect(await screen.findByText(/1 new paying business, 2 renewals/)).toBeInTheDocument();
-    expect(within(screen.getByText("Unique sessions").closest("tr")!).getAllByRole("cell").map(c => c.textContent)).toEqual(["Unique sessions", "0 / 0", "0 / 0", "0 / 0"]);
+    expect(within(screen.getByText("Unique sessions").closest("tr")!).getAllByRole("cell").map(c => c.textContent)).toEqual(["Unique sessions", "0 / 0", "0 / 0", "0 / 0", "0 / 0"]);
   });
 });
