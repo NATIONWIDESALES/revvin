@@ -251,7 +251,7 @@ const Onboarding = () => {
     setSaving(true);
     const result = await publishPage("onboarding");
     setSaving(false);
-    if (!result.ok) { setPublishError(result.message); return; }
+    if (!result.ok) { setPublishError(result.message ?? "Could not publish your page."); return; }
     completeStep(5);
     track("onboarding_completed");
     setLiveUrl(`${window.location.origin}/r/${slug}`);

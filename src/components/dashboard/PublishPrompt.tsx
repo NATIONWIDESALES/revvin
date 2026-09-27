@@ -43,7 +43,7 @@ const PublishPrompt = ({ surface, onPublished, note }: Props) => {
     const result = await publishPage(surface);
     setBusy(false);
     if (!result.ok) {
-      setError({ message: result.message, needsSetup: result.missing !== null });
+      setError({ message: result.message ?? "", needsSetup: !!result.missing });
       return;
     }
     toast({ title: "Your referral page is live" });

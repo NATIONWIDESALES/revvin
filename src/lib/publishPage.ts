@@ -18,7 +18,7 @@ export function missingFieldFromError(message: string): MissingField {
  * The single publish call. Publishing is free; the RPC owns the rules and the
  * wording of its errors. Every attempt is recorded as succeeded or failed.
  */
-export async function publishPage(surface: PublishSurface): Promise<{ ok: true } | { ok: false; message: string; missing: MissingField }> {
+export async function publishPage(surface: PublishSurface): Promise<{ ok: boolean; message?: string; missing?: MissingField }> {
   try {
     const { error } = await supabase.rpc("fn_set_business_published", { p_published: true });
     if (error) {
