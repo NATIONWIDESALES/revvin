@@ -20,6 +20,10 @@ import { PRIVACY_DOC, TERMS_DOC, legalPrerenderSections } from "./legal";
 // Relative, not aliased: this module is also imported by the build-time
 // prerender plugin, which is bundled outside the app's alias resolution.
 import { PRICE_TEXT } from "../config/pricing";
+// PLAN_SPLIT is the single source for the Free/Pro split line used on the
+// homepage, pricing page and invite landing; importing it here keeps the
+// prerendered HTML from drifting from the rendered pages.
+import { PLAN_SPLIT } from "../config/planFeatures";
 import { SAMPLE_META } from "./samplePage";
 
 
@@ -213,16 +217,20 @@ const handwritten: PrerenderRoute[] = [
   {
     path: "/",
     title: "Revvin | Referral software for service businesses",
-    description: `Turn past customers into your next booked job. Create a free referral page, prepare a personal ask, and track the leads and rewards that follow. Revvin Pro is ${PRO}.`,
+    description: `Turn past customers into your next booked job. After every job, Revvin asks your customer for a Google review and a referral, automatically. On Pro, it emails every customer you've ever had to win back repeat work.`,
     h1: "Turn past customers into your next booked job.",
     sections: [
+      {
+        heading: "Free and Pro, plainly",
+        body: `${PLAN_SPLIT.line} Free: ${PLAN_SPLIT.freeDetail} Pro: ${PLAN_SPLIT.proDetail}`,
+      },
       {
         heading: "Create a referral page, free",
         body: "Add your business, write the offer, set the fixed reward you will pay, pick your link, and publish. Creating and publishing your referral page is free, with no card, and you get a shareable link, a QR code and a printable pack. Every referral submitted through the page lands in a lead inbox you can work from your phone, with statuses and one-tap call or text back.",
       },
       {
-        heading: "Prepare and share the ask",
-        body: "Revvin drafts the personal ask and opens it in your own texting or email app, so it sends from your number or your address. On Revvin Pro you can import your past-customer list, draft asks for the whole list at once, and have Revvin email a reactivation campaign to a segment you choose, with your business address and an unsubscribe link in every email.",
+        heading: "The ask after every job",
+        body: "After every job, Revvin asks your customer for a Google review and a referral, automatically, once your job software, Zapier or the API tells Revvin the job is finished. Personal asks open in your own texting or email app, so they send from your number or your address. On Revvin Pro you can import your past-customer list and have Revvin email a reactivation campaign to a segment you choose, with your business address and an unsubscribe link in every email.",
       },
       {
         heading: "Track referrals and record rewards",
@@ -324,16 +332,20 @@ const handwritten: PrerenderRoute[] = [
   {
     path: "/pricing",
     title: "Revvin | Pricing",
-    description: `Your referral page is free, published and collecting referrals. Revvin Pro is ${PRO} for the tools that ask your whole customer list for you. You pay your referrers directly.`,
+    description: `${PLAN_SPLIT.line} Your referral page is free, published and collecting referrals. You pay your referrers directly.`,
     h1: "Your referral page is free.",
     sections: [
       {
-        heading: "Free, $0",
+        heading: "Free and Pro, plainly",
+        body: `${PLAN_SPLIT.line} Free: ${PLAN_SPLIT.freeDetail} Pro: ${PLAN_SPLIT.proDetail}`,
+      },
+      {
+        heading: `Free, $0: ${PLAN_SPLIT.freeSubtitle.toLowerCase()}`,
         body: "Your referral page on your own link, a QR code and share tools, unlimited referral leads, a lead inbox with status tracking, offers, payout tracking from owed to paid, and a listing in the marketplace. Build it, publish it and take referrals on it without paying anything.",
       },
       {
-        heading: `Revvin Pro, ${PRO}`,
-        body: `Everything in Free, plus importing your past-customer list and sending your referral ask in bulk from your own email app, reactivation campaigns that Revvin sends by email from your account with an unsubscribe link in every message and a cap of 500 recipients per send, ROI reporting with a monthly email recap, and custom page branding. Annual billing is ${ANNUAL}. No contract and no setup fee.`,
+        heading: `Revvin Pro, ${PRO}: ${PLAN_SPLIT.proSubtitle.toLowerCase()}`,
+        body: `${PLAN_SPLIT.proLead} Everything in Free, plus importing your past-customer list and sending your referral ask in bulk from your own email app, reactivation campaigns that Revvin sends by email from your account with an unsubscribe link in every message and a cap of 500 recipients per send, ROI reporting with a monthly email recap, and custom page branding. Annual billing is ${ANNUAL}. No contract and no setup fee.`,
       },
 
       {
