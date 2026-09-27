@@ -230,7 +230,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "The ask after every job",
-        body: "After every job, Revvin asks your customer for a Google review and a referral, automatically, once your job software, Zapier or the API tells Revvin the job is finished. Personal asks open in your own texting or email app, so they send from your number or your address. On Revvin Pro you can import your past-customer list and have Revvin email a reactivation campaign to a segment you choose, with your business address and an unsubscribe link in every email.",
+        body: "After every job, Revvin asks your customer for a Google review and a referral, automatically, once you tap Job done, or your job software tells Revvin through Zapier or the API. Personal asks open in your own texting or email app, so they send from your number or your address. On Revvin Pro you can import your past-customer list and have Revvin email a reactivation campaign to a segment you choose, with your business address and an unsubscribe link in every email.",
       },
       {
         heading: "Track referrals and record rewards",
