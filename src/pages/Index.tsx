@@ -18,12 +18,10 @@ import ReferralDemo from "@/components/demo/ReferralDemo";
 import Wordmark from "@/components/brand/Wordmark";
 import { PRICE_TEXT } from "@/config/pricing";
 import { MONTHLY_PRICE } from "@/config/pricing";
-import { FREE_FEATURES, PRO_FEATURES } from "@/config/planFeatures";
+import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT } from "@/config/planFeatures";
 import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
-import PlanFeatureList from "@/components/marketing/PlanFeatureList";
 import HeroPhoneScene from "@/components/marketing/HeroPhoneScene";
 import ScrollReveal from "@/components/ScrollReveal";
-import { motion, useReducedMotion } from "framer-motion";
 
 /**
  * Homepage. Deliberately short: hero, a demo a visitor can actually run, three
@@ -97,14 +95,6 @@ const FAQS = [
 ];
 
 const Index = () => {
-  const prefersReduced = useReducedMotion();
-  const heroItem = prefersReduced
-    ? {}
-    : {
-        hidden: { opacity: 0, y: 14 },
-        visible: { opacity: 1, y: 0 },
-      };
-
   return (
     <>
     <SEOHead
@@ -155,32 +145,29 @@ const Index = () => {
       <div aria-hidden className="hero-spotlight absolute inset-y-0 left-0 w-3/5" />
       <div className="container relative py-14 md:py-24">
         <div className="grid items-center gap-12 lg:grid-cols-12">
-          <motion.div
-            className="lg:col-span-7"
-            initial={prefersReduced ? false : "hidden"}
-            animate="visible"
-            variants={prefersReduced ? undefined : { visible: { transition: { staggerChildren: 0.1 } } }}
-          >
-            <motion.p variants={heroItem} transition={{ duration: 0.42 }} className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+          {/* Rendered in its final state: the prerendered headline must never
+              disappear or fade back in after first paint. */}
+          <div className="lg:col-span-7">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
               Referral software built first for home-service businesses.
-            </motion.p>
-            <motion.h1 variants={heroItem} transition={{ duration: 0.42 }} className="mt-4 text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
+            </p>
+            <h1 className="mt-4 text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
               Turn past customers into your{" "}
               <span className="shimmer-text">next booked job.</span>
-            </motion.h1>
-            <motion.p variants={heroItem} transition={{ duration: 0.42 }} className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Create a referral page, prepare a personal ask, and track the leads and rewards that
-              follow. Written for roofers, HVAC, plumbers and the trades, and it works for any
-              service business with a list of past customers.
-            </motion.p>
-            <motion.div variants={heroItem} transition={{ duration: 0.42 }} className="mt-8 flex flex-col gap-3 sm:flex-row">
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              After every job, Revvin asks your customer for a Google review and a referral, automatically.
+              On Pro, it emails every customer you've ever had to win back repeat work. More calls,
+              without paying for leads.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button
                 size="lg"
                 className="shine-on-hover hero-primary-button group h-12 w-full px-6 text-base shadow-product hover:bg-primary-deep sm:w-auto"
                 asChild
               >
                 <Link to="/signup" onClick={() => track("cta_clicked", { cta: "hero_signup" })}>
-                  Build my free referral page
+                  Start free, no card
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                 </Link>
               </Button>
@@ -189,11 +176,9 @@ const Index = () => {
                   Try the demo
                 </Link>
               </Button>
-            </motion.div>
-            <motion.p variants={heroItem} transition={{ duration: 0.42 }} className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              {`Your referral page is free and no card is needed to create it. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD when you want the list tools.`}
-            </motion.p>
-          </motion.div>
+            </div>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{PLAN_SPLIT.line}</p>
+          </div>
 
           {/* Compact, clearly labelled product example. */}
           <div className="lg:col-span-5">
@@ -340,48 +325,21 @@ const Index = () => {
         <ScrollReveal>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
-            Free page. Pro when you want the list tools.
+            Free and Pro, in two lines.
           </h2>
-          <p className="mt-3 text-base text-muted-foreground">
-            {`Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once. No contract, and no fee on the rewards you pay.`}
-          </p>
-        </div>
-
-        <div className="mx-auto mt-10 grid max-w-4xl gap-5 md:grid-cols-2">
-          <div className="home-lift-card rounded-2xl border border-border bg-card p-7 shadow-soft">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Free
-            </p>
-            <p className="mt-2 text-4xl font-extrabold tracking-tight text-foreground">$0</p>
-            <p className="mt-1 text-sm text-muted-foreground">No card. Does not expire.</p>
-            <PlanFeatureList features={FREE_FEATURES} />
-            <Button variant="outline" size="lg" className="mt-7 h-12 w-full text-base" asChild>
-              <Link to="/signup" onClick={() => track("cta_clicked", { cta: "plans_free" })}>
-                Build my free referral page
-              </Link>
-            </Button>
-          </div>
-
-          <div className="pro-plan-card home-lift-card rounded-2xl bg-card p-7 shadow-product">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-              Revvin Pro
-            </p>
-            <div className="mt-2 flex flex-wrap items-baseline gap-x-2">
-              <span className="text-4xl font-extrabold tracking-tight text-foreground">
-                {PRICE_TEXT.monthly}
-              </span>
-              <span className="text-sm font-medium text-muted-foreground">/month USD</span>
+          <dl className="mt-6 space-y-3 text-left text-base">
+            <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
+              <dt className="font-semibold text-foreground">Free: {PLAN_SPLIT.freeSubtitle.toLowerCase()}</dt>
+              <dd className="mt-1 text-sm text-muted-foreground">{PLAN_SPLIT.freeDetail}</dd>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {`Or ${PRICE_TEXT.annualPerYear} billed once. Cancel anytime.`}
-            </p>
-            <PlanFeatureList features={PRO_FEATURES} />
-            <Button size="lg" className="mt-7 h-12 w-full text-base hover:bg-primary-deep" asChild>
-              <Link to="/pricing" onClick={() => track("cta_clicked", { cta: "plans_pro" })}>
-                See Pro in detail
-              </Link>
-            </Button>
-          </div>
+            <div className="rounded-xl border border-primary/40 bg-card p-4 shadow-soft">
+              <dt className="font-semibold text-foreground">{`Pro, ${PRICE_TEXT.monthlyPerMonth}: ${PLAN_SPLIT.proSubtitle.toLowerCase()}`}</dt>
+              <dd className="mt-1 text-sm text-muted-foreground">{PLAN_SPLIT.proDetail}</dd>
+            </div>
+          </dl>
+          <Button variant="outline" size="lg" className="mt-6 h-12 px-8 text-base" asChild>
+            <Link to="/pricing" onClick={() => track("cta_clicked", { cta: "plans_pro" })}>See pricing</Link>
+          </Button>
         </div>
         </ScrollReveal>
       </div>
@@ -422,7 +380,7 @@ const Index = () => {
           Build the page, then make the ask.
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-base text-white/70">
-          {`Free to create and publish, no card. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD when you want to work your whole list.`}
+          {PLAN_SPLIT.line}
         </p>
         <Button
           size="lg"
