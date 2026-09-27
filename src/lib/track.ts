@@ -48,6 +48,12 @@ export const FUNNEL_EVENTS = [
   "pwa_installed",
   "pwa_install_cta_shown",
   "pwa_install_cta_clicked",
+  "dashboard_viewed",
+  "onboarding_step_completed",
+  "publish_banner_seen",
+  "publish_succeeded",
+  "publish_failed",
+  "share_tools_viewed",
 ] as const;
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];
