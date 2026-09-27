@@ -2,11 +2,11 @@
 //
 // Every claim here must be true of the product: publishing a referral page is
 // free, Revvin Pro is $49/month USD, businesses pay their referrers directly
-// off-platform, and Revvin never sends email or SMS on a business's behalf.
-// The Pro bulk ask prepares the message and opens the owner's own email app
-// with the recipients filled in, in batches. There is no auto-ask engine, no
-// job-done trigger, no segmented reactivation, no automated review requests,
-// no webhooks and no public API.
+// off-platform. Referral asks open the owner's own phone or email app with the
+// message filled in, so the owner's device sends them. Reactivation campaigns
+// (Pro) are the exception: Revvin sends those by email from the business name,
+// with replies going to the owner's own email. Revvin never auto-sends SMS to
+// a business's list.
 //
 // No statistics, benchmarks, averages, testimonials, case studies or results
 // are invented anywhere on these pages. Where a number would normally go, the

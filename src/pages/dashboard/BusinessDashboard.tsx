@@ -518,7 +518,7 @@ const BusinessDashboard = () => {
               consentedAt={biz.contact_outreach_consent_at ?? null}
               onConsented={() => loadAll()}
             >
-              <CampaignsTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, business_email: biz.business_email ?? null }} publicUrl={publicUrl} />
+              <CampaignsTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, business_email: biz.business_email ?? null }} publicUrl={publicUrl} isPro={isPro} />
             </AttestationGate>
           )}
         </TabsContent>

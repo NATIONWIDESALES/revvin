@@ -54,6 +54,12 @@ export const FUNNEL_EVENTS = [
   "publish_succeeded",
   "publish_failed",
   "share_tools_viewed",
+  "campaigns_tab_viewed",
+  "campaign_segment_selected",
+  "campaign_preview_viewed",
+  "campaign_send_clicked",
+  "campaign_sent",
+  "campaign_send_failed",
 ] as const;
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];
