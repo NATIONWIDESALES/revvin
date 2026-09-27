@@ -25,8 +25,9 @@ export const FREE_FEATURES = [
     description: "Track each fixed reward from owed to paid, with the referrer notified at both moments.",
   },
   {
-    label: "Job done automatic ask",
-    description: "Every finished job can ask for a Google review and a referral in one go.",
+    label: "Automatic ask after each job",
+    description:
+      "Tap Job done, or connect your job software, and Revvin asks for a Google review and a referral.",
   },
   {
     label: "API and Zapier connection",
@@ -73,7 +74,8 @@ export const PLAN_SPLIT = {
   line: "Free covers every job from here on. Pro ($49/mo) goes back through every customer you've ever had.",
   freeSubtitle: "Every job from here on",
   proSubtitle: "Every customer you've ever had",
-  freeDetail: "Referral page, QR codes, lead inbox, and the automatic review and referral ask after each job.",
+  freeDetail:
+    "Referral page, QR codes, lead inbox, and the review and referral ask that fires when you mark a job done.",
   proDetail: "Import your whole list and Revvin emails them from your business name to win back repeat work, with replies going to your own inbox. Plus ROI reporting and custom branding.",
   proLead: "Revvin emails your whole past-customer list for you, from your business name, to win back repeat work.",
 } as const;

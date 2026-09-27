@@ -217,7 +217,7 @@ const handwritten: PrerenderRoute[] = [
   {
     path: "/",
     title: "Revvin | Referral software for service businesses",
-    description: `Turn past customers into your next booked job. After every job, Revvin asks your customer for a Google review and a referral, automatically. On Pro, it emails every customer you've ever had to win back repeat work.`,
+    description: `Turn past customers into your next booked job. Mark a job done, or let your job software do it, and Revvin automatically asks that customer for a Google review and a referral. On Pro, it emails every customer you've ever had to win back repeat work.`,
     h1: "Turn past customers into your next booked job.",
     sections: [
       {
