@@ -41,12 +41,15 @@ describe("print pack entitlement", () => {
     expect(PRO_FEATURES.some((feature) => /print pack/i.test(`${feature.label} ${feature.description}`))).toBe(false);
   });
 
-  it("has both public pages render the same shared Free and Pro lists", () => {
-    for (const file of ["src/pages/Index.tsx", "src/pages/Pricing.tsx"]) {
-      const source = read(file);
-      expect(source).toContain('<PlanFeatureList features={FREE_FEATURES} />');
-      expect(source).toContain('<PlanFeatureList features={PRO_FEATURES} />');
-    }
+  it("renders the full shared lists on pricing, and the shared split line on the homepage", () => {
+    const pricing = read("src/pages/Pricing.tsx");
+    expect(pricing).toContain('<PlanFeatureList features={FREE_FEATURES} />');
+    expect(pricing).toContain('<PlanFeatureList features={PRO_FEATURES} />');
+    // The homepage deliberately shows a two-line summary instead of a second
+    // pricing table, from the same config, with one link to the full lists.
+    const home = read("src/pages/Index.tsx");
+    for (const source of [home, pricing, read("src/pages/InviteLanding.tsx")]) expect(source).toContain("PLAN_SPLIT.line");
+    expect(home).toContain('to="/pricing"');
   });
 });
 

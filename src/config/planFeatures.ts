@@ -64,3 +64,16 @@ export const PRO_FEATURES = [
     description: "Add your colour, cover image, headline, welcome message and testimonials.",
   },
 ] as const satisfies readonly PlanFeature[];
+/**
+ * The one-line answer to "what do I get for $49": Free works forward on every
+ * job from here on; Pro works backward through every customer already served.
+ * Used on the homepage, pricing page and invite landing so they never differ.
+ */
+export const PLAN_SPLIT = {
+  line: "Free covers every job from here on. Pro ($49/mo) goes back through every customer you've ever had.",
+  freeSubtitle: "Every job from here on",
+  proSubtitle: "Every customer you've ever had",
+  freeDetail: "Referral page, QR codes, lead inbox, and the automatic review and referral ask after each job.",
+  proDetail: "Import your whole list and Revvin emails them from your business name to win back repeat work, with replies going to your own inbox. Plus ROI reporting and custom branding.",
+  proLead: "Revvin emails your whole past-customer list for you, from your business name, to win back repeat work.",
+} as const;

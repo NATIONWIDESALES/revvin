@@ -16,19 +16,12 @@ import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 import HowPayoutsWork from "@/components/marketing/HowPayoutsWork";
 import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
-import { FREE_FEATURES, PRO_FEATURES } from "@/config/planFeatures";
+import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT } from "@/config/planFeatures";
 import { SETUP_CALL_URL } from "@/config/setupCall";
 import { APP_ID, ORG_ID, SITE_URL } from "@/config/brand";
 import { MONTHLY_PRICE, ANNUAL_PRICE } from "@/config/pricing";
 import PlanFeatureList from "@/components/marketing/PlanFeatureList";
 
-const launchFeatures = [
-  "1:1 onboarding call",
-  "Done-for-you offer setup",
-  "Custom QR + print-ready flyer",
-  "Launch email + SMS templates",
-  "30 days of priority support",
-];
 
 const LAUNCH_KEY = "revvin_addon_launch";
 
@@ -112,19 +105,30 @@ const Pricing = () => {
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
             Your referral page is free.
           </h1>
-          <p className="mt-5 text-lg text-muted-foreground">
-            Build it, publish it, and take referrals on it without paying anything. Revvin Pro is {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, which saves {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off). Pro is the part that asks your whole customer list for you and shows you what came back. No contract, and no platform fees on your referral rewards.
+          <p className="mt-5 text-xl font-semibold text-foreground">{PLAN_SPLIT.line}</p>
+          <div className="mx-auto mt-6 grid max-w-2xl gap-3 text-left sm:grid-cols-2">
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-sm font-semibold text-foreground">Free: {PLAN_SPLIT.freeSubtitle.toLowerCase()}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{PLAN_SPLIT.freeDetail}</p>
+            </div>
+            <div className="rounded-xl border border-primary/40 bg-card p-4">
+              <p className="text-sm font-semibold text-foreground">Pro: {PLAN_SPLIT.proSubtitle.toLowerCase()}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{PLAN_SPLIT.proDetail}</p>
+            </div>
+          </div>
+          <p className="mt-5 text-sm text-muted-foreground">
+            Revvin Pro is {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, which saves {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off). No contract, and no platform fees on your referral rewards.
           </p>
         </div>
       </section>
 
       <section>
         <div className="container max-w-6xl py-20">
-          <div className={`grid gap-6 ${LAUNCH_PACKAGE_ENABLED ? "md:grid-cols-3" : "md:grid-cols-2 md:max-w-3xl md:mx-auto"}`}>
+          <div className="grid gap-6 md:grid-cols-2 md:max-w-3xl md:mx-auto">
             {/* Free */}
             <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Free</p>
-              <h2 className="mt-1 text-xl font-bold text-foreground">Your referral page</h2>
+              <h2 className="mt-1 text-xl font-bold text-foreground">{PLAN_SPLIT.freeSubtitle}</h2>
               <div className="mt-6 flex items-baseline gap-2">
                 <span className="text-5xl font-extrabold tracking-tight text-foreground">$0</span>
                 <span className="text-sm text-muted-foreground">forever</span>
@@ -149,7 +153,7 @@ const Pricing = () => {
                 </span>
               </div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pro</p>
-              <h2 className="mt-1 text-xl font-bold text-foreground">Ask your whole list</h2>
+              <h2 className="mt-1 text-xl font-bold text-foreground">{PLAN_SPLIT.proSubtitle}</h2>
 
               {/* Billing period toggle */}
               <div role="group" aria-label="Billing period" className="mt-5 grid grid-cols-2 gap-1 rounded-lg border border-border bg-surface-warm p-1">
@@ -207,76 +211,29 @@ const Pricing = () => {
                   {`Pay yearly instead and save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off)`}
                 </button>
               )}
-              {LAUNCH_PACKAGE_ENABLED && (
-                <div className="mt-4 flex items-start gap-3 rounded-lg border border-border bg-surface-warm p-3">
-                  <Checkbox
-                    id="add-launch-pro"
-                    checked={addLaunch}
-                    onCheckedChange={(v) => toggleLaunch(v === true)}
-                    className="mt-0.5"
-                  />
-                  <Label htmlFor="add-launch-pro" className="cursor-pointer text-xs leading-snug text-foreground">
-                    <span className="font-semibold">Add $297 Launch Package</span>
-                    <span className="block text-muted-foreground">
-                      One-time. We set up your offer, page, and launch assets with you.
-                    </span>
-                  </Label>
-                </div>
-              )}
-               <PlanFeatureList features={PRO_FEATURES} />
+              <p className="mt-8 flex items-start gap-2.5 border-t border-border pt-6 text-sm font-semibold text-foreground">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span>{PLAN_SPLIT.proLead}</span>
+              </p>
+              <PlanFeatureList features={PRO_FEATURES} />
             </div>
 
-            {/* Launch Package add-on (gated by LAUNCH_PACKAGE_ENABLED) */}
-            {LAUNCH_PACKAGE_ENABLED && (
-            <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Add-on</p>
-              <h2 className="mt-1 text-xl font-bold text-foreground">Launch Package</h2>
-              <div className="mt-6 flex items-baseline gap-2">
-                <span className="text-5xl font-extrabold tracking-tight text-foreground">+$297</span>
-                <span className="text-sm text-muted-foreground">one-time</span>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Optional. We set up your offer, page, and launch assets with you.
-              </p>
-              <div className="mt-6 flex items-start gap-3 rounded-lg border border-border bg-surface-warm p-3">
-                <Checkbox
-                  id="add-launch-card"
-                  checked={addLaunch}
-                  onCheckedChange={(v) => toggleLaunch(v === true)}
-                  className="mt-0.5"
-                />
-                <Label htmlFor="add-launch-card" className="cursor-pointer text-sm font-semibold text-foreground">
-                  {addLaunch ? "Added to checkout" : "Add $297 Launch Package"}
+          </div>
+
+          {LAUNCH_PACKAGE_ENABLED && (
+            <div className="mt-8 flex flex-col items-center gap-2 text-center text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Checkbox id="add-launch" checked={addLaunch} onCheckedChange={(v) => toggleLaunch(v === true)} />
+                <Label htmlFor="add-launch" className="cursor-pointer font-normal text-muted-foreground">
+                  Want us to set it up with you? Add the Launch Package, $297 one-time.
                 </Label>
               </div>
-              <Button
-                variant={addLaunch ? "default" : "outline"}
-                size="lg"
-                className="mt-3 h-11 w-full"
-                asChild
-                onClick={() => setLaunchFlag(true)}
-              >
-                <Link to="/signup">{addLaunch ? "Continue to checkout" : "Add and continue"}</Link>
-              </Button>
-              <ul className="mt-8 space-y-2.5 border-t border-border pt-6">
-                {launchFeatures.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-6 text-[11px] text-muted-foreground">
-                Charged once, at checkout, on top of your Revvin subscription.
-              </p>
+              {addLaunch && <p className="text-xs">Added. It is charged once at checkout when you start Pro.</p>}
               {SETUP_CALL_URL && (
-                <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" className="mt-4 text-sm font-medium text-primary underline underline-offset-4">
-                  Book a 30-minute setup call
-                </a>
+                <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" className="text-xs underline underline-offset-4">Or book a 30-minute setup call</a>
               )}
             </div>
-            )}
-          </div>
+          )}
 
           <p className="mt-10 text-center text-sm font-medium text-foreground">
             Cancel any time. Your page stays live and your referrals keep coming in. You only lose the Pro tools.
@@ -302,6 +259,15 @@ const Pricing = () => {
       </section>
 
       <WorksWithJobSoftware />
+
+      <section className="border-b border-border">
+        <div className="container max-w-3xl py-16">
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">What you get for the $49</h2>
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            Free works on every job from here on. Pro works on every customer you have already served: import your past customers, have Revvin email a reactivation campaign to the group you choose from your business name, with replies going to your own inbox, or work through them in batches with each ask opening in your own phone or email app. You also get ROI reporting with a monthly recap and custom page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. The Pro features are the same on monthly and annual. There are no per-send charges.
+          </p>
+        </div>
+      </section>
 
       <section className="border-b border-border">
         <div className="container max-w-5xl py-20">
@@ -354,12 +320,6 @@ const Pricing = () => {
               <AccordionTrigger>What exactly is free?</AccordionTrigger>
               <AccordionContent>
                 Your referral page. Create your account, set up your offer, publish the page, share the link and QR code, and take referrals through it without paying anything. That is not a trial and it does not expire. Referrer accounts are free too: send leads to businesses on Revvin and get paid directly, no card required. Pro is what you pay for, and it is the tools that ask your whole customer list for you.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="p5">
-              <AccordionTrigger>What do I actually get for the $49?</AccordionTrigger>
-              <AccordionContent>
-                Pro adds the tools that work your existing customer list: import your past customers, work through them in batches with each ask opening in your own phone or email app, send reactivation email campaigns, see ROI reporting with a monthly recap, and customize your page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. The Pro features are the same on monthly and annual. There are no per-send charges.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">
