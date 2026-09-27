@@ -23,6 +23,7 @@ import { suggestSlug, slugRejectionMessage, type SlugRejection } from "@/lib/slu
 import { friendlyError } from "@/lib/errors";
 import { publishPage } from "@/lib/publishPage";
 import { copyText } from "@/lib/clipboard";
+import { CHECKOUT_FALLBACK_TOAST, parsePlan, peekCheckoutIntent, startHeldCheckout } from "@/lib/proCheckoutIntent";
 import type { ONBOARDING_STEP_LABELS } from "@/lib/analyticsPrivacy";
 
 type StepName = (typeof ONBOARDING_STEP_LABELS)[number];
@@ -38,6 +39,23 @@ const Onboarding = () => {
   useEffect(() => {
     track("onboarding_started");
   }, []);
+
+  // Buyer who confirmed their email with Pro intent: pay first, build after.
+  const heldPlanRef = useRef(
+    params.get("checkout") === "success" ? null : parsePlan(params.get("plan")) ?? peekCheckoutIntent(),
+  );
+  const [redirectingToCheckout, setRedirectingToCheckout] = useState(!!heldPlanRef.current);
+  useEffect(() => {
+    const plan = heldPlanRef.current;
+    if (!user || !plan) return;
+    heldPlanRef.current = null;
+    (async () => {
+      const redirected = await startHeldCheckout(user.id, plan);
+      if (redirected) return;
+      toast(CHECKOUT_FALLBACK_TOAST);
+      setRedirectingToCheckout(false);
+    })();
+  }, [user, toast]);
 
   const [bizId, setBizId] = useState<string | null>(null);
   const [launchPackageStatus, setLaunchPackageStatus] = useState<string | null>(null);
