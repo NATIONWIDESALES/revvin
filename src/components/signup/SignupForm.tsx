@@ -12,7 +12,7 @@ import InviteBanner, { InviteTerms } from "@/components/invite/InviteBanner";
 import { captureInviteFromSearch, getInviteCode } from "@/lib/invite";
 import { friendlyError } from "@/lib/errors";
 import { getPartnerClick } from "@/lib/partnerLink";
-import { CHECKOUT_FALLBACK_TOAST, holdCheckoutIntent, parsePlan, startHeldCheckout } from "@/lib/proCheckoutIntent";
+import { CHECKOUT_FALLBACK_TOAST, holdCheckoutIntent, parsePlan, startHeldCheckout, clearCheckoutIntent } from "@/lib/proCheckoutIntent";
 import type { BillingPlan } from "@/config/pricing";
 
 /**
@@ -51,6 +51,9 @@ const SignupForm = ({
     if (fromUrl) {
       holdCheckoutIntent(fromUrl);
       setPlan(fromUrl);
+    } else {
+      // Plain signup: drop any stale intent so /welcome never jumps to checkout.
+      clearCheckoutIntent();
     }
     captureInviteFromSearch();
     setInviteCodeState(getInviteCode());
