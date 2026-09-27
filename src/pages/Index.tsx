@@ -99,7 +99,7 @@ const Index = () => {
     <>
     <SEOHead
       title="Revvin | Referral software for service businesses"
-      description={`Turn past customers into your next booked job. Create a free referral page, prepare a personal ask, and track the leads and rewards that follow. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD.`}
+      description="Turn past customers into your next booked job. Mark a job done and Revvin asks that customer for a Google review and a referral. Pro emails every customer you've ever had to win back repeat work."
       path="/"
       jsonLd={[
         {
