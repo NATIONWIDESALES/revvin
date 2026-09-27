@@ -81,7 +81,7 @@ const FAQS = [
   {
     question: "Does Revvin message my customers for me?",
     answer:
-      "Personal asks are drafted for you and open in your own texting or email app, so you press send and it comes from you. Texts always go from your own phone. Revvin sends email to your customers in two cases: the Job done automatic ask and Pro reactivation campaigns. Those emails include your business address and an unsubscribe link.",
+      "Personal asks are drafted for you and open in your own texting or email app, so you press send and it comes from you. Texts always go from your own phone. Revvin sends email to your customers in two cases: the ask after you mark a job done, and Pro reactivation campaigns. Those emails include your business address and an unsubscribe link.",
   },
   {
     question: INSTALL_COPY.faq.question,
@@ -156,9 +156,9 @@ const Index = () => {
               <span className="shimmer-text">next booked job.</span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              After every job, Revvin asks your customer for a Google review and a referral, automatically.
-              On Pro, it emails every customer you've ever had to win back repeat work. More calls,
-              without paying for leads.
+              Mark a job done, or let your job software do it, and Revvin automatically asks that
+              customer for a Google review and a referral. On Pro, it emails every customer you've
+              ever had to win back repeat work. More calls, without paying for leads.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button
