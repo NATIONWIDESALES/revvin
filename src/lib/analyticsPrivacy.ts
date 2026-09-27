@@ -67,6 +67,9 @@ const MILESTONE_EVENTS = new Set([
   // fixed onboarding step name, never a business, slug or typed value.
   "dashboard_viewed", "onboarding_step_completed", "publish_banner_seen",
   "publish_succeeded", "publish_failed", "share_tools_viewed",
+  // Campaigns tab on /dashboard. Meta is at most a fixed segment key.
+  "campaigns_tab_viewed", "campaign_segment_selected", "campaign_preview_viewed",
+  "campaign_send_clicked", "campaign_sent", "campaign_send_failed",
 ]);
 const MILESTONE_PATHS = new Set(["/signup", "/auth", "/welcome", "/dashboard"]);
 
@@ -107,6 +110,7 @@ const SURFACE_LABELS = new Set([...INSTALL_SURFACES]);
 // Onboarding step names and publish surfaces. Fixed strings only.
 export const ONBOARDING_STEP_LABELS = ["basics", "logo", "reward", "link", "publish"] as const;
 const STEP_LABELS = new Set<string>(ONBOARDING_STEP_LABELS);
+const CAMPAIGN_SEGMENTS = new Set(["m24_plus", "m12_24", "m6_12", "recent", "unknown"]);
 const PUBLISH_SURFACES = new Set(["onboarding", "dashboard_banner", "share_tools", "checklist"]);
 export function safeAnalyticsMeta(event: string, context: AnalyticsContext, input?: Record<string, unknown>) {
   const demo = context.traffic === "demo" || event.startsWith("demo_") || input?.cta === "demo_signup";
@@ -114,6 +118,7 @@ export function safeAnalyticsMeta(event: string, context: AnalyticsContext, inpu
   if (typeof input?.cta === "string" && CTA_LABELS.has(input.cta)) result.cta = input.cta;
   if (typeof input?.source === "string" && SOURCE_LABELS.has(input.source)) result.source = input.source;
   if (typeof input?.surface === "string" && (SURFACE_LABELS.has(input.surface as never) || PUBLISH_SURFACES.has(input.surface))) result.surface = input.surface;
+  if (typeof input?.segment === "string" && CAMPAIGN_SEGMENTS.has(input.segment)) result.segment = input.segment;
   if (typeof input?.step === "string" && STEP_LABELS.has(input.step)) result.step = input.step;
   return result;
 }

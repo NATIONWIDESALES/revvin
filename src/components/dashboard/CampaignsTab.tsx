@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { Loader2, Send, Users, AlertCircle, CheckCircle2 } from "lucide-react";
 import { inSegment, segmentByKey, type RecencyContact } from "@/lib/campaignSegments";
 import { friendlyError } from "@/lib/errors";
 import SenderLine from "@/components/dashboard/SenderLine";
+import ProUpsell from "@/components/dashboard/ProUpsell";
+import { track } from "@/lib/track";
 
 const SEGMENT_ORDER = ["m24_plus", "m12_24", "m6_12", "recent", "unknown"];
 const MAX_CAMPAIGN_RECIPIENTS = 500;
@@ -52,6 +54,8 @@ interface CampaignRow {
 interface Props {
   biz: { id: string; name: string; offer_amount: string | null; business_email: string | null };
   publicUrl: string;
+  /** send-campaign refuses anyone not on Pro, so free users see an upsell instead of the composer. */
+  isPro: boolean;
 }
 
 const STARTER_TEMPLATES = [
@@ -94,7 +98,7 @@ const emptyReadinessForm = {
   business_email: "",
 };
 
-const CampaignsTab = ({ biz, publicUrl }: Props) => {
+const CampaignsTab = ({ biz, publicUrl, isPro }: Props) => {
   const { toast } = useToast();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [segments, setSegments] = useState<SegmentRow[]>([]);
@@ -111,6 +115,14 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
     subject: "",
     body: "",
   });
+
+  useEffect(() => { track("campaigns_tab_viewed"); }, []);
+  const previewTracked = useRef(false);
+  useEffect(() => {
+    if (previewTracked.current || !form.body.trim()) return;
+    previewTracked.current = true;
+    track("campaign_preview_viewed", { segment: form.segment_key });
+  }, [form.body, form.segment_key]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -150,6 +162,7 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
     return contacts.find((c) => !!c.email && inSegment(c, selectedSegment)) ?? null;
   }, [contacts, selectedSegment]);
   const recipientCount = segmentCounts[form.segment_key] ?? 0;
+  const selectedLabel = segments.find((s) => s.segment_key === form.segment_key)?.segment_label ?? "this group";
 
   const renderTokens = (value: string, contact: Contact | null) => {
     const firstName = contact?.name.trim().split(/\s+/)[0] || "there";
@@ -197,6 +210,7 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
 
   const sendCampaign = async () => {
     if (!readiness?.ready) return;
+    track("campaign_send_clicked", { segment: form.segment_key });
     if (!form.name.trim() || !form.subject.trim() || !form.body.trim()) {
       toast({ title: "Complete the campaign", description: "Add a name, subject, and message.", variant: "destructive" });
       return;
@@ -221,9 +235,11 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
     });
     setSending(false);
     if (error) {
+      track("campaign_send_failed", { segment: form.segment_key });
       toast({ title: "Could not queue campaign", description: friendlyError(error), variant: "destructive" });
       return;
     }
+    track("campaign_sent", { segment: form.segment_key });
     const queued = Number(data?.queued ?? 0);
     const skipped = Number(data?.skipped ?? 0);
     toast({
@@ -277,7 +293,7 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-base font-semibold text-foreground">Who could use a return visit</h2>
-                <p className="mt-1 text-sm text-muted-foreground">Choose a customer group by time since their last job. A missing last job date uses the date they were added to your list.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Choose a customer group by time since their last job. Customers with no last job date are in their own group. Add dates in Customers to target them properly.</p>
               </div>
               <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
             </div>
@@ -291,7 +307,7 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
                     key={key}
                     type="button"
                     variant="outline"
-                    onClick={() => setForm((current) => ({ ...current, segment_key: key }))}
+                    onClick={() => { track("campaign_segment_selected", { segment: key }); setForm((current) => ({ ...current, segment_key: key })); }}
                     className={`h-auto min-h-[116px] justify-start whitespace-normal p-4 text-left ${selected ? "border-primary bg-primary/5" : ""}`}
                   >
                     <span>
@@ -315,6 +331,23 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
                 <Button key={template.id} type="button" size="sm" variant="outline" onClick={() => applyTemplate(template)}>{template.label}</Button>
               ))}
             </div>
+            {!isPro ? (
+              <div className="mt-5 space-y-4">
+                {form.body.trim() && (
+                  <div className="rounded-xl border border-border bg-muted/20 p-5">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">What your customers would get</div>
+                    <div className="mt-3 text-sm font-semibold text-foreground">{renderTokens(form.subject, previewContact) || "(no subject)"}</div>
+                    <div className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{renderTokens(form.body, previewContact)}</div>
+                  </div>
+                )}
+                <ProUpsell
+                  title="Send this to your customers"
+                  body={recipientCount > 0
+                    ? `Pro sends a reactivation email to all ${recipientCount} of them (${selectedLabel}) from your business name.`
+                    : "Pro sends a reactivation email to every customer in a group from your business name."}
+                />
+              </div>
+            ) : (<>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <div>
                 <Label htmlFor="cp-name" className="text-xs">Campaign name</Label>
@@ -356,6 +389,7 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
               <span className="text-sm text-muted-foreground"><Users className="mr-1 inline h-4 w-4" />Up to {MAX_CAMPAIGN_RECIPIENTS} recipients per campaign{recipientCount > MAX_CAMPAIGN_RECIPIENTS ? ", extra contacts will be skipped" : ""}.</span>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">This sends real email. Revvin checks suppression and opt-out records immediately before queueing each recipient.</p>
+            </>)}
           </div>
         </>
       )}
@@ -380,7 +414,6 @@ const CampaignsTab = ({ biz, publicUrl }: Props) => {
                   <Stat label="Sent" value={campaign.sent_count} />
                   <Stat label="Failed" value={campaign.failed_count} />
                   <Stat label="Opted out" value={campaign.opted_out_count} />
-                  <Stat label="Segment" value={campaign.segment_key ? 1 : 0} />
                 </div>
               </div>
             ))}
