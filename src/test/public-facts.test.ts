@@ -66,7 +66,14 @@ describe("channel claims", () => {
     // Denials are fine ("no public API"); a promise is not.
     expect(copy).not.toMatch(/(?<!no )auto-ask engine/i);
     expect(copy).not.toMatch(/our public API|Revvin's public API|connect via webhook/i);
-    expect(copy).not.toMatch(/automatic(?:ally)? (?:asks|texts|requests a review)/i);
+    // "Revvin automatically asks..." is allowed only when the same sentence
+    // states the trigger (a job marked done, or job software doing it).
+    const sentences = copy.split(/(?<=[.!?])\s+/);
+    for (const sentence of sentences) {
+      if (/automatic(?:ally)? (?:asks|texts|requests a review)/i.test(sentence)) {
+        expect(sentence).toMatch(/job done|job software/i);
+      }
+    }
   });
 });
 
