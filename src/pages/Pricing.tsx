@@ -22,13 +22,6 @@ import { APP_ID, ORG_ID, SITE_URL } from "@/config/brand";
 import { MONTHLY_PRICE, ANNUAL_PRICE } from "@/config/pricing";
 import PlanFeatureList from "@/components/marketing/PlanFeatureList";
 
-const launchFeatures = [
-  "1:1 onboarding call",
-  "Done-for-you offer setup",
-  "Custom QR + print-ready flyer",
-  "Launch email + SMS templates",
-  "30 days of priority support",
-];
 
 const LAUNCH_KEY = "revvin_addon_launch";
 
@@ -236,6 +229,9 @@ const Pricing = () => {
                 </Label>
               </div>
               {addLaunch && <p className="text-xs">Added. It is charged once at checkout when you start Pro.</p>}
+              {SETUP_CALL_URL && (
+                <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" className="text-xs underline underline-offset-4">Or book a 30-minute setup call</a>
+              )}
             </div>
           )}
 
@@ -263,6 +259,15 @@ const Pricing = () => {
       </section>
 
       <WorksWithJobSoftware />
+
+      <section className="border-b border-border">
+        <div className="container max-w-3xl py-16">
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">What you get for the $49</h2>
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            Free works on every job from here on. Pro works on every customer you have already served: import your past customers, have Revvin email a reactivation campaign to the group you choose from your business name, with replies going to your own inbox, or work through them in batches with each ask opening in your own phone or email app. You also get ROI reporting with a monthly recap and custom page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. The Pro features are the same on monthly and annual. There are no per-send charges.
+          </p>
+        </div>
+      </section>
 
       <section className="border-b border-border">
         <div className="container max-w-5xl py-20">

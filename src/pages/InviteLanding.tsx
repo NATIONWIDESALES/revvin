@@ -1,3 +1,4 @@
+import { PLAN_SPLIT } from "@/config/planFeatures";
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { setInviteCode, getInviteCode } from "@/lib/invite";
@@ -113,9 +114,8 @@ const InviteLanding = () => {
             <h2 className="text-sm font-semibold text-foreground">What this is, plainly</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               The value here is your own page and your own customers. Our public marketplace is still
-              filling up, so do not count on strangers finding you there yet. Publishing is free. Revvin
-              Pro is $49/month USD and adds the customer list, bulk asks that open your own email app,
-              ROI reporting and page branding. Your invite holds Revvin Pro at $17/month instead of $49, after three months free.
+              filling up, so do not count on strangers finding you there yet. Publishing is free. {PLAN_SPLIT.line}{" "}
+              {PLAN_SPLIT.proDetail} Your invite holds Revvin Pro at $17/month instead of $49, after three months free.
             </p>
           </section>
 
