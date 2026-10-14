@@ -58,6 +58,9 @@ export function analyticsContext(href: string, currentAudience = audience): Anal
  * strings, and no business, offer or person identifier can be carried.
  */
 const MILESTONE_EVENTS = new Set([
+  // Signup funnel steps on /signup. Already on the database allow-list; they
+  // carry no properties at all.
+  "signup_viewed", "signup_form_started", "signup_submitted", "signup_failed",
   "signup_succeeded", "onboarding_started", "onboarding_completed", "page_published",
   // Installing the app happens on the dashboard, which is private, so these
   // need the same narrow lane as the other product milestones. The two CTA
@@ -102,6 +105,7 @@ export function sanitizeAnalyticsReferrer(raw: string): string | null {
 const CTA_LABELS = new Set([
   "hero_signup", "hero_demo", "home_industries", "plans_free", "plans_pro", "footer_signup",
   "sample_top", "sample_bottom", "demo_signup", "home_tools",
+  "home_demo_inline", "hero_setup_call", "pricing_setup_call",
   ...TOOLKIT_CTA_LABELS,
 ]);
 const SOURCE_LABELS = new Set(["landing", "playbook", "sample", "marketplace_notify"]);

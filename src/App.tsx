@@ -146,7 +146,7 @@ const App = () => (
                   Legacy URLs from prior uses of the revvin.co domain.
                   Client-side redirect to "/" is a fallback for JS-executing
                   crawlers; a true server-side 301 (en-usd) and 410 (products)
-                  must be configured at the hosting layer. See FOUNDER TODOs.
+                  must be configured at the hosting layer. See TODOs.
                 */}
                 <Route path="/en-usd" element={<Navigate to="/" replace />} />
                 <Route path="/en-usd/*" element={<Navigate to="/" replace />} />
