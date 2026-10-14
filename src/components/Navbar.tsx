@@ -229,7 +229,7 @@ const Navbar = () => {
                     <Button variant="outline" size="sm" className="flex-1" asChild>
                       <Link to="/auth" onClick={() => setOpen(false)}>Log In</Link>
                     </Button>
-                    <Button size="sm" className="flex-1" asChild>
+                    <Button size="sm" className="h-auto min-h-9 flex-1 whitespace-normal py-2 text-center" asChild>
                        <Link to="/signup" onClick={() => { setOpen(false); track("cta_clicked", { cta: "nav_menu_signup" }); }}>{FREE_CTA_LABEL}</Link>
                     </Button>
                   </>

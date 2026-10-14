@@ -137,7 +137,7 @@ const Pricing = () => {
               <p className="mt-2 text-sm text-muted-foreground">
                 Publish your page, share the link and QR code, and take referrals. No card required.
               </p>
-              <Button variant="outline" size="lg" className="mt-6 h-11 w-full" asChild onClick={() => setLaunchFlag(false)}>
+              <Button variant="outline" size="lg" className="mt-6 h-auto min-h-11 w-full whitespace-normal py-2.5 text-center" asChild onClick={() => setLaunchFlag(false)}>
                 <Link to="/signup">{FREE_CTA_LABEL}</Link>
               </Button>
 

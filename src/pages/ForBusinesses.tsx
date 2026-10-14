@@ -100,7 +100,7 @@ const ForBusinesses = () => (
             Every customer who ever paid you is a referral, a repeat job, or a review waiting to happen. Revvin runs all three loops off that one list. Your referral page is free, and Revvin Pro is $49/month USD. You pay your referrers directly when deals close.
           </motion.p>
           <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
-            <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
+            <Button size="lg" className="h-12 px-8 text-sm gap-2 h-auto min-h-12 max-w-full whitespace-normal py-3 text-center" asChild>
               <Link to="/signup">{FREE_CTA_LABEL} <ArrowRight className="h-4 w-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" className="h-12 px-8 text-sm" asChild>
@@ -210,7 +210,7 @@ const ForBusinesses = () => (
             ))}
           </motion.div>
           <motion.div variants={fadeUp} custom={3} className="mt-10">
-            <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
+            <Button size="lg" className="h-12 px-8 text-sm gap-2 h-auto min-h-12 max-w-full whitespace-normal py-3 text-center" asChild>
               <Link to="/signup">{FREE_CTA_LABEL} <ArrowRight className="h-4 w-4" /></Link>
             </Button>
             <p className="mt-3 text-xs text-muted-foreground">Referrer accounts are always free.</p>
@@ -246,7 +246,7 @@ const ForBusinesses = () => (
         >
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Start acquiring customers today</h2>
           <p className="text-muted-foreground mb-8">Create your business account for free, set your referral payout, and publish your page at no cost.</p>
-          <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
+          <Button size="lg" className="h-12 px-8 text-sm gap-2 h-auto min-h-12 max-w-full whitespace-normal py-3 text-center" asChild>
             <Link to="/signup">{FREE_CTA_LABEL} <ArrowRight className="h-4 w-4" /></Link>
           </Button>
           <p className="mt-4 text-xs text-muted-foreground">Free referral page. Revvin Pro $49/month. Cancel anytime.</p>

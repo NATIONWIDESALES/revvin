@@ -82,7 +82,7 @@ const IndustryLanding = () => {
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-muted-foreground">{industry.intro}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button size="lg" className="h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
+            <Button size="lg" className="h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep h-auto min-h-12 max-w-full whitespace-normal py-3 text-center" asChild>
               <Link to="/signup">{FREE_CTA_LABEL}</Link>
             </Button>
             <Button size="lg" variant="outline" className="h-12 px-8" asChild>
@@ -214,7 +214,7 @@ const IndustryLanding = () => {
           <p className="mt-4 text-lg text-white/70">
             {`Free to publish. Pro is ${PRICE_TEXT.monthlyPerMonth} USD when you want it working your whole list. Cancel anytime.`}
           </p>
-          <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
+          <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep h-auto min-h-12 max-w-full whitespace-normal py-3 text-center" asChild>
             <Link to="/signup">{FREE_CTA_LABEL}</Link>
           </Button>
         </div>
