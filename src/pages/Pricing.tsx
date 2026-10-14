@@ -125,9 +125,9 @@ const Pricing = () => {
 
       <section>
         <div className="container max-w-6xl py-20">
-          <div className="grid gap-6 md:grid-cols-2 md:max-w-3xl md:mx-auto">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-2 md:max-w-3xl md:mx-auto">
             {/* Free */}
-            <div className="relative flex flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
+            <div className="relative flex min-w-0 flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Free</p>
               <h2 className="mt-1 text-xl font-bold text-foreground">{PLAN_SPLIT.freeSubtitle}</h2>
               <div className="mt-6 flex items-baseline gap-2">
@@ -145,7 +145,7 @@ const Pricing = () => {
             </div>
 
             {/* Pro, featured */}
-            <div className="relative flex flex-col rounded-2xl border-2 border-primary bg-card p-8 shadow-product md:-mt-4">
+            <div className="relative flex min-w-0 flex-col rounded-2xl border-2 border-primary bg-card p-8 shadow-product md:-mt-4">
               {/* No popularity claim: we have no data to support one. The
                   badge states what the plan is for instead. */}
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -157,7 +157,7 @@ const Pricing = () => {
               <h2 className="mt-1 text-xl font-bold text-foreground">{PLAN_SPLIT.proSubtitle}</h2>
 
               {/* Billing period toggle */}
-              <div role="group" aria-label="Billing period" className="mt-5 grid grid-cols-2 gap-1 rounded-lg border border-border bg-surface-warm p-1">
+              <div role="group" aria-label="Billing period" className="mt-5 grid grid-cols-2 gap-1 rounded-lg [&>button]:min-w-0 border border-border bg-surface-warm p-1">
                 <button
                   type="button"
                   aria-pressed={!annual}
@@ -198,7 +198,7 @@ const Pricing = () => {
                   Cancel anytime. Your page stays free and live either way. No contract.
                 </p>
               )}
-              <Button size="lg" className="mt-6 h-11 w-full shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
+              <Button size="lg" className="mt-6 h-auto min-h-11 w-full whitespace-normal py-2.5 text-center shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
                 <Link to={`/signup?plan=${plan}`}>
                   {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Start Pro + Launch Package" : "Start with Revvin Pro"}
                 </Link>
