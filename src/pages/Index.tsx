@@ -409,7 +409,7 @@ const Index = () => {
         </p>
         <Button
           size="lg"
-          className="mt-9 h-12 bg-primary px-8 text-base text-primary-foreground shadow-product hover:bg-primary-deep"
+          className="mt-9 h-auto min-h-12 w-full whitespace-normal bg-primary px-6 py-3 sm:w-auto sm:px-8 text-base text-primary-foreground shadow-product hover:bg-primary-deep"
           asChild
         >
           <Link to="/signup" onClick={() => track("cta_clicked", { cta: "footer_signup" })}>
