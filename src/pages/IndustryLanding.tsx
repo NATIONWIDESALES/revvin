@@ -1,3 +1,4 @@
+import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
@@ -82,7 +83,7 @@ const IndustryLanding = () => {
           <p className="mt-5 text-lg leading-relaxed text-muted-foreground">{industry.intro}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button size="lg" className="h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
-              <Link to="/signup">Build your page — free</Link>
+              <Link to="/signup">{FREE_CTA_LABEL}</Link>
             </Button>
             <Button size="lg" variant="outline" className="h-12 px-8" asChild>
               <Link to="/how-it-works">See how it works</Link>
@@ -214,7 +215,7 @@ const IndustryLanding = () => {
             {`Free to publish. Pro is ${PRICE_TEXT.monthlyPerMonth} USD when you want it working your whole list. Cancel anytime.`}
           </p>
           <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
-            <Link to="/signup">Build your {industry.trade} referral page — free</Link>
+            <Link to="/signup">{FREE_CTA_LABEL}</Link>
           </Button>
         </div>
       </section>

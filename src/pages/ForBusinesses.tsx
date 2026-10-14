@@ -1,3 +1,4 @@
+import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Building2, ArrowRight, CheckCircle2, DollarSign, BarChart3, Shield, Users, Zap } from "lucide-react";
@@ -100,7 +101,7 @@ const ForBusinesses = () => (
           </motion.p>
           <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/signup">Build your page — free <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/signup">{FREE_CTA_LABEL} <ArrowRight className="h-4 w-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" className="h-12 px-8 text-sm" asChild>
               <Link to="/how-it-works">How It Works</Link>
@@ -210,7 +211,7 @@ const ForBusinesses = () => (
           </motion.div>
           <motion.div variants={fadeUp} custom={3} className="mt-10">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/signup">Build your page — free <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/signup">{FREE_CTA_LABEL} <ArrowRight className="h-4 w-4" /></Link>
             </Button>
             <p className="mt-3 text-xs text-muted-foreground">Referrer accounts are always free.</p>
           </motion.div>
@@ -246,7 +247,7 @@ const ForBusinesses = () => (
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Start acquiring customers today</h2>
           <p className="text-muted-foreground mb-8">Create your business account for free, set your referral payout, and publish your page at no cost.</p>
           <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-            <Link to="/signup">Build your page — free <ArrowRight className="h-4 w-4" /></Link>
+            <Link to="/signup">{FREE_CTA_LABEL} <ArrowRight className="h-4 w-4" /></Link>
           </Button>
           <p className="mt-4 text-xs text-muted-foreground">Free referral page. Revvin Pro $49/month. Cancel anytime.</p>
         </motion.div>

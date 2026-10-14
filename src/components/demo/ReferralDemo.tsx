@@ -1,3 +1,4 @@
+import { DEMO_SAMPLE } from "@/content/demoSample";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,15 +26,15 @@ import { MONTHLY_PRICE, PRICE_TEXT } from "@/config/pricing";
 
 type Stage = "form" | "inbox" | "won" | "paid";
 
-const DEMO_BUSINESS = "Summit Roofing (demo)";
-const DEMO_REWARD = 250;
+const DEMO_BUSINESS = `${DEMO_SAMPLE.business} (demo)`;
+const DEMO_REWARD = DEMO_SAMPLE.reward;
 const DEMO_JOB_VALUE = 6400;
 const DEFAULT_MARGIN = 40;
 
 const PREFILL = {
-  name: "Dana Whitfield",
-  lead: "Chris Alvarez",
-  need: "Roof leak above the garage after last week's storm",
+  name: DEMO_SAMPLE.referrer,
+  lead: DEMO_SAMPLE.lead,
+  need: DEMO_SAMPLE.need,
 } as const;
 
 const STEPS: { id: Stage; label: string }[] = [

@@ -1,3 +1,4 @@
+import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
@@ -82,7 +83,7 @@ const IndustriesHub = () => (
           Pro is {PRICE_TEXT.monthlyPerMonth} USD.
         </p>
         <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
-          <Link to="/signup">Build your page — free</Link>
+          <Link to="/signup">{FREE_CTA_LABEL}</Link>
         </Button>
       </div>
     </section>

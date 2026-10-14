@@ -1,3 +1,4 @@
+import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
@@ -186,7 +187,7 @@ const GuidePage = () => {
             {`Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD if you later want the tools that work your whole customer list.`}
           </p>
           <Button variant="outline" className="mt-5" asChild>
-            <Link to="/signup">Create a free referral page</Link>
+            <Link to="/signup">{FREE_CTA_LABEL}</Link>
           </Button>
         </div>
       </section>
