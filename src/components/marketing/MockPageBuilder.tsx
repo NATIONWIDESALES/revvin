@@ -1,3 +1,4 @@
+import { DEMO_SAMPLE } from "@/content/demoSample";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
@@ -19,7 +20,7 @@ export default function MockPageBuilder({ className }: { className?: string }) {
             Business name
           </p>
           <div className="flex h-9 items-center rounded-md border border-border bg-background px-3 text-[13px] text-foreground">
-            Your Business Name
+            {DEMO_SAMPLE.business}
           </div>
         </div>
         <div>
@@ -28,9 +29,9 @@ export default function MockPageBuilder({ className }: { className?: string }) {
           </p>
           <div className="flex items-center gap-3 rounded-md border border-dashed border-border bg-muted/40 p-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-sm font-bold text-primary">
-              Y
+              {DEMO_SAMPLE.initial}
             </div>
-            <p className="text-[11px] text-muted-foreground">your-logo.png · uploaded</p>
+            <p className="text-[11px] text-muted-foreground">summit-logo.png · uploaded</p>
           </div>
         </div>
         <div>
@@ -38,7 +39,7 @@ export default function MockPageBuilder({ className }: { className?: string }) {
             Offer headline
           </p>
           <div className="flex h-9 items-center rounded-md border-2 border-primary/40 bg-primary/5 px-3 text-[13px] font-semibold text-foreground">
-            Refer a customer, earn $500
+            Refer a customer, earn ${DEMO_SAMPLE.reward}
           </div>
         </div>
       </div>

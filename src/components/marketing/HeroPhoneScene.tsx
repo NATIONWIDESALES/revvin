@@ -1,5 +1,6 @@
 import { Check, Gift, UserRound } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { DEMO_SAMPLE } from "@/content/demoSample";
 import PhoneMockup from "@/components/marketing/PhoneMockup";
 import MockReferralPage from "@/components/marketing/MockReferralPage";
 
@@ -11,8 +12,8 @@ export default function HeroPhoneScene() {
   return (
     <motion.figure
       className="relative mx-auto w-full max-w-[300px] md:max-w-[320px]"
-      initial={prefersReduced ? false : { opacity: 0, x: 56, rotate: 2 }}
-      animate={{ opacity: 1, x: 0, rotate: 0 }}
+      initial={prefersReduced ? false : { opacity: 0.001, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.68, ease: [0.22, 1, 0.36, 1], delay: 0.16 }}
     >
       <PhoneMockup tiltX={6} tiltY={-16} tiltZ={-2} interactive>
@@ -30,8 +31,8 @@ export default function HeroPhoneScene() {
           <UserRound className="h-4 w-4" />
         </span>
         <span className="min-w-0 text-left">
-          <span className="block text-[10px] font-semibold text-muted-foreground">New referral · Jordan M.</span>
-          <span className="mt-0.5 block text-xs font-semibold leading-tight text-foreground">Roof leak over the garage</span>
+          <span className="block text-[10px] font-semibold text-muted-foreground">New referral · {DEMO_SAMPLE.leadShort}</span>
+          <span className="mt-0.5 block text-xs font-semibold leading-tight text-foreground">{DEMO_SAMPLE.needShort}</span>
         </span>
       </motion.div>
 
@@ -48,7 +49,7 @@ export default function HeroPhoneScene() {
           animate={prefersReduced ? undefined : { opacity: [1, 1, 0, 0, 1] }}
           transition={{ duration: 8, times: [0, 0.35, 0.43, 0.72, 1], repeat: Infinity, delay: 1.2 }}
         >
-          Reward owed $500
+          Reward owed ${DEMO_SAMPLE.reward}
         </motion.span>
         <motion.span
           className="absolute inset-0 flex items-center justify-center gap-1.5 rounded-lg bg-card text-xs font-bold text-primary"
@@ -62,7 +63,7 @@ export default function HeroPhoneScene() {
 
       <motion.div
         aria-hidden="true"
-        className="hero-float-card absolute -left-8 bottom-24 z-20 flex items-center gap-2 px-3 py-2 md:-left-14"
+        className="hero-float-card absolute left-0 bottom-24 z-20 flex items-center gap-2 px-3 py-2 md:-left-14"
         initial={prefersReduced ? false : { opacity: 0, y: 12 }}
         animate={prefersReduced ? { opacity: 1 } : { opacity: [0, 0, 1, 1, 0], y: [12, 12, 0, 0, 8] }}
         transition={prefersReduced ? cardTransition : { duration: 8, times: [0, 0.34, 0.44, 0.82, 1], repeat: Infinity, delay: 1.2 }}
@@ -72,7 +73,7 @@ export default function HeroPhoneScene() {
       </motion.div>
 
       <figcaption className="relative z-30 mt-3 text-center text-xs text-muted-foreground">
-        Example of a published referral page. Not a real business.
+        Example of a published referral page. {DEMO_SAMPLE.business} is not a real business.
       </figcaption>
     </motion.figure>
   );

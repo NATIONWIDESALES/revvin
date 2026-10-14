@@ -140,7 +140,7 @@ const Index = () => {
     />
 
     {/* 1 · Hero */}
-    <section className="overflow-x-clip hero-premium relative overflow-hidden border-b border-border">
+    <section className="hero-premium relative overflow-hidden border-b border-border">
       <div aria-hidden className="hero-aurora absolute inset-0" />
       <div aria-hidden className="absolute inset-0 grid-faint" />
       <div aria-hidden className="hero-spotlight absolute inset-y-0 left-0 w-3/5" />
@@ -148,7 +148,7 @@ const Index = () => {
         <div className="grid items-center gap-12 lg:grid-cols-12">
           {/* Rendered in its final state: the prerendered headline must never
               disappear or fade back in after first paint. */}
-          <div className="lg:col-span-7">
+          <div className="min-w-0 lg:col-span-7">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
               Referral software built first for home-service businesses.
             </p>
@@ -182,9 +182,10 @@ const Index = () => {
                     track("cta_clicked", { cta: "home_demo_inline" });
                     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
                     target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+                    document.getElementById("home-demo-heading")?.focus({ preventScroll: true });
                   }}
                 >
-                  Try the demo
+                  See it work
                 </a>
               </Button>
             </div>
@@ -198,14 +199,14 @@ const Index = () => {
                   onClick={() => track("cta_clicked", { cta: "hero_setup_call" })}
                   className="underline underline-offset-4 hover:text-foreground"
                 >
-                  Or book a free 30-minute setup call
+                  Book a 30-minute setup call
                 </a>
               </p>
             )}
           </div>
 
           {/* Compact, clearly labelled product example. */}
-          <div className="lg:col-span-5">
+          <div className="min-w-0 lg:col-span-5">
             <HeroPhoneScene />
           </div>
         </div>
@@ -213,7 +214,7 @@ const Index = () => {
     </section>
 
     {/* 2 · Demo teaser with a real action */}
-    <section id="home-demo" className="scroll-mt-20 border-b border-border bg-surface-warm">
+    <section id="home-demo" aria-labelledby="home-demo-heading" className="scroll-mt-20 border-b border-border bg-surface-warm">
       <div className="container py-16 md:py-20">
         <ScrollReveal>
         <div className="mx-auto max-w-3xl">
@@ -221,7 +222,7 @@ const Index = () => {
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
               Try it right here
             </p>
-            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
+            <h2 id="home-demo-heading" tabIndex={-1} className="mt-3 text-2xl font-extrabold tracking-tight text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring md:text-4xl">
               Run the whole loop in under a minute.
             </h2>
             <p className="mt-3 text-base leading-relaxed text-muted-foreground">
@@ -317,6 +318,30 @@ const Index = () => {
 
     <ScrollReveal><WorksWithJobSoftware /></ScrollReveal>
 
+    {/* 5 · Note from the team */}
+    <ScrollReveal><FounderNote /></ScrollReveal>
+
+    {/* 6 · Five questions */}
+    <section className="border-b border-border">
+      <div className="container max-w-3xl py-16 md:py-24">
+        <ScrollReveal>
+        <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
+          Questions people actually ask.
+        </h2>
+        <Accordion type="single" collapsible className="home-lift-card mt-8 w-full rounded-lg border border-border bg-card px-5 shadow-soft">
+          {FAQS.map((f, i) => (
+            <AccordionItem key={f.question} value={`q${i}`}>
+              <AccordionTrigger className="text-left">{f.question}</AccordionTrigger>
+              <AccordionContent className="leading-relaxed text-muted-foreground">
+                {f.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+        </ScrollReveal>
+      </div>
+    </section>
+
     {/* 2b · Free tools. Useful before signing up, and no account required. */}
     <section className="border-b border-border">
       <div className="container py-16 md:py-20">
@@ -371,30 +396,6 @@ const Index = () => {
       </div>
     </section>
 
-    {/* 5 · Note from the team */}
-    <ScrollReveal><FounderNote /></ScrollReveal>
-
-    {/* 6 · Five questions */}
-    <section className="border-b border-border">
-      <div className="container max-w-3xl py-16 md:py-24">
-        <ScrollReveal>
-        <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
-          Questions people actually ask.
-        </h2>
-        <Accordion type="single" collapsible className="home-lift-card mt-8 w-full rounded-lg border border-border bg-card px-5 shadow-soft">
-          {FAQS.map((f, i) => (
-            <AccordionItem key={f.question} value={`q${i}`}>
-              <AccordionTrigger className="text-left">{f.question}</AccordionTrigger>
-              <AccordionContent className="leading-relaxed text-muted-foreground">
-                {f.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-        </ScrollReveal>
-      </div>
-    </section>
-
     {/* 7 · Final action */}
     <section className="final-cta-glow relative overflow-hidden bg-ink text-white">
       <div className="container py-16 text-center md:py-24">
@@ -412,7 +413,7 @@ const Index = () => {
           asChild
         >
           <Link to="/signup" onClick={() => track("cta_clicked", { cta: "footer_signup" })}>
-            Build my free referral page
+            {FREE_CTA_LABEL}
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </Link>
         </Button>

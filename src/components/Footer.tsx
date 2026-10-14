@@ -1,3 +1,4 @@
+import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { Link } from "react-router-dom";
 import Wordmark from "@/components/brand/Wordmark";
 import { PRICE_TEXT } from "@/config/pricing";
@@ -32,7 +33,7 @@ const Footer = () => {
               <Link to="/referral-programs" className="block text-sm text-white/80 transition-colors hover:text-white">Referral programs by industry</Link>
               <Link to="/ask-kit" className="block text-sm text-white/80 transition-colors hover:text-white">Referral ask kit</Link>
               <Link to="/guides" className="block text-sm text-white/80 transition-colors hover:text-white">Referral program guides</Link>
-              <Link to="/signup" className="block text-sm text-white/80 transition-colors hover:text-white">Build your page free</Link>
+              <Link to="/signup" className="block text-sm text-white/80 transition-colors hover:text-white">{FREE_CTA_LABEL}</Link>
               <Link to="/auth" className="block text-sm text-white/80 transition-colors hover:text-white">Log in</Link>
             </div>
           </div>

@@ -1,7 +1,8 @@
+import { DEMO_SAMPLE } from "@/content/demoSample";
 import { cn } from "@/lib/utils";
 
 const rows = [
-  { date: "May 18", name: "Jordan M.", referrer: "Carlos R.", status: "New", tone: "green" },
+  { date: "May 18", name: DEMO_SAMPLE.leadShort, referrer: DEMO_SAMPLE.referrerShort, status: "New", tone: "green" },
   { date: "May 17", name: "Priya S.", referrer: "Jamie L.", status: "Contacted", tone: "amber" },
   { date: "May 14", name: "Devon T.", referrer: "Sam K.", status: "Closed Won", tone: "green-dark" },
   { date: "May 11", name: "Marcus W.", referrer: "Beth A.", status: "Contacted", tone: "amber" },

@@ -1,3 +1,4 @@
+import { DEMO_SAMPLE } from "@/content/demoSample";
 export default function MockReferralPage() {
   return (
     // Decorative illustration of a referral page. Hidden from assistive tech so
@@ -9,13 +10,13 @@ export default function MockReferralPage() {
       <div className="flex-1 overflow-hidden px-5 pt-2">
         {/* logo + name */}
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-base font-bold text-primary">
-          Y
+          {DEMO_SAMPLE.initial}
         </div>
-        <h3 className="mt-3 text-[17px] font-semibold tracking-tight text-foreground">
-          Your Business Name
-        </h3>
+        <p className="mt-3 text-[17px] font-semibold tracking-tight text-foreground">
+          {DEMO_SAMPLE.business}
+        </p>
         <p className="text-[11px] text-muted-foreground">
-          Your service · Your city
+          {DEMO_SAMPLE.trade} · {DEMO_SAMPLE.city}
         </p>
 
         {/* offer */}
@@ -24,7 +25,7 @@ export default function MockReferralPage() {
             Referral offer
           </p>
           <p className="mt-1 text-[17px] font-semibold leading-tight tracking-tight text-foreground">
-            Refer a customer,<br />earn <span className="text-primary">$500</span>
+            Refer a customer,<br />earn <span className="text-primary">${DEMO_SAMPLE.reward}</span>
           </p>
           <p className="mt-1 text-[10px] text-muted-foreground">
             Paid when the deal closes.

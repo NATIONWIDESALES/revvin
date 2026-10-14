@@ -17,8 +17,10 @@ const ScrollReveal = ({ children, className, delay = 0, y = 30 }: ScrollRevealPr
 
   return (
     <motion.div
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
+      // Content is never hidden: only a small offset animates, so copy is
+      // readable at first paint even before the section scrolls into view.
+      initial={{ y }}
+      whileInView={{ y: 0 }}
       viewport={{ once: true, margin: "-15%" }}
       transition={{ duration: 0.5, ease: "easeOut", delay }}
       className={className}
