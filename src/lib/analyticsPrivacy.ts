@@ -117,15 +117,6 @@ export function sanitizeAnalyticsReferrer(raw: string): string | null {
   } catch { return null; }
 }
 
-// Toolkit steps ride on cta_clicked with a fixed label, so measuring the free
-// tools needs no new event name. A label names the tool and the step and nothing
-// else: no score, no dollar figure, no percentage and no typed text.
-const CTA_LABELS = new Set([
-  "hero_signup", "hero_demo", "home_industries", "plans_free", "plans_pro", "footer_signup",
-  "sample_top", "sample_bottom", "demo_signup", "home_tools",
-  ...HOME_CTA_LABELS,
-  ...TOOLKIT_CTA_LABELS,
-]);
 /**
  * Fixed homepage and shared entry-point placements. A *_setup_link label means
  * the visitor clicked the link to the booking page. It is not a booked call:
@@ -136,6 +127,15 @@ export const HOME_CTA_LABELS = [
   "home_tool_grader", "home_tool_calculator", "home_tool_generator", "home_tools_all",
   "nav_signup", "nav_menu_signup", "invite_signup",
 ] as const;
+// Toolkit steps ride on cta_clicked with a fixed label, so measuring the free
+// tools needs no new event name. A label names the tool and the step and nothing
+// else: no score, no dollar figure, no percentage and no typed text.
+const CTA_LABELS = new Set([
+  "hero_signup", "hero_demo", "home_industries", "plans_free", "plans_pro", "footer_signup",
+  "sample_top", "sample_bottom", "demo_signup", "home_tools",
+  ...HOME_CTA_LABELS,
+  ...TOOLKIT_CTA_LABELS,
+]);
 const SOURCE_LABELS = new Set(["landing", "playbook", "sample", "marketplace_notify"]);
 // Where an install prompt was shown. Six fixed strings, no business or person.
 const SURFACE_LABELS = new Set([...INSTALL_SURFACES]);
