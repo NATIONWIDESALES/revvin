@@ -259,7 +259,17 @@ const Onboarding = () => {
       setPublishError(missingName ? "Add your business name first." : "Add the reward you pay first.");
       return;
     }
-    if (!(await saveSlug())) return;
+    if (!(await saveSlug())) {
+      // Step 5 never renders the step 4 slug alert, so say it here.
+      setPublishError(
+        !slug
+          ? "Pick a link name first."
+          : slugAvailable === null
+            ? "Give us a second to check that link, then tap Publish my page again."
+            : "That link will not work. Try one of the suggestions above."
+      );
+      return;
+    }
     if (bizId) {
       setSaving(true);
       const { error } = await supabase.from("businesses").update({ name: name.trim(), offer_amount: offerAmount.trim() }).eq("id", bizId);
