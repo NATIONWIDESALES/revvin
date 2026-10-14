@@ -27,13 +27,13 @@ const InviteLanding = () => {
   useEffect(() => {
     const held = (code ? setInviteCode(code) : null) ?? getInviteCode();
     setStored(held);
-    if (code && held) track("invite_link_opened", { invite_code: held });
-    track("invite_landing_viewed", held ? { invite_code: held } : undefined);
+    if (code && held) track("invite_link_opened");
+    track("invite_landing_viewed");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 
   const goToForm = () => {
-    track("invite_cta_clicked", stored ? { invite_code: stored } : undefined);
+    track("invite_cta_clicked");
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     window.setTimeout(() => {
       const first = formRef.current?.querySelector<HTMLInputElement>("input");
