@@ -6,8 +6,6 @@ import { PRICE_TEXT, MONTHLY_PRICE, ANNUAL_PRICE } from "../src/config/pricing";
 import { buildBusinessManifest, businessManifestPath } from "../src/lib/webManifest";
 import {
   APP_ID,
-  CONTENT_AUTHOR,
-  FOUNDER,
   FOUNDING_DATE,
   GUIDES_PUBLISHED_AT,
   GUIDES_UPDATED_AT,
@@ -88,11 +86,6 @@ const ORGANIZATION = {
   slogan: "Your customer list, working for you",
   disambiguatingDescription: ORG_DISAMBIGUATION,
   sameAs: ORG_SAME_AS,
-  founder: {
-    "@type": "Person",
-    name: FOUNDER.name,
-    jobTitle: FOUNDER.jobTitle,
-  },
   ...(FOUNDING_DATE ? { foundingDate: FOUNDING_DATE } : {}),
   // Prices come from the shared pricing facts so the structured data in every
   // built document, including the one that overwrites index.html, cannot drift
@@ -228,7 +221,7 @@ export const jsonLd = (route: PrerenderRoute) => {
   if (route.path === "/" || route.path === "/pricing" || route.path === "/for-businesses") {
     graph.push(SOFTWARE);
   }
-  // Guides are written articles with a named author and a maintained date, so
+  // Guides are written articles published by Revvin with a maintained date, so
   // they carry an Article node. The hub at /guides is a collection, not one.
   if (route.path.startsWith("/guides/")) {
     graph.push({
@@ -238,11 +231,7 @@ export const jsonLd = (route: PrerenderRoute) => {
       description: route.description,
       mainEntityOfPage: { "@id": `${url}#webpage` },
       inLanguage: "en-US",
-      author: {
-        "@type": "Person",
-        name: CONTENT_AUTHOR.name,
-        jobTitle: CONTENT_AUTHOR.jobTitle,
-      },
+      author: { "@id": ORG_ID },
       publisher: { "@id": ORG_ID },
       datePublished: GUIDES_PUBLISHED_AT,
       dateModified: GUIDES_UPDATED_AT,
