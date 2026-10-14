@@ -76,7 +76,7 @@ const HowItWorks = () => {
           <p className="mt-4 text-lg text-white/70">
             {`Free to publish and take referrals. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD for the tools that ask your whole customer list for you. Cancel anytime, no contract.`}
           </p>
-          <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep" asChild>
+          <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep h-auto min-h-12 max-w-full whitespace-normal py-3 text-center" asChild>
             <Link to="/signup">{FREE_CTA_LABEL}</Link>
           </Button>
         </div>

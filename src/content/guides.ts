@@ -305,7 +305,7 @@ export const GUIDES: Guide[] = [
       },
       {
         q: "Can Revvin send the referral ask for me?",
-        a: "Not the personal ask. On Pro, Revvin prepares it and opens your own email app with the recipients and text filled in, in batches, so the message comes from you. Reactivation campaigns are the one thing Revvin sends itself, by email only, from your account, with an unsubscribe link in every message.",
+        a: "Not the personal ask. On Pro, Revvin prepares it and opens your own email app with the recipients and text filled in, in batches, so the message comes from you. Reactivation campaigns are sent by Revvin itself, by email only, from your account, with an unsubscribe link in every message.",
       },
     ],
   },

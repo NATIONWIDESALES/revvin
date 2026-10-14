@@ -186,7 +186,7 @@ const GuidePage = () => {
             take referrals on it without paying anything.{" "}
             {`Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD if you later want the tools that work your whole customer list.`}
           </p>
-          <Button variant="outline" className="mt-5" asChild>
+          <Button variant="outline" className="mt-5 h-auto min-h-10 max-w-full whitespace-normal py-2 text-center" asChild>
             <Link to="/signup">{FREE_CTA_LABEL}</Link>
           </Button>
         </div>
