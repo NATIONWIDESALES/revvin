@@ -10,8 +10,8 @@ describe("homepage", () => {
     expect(home).toContain("Referral software for service businesses.");
     expect(home).toContain("Turn past customers into your");
     expect(home).toContain("next booked job.");
-    expect(home).toContain("Build my free referral page");
-    expect(home).toContain("Try the demo");
+    expect(home).toContain("FREE_CTA_LABEL");
+    expect(home).toContain("See it work");
   });
 
   it("stays concise", () => {

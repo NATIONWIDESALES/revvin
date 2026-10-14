@@ -36,5 +36,12 @@ describe("homepage demo button", () => {
     expect(s).toContain('id="home-demo"');
     expect(s).toContain("scrollIntoView");
     expect(s).not.toMatch(/href="#home-demo"/);
+    expect(s).toContain('id="home-demo-heading" tabIndex={-1}');
+    expect(s).toContain('href="/sample"');
+  });
+  it("uses the approved Free label and the truthful setup call label", () => {
+    expect(read("src/config/planFeatures.ts")).toContain('FREE_CTA_LABEL = "Create my free referral page"');
+    expect(read("src/pages/Index.tsx")).toContain("Book a 30-minute setup call");
+    expect(read("src/pages/Index.tsx")).not.toContain("overflow-x-clip");
   });
 });
