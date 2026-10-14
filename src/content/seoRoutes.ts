@@ -6,8 +6,9 @@
 // directly off-platform. Personal referral asks are prepared by Revvin and sent
 // from the owner's own email or SMS app; the one thing Revvin sends itself is
 // Pro reactivation campaign email, by email only, with the business postal
-// address and an unsubscribe link, capped per send. There is no auto-ask
-// engine, no automated review requests, no webhooks and no public API.
+// address and an unsubscribe link, capped per send. Revvin also sends the
+// review and referral ask email after a job is marked done by the owner or
+// reported by job software through Webhooks by Zapier and the account API key.
 //
 // Industry and guide routes are derived from content so they can never drift.
 // Legal routes are derived from src/content/legal.ts, the same source the
@@ -485,7 +486,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "Scope and limits",
-        body: "Personal referral asks are never sent by Revvin: they are prepared and then sent from the owner's own device and accounts. Reactivation campaigns are the one thing Revvin sends, by email only, from the owner's Pro account, with the business postal address and an unsubscribe link in every message and a cap of 500 recipients per send. There is no automatic asking engine, no automated review-request sending, no SMS sending by Revvin, and no public API or webhook product. Pricing is USD only in every supported country: the United States, Canada and the United Arab Emirates.",
+        body: "Personal referral asks are never sent by Revvin: they are prepared and then sent from the owner's own device and accounts. Reactivation campaigns are the one thing Revvin sends, by email only, from the owner's Pro account, with the business postal address and an unsubscribe link in every message and a cap of 500 recipients per send. Revvin also emails a customer a review and referral ask after the owner taps Job done or the owner's job software reports the job finished through Webhooks by Zapier and the account API key. There is no Zapier directory app and no SMS sending by Revvin. Pricing is USD only in every supported country: the United States, Canada and the United Arab Emirates.",
       },
     ],
   },

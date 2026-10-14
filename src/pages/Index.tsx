@@ -18,7 +18,8 @@ import ReferralDemo from "@/components/demo/ReferralDemo";
 import Wordmark from "@/components/brand/Wordmark";
 import { PRICE_TEXT } from "@/config/pricing";
 import { MONTHLY_PRICE } from "@/config/pricing";
-import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT } from "@/config/planFeatures";
+import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT, FREE_CTA_LABEL } from "@/config/planFeatures";
+import { SETUP_CALL_URL } from "@/config/setupCall";
 import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
 import HeroPhoneScene from "@/components/marketing/HeroPhoneScene";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -139,7 +140,7 @@ const Index = () => {
     />
 
     {/* 1 · Hero */}
-    <section className="hero-premium relative overflow-hidden border-b border-border">
+    <section className="overflow-x-clip hero-premium relative overflow-hidden border-b border-border">
       <div aria-hidden className="hero-aurora absolute inset-0" />
       <div aria-hidden className="absolute inset-0 grid-faint" />
       <div aria-hidden className="hero-spotlight absolute inset-y-0 left-0 w-3/5" />
@@ -167,17 +168,40 @@ const Index = () => {
                 asChild
               >
                 <Link to="/signup" onClick={() => track("cta_clicked", { cta: "hero_signup" })}>
-                  Start free, no card
+                  {FREE_CTA_LABEL}
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" className="h-12 w-full px-6 text-base sm:w-auto" asChild>
-                <Link to="/sample" onClick={() => track("cta_clicked", { cta: "hero_demo" })}>
+                <a
+                  href="/sample"
+                  onClick={(e) => {
+                    const target = document.getElementById("home-demo");
+                    if (!target) return;
+                    e.preventDefault();
+                    track("cta_clicked", { cta: "home_demo_inline" });
+                    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+                    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+                  }}
+                >
                   Try the demo
-                </Link>
+                </a>
               </Button>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{PLAN_SPLIT.line}</p>
+            {SETUP_CALL_URL && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                <a
+                  href={SETUP_CALL_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => track("cta_clicked", { cta: "hero_setup_call" })}
+                  className="underline underline-offset-4 hover:text-foreground"
+                >
+                  Or book a free 30-minute setup call
+                </a>
+              </p>
+            )}
           </div>
 
           {/* Compact, clearly labelled product example. */}
@@ -189,7 +213,7 @@ const Index = () => {
     </section>
 
     {/* 2 · Demo teaser with a real action */}
-    <section className="border-b border-border bg-surface-warm">
+    <section id="home-demo" className="scroll-mt-20 border-b border-border bg-surface-warm">
       <div className="container py-16 md:py-20">
         <ScrollReveal>
         <div className="mx-auto max-w-3xl">
@@ -209,60 +233,6 @@ const Index = () => {
             <ReferralDemo />
           </div>
         </div>
-        </ScrollReveal>
-      </div>
-    </section>
-
-    {/* 2b · Free tools. Useful before signing up, and no account required. */}
-    <section className="border-b border-border">
-      <div className="container py-16 md:py-20">
-        <ScrollReveal>
-        <div className="max-w-2xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-            Free tools
-          </p>
-          <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
-            Start with one useful tool.
-          </h2>
-          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-            No account, no card, and nothing you type is saved or sent.
-          </p>
-        </div>
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {[
-            {
-              to: "/tools/referral-program-grader",
-              title: "Referral Program Grader",
-              body: "Eight questions, a score out of 100, and the three things to fix first.",
-            },
-            {
-              to: "/tools/referral-reward-calculator",
-              title: "Referral Reward Calculator",
-              body: "See what a fixed reward leaves you on a closed referred job.",
-            },
-            {
-              to: "/tools/referral-message-generator",
-              title: "Referral Message Generator",
-              body: "A text, an email and a script you can say out loud. You send them.",
-            },
-          ].map((tool) => (
-            <Link
-              key={tool.to}
-              to={tool.to}
-              onClick={() => track("cta_clicked", { cta: "home_tools" })}
-              className="home-lift-card rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40"
-            >
-              <h3 className="text-sm font-bold text-foreground">{tool.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{tool.body}</p>
-            </Link>
-          ))}
-        </div>
-        <p className="mt-6 text-sm">
-          <Link to="/tools" className="font-semibold text-primary hover:underline">
-            See all free tools
-            <ArrowRight className="ml-1 inline h-3.5 w-3.5" aria-hidden="true" />
-          </Link>
-        </p>
         </ScrollReveal>
       </div>
     </section>
@@ -346,6 +316,60 @@ const Index = () => {
     </section>
 
     <ScrollReveal><WorksWithJobSoftware /></ScrollReveal>
+
+    {/* 2b · Free tools. Useful before signing up, and no account required. */}
+    <section className="border-b border-border">
+      <div className="container py-16 md:py-20">
+        <ScrollReveal>
+        <div className="max-w-2xl">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+            Free tools
+          </p>
+          <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
+            Start with one useful tool.
+          </h2>
+          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+            No account, no card, and nothing you type is saved or sent.
+          </p>
+        </div>
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          {[
+            {
+              to: "/tools/referral-program-grader",
+              title: "Referral Program Grader",
+              body: "Eight questions, a score out of 100, and the three things to fix first.",
+            },
+            {
+              to: "/tools/referral-reward-calculator",
+              title: "Referral Reward Calculator",
+              body: "See what a fixed reward leaves you on a closed referred job.",
+            },
+            {
+              to: "/tools/referral-message-generator",
+              title: "Referral Message Generator",
+              body: "A text, an email and a script you can say out loud. You send them.",
+            },
+          ].map((tool) => (
+            <Link
+              key={tool.to}
+              to={tool.to}
+              onClick={() => track("cta_clicked", { cta: "home_tools" })}
+              className="home-lift-card rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40"
+            >
+              <h3 className="text-sm font-bold text-foreground">{tool.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{tool.body}</p>
+            </Link>
+          ))}
+        </div>
+        <p className="mt-6 text-sm">
+          <Link to="/tools" className="font-semibold text-primary hover:underline">
+            See all free tools
+            <ArrowRight className="ml-1 inline h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
+        </p>
+        </ScrollReveal>
+      </div>
+    </section>
 
     {/* 5 · Note from the team */}
     <ScrollReveal><FounderNote /></ScrollReveal>

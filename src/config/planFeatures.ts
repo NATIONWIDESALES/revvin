@@ -70,6 +70,9 @@ export const PRO_FEATURES = [
  * job from here on; Pro works backward through every customer already served.
  * Used on the homepage, pricing page and invite landing so they never differ.
  */
+/** The one label for every "start on Free" button across public pages. */
+export const FREE_CTA_LABEL = "Start free, no card";
+
 export const PLAN_SPLIT = {
   line: "Free covers every job from here on. Pro ($49/mo) goes back through every customer you've ever had.",
   freeSubtitle: "Every job from here on",

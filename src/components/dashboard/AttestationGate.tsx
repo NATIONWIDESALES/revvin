@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 // Extracted from InviteCustomers so BusinessDashboard's Customers tab can reuse
 // the exact same gate. Persists to businesses.contact_outreach_consent_at, which
 // is append-only at the database level.
-// FOUNDER TODO (future run): store the exact attestation text alongside the
+// TODO (future run): store the exact attestation text alongside the
 // timestamp so historical wording is preserved for legal review.
 
 interface Props {

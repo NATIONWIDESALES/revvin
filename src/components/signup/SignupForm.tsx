@@ -76,7 +76,7 @@ const SignupForm = ({
   const handleFieldFocus = () => {
     if (startedRef.current) return;
     startedRef.current = true;
-    track("signup_form_started", inviteCode ? { invite_code: inviteCode } : undefined);
+    track("signup_form_started");
   };
 
   const welcomeUrl = `${window.location.origin}/welcome${plan ? `?plan=${plan}` : ""}`;

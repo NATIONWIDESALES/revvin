@@ -5,7 +5,6 @@ import NotFound from "@/pages/NotFound";
 import { GUIDES, getGuide } from "@/content/guides";
 import { PRICE_TEXT } from "@/config/pricing";
 import {
-  CONTENT_AUTHOR,
   GUIDES_PUBLISHED_AT,
   GUIDES_UPDATED_AT,
   formatContentDate,
@@ -38,11 +37,7 @@ const GuidePage = () => {
             headline: guide.question,
             description: guide.metaDescription,
             mainEntityOfPage: `${BASE}${path}`,
-            author: {
-              "@type": "Person",
-              name: CONTENT_AUTHOR.name,
-              jobTitle: CONTENT_AUTHOR.jobTitle,
-            },
+            author: { "@id": `${BASE}/#organization` },
             publisher: { "@id": `${BASE}/#organization` },
             datePublished: GUIDES_PUBLISHED_AT,
             dateModified: GUIDES_UPDATED_AT,
@@ -87,8 +82,6 @@ const GuidePage = () => {
             {guide.question}
           </h1>
           <p className="mt-4 text-xs text-muted-foreground">
-            {`By ${CONTENT_AUTHOR.name}, ${CONTENT_AUTHOR.jobTitle} of Revvin`}
-            <span aria-hidden> · </span>
             {`Last updated ${formatContentDate(GUIDES_UPDATED_AT)}`}
           </p>
           <p className="mt-6 text-lg leading-relaxed text-foreground">{guide.answer}</p>

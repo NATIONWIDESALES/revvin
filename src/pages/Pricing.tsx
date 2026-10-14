@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { track } from "@/lib/track";
 import SEOHead from "@/components/SEOHead";
 import { Check, Lock } from "lucide-react";
 import RiskReversalStrip from "@/components/marketing/RiskReversalStrip";
@@ -16,7 +17,7 @@ import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 import HowPayoutsWork from "@/components/marketing/HowPayoutsWork";
 import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
-import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT } from "@/config/planFeatures";
+import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT, FREE_CTA_LABEL } from "@/config/planFeatures";
 import { SETUP_CALL_URL } from "@/config/setupCall";
 import { APP_ID, ORG_ID, SITE_URL } from "@/config/brand";
 import { MONTHLY_PRICE, ANNUAL_PRICE } from "@/config/pricing";
@@ -137,7 +138,7 @@ const Pricing = () => {
                 Publish your page, share the link and QR code, and take referrals. No card required.
               </p>
               <Button variant="outline" size="lg" className="mt-6 h-11 w-full" asChild onClick={() => setLaunchFlag(false)}>
-                <Link to="/signup">Create free account</Link>
+                <Link to="/signup">{FREE_CTA_LABEL}</Link>
               </Button>
 
               <PlanFeatureList features={FREE_FEATURES} />
@@ -230,7 +231,7 @@ const Pricing = () => {
               </div>
               {addLaunch && <p className="text-xs">Added. It is charged once at checkout when you start Pro.</p>}
               {SETUP_CALL_URL && (
-                <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" className="text-xs underline underline-offset-4">Or book a 30-minute setup call</a>
+                <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_clicked", { cta: "pricing_setup_call" })} className="text-xs underline underline-offset-4">Or book a 30-minute setup call</a>
               )}
             </div>
           )}

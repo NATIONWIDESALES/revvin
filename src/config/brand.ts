@@ -10,11 +10,6 @@ export const ORG_ID = `${SITE_URL}/#organization`;
 export const SITE_ID = `${SITE_URL}/#website`;
 export const APP_ID = `${SITE_URL}/#software`;
 
-export const FOUNDER = {
-  name: "Karm Sandhu",
-  jobTitle: "Founder",
-} as const;
-
 /**
  * Company founding date, ISO 8601. Left empty until it is confirmed; it is
  * omitted from structured data while empty rather than guessed.
@@ -23,7 +18,7 @@ export const FOUNDING_DATE = "";
 
 /**
  * Profile URLs that prove this is the same organization elsewhere: LinkedIn,
- * X, Crunchbase, GitHub, YouTube. Karm fills these in; every entry is emitted
+ * X, Crunchbase, GitHub, YouTube. Filled in by the team; every entry is emitted
  * in Organization.sameAs exactly as written.
  */
 export const ORG_SAME_AS: string[] = [];
@@ -36,8 +31,7 @@ export const ORG_SAME_AS: string[] = [];
 export const ORG_DISAMBIGUATION =
   "Revvin (revvin.co) is referral program software for service businesses. It is not affiliated with the Revvin digital mortgage platform.";
 
-/** Byline and dates for the guide library. */
-export const CONTENT_AUTHOR = FOUNDER;
+/** Dates for the guide library. The site is brand-led: no personal bylines. */
 export const GUIDES_PUBLISHED_AT = "2026-09-05";
 export const GUIDES_UPDATED_AT = "2026-09-16";
 
