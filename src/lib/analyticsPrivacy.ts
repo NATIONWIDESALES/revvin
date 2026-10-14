@@ -58,9 +58,6 @@ export function analyticsContext(href: string, currentAudience = audience): Anal
  * strings, and no business, offer or person identifier can be carried.
  */
 const MILESTONE_EVENTS = new Set([
-  // Signup funnel steps on /signup. Already on the database allow-list; they
-  // carry no properties at all.
-  "signup_viewed", "signup_form_started", "signup_submitted", "signup_failed",
   "signup_succeeded", "onboarding_started", "onboarding_completed", "page_published",
   // Installing the app happens on the dashboard, which is private, so these
   // need the same narrow lane as the other product milestones. The two CTA
@@ -76,15 +73,36 @@ const MILESTONE_EVENTS = new Set([
 ]);
 const MILESTONE_PATHS = new Set(["/signup", "/auth", "/welcome", "/dashboard"]);
 
-export function milestoneContext(href: string, event: string): AnalyticsContext | null {
-  if (!MILESTONE_EVENTS.has(event)) return null;
+/**
+ * Signup form steps. Their own narrow lane: admitted only from the literal
+ * /signup page, never from /auth, /welcome or /dashboard, and never for a
+ * visitor already known to be signed in. They carry no properties at all.
+ * signup_succeeded stays in the milestone lane above, unchanged.
+ */
+export const SIGNUP_STEP_EVENTS = new Set(["signup_viewed", "signup_form_started", "signup_submitted", "signup_failed"]);
+const SIGNUP_PATH = "/signup";
+
+function productionUrl(href: string): URL | null {
   try {
     const url = new URL(href);
     if (url.protocol !== "https:" || !PRODUCTION_HOSTS.has(url.hostname) || url.port || url.username || url.password) return null;
-    const normalized = url.pathname === "/" ? "/" : url.pathname.replace(/\/$/, "");
-    if (!MILESTONE_PATHS.has(normalized)) return null;
-    return { path: normalized, traffic: "product" };
+    return url;
   } catch { return null; }
+}
+const normalizePath = (p: string) => (p === "/" ? "/" : p.replace(/\/$/, ""));
+
+export function milestoneContext(href: string, event: string, currentAudience = audience): AnalyticsContext | null {
+  const url = productionUrl(href);
+  if (!url) return null;
+  // The query and hash are never read; only the literal path name is kept.
+  const normalized = normalizePath(url.pathname);
+  if (SIGNUP_STEP_EVENTS.has(event)) {
+    if (currentAudience === "signed-in" || normalized !== SIGNUP_PATH) return null;
+    return { path: SIGNUP_PATH, traffic: "product" };
+  }
+  if (!MILESTONE_EVENTS.has(event)) return null;
+  if (!MILESTONE_PATHS.has(normalized)) return null;
+  return { path: normalized, traffic: "product" };
 }
 
 export function sanitizeAnalyticsReferrer(raw: string): string | null {
@@ -105,9 +123,19 @@ export function sanitizeAnalyticsReferrer(raw: string): string | null {
 const CTA_LABELS = new Set([
   "hero_signup", "hero_demo", "home_industries", "plans_free", "plans_pro", "footer_signup",
   "sample_top", "sample_bottom", "demo_signup", "home_tools",
-  "home_demo_inline", "hero_setup_call", "pricing_setup_call",
+  ...HOME_CTA_LABELS,
   ...TOOLKIT_CTA_LABELS,
 ]);
+/**
+ * Fixed homepage and shared entry-point placements. A *_setup_link label means
+ * the visitor clicked the link to the booking page. It is not a booked call:
+ * no booking confirmation is ever recorded here.
+ */
+export const HOME_CTA_LABELS = [
+  "home_demo_inline", "hero_setup_link", "pricing_setup_link",
+  "home_tool_grader", "home_tool_calculator", "home_tool_generator", "home_tools_all",
+  "nav_signup", "nav_menu_signup", "invite_signup",
+] as const;
 const SOURCE_LABELS = new Set(["landing", "playbook", "sample", "marketplace_notify"]);
 // Where an install prompt was shown. Six fixed strings, no business or person.
 const SURFACE_LABELS = new Set([...INSTALL_SURFACES]);
@@ -119,6 +147,8 @@ const PUBLISH_SURFACES = new Set(["onboarding", "dashboard_banner", "share_tools
 export function safeAnalyticsMeta(event: string, context: AnalyticsContext, input?: Record<string, unknown>) {
   const demo = context.traffic === "demo" || event.startsWith("demo_") || input?.cta === "demo_signup";
   const result: Record<string, string | boolean> = { traffic: demo ? "demo" : context.traffic, is_demo: demo };
+  // Signup steps carry no caller properties at all.
+  if (SIGNUP_STEP_EVENTS.has(event)) return result;
   if (typeof input?.cta === "string" && CTA_LABELS.has(input.cta)) result.cta = input.cta;
   if (typeof input?.source === "string" && SOURCE_LABELS.has(input.source)) result.source = input.source;
   if (typeof input?.surface === "string" && (SURFACE_LABELS.has(input.surface as never) || PUBLISH_SURFACES.has(input.surface))) result.surface = input.surface;
@@ -129,7 +159,10 @@ export function safeAnalyticsMeta(event: string, context: AnalyticsContext, inpu
 
 const PUBLIC_EVENTS = new Set(["page_viewed", "cta_clicked", "demo_started", "demo_completed", "sample_page_viewed", "email_lead_submitted", "referral_submitted", "promo_popup_shown", "promo_cta_clicked", "pwa_install_cta_shown", "pwa_install_cta_clicked"]);
 export function analyticsEventAllowed(event: string, context: AnalyticsContext): boolean {
-  if (context.traffic === "product") return MILESTONE_EVENTS.has(event);
+  if (context.traffic === "product") {
+    if (SIGNUP_STEP_EVENTS.has(event)) return context.path === SIGNUP_PATH;
+    return MILESTONE_EVENTS.has(event);
+  }
   if (!PUBLIC_EVENTS.has(event)) return false;
   if (context.traffic === "demo") return ["page_viewed", "sample_page_viewed", "cta_clicked", "demo_started", "demo_completed"].includes(event);
   return event !== "referral_submitted" || context.traffic === "referral";

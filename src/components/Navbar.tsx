@@ -1,3 +1,5 @@
+import { track } from "@/lib/track";
+import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut, LayoutDashboard, UserCircle, Settings, Heart, Send } from "lucide-react";
@@ -164,7 +166,7 @@ const Navbar = () => {
                   Log In
                 </Link>
                 <Button size="sm" className="px-5" asChild>
-                   <Link to="/signup">Get my free page</Link>
+                   <Link to="/signup" onClick={() => track("cta_clicked", { cta: "nav_signup" })}>{FREE_CTA_LABEL}</Link>
                 </Button>
               </>
             )}
@@ -228,7 +230,7 @@ const Navbar = () => {
                       <Link to="/auth" onClick={() => setOpen(false)}>Log In</Link>
                     </Button>
                     <Button size="sm" className="flex-1" asChild>
-                       <Link to="/signup" onClick={() => setOpen(false)}>Get my free page</Link>
+                       <Link to="/signup" onClick={() => { setOpen(false); track("cta_clicked", { cta: "nav_menu_signup" }); }}>{FREE_CTA_LABEL}</Link>
                     </Button>
                   </>
                 )}

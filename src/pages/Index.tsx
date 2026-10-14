@@ -34,8 +34,8 @@ import ScrollReveal from "@/components/ScrollReveal";
  * Copy rule: every line has to be true of the shipped product. Referral-form
  * submissions land in the lead inbox. Replies to a personal text or email go to
  * the owner's own inbox and are not synced back. Rewards are a fixed amount.
- * Personal asks are drafted in the owner's own app; reactivation campaigns are
- * the one thing Revvin's servers send, and only on Pro.
+ * Personal asks are drafted in the owner's own app. Revvin's servers send the
+ * job-done review and referral email and, on Pro, reactivation campaigns.
  */
 
 const STEPS = [
@@ -196,7 +196,7 @@ const Index = () => {
                   href={SETUP_CALL_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => track("cta_clicked", { cta: "hero_setup_call" })}
+                  onClick={() => track("cta_clicked", { cta: "hero_setup_link" })}
                   className="underline underline-offset-4 hover:text-foreground"
                 >
                   Book a 30-minute setup call
@@ -358,27 +358,30 @@ const Index = () => {
           </p>
         </div>
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {[
+          {([
             {
               to: "/tools/referral-program-grader",
+              cta: "home_tool_grader",
               title: "Referral Program Grader",
               body: "Eight questions, a score out of 100, and the three things to fix first.",
             },
             {
               to: "/tools/referral-reward-calculator",
+              cta: "home_tool_calculator",
               title: "Referral Reward Calculator",
               body: "See what a fixed reward leaves you on a closed referred job.",
             },
             {
               to: "/tools/referral-message-generator",
+              cta: "home_tool_generator",
               title: "Referral Message Generator",
               body: "A text, an email and a script you can say out loud. You send them.",
             },
-          ].map((tool) => (
+          ] as const).map((tool) => (
             <Link
               key={tool.to}
               to={tool.to}
-              onClick={() => track("cta_clicked", { cta: "home_tools" })}
+              onClick={() => track("cta_clicked", { cta: tool.cta })}
               className="home-lift-card rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40"
             >
               <h3 className="text-sm font-bold text-foreground">{tool.title}</h3>
@@ -387,7 +390,7 @@ const Index = () => {
           ))}
         </div>
         <p className="mt-6 text-sm">
-          <Link to="/tools" className="font-semibold text-primary hover:underline">
+          <Link to="/tools" onClick={() => track("cta_clicked", { cta: "home_tools_all" })} className="font-semibold text-primary hover:underline">
             See all free tools
             <ArrowRight className="ml-1 inline h-3.5 w-3.5" aria-hidden="true" />
           </Link>

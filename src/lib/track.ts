@@ -131,10 +131,32 @@ function recordFunnelEvent(event: FunnelEvent, context: AnalyticsContext, meta?:
         meta: { ...attribution, ...safeAnalyticsMeta(event, context, meta) } as never,
       })
       .then(
-        () => undefined,
-        () => undefined,
+        (result: { error?: unknown } | null | undefined) => {
+          if (result?.error) reportTrackDiagnostic({ event, code: "insert_rejected" });
+        },
+        () => reportTrackDiagnostic({ event, code: "insert_threw" }),
       );
   } catch {
-    /* instrumentation must never break the UI */
+    reportTrackDiagnostic({ event, code: "insert_threw" });
   }
+}
+
+/**
+ * Insert diagnostics. A returned database error is reported only in tests and
+ * local development, as a fixed code plus the fixed event name. The payload,
+ * URL and raw error object are never printed. Production reports nothing.
+ */
+export type TrackDiagnostic = { event: FunnelEvent; code: "insert_rejected" | "insert_threw" };
+const DIAGNOSTICS_ON = (() => {
+  try { return Boolean(import.meta.env?.DEV) || import.meta.env?.MODE === "test"; } catch { return false; }
+})();
+let diagnosticSink: ((d: TrackDiagnostic) => void) | null = DIAGNOSTICS_ON
+  ? (d) => console.warn(`[track] ${d.code}: ${d.event}`)
+  : null;
+/** Test/development hook. Ignored in production builds. */
+export function setTrackDiagnosticSink(sink: ((d: TrackDiagnostic) => void) | null): void {
+  if (DIAGNOSTICS_ON) diagnosticSink = sink;
+}
+function reportTrackDiagnostic(d: TrackDiagnostic): void {
+  try { diagnosticSink?.(d); } catch { /* never throw from instrumentation */ }
 }

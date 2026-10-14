@@ -231,7 +231,7 @@ const Pricing = () => {
               </div>
               {addLaunch && <p className="text-xs">Added. It is charged once at checkout when you start Pro.</p>}
               {SETUP_CALL_URL && (
-                <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_clicked", { cta: "pricing_setup_call" })} className="text-xs underline underline-offset-4">Book a 30-minute setup call</a>
+                <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_clicked", { cta: "pricing_setup_link" })} className="text-xs underline underline-offset-4">Book a 30-minute setup call</a>
               )}
             </div>
           )}
