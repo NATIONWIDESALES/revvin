@@ -1,3 +1,4 @@
+import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { DEMO_SAMPLE } from "@/content/demoSample";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -376,9 +377,9 @@ const ReferralDemo = () => {
                   Revvin, and nothing in this demo was saved.
                 </p>
                 <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                  <Button asChild className="h-11 gap-2">
+                  <Button asChild className="h-auto min-h-11 max-w-full gap-2 whitespace-normal py-2.5 text-center">
                     <a href="/signup" onClick={() => track("cta_clicked", { cta: "demo_signup" })}>
-                      Build my free referral page
+                      {FREE_CTA_LABEL}
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </a>
                   </Button>
