@@ -46,7 +46,7 @@ const ReferralStatus = () => {
     return (
       <div className="flex min-h-screen items-center justify-center p-6 text-center">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Status not found</h1>
+          <h1 className="text-2xl">Status not found</h1>
           <p className="mt-2 text-sm text-muted-foreground">This status link is not valid.</p>
         </div>
       </div>
@@ -61,7 +61,7 @@ const ReferralStatus = () => {
       <div className="flex-1 flex items-start justify-center p-6">
         <div className="w-full max-w-md mt-12 rounded-2xl border border-border bg-card p-8">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">Referral to</p>
-          <h1 className="mt-1 text-2xl font-semibold text-foreground">{data.business_name}</h1>
+          <h1 className="mt-1 text-2xl">{data.business_name}</h1>
           <p className="mt-1 text-xs text-muted-foreground">
             Submitted {new Date(data.submitted_at).toLocaleDateString()}
           </p>

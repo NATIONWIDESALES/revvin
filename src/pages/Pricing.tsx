@@ -128,7 +128,7 @@ const Pricing = () => {
             {/* Free */}
             <div className="relative flex min-w-0 flex-col rounded-[18px] border border-line bg-background p-8">
               <p className="font-display text-2xl font-bold text-forest">Free</p>
-              <h2 className="mt-1 text-xl font-bold text-foreground">{PLAN_SPLIT.freeSubtitle}</h2>
+              <h2 className="mt-1 text-xl">{PLAN_SPLIT.freeSubtitle}</h2>
               <div className="mt-6 flex items-baseline gap-2">
                 <span className="font-display text-6xl font-extrabold text-foreground">$0</span>
                 <span className="text-sm text-muted-foreground">forever</span>
@@ -153,7 +153,7 @@ const Pricing = () => {
                 </span>
               </div>
               <p className="font-display text-2xl font-bold text-foreground">Pro</p>
-              <h2 className="mt-1 text-xl font-bold text-foreground">{PLAN_SPLIT.proSubtitle}</h2>
+              <h2 className="mt-1 text-xl">{PLAN_SPLIT.proSubtitle}</h2>
 
               {/* Billing period toggle */}
               <div role="group" aria-label="Billing period" className="mt-5 grid grid-cols-2 gap-1 rounded-lg [&>button]:min-w-0 border border-border bg-surface-warm p-1">
@@ -221,7 +221,7 @@ const Pricing = () => {
             {/* Team, not built yet. Waitlist only. */}
             <div className="relative flex min-w-0 flex-col rounded-[18px] border border-dashed border-line bg-transparent p-8 md:col-span-2 lg:col-span-1">
               <p className="font-display text-2xl font-bold text-forest">Team</p>
-              <h2 className="mt-1 text-xl font-bold text-foreground">Coming soon</h2>
+              <h2 className="mt-1 text-xl">Coming soon</h2>
               <p className="mt-6 text-sm text-muted-foreground">
                 Rep and tech links with a leaderboard, so everyone on your crew can share their own link. Not available yet.
               </p>
@@ -233,7 +233,7 @@ const Pricing = () => {
 
           {FOUNDING_OFFER_ACTIVE && SETUP_CALL_URL && (
             <div className="mx-auto mt-10 max-w-3xl rounded-[14px] bg-sign p-6 text-center text-forest md:p-8">
-              <h2 className="text-2xl font-extrabold tracking-tight text-foreground">Founding businesses: first 25 only</h2>
+              <h2 className="text-2xl">Founding businesses: first 25 only</h2>
               <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-forest">
                 Pro free for 30 days, then $29 a month locked for life, plus a done-for-you setup call. In return, we ask for a short case study once you have results.
               </p>
@@ -287,7 +287,7 @@ const Pricing = () => {
 
       <section className="border-b border-border">
         <div className="container max-w-3xl py-16">
-          <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">What you get for the $49</h2>
+          <h2 className="text-3xl md:text-4xl">What you get for the $49</h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
             Free works on every job from here on. Pro works on every customer you have already served: import your past customers, have Revvin email a reactivation campaign to the group you choose from your business name, with replies going to your own inbox, or work through them in batches with each ask opening in your own phone or email app. You also get ROI reporting with a monthly recap and custom page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. The Pro features are the same on monthly and annual. There are no per-send charges.
           </p>
@@ -296,7 +296,7 @@ const Pricing = () => {
 
       <section className="border-b border-border">
         <div className="container max-w-5xl py-20">
-          <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Who Revvin is for</h2>
+          <h2 className="text-3xl md:text-4xl">Who Revvin is for</h2>
           <div className="mt-8 grid gap-10 md:grid-cols-2">
             <div>
               <h3 className="text-lg font-semibold text-foreground">For</h3>
@@ -319,7 +319,7 @@ const Pricing = () => {
 
       <section className="border-t border-border">
         <div className="container max-w-3xl py-20">
-          <h2 className="mb-8 text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Common questions</h2>
+          <h2 className="mb-8 text-3xl md:text-4xl">Common questions</h2>
           <Accordion type="single" collapsible className="mk-accordion w-full">
             <AccordionItem value="p1">
               <AccordionTrigger>Is there really no contract?</AccordionTrigger>

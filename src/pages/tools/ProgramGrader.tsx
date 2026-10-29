@@ -129,7 +129,7 @@ const ProgramGrader = () => {
             {`You have ${result.answeredYes} of the ${result.total} basics in place. Every item counts the same, because we have no evidence that would justify weighting one above another. This is a checklist of what is set up, not a prediction of how many referrals you will get, and it is not professional advice.`}
           </p>
 
-          <h2 className="mt-8 text-lg font-bold tracking-tight text-foreground">
+          <h2 className="mt-8 text-lg">
             {result.actions.length > 0 ? "Fix these next, in this order" : "Nothing missing on this checklist"}
           </h2>
           {result.actions.length > 0 ? (

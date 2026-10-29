@@ -52,10 +52,7 @@ const Sample = () => {
       <section className="bg-background">
         <div className="container py-12 md:py-16">
           <div className="mx-auto mb-8 max-w-2xl text-center">
-            <p className="text-[11px] font-semibold text-primary">
-              Interactive demo
-            </p>
-            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
+            <h1 className="mt-2 text-3xl md:text-5xl">
               {SAMPLE_META.h1}
             </h1>
             <p className="mt-4 text-base text-muted-foreground md:text-lg">
@@ -71,7 +68,7 @@ const Sample = () => {
 
           <div className="mt-14 grid items-center gap-10 md:grid-cols-2">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight text-foreground">
+              <h2 className="text-2xl">
                 What your customers actually see
               </h2>
               <p className="mt-3 text-base text-muted-foreground">

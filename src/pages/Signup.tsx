@@ -54,7 +54,7 @@ const Signup = () => {
           <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
             {!confirmPending && (
               <div className="mb-4">
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                <h1 className="text-2xl">
                   Create your free account
                 </h1>
                 <p className="mt-1.5 text-sm text-muted-foreground">{SIGNUP_SUBHEAD(inviteCode)}</p>

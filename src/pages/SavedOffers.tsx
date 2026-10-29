@@ -226,7 +226,7 @@ const SavedOffers = () => {
             <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               <Bookmark className="h-3.5 w-3.5" /> Your list
             </div>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+            <h1 className="mt-1 text-2xl md:text-3xl">
               Saved offers
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -343,7 +343,7 @@ const SavedOffers = () => {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
               <Heart className="h-5 w-5 text-muted-foreground" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="text-lg">
               No saved offers yet
             </h2>
             <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">

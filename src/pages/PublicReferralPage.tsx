@@ -222,7 +222,7 @@ const PublicReferralPage = () => {
         <SEOHead title="Referral page unavailable · Revvin" description="This referral page could not load." noindex />
         <div className="flex min-h-screen items-center justify-center p-6 text-center">
           <div className="max-w-sm">
-            <h1 className="text-2xl font-semibold text-foreground">This page did not load</h1>
+            <h1 className="text-2xl">This page did not load</h1>
             <p className="mt-2 text-sm text-muted-foreground">Something went wrong on our side. Try again in a moment.</p>
             <button type="button" onClick={() => window.location.reload()} className="mt-6 text-sm font-medium text-foreground underline">
               Try again
@@ -242,7 +242,7 @@ const PublicReferralPage = () => {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
               <Lock className="h-5 w-5" />
             </div>
-            <h1 className="mt-4 text-2xl font-semibold text-foreground">This referral page is not live</h1>
+            <h1 className="mt-4 text-2xl">This referral page is not live</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               It may not have launched yet, or the link may be wrong. Double-check the address with the business.
             </p>
@@ -326,7 +326,7 @@ const PublicReferralPage = () => {
               )}
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="font-display text-[34px] font-extrabold leading-none md:text-[44px]">{biz.name}</h1>
+                  <h1 className="font-display text-[34px] leading-none md:text-[44px]">{biz.name}</h1>
                   {showVerifiedBadge(biz) && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-primary-foreground/15 px-2 py-0.5 text-xs font-semibold">
                       <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" /> Verified
@@ -345,7 +345,7 @@ const PublicReferralPage = () => {
             </div>
 
             <div className="mt-8 max-w-[640px] md:mt-10">
-              <h2 className="font-display text-[clamp(40px,6vw,72px)] font-extrabold leading-[.94]">
+              <h2 className="font-display text-[clamp(40px,6vw,72px)] leading-[.94]">
                 {biz.headline?.trim() || <>{refQuestion(biz.category, biz.name)}</>}
                 {amount && (
                   <>
@@ -377,7 +377,7 @@ const PublicReferralPage = () => {
           {submitted ? (
             <div className="py-2">
               <CheckCircle2 className="h-10 w-10 text-green" aria-hidden="true" />
-              <h2 className="mt-3 font-display text-[30px] font-extrabold leading-none text-forest">Thanks. {biz.name} will reach out to them.</h2>
+              <h2 className="mt-3 font-display text-[30px] leading-none text-forest">Thanks. {biz.name} will reach out to them.</h2>
               {myLink && (
                 <div className="mt-5 rounded-xl border border-line bg-paper p-4">
                   <p className="text-sm font-bold text-forest">Your personal link</p>
@@ -429,7 +429,7 @@ const PublicReferralPage = () => {
           ) : (
             <form onSubmit={submit}>
               <fieldset disabled={ownerPreview} className={ownerPreview ? "space-y-4 opacity-60" : "space-y-4"}>
-              <h2 className="font-display text-[34px] font-extrabold leading-none text-forest">Who should we call?</h2>
+              <h2 className="font-display text-[34px] leading-none text-forest">Who should we call?</h2>
               <p className="-mt-1 text-[15px] text-muted-foreground">
                 {ownerPreview ? "This is how the form will look to your customers." : "Only refer people who asked for help or said it's okay."}
               </p>

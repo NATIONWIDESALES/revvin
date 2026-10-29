@@ -55,7 +55,7 @@ const GuidesHub = () => (
         <div className="grid gap-6 md:grid-cols-2">
           {GUIDES.map((g) => (
             <article key={g.slug} className="rounded-[14px] border border-line bg-card p-6">
-              <h2 className="text-lg font-bold tracking-tight text-foreground">
+              <h2 className="text-lg">
                 <Link to={`/guides/${g.slug}`} className="hover:text-primary">
                   {g.question}
                 </Link>
@@ -75,7 +75,7 @@ const GuidesHub = () => (
 
     <section className="bg-forest text-primary-foreground">
       <div className="container max-w-2xl py-20 text-center">
-        <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">
+        <h2 className="text-3xl md:text-4xl">
           Your referral page is free.
         </h2>
         <p className="mt-4 text-lg text-primary-foreground/80">

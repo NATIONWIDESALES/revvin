@@ -65,7 +65,7 @@ const Index = () => (
     <section className="overflow-hidden pt-14">
       <div className="mk-wrap grid items-end gap-10 lg:grid-cols-[1.1fr_.9fr]">
         <div className="min-w-0 pb-0 lg:pb-[72px]">
-          <h1 className="max-w-[13.5ch] font-display text-[clamp(50px,6.2vw,88px)] font-extrabold leading-[.92] text-forest">
+          <h1 className="max-w-[13.5ch] font-display text-[clamp(50px,6.2vw,88px)] leading-[.92] text-forest">
             Your happy customers are your best salespeople.{" "}
             <span className="block text-foreground">Put them to work.</span>
           </h1>

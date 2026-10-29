@@ -17,7 +17,7 @@ const LegalDocView = ({ doc, footer }: { doc: LegalDoc; footer?: React.ReactNode
         <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>
       </Button>
 
-      <h1 className="text-3xl font-bold mb-2">{doc.h1}</h1>
+      <h1 className="text-3xl mb-2">{doc.h1}</h1>
       <p className="text-sm text-muted-foreground mb-8">Last updated: {doc.lastUpdated}</p>
 
       <div className="prose prose-sm max-w-none space-y-6 text-muted-foreground">
@@ -27,7 +27,7 @@ const LegalDocView = ({ doc, footer }: { doc: LegalDoc; footer?: React.ReactNode
 
         {doc.sections.map((section) => (
           <section key={section.heading}>
-            <h2 className="text-lg font-bold text-foreground">{section.heading}</h2>
+            <h2 className="text-lg">{section.heading}</h2>
             {section.paragraphs?.map((para, i) => (
               <p key={i}>
                 {para.lead && <strong>{para.lead}</strong>}

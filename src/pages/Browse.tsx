@@ -194,10 +194,7 @@ const Browse = () => {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Sparkles className="h-6 w-6" aria-hidden="true" />
             </div>
-            <p className="text-[11px] font-semibold text-primary">
-              Marketplace · launching
-            </p>
-            <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
+            <h1 className="mt-3 text-3xl md:text-5xl">
               The marketplace is just getting started.
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
@@ -286,7 +283,7 @@ const Browse = () => {
         } : undefined}
       />
       <div className="container">
-        <h1 className="mb-6 text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+        <h1 className="mb-6 text-2xl md:text-3xl">
           Referral offers from local service businesses
         </h1>
 
@@ -295,7 +292,7 @@ const Browse = () => {
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold text-foreground">Featured Offers</h2>
+              <h2 className="text-lg">Featured Offers</h2>
             </div>
             {/* Mobile: horizontal snap scroll. Desktop: grid. */}
             <div className="-mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:snap-none sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
@@ -540,7 +537,7 @@ const Browse = () => {
         ) : (
           <div className="py-16 text-center">
             <Building2 className="mx-auto mb-6 h-12 w-12 text-muted-foreground/30" />
-            <h2 className="text-xl font-bold text-foreground mb-2">No offers match your filters</h2>
+            <h2 className="text-xl mb-2">No offers match your filters</h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
               Try adjusting your search or filter criteria to find more opportunities.
             </p>

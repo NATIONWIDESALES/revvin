@@ -180,7 +180,7 @@ const AskKit = () => {
               <motion.div key={s.title} variants={fadeUp} custom={i}>
                 <Card className="overflow-hidden">
                   <CardHeader className="pb-4">
-                    <h2 className="text-xl font-bold tracking-tight text-foreground md:text-2xl">
+                    <h2 className="text-xl md:text-2xl">
                       {s.title}
                     </h2>
                     {s.subject && (

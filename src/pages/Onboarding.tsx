@@ -216,7 +216,7 @@ const Onboarding = () => {
           <div className="rounded-2xl border border-border bg-background p-6 sm:p-8 shadow-sm">
             {!liveUrl && (
               <form onSubmit={(e) => { e.preventDefault(); void publishNow(); }} noValidate>
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your referral page, live in a minute</h1>
+                <h1 className="text-2xl">Your referral page, live in a minute</h1>
                 <p className="mt-1 text-sm text-muted-foreground">Four answers and you are live. Publishing is free.</p>
                 <div className="mt-6 space-y-4">
                   <div>
@@ -260,7 +260,7 @@ const Onboarding = () => {
 
             {liveUrl && (
               <>
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your page is live</h1>
+                <h1 className="text-2xl">Your page is live</h1>
                 <p className="mt-1 text-sm text-muted-foreground">Anyone with this link can now send you referrals.</p>
                 <div className="mt-6 rounded-lg border border-border bg-muted/30 px-3 py-2 font-mono text-sm text-foreground break-all">{liveUrl}</div>
                 <div className="mt-3 flex flex-wrap gap-2">

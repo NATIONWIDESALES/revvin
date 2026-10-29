@@ -200,7 +200,7 @@ const RewardCalculator = () => {
           </p>
         ) : (
           <div className="mt-8">
-            <h2 className="text-lg font-bold tracking-tight text-foreground">Your figures</h2>
+            <h2 className="text-lg">Your figures</h2>
             <dl className="mt-4 divide-y divide-border rounded-xl border border-border bg-card">
               {rows.map((row) => (
                 <div key={row.label} className="flex flex-wrap items-baseline justify-between gap-2 p-4">

@@ -103,7 +103,7 @@ const GuidePage = () => {
 
           {isAskGuide && (
             <div className="mt-14 rounded-[14px] border border-line bg-card p-6">
-              <h2 className="text-lg font-bold tracking-tight text-foreground">
+              <h2 className="text-lg">
                 The copy-paste scripts live in the referral ask kit
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">

@@ -165,7 +165,7 @@ const ForReferrers = () => (
           transition={{ duration: 0.7, ease }}
           className="max-w-xl mx-auto"
         >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Have a referral link?</h2>
+          <h2 className="text-3xl md:text-4xl mb-4">Have a referral link?</h2>
           <p className="text-muted-foreground mb-8">Return to the business's page, read the offer, and submit the referral there.</p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>

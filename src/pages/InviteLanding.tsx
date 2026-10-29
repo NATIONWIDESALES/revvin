@@ -59,7 +59,7 @@ const InviteLanding = () => {
 
           {/* 1. Above the fold */}
           <header className="mx-auto max-w-2xl text-center">
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+            <h1 className="text-3xl sm:text-5xl">
               Turn the customers you already have into your next job.
             </h1>
             <p className="mt-4 text-base text-muted-foreground sm:text-lg">
@@ -82,7 +82,7 @@ const InviteLanding = () => {
               </PhoneMockup>
             </div>
             <div>
-              <h2 className="text-2xl font-bold tracking-tight text-foreground">
+              <h2 className="text-2xl">
                 This is the page your customers see
               </h2>
               <p className="mt-3 text-sm text-muted-foreground sm:text-base">
@@ -111,7 +111,7 @@ const InviteLanding = () => {
 
           {/* 5. Honest expectations */}
           <section className="mx-auto mt-10 max-w-2xl rounded-xl border border-border bg-surface-warm p-5">
-            <h2 className="text-sm font-semibold text-foreground">What this is, plainly</h2>
+            <h2 className="text-sm">What this is, plainly</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               The value here is your own page and your own customers. Our public marketplace is still
               filling up, so do not count on strangers finding you there yet. Publishing is free. {PLAN_SPLIT.line}{" "}
@@ -123,7 +123,7 @@ const InviteLanding = () => {
           <section ref={formRef} id="signup" className="mt-14 scroll-mt-6">
             <div className="mx-auto w-full max-w-md">
               <div className="text-center">
-                <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+                <h2 className="text-2xl">
                   Create your free account
                 </h2>
                 <p className="mt-1.5 text-sm text-muted-foreground">

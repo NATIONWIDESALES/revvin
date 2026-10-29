@@ -14,7 +14,7 @@ const Earn = () => {
     <SEOHead title="Earn money recommending local businesses | Revvin" description={EARN_COPY.sub} path="/earn" />
     <section className="surface-forest">
       <div className="container max-w-5xl pb-28 pt-16 md:pb-32 md:pt-24">
-        <h1 className="max-w-3xl text-[2.6rem] font-extrabold leading-[0.98] sm:text-6xl">{EARN_COPY.h1}</h1>
+        <h1 className="max-w-3xl text-[2.6rem] leading-[0.98] sm:text-6xl">{EARN_COPY.h1}</h1>
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">{EARN_COPY.sub}</p>
       </div>
     </section>

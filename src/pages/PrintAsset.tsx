@@ -72,7 +72,7 @@ const PrintAssetPage = () => {
             <Link to="/dashboard?tab=share" className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground">
               <ArrowLeft className="mr-1.5 h-3 w-3" /> Back to Share Tools
             </Link>
-            <h1 className="mt-1 text-sm font-semibold text-foreground">
+            <h1 className="mt-1 text-sm">
               {asset.name} · {asset.widthIn} by {asset.heightIn} inches
             </h1>
             <p className="text-xs text-muted-foreground">
@@ -94,11 +94,11 @@ const PrintAssetPage = () => {
 
       <div className="print-chrome mx-auto max-w-3xl px-6 pb-16">
         <div className="rounded-2xl border border-border bg-card p-6 text-sm">
-          <h2 className="text-sm font-semibold text-foreground">Where it goes</h2>
+          <h2 className="text-sm">Where it goes</h2>
           <p className="mt-1 text-muted-foreground">{asset.where}</p>
-          <h2 className="mt-4 text-sm font-semibold text-foreground">What to say</h2>
+          <h2 className="mt-4 text-sm">What to say</h2>
           <p className="mt-1 text-muted-foreground">{asset.say}</p>
-          <h2 className="mt-4 text-sm font-semibold text-foreground">Print spec</h2>
+          <h2 className="mt-4 text-sm">Print spec</h2>
           <p className="mt-1 text-muted-foreground">{asset.printNote}</p>
         </div>
       </div>

@@ -10,7 +10,7 @@ const PartnerTerms = () => (
       path="/partners/terms"
     />
     <div className="container max-w-3xl py-16">
-      <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+      <h1 className="text-3xl sm:text-4xl">
         {PARTNER_TERMS_DOC.h1}
       </h1>
       <p className="mt-3 text-sm text-muted-foreground">{PARTNER_TERMS_DOC.lastUpdated}</p>
@@ -18,7 +18,7 @@ const PartnerTerms = () => (
       <div className="mt-10 space-y-8">
         {PARTNER_TERMS_DOC.sections.map((section) => (
           <section key={section.heading}>
-            <h2 className="text-lg font-semibold text-foreground">{section.heading}</h2>
+            <h2 className="text-lg">{section.heading}</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{section.body}</p>
           </section>
         ))}

@@ -61,7 +61,7 @@ const Auth = () => {
             <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to home</Link>
           </Button>
 
-          <h1 className="text-2xl font-bold text-foreground">Sign in to your account</h1>
+          <h1 className="text-2xl">Sign in to your account</h1>
           <p className="mt-2 text-muted-foreground text-sm">
             Don't have an account?{" "}
             <Link to="/signup" className="text-primary font-medium hover:underline inline-flex items-center gap-1">

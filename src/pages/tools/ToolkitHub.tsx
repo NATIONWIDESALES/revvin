@@ -116,10 +116,7 @@ const ToolkitHub = () => (
 
     <section className="relative overflow-hidden border-b border-border">
       <div className="container relative max-w-3xl py-16 md:py-24">
-        <p className="text-[11px] font-semibold text-primary">
-          Free tools for service businesses
-        </p>
-        <h1 className="mt-4 text-[2rem] font-extrabold leading-[1.08] tracking-tight text-foreground sm:text-4xl md:text-5xl">
+        <h1 className="mt-4 text-[2rem] leading-[1.08] sm:text-4xl md:text-5xl">
           Turn the customers you already have into the next job.
         </h1>
         <p className="mt-5 text-base leading-relaxed text-muted-foreground md:text-lg">
@@ -147,7 +144,7 @@ const ToolkitHub = () => (
 
     <section id="tools" className="scroll-mt-16 border-b border-border bg-surface-warm">
       <div className="container py-16 md:py-20">
-        <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+        <h2 className="text-2xl md:text-3xl">
           Pick the one that matches where you are stuck.
         </h2>
         <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -197,10 +194,7 @@ const ToolkitHub = () => (
     <section className="border-b border-border">
       <div className="container py-16 md:py-20">
         <div className="max-w-2xl">
-          <p className="text-[11px] font-semibold text-primary">
-            From free tool to working system
-          </p>
-          <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+          <h2 className="mt-3 text-2xl md:text-3xl">
             The tools prepare the decisions. Revvin runs the loop.
           </h2>
         </div>
@@ -234,7 +228,7 @@ const ToolkitHub = () => (
 
     <section className="border-b border-border bg-surface-warm">
       <div className="container max-w-3xl py-16 md:py-20">
-        <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+        <h2 className="text-2xl md:text-3xl">
           Common questions
         </h2>
         <div className="mt-8 space-y-6">
@@ -250,7 +244,7 @@ const ToolkitHub = () => (
 
     <section className="bg-forest text-primary-foreground">
       <div className="container max-w-2xl py-16 text-center md:py-20">
-        <h2 className="text-2xl font-extrabold tracking-tight md:text-4xl">
+        <h2 className="text-2xl md:text-4xl">
           Build the page these tools are preparing.
         </h2>
         <p className="mt-4 text-base text-primary-foreground/80 md:text-lg">

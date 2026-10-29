@@ -59,7 +59,7 @@ const Feedback = () => {
   if (state === "invalid") {
     return (
       <div className="mx-auto max-w-md px-6 py-24 text-center">
-        <h1 className="text-xl font-semibold text-foreground">This link is not valid</h1>
+        <h1 className="text-xl">This link is not valid</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           It may have expired. If you meant to leave feedback, replying to the email you received works just as well.
         </p>
@@ -70,7 +70,7 @@ const Feedback = () => {
   if (!answered) {
     return (
       <div className="mx-auto max-w-md px-6 py-24 text-center">
-        <h1 className="text-xl font-semibold text-foreground">How did the job go?</h1>
+        <h1 className="text-xl">How did the job go?</h1>
         <p className="mt-2 text-sm text-muted-foreground">Honest answers only. Both are useful.</p>
         <div className="mt-6 flex justify-center gap-3">
           <Button onClick={() => record(true)}>I was happy</Button>
@@ -85,7 +85,7 @@ const Feedback = () => {
 
   return (
     <div className="mx-auto max-w-md px-6 py-24 text-center">
-      <h1 className="text-xl font-semibold text-foreground">
+      <h1 className="text-xl">
         {happy ? "Thank you, that means a lot" : "Thank you for telling us"}
       </h1>
       {happy ? (

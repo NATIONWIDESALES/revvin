@@ -94,7 +94,7 @@ const OfferDetail = () => {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
               <AlertTriangle className="h-5 w-5 text-muted-foreground" />
             </div>
-            <h1 className="text-lg font-semibold text-foreground">This offer isn't live</h1>
+            <h1 className="text-lg">This offer isn't live</h1>
             <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
               The offer you're looking for has been removed or was never published. Browse the marketplace for active referral opportunities.
             </p>
@@ -210,7 +210,7 @@ const OfferDetail = () => {
                 {isLogoUrl ? <img src={offer.businessLogo} alt={offer.business} className="h-full w-full object-cover" /> : offer.businessLogo}
               </div>
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-foreground md:text-3xl">{offer.title}</h1>
+                <h1 className="text-2xl md:text-3xl">{offer.title}</h1>
                 <p className="text-muted-foreground mt-1 flex items-center gap-1">
                   {countryFlag(offer.country)} {offer.business}
                   {offer.verified !== false && <BadgeCheck className="h-4 w-4 text-primary" />}
@@ -271,7 +271,7 @@ const OfferDetail = () => {
 
             {/* Description */}
             <motion.div variants={fadeUp} custom={2}>
-              <h2 className="text-lg font-semibold mb-3">About This Opportunity</h2>
+              <h2 className="text-lg mb-3">About This Opportunity</h2>
               <p className="text-muted-foreground leading-relaxed">{offer.description}</p>
             </motion.div>
 
@@ -334,7 +334,7 @@ const OfferDetail = () => {
 
             {/* Payout Timeline */}
             <motion.div variants={fadeUp} custom={6}>
-              <h2 className="text-lg font-semibold mb-4">How You Get Paid</h2>
+              <h2 className="text-lg mb-4">How You Get Paid</h2>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0">
                 {[
                   { icon: Send, label: "Submit Referral" },
@@ -355,7 +355,7 @@ const OfferDetail = () => {
 
             {/* How Verification Works */}
             <motion.div variants={fadeUp} custom={7}>
-              <h2 className="text-lg font-semibold mb-4">How It Works</h2>
+              <h2 className="text-lg mb-4">How It Works</h2>
               <div className="space-y-3">
                 {[
                   "You submit the referral with contact details and context",

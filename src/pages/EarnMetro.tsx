@@ -32,7 +32,7 @@ const EarnMetro = () => {
     return (
       <main className="container max-w-3xl py-16">
         <SEOHead title="City not found | Revvin" description="This Earn city does not exist." noindex />
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">City not found</h1>
+        <h1 className="text-3xl">City not found</h1>
         <p className="mt-3 text-muted-foreground"><Link to="/earn" className="underline underline-offset-4">See where Revvin is live</Link></p>
       </main>
     );
@@ -43,7 +43,7 @@ const EarnMetro = () => {
       <SEOHead title={earnTitle(info.name)} description={earnDescription(info.name)} path={`/earn/${info.slug}`} noindex={!info.is_live} />
       <section className="surface-forest">
         <div className="container max-w-4xl pb-24 pt-14">
-          <h1 className="text-[2.4rem] font-extrabold leading-[0.98] sm:text-6xl">Get paid for referrals in {info.name}</h1>
+          <h1 className="text-[2.4rem] leading-[0.98] sm:text-6xl">Get paid for referrals in {info.name}</h1>
           {info.is_live ? (
             <p className="mt-4 text-muted-foreground">Local businesses that pay a reward when your referral turns into a job. Get your own link to each one.</p>
           ) : (
@@ -105,7 +105,7 @@ const EarnMetro = () => {
 
       <section className="border-t border-line">
         <div className="container max-w-xl py-14">
-          <h2 className="text-2xl font-extrabold tracking-tight text-foreground">Know a business that should be here?</h2>
+          <h2 className="text-2xl">Know a business that should be here?</h2>
           <div className="mt-6 rounded-[14px] border border-line p-6"><InviteBusinessForm metroSlug={info.slug} /></div>
         </div>
       </section>

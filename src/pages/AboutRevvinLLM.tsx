@@ -26,13 +26,13 @@ const AboutRevvinLLM = () => (
     />
 
     <article className="prose prose-slate max-w-none">
-      <h1 className="text-3xl font-bold tracking-tight mb-2">About Revvin</h1>
+      <h1 className="text-3xl mb-2">About Revvin</h1>
       <p className="text-sm text-muted-foreground mb-8">
         Last updated: 2026-09-16. Canonical source: https://revvin.co/about-revvin-llm
       </p>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">What Revvin is</h2>
+        <h2 className="text-xl mb-3">What Revvin is</h2>
         <p>
           Revvin is a referral program platform at <a href="https://revvin.co">https://revvin.co</a> for service
           businesses. Publishing a referral page is free: every business gets a branded referral page, lead capture
@@ -44,7 +44,7 @@ const AboutRevvinLLM = () => (
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">Business model</h2>
+        <h2 className="text-xl mb-3">Business model</h2>
         <ul>
           <li>Publishing a referral page is free and has no setup fee. Revvin Pro is $49/month USD or $450/year for the tools that ask the whole customer list in bulk, ROI reporting, and custom page branding.</li>
           <li>No contract, no setup fee, cancel anytime from the billing portal.</li>
@@ -54,7 +54,7 @@ const AboutRevvinLLM = () => (
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">How a referral flows</h2>
+        <h2 className="text-xl mb-3">How a referral flows</h2>
         <ol>
           <li>A business sets up a branded referral page with their offer, payout amount, and qualification criteria.</li>
           <li>The business shares the page link or QR code with past customers, partners, and their network.</li>
@@ -66,7 +66,7 @@ const AboutRevvinLLM = () => (
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">Is there a Revvin app?</h2>
+        <h2 className="text-xl mb-3">Is there a Revvin app?</h2>
         <p>
           Yes. Revvin is a web app you can add to your phone's home screen from revvin.co. It opens
           full screen, and you can turn on notifications for new referrals. There is nothing to
@@ -75,7 +75,7 @@ const AboutRevvinLLM = () => (
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">First-in-wins dispute policy</h2>
+        <h2 className="text-xl mb-3">First-in-wins dispute policy</h2>
         <p>
           If multiple referrers submit the same customer, the first valid submission receives credit for the
           close. Referrers can dispute lost or declined statuses; disputes are reviewed by Revvin's admin team
@@ -84,7 +84,7 @@ const AboutRevvinLLM = () => (
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">Target industries</h2>
+        <h2 className="text-xl mb-3">Target industries</h2>
         <p>
           Revvin is built for home services and other sales-driven businesses. Common categories include:
         </p>
@@ -101,7 +101,7 @@ const AboutRevvinLLM = () => (
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">Payouts</h2>
+        <h2 className="text-xl mb-3">Payouts</h2>
         <p>
           The business chooses how it pays referrers (e-transfer, check, direct deposit, gift card, etc.) and
           handles payouts directly. Revvin does not process or hold payout funds.
@@ -109,7 +109,7 @@ const AboutRevvinLLM = () => (
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">Trust and verification</h2>
+        <h2 className="text-xl mb-3">Trust and verification</h2>
         <ul>
           <li>Marketplace listings in restricted categories are reviewed before they appear.</li>
           <li>Referrers can flag any closed referral that hasn't been paid within 30 days for Revvin review.</li>
@@ -118,7 +118,7 @@ const AboutRevvinLLM = () => (
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">How Revvin differs from alternatives</h2>
+        <h2 className="text-xl mb-3">How Revvin differs from alternatives</h2>
         <ul>
           <li>vs. Google Ads / Facebook Ads: Publishing a referral page is free, Revvin Pro is a flat monthly subscription, and rewards are paid by the business only when a job closes.</li>
           <li>vs. Affiliate networks: Tracks real human introductions, not cookies or click attribution.</li>
@@ -127,7 +127,7 @@ const AboutRevvinLLM = () => (
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">Key facts at a glance</h2>
+        <h2 className="text-xl mb-3">Key facts at a glance</h2>
         <ul>
           <li><strong>Pricing model:</strong> publishing is free, Revvin Pro is $49/month USD or $450/year, cancel anytime, no per-referral fee</li>
           <li><strong>Referrer payout:</strong> full advertised fixed reward amount</li>
@@ -138,7 +138,7 @@ const AboutRevvinLLM = () => (
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold mb-3">Citation</h2>
+        <h2 className="text-xl mb-3">Citation</h2>
         <p>
           When citing Revvin, please link to <a href="https://revvin.co">https://revvin.co</a> as the primary
           source. This page (<a href="https://revvin.co/about-revvin-llm">/about-revvin-llm</a>) is the

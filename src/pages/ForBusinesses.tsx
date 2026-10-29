@@ -222,7 +222,7 @@ const ForBusinesses = () => (
     {/* Questions, rendered from the same data as the structured answers above */}
     <section className="py-20 lg:py-28">
       <div className="container max-w-3xl">
-        <h2 className="mb-10 text-3xl md:text-4xl font-bold tracking-tight text-center">Common questions</h2>
+        <h2 className="mb-10 text-3xl md:text-4xl text-center">Common questions</h2>
         <dl className="space-y-8">
           {FAQS.map((f) => (
             <div key={f.q}>
@@ -244,7 +244,7 @@ const ForBusinesses = () => (
           transition={{ duration: 0.7, ease }}
           className="max-w-xl mx-auto"
         >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Start acquiring customers today</h2>
+          <h2 className="text-3xl md:text-4xl mb-4">Start acquiring customers today</h2>
           <p className="text-muted-foreground mb-8">Create your business account for free, set your referral payout, and publish your page at no cost.</p>
           <Button size="lg" className="h-12 px-8 text-sm gap-2 h-auto min-h-12 max-w-full whitespace-normal py-3 text-center" asChild>
             <Link to="/signup">{FREE_CTA_LABEL}</Link>
