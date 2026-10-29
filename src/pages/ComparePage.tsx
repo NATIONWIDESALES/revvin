@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import NotFound from "@/pages/NotFound";
 import { FREE_CTA_LABEL } from "@/config/planFeatures";
-import { FOUNDER_PERSON, GUIDES_UPDATED_AT, formatContentDate } from "@/config/brand";
+import { FOUNDER_PERSON, formatContentDate } from "@/config/brand";
 import {
   BIAS_DISCLOSURE,
   CHECKED_LINE,
@@ -237,5 +237,4 @@ const ComparePage = () => {
   );
 };
 
-void GUIDES_UPDATED_AT;
 export default ComparePage;
