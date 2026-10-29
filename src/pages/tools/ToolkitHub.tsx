@@ -151,7 +151,7 @@ const ToolkitHub = () => (
           {TOOLS.map((tool) => (
             <article
               key={tool.to}
-              className="flex flex-col rounded-2xl border border-border bg-background p-6 shadow-soft"
+              className="flex flex-col rounded-[14px] border border-line bg-card p-6"
             >
               <tool.icon className="h-5 w-5 text-primary" aria-hidden="true" />
               <h3 className="mt-4 text-lg font-bold tracking-tight text-foreground">

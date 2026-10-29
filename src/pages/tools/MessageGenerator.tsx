@@ -102,7 +102,7 @@ const MessageGenerator = () => {
       ctaHeading="Give the ask somewhere to land."
       ctaCta={TOOLKIT_CTAS.generatorSignup}
     >
-      <div className="rounded-2xl border border-border bg-background p-6 md:p-8">
+      <div className="mk-ticket p-6 pt-8 md:p-8 md:pt-10">
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Label htmlFor="trade" className="text-sm font-semibold">

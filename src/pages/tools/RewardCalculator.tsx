@@ -108,7 +108,7 @@ const RewardCalculator = () => {
       ctaHeading="Set the reward on a page that is free to publish."
       ctaCta={TOOLKIT_CTAS.calculatorSignup}
     >
-      <div className="rounded-2xl border border-border bg-background p-6 md:p-8">
+      <div className="mk-ticket p-6 pt-8 md:p-8 md:pt-10">
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <Label htmlFor="revenue" className="text-sm font-semibold">

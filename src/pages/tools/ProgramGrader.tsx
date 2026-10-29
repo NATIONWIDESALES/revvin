@@ -116,11 +116,11 @@ const ProgramGrader = () => {
           </div>
         </form>
       ) : (
-        <div className="rounded-2xl border border-border bg-background p-6 md:p-8">
+        <div className="mk-ticket p-6 pt-8 md:p-8 md:pt-10">
           <p className="text-[11px] font-semibold text-muted-foreground">
             Your result
           </p>
-          <p className="mt-3 text-5xl font-extrabold tracking-tight text-foreground">
+          <p className="mt-3 font-display text-5xl font-extrabold text-forest">
             {result.score}
             <span className="text-xl font-bold text-muted-foreground">/100</span>
           </p>
