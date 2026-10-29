@@ -244,6 +244,7 @@ Deno.serve(async (req) => {
     </div>` : ""}
     <p style="margin:0 0 20px;font-size:14px;color:#475569">${secondary}</p>
     ${ctaUrl ? `<a href="${ctaUrl}" style="display:inline-block;background:#15803d;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px">${esc(ctaLabel)}</a>` : ""}
+    <p style="margin:18px 0 0;font-size:14px"><a href="${appUrl("/me")}" style="color:#15803d;font-weight:600">See all your referrals</a></p>
     <p style="margin:28px 0 0;font-size:12px;color:#94a3b8">You are getting this because you referred someone to ${esc(bizName)} through Revvin. <a href="${unsubscribeUrl}" style="color:#64748b">Unsubscribe</a> to stop these messages.</p>
   </div>
 </body></html>`;
