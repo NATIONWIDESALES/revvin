@@ -182,7 +182,6 @@ const Pricing = () => {
                   {annual ? PRICE_TEXT.annual : PRICE_TEXT.monthly}
                 </span>
                 <span className="text-sm text-muted-foreground">{annual ? "/year" : "/month"}</span>
-                <span className="sr-only">{`Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} or ${PRICE_TEXT.annualPerYear}.`}</span>
               </div>
               {annual ? (
                 <div className="mt-2 space-y-1 text-sm">
@@ -347,7 +346,7 @@ const Pricing = () => {
             <AccordionItem value="p3">
               <AccordionTrigger>What exactly is free?</AccordionTrigger>
               <AccordionContent>
-                Your referral page. Create your account, set up your offer, publish the page, share the link and QR code, and take referrals through it without paying anything. That is not a trial and it does not expire. Referrer accounts are free too: send leads to businesses on Revvin and get paid directly, no card required. Pro is what you pay for, and it is the tools that ask your whole customer list for you.
+                Your referral page. Create your account, set up your offer, publish the page, share the link and QR code, and take referrals through it without paying anything. You can also import and ask up to 100 customers. That is not a trial and it does not expire. Referrer accounts are free too: send leads to businesses on Revvin and get paid directly, no card required. Pro is what you pay for, and it is the tools that ask your whole customer list for you.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">
