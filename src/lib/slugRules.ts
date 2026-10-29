@@ -513,3 +513,23 @@ export const suggestSlug = (businessName: string, fallback = ""): string => {
   }
   return `partner-${Math.random().toString(36).slice(2, 8)}`;
 };
+
+/**
+ * Picks the first free link for a base slug: base, then base-2, base-3 and so
+ * on. `status` returns "ok" or a rejection; anything other than "taken" on the
+ * base falls back to suggestSlug's rule-safe variant first.
+ */
+export async function resolveAvailableSlug(
+  base: string,
+  status: (slug: string) => Promise<string>,
+  maxTries = 25,
+): Promise<string | null> {
+  const root = base.slice(0, 36).replace(/-+$/, "");
+  for (let i = 1; i <= maxTries; i++) {
+    const candidate = i === 1 ? root : `${root}-${i}`;
+    if (!checkSlug(candidate).ok) continue;
+    const s = await status(candidate);
+    if (s === "ok") return candidate;
+  }
+  return null;
+}
