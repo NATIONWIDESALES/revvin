@@ -9,9 +9,6 @@ import { activeRef, forgetRef, personalLink, referrerShareText, rememberRef } fr
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import SEOHead from "@/components/SEOHead";
 import { useToast } from "@/hooks/use-toast";
@@ -52,35 +49,6 @@ export interface Testimonial {
   quote: string;
   author?: string;
   role?: string;
-}
-
-function brandHueFromName(name: string): number {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return Math.abs(hash) % 360;
-}
-
-/** Lighten or darken a hex/hsl color to derive soft/border/ink variants. */
-function tint(hex: string, mode: "soft" | "border" | "ink"): string {
-  // accept #rrggbb or hsl()
-  const m = hex.trim().match(/^#?([0-9a-f]{6})$/i);
-  if (m) {
-    const r = parseInt(m[1].slice(0, 2), 16);
-    const g = parseInt(m[1].slice(2, 4), 16);
-    const b = parseInt(m[1].slice(4, 6), 16);
-    const mix = (c: number, t: number, amt: number) => Math.round(c + (t - c) * amt);
-    if (mode === "soft") {
-      const rr = mix(r, 255, 0.92), gg = mix(g, 255, 0.92), bb = mix(b, 255, 0.92);
-      return `rgb(${rr} ${gg} ${bb})`;
-    }
-    if (mode === "border") {
-      const rr = mix(r, 255, 0.78), gg = mix(g, 255, 0.78), bb = mix(b, 255, 0.78);
-      return `rgb(${rr} ${gg} ${bb})`;
-    }
-    const rr = mix(r, 0, 0.45), gg = mix(g, 0, 0.45), bb = mix(b, 0, 0.45);
-    return `rgb(${rr} ${gg} ${bb})`;
-  }
-  return hex;
 }
 
 function isValidHex(v: string | null | undefined): v is string {
