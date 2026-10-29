@@ -118,9 +118,9 @@
     letter-spacing: -0.005em;
   }
   /* Marketing pages: headings are Barlow Condensed 800 in forest, sentence case. */
-  .site-main h1, .site-main h2 { font-weight: 800; color: hsl(var(--forest)); text-transform: none; }
-  .dark .site-main h1, .dark .site-main h2 { color: hsl(var(--foreground)); }
-  .site-main .on-dark h1, .site-main .on-dark h2, .site-main .on-dark h3 { color: #fff; }
+  /* :where keeps specificity at zero so any utility colour (white on forest) wins. */
+  :where(.site-main) :where(h1, h2) { font-weight: 800; color: hsl(var(--forest)); }
+  :where(.dark .site-main) :where(h1, h2) { color: hsl(var(--foreground)); }
 
   h4, h5, h6 {
     font-family: 'Barlow', system-ui, sans-serif;
