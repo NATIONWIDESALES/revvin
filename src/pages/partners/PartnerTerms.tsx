@@ -9,8 +9,8 @@ const PartnerTerms = () => (
       description="The rules of the Revvin Partner Program: commission, attribution, payment timing, refunds, taxes, disclosure and prohibited promotion methods."
       path="/partners/terms"
     />
-    <div className="container max-w-3xl py-16">
-      <h1 className="text-3xl sm:text-4xl">
+    <div className="mx-auto w-full max-w-[720px] px-5 py-16">
+      <h1 className="text-5xl leading-[1] md:text-6xl">
         {PARTNER_TERMS_DOC.h1}
       </h1>
       <p className="mt-3 text-sm text-muted-foreground">{PARTNER_TERMS_DOC.lastUpdated}</p>

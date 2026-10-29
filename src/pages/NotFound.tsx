@@ -6,8 +6,8 @@ const NotFound = () => (
   <div className="flex min-h-[70vh] items-center justify-center bg-background px-4">
     <SEOHead title="Page Not Found · Revvin" description="The page you're looking for doesn't exist on Revvin." noindex />
     <div className="text-center max-w-md">
-      <p className="text-sm font-semibold text-primary mb-2">404</p>
-      <h1 className="mb-3 text-3xl md:text-4xl">
+      <p className="mb-2 font-display text-7xl font-extrabold text-primary">404</p>
+      <h1 className="mb-3 text-4xl md:text-5xl">
         We couldn't find that page
       </h1>
       <p className="mb-7 text-muted-foreground">
