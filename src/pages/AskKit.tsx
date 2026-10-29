@@ -138,8 +138,7 @@ const AskKit = () => {
       />
 
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border hero-radial">
-        <div aria-hidden className="absolute inset-0 grid-faint" />
+      <section className="relative overflow-hidden border-b border-border">
         <div className="container relative max-w-3xl py-24">
           <motion.div initial="hidden" animate="visible" variants={stagger}>
             <motion.div variants={fadeUp} custom={0}>
@@ -150,7 +149,7 @@ const AskKit = () => {
             <motion.h1
               variants={fadeUp}
               custom={1}
-              className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl"
+              className="text-5xl leading-[0.98] md:text-7xl"
             >
               The Referral Ask Kit
             </motion.h1>

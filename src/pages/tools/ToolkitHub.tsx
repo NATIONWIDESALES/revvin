@@ -114,8 +114,7 @@ const ToolkitHub = () => (
       ]}
     />
 
-    <section className="relative overflow-hidden border-b border-border hero-radial">
-      <div aria-hidden className="absolute inset-0 grid-faint" />
+    <section className="relative overflow-hidden border-b border-border">
       <div className="container relative max-w-3xl py-16 md:py-24">
         <p className="text-[11px] font-semibold text-primary">
           Free tools for service businesses
@@ -249,17 +248,17 @@ const ToolkitHub = () => (
       </div>
     </section>
 
-    <section className="bg-ink text-white">
+    <section className="bg-forest text-primary-foreground">
       <div className="container max-w-2xl py-16 text-center md:py-20">
         <h2 className="text-2xl font-extrabold tracking-tight md:text-4xl">
           Build the page these tools are preparing.
         </h2>
-        <p className="mt-4 text-base text-white/70 md:text-lg">
+        <p className="mt-4 text-base text-primary-foreground/80 md:text-lg">
           {`Publishing your referral page is free, with no card. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD when you want it working your whole customer list.`}
         </p>
         <Button
           size="lg"
-          className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep"
+          variant="sign" className="mt-8"
           asChild
         >
           <Link to="/signup" onClick={() => track("cta_clicked", { cta: TOOLKIT_CTAS.hubSignup })}>
