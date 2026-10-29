@@ -1,3 +1,4 @@
+import { isRestrictedCategory } from "@/lib/offerUtils";
 import { showVerifiedBadge } from "@/lib/verifiedBadge";
 import { copyText } from "@/lib/clipboard";
 import { useEffect, useState } from "react";
@@ -155,7 +156,7 @@ const PublicReferralPage = () => {
     if (!slug) return;
     (async () => {
       const COLS =
-        "id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,is_verified,brand_color,cover_image_url,headline,welcome_message,referral_cta_label,testimonials";
+        "id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,is_verified,brand_color,cover_image_url,headline,welcome_message,referral_cta_label,testimonials,is_demo";
 
       const { data } = await supabase
         .from("businesses_public" as any)
@@ -287,19 +288,21 @@ const PublicReferralPage = () => {
   return (
     <>
       <SEOHead
-        title={`Refer a customer to ${biz.name}${biz.offer_amount ? `, earn ${biz.offer_amount}` : ""}`}
-        description={`${biz.name} pays for warm referrals.${biz.offer_amount ? ` Earn ${biz.offer_amount}${biz.offer_trigger ? " " + biz.offer_trigger : ""}.` : ""}`}
+        title={`Refer a customer to ${biz.name}${biz.city ? ` in ${biz.city}` : ""}, earn ${biz.offer_amount?.trim() || "a reward"}`}
+        description={`${biz.name} pays ${biz.offer_amount?.trim() || "a reward"} when your referral turns into a job. Submit a referral or get your own link.`}
         path={`/r/${biz.slug}`}
-        noindex={ownerPreview}
+        noindex={ownerPreview || !!(biz as { is_demo?: boolean | null }).is_demo || isRestrictedCategory(biz.category)}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
           name: biz.name,
-          description: biz.description ?? undefined,
-          areaServed: biz.service_area ?? undefined,
-          category: biz.category ?? undefined,
-          image: biz.logo_url ?? undefined,
           url: `https://revvin.co/r/${biz.slug}`,
+          ...(biz.city ? { areaServed: { "@type": "City", name: biz.city } } : {}),
+          makesOffer: {
+            "@type": "Offer",
+            name: "Referral reward",
+            description: `${biz.name} pays ${biz.offer_amount?.trim() || "a reward"} when a referral turns into a job.`,
+          },
         }}
       />
       <div className="min-h-screen bg-[#FAFAF7]">
