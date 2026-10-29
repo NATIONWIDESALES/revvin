@@ -29,6 +29,9 @@ vi.mock("@/integrations/supabase/client", () => ({
   },
 }));
 vi.mock("@/lib/track", () => ({ track: vi.fn() }));
+class RO { observe() {} unobserve() {} disconnect() {} }
+vi.stubGlobal("ResizeObserver", RO);
+vi.stubGlobal("IntersectionObserver", class { observe() {} unobserve() {} disconnect() {} takeRecords() { return []; } });
 vi.mock("@/components/pwa/AddToHomeScreen", () => ({ default: ({ line }: { line: string }) => <p>{line}</p> }));
 vi.mock("@/lib/pageManifest", () => ({ applyPageManifest: () => undefined }));
 vi.mock("@/components/SEOHead", () => ({ default: () => null }));
