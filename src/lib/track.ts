@@ -31,6 +31,7 @@ export const FUNNEL_EVENTS = [
   "checkout_canceled",
   "email_lead_submitted",
   "referral_submitted",
+  "referral_page_load_failed",
   "sample_page_viewed",
   "promo_popup_shown",
   "promo_cta_clicked",

@@ -4,6 +4,7 @@ import type { Plugin } from "vite";
 import { PRERENDER_ROUTES, type PrerenderRoute } from "../src/content/seoRoutes";
 import { PRICE_TEXT, MONTHLY_PRICE, ANNUAL_PRICE } from "../src/config/pricing";
 import { isRestrictedCategory } from "../src/lib/offerUtils";
+import { PRERENDER_BUSINESS_COLS } from "../src/lib/publicReferralCols";
 import { buildSitemapEntries, renderSitemap } from "./sitemap";
 import { buildBusinessManifest, businessManifestPath } from "../src/lib/webManifest";
 import {
@@ -623,7 +624,7 @@ const fetchPublishedBusinesses = async (
 ): Promise<PublicBusiness[]> => {
   try {
     const res = await fetch(
-      `${supabaseUrl}/rest/v1/businesses_public?select=slug,name,description,offer_amount,offer_trigger,logo_url,city,state,category,is_demo,updated_at&limit=1000`,
+      `${supabaseUrl}/rest/v1/businesses_public?select=${PRERENDER_BUSINESS_COLS}&limit=1000`,
       { headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` } },
     );
     if (!res.ok) return [];

@@ -1,4 +1,5 @@
 import { isRestrictedCategory } from "@/lib/offerUtils";
+import { PUBLIC_REFERRAL_PAGE_COLS } from "@/lib/publicReferralCols";
 import { showVerifiedBadge } from "@/lib/verifiedBadge";
 import { copyText } from "@/lib/clipboard";
 import { useEffect, useState } from "react";
@@ -101,6 +102,7 @@ const PublicReferralPage = () => {
   const [statusUrl, setStatusUrl] = useState<string | null>(null);
   /** True when the viewer is the owner looking at their own unpublished page. */
   const [ownerPreview, setOwnerPreview] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   const location = useLocation();
   // Personal link: the token from ?ref or the one remembered for this page.
   const [refToken, setRefToken] = useState<string | null>(null);
@@ -155,14 +157,23 @@ const PublicReferralPage = () => {
   useEffect(() => {
     if (!slug) return;
     (async () => {
-      const COLS =
-        "id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,is_verified,brand_color,cover_image_url,headline,welcome_message,referral_cta_label,testimonials,is_demo";
+      const COLS = PUBLIC_REFERRAL_PAGE_COLS;
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("businesses_public" as any)
         .select(COLS)
         .eq("slug", slug)
         .limit(1);
+
+      // A failed query is not the same as a page that is not live. Show a
+      // retry state, log the real error in development and record the failure.
+      if (error) {
+        if (import.meta.env.DEV) console.error("[PublicReferralPage] businesses_public query failed", error);
+        track("referral_page_load_failed");
+        setLoadFailed(true);
+        setLoading(false);
+        return;
+      }
 
       if (data?.[0]) {
         setBiz((data[0] as unknown) as Business);
@@ -235,6 +246,23 @@ const PublicReferralPage = () => {
 
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  }
+
+  if (!biz && loadFailed) {
+    return (
+      <>
+        <SEOHead title="Referral page unavailable · Revvin" description="This referral page could not load." noindex />
+        <div className="flex min-h-screen items-center justify-center p-6 text-center">
+          <div className="max-w-sm">
+            <h1 className="text-2xl font-semibold text-foreground">This page did not load</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Something went wrong on our side. Try again in a moment.</p>
+            <button type="button" onClick={() => window.location.reload()} className="mt-6 text-sm font-medium text-foreground underline">
+              Try again
+            </button>
+          </div>
+        </div>
+      </>
+    );
   }
 
   if (!biz) {

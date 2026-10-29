@@ -36,6 +36,20 @@
       "when": 1793311030230,
       "tag": "0004_team_waitlist_reserved_slugs_public_demo_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793311520083,
+      "tag": "0005_businesses_public_add_is_verified_show_on_earn",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793311613146,
+      "tag": "0006_funnel_events_allow_referral_page_load_failed",
+      "breakpoints": true
     }
   ]
 }
