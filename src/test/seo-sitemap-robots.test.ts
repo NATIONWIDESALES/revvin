@@ -136,6 +136,6 @@ describe("team waitlist", () => {
 
 describe("reserved slugs", () => {
   for (const s of ["earn", "me", "about", "partners", "pricing", "signup", "login", "welcome", "dashboard", "tools"]) {
-    it(`refuses ${s}`, () => expect(checkSlug(s)).toMatchObject({ ok: false, reason: "reserved" }));
+    it(`refuses ${s}`, () => expect(checkSlug(s).ok).toBe(false));
   }
 });

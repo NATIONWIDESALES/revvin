@@ -144,11 +144,11 @@ describe("published referral pages", () => {
     category: "Roofing",
   };
 
-  it("describes the business, not the homepage, and stays out of the index", () => {
+  it("describes the business, not the homepage, and is indexable", () => {
     const html = renderBusinessDoc(template, biz);
-    expect(html).toContain("<title>Refer a customer to Summit Roofing | Revvin</title>");
+    expect(html).toContain("<title>Refer a customer to Summit Roofing in Denver, earn $500</title>");
     expect(html).toContain('<link rel="canonical" href="https://revvin.co/r/summit-roofing">');
-    expect(html).toContain('content="noindex, follow"');
+    expect(html).toContain('content="index, follow"');
     expect(html).toMatch(/<meta property="og:title" content="Refer a customer to Summit Roofing/);
     expect(html).toMatch(/<meta property="og:description" content="[^"]*\$500/);
     expect(count(html, H1)).toBe(1);

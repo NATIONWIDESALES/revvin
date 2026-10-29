@@ -25,7 +25,7 @@ Revvin gives a home-service business a referral page on its own link, a personal
 
 - Revvin does not pay referrers, hold funds or take a cut of rewards. Businesses pay their referrers directly, off-platform.
 - Revvin never sends SMS to a business's customers. Personal asks open on the owner's own device.
-- Revvin does not charge platform fees on referral rewards.
+- Revvin takes nothing from referral rewards.
 
 ## Earn, for referrers
 
