@@ -174,7 +174,7 @@ const ReferrerDashboard = () => {
             <div className="flex gap-2">
               <Button variant="outline" asChild className="gap-2 h-11"><Link to="/dashboard/profile"><User className="h-4 w-4" /> Profile</Link></Button>
               <InviteBusinessModal />
-              <Button asChild className="gap-2 h-11"><Link to="/browse">Find Opportunities <ArrowRight className="h-4 w-4" /></Link></Button>
+              <Button asChild className="gap-2 h-11"><Link to="/browse">Find Opportunities</Link></Button>
             </div>
           </motion.div>
 

@@ -272,7 +272,7 @@ const Onboarding = () => {
                   </Button>
                 </div>
                 <Button className="mt-8 h-11 w-full" onClick={() => navigate("/dashboard?welcome=1")}>
-                  Go to my dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                  Go to my dashboard
                 </Button>
               </>
             )}

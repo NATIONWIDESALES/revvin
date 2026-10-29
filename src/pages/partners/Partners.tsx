@@ -144,7 +144,6 @@ const Partners = () => {
             <Button size="lg" asChild>
               <a href="#apply">
                 {PARTNER_COPY.applyButton}
-                <ArrowRight className="ml-2 h-4 w-4" />
               </a>
             </Button>
           </div>

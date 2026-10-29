@@ -347,7 +347,7 @@ const OfferDetail = () => {
                       <step.icon className="h-4 w-4 text-primary" />
                     </div>
                     <span className="text-xs font-medium text-foreground whitespace-nowrap">{step.label}</span>
-                    {i < 3 && <ArrowRight className="hidden sm:block h-4 w-4 text-muted-foreground mx-2 shrink-0" />}
+                    {i < 3 &&}
                   </div>
                 ))}
               </div>

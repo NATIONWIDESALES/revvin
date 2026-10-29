@@ -272,7 +272,7 @@ const AskKit = () => {
                 asChild
               >
                 <Link to="/signup">
-                  Create your free page <ArrowRight className="h-4 w-4" />
+                  Create your free page
                 </Link>
               </Button>
             </motion.div>

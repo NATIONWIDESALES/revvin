@@ -69,7 +69,6 @@ const InviteLanding = () => {
             <div className="mt-6 flex justify-center">
               <Button size="lg" className="h-auto min-h-11 max-w-full whitespace-normal py-3 text-center" onClick={goToForm}>
                 {FREE_CTA_LABEL}
-                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
             {stored && <InviteBanner code={stored} compact className="mt-5 justify-center text-left" />}

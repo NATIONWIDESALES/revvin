@@ -132,7 +132,6 @@ const ToolkitHub = () => (
           <Button size="lg" className="h-12 w-full px-6 text-base sm:w-auto" asChild>
             <a href="#tools">
               Start with a tool
-              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
             </a>
           </Button>
           <Button size="lg" variant="outline" className="h-12 w-full px-6 text-base sm:w-auto" asChild>
@@ -170,7 +169,6 @@ const ToolkitHub = () => (
                 className="mt-5 inline-flex items-center text-sm font-semibold text-primary hover:underline"
               >
                 {tool.action}
-                <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
               </Link>
             </article>
           ))}
@@ -191,7 +189,6 @@ const ToolkitHub = () => (
               className="mt-5 inline-flex items-center text-sm font-semibold text-primary hover:underline"
             >
               Open the marketplace
-              <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
             </Link>
           </article>
         </div>

@@ -65,7 +65,7 @@ const Auth = () => {
           <p className="mt-2 text-muted-foreground text-sm">
             Don't have an account?{" "}
             <Link to="/signup" className="text-primary font-medium hover:underline inline-flex items-center gap-1">
-              Build your referral page — free <ArrowRight className="h-3.5 w-3.5" />
+              Build your referral page — free
             </Link>
           </p>
 

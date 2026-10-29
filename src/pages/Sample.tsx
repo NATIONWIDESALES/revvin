@@ -43,7 +43,6 @@ const Sample = () => {
             <Button size="sm" asChild>
               <Link to="/signup" onClick={() => track("cta_clicked", { cta: "sample_top" })}>
                 Start yours
-                <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
           </div>
@@ -85,7 +84,6 @@ const Sample = () => {
                 <Button size="lg" asChild>
                   <Link to="/signup" onClick={() => track("cta_clicked", { cta: "sample_bottom" })}>
                     Build my referral page, free
-                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
