@@ -559,7 +559,7 @@ export const renderEarnMetroDoc = (template: string, metro: EarnMetroDoc) => {
           })),
         },
       ],
-    })}</script>`.replace(/</g, (m, o, str) => (str.slice(o, o + 8) === "<script " || str.slice(o, o + 9) === "</script>" ? m : "\\u003c")),
+    }).replace(/</g, "\\u003c")}</script>`,
   );
   const items = metro.businesses
     .map((b) => `<li><a href="/r/${esc(b.slug)}">${esc(b.name)}</a>${b.trade ? `, ${esc(b.trade)}` : ""}${b.city ? `, ${esc(b.city)}` : ""}. Reward: ${esc(b.reward ?? "")}</li>`)
