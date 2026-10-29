@@ -65,7 +65,7 @@ describe("comparison pages and roundup", () => {
   });
 
   it("sitemap includes all six", () => {
-    const entries = buildSitemapEntries({ buildDate: "2026-10-29", businesses: [], earnMetros: [] } as never);
+    const entries = buildSitemapEntries({ buildDate: "2026-10-29", dateFor: () => null });
     const locs = entries.map((e: { loc: string }) => e.loc);
     for (const p of ALL) expect(locs).toContain(`https://revvin.co${p}`);
   });
