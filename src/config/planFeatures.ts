@@ -34,6 +34,10 @@ export const FREE_FEATURES = [
     description: "Let your job software tell Revvin when a job is finished.",
   },
   {
+    label: "Import and ask up to 100 customers",
+    description: "Add up to 100 past customers and send each ask from your own phone or email app.",
+  },
+  {
     label: "Works on your phone",
     description: "Add Revvin to your home screen, no app store needed.",
   },
@@ -45,8 +49,8 @@ export const FREE_FEATURES = [
 
 export const PRO_FEATURES = [
   {
-    label: "Import your past-customer list",
-    description: "Bring your existing customer list into Revvin.",
+    label: "Unlimited customers, imported and asked",
+    description: "Bring your whole customer list into Revvin, with no cap.",
   },
   {
     label: "Send your ask to the whole list",
@@ -71,14 +75,27 @@ export const PRO_FEATURES = [
  * Used on the homepage, pricing page and invite landing so they never differ.
  */
 /** The one label for every "start on Free" button across public pages. */
-export const FREE_CTA_LABEL = "Create my free referral page";
+export const FREE_CTA_LABEL = "Start free";
+
+/** Free plan cap on stored customers. The database enforces the same number. */
+export const FREE_CONTACT_LIMIT = 100;
+
+export const FREE_LIMIT_COPY = {
+  /** Shown when the server refuses with free_contact_limit. */
+  error: "Free includes 100 customers. Upgrade to Pro for your whole list.",
+  reachedTitle: "You've added 100 customers. Pro asks your whole list.",
+  firstLeadTitle: "Your first referral is in. Pro asks the rest of your list.",
+} as const;
+
+export const isFreeContactLimitError = (e: { message?: string } | null | undefined) =>
+  !!e?.message && /free_contact_limit/.test(e.message);
 
 export const PLAN_SPLIT = {
-  line: "Free covers every job from here on. Pro ($49/mo) goes back through every customer you've ever had.",
+  line: "Free asks your first 100 customers. Pro asks all of them, automatically.",
   freeSubtitle: "Every job from here on",
   proSubtitle: "Every customer you've ever had",
   freeDetail:
-    "Referral page, QR codes, lead inbox, and the review and referral ask that fires when you mark a job done.",
-  proDetail: "Import your whole list and Revvin emails them from your business name to win back repeat work, with replies going to your own inbox. Plus ROI reporting and custom branding.",
+    "Referral page, QR codes, lead inbox, the review and referral ask that fires when you mark a job done, and up to 100 imported customers to ask.",
+  proDetail: "Import your whole list with no cap and Revvin emails them from your business name to win back repeat work, with replies going to your own inbox. Plus ROI reporting and custom branding.",
   proLead: "Revvin emails your whole past-customer list for you, from your business name, to win back repeat work.",
 } as const;
