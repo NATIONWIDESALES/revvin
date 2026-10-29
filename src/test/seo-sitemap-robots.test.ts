@@ -3,7 +3,7 @@ import fs from "node:fs";
 import { PRERENDER_ROUTES } from "@/content/seoRoutes";
 import { renderRoute, renderBusinessDoc, renderLlmsFull, businessMeta } from "../../plugins/prerender";
 import { buildSitemapEntries, renderSitemap, indexableRoutes } from "../../plugins/sitemap";
-import { validateSlug } from "@/lib/slugRules";
+import { checkSlug } from "@/lib/slugRules";
 
 const h = vi.hoisted(() => ({ rpc: vi.fn(), insert: vi.fn() }));
 vi.mock("@/integrations/supabase/client", () => ({
@@ -136,6 +136,6 @@ describe("team waitlist", () => {
 
 describe("reserved slugs", () => {
   for (const s of ["earn", "me", "about", "partners", "pricing", "signup", "login", "welcome", "dashboard", "tools"]) {
-    it(`refuses ${s}`, () => expect(validateSlug(s)).toMatchObject({ ok: false, reason: "reserved" }));
+    it(`refuses ${s}`, () => expect(checkSlug(s)).toMatchObject({ ok: false, reason: "reserved" }));
   }
 });
