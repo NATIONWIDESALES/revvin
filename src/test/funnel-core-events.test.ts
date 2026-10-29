@@ -18,7 +18,7 @@ describe("core funnel events still reach funnel_events on production", () => {
     track("signup_succeeded"); await flush();
     expect(fake.insert.mock.calls.map(([r]) => r.event)).toEqual(["signup_succeeded"]);
   });
-  it.each(["onboarding_completed", "page_published"])("%s from /welcome while signed in", async (e) => {
+  it.each(["onboarding_completed", "page_published"] as const)("%s from /welcome while signed in", async (e) => {
     setAnalyticsAudience("signed-in"); at("https://revvin.co/welcome");
     track(e); await flush();
     expect(fake.insert).toHaveBeenCalledTimes(1);
