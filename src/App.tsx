@@ -23,11 +23,9 @@ const Browse = lazy(() => import("./pages/Browse"));
 const OfferDetail = lazy(() => import("./pages/OfferDetail"));
 const SavedOffers = lazy(() => import("./pages/SavedOffers"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
-const TrustCenter = lazy(() => import("./pages/TrustCenter"));
-const ForBusinesses = lazy(() => import("./pages/ForBusinesses"));
-const ForReferrers = lazy(() => import("./pages/ForReferrers"));
 const AskKit = lazy(() => import("./pages/AskKit"));
-const AboutRevvinLLM = lazy(() => import("./pages/AboutRevvinLLM"));
+const About = lazy(() => import("./pages/About"));
+const Earn = lazy(() => import("./pages/Earn"));
 const ReferrerProfile = lazy(() => import("./pages/ReferrerProfile"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -114,9 +112,9 @@ const App = () => (
                   <Route path="/how-it-works" element={<HowItWorks />} />
                   <Route path="/sample" element={<Sample />} />
                   <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/trust" element={<TrustCenter />} />
-                  <Route path="/for-businesses" element={<ForBusinesses />} />
-                  <Route path="/for-referrers" element={<ForReferrers />} />
+                  <Route path="/trust" element={<Navigate to="/about" replace />} />
+                  <Route path="/for-businesses" element={<Navigate to="/" replace />} />
+                  <Route path="/for-referrers" element={<Navigate to="/earn" replace />} />
                   <Route path="/ask-kit" element={<AskKit />} />
                   <Route path="/tools" element={<ToolkitHub />} />
                   <Route path="/tools/referral-program-grader" element={<ProgramGrader />} />
@@ -126,7 +124,9 @@ const App = () => (
                   <Route path="/guides/:slug" element={<GuidePage />} />
                   <Route path="/referral-programs" element={<IndustriesHub />} />
                   <Route path="/referral-program/:industry" element={<IndustryLanding />} />
-                  <Route path="/about-revvin-llm" element={<AboutRevvinLLM />} />
+                  <Route path="/about-revvin-llm" element={<Navigate to="/about" replace />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/earn" element={<Earn />} />
                   <Route path="/partners" element={<Partners />} />
                   <Route path="/partners/terms" element={<PartnerTerms />} />
                   <Route path="/partners/dashboard" element={<PartnerDashboard />} />
