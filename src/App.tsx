@@ -52,6 +52,8 @@ const PrintAssetPage = lazy(() => import("./pages/PrintAsset"));
 const ZapierDocs = lazy(() => import("./pages/docs/Zapier"));
 const IndustriesHub = lazy(() => import("./pages/IndustriesHub"));
 const GuidePage = lazy(() => import("./pages/GuidePage"));
+const ComparePage = lazy(() => import("./pages/ComparePage"));
+const RoundupPage = lazy(() => import("./pages/ComparePage").then((m) => ({ default: m.RoundupPage })));
 const GuidesHub = lazy(() => import("./pages/GuidesHub"));
 const IndustryLanding = lazy(() => import("./pages/IndustryLanding"));
 const SuperAdminCRM = lazy(() => import("./pages/SuperAdminCRM"));
@@ -123,7 +125,9 @@ const App = () => (
                   <Route path="/tools/referral-reward-calculator" element={<RewardCalculator />} />
                   <Route path="/tools/referral-message-generator" element={<MessageGenerator />} />
                   <Route path="/guides" element={<GuidesHub />} />
+                  <Route path="/guides/best-referral-software-for-contractors-2026" element={<RoundupPage />} />
                   <Route path="/guides/:slug" element={<GuidePage />} />
+                  <Route path="/compare/:slug" element={<ComparePage />} />
                   <Route path="/referral-programs" element={<IndustriesHub />} />
                   <Route path="/referral-program/:industry" element={<IndustryLanding />} />
                   <Route path="/about-revvin-llm" element={<Navigate to="/about" replace />} />

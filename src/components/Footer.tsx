@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Wordmark from "@/components/brand/Wordmark";
 import { PRICE_TEXT } from "@/config/pricing";
 import { INDUSTRIES } from "@/content/industries";
+import { COMPARISONS, ROUNDUP } from "@/content/comparisons";
 
 const link = "block text-[15px] text-primary-foreground/80 transition-colors hover:text-primary-foreground";
 const heading = "mb-4 text-sm font-bold text-primary-foreground";
@@ -51,6 +52,20 @@ const Footer = () => {
             </div>
           </div>
         </div>
+
+        <nav aria-label="Compare" className="mt-12 border-t border-primary-foreground/10 pt-8">
+          <h4 className={heading}>Compare</h4>
+          <div className="flex flex-wrap gap-x-6 gap-y-3">
+            {COMPARISONS.map((c) => (
+              <Link key={c.slug} to={`/compare/${c.slug}`} className="text-sm text-primary-foreground/70 transition-colors hover:text-primary-foreground">
+                {c.h1}
+              </Link>
+            ))}
+            <Link to={`/guides/${ROUNDUP.slug}`} className="text-sm text-primary-foreground/70 transition-colors hover:text-primary-foreground">
+              {ROUNDUP.h1}
+            </Link>
+          </div>
+        </nav>
 
         <nav aria-label="Referral programs by trade" className="mt-12 border-t border-primary-foreground/10 pt-8">
           <h4 className={heading}>Referral programs by trade</h4>

@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { Plugin } from "vite";
-import { PRERENDER_ROUTES, type PrerenderRoute } from "../src/content/seoRoutes";
+import { PRERENDER_ROUTES, CHECKED_LINE, type PrerenderRoute } from "../src/content/seoRoutes";
+import { COMPARISONS_CHECKED_ON } from "../src/content/comparisons";
 import { PRICE_TEXT, MONTHLY_PRICE, ANNUAL_PRICE } from "../src/config/pricing";
 import { isRestrictedCategory } from "../src/lib/offerUtils";
 import { PRERENDER_BUSINESS_COLS } from "../src/lib/publicReferralCols";
@@ -232,7 +233,8 @@ export const jsonLd = (route: PrerenderRoute) => {
   }
   // Guides are written articles published by Revvin with a maintained date, so
   // they carry an Article node. The hub at /guides is a collection, not one.
-  if (route.path.startsWith("/guides/")) {
+  if (route.path.startsWith("/guides/") || route.article) {
+    const dated = route.path.startsWith("/compare/") || Boolean(route.tables?.length);
     graph.push({
       "@type": "Article",
       "@id": `${url}#article`,
@@ -242,9 +244,12 @@ export const jsonLd = (route: PrerenderRoute) => {
       inLanguage: "en-US",
       author: FOUNDER_PERSON,
       publisher: { "@id": ORG_ID },
-      datePublished: GUIDES_PUBLISHED_AT,
-      dateModified: GUIDES_UPDATED_AT,
+      datePublished: dated ? COMPARISONS_CHECKED_ON : GUIDES_PUBLISHED_AT,
+      dateModified: dated ? COMPARISONS_CHECKED_ON : GUIDES_UPDATED_AT,
       image: `${SITE}/og-image.png`,
+      ...(route.tables?.length
+        ? { hasPart: route.tables.map((t) => ({ "@type": "Table", about: t.caption })) }
+        : {}),
     });
   }
   if (route.faqs?.length) {
@@ -278,15 +283,25 @@ const FALLBACK_GUARD = `<script>(function(){var p=location.pathname;if(p==="/")r
 
 const bodyHtml = (route: PrerenderRoute) => {
   const parts: string[] = [`<h1>${esc(route.h1)}</h1>`];
-  if (route.path.startsWith("/guides/")) parts.push(`<p>By ${esc(FOUNDER_PERSON.name)}, Founder of Revvin</p>`);
+  if (route.path.startsWith("/guides/") || route.article) parts.push(`<p>By ${esc(FOUNDER_PERSON.name)}, Founder of Revvin</p>`);
   for (const s of route.sections) {
     parts.push(`<h2>${esc(s.heading)}</h2><p>${esc(s.body)}</p>`);
+  }
+  for (const t of route.tables ?? []) {
+    const head = t.head.map((h) => `<th scope="col">${esc(h)}</th>`).join("");
+    const rows = t.rows
+      .map((r) => `<tr><th scope="row">${esc(r[0])}</th>${r.slice(1).map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`)
+      .join("");
+    parts.push(`<table><caption>${esc(t.caption)}</caption><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table><p>${esc(CHECKED_LINE)}</p>`);
   }
   if (route.faqs?.length) {
     parts.push("<h2>Frequently asked questions</h2>");
     for (const f of route.faqs) {
       parts.push(`<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`);
     }
+  }
+  if (route.sources?.length) {
+    parts.push(`<h2>Sources</h2><ul>${route.sources.map((x) => `<li><a href="${esc(x.url)}" rel="noopener">${esc(x.label)}</a></li>`).join("")}</ul>`);
   }
   const links = PRERENDER_ROUTES.filter((r) => r.path !== route.path && !r.redirectTo && !r.noindex)
     .map((r) => `<li><a href="${esc(r.path)}">${esc(r.h1)}</a></li>`)

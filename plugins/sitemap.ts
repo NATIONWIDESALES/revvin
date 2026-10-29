@@ -20,6 +20,7 @@ export const indexableRoutes = (routes: PrerenderRoute[] = PRERENDER_ROUTES) =>
 
 /** Content modules that feed a route family, alongside its page component. */
 const CONTENT_SOURCES: { match: (p: string) => boolean; file: string }[] = [
+  { match: (p) => p.startsWith("/compare/") || p.includes("best-referral-software"), file: "src/content/comparisons.ts" },
   { match: (p) => p.startsWith("/guides"), file: "src/content/guides.ts" },
   { match: (p) => p.startsWith("/referral-program"), file: "src/content/industries.ts" },
   { match: (p) => p === "/privacy" || p === "/terms", file: "src/content/legal.ts" },
