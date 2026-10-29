@@ -15,11 +15,11 @@ const PartnerTerms = () => (
       </h1>
       <p className="mt-3 text-sm text-muted-foreground">{PARTNER_TERMS_DOC.lastUpdated}</p>
 
-      <div className="mt-10 space-y-8">
+      <div className="article-body mt-10">
         {PARTNER_TERMS_DOC.sections.map((section) => (
           <section key={section.heading}>
-            <h2 className="text-lg">{section.heading}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{section.body}</p>
+            <h2>{section.heading}</h2>
+            <p>{section.body}</p>
           </section>
         ))}
       </div>
