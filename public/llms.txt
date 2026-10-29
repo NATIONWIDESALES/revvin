@@ -1,65 +1,54 @@
 # Revvin
 
+> Revvin (revvin.co) is a free referral program and local referral network for home-service businesses.
+
 Last updated: 2026-10-29
 
-> Revvin (revvin.co) is a free referral program and local referral network for home-service businesses. Free asks your first 100 customers. Pro asks all of them, automatically. Referral program platform for service businesses. Publishing a referral page and taking referrals on it is free, and Free includes importing and asking up to 100 customers. Revvin Pro costs $49/month USD, or $450/year billed once, and adds unlimited customer import, the bulk referral ask to the whole list (which opens the owner's own phone or email app, so their device sends it), reactivation email campaigns sent by Revvin from the business name with replies going to the owner's own email, ROI reporting with a monthly email recap, and custom page branding. No platform fees on referral rewards. Revvin never auto-sends SMS to a business's list. Cancel anytime; the page stays live and referrals keep coming in, only the Pro tools are removed. Businesses optionally list on the public Revvin marketplace at no cost. Businesses pay their referrers directly off-platform when deals close; Revvin keeps the record, does not hold funds, and does not take a cut.
+Revvin gives a home-service business a referral page on its own link, a personal link for every person who refers, and an ask after every job. The business pays a reward only when a referral turns into a job, and pays it directly. Revvin is not affiliated with the Revvin digital mortgage platform.
 
-## Pages
+## Free
 
-- [Home](/): What Revvin is and how the referral system works.
-- [How it works](/how-it-works): End-to-end walkthrough of the referral flow.
-- [Pricing](/pricing): Building and publishing a referral page is free. Revvin Pro is $49/month USD, or $450/year billed once. No platform fees on referral rewards. Cancel anytime; the page stays live and referrals keep coming in. Referrers free.
-- [Referral programs by industry](/referral-programs): Hub of trade-specific referral program guides.
-- [About Revvin](/about): What Revvin is, who it is for, pricing, what it does not do, and the founder, Karm Sandhu.
-- [Earn money](/earn): Locals earn rewards, paid directly by the business, for referrals that turn into jobs. Opening city by city, starting in the Fraser Valley, BC.
+- A published referral page on your own link, free.
+- Unlimited referrals on that page.
+- A personal link for every referrer, so each referral is credited automatically.
+- Import and ask up to 100 customers, sent from your own phone or email app.
+- The Job done ask: mark a job done and the customer gets a review and referral ask.
+- An Earn listing where Earn is live, so locals can find you and get their own link.
 
-## Referral programs by trade
+## Pro
 
-- [Roofing referral program](/referral-program/roofing): How roofing companies run referrals, repeat exterior work, and reviews.
-- [HVAC referral program](/referral-program/hvac): Referrals after installs plus maintenance rebooking.
-- [Plumbing referral program](/referral-program/plumbing): Referrals at the moment of relief plus deferred-job follow-up.
-- [Solar referral program](/referral-program/solar): Referrals from an installed base plus battery and add-on work.
-- [Electrician referral program](/referral-program/electrical): Referrals from panel, rewire, and EV charger work.
-- [Landscaping referral program](/referral-program/landscaping): Street-level referrals plus seasonal repeat work.
-- [Painting referral program](/referral-program/painting): Referrals from finished rooms plus room-by-room repeat work.
-- [Auto detailing referral program](/referral-program/auto-detailing): Referrals at handover plus short-cycle rebooking.
+- Revvin Pro is $49/month USD, or $450/year USD billed once.
+- Adds unlimited customer import, the ask to your whole list, reactivation email campaigns, ROI reporting with a monthly recap and custom page branding.
+- Cancel any time; the referral page stays live.
 
-## Industries
+## What Revvin does not do
 
-Revvin is built for home services and other sales-driven businesses, including roofing, HVAC, plumbing, electrical, solar, landscaping, painting, remodeling, windows, pest control, and home security.
+- Revvin does not pay referrers, hold funds or take a cut of rewards. Businesses pay their referrers directly, off-platform.
+- Revvin never sends SMS to a business's customers. Personal asks open on the owner's own device.
+- Revvin does not charge platform fees on referral rewards.
 
-Some industries, such as US real estate, mortgage and insurance, have rules that limit rewards for referrals, so businesses in those industries should check their own rules before offering a reward. Marketplace listings in restricted categories are reviewed before they appear. Revvin does not claim that a reward is compliant for any regulated industry.
+## Earn, for referrers
 
-Rewards on Revvin are fixed dollar amounts. Publishing a referral page is free. Revvin Pro is $49/month USD or $450/year. The business pays referrers directly only when a job closes. Revvin does not hold, move, or take a cut of reward money.
+- Locals earn a reward, paid directly by the business, when a referral turns into a job.
+- Earn opens city by city, starting with the Fraser Valley, BC.
+- Free for referrers. No earnings are promised.
 
-## Partner program
+## Founder
 
-- [Partner Program](/partners): Approved partners earn 40% of the cash Revvin collects from customers they refer, for as long as those customers keep paying. Free to join, applications reviewed manually. Commissions clear 30 days after the customer's payment; payouts on the 15th of each month once the payable balance reaches $50 USD. No base pay and no guaranteed income.
-- [Partner Terms](/partners/terms): Commission, attribution (60 day click window, last click wins), payment timing, refunds and disputes, taxes, disclosure requirements and prohibited promotion methods.
+- Revvin was founded by Karm Sandhu.
 
-## Free tools
+## Key pages
 
-- [Contractor Growth Toolkit](/tools): Free client-side tools for service businesses. No account, no card, no saved input.
-- [Referral Program Grader](/tools/referral-program-grader): Eight-question operational checklist scored out of 100, with the three fixes to make first. Not a forecast.
-- [Referral Reward Calculator](/tools/referral-reward-calculator): Gross profit before and after a fixed reward, monthly reward cost and how many closed referred jobs cover Revvin Pro. USD only, not accounting advice.
-- [Referral Message Generator](/tools/referral-message-generator): Deterministic text, email and spoken referral ask built from trade, timing and tone. The business sends them, not Revvin.
-
-## Referral program guides
-
-- [How much to pay for a referral](/guides/how-much-to-pay-for-a-referral): Setting a referral reward from your own customer value and acquisition cost.
-- [Referral program vs buying leads](/guides/referral-program-vs-buying-leads): Exclusivity, trust, and when the money leaves your account.
-- [Alternative to buying leads](/guides/alternative-to-buying-leads): What a referral program replaces when you stop buying shared leads, and what it cannot replace.
-- [How to start a referral program](/guides/how-to-start-a-referral-program): The steps to a published referral page and a first ask.
-- [Do referral programs work for contractors](/guides/do-referral-programs-work-for-contractors): An honest answer with no invented benchmarks.
-- [How to ask a customer for a referral](/guides/how-to-ask-a-customer-for-a-referral): Timing and wording for the ask.
-- [Referral ask kit](/ask-kit): Copy-and-paste scripts for each moment.
-
-## Is there a Revvin app?
-
-Yes. Revvin is a web app you can add to your phone's home screen from revvin.co. It opens full screen, and you can turn on notifications for new referrals. There is nothing to download from an app store.
+- [Home](https://revvin.co/): What Revvin is and how it works.
+- [Pricing](https://revvin.co/pricing): Free and Revvin Pro.
+- [About](https://revvin.co/about): The company, what it does not do and the founder.
+- [Earn](https://revvin.co/earn): Get paid for referrals, city by city.
+- [How it works](https://revvin.co/how-it-works): The referral flow end to end.
+- [Guides](https://revvin.co/guides): Referral program guides for service businesses.
+- [Referral programs by trade](https://revvin.co/referral-programs): Trade-specific referral programs.
+- [Tools](https://revvin.co/tools): Free referral program grader, reward calculator and message generator.
+- [Partners](https://revvin.co/partners): The partner program.
 
 ## Optional
 
-- [Terms of service](/terms)
-- [Privacy policy](/privacy)
-- [Referral agreement](/referral-agreement)
+- [Full text](https://revvin.co/llms-full.txt): Plain text of About, Pricing, How it works and every guide.
