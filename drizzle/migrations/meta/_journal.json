@@ -29,6 +29,13 @@
       "when": 1793310365996,
       "tag": "0003_earn_metros",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793311030230,
+      "tag": "0004_team_waitlist_reserved_slugs_public_demo_flag",
+      "breakpoints": true
     }
   ]
 }
