@@ -293,11 +293,6 @@ const BusinessDashboard = () => {
 
   const publicUrl = `${window.location.origin}/r/${biz.slug}`;
 
-  const goToQr = () => {
-    // Navigation only. Opening the tab is not evidence of a download, so it
-    // deliberately marks nothing complete.
-    changeTab("share");
-  };
 
   // Stamped only after a QR download or print actually succeeds. Kept on the
   // business row so the tick survives a device change, like every other step.
@@ -1412,7 +1407,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-6">
+      <div id="billing" className="scroll-mt-20 rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-1">Subscription</h3>
         <p className="text-xs text-muted-foreground mb-4">
           {hasSubscription
