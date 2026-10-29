@@ -68,7 +68,7 @@ const Sample = () => {
 
           <div className="mt-14 grid items-center gap-10 md:grid-cols-2">
             <div>
-              <h2 className="text-2xl">
+              <h2 className="text-4xl">
                 What your customers actually see
               </h2>
               <p className="mt-3 text-base text-muted-foreground">

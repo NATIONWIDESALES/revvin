@@ -131,7 +131,7 @@ const Partners = () => {
       {/* Hero */}
       <section className="border-b border-border bg-background">
         <div className="container py-20 sm:py-24">
-          <h1 className="mt-4 max-w-3xl text-4xl sm:text-5xl">
+          <h1 className="max-w-3xl text-5xl leading-[0.98] md:text-7xl">
             {PARTNER_COPY.headline}
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
@@ -150,8 +150,8 @@ const Partners = () => {
       {/* What you earn */}
       <section className="border-b border-border">
         <div className="container py-16">
-          <h2 className="text-2xl">What you earn</h2>
-          <div className="mt-6 overflow-hidden rounded-xl border border-border">
+          <h2 className="text-4xl">What you earn</h2>
+          <div className="mt-6 overflow-hidden rounded-[14px] border border-line bg-card">
             <table className="w-full text-left text-sm">
               <tbody>
                 {PARTNER_EARNINGS.map((row, i) => (
@@ -170,13 +170,13 @@ const Partners = () => {
       </section>
 
       {/* How it works */}
-      <section className="border-b border-border bg-muted/30">
+      <section className="border-b border-border">
         <div className="container py-16">
-          <h2 className="text-2xl">How it works</h2>
+          <h2 className="text-4xl">How it works</h2>
           <ol className="mt-8 grid gap-6 md:grid-cols-3">
             {PARTNER_HOW_IT_WORKS.map((step, i) => (
-              <li key={step.title} className="rounded-xl border border-border bg-card p-6">
-                <span className="text-xs font-semibold text-primary">
+              <li key={step.title} className="rounded-[14px] border border-line bg-card p-6">
+                <span className="font-display text-2xl font-bold text-primary">
                   Step {i + 1}
                 </span>
                 <h3 className="mt-3 text-lg font-semibold text-foreground">{step.title}</h3>
@@ -191,7 +191,7 @@ const Partners = () => {
       <section className="border-b border-border">
         <div className="container grid gap-12 py-16 md:grid-cols-2">
           <div>
-            <h2 className="text-2xl">Who it's for</h2>
+            <h2 className="text-4xl">Who it's for</h2>
             <ul className="mt-6 space-y-3">
               {PARTNER_AUDIENCE.map((who) => (
                 <li key={who} className="flex gap-3 text-sm leading-relaxed text-muted-foreground">
@@ -202,7 +202,7 @@ const Partners = () => {
             </ul>
           </div>
           <div>
-            <h2 className="text-2xl">
+            <h2 className="text-4xl">
               What you're sharing
             </h2>
             <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
@@ -218,7 +218,7 @@ const Partners = () => {
       </section>
 
       {/* Application form */}
-      <section id="apply" className="border-b border-border bg-muted/30">
+      <section id="apply" className="border-b border-border">
         <div className="container py-16">
           <div className="mx-auto max-w-xl rounded-2xl border border-border bg-card p-6 sm:p-8">
             {submitted ? (
@@ -233,7 +233,7 @@ const Partners = () => {
               </div>
             ) : (
               <form onSubmit={apply} className="space-y-5">
-                <h2 className="text-2xl">
+                <h2 className="text-4xl">
                   Apply to become a partner
                 </h2>
 
@@ -337,7 +337,7 @@ const Partners = () => {
       {/* FAQ */}
       <section className="border-b border-border">
         <div className="container py-16">
-          <h2 className="text-2xl">
+          <h2 className="text-4xl">
             Partner questions
           </h2>
           <div className="mt-8 grid gap-8 md:grid-cols-2">
