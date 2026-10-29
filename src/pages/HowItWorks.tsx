@@ -40,7 +40,7 @@ const HowItWorks = () => {
       <section className="relative overflow-hidden border-b border-border hero-radial">
         <div aria-hidden className="absolute inset-0 grid-faint" />
         <div className="container relative max-w-3xl py-24">
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">How it works</p>
+          <p className="mb-3 text-[11px] font-semibold text-primary">How it works</p>
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
             Three steps to an engine that runs off your jobs.
           </h1>
@@ -58,7 +58,7 @@ const HowItWorks = () => {
                 {s.n}
               </span>
               <div className={`md:col-span-6 ${i % 2 === 1 ? "md:order-2" : ""}`}>
-                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Step {s.n}</p>
+                <p className="mb-3 text-[11px] font-semibold text-primary">Step {s.n}</p>
                 <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">{s.t}</h2>
                 <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">{s.d}</p>
               </div>

@@ -84,7 +84,7 @@ const ToolShell = ({
             Free tools
           </Link>
         </nav>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
+        <p className="text-[11px] font-semibold text-primary">{eyebrow}</p>
         <h1 className="mt-3 text-[1.85rem] font-extrabold leading-[1.1] tracking-tight text-foreground sm:text-4xl">
           {h1}
         </h1>

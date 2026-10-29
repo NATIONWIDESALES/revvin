@@ -101,7 +101,7 @@ const Pricing = () => {
       <section className="relative overflow-hidden border-b border-border hero-radial">
         <div aria-hidden className="absolute inset-0 grid-faint" />
         <div className="container relative max-w-3xl py-24 text-center">
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pricing</p>
+          <p className="mb-3 text-[11px] font-semibold text-primary">Pricing</p>
           {/* Every figure reads from the pricing config so the numbers can
               never drift between pages. */}
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
@@ -129,7 +129,7 @@ const Pricing = () => {
           <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Free */}
             <div className="relative flex min-w-0 flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Free</p>
+              <p className="text-[11px] font-semibold text-muted-foreground">Free</p>
               <h2 className="mt-1 text-xl font-bold text-foreground">{PLAN_SPLIT.freeSubtitle}</h2>
               <div className="mt-6 flex items-baseline gap-2">
                 <span className="text-5xl font-extrabold tracking-tight text-foreground">$0</span>
@@ -154,7 +154,7 @@ const Pricing = () => {
                   For growing lists
                 </span>
               </div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Pro</p>
+              <p className="text-[11px] font-semibold text-primary">Pro</p>
               <h2 className="mt-1 text-xl font-bold text-foreground">{PLAN_SPLIT.proSubtitle}</h2>
 
               {/* Billing period toggle */}
@@ -222,7 +222,7 @@ const Pricing = () => {
 
             {/* Team, not built yet. Waitlist only. */}
             <div className="relative flex min-w-0 flex-col rounded-2xl border border-dashed border-border bg-card p-8 shadow-soft md:col-span-2 lg:col-span-1">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Team</p>
+              <p className="text-[11px] font-semibold text-muted-foreground">Team</p>
               <h2 className="mt-1 text-xl font-bold text-foreground">Coming soon</h2>
               <p className="mt-6 text-sm text-muted-foreground">
                 Rep and tech links with a leaderboard, so everyone on your crew can share their own link. Not available yet.

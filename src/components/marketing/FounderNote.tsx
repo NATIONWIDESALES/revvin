@@ -12,7 +12,7 @@ const FounderNote = () => {
     <section className="border-b border-border bg-surface-warm">
       <div className="container py-20 md:py-24">
         <div className="mx-auto max-w-3xl rounded-2xl border border-border bg-card p-8 shadow-soft md:p-12">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="text-[11px] font-semibold text-primary">
             A note from the team
           </p>
           <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">

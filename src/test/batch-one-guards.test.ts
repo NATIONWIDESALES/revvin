@@ -19,7 +19,7 @@ describe("founder identity", () => {
 describe("homepage labels", () => {
   it("uses the approved Free label and the truthful setup call label", () => {
     expect(read("src/config/planFeatures.ts")).toContain('FREE_CTA_LABEL = "Start free"');
-    expect(read("src/pages/Index.tsx")).toContain("Book a 30-minute setup call");
+    expect(read("src/pages/Index.tsx")).toContain("book a 30-minute setup call with Karm");
     expect(read("src/pages/Index.tsx")).not.toContain("overflow-x-clip");
   });
 });

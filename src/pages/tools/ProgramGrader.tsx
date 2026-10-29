@@ -117,7 +117,7 @@ const ProgramGrader = () => {
         </form>
       ) : (
         <div className="rounded-2xl border border-border bg-background p-6 md:p-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="text-[11px] font-semibold text-muted-foreground">
             Your result
           </p>
           <p className="mt-3 text-5xl font-extrabold tracking-tight text-foreground">

@@ -41,7 +41,7 @@ const GuidesHub = () => (
     <section className="relative overflow-hidden border-b border-border hero-radial">
       <div aria-hidden className="absolute inset-0 grid-faint" />
       <div className="container relative max-w-3xl py-24">
-        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Guides</p>
+        <p className="mb-3 text-[11px] font-semibold text-primary">Guides</p>
         <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-5xl">
           Referral program guides
         </h1>
