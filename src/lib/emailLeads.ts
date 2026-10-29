@@ -12,7 +12,10 @@ export type EmailLeadSource =
   | "landing"
   | "playbook"
   | "sample"
-  | "marketplace_notify";
+  | "marketplace_notify"
+  | "team_waitlist"
+  | "earn_waitlist"
+  | "business_invite";
 
 export async function submitEmailLead(
   email: string,

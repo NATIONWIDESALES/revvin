@@ -33,3 +33,9 @@ export const PRICE_TEXT = {
 // the referral page is free, so it stays live after Pro ends.
 export const ANNUAL_TERMS_COPY =
   `Billed once at ${PRICE_TEXT.annual} for the year. Cancel anytime and Pro keeps working to the end of the year you paid for. After that your referral page stays live and keeps taking referrals, because publishing is free. No partial refunds.`;
+
+/**
+ * Founding offer on the pricing page. The founding price is applied by hand on
+ * the setup call; there is no self-serve checkout for it.
+ */
+export const FOUNDING_OFFER_ACTIVE = true;

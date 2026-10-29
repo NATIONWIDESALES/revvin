@@ -28,10 +28,29 @@ export const ORG_SAME_AS: string[] = [];
  * digital mortgage software, so every Organization node states plainly which
  * Revvin this is.
  */
+/** The founder, shown on the homepage, /about, guide bylines and in JSON-LD. */
+export const FOUNDER = {
+  name: "Karm Sandhu",
+  jobTitle: "Founder",
+  sameAs: ["https://www.linkedin.com/in/karm"],
+} as const;
+
+export const FOUNDER_PERSON = {
+  "@type": "Person",
+  name: FOUNDER.name,
+  jobTitle: FOUNDER.jobTitle,
+  sameAs: [...FOUNDER.sameAs],
+  worksFor: { "@id": ORG_ID },
+} as const;
+
+/** The one sentence that defines Revvin everywhere. */
+export const CANONICAL_SENTENCE =
+  "Revvin (revvin.co) is a free referral program and local referral network for home-service businesses.";
+
 export const ORG_DISAMBIGUATION =
   "Revvin (revvin.co) is referral program software for service businesses. It is not affiliated with the Revvin digital mortgage platform.";
 
-/** Dates for the guide library. The site is brand-led: no personal bylines. */
+/** Dates for the guide library. */
 export const GUIDES_PUBLISHED_AT = "2026-09-05";
 export const GUIDES_UPDATED_AT = "2026-09-16";
 
