@@ -178,6 +178,7 @@ export type Database = {
           is_demo: boolean | null
           is_disabled: boolean
           is_published: boolean
+          is_verified: boolean
           jobber_access_token_encrypted: string | null
           jobber_account_id: string | null
           jobber_integration_status: string | null
@@ -248,6 +249,7 @@ export type Database = {
           is_demo?: boolean | null
           is_disabled?: boolean
           is_published?: boolean
+          is_verified?: boolean
           jobber_access_token_encrypted?: string | null
           jobber_account_id?: string | null
           jobber_integration_status?: string | null
@@ -318,6 +320,7 @@ export type Database = {
           is_demo?: boolean | null
           is_disabled?: boolean
           is_published?: boolean
+          is_verified?: boolean
           jobber_access_token_encrypted?: string | null
           jobber_account_id?: string | null
           jobber_integration_status?: string | null

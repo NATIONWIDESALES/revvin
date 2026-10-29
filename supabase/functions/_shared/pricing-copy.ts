@@ -25,7 +25,7 @@ export const LAUNCH_PACKAGE_LINE =
 
 /** Mirrors PRO_FEATURES in src/config/planFeatures.ts (labels only). */
 export const PRO_FEATURE_LABELS: string[] = [
-  "Import your past-customer list",
+  "Unlimited customers, imported and asked",
   "Send your ask to the whole list",
   "Reactivation email campaigns",
   "ROI reporting and monthly recap",

@@ -5,6 +5,8 @@ import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import ProUpsell, { PRO_COPY } from "@/components/dashboard/ProUpsell";
+import FinishPageCard, { needsFinishing } from "@/components/dashboard/FinishPageCard";
+import { FREE_CONTACT_LIMIT, FREE_LIMIT_COPY } from "@/config/planFeatures";
 import { track } from "@/lib/track";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -51,6 +53,9 @@ interface Business {
   category: string | null;
   service_area: string | null;
   logo_url: string | null;
+  website?: string | null;
+  service_radius_km?: number | null;
+  is_demo?: boolean | null;
   offer_amount: string | null;
   offer_trigger: string | null;
   offer_fine_print: string | null;
@@ -441,19 +446,24 @@ const BusinessDashboard = () => {
 
       <ActivationChecklist steps={activationSteps} />
 
+      {needsFinishing(biz) && (
+        <FinishPageCard key={`${biz.logo_url}-${biz.phone}`} biz={finishBiz(biz)} onSaved={loadAll} />
+      )}
+
+      {/* Upgrade prompts. Never on demo accounts, never for Pro. */}
+      {!isPro && !biz.is_demo && contactStats.total >= FREE_CONTACT_LIMIT ? (
+        <div className="mb-8"><ProUpsell title={FREE_LIMIT_COPY.reachedTitle} body={PRO_COPY.customers.body} /></div>
+      ) : !isPro && !biz.is_demo && leads.length > 0 ? (
+        <div className="mb-8"><ProUpsell title={FREE_LIMIT_COPY.firstLeadTitle} body={PRO_COPY.customers.body} /></div>
+      ) : null}
+
       {isLive && (
         <div className="mb-8">
           <PushSettings businessId={biz.id} compact />
         </div>
       )}
 
-      {isPro ? (
-        <RoiSummaryCard businessId={biz.id} />
-      ) : leads.length > 0 ? (
-        <div className="mb-8">
-          <ProUpsell title={PRO_COPY.reporting.title} body={PRO_COPY.reporting.body} />
-        </div>
-      ) : null}
+      {isPro ? <RoiSummaryCard businessId={biz.id} /> : null}
 
 
       <Tabs value={activeTab} onValueChange={changeTab}>
@@ -482,15 +492,13 @@ const BusinessDashboard = () => {
               title="Publish your page to invite your customers"
               body="Your referral page has to be live before you send customers to it. Everything you build here is saved."
             />
-          ) : !isPro ? (
-            <ProUpsell title={PRO_COPY.customers.title} body={PRO_COPY.customers.body} />
           ) : (
           <AttestationGate
             businessId={biz.id}
             consentedAt={biz.contact_outreach_consent_at ?? null}
             onConsented={() => loadAll()}
           >
-            <CustomersTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger }} publicUrl={publicUrl} />
+            <CustomersTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger }} publicUrl={publicUrl} isPro={isPro} isDemo={!!biz.is_demo} onCountChange={(n) => setContactStats((s) => ({ ...s, total: n }))} />
           </AttestationGate>
           )}
         </TabsContent>
@@ -557,6 +565,12 @@ const BusinessDashboard = () => {
     </div>
   );
 };
+
+const finishBiz = (b: Business) => ({
+  id: b.id, logo_url: b.logo_url, description: b.description, phone: b.phone,
+  business_email: b.business_email, website: b.website ?? null, service_radius_km: b.service_radius_km ?? null,
+  offer_trigger: b.offer_trigger, offer_fine_print: b.offer_fine_print,
+});
 
 // ============= DRAFT MODE HELPERS =============
 const LockedTab = ({ title, body }: { title: string; body: string }) => (
@@ -1150,8 +1164,12 @@ const PageTab = ({ biz, publicUrl, isLive, onUpdate, onShared }: { biz: Business
 
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-3">Edit your page</h3>
-        <p className="text-sm text-muted-foreground mb-4">Update your business info, offer, or logo.</p>
-        <Button variant="outline" asChild><Link to="/welcome">Edit setup</Link></Button>
+        <p className="text-sm text-muted-foreground mb-4">Change your name, trade, city or reward.</p>
+        <Button variant="outline" asChild><Link to="/welcome">Edit basics</Link></Button>
+      </div>
+
+      <div className="md:col-span-2">
+        <FinishPageCard biz={finishBiz(biz)} onSaved={onUpdate} title="Page details" />
       </div>
 
       <div className="md:col-span-2 rounded-2xl border border-border bg-card p-6">

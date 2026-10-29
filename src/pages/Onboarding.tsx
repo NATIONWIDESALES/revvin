@@ -9,26 +9,17 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import BusinessLogoUpload from "@/components/BusinessLogoUpload";
-import SlugField from "@/components/SlugField";
 import SEOHead from "@/components/SEOHead";
 import ServiceAreaAutocomplete, { type PlaceSelection } from "@/components/ServiceAreaAutocomplete";
-import { Slider } from "@/components/ui/slider";
 import { Loader2, ArrowRight, Check } from "lucide-react";
 import { track } from "@/lib/track";
 import { BUSINESS_CATEGORIES, isRestrictedCategory } from "@/lib/offerUtils";
-import { suggestSlug, slugRejectionMessage, type SlugRejection } from "@/lib/slugRules";
+import { resolveAvailableSlug, suggestSlug, slugRejectionMessage, type SlugRejection } from "@/lib/slugRules";
 import { friendlyError } from "@/lib/errors";
 import { publishPage } from "@/lib/publishPage";
 import { copyText } from "@/lib/clipboard";
 import { CHECKOUT_FALLBACK_TOAST, parsePlan, peekCheckoutIntent, startHeldCheckout } from "@/lib/proCheckoutIntent";
-import type { ONBOARDING_STEP_LABELS } from "@/lib/analyticsPrivacy";
-
-type StepName = (typeof ONBOARDING_STEP_LABELS)[number];
-const STEP_NAMES: Record<number, StepName> = { 1: "basics", 2: "logo", 3: "reward", 4: "link", 5: "publish" };
-const TOTAL_STEPS = 5;
 
 const Onboarding = () => {
   const { user } = useAuth();
@@ -60,38 +51,20 @@ const Onboarding = () => {
   const [bizId, setBizId] = useState<string | null>(null);
   const [launchPackageStatus, setLaunchPackageStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
-  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
 
-  // Form state
+  // One screen: the four things a referral page needs to go live.
   const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [serviceArea, setServiceArea] = useState("");
-  const [serviceRadiusKm, setServiceRadiusKm] = useState<number>(50);
   const [placeGeo, setPlaceGeo] = useState<PlaceSelection | null>(null);
-  const [phone, setPhone] = useState("");
-  const [businessEmail, setBusinessEmail] = useState("");
-  const [website, setWebsite] = useState("");
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [offerAmount, setOfferAmount] = useState("");
-  const [offerTrigger, setOfferTrigger] = useState("");
-  const [offerFinePrint, setOfferFinePrint] = useState("");
-  const [slug, setSlug] = useState("");
-  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [existingSlug, setExistingSlug] = useState<string | null>(null);
+  const [businessEmail, setBusinessEmail] = useState<string | null>(null);
   const [liveUrl, setLiveUrl] = useState<string | null>(null);
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [showReasons, setShowReasons] = useState(false);
   const [copied, setCopied] = useState(false);
-
-  const completeStep = (n: number) => track("onboarding_step_completed", { step: STEP_NAMES[n] });
-  const goToStep = (from: number, to: number) => { completeStep(from); setStep(to); };
-
-  // Continue buttons stay enabled so a tap always produces feedback. These flags
-  // drive the inline "what is missing" message instead of a dead disabled button.
-  const [showBasicsReason, setShowBasicsReason] = useState(false);
-  const [showOfferReason, setShowOfferReason] = useState(false);
-  const [showSlugReason, setShowSlugReason] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const categoryRef = useRef<HTMLButtonElement>(null);
   const offerAmountRef = useRef<HTMLInputElement>(null);
@@ -101,188 +74,90 @@ const Onboarding = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id,name,description,category,service_area,service_radius_km,phone,business_email,website,logo_url,offer_amount,offer_trigger,offer_fine_print,slug,launch_package_status,subscription_status")
+        .select("id,name,category,service_area,offer_amount,slug,business_email,launch_package_status")
         .eq("user_id", user.id)
         .limit(1);
       const b = data?.[0];
       if (b) {
         setBizId(b.id);
         setLaunchPackageStatus(b.launch_package_status || null);
-        setSubscriptionStatus(b.subscription_status || null);
-        // No billing gate here. Onboarding is free: businesses build and
-        // publish their page first and only pay if they choose Revvin Pro.
         setName(b.name || "");
-        setDescription(b.description || "");
         setCategory(b.category || "");
         setServiceArea(b.service_area || "");
-        setServiceRadiusKm(b.service_radius_km ?? 50);
-        setPhone(b.phone || "");
-        setBusinessEmail(b.business_email || user.email || "");
-        setWebsite(b.website || "");
-        setLogoUrl(b.logo_url || null);
         setOfferAmount(b.offer_amount || "");
-        setOfferTrigger(b.offer_trigger || "");
-        setOfferFinePrint(b.offer_fine_print || "");
-        if (b.slug) {
-          setSlug(b.slug);
-          setSlugAvailable(true);
-        } else if (b.name) {
-          setSlug(suggestSlug(b.name));
-        }
-        // Returning from the dashboard's publish prompt lands on the final screen.
-        if (params.get("step") === "publish") setStep(5);
+        setExistingSlug(b.slug || null);
+        setBusinessEmail(b.business_email || null);
       }
       setLoading(false);
     })();
   }, [user]);
 
-  const saveStep = async (patch: BusinessUpdate, nextStep?: number) => {
-    if (!bizId) return;
-    setSaving(true);
-    const { error } = await supabase.from("businesses").update(patch).eq("id", bizId);
-    setSaving(false);
-    if (error) {
-      toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
-      return;
-    }
-    if (nextStep) goToStep(nextStep - 1, nextStep);
-  };
+  const missingName = !name.trim();
+  const missingCategory = !category;
+  const missingReward = !offerAmount.trim();
 
-  /**
-   * Service area is never a blocker. If a suggestion was picked we already have
-   * coordinates from the Places result. If the person typed free text, we ask
-   * the geocode-business function to resolve it after the save, and if that
-   * fails we simply leave the coordinates NULL.
-   */
-  const saveBasics = async () => {
-    if (!name.trim() || !category) {
-      setShowBasicsReason(true);
-      const target = !name.trim() ? nameRef.current : categoryRef.current;
+  /** Saves, picks a free link, publishes. One tap. */
+  const publishNow = async () => {
+    setPublishError(null);
+    if (missingName || missingCategory || missingReward) {
+      setShowReasons(true);
+      const target = missingName ? nameRef.current : missingCategory ? categoryRef.current : offerAmountRef.current;
       target?.scrollIntoView({ behavior: "smooth", block: "center" });
       target?.focus({ preventScroll: true });
       return;
     }
-    setShowBasicsReason(false);
-    const trimmedArea = serviceArea.trim();
-    const matchedPlace =
-      placeGeo && placeGeo.label.trim().toLowerCase() === trimmedArea.toLowerCase()
-        ? placeGeo
-        : null;
-
-    const patch: Record<string, any> = {
-      name,
-      description,
-      category,
-      service_area: trimmedArea,
-      service_radius_km: serviceRadiusKm,
-      phone,
-      business_email: businessEmail,
-      website,
-    };
-
-    if (matchedPlace) {
-      patch.latitude = matchedPlace.latitude;
-      patch.longitude = matchedPlace.longitude;
-      patch.city = matchedPlace.city;
-      patch.state = matchedPlace.state;
-      patch.country = matchedPlace.country;
-      patch.geocoded_at = new Date().toISOString();
-      patch.geocode_status = "ok";
-    }
-
-    await saveStep(patch, 2);
-
-    if (!matchedPlace && trimmedArea) {
-      supabase.functions
-        .invoke("geocode-business", { body: { business_id: bizId } })
-        .catch((err) => {
-          console.error("[onboarding] geocode fallback failed", err);
-          toast({
-            title: "Saved, but we could not place you on the map",
-            description: "You can fix your service area later from your dashboard.",
-          });
-        });
-    }
-  };
-
-  /** Saves the chosen link. Returns false when nothing was saved. */
-  const saveSlug = async (): Promise<boolean> => {
-    if (!slug || slugAvailable !== true) {
-      setShowSlugReason(true);
-      return false;
-    }
-    setShowSlugReason(false);
     if (!bizId) {
-      toast({
-        title: "We lost track of your business",
-        description: "Refresh the page and try again. Nothing you entered is lost.",
-        variant: "destructive",
-      });
-      return false;
+      setPublishError("We lost track of your business. Refresh the page and try again.");
+      return;
     }
     setSaving(true);
-    const { error } = await supabase
-      .from("businesses")
-      .update({ slug })
-      .eq("id", bizId);
-    setSaving(false);
-    if (error) {
-      const match = /invalid_slug:(\w+)/.exec(error.message);
-      toast({
-        title: "Could not save",
-        description: match
-          ? slugRejectionMessage(match[1] as SlugRejection)
-          : friendlyError(error),
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
-  };
-
-  /** Step 4: the link is saved, then setup ends on the publish screen. */
-  const saveLinkAndContinue = async () => {
-    if (!(await saveSlug())) return;
-    goToStep(4, 5);
-  };
-
-  // What the server requires before publishing. The final screen asks for
-  // exactly the missing ones instead of sending the owner elsewhere.
-  const missingName = !name.trim();
-  const missingReward = !offerAmount.trim();
-  const missingSlug = !slug || slugAvailable !== true;
-
-  /** Publishing is free and is the last step of setup, on its own screen. */
-  const publishFromFinalStep = async () => {
-    setPublishError(null);
-    if (missingName || missingReward) {
-      setPublishError(missingName ? "Add your business name first." : "Add the reward you pay first.");
-      return;
-    }
-    if (!(await saveSlug())) {
-      // Step 5 never renders the step 4 slug alert, so say it here.
-      setPublishError(
-        !slug
-          ? "Pick a link name first."
-          : slugAvailable === null
-            ? "Give us a second to check that link, then tap Publish my page again."
-            : "That link will not work. Try one of the suggestions above."
-      );
-      return;
-    }
-    if (bizId) {
-      setSaving(true);
-      const { error } = await supabase.from("businesses").update({ name: name.trim(), offer_amount: offerAmount.trim() }).eq("id", bizId);
+    try {
+      let slug = existingSlug;
+      if (!slug) {
+        slug = await resolveAvailableSlug(suggestSlug(name), async (candidate) => {
+          const { data, error } = await supabase.rpc("fn_slug_status", { p_slug: candidate });
+          return error ? "error" : (data as string);
+        });
+        if (!slug) { setPublishError("We could not find a free link for that name. Try a slightly different business name."); return; }
+      }
+      const trimmedArea = serviceArea.trim();
+      const matchedPlace =
+        placeGeo && placeGeo.label.trim().toLowerCase() === trimmedArea.toLowerCase() ? placeGeo : null;
+      const patch: BusinessUpdate = {
+        name: name.trim(),
+        category,
+        service_area: trimmedArea,
+        offer_amount: offerAmount.trim(),
+        slug,
+      };
+      if (!businessEmail && user?.email) patch.business_email = user.email;
+      if (matchedPlace) {
+        Object.assign(patch, {
+          latitude: matchedPlace.latitude, longitude: matchedPlace.longitude,
+          city: matchedPlace.city, state: matchedPlace.state, country: matchedPlace.country,
+          geocoded_at: new Date().toISOString(), geocode_status: "ok",
+        });
+      }
+      const { error } = await supabase.from("businesses").update(patch).eq("id", bizId);
+      if (error) {
+        const match = /invalid_slug:(\w+)/.exec(error.message);
+        setPublishError(match ? slugRejectionMessage(match[1] as SlugRejection) : friendlyError(error));
+        return;
+      }
+      setExistingSlug(slug);
+      // Never blocks: coordinates stay empty if this fails.
+      if (!matchedPlace && trimmedArea) {
+        supabase.functions.invoke("geocode-business", { body: { business_id: bizId } })
+          .catch((err) => console.error("[onboarding] geocode fallback failed", err));
+      }
+      const result = await publishPage("onboarding");
+      if (!result.ok) { setPublishError(result.message ?? "Could not publish your page."); return; }
+      track("onboarding_step_completed", { step: "publish" });
+      track("onboarding_completed");
+      setLiveUrl(`${window.location.origin}/r/${slug}`);
+    } finally {
       setSaving(false);
-      if (error) { setPublishError(friendlyError(error)); return; }
     }
-    setSaving(true);
-    const result = await publishPage("onboarding");
-    setSaving(false);
-    if (!result.ok) { setPublishError(result.message ?? "Could not publish your page."); return; }
-    completeStep(5);
-    track("onboarding_completed");
-    setLiveUrl(`${window.location.origin}/r/${slug}`);
   };
 
   const copyLive = async () => {
@@ -305,7 +180,7 @@ const Onboarding = () => {
       <SEOHead title="Set up your referral page · Revvin" description="Onboarding wizard" path="/welcome" noindex />
       <div className="min-h-screen bg-muted/30 py-12 px-4">
         <div className="mx-auto max-w-2xl">
-          {params.get("checkout") === "success" && step === 1 && (
+          {params.get("checkout") === "success" && !liveUrl && (
             launchPackageStatus && launchPackageStatus !== "none" ? (
               <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-50 dark:bg-amber-950/20 p-4 text-sm text-foreground">
                 <div className="flex items-start gap-3">
@@ -338,54 +213,25 @@ const Onboarding = () => {
             )
           )}
 
-          {/* Stepper */}
-          <div className="mb-8 flex items-center gap-2">
-            {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((n) => (
-              <div key={n} className={`h-1 flex-1 rounded-full ${n <= step ? "bg-primary" : "bg-border"}`} />
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mb-2">Step {step} of {TOTAL_STEPS}</p>
-
-          <div className="rounded-2xl border border-border bg-background p-8 shadow-sm">
-            {step === 1 && (
-              <>
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">Business basics</h1>
-                <p className="mt-1 text-sm text-muted-foreground">Tell us about your business.</p>
+          <div className="rounded-2xl border border-border bg-background p-6 sm:p-8 shadow-sm">
+            {!liveUrl && (
+              <form onSubmit={(e) => { e.preventDefault(); void publishNow(); }} noValidate>
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your referral page, live in a minute</h1>
+                <p className="mt-1 text-sm text-muted-foreground">Four answers and you are live. Publishing is free.</p>
                 <div className="mt-6 space-y-4">
                   <div>
                     <Label htmlFor="biz-name">Business name</Label>
-                    <Input
-                      id="biz-name"
-                      ref={nameRef}
-                      value={name}
-                      onChange={(e) => {
-                        setName(e.target.value);
-                        if (e.target.value.trim()) setShowBasicsReason(false);
-                      }}
-                      aria-invalid={showBasicsReason && !name.trim()}
-                      autoComplete="organization"
-                      className="mt-1.5"
-                    />
-                    {showBasicsReason && !name.trim() && (
-                      <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">Add your business name to continue.</p>
-                    )}
+                    <Input id="biz-name" ref={nameRef} value={name} onChange={(e) => setName(e.target.value)}
+                      aria-invalid={showReasons && missingName} autoComplete="organization" className="mt-1.5" />
+                    {showReasons && missingName && <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">Add your business name.</p>}
                   </div>
-                  <div><Label>One-sentence description</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1.5" rows={2} placeholder="Residential roofing across Denver, CO." /></div>
                   <div>
-                    <Label>Category</Label>
-                    <Select
-                      value={category}
-                      onValueChange={(v) => {
-                        setCategory(v);
-                        setShowBasicsReason(false);
-                      }}
-                    >
-                      <SelectTrigger ref={categoryRef} className="mt-1.5" aria-invalid={showBasicsReason && !category}><SelectValue placeholder="Pick one" /></SelectTrigger>
+                    <Label htmlFor="biz-trade">Trade</Label>
+                    <Select value={category} onValueChange={setCategory}>
+                      <SelectTrigger id="biz-trade" ref={categoryRef} className="mt-1.5" aria-invalid={showReasons && missingCategory}><SelectValue placeholder="Pick one" /></SelectTrigger>
                       <SelectContent>{BUSINESS_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                     </Select>
-                    {showBasicsReason && !category && (
-                      <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">Pick a category to continue.</p>
-                    )}
+                    {showReasons && missingCategory && <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">Pick your trade.</p>}
                     {isRestrictedCategory(category) && (
                       <div className="mt-1.5 space-y-1.5 text-xs text-muted-foreground">
                         <p>Offers in this category are reviewed before they appear on the public marketplace. Your branded referral page works either way.</p>
@@ -394,212 +240,25 @@ const Onboarding = () => {
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="service-area">Service area</Label>
-                    <ServiceAreaAutocomplete
-                      id="service-area"
-                      value={serviceArea}
-                      onChange={setServiceArea}
-                      onPlaceSelected={setPlaceGeo}
-                      placeholder="Vancouver, BC"
-                    />
-                    <p className="mt-1.5 text-xs text-muted-foreground">
-                      Pick your city or region from the list so you show up on the map and in nearby searches. Typing it yourself works too.
-                    </p>
+                    <Label htmlFor="service-area">City</Label>
+                    <ServiceAreaAutocomplete id="service-area" value={serviceArea} onChange={setServiceArea} onPlaceSelected={setPlaceGeo} placeholder="Vancouver, BC" />
                   </div>
                   <div>
-                    <div className="flex items-center justify-between">
-                      <Label>How far do you travel?</Label>
-                      <span className="text-sm font-medium text-foreground">{serviceRadiusKm} km</span>
-                    </div>
-                    <Slider
-                      value={[serviceRadiusKm]}
-                      onValueChange={(v) => setServiceRadiusKm(v[0])}
-                      min={5}
-                      max={200}
-                      step={5}
-                      className="mt-3"
-                    />
-                    <div className="mt-2 flex gap-2">
-                      {[25, 50, 100].map((km) => (
-                        <Button
-                          key={km}
-                          type="button"
-                          size="sm"
-                          variant={serviceRadiusKm === km ? "default" : "outline"}
-                          onClick={() => setServiceRadiusKm(km)}
-                        >
-                          {km} km
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                  <div><Label>Business phone</Label><Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1.5" /></div>
-                  <div><Label>Business email</Label><Input type="email" value={businessEmail} onChange={(e) => setBusinessEmail(e.target.value)} className="mt-1.5" /></div>
-                  <div><Label>Website <span className="text-muted-foreground text-xs">(optional)</span></Label><Input value={website} onChange={(e) => setWebsite(e.target.value)} className="mt-1.5" placeholder="https://" /></div>
-                </div>
-                <div className="mt-8 flex justify-end">
-                  <Button onClick={saveBasics} disabled={saving} className="h-11 w-full sm:h-10 sm:w-auto">
-                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                    Continue <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </>
-            )}
-
-            {step === 2 && (
-              <>
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">Add your logo</h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Any image works, including photos straight from your phone. Skip if you don't have one yet, you can add it later from your dashboard.
-                </p>
-                <div className="mt-6">
-                  {bizId && <BusinessLogoUpload currentLogoUrl={logoUrl} businessId={bizId} onUploaded={setLogoUrl} />}
-                </div>
-                <div className="mt-8 flex justify-between">
-                  <Button variant="ghost" onClick={() => setStep(1)}>Back</Button>
-                  <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => goToStep(2, 3)}>Skip</Button>
-                    <Button onClick={() => goToStep(2, 3)}>Continue <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                    <Label htmlFor="payout-amount">Reward</Label>
+                    <Input id="payout-amount" ref={offerAmountRef} value={offerAmount} onChange={(e) => setOfferAmount(e.target.value)}
+                      aria-invalid={showReasons && missingReward} className="mt-1.5" placeholder="$100" />
+                    <p className="mt-1.5 text-xs text-muted-foreground">A fixed dollar amount you pay when a referred job closes.</p>
+                    {showReasons && missingReward && <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">Enter the reward you pay, for example $100.</p>}
                   </div>
                 </div>
-              </>
-            )}
-
-            {step === 3 && (
-              <>
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your referral offer</h1>
-                <p className="mt-1 text-sm text-muted-foreground">What do you pay for a closed referral?</p>
-                <div className="mt-6 space-y-4">
-                  <div>
-                    <Label htmlFor="payout-amount">Payout amount</Label>
-                    <Input
-                      id="payout-amount"
-                      ref={offerAmountRef}
-                      value={offerAmount}
-                      onChange={(e) => {
-                        setOfferAmount(e.target.value);
-                        if (e.target.value.trim()) setShowOfferReason(false);
-                      }}
-                      aria-invalid={showOfferReason && !offerAmount.trim()}
-                      className="mt-1.5"
-                      placeholder="$100"
-                    />
-                    <p className="mt-1.5 text-xs text-muted-foreground">
-                      A fixed dollar amount you pay when a referred job closes.
-                    </p>
-                    {showOfferReason && (
-                      <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">
-                        Enter what you pay for a closed referral, for example 100 dollars.
-                      </p>
-                    )}
-                  </div>
-                  {!offerAmount && (
-                    <p className="-mt-2 text-xs text-muted-foreground">
-                      A common starting point is a flat amount per closed job, for example 100 dollars. You can change this anytime.
-                    </p>
-                  )}
-                  <div><Label>Payout trigger</Label><Input value={offerTrigger} onChange={(e) => setOfferTrigger(e.target.value)} className="mt-1.5" placeholder="per closed roofing job" /></div>
-                  <div><Label>Fine print <span className="text-muted-foreground text-xs">(optional)</span></Label><Textarea value={offerFinePrint} onChange={(e) => setOfferFinePrint(e.target.value)} className="mt-1.5" rows={2} /></div>
-                  {offerAmount && (
-                    <div className="rounded-xl bg-primary/5 border border-primary/20 p-4">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-primary mb-1">Preview</p>
-                      <p className="text-lg font-semibold text-foreground">Refer a customer, earn {offerAmount}</p>
-                      {offerTrigger && <p className="text-xs text-muted-foreground">{offerTrigger}</p>}
-                    </div>
-                  )}
-                </div>
-                <div className="mt-8 flex justify-between">
-                  <Button variant="ghost" onClick={() => setStep(2)}>Back</Button>
-                  <Button
-                    onClick={() => {
-                      if (!offerAmount.trim()) {
-                        setShowOfferReason(true);
-                        offerAmountRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-                        offerAmountRef.current?.focus({ preventScroll: true });
-                        return;
-                      }
-                      setShowOfferReason(false);
-                      void saveStep({ offer_amount: offerAmount, offer_trigger: offerTrigger, offer_fine_print: offerFinePrint }, 4);
-                    }}
-                    disabled={saving}
-                    className="h-11 sm:h-10"
-                  >
-                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                    Continue <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </>
-            )}
-
-            {step === 4 && (
-              <>
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">Pick your URL</h1>
-                <p className="mt-1 text-sm text-muted-foreground">This is the link you'll share with customers and partners.</p>
-                <div className="mt-6">
-                  <SlugField
-                    value={slug}
-                    onChange={(v) => {
-                      setSlug(v);
-                      setShowSlugReason(false);
-                    }}
-                    businessName={name}
-                    onValidityChange={setSlugAvailable}
-                  />
-                  {showSlugReason && (
-                    <p role="alert" className="mt-2 text-sm font-medium text-destructive">
-                      {!slug
-                        ? "Pick a link name first."
-                        : slugAvailable === null
-                          ? "Give us a second to check that link, then tap Publish my page again."
-                          : "That link will not work. Try one of the suggestions above."}
-                    </p>
-                  )}
-                </div>
-                <div className="mt-8 flex justify-between">
-                  <Button variant="ghost" onClick={() => setStep(3)}>Back</Button>
-                  <Button onClick={saveLinkAndContinue} disabled={saving} className="h-11 sm:h-10">
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Continue <ArrowRight className="ml-2 h-4 w-4" /></>}
-                  </Button>
-                </div>
-              </>
-            )}
-
-            {step === 5 && !liveUrl && (
-              <>
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your page is ready. Publish it.</h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Publishing is free. It is what makes your page reachable, so customers can open your link and send you referrals.
-                </p>
-                {(missingName || missingReward || missingSlug) && (
-                  <div className="mt-6 space-y-4">
-                    {missingName && (
-                      <div>
-                        <Label htmlFor="final-name">Business name</Label>
-                        <Input id="final-name" value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5" />
-                      </div>
-                    )}
-                    {missingReward && (
-                      <div>
-                        <Label htmlFor="final-reward">Reward you pay per referral</Label>
-                        <Input id="final-reward" value={offerAmount} onChange={(e) => setOfferAmount(e.target.value)} placeholder="$100" className="mt-1.5" />
-                      </div>
-                    )}
-                    {missingSlug && (
-                      <SlugField value={slug} onChange={setSlug} businessName={name} onValidityChange={setSlugAvailable} />
-                    )}
-                  </div>
-                )}
                 {publishError && <p role="alert" className="mt-4 text-sm font-medium text-destructive">{publishError}</p>}
-                <Button onClick={publishFromFinalStep} disabled={saving} size="lg" className="mt-8 h-12 w-full">
+                <Button type="submit" disabled={saving} size="lg" className="mt-8 h-12 w-full">
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Publish my page"}
                 </Button>
-                <div className="mt-3 flex justify-start">
-                  <Button variant="ghost" size="sm" onClick={() => setStep(4)}>Back</Button>
-                </div>
-              </>
+              </form>
             )}
 
-            {step === 5 && liveUrl && (
+            {liveUrl && (
               <>
                 <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your page is live</h1>
                 <p className="mt-1 text-sm text-muted-foreground">Anyone with this link can now send you referrals.</p>

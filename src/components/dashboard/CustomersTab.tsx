@@ -1,5 +1,6 @@
 import { copyText } from "@/lib/clipboard";
 import { friendlyError } from "@/lib/errors";
+import { FREE_CONTACT_LIMIT, FREE_LIMIT_COPY, isFreeContactLimitError } from "@/config/planFeatures";
 import { track } from "@/lib/track";
 import { parseCsv, parseJobDate, parsePastedLines, type ParsedContact } from "@/lib/contactImport";
 import {
@@ -110,7 +111,20 @@ function isIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent);
 }
 
-const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl: string }) => {
+const CustomersTab = ({
+  biz,
+  publicUrl,
+  isPro = true,
+  isDemo = false,
+  onCountChange,
+}: {
+  biz: CustomersTabBusiness;
+  publicUrl: string;
+  /** Free businesses are capped at FREE_CONTACT_LIMIT stored customers. */
+  isPro?: boolean;
+  isDemo?: boolean;
+  onCountChange?: (count: number) => void;
+}) => {
   const { toast } = useToast();
   const [contacts, setContacts] = useState<ReferralContact[]>([]);
   const [loading, setLoading] = useState(true);
@@ -172,6 +186,7 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       toast({ title: "Failed to load contacts", description: friendlyError(error), variant: "destructive" });
     } else {
       setContacts((data as ReferralContact[]) ?? []);
+      onCountChange?.(((data as ReferralContact[]) ?? []).length);
     }
     setLoading(false);
   };
@@ -235,6 +250,11 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     setSource("paste");
   };
 
+  // Free allowance left. The database trigger is the real limit; this only
+  // keeps the import from sending rows the server would refuse.
+  const capped = !isPro && !isDemo;
+  const remaining = capped ? Math.max(0, FREE_CONTACT_LIMIT - contacts.length) : Infinity;
+
   const handleImport = async () => {
     // Explain the no-op instead of returning quietly: pasted rows can all be
     // duplicates or unparseable, which looks identical to a broken button.
@@ -249,8 +269,14 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
       });
       return;
     }
+    if (remaining <= 0) {
+      toast({ title: "Customer limit reached", description: FREE_LIMIT_COPY.error, variant: "destructive" });
+      return;
+    }
     setImporting(true);
-    const rows = dedupedPreview.map((p) => ({
+    const allowed = Number.isFinite(remaining) ? dedupedPreview.slice(0, remaining) : dedupedPreview;
+    const skippedForCap = dedupedPreview.length - allowed.length;
+    const rows = allowed.map((p) => ({
       business_id: biz.id,
       name: p.name,
       email: p.email || null,
@@ -260,10 +286,19 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     const { error } = await (supabase as any).from("referral_contacts").insert(rows);
     setImporting(false);
     if (error) {
-      toast({ title: "Import failed", description: friendlyError(error), variant: "destructive" });
+      toast({
+        title: "Import failed",
+        description: isFreeContactLimitError(error) ? FREE_LIMIT_COPY.error : friendlyError(error),
+        variant: "destructive",
+      });
       return;
     }
-    toast({ title: `Imported ${rows.length} contact${rows.length === 1 ? "" : "s"}` });
+    toast({
+      title: `Imported ${rows.length} contact${rows.length === 1 ? "" : "s"}`,
+      description: skippedForCap > 0
+        ? `${skippedForCap} skipped. ${FREE_LIMIT_COPY.error}`
+        : undefined,
+    });
     clearImport();
     load();
     // A reimport must never resurrect someone who unsubscribed, so re-read the
@@ -560,7 +595,11 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
     });
     setManualSaving(false);
     if (error) {
-      toast({ title: "Could not add", description: friendlyError(error), variant: "destructive" });
+      toast({
+        title: "Could not add",
+        description: isFreeContactLimitError(error) ? FREE_LIMIT_COPY.error : friendlyError(error),
+        variant: "destructive",
+      });
       return;
     }
     setManualName(""); setManualEmail(""); setManualPhone(""); setManualLastJob("");
@@ -861,6 +900,11 @@ const CustomersTab = ({ biz, publicUrl }: { biz: CustomersTabBusiness; publicUrl
         <p className="text-xs text-muted-foreground mt-1">
           Paste your customer list. One per line, like <span className="font-mono">Name, email, phone, 2025-06-15</span>. The optional fourth column is the last job date, written as YYYY-MM-DD. We will dedupe against contacts you already have.
         </p>
+        {capped && (
+          <p className="text-xs text-muted-foreground mt-1" data-testid="free-allowance">
+            Free plan: {contacts.length} of {FREE_CONTACT_LIMIT} customers used, {remaining} left.
+          </p>
+        )}
         <Textarea
           value={paste}
           onChange={(e) => { setSource("paste"); setPaste(e.target.value); }}
