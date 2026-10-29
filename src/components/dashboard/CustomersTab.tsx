@@ -48,10 +48,16 @@ export interface ReferralContact {
   last_job_at: string | null;
   is_mock: boolean;
   created_at: string;
+  /** The customer's own referrer row, which carries their personal link token. */
+  referrers?: { token: string } | null;
 }
 
 const CONTACT_COLUMNS =
-  "id, business_id, name, email, phone, status, last_sent_at, send_channel, last_job_at, is_mock, created_at";
+  "id, business_id, name, email, phone, status, last_sent_at, send_channel, last_job_at, is_mock, created_at, referrers(token)";
+
+/** This customer's personal link, or the plain page link if none exists yet. */
+export const contactLink = (publicUrl: string, c: Pick<ReferralContact, "referrers">) =>
+  c.referrers?.token ? `${publicUrl}?ref=${encodeURIComponent(c.referrers.token)}` : publicUrl;
 
 // Default editable message template. Placeholders are filled from real business data.
 // No em dashes (project rule).
@@ -336,7 +342,7 @@ const CustomersTab = ({
       businessName: biz.name,
       reward,
       offer,
-      referralLink: publicUrl,
+      referralLink: contactLink(publicUrl, c),
     });
 
   // Eligibility for every loaded contact, recomputed whenever the contact list
@@ -651,7 +657,8 @@ const CustomersTab = ({
   );
 
   // Generic (non-personalized) body for BCC: {firstName} becomes "there" because
-  // one email goes to many recipients. All other placeholders still resolve.
+  // one email goes to many recipients, and the link is the plain page link for
+  // the same reason. All other placeholders still resolve.
   const bulkBody = useMemo(
     () =>
       renderTemplate(template, {

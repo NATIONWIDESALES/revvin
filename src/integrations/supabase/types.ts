@@ -899,6 +899,7 @@ export type Database = {
           notes: string | null
           owner_notified_at: string | null
           referrer_email: string
+          referrer_id: string | null
           referrer_name: string
           referrer_phone: string | null
           referrer_user_id: string | null
@@ -924,6 +925,7 @@ export type Database = {
           notes?: string | null
           owner_notified_at?: string | null
           referrer_email: string
+          referrer_id?: string | null
           referrer_name: string
           referrer_phone?: string | null
           referrer_user_id?: string | null
@@ -949,6 +951,7 @@ export type Database = {
           notes?: string | null
           owner_notified_at?: string | null
           referrer_email?: string
+          referrer_id?: string | null
           referrer_name?: string
           referrer_phone?: string | null
           referrer_user_id?: string | null
@@ -971,6 +974,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "referrers"
             referencedColumns: ["id"]
           },
         ]
@@ -1910,6 +1920,7 @@ export type Database = {
           last_sent_at: string | null
           name: string
           phone: string | null
+          referrer_id: string | null
           send_channel: string | null
           status: string
           updated_at: string
@@ -1924,6 +1935,7 @@ export type Database = {
           last_sent_at?: string | null
           name: string
           phone?: string | null
+          referrer_id?: string | null
           send_channel?: string | null
           status?: string
           updated_at?: string
@@ -1938,6 +1950,7 @@ export type Database = {
           last_sent_at?: string | null
           name?: string
           phone?: string | null
+          referrer_id?: string | null
           send_channel?: string | null
           status?: string
           updated_at?: string
@@ -1955,6 +1968,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_contacts_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "referrers"
             referencedColumns: ["id"]
           },
         ]
@@ -2211,6 +2231,51 @@ export type Database = {
             columns: ["offer_id"]
             isOneToOne: false
             referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrers: {
+        Row: {
+          business_id: string
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          token: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          token?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2942,6 +3007,20 @@ export type Database = {
         }
         Returns: boolean
       }
+      fn_business_referrers: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          referrals_closed: number
+          referrals_sent: number
+          rewards_owed: number
+          rewards_paid: number
+          token: string
+        }[]
+      }
       fn_campaign_readiness: {
         Args: never
         Returns: {
@@ -3063,6 +3142,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      fn_my_referrals: { Args: never; Returns: Json }
+      fn_new_referrer_token: { Args: never; Returns: string }
       fn_normalize_slug: { Args: { p_slug: string }; Returns: string }
       fn_offer_is_restricted_category: {
         Args: { p_category: string }
@@ -3119,6 +3200,10 @@ export type Database = {
         Args: { p_session_id: string }
         Returns: boolean
       }
+      fn_resolve_referrer: {
+        Args: { p_slug: string; p_token: string }
+        Returns: Json
+      }
       fn_set_business_published: {
         Args: { p_published: boolean }
         Returns: {
@@ -3139,6 +3224,7 @@ export type Database = {
           p_lead_name: string
           p_lead_need: string
           p_lead_phone: string
+          p_ref_token?: string
           p_referrer_email: string
           p_referrer_name: string
           p_referrer_phone?: string
@@ -3153,6 +3239,29 @@ export type Database = {
         Returns: {
           email: string
         }[]
+      }
+      fn_upsert_referrer: {
+        Args: {
+          p_business_id: string
+          p_email: string
+          p_name: string
+          p_phone: string
+        }
+        Returns: {
+          business_id: string
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          token: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "referrers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       has_role: {
         Args: {

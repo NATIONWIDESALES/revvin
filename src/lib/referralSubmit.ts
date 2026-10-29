@@ -24,6 +24,8 @@ export interface ReferralSubmitInput {
   lead_need: string;
   relationship_to_lead?: string;
   consent_given: boolean;
+  /** Personal link token; the server ignores it unless it belongs to this page. */
+  ref_token?: string | null;
 }
 
 export interface ReferralReceipt {
@@ -32,6 +34,8 @@ export interface ReferralReceipt {
   business_name: string;
   /** True when the server replayed the receipt for this same request id. */
   replay: boolean;
+  /** The referrer's own personal link token. */
+  referrer_token?: string | null;
 }
 
 /** Codes raised by the RPC, mapped to copy a visitor can act on. */
@@ -124,6 +128,7 @@ export async function submitPublicReferral(
     p_lead_need: input.lead_need.trim(),
     p_relationship: input.relationship_to_lead?.trim() || null,
     p_consent: input.consent_given,
+    p_ref_token: input.ref_token ?? null,
   } as never);
 
   if (error) return { receipt: null, error };

@@ -148,7 +148,7 @@ const Index = () => (
             <div className="min-w-0 rounded-2xl border border-border bg-card p-6 shadow-soft">
               <h3 className="text-lg font-bold text-foreground">Your customers</h3>
               <ul className="mt-4 space-y-2 text-sm leading-relaxed text-muted-foreground">
-                <li>Your referral link to share with every customer.</li>
+                <li>A personal link for every customer, so each referral is credited automatically.</li>
                 <li>The ask after every job.</li>
                 <li>A QR code on every invoice and yard sign.</li>
               </ul>

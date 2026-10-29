@@ -1,7 +1,8 @@
 import { showVerifiedBadge } from "@/lib/verifiedBadge";
 import { copyText } from "@/lib/clipboard";
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
+import { activeRef, forgetRef, personalLink, referrerShareText, rememberRef } from "@/lib/referrerLink";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,30 @@ const PublicReferralPage = () => {
   const [statusUrl, setStatusUrl] = useState<string | null>(null);
   /** True when the viewer is the owner looking at their own unpublished page. */
   const [ownerPreview, setOwnerPreview] = useState(false);
+  const location = useLocation();
+  // Personal link: the token from ?ref or the one remembered for this page.
+  const [refToken, setRefToken] = useState<string | null>(null);
+  const [refPerson, setRefPerson] = useState<{ first_name: string; has_email: boolean } | null>(null);
+  const [myLink, setMyLink] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!slug) return;
+    const token = activeRef(slug, location.search);
+    if (!token) return;
+    (async () => {
+      const { data } = await supabase.rpc("fn_resolve_referrer" as never, { p_slug: slug, p_token: token } as never);
+      const person = data as unknown as { first_name: string; has_email: boolean } | null;
+      if (person?.first_name) { setRefToken(token); setRefPerson(person); }
+      else forgetRef(slug); // Unknown or another business's token: ignored.
+    })();
+  }, [slug, location.search]);
+
+  const clearRef = () => {
+    if (slug) forgetRef(slug);
+    setRefToken(null);
+    setRefPerson(null);
+    if (location.search.includes("ref=")) window.history.replaceState(null, "", `/r/${slug}`);
+  };
 
   const [form, setForm] = useState({
     referrer_name: "",
@@ -177,7 +202,7 @@ const PublicReferralPage = () => {
       return;
     }
     setSubmitting(true);
-    const { receipt, error } = await submitPublicReferral({ slug, ...form });
+    const { receipt, error } = await submitPublicReferral({ slug, ...form, ref_token: refToken });
     setSubmitting(false);
     if (error || !receipt) {
       toast({
@@ -188,6 +213,10 @@ const PublicReferralPage = () => {
       return;
     }
     setStatusUrl(`${window.location.origin}/r/status/${receipt.status_token}`);
+    if (receipt.referrer_token) {
+      rememberRef(slug, receipt.referrer_token);
+      setMyLink(personalLink(window.location.origin, slug, receipt.referrer_token));
+    }
     // The owner's email is NOT sent from here. The submit RPC commits a durable
     // notification job alongside the lead, and the worker delivers it, so
     // closing this tab or a provider outage can no longer lose the notification.
@@ -522,10 +551,23 @@ const PublicReferralPage = () => {
               >
                 <CheckCircle2 className="h-7 w-7" style={{ color: brand }} />
               </div>
-              <h2 className="text-lg font-semibold text-foreground">Referral submitted</h2>
-              <p className="text-sm text-muted-foreground mt-1.5 max-w-sm mx-auto">
-                {biz.name} will be in touch with your lead soon. You'll hear from them directly when the deal closes.
-              </p>
+              <h2 className="text-lg font-semibold text-foreground">Thanks. {biz.name} will reach out to them.</h2>
+              {myLink && (
+                <div className="mt-5 mx-auto max-w-sm rounded-xl border border-border bg-card p-4 text-left">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your personal link</p>
+                  <input readOnly aria-label="Your personal link" value={myLink} className="mt-2 w-full rounded-md border border-border bg-background px-2 py-1.5 text-xs text-foreground" />
+                  <div className="mt-2 flex gap-2">
+                    <Button type="button" size="sm" variant="outline" className="flex-1" onClick={() => {
+                      void copyText(myLink).then((ok) => toast(ok ? { title: "Link copied" } : { title: "Could not copy the link", description: "Select the link and copy it manually.", variant: "destructive" as const }));
+                    }}>Copy</Button>
+                    <Button type="button" size="sm" className="flex-1" onClick={async () => {
+                      const text = referrerShareText(biz.name, biz.category, myLink);
+                      if (navigator.share) { try { await navigator.share({ text }); return; } catch { return; } }
+                      window.location.href = `sms:?&body=${encodeURIComponent(text)}`;
+                    }}>Share</Button>
+                  </div>
+                </div>
+              )}
               {statusUrl && (
                 <div className="mt-5 mx-auto max-w-sm rounded-xl border border-border bg-muted/30 p-4 text-left">
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Track this referral</p>
@@ -570,10 +612,24 @@ const PublicReferralPage = () => {
               </p>
               <input type="text" name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => update("website", e.target.value)} className="hidden" />
 
+              {refPerson ? (
+                <>
+                  <p className="rounded-lg bg-muted/40 px-3 py-2 text-sm text-foreground" data-testid="referring-as">
+                    Referring as {refPerson.first_name}.{" "}
+                    <button type="button" onClick={clearRef} className="font-medium underline underline-offset-4">Not you?</button>
+                  </p>
+                  {!refPerson.has_email && (
+                    <div><Label>Your email</Label><Input required type="email" value={form.referrer_email} onChange={(e) => update("referrer_email", e.target.value)} className="mt-1.5" /></div>
+                  )}
+                </>
+              ) : (
+                <>
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">About you</div>
               <div><Label>Your name</Label><Input required value={form.referrer_name} onChange={(e) => update("referrer_name", e.target.value)} className="mt-1.5" /></div>
               <div><Label>Your email</Label><Input required type="email" value={form.referrer_email} onChange={(e) => update("referrer_email", e.target.value)} className="mt-1.5" /></div>
               <div><Label>Your phone <span className="text-muted-foreground text-xs">(optional)</span></Label><Input type="tel" value={form.referrer_phone} onChange={(e) => update("referrer_phone", e.target.value)} className="mt-1.5" /></div>
+                </>
+              )}
 
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground pt-2">The lead</div>
               <div><Label>Lead's name</Label><Input required value={form.lead_name} onChange={(e) => update("lead_name", e.target.value)} className="mt-1.5" /></div>

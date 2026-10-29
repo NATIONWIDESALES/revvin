@@ -316,8 +316,14 @@ Deno.serve(async (req) => {
       const unsubscribeUrl = await unsubscribeUrlFor(supabase, biz.id, email);
       if (!unsubscribeUrl) { await fail("unsubscribe_token_failed", false); continue; }
 
-      const referralUrl = appUrl(`/r/${biz.slug ?? ""}`);
       const first = String(row.customer_first_name || "").trim() || "there";
+      // This customer's personal link, so anything they send is credited to them.
+      // Falls back to the plain page link if the referrer row cannot be made.
+      const { data: refRow } = await supabase.rpc("fn_upsert_referrer", {
+        p_business_id: biz.id, p_name: String(row.customer_first_name || "").trim() || "Customer", p_email: email, p_phone: null,
+      });
+      const refToken = (refRow as { token?: string } | null)?.token;
+      const referralUrl = appUrl(`/r/${biz.slug ?? ""}${refToken ? `?ref=${encodeURIComponent(refToken)}` : ""}`);
       const service = String(row.service_description || "").trim();
       const tech = String(row.technician_name || "").trim();
       const reward = String(biz.offer_amount || "").trim();
