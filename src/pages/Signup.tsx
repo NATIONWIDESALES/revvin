@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import AuthSplit from "@/components/AuthSplit";
 import SEOHead from "@/components/SEOHead";
 import Wordmark from "@/components/brand/Wordmark";
 import { Loader2 } from "lucide-react";
@@ -46,15 +47,12 @@ const Signup = () => {
         path="/signup"
         noindex
       />
-      <div className="flex items-start justify-center px-4 pb-24 pt-6 sm:pb-12">
-        <div className="w-full max-w-md">
-          <Link to="/" className="mb-5 flex items-center justify-center" aria-label="Revvin home">
-            <Wordmark size="md" />
-          </Link>
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+      <AuthSplit>
+        <div>
+          <div>
             {!confirmPending && (
               <div className="mb-4">
-                <h1 className="text-2xl">
+                <h1 className="text-4xl sm:text-5xl">
                   Create your free account
                 </h1>
                 <p className="mt-1.5 text-sm text-muted-foreground">{SIGNUP_SUBHEAD(inviteCode)}</p>
@@ -63,7 +61,7 @@ const Signup = () => {
             <SignupForm onConfirmPendingChange={setConfirmPending} />
           </div>
         </div>
-      </div>
+      </AuthSplit>
     </>
   );
 };
