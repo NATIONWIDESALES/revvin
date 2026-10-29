@@ -7,14 +7,14 @@ interface Props {
   heading?: string;
   body?: string;
   /** Fixed analytics label for the click. */
-  cta: string;
+  cta?: string;
 }
 
 /** The forest closing band from the homepage, reused on marketing pages. */
 const FinalBand = ({
   heading = "Your next job is already in your customer list.",
   body = "Set up your referral program in 5 minutes. Free for your first 100 customers.",
-  cta,
+  cta = "footer_signup",
 }: Props) => (
   <section className="bg-forest py-24 text-primary-foreground md:py-[120px]">
     <div className="mk-wrap">
