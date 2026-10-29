@@ -1,3 +1,4 @@
 - Moved public pages are PrerenderRoute entries with redirectTo (meta refresh + canonical document) plus a client <Navigate replace>. Why: hosting has no server-side 301s.
 - sitemap.xml and llms-full.txt are generated at build by plugins/sitemap.ts and plugins/prerender.ts from PRERENDER_ROUTES; never hand-write public/sitemap.xml. Why: the sitemap cannot drift from the built, indexable pages.
 - Brand colours are HSL tokens in src/index.css (forest, green, sign, paper, line) mapped to shadcn vars; marketing layout classes use the mk-/rf-/yard- prefixes there. Why: one source for the yard-sign design across pages.
+- Business dashboard navigation is the DashboardShell rail; tab ids and next-step/stat logic live in src/lib/dashboardHome.ts. Why: deep links (?tab=) and Home numbers stay testable in one place.
