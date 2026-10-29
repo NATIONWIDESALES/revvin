@@ -158,7 +158,6 @@ const PublicReferralPage = () => {
     if (!slug) return;
     (async () => {
       const COLS = PUBLIC_REFERRAL_PAGE_COLS;
-      void "id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,is_verified,brand_color,cover_image_url,headline,welcome_message,referral_cta_label,testimonials,is_demo";
 
       const { data, error } = await supabase
         .from("businesses_public" as any)
