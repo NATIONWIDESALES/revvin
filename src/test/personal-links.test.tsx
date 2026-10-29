@@ -63,9 +63,9 @@ describe("personal link attribution", () => {
     h.valid.set(`summit-roofing:${TOKEN}`, "Jane");
     page(`/r/summit-roofing?ref=${TOKEN}`);
     await screen.findByTestId("referring-as");
-    const inputs = screen.getAllByRole("textbox");
+    const inputs = screen.getAllByRole("textbox").filter((el) => el.getAttribute("name") !== "website");
     fireEvent.change(inputs[0], { target: { value: "Lead Person" } });
-    fireEvent.change(screen.getAllByRole("textbox")[1] ?? inputs[1], { target: { value: "5550001111" } });
+    fireEvent.change(document.querySelector('input[type="tel"]')!, { target: { value: "5550001111" } });
     const ta = document.querySelector("textarea")!;
     fireEvent.change(ta, { target: { value: "needs a roof" } });
     fireEvent.click(screen.getByRole("checkbox"));
