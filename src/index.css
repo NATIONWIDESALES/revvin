@@ -3,55 +3,54 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    :root {
+    /* Revvin yard-sign palette */
+    --forest: 147 66% 17%;        /* #0F4A2A brand dark */
+    --forest-night: 147 67% 14%;  /* #0B3A20 footer */
+    --green: 140 60% 30%;         /* #1F7A3D primary action */
+    --green-deep: 139 62% 24%;    /* #17632F hover */
+    --sign: 43 100% 62%;          /* #FFC93C rewards, founding, primary on dark */
+    --sign-hover: 44 100% 70%;    /* #FFD866 */
+    --paper: 84 17% 94%;          /* #F1F3EE page */
+    --line: 105 10% 84%;          /* #D5DBD3 */
+    --lawn: 112 45% 34%;          /* #2F7D3A */
 
+    --background: var(--paper);
+    --foreground: 146 31% 10%;    /* #122219 ink */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-
+    --card-foreground: 146 31% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-
-    --primary: 142 64% 24%;
+    --popover-foreground: 146 31% 10%;
+    --primary: var(--green);
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 11%;
-
-    --muted: 210 20% 98%;
-    --muted-foreground: 215 16% 47%;
-
-    --accent: 32 95% 44%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 72% 51%;
+    --secondary: 100 14% 90%;
+    --secondary-foreground: 146 31% 10%;
+    --muted: 90 14% 91%;
+    --muted-foreground: 144 9% 34%; /* #4F5E55 */
+    --accent: var(--sign);
+    --accent-foreground: var(--forest);
+    --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
+    --border: var(--line);
+    --input: var(--line);
+    --ring: var(--sign);
+    --radius: 0.625rem;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 142 64% 24%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 142 64% 24%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 146 31% 10%;
+    --sidebar-primary: var(--green);
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 96%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 142 64% 24%;
+    --sidebar-accent: 90 14% 91%;
+    --sidebar-accent-foreground: 146 31% 10%;
+    --sidebar-border: var(--line);
+    --sidebar-ring: var(--sign);
 
-    --earnings: 142 64% 30%;
+    --earnings: var(--green);
     --earnings-foreground: 0 0% 100%;
-
-    --surface: 220 14% 97%;
-
-    /* V1 marketing tokens */
-    --surface-warm: 40 20% 96%;     /* #F5F4F1 alt section bg */
-    --ink: 0 0% 4%;                 /* #0A0A0A near-black */
-    --primary-deep: 142 70% 21%;    /* #0F5E2D hover */
+    --surface: 0 0% 100%;
+    --surface-warm: 0 0% 100%;
+    --ink: 146 31% 10%;
+    --primary-deep: var(--green-deep);
     --phone-frame-light: 220 9% 68%;
     --phone-frame-mid: 220 8% 33%;
     --phone-frame-dark: 222 13% 12%;
@@ -59,47 +58,42 @@
   }
 
   .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 20% 95%;
-
-    --card: 222 40% 10%;
-    --card-foreground: 210 20% 95%;
-
-    --popover: 222 40% 10%;
-    --popover-foreground: 210 20% 95%;
-
-    --primary: 142 50% 36%;
+    --forest: 147 50% 12%;
+    --forest-night: 147 55% 8%;
+    --paper: 147 30% 7%;
+    --line: 147 18% 20%;
+    --background: 147 30% 7%;
+    --foreground: 84 17% 94%;
+    --card: 147 28% 10%;
+    --card-foreground: 84 17% 94%;
+    --popover: 147 28% 10%;
+    --popover-foreground: 84 17% 94%;
+    --primary: 140 50% 42%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 222 30% 15%;
-    --secondary-foreground: 210 20% 90%;
-
-    --muted: 222 30% 15%;
-    --muted-foreground: 215 16% 55%;
-
-    --accent: 32 95% 44%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62.8% 30.6%;
+    --secondary: 147 20% 16%;
+    --secondary-foreground: 84 17% 94%;
+    --muted: 147 20% 14%;
+    --muted-foreground: 105 10% 70%;
+    --accent: var(--sign);
+    --accent-foreground: 147 66% 17%;
+    --destructive: 0 62.8% 40%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 222 25% 18%;
-    --input: 222 25% 18%;
-    --ring: 142 50% 36%;
-
-    --sidebar-background: 222 47% 8%;
-    --sidebar-foreground: 210 20% 90%;
-    --sidebar-primary: 142 50% 36%;
+    --border: 147 18% 20%;
+    --input: 147 18% 20%;
+    --ring: var(--sign);
+    --sidebar-background: 147 30% 8%;
+    --sidebar-foreground: 84 17% 94%;
+    --sidebar-primary: 140 50% 42%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 30% 15%;
-    --sidebar-accent-foreground: 210 20% 90%;
-    --sidebar-border: 222 25% 18%;
-    --sidebar-ring: 142 50% 36%;
-
-    --earnings: 142 50% 40%;
+    --sidebar-accent: 147 20% 16%;
+    --sidebar-accent-foreground: 84 17% 94%;
+    --sidebar-border: 147 18% 20%;
+    --sidebar-ring: var(--sign);
+    --earnings: 140 50% 45%;
     --earnings-foreground: 0 0% 100%;
-
-    --surface: 222 30% 12%;
+    --surface: 147 28% 10%;
+    --surface-warm: 147 28% 10%;
+    --ink: 84 17% 94%;
   }
 }
 
@@ -115,17 +109,23 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Barlow', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    letter-spacing: -0.02em;
+  h1, h2, h3 {
+    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    letter-spacing: -0.005em;
   }
 
-  h1 {
-    letter-spacing: -0.03em;
+  h4, h5, h6 {
+    font-family: 'Barlow', system-ui, sans-serif;
+  }
+
+  :focus-visible {
+    outline: 3px solid hsl(var(--sign));
+    outline-offset: 3px;
+    border-radius: 4px;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -231,12 +231,11 @@
 
   /* ===== V1 marketing utilities ===== */
   .wordmark {
-    font-family: 'Anton', 'Bebas Neue', Impact, sans-serif;
+    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
     font-style: italic;
-    font-weight: 400;
-    letter-spacing: 0.005em;
-    line-height: 0.9;
-    transform: skewX(-6deg);
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1;
     display: inline-block;
   }
 
@@ -439,7 +438,7 @@
   }
 
   .watermark-num {
-    font-family: 'Anton', Impact, sans-serif;
+    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
     font-style: italic;
     font-weight: 400;
     line-height: 1;
@@ -570,6 +569,16 @@
     color: transparent;
     animation: shimmer-text 6s linear infinite;
   }
+}
+
+/* Retired ambient effects. The classes stay harmless so no page breaks, but
+   nothing shimmers, drifts or glows any more. */
+@layer components {
+  .hero-aurora, .hero-spotlight, .grid-faint, .aurora, .grain { display: none !important; }
+  .shimmer-text { background: none; color: inherit; animation: none; -webkit-background-clip: border-box; background-clip: border-box; }
+  .shine-on-hover::after { display: none; }
+  .step-tilt-left, .step-tilt-right, .step-visual-frame:hover { transform: none; }
+  .final-cta-glow::before { display: none; }
 }
 
 /* Installed app: the phone's own top bar and home indicator overlap the page
