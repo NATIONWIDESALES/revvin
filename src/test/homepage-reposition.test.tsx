@@ -12,6 +12,9 @@ import Index, { homeFaqJsonLd } from "@/pages/Index";
 import { HOME_FAQS } from "@/content/homeFaqs";
 import { PRERENDER_ROUTES } from "@/content/seoRoutes";
 import { renderRoute } from "../../plugins/prerender";
+import { buildSitemapEntries, renderSitemap } from "../../plugins/sitemap";
+const generatedSitemap = () => renderSitemap(buildSitemapEntries({ buildDate: "2026-10-29", dateFor: () => null }));
+
 
 const TEMPLATE = readFileSync("index.html", "utf8");
 
@@ -86,7 +89,7 @@ describe("redirects", () => {
     expect(screen.getByText(`landed ${to}`)).toBeTruthy();
   });
   it("sitemap lists /about and /earn and none of the moved URLs", () => {
-    const sm = readFileSync("public/sitemap.xml", "utf8");
+    const sm = generatedSitemap();
     expect(sm).toContain("<loc>https://revvin.co/about</loc>");
     expect(sm).toContain("<loc>https://revvin.co/earn</loc>");
     for (const [from] of cases) expect(sm).not.toContain(`<loc>https://revvin.co${from}</loc>`);

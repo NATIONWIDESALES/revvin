@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { RESTRICTED_CATEGORIES } from "@/lib/offerUtils";
 import { partnerSearchFor } from "@/components/partners/PartnerCapture";
-import { addMetrosToSitemap, renderEarnMetroDoc } from "../../plugins/prerender";
+import { renderEarnMetroDoc } from "../../plugins/prerender";
 import { analyticsContext } from "@/lib/analyticsPrivacy";
 
 const h = vi.hoisted(() => ({ live: false }));
@@ -22,6 +22,7 @@ vi.mock("@/integrations/supabase/client", () => ({
 vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} });
 vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
 import EarnMetro from "@/pages/EarnMetro";
+import { buildSitemapEntries, renderSitemap } from "../../plugins/sitemap";
 
 const sql = readFileSync("drizzle/migrations/0003_earn_metros.sql", "utf8");
 const fnBody = (name: string) => sql.slice(sql.indexOf(`FUNCTION public.${name}`), sql.indexOf("$$;", sql.indexOf(`FUNCTION public.${name}`)));
@@ -67,12 +68,10 @@ describe("/earn/{metro}", () => {
     expect(await screen.findByTestId("earn-business")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Get my link" })).toBeTruthy();
   });
-  it("only live metros go into the built sitemap, without lastmod", () => {
-    const xml = addMetrosToSitemap("<urlset>\n</urlset>", ["fraser-valley"]);
+  it("only live metros go into the built sitemap", () => {
+    const xml = renderSitemap(buildSitemapEntries({ buildDate: "2026-10-29", metros: ["fraser-valley"], dateFor: () => null }));
     expect(xml).toContain("<loc>https://revvin.co/earn/fraser-valley</loc>");
-    expect(xml).not.toContain("lastmod");
-    expect(addMetrosToSitemap("<urlset>\n</urlset>", [])).not.toContain("/earn/");
-    expect(readFileSync("public/sitemap.xml", "utf8")).not.toContain("/earn/fraser-valley");
+    expect(renderSitemap(buildSitemapEntries({ buildDate: "2026-10-29", dateFor: () => null }))).not.toContain("/earn/fraser-valley");
   });
   it("live page doc: title, canonical and ItemList of LocalBusiness with Offer", () => {
     const html = renderEarnMetroDoc(readFileSync("index.html", "utf8"), { name: "Fraser Valley, BC", slug: "fraser-valley", businesses: [{ slug: "good-roof", name: "Good Roof", trade: "Roofing", city: "Langley", reward: "$200" }] });

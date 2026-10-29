@@ -39,16 +39,19 @@ Revvin gives a home-service business a referral page on its own link, a personal
 
 ## Key pages
 
-- [Home](https://revvin.co/): What Revvin is and how it works.
-- [Pricing](https://revvin.co/pricing): Free and Revvin Pro.
-- [About](https://revvin.co/about): The company, what it does not do and the founder.
-- [Earn](https://revvin.co/earn): Get paid for referrals, city by city.
-- [How it works](https://revvin.co/how-it-works): The referral flow end to end.
-- [Guides](https://revvin.co/guides): Referral program guides for service businesses.
-- [Referral programs by trade](https://revvin.co/referral-programs): Trade-specific referral programs.
-- [Tools](https://revvin.co/tools): Free referral program grader, reward calculator and message generator.
-- [Partners](https://revvin.co/partners): The partner program.
+- [Home](/): What Revvin is and how it works.
+- [Pricing](/pricing): Free and Revvin Pro.
+- [About](/about): The company, what it does not do and the founder.
+- [Earn](/earn): Get paid for referrals, city by city.
+- [How it works](/how-it-works): The referral flow end to end.
+- [Guides](/guides): Referral program guides for service businesses.
+- [Referral programs by trade](/referral-programs): Trade-specific referral programs.
+- [Tools](/tools): Free referral program grader, reward calculator and message generator.
+- [Referral program grader](/tools/referral-program-grader): Score a referral program.
+- [Referral reward calculator](/tools/referral-reward-calculator): Work out a reward a job can afford.
+- [Referral message generator](/tools/referral-message-generator): Write a referral ask.
+- [Partners](/partners): The partner program.
 
 ## Optional
 
-- [Full text](https://revvin.co/llms-full.txt): Plain text of About, Pricing, How it works and every guide.
+- [Full text](/llms-full.txt): Plain text of About, Pricing, How it works and every guide.

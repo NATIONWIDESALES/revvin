@@ -3,6 +3,9 @@ import { readFileSync } from "node:fs";
 import { PRERENDER_ROUTES } from "@/content/seoRoutes";
 import { analyticsContext, analyticsEventAllowed, safeAnalyticsMeta } from "@/lib/analyticsPrivacy";
 import { TOOLKIT_CTA_LABELS } from "@/lib/toolkit/analytics";
+import { buildSitemapEntries, renderSitemap } from "../../plugins/sitemap";
+const generatedSitemap = () => renderSitemap(buildSitemapEntries({ buildDate: "2026-10-29", dateFor: () => null }));
+
 
 const TOOL_PATHS = [
   "/tools",
@@ -35,7 +38,7 @@ describe("toolkit routes", () => {
   });
 
   it("lists all four pages in the sitemap and the AI index", () => {
-    const sitemap = readFileSync("public/sitemap.xml", "utf8");
+    const sitemap = generatedSitemap();
     const llms = readFileSync("public/llms.txt", "utf8");
     for (const path of TOOL_PATHS) {
       expect(sitemap).toContain(`https://revvin.co${path}<`);
