@@ -346,7 +346,7 @@ const PublicReferralPage = () => {
 
             <div className="mt-8 max-w-[640px] md:mt-10">
               <h2 className="font-display text-[clamp(40px,6vw,72px)] font-extrabold leading-[.94]">
-                {biz.headline?.trim() || <>Know someone who needs {tradePhrase(biz.category, biz.name)}?</>}
+                {biz.headline?.trim() || <>{refQuestion(biz.category, biz.name)}</>}
                 {amount && (
                   <>
                     {" "}
@@ -554,5 +554,11 @@ export const TRADE_PHRASES: Record<string, string> = {
 };
 export const tradePhrase = (category: string | null | undefined, name: string) =>
   TRADE_PHRASES[(category ?? "").trim().toLowerCase().replace(/\s*&\s*/g, " and ")] ?? name;
+
+/** Falls back to a sentence that reads naturally when the trade has no phrase. */
+export const refQuestion = (category: string | null | undefined, name: string) => {
+  const key = (category ?? "").trim().toLowerCase().replace(/\s*&\s*/g, " and ");
+  return TRADE_PHRASES[key] ? `Know someone who needs ${TRADE_PHRASES[key]}?` : `Know someone who could use ${name}?`;
+};
 
 export default PublicReferralPage;
