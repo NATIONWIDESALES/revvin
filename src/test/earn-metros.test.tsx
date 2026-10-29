@@ -19,6 +19,7 @@ vi.mock("@/integrations/supabase/client", () => ({
     auth: { getSession: async () => ({ data: { session: null } }), onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }) },
   },
 }));
+vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} });
 vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
 import EarnMetro from "@/pages/EarnMetro";
 
