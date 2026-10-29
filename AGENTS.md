@@ -1,0 +1,1 @@
+- Moved public pages are PrerenderRoute entries with redirectTo (meta refresh + canonical document) plus a client <Navigate replace>. Why: hosting has no server-side 301s.
