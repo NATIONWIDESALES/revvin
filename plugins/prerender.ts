@@ -11,6 +11,7 @@ import {
   GUIDES_UPDATED_AT,
   INDEXNOW_KEY,
   ORG_DISAMBIGUATION,
+  FOUNDER_PERSON,
   ORG_ID,
   ORG_SAME_AS,
   SITE_ID,
@@ -85,6 +86,7 @@ const ORGANIZATION = {
   areaServed: ["US", "CA", "AE"],
   slogan: "Your customer list, working for you",
   disambiguatingDescription: ORG_DISAMBIGUATION,
+  founder: FOUNDER_PERSON,
   sameAs: ORG_SAME_AS,
   ...(FOUNDING_DATE ? { foundingDate: FOUNDING_DATE } : {}),
   // Prices come from the shared pricing facts so the structured data in every
@@ -231,7 +233,7 @@ export const jsonLd = (route: PrerenderRoute) => {
       description: route.description,
       mainEntityOfPage: { "@id": `${url}#webpage` },
       inLanguage: "en-US",
-      author: { "@id": ORG_ID },
+      author: FOUNDER_PERSON,
       publisher: { "@id": ORG_ID },
       datePublished: GUIDES_PUBLISHED_AT,
       dateModified: GUIDES_UPDATED_AT,
@@ -269,6 +271,7 @@ const FALLBACK_GUARD = `<script>(function(){var p=location.pathname;if(p==="/")r
 
 const bodyHtml = (route: PrerenderRoute) => {
   const parts: string[] = [`<h1>${esc(route.h1)}</h1>`];
+  if (route.path.startsWith("/guides/")) parts.push(`<p>By ${esc(FOUNDER_PERSON.name)}, Founder of Revvin</p>`);
   for (const s of route.sections) {
     parts.push(`<h2>${esc(s.heading)}</h2><p>${esc(s.body)}</p>`);
   }
@@ -278,7 +281,7 @@ const bodyHtml = (route: PrerenderRoute) => {
       parts.push(`<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`);
     }
   }
-  const links = PRERENDER_ROUTES.filter((r) => r.path !== route.path)
+  const links = PRERENDER_ROUTES.filter((r) => r.path !== route.path && !r.redirectTo && !r.noindex)
     .map((r) => `<li><a href="${esc(r.path)}">${esc(r.h1)}</a></li>`)
     .join("");
   parts.push(`<nav aria-label="Site pages"><h2>More from Revvin</h2><ul>${links}</ul></nav>`);
@@ -355,7 +358,27 @@ const setRobots = (html: string, content: string) =>
 
 const stripNoscript = (html: string) => html.replace(/<noscript>[\s\S]*?<\/noscript>\s*/, "");
 
+/**
+ * A moved page. This host has no server redirects, so the document carries an
+ * immediate meta refresh (read by Google as a permanent redirect), a canonical
+ * to the new address, and a plain link for anything that ignores both.
+ */
+export const renderRedirectDoc = (template: string, route: PrerenderRoute & { redirectTo: string }) => {
+  const target = `${SITE}${route.redirectTo === "/" ? "/" : route.redirectTo}`;
+  let html = setHead(template, { title: route.title, description: route.description, url: target });
+  html = setCanonical(html, target);
+  if (route.noindex) html = setRobots(html, "noindex, follow");
+  html = html.replace("</head>", `  <meta http-equiv="refresh" content="0; url=${esc(route.redirectTo)}">\n  </head>`);
+  html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>\s*/, "");
+  html = html.replace(
+    /<div id="root">\s*<\/div>/,
+    `<div id="root"><h1>${esc(route.h1)}</h1><p>This page moved to <a href="${esc(route.redirectTo)}">${esc(target)}</a>.</p></div>`,
+  );
+  return stripNoscript(html);
+};
+
 export const renderRoute = (template: string, route: PrerenderRoute) => {
+  if (route.redirectTo) return renderRedirectDoc(template, route as PrerenderRoute & { redirectTo: string });
   const url = `${SITE}${route.path === "/" ? "/" : route.path}`;
   let html = setHead(template, { title: route.title, description: route.description, url });
 

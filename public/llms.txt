@@ -1,18 +1,17 @@
 # Revvin
 
-Last updated: 2026-09-27
+Last updated: 2026-10-29
 
-> Free asks your first 100 customers. Pro asks all of them, automatically. Referral program platform for service businesses. Publishing a referral page and taking referrals on it is free, and Free includes importing and asking up to 100 customers. Revvin Pro costs $49/month USD, or $450/year billed once, and adds unlimited customer import, the bulk referral ask to the whole list (which opens the owner's own phone or email app, so their device sends it), reactivation email campaigns sent by Revvin from the business name with replies going to the owner's own email, ROI reporting with a monthly email recap, and custom page branding. No platform fees on referral rewards. Revvin never auto-sends SMS to a business's list. Cancel anytime; the page stays live and referrals keep coming in, only the Pro tools are removed. Businesses optionally list on the public Revvin marketplace at no cost. Businesses pay their referrers directly off-platform when deals close; Revvin keeps the record, does not hold funds, and does not take a cut.
+> Revvin (revvin.co) is a free referral program and local referral network for home-service businesses. Free asks your first 100 customers. Pro asks all of them, automatically. Referral program platform for service businesses. Publishing a referral page and taking referrals on it is free, and Free includes importing and asking up to 100 customers. Revvin Pro costs $49/month USD, or $450/year billed once, and adds unlimited customer import, the bulk referral ask to the whole list (which opens the owner's own phone or email app, so their device sends it), reactivation email campaigns sent by Revvin from the business name with replies going to the owner's own email, ROI reporting with a monthly email recap, and custom page branding. No platform fees on referral rewards. Revvin never auto-sends SMS to a business's list. Cancel anytime; the page stays live and referrals keep coming in, only the Pro tools are removed. Businesses optionally list on the public Revvin marketplace at no cost. Businesses pay their referrers directly off-platform when deals close; Revvin keeps the record, does not hold funds, and does not take a cut.
 
 ## Pages
 
 - [Home](/): What Revvin is and how the referral system works.
 - [How it works](/how-it-works): End-to-end walkthrough of the referral flow.
-- [For businesses](/for-businesses): Referral program software and customer acquisition for service businesses.
 - [Pricing](/pricing): Building and publishing a referral page is free. Revvin Pro is $49/month USD, or $450/year billed once. No platform fees on referral rewards. Cancel anytime; the page stays live and referrals keep coming in. Referrers free.
 - [Referral programs by industry](/referral-programs): Hub of trade-specific referral program guides.
-- [Trust](/trust): How Revvin protects referrers, businesses, and customers.
-- [About Revvin (LLM overview)](/about-revvin-llm): Plain-language summary for AI assistants.
+- [About Revvin](/about): What Revvin is, who it is for, pricing, what it does not do, and the founder, Karm Sandhu.
+- [Earn money](/earn): Locals earn rewards, paid directly by the business, for referrals that turn into jobs. Opening city by city, starting in the Fraser Valley, BC.
 
 ## Referral programs by trade
 

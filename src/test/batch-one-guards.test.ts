@@ -3,13 +3,12 @@ import { readFileSync } from "node:fs";
 
 const read = (p: string) => readFileSync(p, "utf8");
 
-describe("brand-led public identity", () => {
-  it("has no personal bylines or founder nodes in public sources", () => {
-    for (const f of ["src/pages/GuidePage.tsx", "plugins/prerender.ts", "src/config/brand.ts", "src/content/seoRoutes.ts", "public/llms.txt", "src/components/marketing/FounderNote.tsx"]) {
-      const s = read(f);
-      expect(s, f).not.toMatch(/Karm/);
-      expect(s, f).not.toMatch(/"@type": "Person"/);
-    }
+describe("founder identity", () => {
+  it("names Karm Sandhu as founder in brand facts, guides and structured data", () => {
+    expect(read("src/config/brand.ts")).toMatch(/name: "Karm Sandhu"/);
+    expect(read("src/pages/GuidePage.tsx")).toContain("By Karm Sandhu, Founder of Revvin");
+    expect(read("src/pages/GuidePage.tsx")).toContain("author: FOUNDER_PERSON");
+    expect(read("plugins/prerender.ts")).toContain("founder: FOUNDER_PERSON");
   });
   it("does not deny the job-done ask", () => {
     const s = read("src/content/seoRoutes.ts") + read("public/llms.txt");
@@ -17,15 +16,7 @@ describe("brand-led public identity", () => {
   });
 });
 
-describe("homepage demo button", () => {
-  it("scrolls in place without a URL hash", () => {
-    const s = read("src/pages/Index.tsx");
-    expect(s).toContain('id="home-demo"');
-    expect(s).toContain("scrollIntoView");
-    expect(s).not.toMatch(/href="#home-demo"/);
-    expect(s).toContain('id="home-demo-heading" tabIndex={-1}');
-    expect(s).toContain('href="/sample"');
-  });
+describe("homepage labels", () => {
   it("uses the approved Free label and the truthful setup call label", () => {
     expect(read("src/config/planFeatures.ts")).toContain('FREE_CTA_LABEL = "Start free"');
     expect(read("src/pages/Index.tsx")).toContain("Book a 30-minute setup call");

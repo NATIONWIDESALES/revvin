@@ -14,7 +14,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
-import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
+import { PRICE_TEXT, ANNUAL_TERMS_COPY, FOUNDING_OFFER_ACTIVE, type BillingPlan } from "@/config/pricing";
+import LeadCaptureForm from "@/components/marketing/LeadCaptureForm";
 import HowPayoutsWork from "@/components/marketing/HowPayoutsWork";
 import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
 import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT, FREE_CTA_LABEL } from "@/config/planFeatures";
@@ -125,7 +126,7 @@ const Pricing = () => {
 
       <section>
         <div className="container max-w-6xl py-20">
-          <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-2 md:max-w-3xl md:mx-auto">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Free */}
             <div className="relative flex min-w-0 flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Free</p>
@@ -219,7 +220,32 @@ const Pricing = () => {
               <PlanFeatureList features={PRO_FEATURES} />
             </div>
 
+            {/* Team, not built yet. Waitlist only. */}
+            <div className="relative flex min-w-0 flex-col rounded-2xl border border-dashed border-border bg-card p-8 shadow-soft md:col-span-2 lg:col-span-1">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Team</p>
+              <h2 className="mt-1 text-xl font-bold text-foreground">Coming soon</h2>
+              <p className="mt-6 text-sm text-muted-foreground">
+                Rep and tech links with a leaderboard, so everyone on your crew can share their own link. Not available yet.
+              </p>
+              <div className="mt-6">
+                <LeadCaptureForm source="team_waitlist" idPrefix="team" submitLabel="Join the waitlist" />
+              </div>
+            </div>
           </div>
+
+          {FOUNDING_OFFER_ACTIVE && SETUP_CALL_URL && (
+            <div className="mx-auto mt-10 max-w-3xl rounded-2xl border-2 border-primary bg-primary/5 p-6 text-center md:p-8">
+              <h2 className="text-2xl font-extrabold tracking-tight text-foreground">Founding businesses: first 25 only</h2>
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                Pro free for 30 days, then $29 a month locked for life, plus a done-for-you setup call. In return, we ask for a short case study once you have results.
+              </p>
+              <Button size="lg" className="mt-5 h-auto min-h-11 w-full whitespace-normal py-2.5 sm:w-auto" asChild>
+                <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_clicked", { cta: "pricing_founding_call" })}>
+                  Claim a founding spot
+                </a>
+              </Button>
+            </div>
+          )}
 
           {LAUNCH_PACKAGE_ENABLED && (
             <div className="mt-8 flex flex-col items-center gap-2 text-center text-sm text-muted-foreground">
@@ -320,7 +346,7 @@ const Pricing = () => {
             <AccordionItem value="p3">
               <AccordionTrigger>What exactly is free?</AccordionTrigger>
               <AccordionContent>
-                Your referral page. Create your account, set up your offer, publish the page, share the link and QR code, and take referrals through it without paying anything. That is not a trial and it does not expire. Referrer accounts are free too: send leads to businesses on Revvin and get paid directly, no card required. Pro is what you pay for, and it is the tools that ask your whole customer list for you.
+                Your referral page. Create your account, set up your offer, publish the page, share the link and QR code, and take referrals through it without paying anything. You can also import and ask up to 100 customers. That is not a trial and it does not expire. Referrer accounts are free too: send leads to businesses on Revvin and get paid directly, no card required. Pro is what you pay for, and it is the tools that ask your whole customer list for you.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="p4">

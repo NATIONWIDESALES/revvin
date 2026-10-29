@@ -1,211 +1,103 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
-import { INSTALL_COPY } from "@/config/installCopy";
 import { track } from "@/lib/track";
 import { ArrowRight } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import MockLeadsTable from "@/components/marketing/MockLeadsTable";
 import MockQRCard from "@/components/marketing/MockQRCard";
 import MockPageBuilder from "@/components/marketing/MockPageBuilder";
-import FounderNote from "@/components/marketing/FounderNote";
-import ReferralDemo from "@/components/demo/ReferralDemo";
+import FounderSection from "@/components/marketing/FounderSection";
+import ReferralWorthCalculator from "@/components/marketing/ReferralWorthCalculator";
+import PlanFeatureList from "@/components/marketing/PlanFeatureList";
 import Wordmark from "@/components/brand/Wordmark";
-import { PRICE_TEXT } from "@/config/pricing";
-import { MONTHLY_PRICE } from "@/config/pricing";
+import { PRICE_TEXT, MONTHLY_PRICE } from "@/config/pricing";
 import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT, FREE_CTA_LABEL } from "@/config/planFeatures";
 import { SETUP_CALL_URL } from "@/config/setupCall";
-import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
+import { CANONICAL_SENTENCE } from "@/config/brand";
 import HeroPhoneScene from "@/components/marketing/HeroPhoneScene";
 import ScrollReveal from "@/components/ScrollReveal";
+import { HOME_FAQS } from "@/content/homeFaqs";
+import { HOME_SEO } from "@/content/homeSeo";
 
 /**
- * Homepage. Deliberately short: hero, a demo a visitor can actually run, three
- * steps, the Free vs Pro split, a note from the team, five questions, one final
- * action. The per-trade essays, the guides and the marketplace all still exist
- * and are reachable from the nav, footer and the links below; they are just no
- * longer duplicated here.
- *
- * Copy rule: every line has to be true of the shipped product. Referral-form
- * submissions land in the lead inbox. Replies to a personal text or email go to
- * the owner's own inbox and are not synced back. Rewards are a fixed amount.
- * Personal asks are drafted in the owner's own app. Revvin's servers send the
- * job-done review and referral email and, on Pro, reactivation campaigns.
+ * Homepage. Order: hero, how it works, what a referral is worth, two ways
+ * referrals reach you, founder, pricing teaser, questions, final action.
+ * Copy rule: every line has to be true of the shipped product.
  */
 
 const STEPS = [
-  {
-    n: "01",
-    title: "Create your referral page",
-    body:
-      "Add your business, write the offer, set the fixed reward you will pay, pick your link, and publish. Free, and no card.",
-    visual: <MockPageBuilder />,
-  },
-  {
-    n: "02",
-    title: "Prepare and share the ask",
-    body:
-      "Share your link or QR code, or have Revvin draft a personal message that opens in your own texting or email app so it sends from you. On Pro you can import your past customers and have Revvin email a reactivation campaign to a segment of them for you.",
-    visual: <MockQRCard />,
-  },
-  {
-    n: "03",
-    title: "Track referrals and record rewards",
-    body:
-      "Every referral submitted through your page lands in your lead inbox. Move it through to closed, then record the reward as paid once you have paid your referrer directly. They are notified when it is owed and when you mark it paid.",
-    visual: <MockLeadsTable />,
-  },
+  { n: "01", title: "Set your reward", body: "Pick what a closed job is worth to you, like $100 or $250.", visual: <MockPageBuilder /> },
+  { n: "02", title: "Ask your customers", body: "Import your list. Revvin writes the text, you send it from your own phone.", visual: <MockQRCard /> },
+  { n: "03", title: "Get the job, pay the reward", body: "Referrals land in your inbox. Close the job, pay your referrer, mark it paid.", visual: <MockLeadsTable /> },
 ];
 
-// The same list feeds the FAQPage schema below.
-const FAQS = [
-  {
-    question: "What is free and what costs money?",
-    answer: `Creating and publishing your referral page is free, with no card and no expiry, and every referral that comes through it is free. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once, and adds importing your customer list, bulk asks, reactivation campaigns sent for you, ROI reporting and custom branding.`,
-  },
-  {
-    question: "Where do referrals actually land?",
-    answer:
-      "Anything submitted through your referral page arrives in your lead inbox with the referrer's details, and you get an email about it. If someone replies to a personal text or email you sent, that reply goes to your own phone or inbox: Revvin does not read or sync it, so only referrals sent through your page are tracked here.",
-  },
+const eyebrow = "text-[11px] font-semibold uppercase tracking-[0.16em] text-primary";
+const h2 = "mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-4xl";
 
-  {
-    question: "Does Revvin pay my referrers?",
-    answer:
-      "No. You set one fixed reward and you pay the referrer directly, on your own terms. Revvin tracks the reward from owed to paid and notifies your referrer at both moments, takes no cut, and never holds or moves the money.",
-  },
-  {
-    question: "Does Revvin message my customers for me?",
-    answer:
-      "Personal asks are drafted for you and open in your own texting or email app, so you press send and it comes from you. Texts always go from your own phone. Revvin sends email to your customers in two cases: the ask after you mark a job done, and Pro reactivation campaigns. Those emails include your business address and an unsubscribe link.",
-  },
-  {
-    question: INSTALL_COPY.faq.question,
-    answer: INSTALL_COPY.faq.answer,
-  },
-  {
-    question: "What happens if I cancel?",
-    answer:
-      "You cancel anytime from the billing portal, with no contract and no cancellation fee. Your referral page stays published and referrals keep arriving. You keep your leads and your customer list; you only lose the Pro tools.",
-  },
-];
+export const homeFaqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: HOME_FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+};
 
-const Index = () => {
-  return (
-    <>
+const Index = () => (
+  <>
     <SEOHead
-      title="Revvin | Referral software for service businesses"
-      description="Turn past customers into your next booked job. Mark a job done and Revvin asks that customer for a Google review and a referral. Pro emails every customer you've ever had to win back repeat work."
+      title={HOME_SEO.title}
+      description={HOME_SEO.description}
       path="/"
       jsonLd={[
         {
           "@context": "https://schema.org",
           "@type": "Product",
           name: "Revvin",
-          description:
-            `Referral software for service businesses. Free includes ${FREE_FEATURES.map((feature) => feature.label).join(", ")}. Revvin Pro adds ${PRO_FEATURES.map((feature) => feature.label).join(", ")}. Businesses pay their referrers directly.`,
+          description: `${CANONICAL_SENTENCE} Free includes ${FREE_FEATURES.map((f) => f.label).join(", ")}. Revvin Pro adds ${PRO_FEATURES.map((f) => f.label).join(", ")}. Businesses pay their referrers directly.`,
           brand: { "@type": "Brand", name: "Revvin" },
           offers: [
-            {
-              "@type": "Offer",
-              name: "Referral page",
-              price: "0.00",
-              priceCurrency: "USD",
-              url: "https://revvin.co/pricing",
-            },
-            {
-              "@type": "Offer",
-              name: "Revvin Pro",
-              price: MONTHLY_PRICE.toFixed(2),
-              priceCurrency: "USD",
-              url: "https://revvin.co/pricing",
-            },
+            { "@type": "Offer", name: "Referral page", price: "0.00", priceCurrency: "USD", url: "https://revvin.co/pricing" },
+            { "@type": "Offer", name: "Revvin Pro", price: MONTHLY_PRICE.toFixed(2), priceCurrency: "USD", url: "https://revvin.co/pricing" },
           ],
         },
-        {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: FAQS.map((f) => ({
-            "@type": "Question",
-            name: f.question,
-            acceptedAnswer: { "@type": "Answer", text: f.answer },
-          })),
-        },
+        homeFaqJsonLd,
       ]}
     />
 
-    {/* 1 · Hero */}
+    {/* a · Hero */}
     <section className="hero-premium relative overflow-hidden border-b border-border">
       <div aria-hidden className="hero-aurora absolute inset-0" />
       <div aria-hidden className="absolute inset-0 grid-faint" />
       <div aria-hidden className="hero-spotlight absolute inset-y-0 left-0 w-3/5" />
       <div className="container relative py-14 md:py-24">
         <div className="grid items-center gap-12 lg:grid-cols-12">
-          {/* Rendered in its final state: the prerendered headline must never
-              disappear or fade back in after first paint. */}
+          {/* Final state at first paint: the headline never fades in. */}
           <div className="min-w-0 lg:col-span-7">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-              Referral software built first for home-service businesses.
-            </p>
+            <p className={eyebrow}>{HOME_SEO.eyebrow}</p>
             <h1 className="mt-4 text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
-              Turn past customers into your{" "}
-              <span className="shimmer-text">next booked job.</span>
+              Your happy customers are your best salespeople.{" "}
+              <span className="shimmer-text">Put them to work.</span>
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Mark a job done, or let your job software do it, and Revvin automatically asks that
-              customer for a Google review and a referral. On Pro, it emails every customer you've
-              ever had to win back repeat work. More calls, without paying for leads.
-            </p>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">{HOME_SEO.sub}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button
-                size="lg"
-                className="shine-on-hover hero-primary-button group h-12 w-full px-6 text-base shadow-product hover:bg-primary-deep sm:w-auto"
-                asChild
-              >
+              <Button size="lg" className="shine-on-hover hero-primary-button group h-12 w-full px-6 text-base shadow-product hover:bg-primary-deep sm:w-auto" asChild>
                 <Link to="/signup" onClick={() => track("cta_clicked", { cta: "hero_signup" })}>
                   {FREE_CTA_LABEL}
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="h-12 w-full px-6 text-base sm:w-auto" asChild>
-                <a
-                  href="/sample"
-                  onClick={(e) => {
-                    const target = document.getElementById("home-demo");
-                    if (!target) return;
-                    e.preventDefault();
-                    track("cta_clicked", { cta: "home_demo_inline" });
-                    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-                    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-                    document.getElementById("home-demo-heading")?.focus({ preventScroll: true });
-                  }}
-                >
-                  See it work
-                </a>
+              <Button size="lg" variant="outline" className="h-auto min-h-12 w-full whitespace-normal px-6 py-3 text-base sm:w-auto" asChild>
+                <Link to="/sample" onClick={() => track("cta_clicked", { cta: "hero_sample" })}>See a real referral page</Link>
               </Button>
             </div>
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{PLAN_SPLIT.line}</p>
+            <p className="mt-4 text-sm text-muted-foreground">{HOME_SEO.underCta}</p>
             {SETUP_CALL_URL && (
               <p className="mt-2 text-sm text-muted-foreground">
-                <a
-                  href={SETUP_CALL_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => track("cta_clicked", { cta: "hero_setup_link" })}
-                  className="underline underline-offset-4 hover:text-foreground"
-                >
+                <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_clicked", { cta: "hero_setup_link" })} className="underline underline-offset-4 hover:text-foreground">
                   Book a 30-minute setup call
                 </a>
               </p>
             )}
           </div>
-
-          {/* Compact, clearly labelled product example. */}
           <div className="min-w-0 lg:col-span-5">
             <HeroPhoneScene />
           </div>
@@ -213,218 +105,132 @@ const Index = () => {
       </div>
     </section>
 
-    {/* 2 · Demo teaser with a real action */}
-    <section id="home-demo" aria-labelledby="home-demo-heading" className="scroll-mt-20 border-b border-border bg-surface-warm">
-      <div className="container py-16 md:py-20">
-        <ScrollReveal>
-        <div className="mx-auto max-w-3xl">
-          <div className="max-w-xl">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-              Try it right here
-            </p>
-            <h2 id="home-demo-heading" tabIndex={-1} className="mt-3 text-2xl font-extrabold tracking-tight text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring md:text-4xl">
-              Run the whole loop in under a minute.
-            </h2>
-            <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-              Send a referral, see it land in the owner's inbox, close the job and record the reward.
-              It is pre-filled, so you can just press the button. Nothing is saved or sent.
-            </p>
-          </div>
-          <div className="mt-8">
-            <ReferralDemo />
-          </div>
-        </div>
-        </ScrollReveal>
-      </div>
-    </section>
-
-    {/* 3 · Three steps */}
-
+    {/* b · How it works */}
     <section className="border-b border-border">
       <div className="container py-16 md:py-24">
         <ScrollReveal>
-        <div className="max-w-2xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-            How it works
-          </p>
-          <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
-            Three steps, and you own every message.
-          </h2>
-        </div>
-
-        <div className="mt-12 space-y-14 md:mt-16 md:space-y-20">
-          {STEPS.map((s, i) => (
-            <div key={s.n} className="grid items-center gap-8 md:grid-cols-12">
-              <div className={`md:col-span-6 ${i % 2 === 1 ? "md:order-2" : ""}`}>
-                <p className="step-number text-[11px] font-semibold uppercase tracking-[0.16em]">
-                  Step {s.n}
-                </p>
-                <h3 className="mt-2 text-xl font-extrabold tracking-tight text-foreground md:text-2xl">
-                  {s.title}
-                </h3>
-                <p className="mt-3 text-base leading-relaxed text-muted-foreground">{s.body}</p>
+          <p className={eyebrow}>How it works</p>
+          <h2 className={h2}>Three steps.</h2>
+          <div className="mt-12 space-y-14 md:mt-16 md:space-y-20">
+            {STEPS.map((s, i) => (
+              <div key={s.n} className="grid items-center gap-8 md:grid-cols-12">
+                <div className={`min-w-0 md:col-span-6 ${i % 2 === 1 ? "md:order-2" : ""}`}>
+                  <p className="step-number text-[11px] font-semibold uppercase tracking-[0.16em]">Step {s.n}</p>
+                  <h3 className="mt-2 text-xl font-extrabold tracking-tight text-foreground md:text-2xl">{s.title}</h3>
+                  <p className="mt-3 text-base leading-relaxed text-muted-foreground">{s.body}</p>
+                </div>
+                <div className={`min-w-0 md:col-span-6 ${i % 2 === 1 ? "md:order-1" : ""}`}>
+                  <div className={`step-visual-frame mx-auto max-w-md ${i % 2 === 1 ? "step-tilt-right" : "step-tilt-left"}`}>{s.visual}</div>
+                </div>
               </div>
-              <div className={`md:col-span-6 ${i % 2 === 1 ? "md:order-1" : ""}`}>
-                <div className={`step-visual-frame mx-auto max-w-md ${i % 2 === 1 ? "step-tilt-right" : "step-tilt-left"}`}>{s.visual}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <p className="mt-14 text-sm text-muted-foreground">
-          Written for your trade:{" "}
-          <Link
-            to="/referral-programs"
-            className="font-medium text-foreground underline-offset-4 hover:underline"
-            onClick={() => track("cta_clicked", { cta: "home_industries" })}
-          >
-            referral programs by trade
-          </Link>{" "}
-          and{" "}
-          <Link to="/guides" className="font-medium text-foreground underline-offset-4 hover:underline">
-            plain-English guides
-          </Link>
-          .
-        </p>
+            ))}
+          </div>
         </ScrollReveal>
       </div>
     </section>
 
-    {/* 4 · Free vs Pro */}
+    {/* c · Worth */}
     <section className="border-b border-border bg-surface-warm">
-      <div className="container py-16 md:py-24">
+      <div className="container max-w-4xl py-16 md:py-24">
         <ScrollReveal>
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
-            Free and Pro, in two lines.
-          </h2>
-          <dl className="mt-6 space-y-3 text-left text-base">
-            <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
-              <dt className="font-semibold text-foreground">Free: {PLAN_SPLIT.freeSubtitle.toLowerCase()}</dt>
-              <dd className="mt-1 text-sm text-muted-foreground">{PLAN_SPLIT.freeDetail}</dd>
+          <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">What is one referral worth to you?</h2>
+          <div className="mt-8"><ReferralWorthCalculator /></div>
+        </ScrollReveal>
+      </div>
+    </section>
+
+    {/* d · Two ways */}
+    <section className="border-b border-border">
+      <div className="container max-w-5xl py-16 md:py-24">
+        <ScrollReveal>
+          <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">Two ways referrals reach you</h2>
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            <div className="min-w-0 rounded-2xl border border-border bg-card p-6 shadow-soft">
+              <h3 className="text-lg font-bold text-foreground">Your customers</h3>
+              <ul className="mt-4 space-y-2 text-sm leading-relaxed text-muted-foreground">
+                <li>Your referral link to share with every customer.</li>
+                <li>The ask after every job.</li>
+                <li>A QR code on every invoice and yard sign.</li>
+              </ul>
             </div>
-            <div className="rounded-xl border border-primary/40 bg-card p-4 shadow-soft">
-              <dt className="font-semibold text-foreground">{`Pro, ${PRICE_TEXT.monthlyPerMonth}: ${PLAN_SPLIT.proSubtitle.toLowerCase()}`}</dt>
-              <dd className="mt-1 text-sm text-muted-foreground">{PLAN_SPLIT.proDetail}</dd>
+            <div className="min-w-0 rounded-2xl border border-border bg-card p-6 shadow-soft">
+              <h3 className="text-lg font-bold text-foreground">Locals who earn</h3>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                People in your city who earn rewards by recommending businesses they trust. The Revvin network opens city by city.
+              </p>
+              <Link to="/earn" onClick={() => track("cta_clicked", { cta: "home_earn" })} className="mt-4 inline-flex items-center text-sm font-semibold text-primary hover:underline">
+                How earning works <ArrowRight className="ml-1 h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
             </div>
-          </dl>
-          <Button variant="outline" size="lg" className="mt-6 h-12 px-8 text-base" asChild>
+          </div>
+        </ScrollReveal>
+      </div>
+    </section>
+
+    {/* e · Founder */}
+    <ScrollReveal><FounderSection /></ScrollReveal>
+
+    {/* f · Pricing teaser */}
+    <section className="border-b border-border">
+      <div className="container max-w-5xl py-16 md:py-24">
+        <ScrollReveal>
+          <p className={eyebrow}>Pricing</p>
+          <h2 className={h2}>{PLAN_SPLIT.line}</h2>
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            <div className="min-w-0 rounded-2xl border border-border bg-card p-6 shadow-soft">
+              <p className="text-lg font-bold text-foreground">Free, $0</p>
+              <PlanFeatureList features={FREE_FEATURES} />
+            </div>
+            <div className="min-w-0 rounded-2xl border-2 border-primary bg-card p-6 shadow-soft">
+              <p className="text-lg font-bold text-foreground">Pro, {PRICE_TEXT.monthlyPerMonth}</p>
+              <PlanFeatureList features={PRO_FEATURES} />
+            </div>
+          </div>
+          <Button variant="outline" size="lg" className="mt-8 h-12 px-8 text-base" asChild>
             <Link to="/pricing" onClick={() => track("cta_clicked", { cta: "plans_pro" })}>See pricing</Link>
           </Button>
-        </div>
         </ScrollReveal>
       </div>
     </section>
 
-    <ScrollReveal><WorksWithJobSoftware /></ScrollReveal>
-
-    {/* 5 · Note from the team */}
-    <ScrollReveal><FounderNote /></ScrollReveal>
-
-    {/* 6 · Five questions */}
+    {/* g · FAQ */}
     <section className="border-b border-border">
       <div className="container max-w-3xl py-16 md:py-24">
         <ScrollReveal>
-        <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
-          Questions people actually ask.
-        </h2>
-        <Accordion type="single" collapsible className="home-lift-card mt-8 w-full rounded-lg border border-border bg-card px-5 shadow-soft">
-          {FAQS.map((f, i) => (
-            <AccordionItem key={f.question} value={`q${i}`}>
-              <AccordionTrigger className="text-left">{f.question}</AccordionTrigger>
-              <AccordionContent className="leading-relaxed text-muted-foreground">
-                {f.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+          <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">Questions</h2>
+          <Accordion type="single" collapsible className="home-lift-card mt-8 w-full rounded-lg border border-border bg-card px-5 shadow-soft">
+            {HOME_FAQS.map((f, i) => (
+              <AccordionItem key={f.q} value={`q${i}`}>
+                <AccordionTrigger className="text-left">{f.q}</AccordionTrigger>
+                <AccordionContent className="leading-relaxed text-muted-foreground">
+                  {f.a}
+                  {f.q.startsWith("Does it work with Jobber") && (
+                    <> <Link to="/docs/zapier" className="font-medium text-foreground underline underline-offset-4">Read the Zapier guide</Link>.</>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </ScrollReveal>
       </div>
     </section>
 
-    {/* 2b · Free tools. Useful before signing up, and no account required. */}
-    <section className="border-b border-border">
-      <div className="container py-16 md:py-20">
-        <ScrollReveal>
-        <div className="max-w-2xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-            Free tools
-          </p>
-          <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
-            Start with one useful tool.
-          </h2>
-          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-            No account, no card, and nothing you type is saved or sent.
-          </p>
-        </div>
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {([
-            {
-              to: "/tools/referral-program-grader",
-              cta: "home_tool_grader",
-              title: "Referral Program Grader",
-              body: "Eight questions, a score out of 100, and the three things to fix first.",
-            },
-            {
-              to: "/tools/referral-reward-calculator",
-              cta: "home_tool_calculator",
-              title: "Referral Reward Calculator",
-              body: "See what a fixed reward leaves you on a closed referred job.",
-            },
-            {
-              to: "/tools/referral-message-generator",
-              cta: "home_tool_generator",
-              title: "Referral Message Generator",
-              body: "A text, an email and a script you can say out loud. You send them.",
-            },
-          ] as const).map((tool) => (
-            <Link
-              key={tool.to}
-              to={tool.to}
-              onClick={() => track("cta_clicked", { cta: tool.cta })}
-              className="home-lift-card rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40"
-            >
-              <h3 className="text-sm font-bold text-foreground">{tool.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{tool.body}</p>
-            </Link>
-          ))}
-        </div>
-        <p className="mt-6 text-sm">
-          <Link to="/tools" onClick={() => track("cta_clicked", { cta: "home_tools_all" })} className="font-semibold text-primary hover:underline">
-            See all free tools
-            <ArrowRight className="ml-1 inline h-3.5 w-3.5" aria-hidden="true" />
-          </Link>
-        </p>
-        </ScrollReveal>
-      </div>
-    </section>
-
-    {/* 7 · Final action */}
+    {/* h · Final action */}
     <section className="final-cta-glow relative overflow-hidden bg-ink text-white">
       <div className="container py-16 text-center md:py-24">
         <ScrollReveal>
-        <Wordmark size="xl" variant="white" />
-        <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-extrabold tracking-tight md:text-5xl">
-          Build the page, then make the ask.
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl text-base text-white/70">
-          {PLAN_SPLIT.line}
-        </p>
-        <Button
-          size="lg"
-          className="mt-9 h-auto min-h-12 w-full whitespace-normal bg-primary px-6 py-3 sm:w-auto sm:px-8 text-base text-primary-foreground shadow-product hover:bg-primary-deep"
-          asChild
-        >
-          <Link to="/signup" onClick={() => track("cta_clicked", { cta: "footer_signup" })}>
-            {FREE_CTA_LABEL}
-            <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-          </Link>
-        </Button>
+          <Wordmark size="xl" variant="white" />
+          <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-extrabold tracking-tight md:text-5xl">Your next job is already in your customer list.</h2>
+          <Button size="lg" className="mt-9 h-auto min-h-12 w-full whitespace-normal bg-primary px-6 py-3 text-base text-primary-foreground shadow-product hover:bg-primary-deep sm:w-auto sm:px-8" asChild>
+            <Link to="/signup" onClick={() => track("cta_clicked", { cta: "footer_signup" })}>
+              {FREE_CTA_LABEL}
+              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+            </Link>
+          </Button>
         </ScrollReveal>
       </div>
     </section>
-    </>
-  );
-};
+  </>
+);
 
 export default Index;

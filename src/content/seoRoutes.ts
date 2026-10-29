@@ -26,6 +26,11 @@ import { PRICE_TEXT } from "../config/pricing";
 // prerendered HTML from drifting from the rendered pages.
 import { PLAN_SPLIT } from "../config/planFeatures";
 import { SAMPLE_META } from "./samplePage";
+import { HOME_FAQS } from "./homeFaqs";
+import { ABOUT_SECTIONS } from "./aboutPage";
+import { EARN_COPY } from "./earnPage";
+import { CANONICAL_SENTENCE } from "../config/brand";
+import { HOME_SEO } from "./homeSeo";
 
 
 
@@ -44,6 +49,8 @@ export interface PrerenderRoute {
    * When absent the prerender emits a self-referential canonical.
    */
   canonical?: string;
+  /** Moved page: rendered as a redirect document pointing here. */
+  redirectTo?: string;
 }
 
 // Derived from the single pricing source so the initial HTML can never quote a
@@ -217,30 +224,34 @@ const toolkitRoutes: PrerenderRoute[] = [
 const handwritten: PrerenderRoute[] = [
   {
     path: "/",
-    title: "Revvin | Referral software for service businesses",
-    description: `Turn past customers into your next booked job. Mark a job done, or let your job software do it, and Revvin automatically asks that customer for a Google review and a referral. On Pro, it emails every customer you've ever had to win back repeat work.`,
-    h1: "Turn past customers into your next booked job.",
+    title: HOME_SEO.title,
+    description: HOME_SEO.description,
+    h1: HOME_SEO.h1,
     sections: [
-      {
-        heading: "Free and Pro, plainly",
-        body: `${PLAN_SPLIT.line} Free: ${PLAN_SPLIT.freeDetail} Pro: ${PLAN_SPLIT.proDetail}`,
-      },
-      {
-        heading: "Create a referral page, free",
-        body: "Add your business, write the offer, set the fixed reward you will pay, pick your link, and publish. Creating and publishing your referral page is free, with no card, and you get a shareable link, a QR code and a printable pack. Every referral submitted through the page lands in a lead inbox you can work from your phone, with statuses and one-tap call or text back.",
-      },
-      {
-        heading: "The ask after every job",
-        body: "After every job, Revvin asks your customer for a Google review and a referral, automatically, once you tap Job done, or your job software tells Revvin through Zapier or the API. Personal asks open in your own texting or email app, so they send from your number or your address. On Revvin Pro you can import your past-customer list and have Revvin email a reactivation campaign to a segment you choose, with your business address and an unsubscribe link in every email.",
-      },
-      {
-        heading: "Track referrals and record rewards",
-        body: "Referral-form submissions arrive in your inbox and you are emailed about them. Replies to a personal text or email go to your own phone or inbox and are not synced back. Rewards are one fixed amount that you pay your referrer directly: Revvin tracks each one from owed to paid and notifies the referrer at both moments, holds no money and takes no cut.",
-      },
-      {
-        heading: `Free page, Revvin Pro at ${PRO}`,
-        body: `Publishing is free and does not expire. Revvin Pro is ${PRO}, or ${PRICE_TEXT.annualPerYear} billed once, and adds customer list import, bulk asks, reactivation email campaigns, ROI reporting with a monthly recap, and custom page branding. Cancel anytime: your page stays published and referrals keep arriving, you only lose the Pro tools.`,
-      },
+      { heading: "What Revvin is", body: CANONICAL_SENTENCE },
+      { heading: "Your customers sell for you", body: HOME_SEO.sub },
+      { heading: "Set your reward", body: "Pick what a closed job is worth to you, like $100 or $250." },
+      { heading: "Ask your customers", body: "Import your list. Revvin writes the text, you send it from your own phone." },
+      { heading: "Get the job, pay the reward", body: "Referrals land in your inbox. Close the job, pay your referrer, mark it paid." },
+      { heading: "Free and Pro", body: `${PLAN_SPLIT.line} Free: ${PLAN_SPLIT.freeDetail} Pro, ${PRO}: ${PLAN_SPLIT.proDetail}` },
+    ],
+    faqs: HOME_FAQS,
+  },
+  {
+    path: "/about",
+    title: "About Revvin | Free referral program for home-service businesses",
+    description: `${CANONICAL_SENTENCE} Pricing, how it works, what it does not do, and who built it.`,
+    h1: "About Revvin",
+    sections: ABOUT_SECTIONS,
+  },
+  {
+    path: "/earn",
+    title: "Earn money recommending local businesses | Revvin",
+    description: EARN_COPY.sub,
+    h1: EARN_COPY.h1,
+    sections: [
+      { heading: "Opening city by city", body: EARN_COPY.rollout },
+      { heading: "The rules", body: EARN_COPY.rules.join(" ") },
     ],
   },
   {
@@ -265,6 +276,7 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/for-businesses",
+    redirectTo: "/",
     title: "Revvin | Referrals, repeat work and reviews",
     description: `Turn your past-customer list into referrals, repeat work and reviews. Your referral page is free. Revvin Pro is ${PRO}. Cancel anytime.`,
     h1: "Stop paying for clicks. Start working the list you have.",
@@ -310,6 +322,7 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/for-referrers",
+    redirectTo: "/earn",
     title: "How Referring Works | Revvin",
     description:
       "Someone sent you a Revvin link? Learn how to submit a referral, when a fixed reward becomes owed, and how the business pays you directly.",
@@ -442,6 +455,7 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/trust",
+    redirectTo: "/about",
     title: "Revvin | Trust, verification and payouts",
     description:
       "How Revvin protects businesses and referrers with verification, transparent status tracking, dispute review, and full referrer payouts.",
@@ -467,6 +481,7 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/about-revvin-llm",
+    redirectTo: "/about",
     title: "About Revvin | Structured Summary for AI & LLM Citation",
     description:
       "A plain-text, structured factsheet about Revvin's referral platform for service businesses: pricing, business model, target industries, and policies.",

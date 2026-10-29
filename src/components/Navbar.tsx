@@ -43,7 +43,8 @@ const Navbar = () => {
   const navLinks = [
     { to: "/how-it-works", label: "How it works" },
     { to: "/pricing", label: "Pricing" },
-    { to: "/tools", label: "Free tools" },
+    { to: "/earn", label: "Earn money" },
+    { to: "/guides", label: "Guides" },
   ];
 
   const roleLabel = userRole === "business" ? "Business" : userRole === "admin" ? "Admin" : "Referrer";
@@ -163,7 +164,7 @@ const Navbar = () => {
                   to="/auth"
                   className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  Log In
+                  Log in
                 </Link>
                 <Button size="sm" className="px-5" asChild>
                    <Link to="/signup" onClick={() => track("cta_clicked", { cta: "nav_signup" })}>{FREE_CTA_LABEL}</Link>
@@ -227,7 +228,7 @@ const Navbar = () => {
                 ) : (
                   <>
                     <Button variant="outline" size="sm" className="flex-1" asChild>
-                      <Link to="/auth" onClick={() => setOpen(false)}>Log In</Link>
+                      <Link to="/auth" onClick={() => setOpen(false)}>Log in</Link>
                     </Button>
                     <Button size="sm" className="h-auto min-h-9 flex-1 whitespace-normal py-2 text-center" asChild>
                        <Link to="/signup" onClick={() => { setOpen(false); track("cta_clicked", { cta: "nav_menu_signup" }); }}>{FREE_CTA_LABEL}</Link>
