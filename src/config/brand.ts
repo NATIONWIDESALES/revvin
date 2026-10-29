@@ -40,6 +40,7 @@ export const FOUNDER_PERSON = {
   name: FOUNDER.name,
   jobTitle: FOUNDER.jobTitle,
   sameAs: [...FOUNDER.sameAs],
+  disambiguatingDescription: "Karm Sandhu is the founder of Revvin (revvin.co), referral program software for home-service businesses.",
   worksFor: { "@id": ORG_ID },
 } as const;
 

@@ -3,6 +3,8 @@ import path from "node:path";
 import type { Plugin } from "vite";
 import { PRERENDER_ROUTES, type PrerenderRoute } from "../src/content/seoRoutes";
 import { PRICE_TEXT, MONTHLY_PRICE, ANNUAL_PRICE } from "../src/config/pricing";
+import { isRestrictedCategory } from "../src/lib/offerUtils";
+import { buildSitemapEntries, renderSitemap } from "./sitemap";
 import { buildBusinessManifest, businessManifestPath } from "../src/lib/webManifest";
 import {
   APP_ID,
@@ -15,6 +17,7 @@ import {
   ORG_ID,
   ORG_SAME_AS,
   SITE_ID,
+  CANONICAL_SENTENCE,
 } from "../src/config/brand";
 
 const SITE = "https://revvin.co";
@@ -88,7 +91,8 @@ const ORGANIZATION = {
   slogan: "Your customer list, working for you",
   disambiguatingDescription: ORG_DISAMBIGUATION,
   founder: FOUNDER_PERSON,
-  sameAs: ORG_SAME_AS,
+  // Emitted only once real profile URLs exist; an empty sameAs says nothing.
+  ...(ORG_SAME_AS.length ? { sameAs: ORG_SAME_AS } : {}),
   ...(FOUNDING_DATE ? { foundingDate: FOUNDING_DATE } : {}),
   // Prices come from the shared pricing facts so the structured data in every
   // built document, including the one that overwrites index.html, cannot drift
@@ -101,6 +105,7 @@ const WEBSITE = {
   "@id": SITE_ID,
   url: SITE,
   name: "Revvin",
+  alternateName: "Revvin.co",
   inLanguage: "en-US",
   publisher: { "@id": ORG_ID },
   // /browse reads its query from ?q=, so this action describes a search that
@@ -459,18 +464,38 @@ export interface PublicBusiness {
   city?: string | null;
   state?: string | null;
   category?: string | null;
+  is_demo?: boolean | null;
+  updated_at?: string | null;
 }
 
 export const businessMeta = (biz: PublicBusiness) => {
-  const where = [biz.city, biz.state].filter(Boolean).join(", ");
-  const reward = biz.offer_amount ? `${biz.offer_amount}` : "a reward";
-  const trigger = biz.offer_trigger ? ` when the job qualifies: ${biz.offer_trigger}.` : ".";
-  const description =
-    `Refer someone to ${biz.name}${where ? ` in ${where}` : ""} and ${biz.name} pays you ${reward}${trigger}` +
-    ` Submit the referral on this page. ${biz.description ? biz.description.trim() : ""}`.trimEnd();
+  const reward = biz.offer_amount?.trim() || "a reward";
+  const city = biz.city?.trim();
   return {
-    title: `Refer a customer to ${biz.name} | Revvin`,
-    description: description.slice(0, 300),
+    title: `Refer a customer to ${biz.name}${city ? ` in ${city}` : ""}, earn ${reward}`,
+    description: `${biz.name} pays ${reward} when your referral turns into a job. Submit a referral or get your own link.`,
+  };
+};
+
+/** Indexable only when published (the public view holds only live pages), not a demo and not restricted. */
+export const businessIndexable = (biz: PublicBusiness) => !biz.is_demo && !isRestrictedCategory(biz.category);
+
+export const businessJsonLd = (biz: PublicBusiness) => {
+  const url = `${SITE}/r/${biz.slug}`;
+  const reward = biz.offer_amount?.trim();
+  return {
+    "@type": "LocalBusiness",
+    "@id": `${url}#business`,
+    name: biz.name,
+    url,
+    ...(biz.city ? { areaServed: { "@type": "City", name: biz.city } } : {}),
+    makesOffer: {
+      "@type": "Offer",
+      name: "Referral reward",
+      description: reward
+        ? `${biz.name} pays ${reward} when a referral turns into a job.${biz.offer_trigger ? ` ${biz.offer_trigger}` : ""}`.trim()
+        : `${biz.name} pays a reward when a referral turns into a job.`,
+    },
   };
 };
 
@@ -490,7 +515,7 @@ export const renderBusinessDoc = (template: string, biz: PublicBusiness) => {
     image: biz.logo_url || `${SITE}/og-image.png`,
   });
   html = setCanonical(html, url);
-  html = setRobots(html, "noindex, follow");
+  html = setRobots(html, businessIndexable(biz) ? "index, follow" : "noindex, follow");
   html = replaceTag(
     html,
     /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
@@ -498,6 +523,7 @@ export const renderBusinessDoc = (template: string, biz: PublicBusiness) => {
       "@context": "https://schema.org",
       "@graph": [
         ORGANIZATION,
+        businessJsonLd(biz),
         {
           "@type": "WebPage",
           "@id": `${url}#webpage`,
@@ -508,7 +534,7 @@ export const renderBusinessDoc = (template: string, biz: PublicBusiness) => {
           isPartOf: { "@id": SITE_ID },
         },
       ],
-    })}</script>`,
+    }).replace(/</g, "\\u003c")}</script>`,
   );
   // A shortcut saved from this page must reopen this page, so it gets its own
   // manifest instead of the site one, which starts at the dashboard.
@@ -591,19 +617,13 @@ const fetchLiveMetros = async (supabaseUrl: string, anonKey: string): Promise<Ea
   }
 };
 
-/** Adds live metro URLs to the built sitemap. No lastmod: there is no page-specific change date. */
-export const addMetrosToSitemap = (xml: string, slugs: string[]) =>
-  slugs.length
-    ? xml.replace("</urlset>", `${slugs.map((s) => `  <url>\n    <loc>${SITE}/earn/${s}</loc>\n  </url>\n`).join("")}</urlset>`)
-    : xml;
-
 const fetchPublishedBusinesses = async (
   supabaseUrl: string,
   anonKey: string,
 ): Promise<PublicBusiness[]> => {
   try {
     const res = await fetch(
-      `${supabaseUrl}/rest/v1/businesses_public?select=slug,name,description,offer_amount,offer_trigger,logo_url,city,state,category&limit=1000`,
+      `${supabaseUrl}/rest/v1/businesses_public?select=slug,name,description,offer_amount,offer_trigger,logo_url,city,state,category,is_demo,updated_at&limit=1000`,
       { headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` } },
     );
     if (!res.ok) return [];
@@ -612,6 +632,20 @@ const fetchPublishedBusinesses = async (
   } catch {
     return [];
   }
+};
+
+/** Plain text of /about, /pricing, /how-it-works and every guide, for AI readers. */
+export const renderLlmsFull = () => {
+  const picked = PRERENDER_ROUTES.filter(
+    (r) => !r.redirectTo && !r.noindex && (["/about", "/pricing", "/how-it-works"].includes(r.path) || r.path.startsWith("/guides/")),
+  );
+  const parts = [`# Revvin, full text`, "", CANONICAL_SENTENCE, ""];
+  for (const r of picked) {
+    parts.push(`## ${r.h1}`, `URL: ${SITE}${r.path}`, "", r.description, "");
+    for (const sec of r.sections) parts.push(`### ${sec.heading}`, sec.body, "");
+    for (const f of r.faqs ?? []) parts.push(`Q: ${f.q}`, `A: ${f.a}`, "");
+  }
+  return parts.join("\n");
 };
 
 const writeDoc = (dist: string, routePath: string, html: string) => {
@@ -694,8 +728,9 @@ export default function prerenderPlugin(): Plugin {
       const supabaseUrl = env.VITE_SUPABASE_URL;
       const anonKey = env.VITE_SUPABASE_PUBLISHABLE_KEY;
       let businessCount = 0;
+      let businesses: PublicBusiness[] = [];
       if (supabaseUrl && anonKey) {
-        const businesses = await fetchPublishedBusinesses(supabaseUrl, anonKey);
+        businesses = await fetchPublishedBusinesses(supabaseUrl, anonKey);
         for (const biz of businesses) {
           writeDoc(dist, `/r/${biz.slug}`, renderBusinessDoc(template, biz));
           fs.mkdirSync(path.join(dist, "manifests"), { recursive: true });
@@ -714,21 +749,29 @@ export default function prerenderPlugin(): Plugin {
 
       // Live Earn cities. Non-live cities are never written or listed, so they
       // stay noindex single-page-app routes and out of the sitemap.
+      let metros: EarnMetroDoc[] = [];
       if (supabaseUrl && anonKey) {
-        const metros = await fetchLiveMetros(supabaseUrl, anonKey);
+        metros = await fetchLiveMetros(supabaseUrl, anonKey);
         for (const m of metros) { writeDoc(dist, `/earn/${m.slug}`, renderEarnMetroDoc(template, m)); count++; }
-        const sitemapPath = path.join(dist, "sitemap.xml");
-        if (metros.length && fs.existsSync(sitemapPath)) {
-          fs.writeFileSync(sitemapPath, addMetrosToSitemap(fs.readFileSync(sitemapPath, "utf8"), metros.map((m) => m.slug)), "utf8");
-        }
       }
+
+      // Sitemap, generated from the same route list, the indexable referral
+      // pages and the live Earn cities. Noindex and redirect documents never
+      // appear in it.
+      const entries = buildSitemapEntries({
+        buildDate: new Date().toISOString().slice(0, 10),
+        businesses: businesses.filter(businessIndexable),
+        metros: metros.map((m) => m.slug),
+      });
+      fs.writeFileSync(path.join(dist, "sitemap.xml"), renderSitemap(entries), "utf8");
+      fs.writeFileSync(path.join(dist, "llms-full.txt"), renderLlmsFull(), "utf8");
 
       // IndexNow verification key file, read by Bing, Yandex and Seznam when a
       // URL submission arrives.
       fs.writeFileSync(path.join(dist, `${INDEXNOW_KEY}.txt`), INDEXNOW_KEY, "utf8");
 
       console.log(
-        `[prerender] wrote ${count} static documents, ${businessCount} referral pages, 404.html and the IndexNow key to dist/ (404 status codes are not available on this host)`,
+        `[prerender] wrote ${count} static documents, ${businessCount} referral pages, sitemap.xml with ${entries.length} URLs, llms-full.txt, 404.html and the IndexNow key to dist/ (404 status codes are not available on this host)`,
       );
     },
   };
