@@ -159,7 +159,7 @@ export function safeAnalyticsMeta(event: string, context: AnalyticsContext, inpu
   return result;
 }
 
-const PUBLIC_EVENTS = new Set(["page_viewed", "cta_clicked", "demo_started", "demo_completed", "sample_page_viewed", "email_lead_submitted", "referral_submitted", "promo_popup_shown", "promo_cta_clicked", "pwa_install_cta_shown", "pwa_install_cta_clicked"]);
+const PUBLIC_EVENTS = new Set(["page_viewed", "cta_clicked", "demo_started", "demo_completed", "sample_page_viewed", "email_lead_submitted", "referral_submitted", "referral_page_load_failed", "promo_popup_shown", "promo_cta_clicked", "pwa_install_cta_shown", "pwa_install_cta_clicked"]);
 export function analyticsEventAllowed(event: string, context: AnalyticsContext): boolean {
   if (context.traffic === "product") {
     if (SIGNUP_STEP_EVENTS.has(event)) return context.path === SIGNUP_PATH;
