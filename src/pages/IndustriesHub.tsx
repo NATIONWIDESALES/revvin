@@ -1,6 +1,7 @@
 import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import FinalBand from "@/components/marketing/FinalBand";
 import SEOHead from "@/components/SEOHead";
 import { INDUSTRIES } from "@/content/industries";
 import { PRICE_TEXT } from "@/config/pricing";
@@ -38,11 +39,9 @@ const IndustriesHub = () => (
       ]}
     />
 
-    <section className="relative overflow-hidden border-b border-border hero-radial">
-      <div aria-hidden className="absolute inset-0 grid-faint" />
-      <div className="container relative max-w-3xl py-24">
-        <p className="mb-3 text-[11px] font-semibold text-primary">By industry</p>
-        <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-5xl">
+    <section className="border-b border-line">
+      <div className="mk-wrap max-w-4xl py-20">
+        <h1 className="text-5xl leading-[0.98] md:text-7xl">
           Referral programs by industry
         </h1>
         <p className="mt-5 text-lg text-muted-foreground">
@@ -52,41 +51,33 @@ const IndustriesHub = () => (
       </div>
     </section>
 
-    <section className="border-b border-border bg-surface-warm">
-      <div className="container py-20">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <section className="border-b border-line">
+      <div className="mk-wrap max-w-4xl py-12">
+        <div className="divide-y divide-line border-y border-line">
           {INDUSTRIES.map((i) => (
-            <article key={i.slug} className="rounded-xl border border-border bg-background p-6">
-              <h2 className="text-lg font-bold tracking-tight text-foreground">
+            <article key={i.slug} className="grid gap-2 py-6 md:grid-cols-[minmax(0,14rem)_minmax(0,1fr)] md:gap-8">
+              <h2 className="text-3xl">
                 <Link to={`/referral-program/${i.slug}`} className="hover:text-primary">
                   {i.label} referral program
                 </Link>
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{i.intro}</p>
+              <div className="min-w-0"><p className="text-base leading-relaxed text-muted-foreground">{i.intro}</p>
               <Link
                 to={`/referral-program/${i.slug}`}
-                className="mt-4 inline-block text-sm font-semibold text-primary hover:underline"
+                className="mt-2 inline-block text-sm font-semibold text-primary underline underline-offset-4"
               >
                 Read the {i.trade} guide
-              </Link>
+              </Link></div>
             </article>
           ))}
         </div>
       </div>
     </section>
 
-    <section className="bg-ink text-white">
-      <div className="container max-w-2xl py-20 text-center">
-        <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">Not listed? It still works.</h2>
-        <p className="mt-4 text-lg text-white/70">
-          Revvin runs on any service business with a past-customer list. Free to publish and take referrals.{" "}
-          Pro is {PRICE_TEXT.monthlyPerMonth} USD.
-        </p>
-        <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep h-auto min-h-12 max-w-full whitespace-normal py-3 text-center" asChild>
-          <Link to="/signup">{FREE_CTA_LABEL}</Link>
-        </Button>
-      </div>
-    </section>
+    <FinalBand
+      heading="Not listed? It still works."
+      body={`Revvin runs on any service business with a past-customer list. Free to publish and take referrals. Pro is ${PRICE_TEXT.monthlyPerMonth} USD.`}
+    />
   </>
 );
 
