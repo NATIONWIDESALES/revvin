@@ -726,3 +726,6 @@ body[data-dash-shell] .app-topbar { display: none; }
 .surface-forest .yard-sign-panel { box-shadow: 0 0 0 2px hsl(0 0% 100% / .22), 0 24px 40px -18px rgba(0,0,0,.5); }
 .surface-forest .yard-caption { color: hsl(var(--muted-foreground)); }
 @media (max-width: 640px) { .yard-scene.yard-compact { height: 400px; } .yard-compact .yard-sign { width: 270px; } .yard-compact .yard-sign-q { font-size: 32px; } }
+
+/* Headings inside dark containers keep the container's light text colour. */
+:where(.bg-forest, .bg-forest-night, .surface-forest, .text-primary-foreground, .text-white, .rf-head) :where(h1, h2, h3) { color: inherit; }
