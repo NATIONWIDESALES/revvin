@@ -183,7 +183,7 @@ export const COMPARISONS: Comparison[] = [
     table: table("Clicki", [
       "Referrals + RewardsPass $549/month base; Bravo add-on +$200/month; quarterly and annual billing nonrefundable",
       "See joinclicki.com",
-      "No free plan shown",
+      "See joinclicki.com",
       "See joinclicki.com",
       "Venmo, Zelle, PayPal and direct deposit",
       "Yes, a unique link per promoter, plus an Apple and Google Wallet pass",
@@ -301,7 +301,7 @@ export const COMPARISONS: Comparison[] = [
       },
       {
         q: "Does Revvin pay rewards as credits?",
-        a: "No. The business pays referrers directly, usually in cash. Revvin tracks each reward from owed to paid but does not process payouts yet.",
+        a: "No. The business pays referrers directly. Revvin tracks each reward from owed to paid but does not process payouts yet.",
       },
     ],
     sources: [
@@ -393,7 +393,7 @@ export const ROUNDUP = {
       ["Revvin", "Free; Pro $49/month", "Yes", "Small home-service crews"],
       ["ReferralWise", "Free; Pro $19/month", "Yes, limited", "Partner referrals with automated payouts"],
       ["Jobber Referrals", "See Jobber pricing", "See Jobber pricing", "Jobber users"],
-      ["Clicki", "$549/month", "No free plan shown", "Multi-tech companies on ServiceTitan or FieldRoutes"],
+      ["Clicki", "$549/month", "See joinclicki.com", "Multi-tech companies on ServiceTitan or FieldRoutes"],
       ["Get The Referral", "$399/month plus setup", "No free plan shown", "Roofing, solar and remodeling sales teams"],
       ["Snoball", "Not published", "Free business profile", "Done-for-you reviews and referrals"],
     ],
