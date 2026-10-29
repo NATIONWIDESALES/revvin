@@ -140,21 +140,17 @@ const BusinessDashboard = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
   const [offers, setOffers] = useState<OfferRow[]>([]);
-  const [contactStats, setContactStats] = useState<{ total: number; sent: number }>({ total: 0, sent: 0 });
+  const [contactStats, setContactStats] = useState<{ total: number; sent: number; pending: number }>({ total: 0, sent: 0, pending: 0 });
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<string>("share");
+  const [activeTab, setActiveTab] = useState<DashTab>(resolveTab(searchParams.get("tab")));
   const [showIosSteps, setShowIosSteps] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(searchParams.get("welcome") === "1");
-  const defaultedTab = useRef(false);
 
-  // ?tab= lets other surfaces (the scoreboard empty state, emails) deep link
-  // straight to the action they are recommending.
-  const VALID_TABS = ["customers", "referrers", "jobdone", "campaigns", "leads", "offers", "referrals", "payouts", "page", "share", "integrations", "account"];
+  // ?tab= lets other surfaces (emails, empty states) deep link straight to the
+  // action they recommend. No tab, or an unknown one, opens Home.
   useEffect(() => {
-    const t = searchParams.get("tab");
-    if (t && VALID_TABS.includes(t)) setActiveTab(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setActiveTab(resolveTab(searchParams.get("tab")));
   }, [searchParams]);
 
   // Records the first home screen launch, and the install prompt being accepted
@@ -168,35 +164,18 @@ const BusinessDashboard = () => {
     );
   }, [bizId, installedAt]);
 
-  // Without an explicit tab, a free business lands on the sharing tools and a
-  // Pro business lands on its customer list.
-  useEffect(() => {
-    if (defaultedTab.current || !biz) return;
-    defaultedTab.current = true;
-    const t = searchParams.get("tab");
-    if (t && VALID_TABS.includes(t)) return;
-    setActiveTab((biz.plan || "free") === "pro" ? "customers" : "share");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [biz]);
-
   const changeTab = (t: string) => {
-    setActiveTab(t);
+    const tab = resolveTab(t);
+    setActiveTab(tab);
     const next = new URLSearchParams(searchParams);
-    next.set("tab", t);
+    next.set("tab", tab);
     setSearchParams(next, { replace: true });
+    if (typeof window !== "undefined") {
+      const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+      if (tab === "billing") setTimeout(() => document.getElementById("billing")?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" }), 50);
+    }
   };
-
-  // Keep the selected tab visible inside the horizontally scrolling tab bar on
-  // narrow screens. Scoped to the bar itself so the page never jumps.
-  const tabsBarRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    const bar = tabsBarRef.current;
-    if (!bar) return;
-    const active = bar.querySelector<HTMLElement>('[data-state="active"]');
-    if (!active) return;
-    const offset = active.offsetLeft - (bar.clientWidth - active.offsetWidth) / 2;
-    bar.scrollTo({ left: Math.max(0, offset), behavior: "smooth" });
-  }, [activeTab]);
 
   useEffect(() => { if (user) loadAll(); }, [user]);
 
@@ -261,6 +240,7 @@ const BusinessDashboard = () => {
       setContactStats({
         total: cdata?.length ?? 0,
         sent: (cdata ?? []).filter((c) => c.status === "sent").length,
+        pending: (cdata ?? []).filter((c) => c.status === "pending").length,
       });
     }
     setLoading(false);
