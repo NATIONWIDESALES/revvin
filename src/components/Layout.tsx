@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 import PageTransition from "@/components/PageTransition";
+import AppTopBar from "@/components/AppTopBar";
 
 /** Signed-in app routes bring their own chrome (dashboard shell, /me bar). */
 export function isAppRoute(pathname: string): boolean {
@@ -22,7 +23,7 @@ const Layout = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <ScrollToTop />
-      {!app && <Navbar />}
+      {app ? <AppTopBar /> : <Navbar />}
       <main className={app ? "flex-1" : "site-main flex-1"}>
         <PageTransition />
       </main>

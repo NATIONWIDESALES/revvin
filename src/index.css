@@ -689,3 +689,6 @@
 .dash-content h3.text-sm { font-size: 1.25rem; line-height: 1.6rem; }
 .dash-content .rounded-2xl.border { border-radius: 14px; border-color: hsl(var(--line)); }
 .dash-content table tr { border-color: hsl(var(--line)); }
+
+/* The business dashboard rail is its own chrome; the generic app bar steps aside. */
+body[data-dash-shell] .app-topbar { display: none; }
