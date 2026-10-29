@@ -271,6 +271,7 @@ const FALLBACK_GUARD = `<script>(function(){var p=location.pathname;if(p==="/")r
 
 const bodyHtml = (route: PrerenderRoute) => {
   const parts: string[] = [`<h1>${esc(route.h1)}</h1>`];
+  if (route.path.startsWith("/guides/")) parts.push(`<p>By ${esc(FOUNDER_PERSON.name)}, Founder of Revvin</p>`);
   for (const s of route.sections) {
     parts.push(`<h2>${esc(s.heading)}</h2><p>${esc(s.body)}</p>`);
   }
