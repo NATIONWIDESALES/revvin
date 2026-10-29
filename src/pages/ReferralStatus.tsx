@@ -87,6 +87,9 @@ const ReferralStatus = () => {
           <p className="mt-8 text-xs text-muted-foreground">
             This page shows only your referral's stage and reward status. The business handles payment directly.
           </p>
+          <p className="mt-3 text-sm">
+            <Link to="/me" className="font-medium text-primary underline underline-offset-4">See all your referrals</Link>
+          </p>
 
           <AddToHomeScreen surface="referral_status" line={INSTALL_COPY.statusLine} className="mt-6" />
         </div>
