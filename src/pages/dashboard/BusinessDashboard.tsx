@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Copy, ExternalLink, Download, Inbox, AlertCircle, Check, Plus, Lock, Clock, MessageSquare, Phone } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -29,7 +28,9 @@ import CampaignsTab from "@/components/dashboard/CampaignsTab";
 import IntegrationsTab from "@/components/dashboard/IntegrationsTab";
 import PrintPack from "@/components/dashboard/PrintPack";
 import AttestationGate from "@/components/dashboard/AttestationGate";
-import ActivationChecklist, { ActivationStep } from "@/components/dashboard/ActivationChecklist";
+import DashboardShell from "@/components/dashboard/DashboardShell";
+import HomeView from "@/components/dashboard/HomeView";
+import { resolveTab, type DashTab } from "@/lib/dashboardHome";
 import WelcomeLiveCard from "@/components/dashboard/WelcomeLiveCard";
 import PublishPrompt, { PUBLISH_COPY } from "@/components/dashboard/PublishPrompt";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
@@ -140,21 +141,17 @@ const BusinessDashboard = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
   const [offers, setOffers] = useState<OfferRow[]>([]);
-  const [contactStats, setContactStats] = useState<{ total: number; sent: number }>({ total: 0, sent: 0 });
+  const [contactStats, setContactStats] = useState<{ total: number; sent: number; pending: number }>({ total: 0, sent: 0, pending: 0 });
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<string>("share");
+  const [activeTab, setActiveTab] = useState<DashTab>(resolveTab(searchParams.get("tab")));
   const [showIosSteps, setShowIosSteps] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(searchParams.get("welcome") === "1");
-  const defaultedTab = useRef(false);
 
-  // ?tab= lets other surfaces (the scoreboard empty state, emails) deep link
-  // straight to the action they are recommending.
-  const VALID_TABS = ["customers", "referrers", "jobdone", "campaigns", "leads", "offers", "referrals", "payouts", "page", "share", "integrations", "account"];
+  // ?tab= lets other surfaces (emails, empty states) deep link straight to the
+  // action they recommend. No tab, or an unknown one, opens Home.
   useEffect(() => {
-    const t = searchParams.get("tab");
-    if (t && VALID_TABS.includes(t)) setActiveTab(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setActiveTab(resolveTab(searchParams.get("tab")));
   }, [searchParams]);
 
   // Records the first home screen launch, and the install prompt being accepted
@@ -168,35 +165,18 @@ const BusinessDashboard = () => {
     );
   }, [bizId, installedAt]);
 
-  // Without an explicit tab, a free business lands on the sharing tools and a
-  // Pro business lands on its customer list.
-  useEffect(() => {
-    if (defaultedTab.current || !biz) return;
-    defaultedTab.current = true;
-    const t = searchParams.get("tab");
-    if (t && VALID_TABS.includes(t)) return;
-    setActiveTab((biz.plan || "free") === "pro" ? "customers" : "share");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [biz]);
-
   const changeTab = (t: string) => {
-    setActiveTab(t);
+    const tab = resolveTab(t);
+    setActiveTab(tab);
     const next = new URLSearchParams(searchParams);
-    next.set("tab", t);
+    next.set("tab", tab);
     setSearchParams(next, { replace: true });
+    if (typeof window !== "undefined") {
+      const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+      if (tab === "billing") setTimeout(() => document.getElementById("billing")?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" }), 50);
+    }
   };
-
-  // Keep the selected tab visible inside the horizontally scrolling tab bar on
-  // narrow screens. Scoped to the bar itself so the page never jumps.
-  const tabsBarRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    const bar = tabsBarRef.current;
-    if (!bar) return;
-    const active = bar.querySelector<HTMLElement>('[data-state="active"]');
-    if (!active) return;
-    const offset = active.offsetLeft - (bar.clientWidth - active.offsetWidth) / 2;
-    bar.scrollTo({ left: Math.max(0, offset), behavior: "smooth" });
-  }, [activeTab]);
 
   useEffect(() => { if (user) loadAll(); }, [user]);
 
@@ -261,6 +241,7 @@ const BusinessDashboard = () => {
       setContactStats({
         total: cdata?.length ?? 0,
         sent: (cdata ?? []).filter((c) => c.status === "sent").length,
+        pending: (cdata ?? []).filter((c) => c.status === "pending").length,
       });
     }
     setLoading(false);
@@ -312,11 +293,6 @@ const BusinessDashboard = () => {
 
   const publicUrl = `${window.location.origin}/r/${biz.slug}`;
 
-  const goToQr = () => {
-    // Navigation only. Opening the tab is not evidence of a download, so it
-    // deliberately marks nothing complete.
-    changeTab("share");
-  };
 
   // Stamped only after a QR download or print actually succeeds. Kept on the
   // business row so the tick survives a device change, like every other step.
@@ -346,47 +322,6 @@ const BusinessDashboard = () => {
     })();
   };
 
-  const activationSteps: ActivationStep[] = [
-    {
-      label: "Send your link to 5 customers",
-      done: !!biz.first_share_at,
-      onClick: () => changeTab("share"),
-      actionLabel: "Open share tools",
-    },
-    {
-      // Ticked once Revvin has actually been opened from a home screen, or the
-      // browser install prompt was accepted, so it survives a device change.
-      label: INSTALL_COPY.checklistStep,
-      done: !!biz.app_installed_at,
-      content: <HomeScreenChecklistStep />,
-    },
-    {
-      label: "Download your QR code or print pack",
-      done: !!biz.qr_downloaded_at,
-      onClick: goToQr,
-      actionLabel: "Open QR",
-    },
-    {
-      label: "Add your Google review link",
-      done: !!biz.google_review_url,
-      onClick: () => changeTab("page"),
-      actionLabel: "Add link",
-    },
-    {
-      label: "Get your first referral",
-      done: leads.length > 0,
-      onClick: () => changeTab("leads"),
-      actionLabel: "View leads",
-    },
-    {
-      // Always the final item, and the checklist has no dismiss control, so
-      // it stays in view until the page is actually live.
-      label: "Publish your page",
-      done: isLive,
-      content: isLive ? undefined : <p className="text-xs text-muted-foreground">{PUBLISH_COPY.body} Use the Publish my page button at the top.</p>,
-    },
-  ];
-
   const dismissWelcome = () => {
     setShowWelcome(false);
     const next = new URLSearchParams(searchParams);
@@ -394,182 +329,140 @@ const BusinessDashboard = () => {
     setSearchParams(next, { replace: true });
   };
 
+  const newLeads = leads.filter((l) => l.status === "new").length;
+  const setup = {
+    isLive,
+    customersTotal: contactStats.total,
+    customersSent: contactStats.sent,
+    customersPending: contactStats.pending,
+    qrDownloaded: !!biz.qr_downloaded_at,
+    hasReviewLink: !!biz.google_review_url,
+  };
+  const scrollToPublish = () => document.getElementById("publish-prompt")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  const tab = activeTab;
+  const attest = (node: React.ReactNode) => (
+    <AttestationGate businessId={biz.id} consentedAt={biz.contact_outreach_consent_at ?? null} onConsented={() => loadAll()}>
+      {node}
+    </AttestationGate>
+  );
+
   return (
-    <div className="container py-10 max-w-6xl">
-      {!isLive && <PublishPrompt surface="dashboard_banner" onPublished={loadAll} />}
+    <DashboardShell active={tab} onSelect={changeTab} isPro={isPro} newLeads={newLeads}>
+      <div className="dash-content">
+      {!isLive && <div id="publish-prompt"><PublishPrompt surface="dashboard_banner" onPublished={loadAll} /></div>}
       <InstallPrompt />
       <IosInstallSheet open={showIosSteps} onClose={() => setShowIosSteps(false)} />
-      {showWelcome && isLive && (
-        <WelcomeLiveCard
-          businessName={biz.name}
-          offerAmount={biz.offer_amount}
-          publicUrl={publicUrl}
-          onShared={markFirstShare}
-          onOpenPrintPack={() => changeTab("share")}
-          onDismiss={dismissWelcome}
-        />
-      )}
-      {/* Stacks on phones: heading owns its own row, actions wrap underneath and
-          split the width. From sm: upward it returns to the side-by-side layout. */}
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground break-words sm:text-3xl">
-              {biz.name}
-            </h1>
-            <span
-              className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${
-                isLive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-              }`}
-            >
-              {isLive ? "Live" : "Draft"}
-            </span>
-          </div>
-          <p className="text-sm text-muted-foreground mt-1">Your referral program dashboard</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:shrink-0">
-          <Button asChild className="h-11 flex-1 sm:h-10 sm:flex-none">
-            <Link to="/dashboard/create-offer"><Plus className="mr-2 h-3.5 w-3.5" /> Create offer</Link>
-          </Button>
-          <Button variant="outline" asChild className="h-11 flex-1 sm:h-10 sm:flex-none">
-            <a href={publicUrl} target="_blank" rel="noopener noreferrer">
-              {isLive ? "View public page" : "Preview page"} <ExternalLink className="ml-2 h-3.5 w-3.5" />
-            </a>
-          </Button>
-          <InstallAppButton className="h-11 flex-1 sm:h-10 sm:flex-none" onIosSteps={() => setShowIosSteps(true)} />
-          {!isPro && !["active", "trialing", "past_due", "unpaid", "incomplete"].includes(subStatus) && (
-            <Button variant="outline" className="h-11 flex-1 sm:h-10 sm:flex-none" onClick={() => changeTab("account")}>
-              Start Pro
-            </Button>
-          )}
-        </div>
-      </div>
-
       {subStatus === "past_due" && <PastDueBanner />}
 
-      <ActivationChecklist steps={activationSteps} />
-
-      {needsFinishing(biz) && (
-        <FinishPageCard key={`${biz.logo_url}-${biz.phone}`} biz={finishBiz(biz)} onSaved={loadAll} />
-      )}
-
-      {/* Upgrade prompts. Never on demo accounts, never for Pro. */}
-      {!isPro && !biz.is_demo && contactStats.total >= FREE_CONTACT_LIMIT ? (
-        <div className="mb-8"><ProUpsell title={FREE_LIMIT_COPY.reachedTitle} body={PRO_COPY.customers.body} /></div>
-      ) : !isPro && !biz.is_demo && leads.length > 0 ? (
-        <div className="mb-8"><ProUpsell title={FREE_LIMIT_COPY.firstLeadTitle} body={PRO_COPY.customers.body} /></div>
-      ) : null}
-
-      {isLive && (
-        <div className="mb-8">
-          <PushSettings businessId={biz.id} compact />
-        </div>
-      )}
-
-      {isPro ? <RoiSummaryCard businessId={biz.id} /> : null}
-
-
-      <Tabs value={activeTab} onValueChange={changeTab}>
-        {/* Eleven tabs never fit a 375px viewport. The list scrolls inside its own
-            container (never wrapping into a tall stack) and the active trigger is
-            scrolled into view so the current tab is always discoverable. */}
-        <div ref={tabsBarRef} className="-mx-4 mb-6 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-          <TabsList className="w-max justify-start">
-            <TabsTrigger value="customers">Customers {contactStats.total > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{contactStats.total}</span>}</TabsTrigger>
-            <TabsTrigger value="referrers">Referrers</TabsTrigger>
-            <TabsTrigger value="jobdone">Job done</TabsTrigger>
-            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-            <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
-            <TabsTrigger value="offers">Offers {offers.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{offers.length}</span>}</TabsTrigger>
-            <TabsTrigger value="referrals">Marketplace Referrals {marketplaceReferrals.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{marketplaceReferrals.length}</span>}</TabsTrigger>
-            <TabsTrigger value="payouts">Payouts</TabsTrigger>
-            <TabsTrigger value="page">My Page</TabsTrigger>
-            <TabsTrigger value="share">Share Tools</TabsTrigger>
-            <TabsTrigger value="integrations">Integrations</TabsTrigger>
-            <TabsTrigger value="account">Account</TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value="customers">
-          {!isLive ? (
-            <LockedTab
-              title="Publish your page to invite your customers"
-              body="Your referral page has to be live before you send customers to it. Everything you build here is saved."
-            />
-          ) : (
-          <AttestationGate
+      {tab === "home" && (
+        <>
+          <HomeView
             businessId={biz.id}
-            consentedAt={biz.contact_outreach_consent_at ?? null}
-            onConsented={() => loadAll()}
-          >
-            <CustomersTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger }} publicUrl={publicUrl} isPro={isPro} isDemo={!!biz.is_demo} onCountChange={(n) => setContactStats((s) => ({ ...s, total: n }))} />
-          </AttestationGate>
+            businessName={biz.name}
+            slug={biz.slug}
+            publicUrl={publicUrl}
+            isPro={isPro}
+            isDemo={!!biz.is_demo}
+            setup={setup}
+            leads={leads}
+            onGo={changeTab}
+            onPublish={scrollToPublish}
+            onShared={markFirstShare}
+            welcome={showWelcome && isLive ? (
+              <WelcomeLiveCard
+                businessName={biz.name}
+                offerAmount={biz.offer_amount}
+                publicUrl={publicUrl}
+                onShared={markFirstShare}
+                onOpenPrintPack={() => changeTab("share")}
+                onDismiss={dismissWelcome}
+              />
+            ) : null}
+          />
+          {needsFinishing(biz) && (
+            <div className="mt-6"><FinishPageCard key={`${biz.logo_url}-${biz.phone}`} biz={finishBiz(biz)} onSaved={loadAll} /></div>
           )}
-        </TabsContent>
+          {!isPro && !biz.is_demo && contactStats.total >= FREE_CONTACT_LIMIT && (
+            <div className="mt-6"><ProUpsell title={FREE_LIMIT_COPY.reachedTitle} body={PRO_COPY.customers.body} /></div>
+          )}
+          {isLive && <div className="mt-6"><PushSettings businessId={biz.id} compact /></div>}
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Button variant="outline" asChild>
+              <a href={publicUrl} target="_blank" rel="noopener noreferrer">{isLive ? "View public page" : "Preview page"}</a>
+            </Button>
+            <Button variant="outline" asChild><Link to="/dashboard/create-offer">Create offer</Link></Button>
+            <InstallAppButton onIosSteps={() => setShowIosSteps(true)} />
+          </div>
+        </>
+      )}
 
-        <TabsContent value="referrers"><ReferrersTab publicUrl={publicUrl} /></TabsContent>
+      {tab !== "home" && (
+        <h1 className="mb-6 font-display text-[34px] font-bold leading-none text-forest dark:text-foreground sm:text-[40px]">
+          {TAB_TITLE[tab]}
+        </h1>
+      )}
 
-        <TabsContent value="jobdone">
-          {!isLive ? (
-            <LockedTab
-              title="Publish your page to run the auto-ask"
-              body="Once your referral page is live, logging a finished job schedules a personalised referral ask to that customer."
-            />
-          ) : (
-            <AttestationGate
-              businessId={biz.id}
-              consentedAt={biz.contact_outreach_consent_at ?? null}
-              onConsented={() => loadAll()}
-            >
-              <AutoAskTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, google_review_url: biz.google_review_url ?? null, business_email: biz.business_email ?? null }} publicUrl={publicUrl} />
-            </AttestationGate>
-          )}
-        </TabsContent>
-        <TabsContent value="campaigns">
-          {!isLive ? (
-            <LockedTab
-              title="Publish your page to run a campaign"
-              body="Reactivation campaigns point people back at your referral page, so it has to be live first. Your customer list is saved either way."
-            />
-          ) : (
-            <AttestationGate
-              businessId={biz.id}
-              consentedAt={biz.contact_outreach_consent_at ?? null}
-              onConsented={() => loadAll()}
-            >
-              <CampaignsTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, business_email: biz.business_email ?? null }} publicUrl={publicUrl} isPro={isPro} />
-            </AttestationGate>
-          )}
-        </TabsContent>
-        <TabsContent value="leads">
+      {tab === "customers" && (!isLive ? (
+        <LockedTab title="Publish your page to invite your customers" body="Your referral page has to be live before you send customers to it. Everything you build here is saved." />
+      ) : attest(
+        <CustomersTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger }} publicUrl={publicUrl} isPro={isPro} isDemo={!!biz.is_demo} onCountChange={(n) => setContactStats((s) => ({ ...s, total: n }))} />
+      ))}
+
+      {tab === "referrers" && <ReferrersTab publicUrl={publicUrl} />}
+
+      {tab === "jobdone" && (!isLive ? (
+        <LockedTab title="Publish your page to run the auto-ask" body="Once your referral page is live, logging a finished job schedules a personalised referral ask to that customer." />
+      ) : attest(
+        <AutoAskTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, google_review_url: biz.google_review_url ?? null, business_email: biz.business_email ?? null }} publicUrl={publicUrl} />
+      ))}
+
+      {tab === "campaigns" && (!isLive ? (
+        <LockedTab title="Publish your page to run a campaign" body="Reactivation campaigns point people back at your referral page, so it has to be live first. Your customer list is saved either way." />
+      ) : attest(
+        <CampaignsTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, business_email: biz.business_email ?? null }} publicUrl={publicUrl} isPro={isPro} />
+      ))}
+
+      {tab === "reports" && (isPro ? <RoiSummaryCard businessId={biz.id} /> : <ProUpsell title={PRO_COPY.reporting.title} body={PRO_COPY.reporting.body} />)}
+
+      {tab === "leads" && (
+        <>
           {!isLive && leads.length === 0 ? (
-            <LockedTab
-              title="No leads yet"
-              body="Referrals land here once your page is live and customers start sending people your way."
-            />
+            <LockedTab title="No leads yet" body="Referrals land here once your page is live and customers start sending people your way." />
           ) : (
             <LeadsTab leads={leads} reload={loadAll} />
           )}
-        </TabsContent>
-        <TabsContent value="offers"><OffersTab offers={offers} /></TabsContent>
-        <TabsContent value="referrals">
-          {!isLive && marketplaceReferrals.length === 0 ? (
-            <LockedTab
-              title="Publish your page to appear in the marketplace"
-              body="Outside referrers can only find and submit to businesses with a live referral page."
-            />
-          ) : (
-            <MarketplaceReferralsTab referrals={marketplaceReferrals} reload={loadAll} />
+          {marketplaceReferrals.length > 0 && (
+            <button type="button" onClick={() => changeTab("referrals")} className="mt-4 text-sm font-semibold text-primary">
+              Marketplace referrals ({marketplaceReferrals.length})
+            </button>
           )}
-        </TabsContent>
-        <TabsContent value="payouts"><PayoutsPage businessId={biz.id} /></TabsContent>
-        <TabsContent value="page"><PageTab biz={biz} publicUrl={publicUrl} isLive={isLive} onUpdate={loadAll} onShared={markFirstShare} /></TabsContent>
-        <TabsContent value="share"><ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} onPublished={loadAll} onQrDownloaded={markQrDownloaded} onShared={markFirstShare} /></TabsContent>
-        <TabsContent value="integrations"><IntegrationsTab biz={{ id: biz.id, contact_outreach_consent_at: biz.contact_outreach_consent_at ?? null }} /></TabsContent>
-        <TabsContent value="account"><AccountTab biz={biz} onUpdate={loadAll} /></TabsContent>
-      </Tabs>
-    </div>
+        </>
+      )}
+      {tab === "offers" && <OffersTab offers={offers} />}
+      {tab === "referrals" && (!isLive && marketplaceReferrals.length === 0 ? (
+        <LockedTab title="Publish your page to appear in the marketplace" body="Outside referrers can only find and submit to businesses with a live referral page." />
+      ) : (
+        <MarketplaceReferralsTab referrals={marketplaceReferrals} reload={loadAll} />
+      ))}
+      {tab === "payouts" && <PayoutsPage businessId={biz.id} />}
+      {tab === "page" && <PageTab biz={biz} publicUrl={publicUrl} isLive={isLive} onUpdate={loadAll} onShared={markFirstShare} />}
+      {tab === "share" && <ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} onPublished={loadAll} onQrDownloaded={markQrDownloaded} onShared={markFirstShare} />}
+      {(tab === "account" || tab === "billing" || tab === "integrations") && (
+        <div className="space-y-8">
+          <AccountTab biz={biz} onUpdate={loadAll} />
+          <IntegrationsTab biz={{ id: biz.id, contact_outreach_consent_at: biz.contact_outreach_consent_at ?? null }} />
+        </div>
+      )}
+      </div>
+    </DashboardShell>
   );
+};
+
+const TAB_TITLE: Record<DashTab, string> = {
+  home: "Home", leads: "Leads", customers: "Customers", referrers: "Referrers", payouts: "Rewards",
+  page: "Edit page", share: "Print pack and QR", jobdone: "Job done asks", campaigns: "Campaigns",
+  reports: "Reports", account: "Settings", billing: "Billing", offers: "Offers",
+  referrals: "Marketplace referrals", integrations: "Settings",
 };
 
 const finishBiz = (b: Business) => ({
@@ -1514,7 +1407,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-6">
+      <div id="billing" className="scroll-mt-20 rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-1">Subscription</h3>
         <p className="text-xs text-muted-foreground mb-4">
           {hasSubscription

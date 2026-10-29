@@ -678,3 +678,10 @@
     .mk-track { grid-template-columns: minmax(0, 1fr); }
   }
 }
+
+/* Dashboard tab contents: light restyle only. Section headings in the display
+   face, white cards with 14px radius and line borders, line dividers in tables. */
+.dash-content h2, .dash-content h3 { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 700; letter-spacing: 0; }
+.dash-content h3.text-sm { font-size: 1.25rem; line-height: 1.6rem; }
+.dash-content .rounded-2xl.border { border-radius: 14px; border-color: hsl(var(--line)); }
+.dash-content table tr { border-color: hsl(var(--line)); }
