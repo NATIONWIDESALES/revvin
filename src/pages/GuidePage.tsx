@@ -9,6 +9,7 @@ import {
   GUIDES_PUBLISHED_AT,
   GUIDES_UPDATED_AT,
   formatContentDate,
+  FOUNDER_PERSON,
 } from "@/config/brand";
 import { REWARD_CALCULATOR_PATH, tradesForGuide } from "@/content/related";
 
@@ -38,7 +39,7 @@ const GuidePage = () => {
             headline: guide.question,
             description: guide.metaDescription,
             mainEntityOfPage: `${BASE}${path}`,
-            author: { "@id": `${BASE}/#organization` },
+            author: FOUNDER_PERSON,
             publisher: { "@id": `${BASE}/#organization` },
             datePublished: GUIDES_PUBLISHED_AT,
             dateModified: GUIDES_UPDATED_AT,
@@ -83,7 +84,7 @@ const GuidePage = () => {
             {guide.question}
           </h1>
           <p className="mt-4 text-xs text-muted-foreground">
-            {`Last updated ${formatContentDate(GUIDES_UPDATED_AT)}`}
+            {`By Karm Sandhu, Founder of Revvin. Last updated ${formatContentDate(GUIDES_UPDATED_AT)}`}
           </p>
           <p className="mt-6 text-lg leading-relaxed text-foreground">{guide.answer}</p>
         </div>
