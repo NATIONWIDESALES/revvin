@@ -117,7 +117,7 @@ const ToolkitHub = () => (
     <section className="relative overflow-hidden border-b border-border hero-radial">
       <div aria-hidden className="absolute inset-0 grid-faint" />
       <div className="container relative max-w-3xl py-16 md:py-24">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+        <p className="text-[11px] font-semibold text-primary">
           Free tools for service businesses
         </p>
         <h1 className="mt-4 text-[2rem] font-extrabold leading-[1.08] tracking-tight text-foreground sm:text-4xl md:text-5xl">
@@ -201,7 +201,7 @@ const ToolkitHub = () => (
     <section className="border-b border-border">
       <div className="container py-16 md:py-20">
         <div className="max-w-2xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="text-[11px] font-semibold text-primary">
             From free tool to working system
           </p>
           <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">

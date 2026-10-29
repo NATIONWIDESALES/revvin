@@ -8,8 +8,8 @@ interface WordmarkProps {
 }
 
 const sizeMap = {
-  sm: "text-[22px]",
-  md: "text-[28px]",
+  sm: "text-[26px]",
+  md: "text-[30px]",
   lg: "text-[44px]",
   xl: "text-[88px]",
 };
@@ -31,9 +31,7 @@ export default function Wordmark({
       aria-label="REVVIN.CO"
     >
       REVVIN
-      {withDotCo && (
-        <span className={variant === "green" ? "text-primary/70" : "text-white/70"}>.CO</span>
-      )}
+      {withDotCo && <span>.CO</span>}
     </span>
   );
 }

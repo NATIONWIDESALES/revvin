@@ -194,7 +194,7 @@ const Browse = () => {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Sparkles className="h-6 w-6" aria-hidden="true" />
             </div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+            <p className="text-[11px] font-semibold text-primary">
               Marketplace · launching
             </p>
             <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
@@ -216,7 +216,7 @@ const Browse = () => {
               </Button>
             </div>
             <div className="mt-10">
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <p className="mb-3 text-[11px] font-semibold text-muted-foreground">
                 Categories we expect first
               </p>
               <div className="flex flex-wrap justify-center gap-2">

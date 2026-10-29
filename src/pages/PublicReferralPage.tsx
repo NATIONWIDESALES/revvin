@@ -9,13 +9,10 @@ import { activeRef, forgetRef, personalLink, referrerShareText, rememberRef } fr
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import SEOHead from "@/components/SEOHead";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Loader2, BadgeCheck, MapPin, Globe, ShieldCheck, Handshake, HandCoins, Quote, Eye, Lock } from "lucide-react";
+import { CheckCircle2, Loader2, BadgeCheck, Globe, Quote, Eye, Lock } from "lucide-react";
 import { friendlyError } from "@/lib/errors";
 import { submitPublicReferral, referralSubmitMessage } from "@/lib/referralSubmit";
 import AddToHomeScreen from "@/components/pwa/AddToHomeScreen";
@@ -52,35 +49,6 @@ export interface Testimonial {
   quote: string;
   author?: string;
   role?: string;
-}
-
-function brandHueFromName(name: string): number {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return Math.abs(hash) % 360;
-}
-
-/** Lighten or darken a hex/hsl color to derive soft/border/ink variants. */
-function tint(hex: string, mode: "soft" | "border" | "ink"): string {
-  // accept #rrggbb or hsl()
-  const m = hex.trim().match(/^#?([0-9a-f]{6})$/i);
-  if (m) {
-    const r = parseInt(m[1].slice(0, 2), 16);
-    const g = parseInt(m[1].slice(2, 4), 16);
-    const b = parseInt(m[1].slice(4, 6), 16);
-    const mix = (c: number, t: number, amt: number) => Math.round(c + (t - c) * amt);
-    if (mode === "soft") {
-      const rr = mix(r, 255, 0.92), gg = mix(g, 255, 0.92), bb = mix(b, 255, 0.92);
-      return `rgb(${rr} ${gg} ${bb})`;
-    }
-    if (mode === "border") {
-      const rr = mix(r, 255, 0.78), gg = mix(g, 255, 0.78), bb = mix(b, 255, 0.78);
-      return `rgb(${rr} ${gg} ${bb})`;
-    }
-    const rr = mix(r, 0, 0.45), gg = mix(g, 0, 0.45), bb = mix(b, 0, 0.45);
-    return `rgb(${rr} ${gg} ${bb})`;
-  }
-  return hex;
 }
 
 function isValidHex(v: string | null | undefined): v is string {
@@ -288,30 +256,19 @@ const PublicReferralPage = () => {
   }
 
   const initial = biz.name.charAt(0).toUpperCase();
-  const customBrand = isValidHex(biz.brand_color) ? biz.brand_color.trim() : null;
-  let brand: string;
-  let brandSoft: string;
-  let brandBorder: string;
-  let brandInk: string;
-  if (customBrand) {
-    brand = customBrand;
-    brandSoft = tint(customBrand, "soft");
-    brandBorder = tint(customBrand, "border");
-    brandInk = tint(customBrand, "ink");
-  } else {
-    const hue = brandHueFromName(biz.name);
-    brand = `hsl(${hue} 70% 38%)`;
-    brandSoft = `hsl(${hue} 70% 96%)`;
-    brandBorder = `hsl(${hue} 60% 88%)`;
-    brandInk = `hsl(${hue} 75% 22%)`;
-  }
+  // Pro branding: a valid brand colour replaces forest in the header.
+  const headerBg = isValidHex(biz.brand_color) ? biz.brand_color.trim() : "hsl(var(--forest))";
   const locationLabel = [biz.city, biz.state].filter(Boolean).join(", ") || biz.service_area || null;
+  const whereLine = biz.category && biz.city ? `${biz.category} in ${biz.city}` : biz.category || locationLabel;
   const websiteUrl = biz.website ? normalizeWebsite(biz.website) : null;
   const testimonials = Array.isArray(biz.testimonials)
     ? biz.testimonials.filter((t) => t && typeof t.quote === "string" && t.quote.trim().length > 0)
     : [];
-  const ctaLabel = (biz.referral_cta_label ?? "").trim() || "Submit a referral";
+  const ctaLabel = (biz.referral_cta_label ?? "").trim() || "Send referral";
   const hasCover = !!(biz.cover_image_url && biz.cover_image_url.trim().length > 0);
+  const amount = biz.offer_amount?.trim() || null;
+  const reward = amount ?? "a reward";
+  const label = "mb-1.5 block text-[15px] font-semibold text-foreground";
 
   return (
     <>
@@ -333,18 +290,18 @@ const PublicReferralPage = () => {
           },
         }}
       />
-      <div className="min-h-screen bg-[#FAFAF7]">
+      <div className="min-h-screen bg-paper">
         {ownerPreview && (
-          <div className="sticky top-0 z-50 border-b border-amber-300 bg-amber-50 px-4 py-3">
+          <div className="sticky top-0 z-50 border-b border-sign bg-sign px-4 py-3 text-forest">
             <div className="mx-auto flex max-w-3xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="flex items-start gap-2 text-sm text-amber-900">
+              <p className="flex items-start gap-2 text-sm">
                 <Eye className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                 <span>
                   <strong className="font-semibold">Preview only.</strong> This page is in draft, so nobody else can
                   see it and the form does not accept referrals yet.
                 </span>
               </p>
-              <Button asChild size="sm" className="shrink-0">
+              <Button asChild size="sm" className="shrink-0 bg-forest hover:bg-forest/90">
                 <Link to="/dashboard" onClick={() => track("publish_page_clicked")}>
                   Publish page
                 </Link>
@@ -352,249 +309,84 @@ const PublicReferralPage = () => {
             </div>
           </div>
         )}
-        {/* Branded hero */}
-        <div
-          className="relative overflow-hidden"
-          style={
-            hasCover
-              ? { borderBottom: `1px solid ${brandBorder}` }
-              : {
-                  background: `linear-gradient(135deg, ${brandSoft} 0%, #ffffff 65%)`,
-                  borderBottom: `1px solid ${brandBorder}`,
-                }
-          }
-        >
+
+        {/* Header */}
+        <header className="relative overflow-hidden text-primary-foreground" style={{ background: headerBg }}>
           {hasCover && (
-            <>
-              <img
-                src={biz.cover_image_url!}
-                alt=""
-                aria-hidden
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              <div
-                aria-hidden
-                className="absolute inset-0"
-                style={{
-                  background: `linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(255,255,255,0.92) 70%, #ffffff 100%)`,
-                }}
-              />
-            </>
+            <img src={biz.cover_image_url!} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover opacity-15" />
           )}
-          <div
-            aria-hidden
-            className={`pointer-events-none absolute inset-0 ${hasCover ? "opacity-0" : "opacity-[0.07]"}`}
-            style={{
-              backgroundImage: `radial-gradient(${brand} 1px, transparent 1px)`,
-              backgroundSize: "22px 22px",
-            }}
-          />
-          <div className="relative mx-auto max-w-2xl px-5 pt-10 pb-8 md:pt-14 md:pb-10">
+          <div className="relative mx-auto max-w-[1080px] px-5 pb-10 pt-7 md:px-6 md:pb-[120px] md:pt-10">
             <div className="flex items-center gap-4">
               {biz.logo_url ? (
-                <img
-                  src={biz.logo_url}
-                  alt={`${biz.name} logo`}
-                  className="h-16 w-16 rounded-2xl object-cover border bg-white"
-                  style={{ borderColor: brandBorder }}
-                />
+                <img src={biz.logo_url} alt={`${biz.name} logo`} className="h-[72px] w-[72px] shrink-0 rounded-[14px] bg-card object-cover" />
               ) : (
-                <div
-                  className="h-16 w-16 rounded-2xl flex items-center justify-center font-semibold text-2xl text-white shadow-sm"
-                  style={{ background: brand }}
-                >
+                <div aria-hidden className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-[14px] bg-card font-display text-[34px] font-extrabold text-forest">
                   {initial}
                 </div>
               )}
               <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-2xl md:text-3xl font-semibold text-foreground leading-tight tracking-tight">
-                    {biz.name}
-                  </h1>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="font-display text-[34px] font-extrabold leading-none md:text-[44px]">{biz.name}</h1>
                   {showVerifiedBadge(biz) && (
-                    <span
-                      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                      style={{ background: brandSoft, color: brandInk, border: `1px solid ${brandBorder}` }}
-                    >
-                      <BadgeCheck className="h-3 w-3" /> Verified
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary-foreground/15 px-2 py-0.5 text-xs font-semibold">
+                      <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" /> Verified
                     </span>
                   )}
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                  {biz.category && <span>{biz.category}</span>}
-                  {locationLabel && (
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="h-3 w-3" /> {locationLabel}
-                    </span>
-                  )}
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] text-primary-foreground/85">
+                  {whereLine && <span>{whereLine}</span>}
                   {websiteUrl && (
-                    <a
-                      href={websiteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 hover:text-foreground"
-                    >
-                      <Globe className="h-3 w-3" /> Website
+                    <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 underline underline-offset-4">
+                      <Globe className="h-3.5 w-3.5" aria-hidden="true" /> Website
                     </a>
                   )}
                 </div>
               </div>
             </div>
 
-            {biz.headline && (
-              <p className="mt-6 text-[22px] md:text-[26px] font-semibold leading-[1.2] tracking-tight text-foreground max-w-xl">
-                {biz.headline}
-              </p>
-            )}
-
-            {biz.welcome_message ? (
-              <p className="mt-4 text-[15px] leading-relaxed text-foreground/80 max-w-xl whitespace-pre-line">
-                {biz.welcome_message}
-              </p>
-            ) : biz.description ? (
-              <p className="mt-5 text-[15px] leading-relaxed text-foreground/80 max-w-xl">
-                {biz.description}
-              </p>
-            ) : null}
-
-            {/* Offer */}
-            {biz.offer_amount && (
-              <div
-                className="mt-6 rounded-2xl p-6 shadow-sm"
-                style={{
-                  background: "white",
-                  border: `1px solid ${brandBorder}`,
-                  borderTop: `3px solid ${brand}`,
-                }}
-              >
-                <p
-                  className="text-[10px] font-semibold uppercase tracking-[0.14em] mb-2"
-                  style={{ color: brand }}
-                >
-                  {biz.name} referral program
-                </p>
-                <p className="text-[28px] md:text-3xl font-semibold text-foreground leading-[1.15] tracking-tight">
-                  Refer a customer and earn{" "}
-                  <span style={{ color: brand }}>{biz.offer_amount}</span>
-                </p>
-                {biz.offer_trigger && (
-                  <p className="text-sm text-muted-foreground mt-2">{biz.offer_trigger}</p>
+            <div className="mt-8 max-w-[640px] md:mt-10">
+              <h2 className="font-display text-[clamp(40px,6vw,72px)] font-extrabold leading-[.94]">
+                {biz.headline?.trim() || <>Know someone who needs {tradePhrase(biz.category, biz.name)}?</>}
+                {amount && (
+                  <>
+                    {" "}
+                    <b className="inline-block -rotate-2 rounded-lg bg-sign px-3 text-forest">Get {amount}.</b>
+                  </>
                 )}
-                {biz.offer_fine_print && (
-                  <p className="text-[11px] text-muted-foreground mt-3 italic">
-                    {biz.offer_fine_print}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Body */}
-        <div className="mx-auto max-w-2xl px-5 py-8 md:py-10">
-          {/* Trust strip */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {[
-              { icon: Handshake, label: "Paid directly", sub: `By ${biz.name}, not a middleman` },
-              { icon: HandCoins, label: "No fees taken out", sub: "100% of the reward is yours" },
-              { icon: ShieldCheck, label: "Your info stays private", sub: "Only shared with the business" },
-            ].map(({ icon: Icon, label, sub }) => (
-              <div
-                key={label}
-                className="rounded-xl border border-border bg-white p-3.5"
-              >
-                <div
-                  className="h-7 w-7 rounded-md flex items-center justify-center mb-2"
-                  style={{ background: brandSoft, color: brand }}
-                >
-                  <Icon className="h-4 w-4" />
-                </div>
-                <p className="text-[13px] font-semibold text-foreground leading-tight">{label}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* How it works */}
-          <div className="mt-8">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-3">
-              How it works
-            </p>
-            <ol className="space-y-3">
-              {[
-                `Submit your referral using the form below.`,
-                `${biz.name} reaches out to the lead directly.`,
-                `When the deal closes, ${biz.name} pays you${biz.offer_amount ? ` ${biz.offer_amount}` : ""} directly.`,
-              ].map((step, i) => (
-                <li key={i} className="flex gap-3 items-start">
-                  <span
-                    className="flex-shrink-0 h-6 w-6 rounded-full flex items-center justify-center text-[11px] font-semibold"
-                    style={{ background: brand, color: "white" }}
-                  >
-                    {i + 1}
-                  </span>
-                  <span className="text-sm text-foreground/85 leading-relaxed pt-0.5">{step}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          {/* Testimonials */}
-          {testimonials.length > 0 && (
-            <div className="mt-8">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-3">
-                What customers say
+              </h2>
+              <p className="mt-5 max-w-[34em] text-lg leading-snug text-primary-foreground/90">
+                Send them our way. When your referral books a job with {biz.name}, they pay you {reward}.
               </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {testimonials.map((t, i) => (
-                  <figure
-                    key={i}
-                    className="rounded-xl border bg-white p-4"
-                    style={{ borderColor: "hsl(var(--border))" }}
-                  >
-                    <Quote className="h-4 w-4 mb-2" style={{ color: brand }} />
-                    <blockquote className="text-sm text-foreground/85 leading-relaxed">
-                      "{t.quote}"
-                    </blockquote>
-                    {(t.author || t.role) && (
-                      <figcaption className="mt-2 text-xs text-muted-foreground">
-                        {[t.author, t.role].filter(Boolean).join(" · ")}
-                      </figcaption>
-                    )}
-                  </figure>
-                ))}
-              </div>
+              {biz.welcome_message && (
+                <p className="mt-3 max-w-[34em] whitespace-pre-line text-base text-primary-foreground/85">{biz.welcome_message}</p>
+              )}
+              <ul className="rf-facts mt-6 flex flex-col gap-2 text-base font-semibold sm:flex-row sm:flex-wrap sm:gap-x-6">
+                <li>Paid by {biz.name} directly</li>
+                <li>No fees taken out</li>
+                <li>Takes about 30 seconds</li>
+              </ul>
             </div>
-          )}
+          </div>
+        </header>
 
-          {/* Form card */}
-          <div
-            className="mt-8 rounded-2xl bg-white border shadow-sm overflow-hidden"
-            style={{ borderColor: "hsl(var(--border))" }}
-          >
-            <div
-              className="h-1 w-full"
-              style={{ background: brand }}
-            />
-            <div className="p-6 md:p-8">
+        {/* Main */}
+        <div className="relative mx-auto grid max-w-[1080px] gap-8 px-4 pb-12 pt-0 md:-mt-[88px] md:grid-cols-[minmax(0,1fr)_440px] md:px-6 md:pb-16">
+          {/* Form card: first on mobile, right column on desktop */}
+          <div className="order-1 -mt-4 min-w-0 md:order-2 md:mt-0">
+            <div className="rounded-[18px] border border-line bg-card p-[22px] shadow-[0_30px_60px_-40px_rgba(15,74,42,.5)] md:p-8">
           {submitted ? (
-            <div className="text-center py-4">
-              <div
-                className="h-12 w-12 mx-auto rounded-full flex items-center justify-center mb-3"
-                style={{ background: brandSoft }}
-              >
-                <CheckCircle2 className="h-7 w-7" style={{ color: brand }} />
-              </div>
-              <h2 className="text-lg font-semibold text-foreground">Thanks. {biz.name} will reach out to them.</h2>
+            <div className="py-2">
+              <CheckCircle2 className="h-10 w-10 text-green" aria-hidden="true" />
+              <h2 className="mt-3 font-display text-[30px] font-extrabold leading-none text-forest">Thanks. {biz.name} will reach out to them.</h2>
               {myLink && (
-                <div className="mt-5 mx-auto max-w-sm rounded-xl border border-border bg-card p-4 text-left">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your personal link</p>
-                  <input readOnly aria-label="Your personal link" value={myLink} className="mt-2 w-full rounded-md border border-border bg-background px-2 py-1.5 text-xs text-foreground" />
-                  <div className="mt-2 flex gap-2">
-                    <Button type="button" size="sm" variant="outline" className="flex-1" onClick={() => {
+                <div className="mt-5 rounded-xl border border-line bg-paper p-4">
+                  <p className="text-sm font-bold text-forest">Your personal link</p>
+                  <input readOnly aria-label="Your personal link" value={myLink} className="rf-input mt-2 text-sm" />
+                  <div className="mt-3 flex gap-2">
+                    <Button type="button" variant="line" className="flex-1" onClick={() => {
                       void copyText(myLink).then((ok) => toast(ok ? { title: "Link copied" } : { title: "Could not copy the link", description: "Select the link and copy it manually.", variant: "destructive" as const }));
                     }}>Copy</Button>
-                    <Button type="button" size="sm" className="flex-1" onClick={async () => {
+                    <Button type="button" className="flex-1" onClick={async () => {
                       const text = referrerShareText(biz.name, biz.category, myLink);
                       if (navigator.share) { try { await navigator.share({ text }); return; } catch { return; } }
                       window.location.href = `sms:?&body=${encodeURIComponent(text)}`;
@@ -603,15 +395,14 @@ const PublicReferralPage = () => {
                 </div>
               )}
               {statusUrl && (
-                <div className="mt-5 mx-auto max-w-sm rounded-xl border border-border bg-muted/30 p-4 text-left">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Track this referral</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Bookmark this private link to check the stage and reward status anytime.</p>
+                <div className="mt-4 rounded-xl border border-line p-4">
+                  <p className="text-sm font-bold text-forest">Track this referral</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Bookmark this private link to check the stage and reward status anytime.</p>
                   <div className="mt-2 flex items-center gap-2">
-                    <input readOnly value={statusUrl} className="flex-1 rounded-md border border-border bg-background px-2 py-1.5 text-xs text-foreground" />
+                    <input readOnly aria-label="Referral status link" value={statusUrl} className="rf-input flex-1 text-sm" />
                     <Button
                       type="button"
-                      size="sm"
-                      variant="outline"
+                      variant="line"
                       onClick={() => {
                         void copyText(statusUrl).then((ok) =>
                           toast(
@@ -631,88 +422,137 @@ const PublicReferralPage = () => {
                   </div>
                 </div>
               )}
-              <div className="mt-5 mx-auto max-w-sm text-left">
+              <div className="mt-5">
                 <AddToHomeScreen surface="referral_success" line={referrerInstallLine(biz.name)} />
               </div>
             </div>
           ) : (
-            <form onSubmit={submit} className="space-y-4">
+            <form onSubmit={submit}>
               <fieldset disabled={ownerPreview} className={ownerPreview ? "space-y-4 opacity-60" : "space-y-4"}>
-              <h2 className="text-lg font-semibold text-foreground leading-tight">
-                Submit a referral
-              </h2>
-              <p className="text-sm text-muted-foreground -mt-2">
-                {ownerPreview ? "This is how the form will look to your customers." : "Takes about 30 seconds."}
+              <h2 className="font-display text-[34px] font-extrabold leading-none text-forest">Who should we call?</h2>
+              <p className="-mt-1 text-[15px] text-muted-foreground">
+                {ownerPreview ? "This is how the form will look to your customers." : "Only refer people who asked for help or said it's okay."}
               </p>
               <input type="text" name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => update("website", e.target.value)} className="hidden" />
 
               {refPerson ? (
                 <>
-                  <p className="rounded-lg bg-muted/40 px-3 py-2 text-sm text-foreground" data-testid="referring-as">
+                  <p className="rounded-[10px] bg-[#E8F2EA] px-3.5 py-3 font-semibold text-forest" data-testid="referring-as">
                     Referring as {refPerson.first_name}.{" "}
-                    <button type="button" onClick={clearRef} className="font-medium underline underline-offset-4">Not you?</button>
+                    <button type="button" onClick={clearRef} className="font-semibold underline underline-offset-4">Not you?</button>
                   </p>
                   {!refPerson.has_email && (
-                    <div><Label>Your email</Label><Input required type="email" value={form.referrer_email} onChange={(e) => update("referrer_email", e.target.value)} className="mt-1.5" /></div>
+                    <div><label htmlFor="rf-remail" className={label}>Your email</label><input id="rf-remail" required type="email" value={form.referrer_email} onChange={(e) => update("referrer_email", e.target.value)} className="rf-input" /></div>
                   )}
                 </>
               ) : (
                 <>
-              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">About you</div>
-              <div><Label>Your name</Label><Input required value={form.referrer_name} onChange={(e) => update("referrer_name", e.target.value)} className="mt-1.5" /></div>
-              <div><Label>Your email</Label><Input required type="email" value={form.referrer_email} onChange={(e) => update("referrer_email", e.target.value)} className="mt-1.5" /></div>
-              <div><Label>Your phone <span className="text-muted-foreground text-xs">(optional)</span></Label><Input type="tel" value={form.referrer_phone} onChange={(e) => update("referrer_phone", e.target.value)} className="mt-1.5" /></div>
+                  <div><label htmlFor="rf-rname" className={label}>Your name</label><input id="rf-rname" required value={form.referrer_name} onChange={(e) => update("referrer_name", e.target.value)} className="rf-input" /></div>
+                  <div><label htmlFor="rf-remail" className={label}>Your email</label><input id="rf-remail" required type="email" value={form.referrer_email} onChange={(e) => update("referrer_email", e.target.value)} className="rf-input" /></div>
+                  <div><label htmlFor="rf-rphone" className={label}>Your phone <span className="font-normal text-muted-foreground">(optional)</span></label><input id="rf-rphone" type="tel" value={form.referrer_phone} onChange={(e) => update("referrer_phone", e.target.value)} className="rf-input" /></div>
+                  <hr className="border-line" />
                 </>
               )}
 
-              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground pt-2">The lead</div>
-              <div><Label>Lead's name</Label><Input required value={form.lead_name} onChange={(e) => update("lead_name", e.target.value)} className="mt-1.5" /></div>
-              <div><Label>Lead's phone</Label><Input required type="tel" value={form.lead_phone} onChange={(e) => update("lead_phone", e.target.value)} className="mt-1.5" /></div>
-              <div><Label>Lead's email <span className="text-muted-foreground text-xs">(optional)</span></Label><Input type="email" value={form.lead_email} onChange={(e) => update("lead_email", e.target.value)} className="mt-1.5" /></div>
-              <div><Label>What do they need?</Label><Textarea required value={form.lead_need} onChange={(e) => update("lead_need", e.target.value)} className="mt-1.5" rows={3} /></div>
-              <div><Label>How do you know them? <span className="text-muted-foreground text-xs">(optional)</span></Label><Input value={form.relationship_to_lead} onChange={(e) => update("relationship_to_lead", e.target.value)} className="mt-1.5" /></div>
+              <div><label htmlFor="rf-lname" className={label}>Their name</label><input id="rf-lname" required value={form.lead_name} onChange={(e) => update("lead_name", e.target.value)} className="rf-input" /></div>
+              <div><label htmlFor="rf-lphone" className={label}>Their phone</label><input id="rf-lphone" required type="tel" value={form.lead_phone} onChange={(e) => update("lead_phone", e.target.value)} className="rf-input" /></div>
+              <div><label htmlFor="rf-lemail" className={label}>Their email <span className="font-normal text-muted-foreground">(optional)</span></label><input id="rf-lemail" type="email" value={form.lead_email} onChange={(e) => update("lead_email", e.target.value)} className="rf-input" /></div>
+              <div><label htmlFor="rf-need" className={label}>What do they need?</label><textarea id="rf-need" required value={form.lead_need} onChange={(e) => update("lead_need", e.target.value)} className="rf-input" rows={3} /></div>
+              <div><label htmlFor="rf-rel" className={label}>How do you know them? <span className="font-normal text-muted-foreground">(optional)</span></label><input id="rf-rel" value={form.relationship_to_lead} onChange={(e) => update("relationship_to_lead", e.target.value)} className="rf-input" /></div>
 
-              <label className="flex items-start gap-3 pt-2 text-sm text-foreground cursor-pointer">
-                <Checkbox checked={form.consent_given} onCheckedChange={(v) => update("consent_given", !!v)} className="mt-0.5" />
-                <span>I confirm I have permission to share this lead's contact information.</span>
+              <label className="flex cursor-pointer items-start gap-3 pt-1 text-[15px] text-foreground">
+                <Checkbox checked={form.consent_given} onCheckedChange={(v) => update("consent_given", !!v)} className="mt-0.5 h-5 w-5" />
+                <span>They said it's okay to share their details with {biz.name}.</span>
               </label>
 
-              <Button
+              <button
                 type="submit"
-                size="lg"
-                className="w-full h-12 text-white hover:opacity-90 transition-opacity"
-                style={{ background: brand }}
+                className="flex h-[58px] w-full items-center justify-center rounded-xl text-[19px] font-bold text-primary-foreground transition-colors hover:brightness-95 disabled:opacity-60"
+                style={{ background: isValidHex(biz.brand_color) ? biz.brand_color!.trim() : "hsl(var(--green))" }}
                 disabled={submitting}
               >
-                {submitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>{ctaLabel}</>
-                )}
-              </Button>
+                {submitting ? <Loader2 className="h-5 w-5 animate-spin" aria-label="Sending" /> : ctaLabel}
+              </button>
+              <p className="text-center text-sm text-muted-foreground">You'll get your own link to share, and a note when the job closes.</p>
               </fieldset>
             </form>
           )}
             </div>
           </div>
 
-          <div className="mt-8 text-center">
-            {earnMetro && (
-              <p className="mb-3 text-xs">
-                <Link to={`/earn/${earnMetro}`} className="text-muted-foreground underline underline-offset-4 hover:text-foreground">Find more local businesses that pay for referrals</Link>
-              </p>
+          {/* Side cards */}
+          <div className="order-2 flex min-w-0 flex-col gap-8 md:order-1 md:pt-[120px]">
+            <section className="rounded-[18px] border border-line bg-card p-[22px] md:p-8" aria-labelledby="rf-how">
+              <h2 id="rf-how" className="font-display text-[30px] font-extrabold leading-none text-forest">How it works</h2>
+              <ol className="rf-steps mt-6 space-y-5">
+                <li><b className="block text-forest">You send their details</b><span className="text-muted-foreground">Here, or by sharing your personal link with them.</span></li>
+                <li><b className="block text-forest">{biz.name} calls them</b><span className="text-muted-foreground">They reach out directly. You don't have to do anything else.</span></li>
+                <li><b className="block text-forest">The job closes, you get paid</b><span className="text-muted-foreground">{biz.name} pays you {reward} directly and you get a note when it's marked paid.</span></li>
+              </ol>
+            </section>
+
+            {testimonials.length > 0 && (
+              <section className="rounded-[18px] border border-line bg-card p-[22px] md:p-8" aria-labelledby="rf-say">
+                <h2 id="rf-say" className="font-display text-[30px] font-extrabold leading-none text-forest">What customers say</h2>
+                <div className="mt-5 space-y-5">
+                  {testimonials.map((t, i) => (
+                    <figure key={i}>
+                      <Quote className="mb-2 h-4 w-4 text-green" aria-hidden="true" />
+                      <blockquote className="text-base leading-relaxed text-foreground">"{t.quote}"</blockquote>
+                      {(t.author || t.role) && (
+                        <figcaption className="mt-1.5 text-sm text-muted-foreground">{[t.author, t.role].filter(Boolean).join(", ")}</figcaption>
+                      )}
+                    </figure>
+                  ))}
+                </div>
+              </section>
             )}
-            <Link
-              to="/"
-              className="text-[10px] tracking-[0.16em] uppercase text-muted-foreground/70 hover:text-foreground"
-            >
-              Powered by Revvin
-            </Link>
+
+            <section className="rounded-[18px] border border-line bg-card p-[22px] md:p-8" aria-labelledby="rf-about">
+              <h2 id="rf-about" className="font-display text-[30px] font-extrabold leading-none text-forest">About {biz.name}</h2>
+              {biz.description && <p className="mt-4 text-base leading-relaxed text-foreground">{biz.description}</p>}
+              {biz.offer_trigger && <p className="mt-3 text-base text-muted-foreground">{biz.offer_trigger}</p>}
+              <p className="mt-4 text-sm text-muted-foreground">
+                {biz.offer_fine_print?.trim()
+                  ? `${biz.offer_fine_print.trim()} `
+                  : `Reward paid per closed job, not per referral. ${biz.name} decides when a job counts as closed. `}
+                Revvin keeps the record and never takes a cut.
+              </p>
+            </section>
           </div>
         </div>
+
+        <footer className="border-t border-line py-8 text-center text-sm text-muted-foreground">
+          {earnMetro && (
+            <p className="mb-3">
+              <Link to={`/earn/${earnMetro}`} className="font-semibold text-forest underline underline-offset-4">Find more local businesses that pay for referrals</Link>
+            </p>
+          )}
+          <Link to="/" className="hover:text-foreground">
+            Referral page by <span className="wordmark text-base text-green">REVVIN.CO</span>
+          </Link>
+        </footer>
       </div>
     </>
   );
 };
+
+/** Short trade phrase for the referral question, by category. */
+export const TRADE_PHRASES: Record<string, string> = {
+  roofing: "a roof",
+  hvac: "heating or cooling work",
+  plumbing: "a plumber",
+  electrical: "an electrician",
+  landscaping: "a landscaper",
+  painting: "a painter",
+  solar: "solar",
+  "windows and doors": "new windows",
+  "pest control": "pest control",
+  "home security": "home security",
+  remodeling: "a renovation",
+  cleaning: "a cleaner",
+};
+export const tradePhrase = (category: string | null | undefined, name: string) =>
+  TRADE_PHRASES[(category ?? "").trim().toLowerCase().replace(/\s*&\s*/g, " and ")] ?? name;
 
 export default PublicReferralPage;

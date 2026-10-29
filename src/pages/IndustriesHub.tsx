@@ -41,7 +41,7 @@ const IndustriesHub = () => (
     <section className="relative overflow-hidden border-b border-border hero-radial">
       <div aria-hidden className="absolute inset-0 grid-faint" />
       <div className="container relative max-w-3xl py-24">
-        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">By industry</p>
+        <p className="mb-3 text-[11px] font-semibold text-primary">By industry</p>
         <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-5xl">
           Referral programs by industry
         </h1>

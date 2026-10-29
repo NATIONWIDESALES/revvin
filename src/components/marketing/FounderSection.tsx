@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { FOUNDER } from "@/config/brand";
-import { FOUNDER_BIO } from "@/content/aboutPage";
 import { SETUP_CALL_URL } from "@/config/setupCall";
 import { track } from "@/lib/track";
 
@@ -10,31 +9,32 @@ const photos = import.meta.glob("../../assets/karm.jpg", { eager: true, import: 
 const photo = Object.values(photos)[0];
 
 const FounderSection = () => (
-  <section aria-labelledby="founder-heading" className="border-b border-border bg-surface-warm">
-    <div className="container max-w-4xl py-16 md:py-24">
-      <div className="grid items-start gap-8 md:grid-cols-[auto_minmax(0,1fr)] md:gap-12">
-        {photo ? (
-          <img src={photo} alt={FOUNDER.name} width={128} height={128} className="h-28 w-28 rounded-full object-cover md:h-32 md:w-32" />
-        ) : (
-          <div aria-hidden className="flex h-28 w-28 items-center justify-center rounded-full bg-primary text-3xl font-extrabold tracking-tight text-primary-foreground md:h-32 md:w-32">
-            KS
-          </div>
-        )}
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Why Revvin exists</p>
-          <h2 id="founder-heading" className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-4xl">
-            Built by a sales guy, not a software company.
-          </h2>
-          <p className="mt-5 text-base leading-relaxed text-muted-foreground md:text-lg">{FOUNDER_BIO}</p>
-          <p className="mt-5 text-sm font-semibold text-foreground">{FOUNDER.name}, {FOUNDER.jobTitle}</p>
-          {SETUP_CALL_URL && (
-            <Button size="lg" className="mt-6 h-auto min-h-12 w-full whitespace-normal px-6 py-3 sm:w-auto" asChild>
-              <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_clicked", { cta: "home_founder_call" })}>
-                Book a setup call with Karm
-              </a>
-            </Button>
-          )}
+  <section aria-labelledby="founder-heading" className="mk-section">
+    <div className="mk-wrap grid items-center gap-10 md:grid-cols-[auto_minmax(0,1fr)] md:gap-14">
+      {photo ? (
+        <img src={photo} alt={FOUNDER.name} width={200} height={200} className="h-36 w-36 rounded-full object-cover md:h-[200px] md:w-[200px]" />
+      ) : (
+        <div aria-hidden className="grid h-36 w-36 place-items-center rounded-full bg-green font-display text-5xl font-extrabold text-primary-foreground md:h-[200px] md:w-[200px] md:text-[64px]">
+          KS
         </div>
+      )}
+      <div className="min-w-0">
+        <h2 id="founder-heading" className="sr-only">Why Revvin exists</h2>
+        <blockquote className="max-w-[24ch] font-display text-[clamp(30px,3.2vw,44px)] font-bold leading-[1.08] text-forest">
+          The cheapest jobs we ever closed came from happy customers. Revvin lets every home-service business run that play without a sales team.
+        </blockquote>
+        <p className="mt-6 max-w-[36em] text-lg leading-relaxed text-muted-foreground">
+          I started selling door to door in 2016 and went on to run a 120-rep sales team doing $5.5M a year. I built Revvin for the owners I used to sell beside. Book 30 minutes and I'll set yours up with you.
+        </p>
+        <p className="mt-6 font-bold text-foreground">{FOUNDER.name}</p>
+        <p className="text-muted-foreground">{FOUNDER.jobTitle}, Revvin</p>
+        {SETUP_CALL_URL && (
+          <Button size="lg" variant="line" className="mt-7 h-auto min-h-14 w-full whitespace-normal py-3 sm:w-auto" asChild>
+            <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_clicked", { cta: "home_founder_call" })}>
+              Book a setup call with Karm
+            </a>
+          </Button>
+        )}
       </div>
     </div>
   </section>

@@ -131,7 +131,7 @@ const Partners = () => {
       {/* Hero */}
       <section className="border-b border-border bg-background">
         <div className="container py-20 sm:py-24">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="text-[11px] font-semibold text-primary">
             {PARTNER_COPY.eyebrow}
           </p>
           <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
@@ -180,7 +180,7 @@ const Partners = () => {
           <ol className="mt-8 grid gap-6 md:grid-cols-3">
             {PARTNER_HOW_IT_WORKS.map((step, i) => (
               <li key={step.title} className="rounded-xl border border-border bg-card p-6">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                <span className="text-xs font-semibold text-primary">
                   Step {i + 1}
                 </span>
                 <h3 className="mt-3 text-lg font-semibold text-foreground">{step.title}</h3>

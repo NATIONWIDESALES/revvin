@@ -1,11 +1,21 @@
 import { useMemo, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { calculateReward, formatUsd } from "@/lib/toolkit/rewardMath";
+import { PRICE_TEXT } from "@/config/pricing";
 
-const num = (v: string) => (v.trim() === "" ? 0 : Number(v));
+const num = (v: string) => (v.trim() === "" ? 0 : Number(v.replace(/,/g, "")));
 
-/** "What is one referral worth to you?" Pure arithmetic, nothing saved. */
+const Field = ({ id, label, prefix, suffix, value, onChange }: { id: string; label: string; prefix?: string; suffix?: string; value: string; onChange: (v: string) => void }) => (
+  <div className="mt-5 first:mt-0">
+    <label htmlFor={id} className="text-base font-semibold text-foreground">{label}</label>
+    <div className="mk-field">
+      {prefix && <span aria-hidden="true">{prefix}</span>}
+      <input id={id} inputMode="decimal" type="number" min={0} value={value} onChange={(e) => onChange(e.target.value)} />
+      {suffix && <span aria-hidden="true">{suffix}</span>}
+    </div>
+  </div>
+);
+
+/** The referral worksheet. Pure arithmetic, nothing saved or sent. */
 const ReferralWorthCalculator = () => {
   const [revenue, setRevenue] = useState("8000");
   const [margin, setMargin] = useState("30");
@@ -14,35 +24,33 @@ const ReferralWorthCalculator = () => {
     () => calculateReward({ revenue: num(revenue), marginPct: num(margin), reward: num(reward), jobsPerMonth: 1 }),
     [revenue, margin, reward],
   );
+  const n = r.jobsToCoverAnnualPro;
   return (
-    <div className="grid gap-6 rounded-2xl border border-border bg-card p-6 shadow-soft md:grid-cols-2 md:p-8">
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="rw-revenue">Average job value ($)</Label>
-          <Input id="rw-revenue" inputMode="decimal" type="number" min={0} value={revenue} onChange={(e) => setRevenue(e.target.value)} className="mt-1.5" />
-        </div>
-        <div>
-          <Label htmlFor="rw-margin">Gross margin (%)</Label>
-          <Input id="rw-margin" inputMode="decimal" type="number" min={0} max={100} value={margin} onChange={(e) => setMargin(e.target.value)} className="mt-1.5" />
-        </div>
-        <div>
-          <Label htmlFor="rw-reward">Reward ($)</Label>
-          <Input id="rw-reward" inputMode="decimal" type="number" min={0} value={reward} onChange={(e) => setReward(e.target.value)} className="mt-1.5" />
-        </div>
+    <div className="mk-ticket">
+      <div className="flex flex-wrap justify-between gap-2 border-b-2 border-dashed border-line px-6 pb-[18px] pt-7 font-bold text-forest sm:px-8">
+        <span>Referral worksheet</span>
+        <span className="font-semibold text-muted-foreground">Your numbers, not ours</span>
       </div>
-      <div className="flex min-w-0 flex-col justify-center gap-5" aria-live="polite">
-        <div>
-          <p className="text-sm text-muted-foreground">Profit on a referred job after the reward</p>
-          <p data-testid="rw-profit" className="mt-1 text-4xl font-extrabold tracking-tight text-foreground">{formatUsd(r.profitAfterReward)}</p>
+      <div className="grid sm:grid-cols-2">
+        <div className="min-w-0 border-line px-6 pb-8 pt-6 sm:border-r sm:px-8">
+          <Field id="rw-revenue" label="Average job value" prefix="$" value={revenue} onChange={setRevenue} />
+          <Field id="rw-margin" label="Gross margin" suffix="%" value={margin} onChange={setMargin} />
+          <Field id="rw-reward" label="Reward you pay" prefix="$" value={reward} onChange={setReward} />
         </div>
-        <div>
-          <p className="text-sm text-muted-foreground">Referred jobs a year that cover Pro</p>
-          <p data-testid="rw-cover" className="mt-1 text-4xl font-extrabold tracking-tight text-foreground">
-            {r.jobsToCoverAnnualPro ?? "Not at this reward"}
+        <div className="flex min-w-0 flex-col justify-center gap-8 border-t border-line px-6 py-8 sm:border-t-0 sm:px-8" aria-live="polite">
+          <p>
+            <b data-testid="rw-profit" className="block font-display text-[64px] font-extrabold leading-[.9] text-forest">{formatUsd(r.profitAfterReward)}</b>
+            <span className="mt-2 block text-base text-muted-foreground">profit on one referred job, after the reward</span>
+          </p>
+          <p>
+            <b data-testid="rw-cover" className="block font-display text-[64px] font-extrabold leading-[.9] text-forest">
+              {n === null ? "Not at this reward" : `${n} ${n === 1 ? "job" : "jobs"}`}
+            </b>
+            <span className="mt-2 block text-base text-muted-foreground">a year covers Revvin Pro at {PRICE_TEXT.annual}</span>
           </p>
         </div>
-        <p className="text-xs text-muted-foreground">Your numbers, not ours. Nothing is saved.</p>
       </div>
+      <p className="border-t border-line px-6 py-4 text-sm text-muted-foreground sm:px-8">Nothing you type here is saved or sent.</p>
     </div>
   );
 };

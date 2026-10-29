@@ -77,7 +77,7 @@ const GuidePage = () => {
               <li aria-current="page" className="text-foreground">{guide.label}</li>
             </ol>
           </nav>
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="mb-3 text-[11px] font-semibold text-primary">
             Guide
           </p>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
@@ -138,7 +138,7 @@ const GuidePage = () => {
 
       <section className="border-b border-border">
         <div className="container max-w-4xl py-14">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <h2 className="text-sm font-semibold text-muted-foreground">
             More guides
           </h2>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -157,7 +157,7 @@ const GuidePage = () => {
 
       <section className="border-b border-border bg-surface-warm">
         <div className="container max-w-4xl py-14">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <h2 className="text-sm font-semibold text-muted-foreground">
             Referral programs by trade
           </h2>
           <div className="mt-5 flex flex-wrap gap-3">

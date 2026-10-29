@@ -74,7 +74,7 @@ const IndustryLanding = () => {
               <li aria-current="page" className="text-foreground">{industry.label}</li>
             </ol>
           </nav>
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="mb-3 text-[11px] font-semibold text-primary">
             {industry.label}
           </p>
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-5xl">
@@ -89,7 +89,7 @@ const IndustryLanding = () => {
               <Link to="/how-it-works">See how it works</Link>
             </Button>
           </div>
-          <p className="mt-5 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="mt-5 text-xs text-muted-foreground">
             {`Free to publish · Pro is ${PRICE_TEXT.monthlyPerMonth} USD · cancel anytime`}
           </p>
         </div>
@@ -103,7 +103,7 @@ const IndustryLanding = () => {
           <div className="mt-10 grid gap-8 md:grid-cols-3">
             {industry.loops.map((l, i) => (
               <article key={l.title}>
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+                <p className="mb-2 text-[11px] font-semibold text-primary">
                   Loop {String(i + 1).padStart(2, "0")}
                 </p>
                 <h3 className="text-lg font-bold tracking-tight text-foreground">{l.title}</h3>
@@ -164,7 +164,7 @@ const IndustryLanding = () => {
 
       <section className="border-b border-border">
         <div className="container max-w-4xl py-16">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <h2 className="text-sm font-semibold text-muted-foreground">
             Read next
           </h2>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -189,7 +189,7 @@ const IndustryLanding = () => {
 
       <section className="border-b border-border">
         <div className="container max-w-4xl py-16">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <h2 className="text-sm font-semibold text-muted-foreground">
             Other trades
           </h2>
           <div className="mt-5 flex flex-wrap gap-3">

@@ -27,7 +27,7 @@ const Sample = () => {
       <section className="border-b border-border bg-surface-warm">
         <div className="container flex flex-col items-center gap-3 py-4 text-center sm:flex-row sm:justify-between sm:text-left">
           <p className="text-sm text-foreground">
-            <span className="mr-2 inline-flex items-center rounded-full bg-foreground px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-background">
+            <span className="mr-2 inline-flex items-center rounded-full bg-foreground px-2 py-0.5 text-[10px] font-bold text-background">
               Demo
             </span>
             Nothing you type here is saved or sent. Build your real page{" "}
@@ -53,7 +53,7 @@ const Sample = () => {
       <section className="bg-background">
         <div className="container py-12 md:py-16">
           <div className="mx-auto mb-8 max-w-2xl text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+            <p className="text-[11px] font-semibold text-primary">
               Interactive demo
             </p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">

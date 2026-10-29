@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["Barlow", "system-ui", "-apple-system", "sans-serif"],
+        display: ["Barlow Condensed", "Arial Narrow", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -68,6 +69,12 @@ export default {
         "surface-warm": "hsl(var(--surface-warm))",
         ink: "hsl(var(--ink))",
         "primary-deep": "hsl(var(--primary-deep))",
+        forest: { DEFAULT: "hsl(var(--forest))", night: "hsl(var(--forest-night))" },
+        green: { DEFAULT: "hsl(var(--green))", deep: "hsl(var(--green-deep))" },
+        sign: { DEFAULT: "hsl(var(--sign))", hover: "hsl(var(--sign-hover))" },
+        paper: "hsl(var(--paper))",
+        line: "hsl(var(--line))",
+        lawn: "hsl(var(--lawn))",
       },
       borderRadius: {
         lg: "var(--radius)",

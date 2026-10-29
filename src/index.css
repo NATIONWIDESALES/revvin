@@ -3,55 +3,54 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    :root {
+    /* Revvin yard-sign palette */
+    --forest: 147 66% 17%;        /* #0F4A2A brand dark */
+    --forest-night: 147 67% 14%;  /* #0B3A20 footer */
+    --green: 140 60% 30%;         /* #1F7A3D primary action */
+    --green-deep: 139 62% 24%;    /* #17632F hover */
+    --sign: 43 100% 62%;          /* #FFC93C rewards, founding, primary on dark */
+    --sign-hover: 44 100% 70%;    /* #FFD866 */
+    --paper: 84 17% 94%;          /* #F1F3EE page */
+    --line: 105 10% 84%;          /* #D5DBD3 */
+    --lawn: 112 45% 34%;          /* #2F7D3A */
 
+    --background: var(--paper);
+    --foreground: 146 31% 10%;    /* #122219 ink */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-
+    --card-foreground: 146 31% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-
-    --primary: 142 64% 24%;
+    --popover-foreground: 146 31% 10%;
+    --primary: var(--green);
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 11%;
-
-    --muted: 210 20% 98%;
-    --muted-foreground: 215 16% 47%;
-
-    --accent: 32 95% 44%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 72% 51%;
+    --secondary: 100 14% 90%;
+    --secondary-foreground: 146 31% 10%;
+    --muted: 90 14% 91%;
+    --muted-foreground: 144 9% 34%; /* #4F5E55 */
+    --accent: var(--sign);
+    --accent-foreground: var(--forest);
+    --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
+    --border: var(--line);
+    --input: var(--line);
+    --ring: var(--sign);
+    --radius: 0.625rem;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 142 64% 24%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 142 64% 24%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 146 31% 10%;
+    --sidebar-primary: var(--green);
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 96%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 142 64% 24%;
+    --sidebar-accent: 90 14% 91%;
+    --sidebar-accent-foreground: 146 31% 10%;
+    --sidebar-border: var(--line);
+    --sidebar-ring: var(--sign);
 
-    --earnings: 142 64% 30%;
+    --earnings: var(--green);
     --earnings-foreground: 0 0% 100%;
-
-    --surface: 220 14% 97%;
-
-    /* V1 marketing tokens */
-    --surface-warm: 40 20% 96%;     /* #F5F4F1 alt section bg */
-    --ink: 0 0% 4%;                 /* #0A0A0A near-black */
-    --primary-deep: 142 70% 21%;    /* #0F5E2D hover */
+    --surface: 0 0% 100%;
+    --surface-warm: 0 0% 100%;
+    --ink: 146 31% 10%;
+    --primary-deep: var(--green-deep);
     --phone-frame-light: 220 9% 68%;
     --phone-frame-mid: 220 8% 33%;
     --phone-frame-dark: 222 13% 12%;
@@ -59,47 +58,42 @@
   }
 
   .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 20% 95%;
-
-    --card: 222 40% 10%;
-    --card-foreground: 210 20% 95%;
-
-    --popover: 222 40% 10%;
-    --popover-foreground: 210 20% 95%;
-
-    --primary: 142 50% 36%;
+    --forest: 147 50% 12%;
+    --forest-night: 147 55% 8%;
+    --paper: 147 30% 7%;
+    --line: 147 18% 20%;
+    --background: 147 30% 7%;
+    --foreground: 84 17% 94%;
+    --card: 147 28% 10%;
+    --card-foreground: 84 17% 94%;
+    --popover: 147 28% 10%;
+    --popover-foreground: 84 17% 94%;
+    --primary: 140 50% 42%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 222 30% 15%;
-    --secondary-foreground: 210 20% 90%;
-
-    --muted: 222 30% 15%;
-    --muted-foreground: 215 16% 55%;
-
-    --accent: 32 95% 44%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62.8% 30.6%;
+    --secondary: 147 20% 16%;
+    --secondary-foreground: 84 17% 94%;
+    --muted: 147 20% 14%;
+    --muted-foreground: 105 10% 70%;
+    --accent: var(--sign);
+    --accent-foreground: 147 66% 17%;
+    --destructive: 0 62.8% 40%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 222 25% 18%;
-    --input: 222 25% 18%;
-    --ring: 142 50% 36%;
-
-    --sidebar-background: 222 47% 8%;
-    --sidebar-foreground: 210 20% 90%;
-    --sidebar-primary: 142 50% 36%;
+    --border: 147 18% 20%;
+    --input: 147 18% 20%;
+    --ring: var(--sign);
+    --sidebar-background: 147 30% 8%;
+    --sidebar-foreground: 84 17% 94%;
+    --sidebar-primary: 140 50% 42%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 30% 15%;
-    --sidebar-accent-foreground: 210 20% 90%;
-    --sidebar-border: 222 25% 18%;
-    --sidebar-ring: 142 50% 36%;
-
-    --earnings: 142 50% 40%;
+    --sidebar-accent: 147 20% 16%;
+    --sidebar-accent-foreground: 84 17% 94%;
+    --sidebar-border: 147 18% 20%;
+    --sidebar-ring: var(--sign);
+    --earnings: 140 50% 45%;
     --earnings-foreground: 0 0% 100%;
-
-    --surface: 222 30% 12%;
+    --surface: 147 28% 10%;
+    --surface-warm: 147 28% 10%;
+    --ink: 84 17% 94%;
   }
 }
 
@@ -115,17 +109,23 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Barlow', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    letter-spacing: -0.02em;
+  h1, h2, h3 {
+    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    letter-spacing: -0.005em;
   }
 
-  h1 {
-    letter-spacing: -0.03em;
+  h4, h5, h6 {
+    font-family: 'Barlow', system-ui, sans-serif;
+  }
+
+  :focus-visible {
+    outline: 3px solid hsl(var(--sign));
+    outline-offset: 3px;
+    border-radius: 4px;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -231,12 +231,11 @@
 
   /* ===== V1 marketing utilities ===== */
   .wordmark {
-    font-family: 'Anton', 'Bebas Neue', Impact, sans-serif;
+    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
     font-style: italic;
-    font-weight: 400;
-    letter-spacing: 0.005em;
-    line-height: 0.9;
-    transform: skewX(-6deg);
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1;
     display: inline-block;
   }
 
@@ -439,7 +438,7 @@
   }
 
   .watermark-num {
-    font-family: 'Anton', Impact, sans-serif;
+    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
     font-style: italic;
     font-weight: 400;
     line-height: 1;
@@ -572,6 +571,16 @@
   }
 }
 
+/* Retired ambient effects. The classes stay harmless so no page breaks, but
+   nothing shimmers, drifts or glows any more. */
+@layer components {
+  .hero-aurora, .hero-spotlight, .grid-faint, .aurora, .grain { display: none !important; }
+  .shimmer-text { background: none; color: inherit; animation: none; -webkit-background-clip: border-box; background-clip: border-box; }
+  .shine-on-hover::after { display: none; }
+  .step-tilt-left, .step-tilt-right, .step-visual-frame:hover { transform: none; }
+  .final-cta-glow::before { display: none; }
+}
+
 /* Installed app: the phone's own top bar and home indicator overlap the page
    because the viewport is edge to edge, so the app shell keeps clear of them. */
 @media (display-mode: standalone) {
@@ -579,5 +588,93 @@
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     overscroll-behavior-y: none;
+  }
+}
+
+/* ===== Yard-sign marketing system (homepage and referral page) ===== */
+@layer components {
+  .mk-wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  .mk-h2 { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-weight: 800; font-size: clamp(40px, 4.6vw, 64px); line-height: .98; color: hsl(var(--forest)); max-width: 16ch; }
+  .mk-intro { margin-top: 18px; font-size: 20px; line-height: 1.55; color: hsl(var(--muted-foreground)); max-width: 36em; }
+  .mk-section { padding: 112px 0; }
+
+  /* Hero yard sign */
+  .yard-scene { position: relative; height: 600px; margin: 0; }
+  .yard-sign { position: absolute; z-index: 1; left: 50%; bottom: 170px; width: 380px; transform: translateX(-50%) rotate(-1.5deg); }
+  .yard-sign-panel { position: relative; background: hsl(var(--forest)); color: #fff; border-radius: 6px; padding: 30px 30px 26px; box-shadow: 0 2px 0 #0A3A20, 0 24px 40px -18px rgba(15,74,42,.55); }
+  .yard-sign-biz { font-weight: 700; font-size: 17px; line-height: 1; opacity: .9; }
+  .yard-sign-q { margin-top: 14px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 46px; line-height: .95; }
+  .yard-sign-sub { margin-top: 14px; font-size: 16px; line-height: 1.35; max-width: 15em; opacity: .92; }
+  .yard-sign-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-top: 20px; }
+  .yard-sign-url { font-weight: 600; font-size: 14px; line-height: 1.2; opacity: .85; }
+  .yard-qr { width: 92px; height: 92px; background: #fff; padding: 7px; border-radius: 4px; flex: none; }
+  .yard-sticker { position: absolute; top: -34px; right: -30px; width: 122px; height: 122px; border-radius: 50%; background: hsl(var(--sign)); color: hsl(var(--forest)); display: grid; place-content: center; text-align: center; transform: rotate(12deg); }
+  .yard-sticker b { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 44px; line-height: .9; }
+  .yard-sticker small { font-weight: 700; font-size: 13px; line-height: 1.1; }
+  .yard-stakes { position: absolute; left: 50%; bottom: -150px; transform: translateX(-50%); width: 230px; height: 150px; display: flex; justify-content: space-between; }
+  .yard-stakes i { width: 6px; height: 100%; background: linear-gradient(90deg, #8C9690, #C9D0CB 40%, #7D8781); }
+  .yard-lawn { position: absolute; z-index: 2; left: -40px; right: -200px; bottom: 0; height: 120px; background: hsl(var(--lawn)); border-radius: 60% 40% 0 0 / 22px 22px 0 0; }
+  .yard-caption { position: absolute; z-index: 3; left: 0; right: 0; bottom: 28px; text-align: center; color: rgba(255,255,255,.92); font-size: 14px; }
+
+  /* Journey track */
+  .mk-track { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; margin-top: 64px; }
+  .mk-track::before { content: ""; position: absolute; left: 0; right: 0; top: 20px; height: 2px; background: hsl(var(--line)); }
+  .mk-step-n { position: relative; z-index: 1; width: 42px; height: 42px; border-radius: 50%; background: hsl(var(--forest)); color: #fff; display: grid; place-items: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 22px; }
+  .mk-artifact { margin-top: 22px; border: 1px solid hsl(var(--line)); border-radius: 14px; padding: 16px; background: hsl(var(--paper)); font-size: 15px; line-height: 1.4; }
+  .mk-bubble { background: #2F7DF6; color: #fff; border-radius: 18px 18px 4px 18px; padding: 12px 14px; margin-left: 12px; }
+  .mk-mini-field { background: #fff; border: 1px solid hsl(var(--line)); border-radius: 8px; padding: 9px 11px; margin-top: 8px; }
+  .mk-mini-field small { display: block; font-size: 11px; color: hsl(var(--muted-foreground)); }
+  .mk-mini-btn { margin-top: 10px; background: hsl(var(--green)); color: #fff; border-radius: 8px; text-align: center; padding: 9px; font-weight: 700; }
+  .mk-lead { background: #fff; border: 1px solid hsl(var(--line)); border-radius: 10px; padding: 12px; }
+  .mk-lead + .mk-lead { margin-top: 8px; }
+  .mk-tag { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: #E3F1E6; color: hsl(var(--green-deep)); }
+  .mk-tag.old { background: #EDEFEC; color: hsl(var(--muted-foreground)); }
+  .mk-paid { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 40px; line-height: 1; color: hsl(var(--forest)); background: hsl(var(--sign)); border-radius: 10px; padding: 8px 12px; }
+
+  /* Worksheet ticket */
+  .mk-ticket { position: relative; background: #fff; border: 1px solid hsl(var(--line)); border-radius: 4px; box-shadow: 0 1px 0 hsl(var(--line)), 0 30px 50px -30px rgba(15,74,42,.35); }
+  .mk-ticket::before { content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 10px; background: radial-gradient(circle at 8px -2px, hsl(var(--paper)) 7px, transparent 7.5px) 0 0 / 16px 10px repeat-x; }
+  .mk-field { display: flex; align-items: center; margin-top: 8px; border: 1.5px solid hsl(var(--line)); border-radius: 8px; background: hsl(var(--paper)); height: 52px; padding: 0 14px; color: hsl(var(--muted-foreground)); font-weight: 600; }
+  .mk-field:focus-within { border-color: hsl(var(--green)); background: #fff; }
+  .mk-field input { border: 0; background: transparent; width: 100%; min-width: 0; font: 600 20px 'Barlow', sans-serif; padding: 0 6px; color: hsl(var(--foreground)); outline: none; }
+
+  /* Plans */
+  .mk-plan li { position: relative; padding: 12px 0 12px 30px; border-bottom: 1px solid hsl(var(--line)); }
+  .mk-plan li::before { content: ""; position: absolute; left: 2px; top: 19px; width: 14px; height: 8px; border-left: 3px solid hsl(var(--green)); border-bottom: 3px solid hsl(var(--green)); transform: rotate(-45deg); }
+  .mk-plan.pro li { border-color: rgba(255,255,255,.16); }
+  .mk-plan.pro li::before { border-color: hsl(var(--sign)); }
+
+  /* FAQ */
+  .mk-faq details { border-bottom: 1px solid hsl(var(--line)); }
+  .mk-faq details:first-child { border-top: 1px solid hsl(var(--line)); }
+  .mk-faq summary { list-style: none; cursor: pointer; position: relative; padding: 24px 40px 24px 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; line-height: 1.1; color: hsl(var(--forest)); }
+  .mk-faq summary::-webkit-details-marker { display: none; }
+  .mk-faq summary::after { content: "+"; position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 32px; font-weight: 600; color: hsl(var(--green)); }
+  .mk-faq details[open] summary::after { content: "\2212"; }
+
+  /* Referral page facts */
+  .rf-facts li { position: relative; padding-left: 26px; }
+  .rf-facts li::before { content: ""; position: absolute; left: 2px; top: 7px; width: 12px; height: 7px; border-left: 3px solid hsl(var(--sign)); border-bottom: 3px solid hsl(var(--sign)); transform: rotate(-45deg); }
+  .rf-input { width: 100%; border: 1.5px solid hsl(var(--line)); border-radius: 10px; background: hsl(var(--paper)); font: 500 17px 'Barlow', sans-serif; padding: 13px 14px; color: hsl(var(--foreground)); }
+  .rf-input:focus { outline: none; border-color: hsl(var(--green)); background: #fff; box-shadow: 0 0 0 3px hsl(var(--sign)); }
+  .rf-steps li { position: relative; padding-left: 52px; min-height: 36px; }
+  .rf-steps li::before { counter-increment: rf; content: counter(rf); position: absolute; left: 0; top: 0; width: 36px; height: 36px; border-radius: 50%; background: hsl(var(--forest)); color: #fff; display: grid; place-items: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 19px; }
+  .rf-steps { counter-reset: rf; }
+
+  @media (max-width: 980px) {
+    .mk-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mk-track::before { display: none; }
+  }
+  @media (max-width: 640px) {
+    .mk-section { padding: 80px 0; }
+    .yard-scene { height: 540px; }
+    .yard-sign { width: 300px; }
+    .yard-sign-panel { padding: 24px 22px 20px; }
+    .yard-sign-q { font-size: 36px; }
+    .yard-qr { width: 76px; height: 76px; padding: 5px; }
+    .yard-qr > div, .yard-qr canvas, .yard-qr svg { width: 66px !important; height: 66px !important; }
+    .yard-sticker { width: 100px; height: 100px; top: -28px; right: -14px; }
+    .yard-sticker b { font-size: 36px; }
+    .mk-track { grid-template-columns: minmax(0, 1fr); }
   }
 }

@@ -22,7 +22,7 @@ const HowPayoutsWork = ({ className = "" }: { className?: string }) => (
   >
     <h3
       id="how-payouts-work"
-      className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground"
+      className="text-[11px] font-semibold text-muted-foreground"
     >
       How payouts work
     </h3>
