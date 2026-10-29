@@ -49,6 +49,7 @@ export const PRIVATE_DOCS: { path: string; title: string; body: string }[] = [
   { path: "/print", title: "Print pack | Revvin", body: "Private Revvin print assets." },
   { path: "/r/status", title: "Referral status | Revvin", body: "Private referral status page." },
   { path: "/saved", title: "Saved offers | Revvin", body: "Private saved offers page." },
+  { path: "/me", title: "Your referrals | Revvin", body: "Private referrer home." },
 ];
 
 /**

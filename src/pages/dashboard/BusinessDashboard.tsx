@@ -22,6 +22,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import QRCodeStyling from "qr-code-styling";
 import { useRef } from "react";
 import CustomersTab from "@/components/dashboard/CustomersTab";
+import ReferrersTab from "@/components/dashboard/ReferrersTab";
 import AutoAskTab from "@/components/dashboard/AutoAskTab";
 import CampaignsTab from "@/components/dashboard/CampaignsTab";
 import IntegrationsTab from "@/components/dashboard/IntegrationsTab";
@@ -147,7 +148,7 @@ const BusinessDashboard = () => {
 
   // ?tab= lets other surfaces (the scoreboard empty state, emails) deep link
   // straight to the action they are recommending.
-  const VALID_TABS = ["customers", "jobdone", "campaigns", "leads", "offers", "referrals", "payouts", "page", "share", "integrations", "account"];
+  const VALID_TABS = ["customers", "referrers", "jobdone", "campaigns", "leads", "offers", "referrals", "payouts", "page", "share", "integrations", "account"];
   useEffect(() => {
     const t = searchParams.get("tab");
     if (t && VALID_TABS.includes(t)) setActiveTab(t);
@@ -473,6 +474,7 @@ const BusinessDashboard = () => {
         <div ref={tabsBarRef} className="-mx-4 mb-6 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           <TabsList className="w-max justify-start">
             <TabsTrigger value="customers">Customers {contactStats.total > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{contactStats.total}</span>}</TabsTrigger>
+            <TabsTrigger value="referrers">Referrers</TabsTrigger>
             <TabsTrigger value="jobdone">Job done</TabsTrigger>
             <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
             <TabsTrigger value="leads">Leads {leads.length > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{leads.length}</span>}</TabsTrigger>
@@ -502,6 +504,8 @@ const BusinessDashboard = () => {
           </AttestationGate>
           )}
         </TabsContent>
+
+        <TabsContent value="referrers"><ReferrersTab publicUrl={publicUrl} /></TabsContent>
 
         <TabsContent value="jobdone">
           {!isLive ? (
