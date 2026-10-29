@@ -17,6 +17,7 @@
 import { INDUSTRIES } from "./industries";
 import { PARTNER_TERMS_DOC } from "./partnerTerms";
 import { GUIDES } from "./guides";
+import { COMPARISONS, ROUNDUP, CHECKED_LINE, BIAS_DISCLOSURE, type ContentTable, type Source } from "./comparisons";
 import { PRIVACY_DOC, TERMS_DOC, legalPrerenderSections } from "./legal";
 // Relative, not aliased: this module is also imported by the build-time
 // prerender plugin, which is bundled outside the app's alias resolution.
@@ -49,6 +50,12 @@ export interface PrerenderRoute {
    * When absent the prerender emits a self-referential canonical.
    */
   canonical?: string;
+  /** Real HTML tables, each followed by its checked-on line. */
+  tables?: ContentTable[];
+  /** Sources list printed at the bottom, with the bias disclosure. */
+  sources?: Source[];
+  /** Written article (guides, comparisons): Article JSON-LD and byline. */
+  article?: boolean;
   /** Moved page: rendered as a redirect document pointing here. */
   redirectTo?: string;
 }
@@ -688,4 +695,43 @@ const partnerRoutes: PrerenderRoute[] = [
   },
 ];
 
-export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...toolkitRoutes, ...partnerRoutes, guideIndexRoute, ...industryRoutes, ...guideRoutes];
+const compareRoutes: PrerenderRoute[] = COMPARISONS.map((c) => ({
+  path: `/compare/${c.slug}`,
+  title: c.metaTitle,
+  description: c.metaDescription,
+  h1: c.h1,
+  article: true,
+  sections: [
+    { heading: "The short answer", body: c.answer },
+    { heading: `Choose ${c.competitor} if`, body: c.chooseThem.join(" ") },
+    { heading: "Choose Revvin if", body: c.chooseRevvin.join(" ") },
+    ...(c.notes ?? []),
+    { heading: "About this page", body: BIAS_DISCLOSURE },
+  ],
+  tables: [c.table],
+  faqs: c.faqs,
+  sources: c.sources,
+}));
+
+const roundupRoute: PrerenderRoute = {
+  path: `/guides/${ROUNDUP.slug}`,
+  title: ROUNDUP.metaTitle,
+  description: ROUNDUP.metaDescription,
+  h1: ROUNDUP.h1,
+  article: true,
+  sections: [
+    { heading: "The short answer", body: ROUNDUP.answer },
+    ...ROUNDUP.tools.map((t) => ({
+      heading: t.name,
+      body: `Best for: ${t.bestFor} Price: ${t.price} What stands out: ${t.standsOut} Watch out for: ${t.watchOut}`,
+    })),
+    { heading: "How to choose", body: ROUNDUP.howToChoose.map((h, i) => `${i + 1}. ${h.q} ${h.a}`).join(" ") },
+    { heading: "About this page", body: BIAS_DISCLOSURE },
+  ],
+  tables: [ROUNDUP.summary],
+  sources: ROUNDUP.sources,
+};
+
+export { CHECKED_LINE };
+
+export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...toolkitRoutes, ...partnerRoutes, guideIndexRoute, ...industryRoutes, ...guideRoutes, roundupRoute, ...compareRoutes];

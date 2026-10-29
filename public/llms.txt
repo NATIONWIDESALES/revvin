@@ -52,6 +52,15 @@ Revvin gives a home-service business a referral page on its own link, a personal
 - [Referral message generator](/tools/referral-message-generator): Write a referral ask.
 - [Partners](/partners): The partner program.
 
+## Comparisons
+
+- [Best referral software for contractors in 2026](/guides/best-referral-software-for-contractors-2026): Six tools compared on price, free plan and fit.
+- [Revvin vs Get The Referral](/compare/get-the-referral): Price, setup fees and payouts compared.
+- [Revvin vs ReferralWise](/compare/referralwise): Two low-cost referral tools compared.
+- [Revvin vs Clicki](/compare/clicki): Referral software for service companies compared.
+- [Revvin vs Snoball](/compare/snoball): Done-for-you program or self-serve referrals.
+- [Revvin vs Jobber Referrals](/compare/jobber-referrals): Credits or cash rewards.
+
 ## Optional
 
 - [Full text](/llms-full.txt): Plain text of About, Pricing, How it works and every guide.

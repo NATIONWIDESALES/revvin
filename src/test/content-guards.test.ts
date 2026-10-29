@@ -50,6 +50,9 @@ const SKIP_PATHS = [
 // Exact internal files only. New provider files require an explicit review;
 // public pages remain covered by the provider-name and unshipped-feature guards.
 const SKIP_EXACT_PATHS = [
+  // Competitor facts quoted from their own sites (wallets, payout fees, $19/mo
+  // plans, Starter tiers). These describe other companies, not Revvin pricing.
+  "src/content/comparisons.ts",
   "supabase/functions/_shared/tremendous/config.ts",
   "supabase/functions/_shared/tremendous/index.ts",
   "supabase/functions/_shared/tremendous/obligation.ts",

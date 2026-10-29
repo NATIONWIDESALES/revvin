@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import { GUIDES } from "@/content/guides";
+import { ROUNDUP } from "@/content/comparisons";
 import { PRICE_TEXT } from "@/config/pricing";
 
 const BASE = "https://revvin.co";
@@ -53,6 +54,15 @@ const GuidesHub = () => (
     <section className="border-b border-border bg-surface-warm">
       <div className="container py-20">
         <div className="grid gap-6 md:grid-cols-2">
+          <article className="rounded-[14px] border border-line bg-card p-6">
+            <h2 className="text-lg">
+              <Link to={`/guides/${ROUNDUP.slug}`} className="hover:text-primary">{ROUNDUP.h1}</Link>
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{ROUNDUP.answer}</p>
+            <Link to={`/guides/${ROUNDUP.slug}`} className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
+              Read the guide
+            </Link>
+          </article>
           {GUIDES.map((g) => (
             <article key={g.slug} className="rounded-[14px] border border-line bg-card p-6">
               <h2 className="text-lg">
