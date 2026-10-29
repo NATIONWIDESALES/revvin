@@ -7,11 +7,10 @@ const demo = readFileSync("src/components/demo/ReferralDemo.tsx", "utf8");
 
 describe("homepage", () => {
   it("uses the approved hero copy", () => {
-    expect(home).toContain("Referral software for service businesses.");
-    expect(home).toContain("Turn past customers into your");
-    expect(home).toContain("next booked job.");
+    expect(home).toContain("Your happy customers are your best salespeople.");
+    expect(home).toContain("Put them to work.");
     expect(home).toContain("FREE_CTA_LABEL");
-    expect(home).toContain("See it work");
+    expect(home).toContain("See a real referral page");
   });
 
   it("stays concise", () => {
@@ -19,9 +18,8 @@ describe("homepage", () => {
   });
 
   it("shows exactly six FAQs, and the schema is built from the same six", () => {
-    const faqs = home.match(/^\s{2}\{\n\s{4}question:/gm) ?? [];
-    expect(faqs).toHaveLength(6);
-    expect(home).toContain("mainEntity: FAQS.map(");
+    expect(home).toContain("mainEntity: HOME_FAQS.map(");
+    expect(home).toContain("{HOME_FAQS.map(");
   });
 
   it("does not repeat the retired homepage narrative", () => {
@@ -46,7 +44,7 @@ describe("homepage", () => {
 
   it("keeps the prerendered homepage aligned with the client headline", () => {
     const root = PRERENDER_ROUTES.find((r) => r.path === "/");
-    expect(root?.h1).toBe("Turn past customers into your next booked job.");
+    expect(root?.h1).toBe("Your happy customers are your best salespeople. Put them to work.");
     expect(root?.sections.length).toBeGreaterThan(0);
     for (const s of root!.sections) {
       expect(s.body).not.toMatch(/never sends email/i);

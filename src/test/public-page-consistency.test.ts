@@ -83,7 +83,8 @@ describe("pricing facts are not duplicated by hand", () => {
 
   it("derives the prerendered organization description and default meta from the shared prices", () => {
     expect(read("plugins/prerender.ts")).toMatch(/PRICE_TEXT\.monthlyPerMonth/);
-    expect(read("src/components/SEOHead.tsx")).toMatch(/PRICE_TEXT\.monthlyPerMonth/);
+    // The default description now matches the homepage, which quotes no price.
+    expect(read("src/components/SEOHead.tsx")).toContain("You pay a reward only when a job closes.");
   });
 
   it("keeps the static index.html shell on the current prices", () => {

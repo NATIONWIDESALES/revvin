@@ -367,6 +367,7 @@ export const renderRedirectDoc = (template: string, route: PrerenderRoute & { re
   const target = `${SITE}${route.redirectTo === "/" ? "/" : route.redirectTo}`;
   let html = setHead(template, { title: route.title, description: route.description, url: target });
   html = setCanonical(html, target);
+  if (route.noindex) html = setRobots(html, "noindex, follow");
   html = html.replace("</head>", `  <meta http-equiv="refresh" content="0; url=${esc(route.redirectTo)}">\n  </head>`);
   html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>\s*/, "");
   html = html.replace(

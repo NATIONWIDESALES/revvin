@@ -4,6 +4,8 @@ import { MemoryRouter, Routes, Route, Navigate } from "react-router-dom";
 import { readFileSync } from "node:fs";
 
 vi.mock("@/lib/track", () => ({ track: vi.fn() }));
+class IO { observe() {} unobserve() {} disconnect() {} takeRecords() { return []; } }
+vi.stubGlobal("IntersectionObserver", IO);
 vi.mock("@/components/marketing/HeroPhoneScene", () => ({ default: () => null }));
 
 import Index, { homeFaqJsonLd } from "@/pages/Index";
