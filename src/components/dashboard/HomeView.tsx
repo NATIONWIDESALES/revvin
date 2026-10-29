@@ -106,11 +106,11 @@ const HomeView = ({ businessId, businessName, slug, publicUrl, isPro, isDemo, se
         </Tile>
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-[3fr_2fr]">
-        <section className="rounded-[14px] border border-line bg-card p-5">
-          <div className="mb-3 flex items-center justify-between">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <section className="min-w-0 rounded-[14px] border border-line bg-card p-5">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h2 className="font-display text-2xl font-bold text-forest dark:text-foreground">Leads to call</h2>
-            <button type="button" onClick={() => onGo("leads")} className="text-sm font-semibold text-primary">All leads</button>
+            <button type="button" onClick={() => onGo("leads")} className="whitespace-nowrap text-sm font-semibold text-primary">All leads</button>
           </div>
           {toCall.length === 0 ? (
             <div className="py-4">
@@ -145,10 +145,10 @@ const HomeView = ({ businessId, businessName, slug, publicUrl, isPro, isDemo, se
           )}
         </section>
 
-        <section className="rounded-[14px] border border-line bg-card p-5">
-          <div className="mb-3 flex items-center justify-between">
+        <section className="min-w-0 rounded-[14px] border border-line bg-card p-5">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h2 className="font-display text-2xl font-bold text-forest dark:text-foreground">Top referrers</h2>
-            <button type="button" onClick={() => onGo("referrers")} className="text-sm font-semibold text-primary">All referrers</button>
+            <button type="button" onClick={() => onGo("referrers")} className="whitespace-nowrap text-sm font-semibold text-primary">All referrers</button>
           </div>
           {referrers !== null && top.length === 0 ? (
             <p className="py-4 text-muted-foreground">Your referrers will show up here.</p>
