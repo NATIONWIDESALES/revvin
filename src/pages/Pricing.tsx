@@ -98,14 +98,12 @@ const Pricing = () => {
       />
 
 
-      <section className="relative overflow-hidden border-b border-border hero-radial">
-        <div aria-hidden className="absolute inset-0 grid-faint" />
-        <div className="container relative max-w-3xl py-24 text-center">
-          <p className="mb-3 text-[11px] font-semibold text-primary">Pricing</p>
+      <section className="border-b border-border">
+        <div className="container relative max-w-3xl py-20 text-center md:py-24">
           {/* Every figure reads from the pricing config so the numbers can
               never drift between pages. */}
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
-            Your referral page is free.
+          <h1 className="text-5xl leading-[0.98] md:text-7xl">
+            Free asks your first 100 customers. Pro asks all of them.
           </h1>
           <p className="mt-5 text-xl font-semibold text-foreground">{PLAN_SPLIT.line}</p>
           <div className="mx-auto mt-6 grid max-w-2xl gap-3 text-left sm:grid-cols-2">
@@ -128,11 +126,11 @@ const Pricing = () => {
         <div className="container max-w-6xl py-20">
           <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Free */}
-            <div className="relative flex min-w-0 flex-col rounded-2xl border border-border bg-card p-8 shadow-soft">
-              <p className="text-[11px] font-semibold text-muted-foreground">Free</p>
+            <div className="relative flex min-w-0 flex-col rounded-[18px] border border-line bg-background p-8">
+              <p className="font-display text-2xl font-bold text-forest">Free</p>
               <h2 className="mt-1 text-xl font-bold text-foreground">{PLAN_SPLIT.freeSubtitle}</h2>
               <div className="mt-6 flex items-baseline gap-2">
-                <span className="text-5xl font-extrabold tracking-tight text-foreground">$0</span>
+                <span className="font-display text-6xl font-extrabold text-foreground">$0</span>
                 <span className="text-sm text-muted-foreground">forever</span>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
@@ -146,15 +144,15 @@ const Pricing = () => {
             </div>
 
             {/* Pro, featured */}
-            <div className="relative flex min-w-0 flex-col rounded-2xl border-2 border-primary bg-card p-8 shadow-product md:-mt-4">
+            <div className="surface-forest relative flex min-w-0 flex-col rounded-[18px] p-8 md:-mt-4">
               {/* No popularity claim: we have no data to support one. The
                   badge states what the plan is for instead. */}
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="inline-flex items-center rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground">
+                <span className="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-foreground">
                   For growing lists
                 </span>
               </div>
-              <p className="text-[11px] font-semibold text-primary">Pro</p>
+              <p className="font-display text-2xl font-bold text-foreground">Pro</p>
               <h2 className="mt-1 text-xl font-bold text-foreground">{PLAN_SPLIT.proSubtitle}</h2>
 
               {/* Billing period toggle */}
@@ -178,7 +176,7 @@ const Pricing = () => {
               </div>
 
               <div className="mt-6 flex items-baseline gap-2">
-                <span className="text-5xl font-extrabold tracking-tight text-foreground">
+                <span className="font-display text-6xl font-extrabold text-foreground">
                   {annual ? PRICE_TEXT.annual : PRICE_TEXT.monthly}
                 </span>
                 <span className="text-sm text-muted-foreground">{annual ? "/year" : "/month"}</span>
@@ -199,7 +197,7 @@ const Pricing = () => {
                   Cancel anytime. Your page stays free and live either way. No contract.
                 </p>
               )}
-              <Button size="lg" className="mt-6 h-auto min-h-11 w-full whitespace-normal py-2.5 text-center shadow-soft hover:bg-primary-deep" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
+              <Button size="lg" className="mt-6 h-auto min-h-11 w-full whitespace-normal py-2.5 text-center " variant="sign" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
                 <Link to={`/signup?plan=${plan}`}>
                   {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Start Pro + Launch Package" : "Start with Revvin Pro"}
                 </Link>
@@ -221,8 +219,8 @@ const Pricing = () => {
             </div>
 
             {/* Team, not built yet. Waitlist only. */}
-            <div className="relative flex min-w-0 flex-col rounded-2xl border border-dashed border-border bg-card p-8 shadow-soft md:col-span-2 lg:col-span-1">
-              <p className="text-[11px] font-semibold text-muted-foreground">Team</p>
+            <div className="relative flex min-w-0 flex-col rounded-[18px] border border-dashed border-line bg-transparent p-8 md:col-span-2 lg:col-span-1">
+              <p className="font-display text-2xl font-bold text-forest">Team</p>
               <h2 className="mt-1 text-xl font-bold text-foreground">Coming soon</h2>
               <p className="mt-6 text-sm text-muted-foreground">
                 Rep and tech links with a leaderboard, so everyone on your crew can share their own link. Not available yet.
@@ -234,12 +232,12 @@ const Pricing = () => {
           </div>
 
           {FOUNDING_OFFER_ACTIVE && SETUP_CALL_URL && (
-            <div className="mx-auto mt-10 max-w-3xl rounded-2xl border-2 border-primary bg-primary/5 p-6 text-center md:p-8">
+            <div className="mx-auto mt-10 max-w-3xl rounded-[14px] bg-sign p-6 text-center text-forest md:p-8">
               <h2 className="text-2xl font-extrabold tracking-tight text-foreground">Founding businesses: first 25 only</h2>
-              <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-forest">
                 Pro free for 30 days, then $29 a month locked for life, plus a done-for-you setup call. In return, we ask for a short case study once you have results.
               </p>
-              <Button size="lg" className="mt-5 h-auto min-h-11 w-full whitespace-normal py-2.5 sm:w-auto" asChild>
+              <Button size="lg" variant="line" className="mt-5 h-auto min-h-11 w-full whitespace-normal py-2.5 sm:w-auto" asChild>
                 <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_clicked", { cta: "pricing_founding_call" })}>
                   Claim a founding spot
                 </a>
@@ -248,7 +246,7 @@ const Pricing = () => {
           )}
 
           {LAUNCH_PACKAGE_ENABLED && (
-            <div className="mt-8 flex flex-col items-center gap-2 text-center text-sm text-muted-foreground">
+            <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center gap-2 rounded-[14px] border border-line px-5 py-4 text-center text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Checkbox id="add-launch" checked={addLaunch} onCheckedChange={(v) => toggleLaunch(v === true)} />
                 <Label htmlFor="add-launch" className="cursor-pointer font-normal text-muted-foreground">
@@ -319,10 +317,10 @@ const Pricing = () => {
         </div>
       </section>
 
-      <section className="border-t border-border bg-surface-warm">
+      <section className="border-t border-border">
         <div className="container max-w-3xl py-20">
           <h2 className="mb-8 text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">Common questions</h2>
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible className="mk-accordion w-full">
             <AccordionItem value="p1">
               <AccordionTrigger>Is there really no contract?</AccordionTrigger>
               <AccordionContent>
