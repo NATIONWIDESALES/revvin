@@ -22,6 +22,13 @@
       "when": 1793309742742,
       "tag": "0002_referrers_revoke_anon",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793310365996,
+      "tag": "0003_earn_metros",
+      "breakpoints": true
     }
   ]
 }
