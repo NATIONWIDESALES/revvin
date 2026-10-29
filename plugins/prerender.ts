@@ -525,6 +525,78 @@ export const renderBusinessDoc = (template: string, biz: PublicBusiness) => {
   return stripNoscript(html);
 };
 
+export interface EarnMetroDoc { name: string; slug: string; businesses: { slug: string; name: string; trade: string | null; city: string | null; reward: string | null }[] }
+
+/** A live Earn city: title, canonical and an ItemList of LocalBusiness items with an Offer for the reward. */
+export const renderEarnMetroDoc = (template: string, metro: EarnMetroDoc) => {
+  const url = `${SITE}/earn/${metro.slug}`;
+  const title = `Get paid for referrals in ${metro.name} | Revvin`;
+  const description = `Local businesses in ${metro.name} that pay a reward when your referral turns into a job. Get your own link to each one, free.`;
+  let html = setHead(template, { title, description, url });
+  html = setCanonical(html, url);
+  html = setRobots(html, "index, follow");
+  html = replaceTag(
+    html,
+    /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
+    `<script type="application/ld+json">${JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        ORGANIZATION,
+        {
+          "@type": "ItemList",
+          "@id": `${url}#list`,
+          name: `Businesses that pay for referrals in ${metro.name}`,
+          itemListElement: metro.businesses.map((b, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            item: {
+              "@type": "LocalBusiness",
+              name: b.name,
+              url: `${SITE}/r/${b.slug}`,
+              ...(b.city ? { address: { "@type": "PostalAddress", addressLocality: b.city } } : {}),
+              makesOffer: { "@type": "Offer", name: "Referral reward", description: `${b.reward ?? ""} when a referred job closes`.trim() },
+            },
+          })),
+        },
+      ],
+    })}</script>`.replace(/</g, (m, o, str) => (str.slice(o, o + 8) === "<script " || str.slice(o, o + 9) === "</script>" ? m : "\\u003c")),
+  );
+  const items = metro.businesses
+    .map((b) => `<li><a href="/r/${esc(b.slug)}">${esc(b.name)}</a>${b.trade ? `, ${esc(b.trade)}` : ""}${b.city ? `, ${esc(b.city)}` : ""}. Reward: ${esc(b.reward ?? "")}</li>`)
+    .join("");
+  html = html.replace(/<div id="root">\s*<\/div>/, `<div id="root"><h1>Get paid for referrals in ${esc(metro.name)}</h1><p>${esc(description)}</p><ul>${items}</ul></div>`);
+  return stripNoscript(html);
+};
+
+/** Live metros and their eligible businesses, read through the public functions only. */
+const fetchLiveMetros = async (supabaseUrl: string, anonKey: string): Promise<EarnMetroDoc[]> => {
+  const call = async (fn: string, body: unknown) => {
+    const res = await fetch(`${supabaseUrl}/rest/v1/rpc/${fn}`, {
+      method: "POST",
+      headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    return res.ok ? res.json() : [];
+  };
+  try {
+    const metros = (await call("fn_earn_metros", {})) as { name: string; slug: string }[];
+    const out: EarnMetroDoc[] = [];
+    for (const m of Array.isArray(metros) ? metros : []) {
+      const businesses = await call("fn_earn_businesses", { p_metro_slug: m.slug });
+      out.push({ name: m.name, slug: m.slug, businesses: Array.isArray(businesses) ? businesses : [] });
+    }
+    return out;
+  } catch {
+    return [];
+  }
+};
+
+/** Adds live metro URLs to the built sitemap. No lastmod: there is no page-specific change date. */
+export const addMetrosToSitemap = (xml: string, slugs: string[]) =>
+  slugs.length
+    ? xml.replace("</urlset>", `${slugs.map((s) => `  <url>\n    <loc>${SITE}/earn/${s}</loc>\n  </url>\n`).join("")}</urlset>`)
+    : xml;
+
 const fetchPublishedBusinesses = async (
   supabaseUrl: string,
   anonKey: string,
@@ -637,6 +709,17 @@ export default function prerenderPlugin(): Plugin {
             "utf8",
           );
           businessCount++;
+        }
+      }
+
+      // Live Earn cities. Non-live cities are never written or listed, so they
+      // stay noindex single-page-app routes and out of the sitemap.
+      if (supabaseUrl && anonKey) {
+        const metros = await fetchLiveMetros(supabaseUrl, anonKey);
+        for (const m of metros) { writeDoc(dist, `/earn/${m.slug}`, renderEarnMetroDoc(template, m)); count++; }
+        const sitemapPath = path.join(dist, "sitemap.xml");
+        if (metros.length && fs.existsSync(sitemapPath)) {
+          fs.writeFileSync(sitemapPath, addMetrosToSitemap(fs.readFileSync(sitemapPath, "utf8"), metros.map((m) => m.slug)), "utf8");
         }
       }
 
