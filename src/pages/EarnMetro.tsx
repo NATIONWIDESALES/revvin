@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import LeadCaptureForm from "@/components/marketing/LeadCaptureForm";
 import InviteBusinessForm from "@/components/earn/InviteBusinessForm";
 import GetMyLink from "@/components/earn/GetMyLink";
-import { EARN_COPY } from "@/content/earnPage";
 import { earnDescription, earnTitle, metroBusinesses, metroInfo, submitEarnLead, waitingCount, type EarnBusiness } from "@/lib/earn";
 
 const EarnMetro = () => {
@@ -104,7 +103,7 @@ const EarnMetro = () => {
 
       <section className="bg-surface-warm">
         <div className="container max-w-xl py-14">
-          <h2 className="text-2xl font-extrabold tracking-tight text-foreground">{EARN_COPY.inviteHeading}</h2>
+          <h2 className="text-2xl font-extrabold tracking-tight text-foreground">Know a business that should be here?</h2>
           <div className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-soft"><InviteBusinessForm metroSlug={info.slug} /></div>
         </div>
       </section>
