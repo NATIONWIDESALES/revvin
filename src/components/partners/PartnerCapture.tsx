@@ -8,15 +8,27 @@ import { capturePartnerFromSearch } from "@/lib/partnerLink";
  * approved partner, and nothing about the visitor is stored with the click.
  */
 const PartnerCapture = () => {
-  const { search } = useLocation();
+  const { search, pathname } = useLocation();
 
   useEffect(() => {
-    if (!search) return;
-    if (!/[?&](via|ref)=/.test(search)) return;
-    void capturePartnerFromSearch(search);
-  }, [search]);
+    const held = partnerSearchFor(pathname, search);
+    if (held) void capturePartnerFromSearch(held);
+  }, [search, pathname]);
 
   return null;
 };
+
+/**
+ * On business referral pages (/r/...) ?ref= is a referrer's personal link
+ * token, never a partner code, so only ?via= is passed on there.
+ */
+export function partnerSearchFor(pathname: string, search: string): string | null {
+  if (!search) return null;
+  if (pathname.startsWith("/r/")) {
+    const via = new URLSearchParams(search).get("via");
+    return via ? `?via=${encodeURIComponent(via)}` : null;
+  }
+  return /[?&](via|ref)=/.test(search) ? search : null;
+}
 
 export default PartnerCapture;
