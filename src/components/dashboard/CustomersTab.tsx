@@ -900,6 +900,11 @@ const CustomersTab = ({
         <p className="text-xs text-muted-foreground mt-1">
           Paste your customer list. One per line, like <span className="font-mono">Name, email, phone, 2025-06-15</span>. The optional fourth column is the last job date, written as YYYY-MM-DD. We will dedupe against contacts you already have.
         </p>
+        {capped && (
+          <p className="text-xs text-muted-foreground mt-1" data-testid="free-allowance">
+            Free plan: {contacts.length} of {FREE_CONTACT_LIMIT} customers used, {remaining} left.
+          </p>
+        )}
         <Textarea
           value={paste}
           onChange={(e) => { setSource("paste"); setPaste(e.target.value); }}
