@@ -30,7 +30,7 @@ const AuthSplit = ({ children, showWordmark = true }: { children: ReactNode; sho
           </li>
         ))}
       </ul>
-      <div className="mt-4"><HeroYardSign compact /></div>
+      <div className="mt-12"><HeroYardSign compact /></div>
     </aside>
   </div>
 );

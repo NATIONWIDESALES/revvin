@@ -720,12 +720,11 @@ body[data-dash-shell] .app-topbar { display: none; }
 .article-body :where(th) { font-weight: 700; border-bottom-width: 2px; border-color: hsl(var(--forest)); }
 
 /* Smaller yard sign for trade pages and the signup panel. */
-.yard-scene.yard-compact { height: 460px; }
-.yard-compact .yard-sign { bottom: 120px; width: 320px; }
-.yard-compact .yard-sign-q { font-size: 38px; }
+.yard-scene.yard-compact { height: 540px; }
+.yard-compact .yard-sign-q { font-size: 40px; }
 .surface-forest .yard-sign-panel { box-shadow: 0 0 0 2px hsl(0 0% 100% / .22), 0 24px 40px -18px rgba(0,0,0,.5); }
 .surface-forest .yard-caption { color: hsl(var(--muted-foreground)); }
-@media (max-width: 640px) { .yard-scene.yard-compact { height: 400px; } .yard-compact .yard-sign { width: 270px; } .yard-compact .yard-sign-q { font-size: 32px; } }
+@media (max-width: 640px) { .yard-compact .yard-sign-q { font-size: 34px; } }
 
 /* Headings inside dark containers keep the container's light text colour. */
 :where(.bg-forest, .bg-forest-night, .surface-forest, .text-primary-foreground, .text-white, .rf-head) :where(h1, h2, h3) { color: inherit; }
