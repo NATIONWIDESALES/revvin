@@ -39,7 +39,7 @@ export const routeComponentFiles = (appSource: string): { pattern: string; file:
     if (!f) continue;
     const base = `src/${f}`;
     const file = [".tsx", ".ts"].map((x) => base + x).find((c) => fs.existsSync(c)) ?? `${base}.tsx`;
-    out.push({ pattern: m[1], file });
+    if (m[1].startsWith("/")) out.push({ pattern: m[1], file });
   }
   return out;
 };
