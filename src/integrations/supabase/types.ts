@@ -2892,6 +2892,7 @@ export type Database = {
           headline: string | null
           id: string | null
           industry: string | null
+          is_demo: boolean | null
           is_disabled: boolean | null
           is_published: boolean | null
           latitude: number | null
@@ -2925,6 +2926,7 @@ export type Database = {
           headline?: string | null
           id?: string | null
           industry?: string | null
+          is_demo?: never
           is_disabled?: boolean | null
           is_published?: boolean | null
           latitude?: number | null
@@ -2958,6 +2960,7 @@ export type Database = {
           headline?: string | null
           id?: string | null
           industry?: string | null
+          is_demo?: never
           is_disabled?: boolean | null
           is_published?: boolean | null
           latitude?: number | null

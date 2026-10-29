@@ -8,6 +8,9 @@ import path from "node:path";
 import { PRERENDER_ROUTES } from "@/content/seoRoutes";
 import { TERMS_DOC, PRIVACY_DOC, legalPrerenderSections } from "@/content/legal";
 import { MONTHLY_PRICE, ANNUAL_PRICE, ANNUAL_TERMS_COPY } from "@/config/pricing";
+import { buildSitemapEntries, renderSitemap } from "../../plugins/sitemap";
+const generatedSitemap = () => renderSitemap(buildSitemapEntries({ buildDate: "2026-10-29", dateFor: () => null }));
+
 
 const read = (p: string) => fs.readFileSync(path.resolve(process.cwd(), p), "utf8");
 
@@ -187,7 +190,7 @@ describe("partner program pages", () => {
   });
 
   it("lists both partner pages in the sitemap and never the dashboard", () => {
-    const sitemap = read("public/sitemap.xml");
+    const sitemap = generatedSitemap();
     expect(sitemap).toContain("https://revvin.co/partners<");
     expect(sitemap).toContain("https://revvin.co/partners/terms");
     expect(sitemap).not.toContain("/partners/dashboard");

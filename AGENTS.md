@@ -1,1 +1,2 @@
 - Moved public pages are PrerenderRoute entries with redirectTo (meta refresh + canonical document) plus a client <Navigate replace>. Why: hosting has no server-side 301s.
+- sitemap.xml and llms-full.txt are generated at build by plugins/sitemap.ts and plugins/prerender.ts from PRERENDER_ROUTES; never hand-write public/sitemap.xml. Why: the sitemap cannot drift from the built, indexable pages.

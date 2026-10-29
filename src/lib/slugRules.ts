@@ -17,6 +17,7 @@ export const RESERVED_SLUGS = [
   "for-referrers", "about-revvin-llm", "referral-agreement", "how-it-works",
   "feedback", "print", "docs", "www", "mail", "ftp", "cdn", "static", "assets",
   "app", "help", "support", "status", "blog", "null", "undefined", "test",
+  "earn", "me", "about", "partners", "tools",
 ];
 
 // Brand impersonation and security/phishing vocabulary. Matched as substrings
