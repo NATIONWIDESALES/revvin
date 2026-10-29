@@ -9,6 +9,10 @@ export const FREE_FEATURES = [
     description: "Build and publish your referral page for free.",
   },
   {
+    label: "A personal link for every referrer",
+    description: "Every customer and referrer gets their own link, so each referral is credited to them automatically.",
+  },
+  {
     label: "QR code and print pack",
     description: "Create yard signs, door hangers, invoice inserts, business cards and truck magnets.",
   },

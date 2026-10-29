@@ -15,7 +15,7 @@ const usd = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits
 
 /** Referrer home. Sign in by email link, then a read-only view of every business they refer for. */
 const Me = () => {
-  const { user, loading: authLoading } = useAuth() as { user: { email?: string } | null; loading?: boolean };
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);

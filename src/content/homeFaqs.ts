@@ -19,7 +19,7 @@ export const HOME_FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Can my techs and reps have their own links?",
-    a: "Not yet. Team links with a leaderboard are coming. Today everyone shares your page link.",
+    a: "Every customer and referrer gets their own link today. Team links for techs and reps with a leaderboard are coming.",
   },
   {
     q: "Is it legal to pay for referrals in my industry?",
