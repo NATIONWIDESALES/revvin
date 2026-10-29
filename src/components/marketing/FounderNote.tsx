@@ -12,10 +12,7 @@ const FounderNote = () => {
     <section className="border-b border-border bg-surface-warm">
       <div className="container py-20 md:py-24">
         <div className="mx-auto max-w-3xl rounded-2xl border border-border bg-card p-8 shadow-soft md:p-12">
-          <p className="text-[11px] font-semibold text-primary">
-            A note from the team
-          </p>
-          <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+          <h2 className="mt-3 text-2xl md:text-3xl">
             We built Revvin because referrals beat ads, but most businesses don't have the tooling to actually run a program.
           </h2>
           <div className="mt-4 space-y-4 text-base leading-relaxed text-muted-foreground">

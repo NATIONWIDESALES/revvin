@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import AuthSplit from "@/components/AuthSplit";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -178,8 +179,8 @@ const Onboarding = () => {
   return (
     <>
       <SEOHead title="Set up your referral page · Revvin" description="Onboarding wizard" path="/welcome" noindex />
-      <div className="min-h-screen bg-muted/30 py-12 px-4">
-        <div className="mx-auto max-w-2xl">
+      <AuthSplit showWordmark={false}>
+        <div className="w-full">
           {params.get("checkout") === "success" && !liveUrl && (
             launchPackageStatus && launchPackageStatus !== "none" ? (
               <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-50 dark:bg-amber-950/20 p-4 text-sm text-foreground">
@@ -213,10 +214,10 @@ const Onboarding = () => {
             )
           )}
 
-          <div className="rounded-2xl border border-border bg-background p-6 sm:p-8 shadow-sm">
+          <div>
             {!liveUrl && (
               <form onSubmit={(e) => { e.preventDefault(); void publishNow(); }} noValidate>
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your referral page, live in a minute</h1>
+                <h1 className="text-4xl sm:text-5xl">Your referral page, live in a minute</h1>
                 <p className="mt-1 text-sm text-muted-foreground">Four answers and you are live. Publishing is free.</p>
                 <div className="mt-6 space-y-4">
                   <div>
@@ -260,7 +261,10 @@ const Onboarding = () => {
 
             {liveUrl && (
               <>
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your page is live</h1>
+                <h1 className="text-4xl sm:text-5xl">Your page is live</h1>
+                {offerAmount.trim() && (
+                  <p className="mt-4"><span data-testid="live-reward-chip" className="inline-block -rotate-2 rounded-[10px] bg-sign px-3 py-1.5 font-display text-3xl font-extrabold text-forest">Get {offerAmount.trim()}.</span></p>
+                )}
                 <p className="mt-1 text-sm text-muted-foreground">Anyone with this link can now send you referrals.</p>
                 <div className="mt-6 rounded-lg border border-border bg-muted/30 px-3 py-2 font-mono text-sm text-foreground break-all">{liveUrl}</div>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -272,13 +276,13 @@ const Onboarding = () => {
                   </Button>
                 </div>
                 <Button className="mt-8 h-11 w-full" onClick={() => navigate("/dashboard?welcome=1")}>
-                  Go to my dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                  Go to my dashboard
                 </Button>
               </>
             )}
           </div>
         </div>
-      </div>
+      </AuthSplit>
     </>
   );
 };

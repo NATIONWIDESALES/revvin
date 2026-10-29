@@ -43,7 +43,6 @@ const Sample = () => {
             <Button size="sm" asChild>
               <Link to="/signup" onClick={() => track("cta_clicked", { cta: "sample_top" })}>
                 Start yours
-                <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
           </div>
@@ -53,10 +52,7 @@ const Sample = () => {
       <section className="bg-background">
         <div className="container py-12 md:py-16">
           <div className="mx-auto mb-8 max-w-2xl text-center">
-            <p className="text-[11px] font-semibold text-primary">
-              Interactive demo
-            </p>
-            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
+            <h1 className="mt-2 text-3xl md:text-5xl">
               {SAMPLE_META.h1}
             </h1>
             <p className="mt-4 text-base text-muted-foreground md:text-lg">
@@ -72,7 +68,7 @@ const Sample = () => {
 
           <div className="mt-14 grid items-center gap-10 md:grid-cols-2">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight text-foreground">
+              <h2 className="text-4xl">
                 What your customers actually see
               </h2>
               <p className="mt-3 text-base text-muted-foreground">
@@ -85,7 +81,6 @@ const Sample = () => {
                 <Button size="lg" asChild>
                   <Link to="/signup" onClick={() => track("cta_clicked", { cta: "sample_bottom" })}>
                     Build my referral page, free
-                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>

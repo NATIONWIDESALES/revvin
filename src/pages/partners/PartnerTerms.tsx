@@ -9,17 +9,17 @@ const PartnerTerms = () => (
       description="The rules of the Revvin Partner Program: commission, attribution, payment timing, refunds, taxes, disclosure and prohibited promotion methods."
       path="/partners/terms"
     />
-    <div className="container max-w-3xl py-16">
-      <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+    <div className="mx-auto w-full max-w-[720px] px-5 py-16">
+      <h1 className="text-5xl leading-[1] md:text-6xl">
         {PARTNER_TERMS_DOC.h1}
       </h1>
       <p className="mt-3 text-sm text-muted-foreground">{PARTNER_TERMS_DOC.lastUpdated}</p>
 
-      <div className="mt-10 space-y-8">
+      <div className="article-body mt-10">
         {PARTNER_TERMS_DOC.sections.map((section) => (
           <section key={section.heading}>
-            <h2 className="text-lg font-semibold text-foreground">{section.heading}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{section.body}</p>
+            <h2>{section.heading}</h2>
+            <p>{section.body}</p>
           </section>
         ))}
       </div>

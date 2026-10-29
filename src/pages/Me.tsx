@@ -48,7 +48,7 @@ const Me = () => {
   return (
     <main className="container max-w-3xl py-12">
       <SEOHead title="Your referrals | Revvin" description="Private referrer home." path="/me" noindex />
-      <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Your referrals</h1>
+      <h1 className="font-display text-5xl font-extrabold text-forest dark:text-foreground">Your referrals</h1>
 
       {authLoading ? (
         <Loader2 className="mt-8 h-5 w-5 animate-spin text-muted-foreground" />

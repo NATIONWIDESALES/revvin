@@ -114,13 +114,9 @@ const ToolkitHub = () => (
       ]}
     />
 
-    <section className="relative overflow-hidden border-b border-border hero-radial">
-      <div aria-hidden className="absolute inset-0 grid-faint" />
+    <section className="relative overflow-hidden border-b border-border">
       <div className="container relative max-w-3xl py-16 md:py-24">
-        <p className="text-[11px] font-semibold text-primary">
-          Free tools for service businesses
-        </p>
-        <h1 className="mt-4 text-[2rem] font-extrabold leading-[1.08] tracking-tight text-foreground sm:text-4xl md:text-5xl">
+        <h1 className="mt-4 text-[2rem] leading-[1.08] sm:text-4xl md:text-5xl">
           Turn the customers you already have into the next job.
         </h1>
         <p className="mt-5 text-base leading-relaxed text-muted-foreground md:text-lg">
@@ -132,7 +128,6 @@ const ToolkitHub = () => (
           <Button size="lg" className="h-12 w-full px-6 text-base sm:w-auto" asChild>
             <a href="#tools">
               Start with a tool
-              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
             </a>
           </Button>
           <Button size="lg" variant="outline" className="h-12 w-full px-6 text-base sm:w-auto" asChild>
@@ -149,14 +144,14 @@ const ToolkitHub = () => (
 
     <section id="tools" className="scroll-mt-16 border-b border-border bg-surface-warm">
       <div className="container py-16 md:py-20">
-        <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+        <h2 className="text-2xl md:text-3xl">
           Pick the one that matches where you are stuck.
         </h2>
         <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {TOOLS.map((tool) => (
             <article
               key={tool.to}
-              className="flex flex-col rounded-2xl border border-border bg-background p-6 shadow-soft"
+              className="flex flex-col rounded-[14px] border border-line bg-card p-6"
             >
               <tool.icon className="h-5 w-5 text-primary" aria-hidden="true" />
               <h3 className="mt-4 text-lg font-bold tracking-tight text-foreground">
@@ -170,7 +165,6 @@ const ToolkitHub = () => (
                 className="mt-5 inline-flex items-center text-sm font-semibold text-primary hover:underline"
               >
                 {tool.action}
-                <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
               </Link>
             </article>
           ))}
@@ -191,7 +185,6 @@ const ToolkitHub = () => (
               className="mt-5 inline-flex items-center text-sm font-semibold text-primary hover:underline"
             >
               Open the marketplace
-              <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
             </Link>
           </article>
         </div>
@@ -201,10 +194,7 @@ const ToolkitHub = () => (
     <section className="border-b border-border">
       <div className="container py-16 md:py-20">
         <div className="max-w-2xl">
-          <p className="text-[11px] font-semibold text-primary">
-            From free tool to working system
-          </p>
-          <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+          <h2 className="mt-3 text-2xl md:text-3xl">
             The tools prepare the decisions. Revvin runs the loop.
           </h2>
         </div>
@@ -238,7 +228,7 @@ const ToolkitHub = () => (
 
     <section className="border-b border-border bg-surface-warm">
       <div className="container max-w-3xl py-16 md:py-20">
-        <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+        <h2 className="text-2xl md:text-3xl">
           Common questions
         </h2>
         <div className="mt-8 space-y-6">
@@ -252,17 +242,17 @@ const ToolkitHub = () => (
       </div>
     </section>
 
-    <section className="bg-ink text-white">
+    <section className="bg-forest text-primary-foreground">
       <div className="container max-w-2xl py-16 text-center md:py-20">
-        <h2 className="text-2xl font-extrabold tracking-tight md:text-4xl">
+        <h2 className="text-2xl md:text-4xl">
           Build the page these tools are preparing.
         </h2>
-        <p className="mt-4 text-base text-white/70 md:text-lg">
+        <p className="mt-4 text-base text-primary-foreground/80 md:text-lg">
           {`Publishing your referral page is free, with no card. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD when you want it working your whole customer list.`}
         </p>
         <Button
           size="lg"
-          className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep"
+          variant="sign" className="mt-8"
           asChild
         >
           <Link to="/signup" onClick={() => track("cta_clicked", { cta: TOOLKIT_CTAS.hubSignup })}>

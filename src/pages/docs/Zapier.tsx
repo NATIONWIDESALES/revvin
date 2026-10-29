@@ -10,7 +10,7 @@ const ZapierDocs = () => (
     />
 
     <article className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight text-foreground">Zapier and integrations</h1>
+      <h1 className="text-3xl">Zapier and integrations</h1>
       <p className="mt-3 text-muted-foreground">
         Connect tools that work with Zapier to Revvin through Webhooks by Zapier, or use a Revvin API key. When
         your software reports a completed job, Revvin schedules the same automatic email ask as the Job done tab.

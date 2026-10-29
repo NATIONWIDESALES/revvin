@@ -102,7 +102,7 @@ const MessageGenerator = () => {
       ctaHeading="Give the ask somewhere to land."
       ctaCta={TOOLKIT_CTAS.generatorSignup}
     >
-      <div className="rounded-2xl border border-border bg-background p-6 md:p-8">
+      <div className="mk-ticket p-6 pt-8 md:p-8 md:pt-10">
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Label htmlFor="trade" className="text-sm font-semibold">
@@ -247,7 +247,7 @@ const MessageGenerator = () => {
         </div>
 
         <div className="mt-10 space-y-5">
-          <h2 className="text-lg font-bold tracking-tight text-foreground">Your three versions</h2>
+          <h2 className="text-lg">Your three versions</h2>
           {outputs.map((out) => (
             <article key={out.key} className="rounded-xl border border-border bg-card p-5">
               <div className="flex items-center justify-between gap-3">

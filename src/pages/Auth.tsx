@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
+import AuthSplit from "@/components/AuthSplit";
 import SEOHead from "@/components/SEOHead";
 import Wordmark from "@/components/brand/Wordmark";
 import { friendlyError } from "@/lib/errors";
@@ -35,37 +36,20 @@ const Auth = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <AuthSplit>
       <SEOHead
         title="Revvin | Sign in or create your account"
         description="Sign in to your Revvin dashboard or create an account. Businesses build their referral page free and pay $49/month USD when they go live. Referrers join free."
         path="/auth"
         noindex
       />
-      {/* Left panel */}
-      <div className="hidden lg:flex lg:w-1/2 hero-gradient flex-col justify-between p-12">
-        <Link to="/" className="flex items-center" aria-label="Revvin home">
-          <Wordmark size="md" variant="white" />
-        </Link>
-        <div>
-          <h2 className="text-4xl font-bold text-primary-foreground leading-tight">Welcome back to Revvin</h2>
-          <p className="mt-4 text-primary-foreground/60 text-lg">Sign in to manage your referral program and payouts.</p>
-        </div>
-        <div className="text-sm text-primary-foreground/40">© {new Date().getFullYear()} Revvin</div>
-      </div>
+        <div className="w-full">
 
-      {/* Right panel */}
-      <div className="flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-16">
-        <div className="mx-auto w-full max-w-md">
-          <Button variant="ghost" size="sm" className="mb-8 gap-1" asChild>
-            <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to home</Link>
-          </Button>
-
-          <h1 className="text-2xl font-bold text-foreground">Sign in to your account</h1>
+          <h1 className="text-4xl sm:text-5xl">Sign in to your account</h1>
           <p className="mt-2 text-muted-foreground text-sm">
             Don't have an account?{" "}
             <Link to="/signup" className="text-primary font-medium hover:underline inline-flex items-center gap-1">
-              Build your referral page — free <ArrowRight className="h-3.5 w-3.5" />
+              Build your referral page, free
             </Link>
           </p>
 
@@ -109,8 +93,7 @@ const Auth = () => {
             </Button>
           </form>
         </div>
-      </div>
-    </div>
+    </AuthSplit>
   );
 };
 

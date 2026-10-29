@@ -65,9 +65,8 @@ const GuidePage = () => {
         ]}
       />
 
-      <section className="relative overflow-hidden border-b border-border hero-radial">
-        <div aria-hidden className="absolute inset-0 grid-faint" />
-        <div className="container relative max-w-3xl py-20 md:py-24">
+      <section>
+        <div className="mx-auto w-full max-w-[720px] px-5 pb-4 pt-14 md:pt-20">
           <nav aria-label="Breadcrumb" className="mb-6 text-xs text-muted-foreground">
             <ol className="flex flex-wrap items-center gap-2">
               <li><Link to="/" className="hover:text-foreground">Home</Link></li>
@@ -77,35 +76,34 @@ const GuidePage = () => {
               <li aria-current="page" className="text-foreground">{guide.label}</li>
             </ol>
           </nav>
-          <p className="mb-3 text-[11px] font-semibold text-primary">
-            Guide
-          </p>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
+          <h1 className="text-[2.6rem] leading-[1] md:text-6xl">
             {guide.question}
           </h1>
-          <p className="mt-4 text-xs text-muted-foreground">
-            {`By Karm Sandhu, Founder of Revvin. Last updated ${formatContentDate(GUIDES_UPDATED_AT)}`}
+          <p className="mt-5 border-b border-line pb-5 text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">By Karm Sandhu, Founder of Revvin</span>
+            <br />
+            {`Last updated ${formatContentDate(GUIDES_UPDATED_AT)}`}
           </p>
-          <p className="mt-6 text-lg leading-relaxed text-foreground">{guide.answer}</p>
+          <p className="article-body mt-6 text-[21px]">{guide.answer}</p>
         </div>
       </section>
 
-      <article className="border-b border-border">
-        <div className="container max-w-3xl py-16 md:py-20">
-          <div className="space-y-12">
+      <article>
+        <div className="mx-auto w-full max-w-[720px] px-5 pb-16">
+          <div className="article-body">
             {guide.sections.map((s) => (
               <section key={s.heading}>
-                <h2 className="text-xl font-extrabold tracking-tight text-foreground md:text-2xl">
+                <h2>
                   {s.heading}
                 </h2>
-                <p className="mt-4 text-base leading-relaxed text-muted-foreground">{s.body}</p>
+                <p>{s.body}</p>
               </section>
             ))}
           </div>
 
           {isAskGuide && (
-            <div className="mt-14 rounded-xl border border-border bg-surface-warm p-6">
-              <h2 className="text-lg font-bold tracking-tight text-foreground">
+            <div className="mt-14 rounded-[14px] border border-line bg-card p-6">
+              <h2 className="text-lg">
                 The copy-paste scripts live in the referral ask kit
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -120,16 +118,16 @@ const GuidePage = () => {
         </div>
       </article>
 
-      <section className="border-b border-border bg-surface-warm">
-        <div className="container max-w-3xl py-16 md:py-20">
-          <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+      <section className="border-t border-line">
+        <div className="mx-auto w-full max-w-[720px] px-5 py-16">
+          <h2 className="text-4xl">
             Common questions
           </h2>
           <dl className="mt-10 space-y-8">
             {guide.faqs.map((f) => (
               <div key={f.q}>
-                <dt className="text-base font-bold text-foreground">{f.q}</dt>
-                <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.a}</dd>
+                <dt className="font-display text-2xl font-bold text-forest">{f.q}</dt>
+                <dd className="mt-2 text-[17px] leading-relaxed text-muted-foreground">{f.a}</dd>
               </div>
             ))}
           </dl>
@@ -138,7 +136,7 @@ const GuidePage = () => {
 
       <section className="border-b border-border">
         <div className="container max-w-4xl py-14">
-          <h2 className="text-sm font-semibold text-muted-foreground">
+          <h2 className="text-3xl">
             More guides
           </h2>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -155,9 +153,9 @@ const GuidePage = () => {
         </div>
       </section>
 
-      <section className="border-b border-border bg-surface-warm">
+      <section className="border-b border-border ">
         <div className="container max-w-4xl py-14">
-          <h2 className="text-sm font-semibold text-muted-foreground">
+          <h2 className="text-3xl">
             Referral programs by trade
           </h2>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -180,17 +178,18 @@ const GuidePage = () => {
         </div>
       </section>
 
-      <section className="border-b border-border">
-        <div className="container max-w-3xl py-14">
-          <p className="text-sm leading-relaxed text-muted-foreground">
+      <section>
+        <div className="mx-auto w-full max-w-[720px] px-5 py-14"><div className="rounded-[18px] border border-line bg-card p-6 sm:p-8">
+          <h2 className="text-3xl">Get your own referral page</h2>
+          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
             If you want a referral page of your own, it is free to build and publish, and you can
             take referrals on it without paying anything.{" "}
             {`Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD if you later want the tools that work your whole customer list.`}
           </p>
-          <Button variant="outline" className="mt-5 h-auto min-h-10 max-w-full whitespace-normal py-2 text-center" asChild>
+          <Button size="lg" className="mt-5 h-auto min-h-14 max-w-full whitespace-normal py-3 text-center" asChild>
             <Link to="/signup">{FREE_CTA_LABEL}</Link>
           </Button>
-        </div>
+        </div></div>
       </section>
     </>
   );

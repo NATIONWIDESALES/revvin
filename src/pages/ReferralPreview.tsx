@@ -66,7 +66,7 @@ export default function ReferralPreview() {
               <p className="text-xs font-semibold uppercase tracking-[0.16em]" style={{ color: accent }}>
                 Refer a customer to
               </p>
-              <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">
+              <h1 className="mt-1 text-3xl md:text-5xl">
                 {listing.name}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">{listing.city}, {listing.region} · {listing.category}</p>
@@ -123,7 +123,7 @@ export default function ReferralPreview() {
       {/* How it works for the referrer */}
       <section className="border-b border-border">
         <div className="container py-16 md:py-20">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">How it works</h2>
+          <h2 className="text-2xl md:text-3xl">How it works</h2>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             {[
               { n: "1", t: "Submit your referral", d: `Share your friend's name and best way to reach them.` },

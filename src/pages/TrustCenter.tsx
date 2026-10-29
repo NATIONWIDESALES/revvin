@@ -245,7 +245,7 @@ const TrustCenter = () => {
             <motion.p variants={fadeUp} custom={1} className="mt-3 text-muted-foreground text-lg">Join a marketplace built on trust and transparency</motion.p>
             <motion.div variants={fadeUp} custom={2} className="mt-8 flex justify-center gap-4">
               <Button size="lg" className="gap-2 h-12 px-8" asChild>
-                <Link to="/signup">Start Earning <ArrowRight className="h-4 w-4" /></Link>
+                <Link to="/signup">Start Earning</Link>
               </Button>
               <Button size="lg" variant="outline" className="h-12 px-8" asChild>
                 <Link to="/signup">List Your Business</Link>

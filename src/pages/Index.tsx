@@ -5,6 +5,8 @@ import { track } from "@/lib/track";
 import FounderSection from "@/components/marketing/FounderSection";
 import ReferralWorthCalculator from "@/components/marketing/ReferralWorthCalculator";
 import HeroYardSign from "@/components/marketing/HeroYardSign";
+import StepTrack from "@/components/marketing/StepTrack";
+import FinalBand from "@/components/marketing/FinalBand";
 import { PRICE_TEXT, MONTHLY_PRICE, FOUNDING_OFFER_ACTIVE } from "@/config/pricing";
 import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT, FREE_CTA_LABEL } from "@/config/planFeatures";
 import { SETUP_CALL_URL } from "@/config/setupCall";
@@ -25,49 +27,6 @@ export const homeFaqJsonLd = {
   mainEntity: HOME_FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
 };
 
-const STEPS = [
-  {
-    title: "You send the ask",
-    body: "After the job, one tap opens a text with that customer's personal link already in it.",
-    artifact: (
-      <>
-        <p className="mk-bubble">Thanks again for having us out, Dana. If anyone you know needs a roof, this link comes straight to me. I pay $250 if it turns into a job.</p>
-        <p className="mt-1.5 text-right text-xs text-muted-foreground">Delivered</p>
-      </>
-    ),
-  },
-  {
-    title: "They send a friend",
-    body: "Dana taps her link and passes along her neighbour's name and number. It takes about 30 seconds.",
-    artifact: (
-      <>
-        <div className="mk-mini-field"><small>Referring as</small>Dana</div>
-        <div className="mk-mini-field"><small>Who needs a roof?</small>Mike, 604 555 0142</div>
-        <div className="mk-mini-btn">Send referral</div>
-      </>
-    ),
-  },
-  {
-    title: "The lead lands with you",
-    body: "You get an email, and a phone alert if you turn them on, with who referred them and what they need.",
-    artifact: (
-      <>
-        <div className="mk-lead"><p className="flex justify-between gap-2 font-semibold">Mike R. <span className="mk-tag">New</span></p><p className="text-muted-foreground">Roof leak over the garage. From Dana.</p></div>
-        <div className="mk-lead"><p className="flex justify-between gap-2 font-semibold">Priya S. <span className="mk-tag old">Quoted</span></p><p className="text-muted-foreground">Full replacement. From Tom.</p></div>
-      </>
-    ),
-  },
-  {
-    title: "You close it and pay",
-    body: "Pay Dana your way, mark it paid, and she gets a thank-you note. Revvin never takes a cut.",
-    artifact: (
-      <div className="flex items-center gap-3">
-        <span className="mk-paid">$250</span>
-        <span><b className="block text-forest">Paid to Dana</b><span className="text-muted-foreground">Job closed, reward recorded</span></span>
-      </div>
-    ),
-  },
-];
 
 const YOUR_CUSTOMERS = [
   ["A personal link for every customer", "Credit is automatic"],
@@ -106,7 +65,7 @@ const Index = () => (
     <section className="overflow-hidden pt-14">
       <div className="mk-wrap grid items-end gap-10 lg:grid-cols-[1.1fr_.9fr]">
         <div className="min-w-0 pb-0 lg:pb-[72px]">
-          <h1 className="max-w-[13.5ch] font-display text-[clamp(50px,6.2vw,88px)] font-extrabold leading-[.92] text-forest">
+          <h1 className="max-w-[13.5ch] font-display text-[clamp(50px,6.2vw,88px)] leading-[.92] text-forest">
             Your happy customers are your best salespeople.{" "}
             <span className="block text-foreground">Put them to work.</span>
           </h1>
@@ -147,16 +106,7 @@ const Index = () => (
       <div className="mk-wrap">
         <h2 id="journey-heading" className="mk-h2">How one text turns into a booked job</h2>
         <p className="mk-intro">No app for your customers to download and no software to learn. Revvin writes the ask, you send it from your own phone, and every referral comes back to one inbox.</p>
-        <ol className="mk-track" aria-label="Example">
-          {STEPS.map((s, i) => (
-            <li key={s.title} className="min-w-0">
-              <span className="mk-step-n" aria-hidden="true">{i + 1}</span>
-              <h3 className="mt-[22px] font-display text-[30px] font-bold leading-none text-forest">{s.title}</h3>
-              <p className="mt-2.5 text-[17px] text-muted-foreground">{s.body}</p>
-              <div className="mk-artifact" aria-hidden="true">{s.artifact}</div>
-            </li>
-          ))}
-        </ol>
+        <StepTrack />
       </div>
     </section>
 
@@ -277,15 +227,7 @@ const Index = () => (
     </section>
 
     {/* Final */}
-    <section className="bg-forest py-24 text-primary-foreground md:py-[120px]">
-      <div className="mk-wrap">
-        <h2 className="max-w-[13ch] font-display text-[clamp(52px,7vw,110px)] font-extrabold leading-[.9]">Your next job is already in your customer list.</h2>
-        <p className="mt-6 max-w-[34em] text-xl text-primary-foreground/80">Set up your referral program in 5 minutes. Free for your first 100 customers.</p>
-        <Button size="lg" variant="sign" className="mt-9 w-full sm:w-auto" asChild>
-          <Link to="/signup" onClick={() => track("cta_clicked", { cta: "footer_signup" })}>{FREE_CTA_LABEL}</Link>
-        </Button>
-      </div>
-    </section>
+    <FinalBand cta="footer_signup" />
   </>
 );
 

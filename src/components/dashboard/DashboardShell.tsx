@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Wordmark from "@/components/brand/Wordmark";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
@@ -80,6 +80,10 @@ const Rail = ({ active, onSelect, isPro, newLeads, onPicked }: Omit<Props, "chil
 
 const DashboardShell = ({ children, ...rail }: Props) => {
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    document.body.dataset.dashShell = "1";
+    return () => { delete document.body.dataset.dashShell; };
+  }, []);
   return (
     <div className="flex min-h-screen bg-background">
       <aside className="hidden w-[240px] shrink-0 bg-forest px-3 py-6 lg:block">

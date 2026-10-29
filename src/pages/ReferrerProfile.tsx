@@ -45,7 +45,7 @@ const ReferrerProfile = () => {
     return (
       <div className="py-20 text-center">
         <User className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
-        <h2 className="font-display text-xl font-bold">Referrer not found</h2>
+        <h2 className="font-display text-xl">Referrer not found</h2>
         <Button asChild className="mt-4" variant="outline"><Link to="/browse">Browse Offers</Link></Button>
       </div>
     );
@@ -71,7 +71,7 @@ const ReferrerProfile = () => {
                 (profile.full_name || "?").charAt(0).toUpperCase()
               )}
             </div>
-            <h1 className="font-display text-2xl font-bold">{profile.full_name || "Anonymous Referrer"}</h1>
+            <h1 className="font-display text-2xl">{profile.full_name || "Anonymous Referrer"}</h1>
             {(profile.city || profile.state) && (
               <p className="text-sm text-muted-foreground flex items-center justify-center gap-1 mt-1">
                 <MapPin className="h-3.5 w-3.5" /> {[profile.city, profile.state].filter(Boolean).join(", ")}
@@ -104,7 +104,7 @@ const ReferrerProfile = () => {
 
           {/* Badges */}
           <motion.div variants={fadeUp} custom={2} className="rounded-2xl border border-border bg-card p-6">
-            <h2 className="font-display text-lg font-bold mb-4 flex items-center gap-2"><Star className="h-5 w-5 text-accent-foreground" /> Badges</h2>
+            <h2 className="font-display text-lg mb-4 flex items-center gap-2"><Star className="h-5 w-5 text-accent-foreground" /> Badges</h2>
             {badges.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">No badges earned yet</p>
             ) : (

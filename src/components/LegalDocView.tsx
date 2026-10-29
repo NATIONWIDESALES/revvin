@@ -12,22 +12,19 @@ import type { LegalDoc } from "@/content/legal";
 const LegalDocView = ({ doc, footer }: { doc: LegalDoc; footer?: React.ReactNode }) => (
   <div className="py-12">
     <SEOHead title={doc.metaTitle} description={doc.metaDescription} path={doc.path} />
-    <div className="container max-w-3xl">
-      <Button variant="ghost" size="sm" className="gap-1 mb-6" asChild>
-        <Link to="/"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>
-      </Button>
+    <div className="mx-auto w-full max-w-[720px] px-5">
 
-      <h1 className="text-3xl font-bold mb-2">{doc.h1}</h1>
-      <p className="text-sm text-muted-foreground mb-8">Last updated: {doc.lastUpdated}</p>
+      <h1 className="mb-3 text-5xl leading-[1] md:text-6xl">{doc.h1}</h1>
+      <p className="mb-8 border-b border-line pb-5 text-sm text-muted-foreground">Last updated: {doc.lastUpdated}</p>
 
-      <div className="prose prose-sm max-w-none space-y-6 text-muted-foreground">
+      <div className="article-body space-y-6">
         <section>
           <p>{doc.intro}</p>
         </section>
 
         {doc.sections.map((section) => (
           <section key={section.heading}>
-            <h2 className="text-lg font-bold text-foreground">{section.heading}</h2>
+            <h2>{section.heading}</h2>
             {section.paragraphs?.map((para, i) => (
               <p key={i}>
                 {para.lead && <strong>{para.lead}</strong>}

@@ -84,10 +84,7 @@ const PlaybookEmailCapture = ({
         <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Mail className="h-5 w-5" aria-hidden="true" />
         </div>
-        <p className="text-[11px] font-semibold text-primary">
-          {eyebrow}
-        </p>
-        <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+        <h2 className="mt-2 text-2xl md:text-3xl">
           {headline}
         </h2>
         <p className="mt-3 text-sm text-muted-foreground md:text-base">

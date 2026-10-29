@@ -380,7 +380,6 @@ const ReferralDemo = () => {
                   <Button asChild className="h-auto min-h-11 max-w-full gap-2 whitespace-normal py-2.5 text-center">
                     <a href="/signup" onClick={() => track("cta_clicked", { cta: "demo_signup" })}>
                       {FREE_CTA_LABEL}
-                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </a>
                   </Button>
                   <Button variant="outline" className="h-11 gap-2" onClick={reset}>

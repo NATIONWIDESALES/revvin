@@ -60,7 +60,7 @@ const ForReferrers = () => (
           </motion.p>
           <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" variant="outline" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/trust">How rewards are tracked <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/trust">How rewards are tracked</Link>
             </Button>
           </motion.div>
           <motion.p variants={fadeUp} custom={4} className="mt-4 text-xs text-muted-foreground">
@@ -165,11 +165,11 @@ const ForReferrers = () => (
           transition={{ duration: 0.7, ease }}
           className="max-w-xl mx-auto"
         >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Have a referral link?</h2>
+          <h2 className="text-3xl md:text-4xl mb-4">Have a referral link?</h2>
           <p className="text-muted-foreground mb-8">Return to the business's page, read the offer, and submit the referral there.</p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
             <Button size="lg" className="h-12 px-8 text-sm gap-2" asChild>
-              <Link to="/trust">Read about trust and rewards <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/trust">Read about trust and rewards</Link>
             </Button>
           </div>
         </motion.div>

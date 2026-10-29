@@ -386,7 +386,7 @@ const CreateOffer = () => {
             {step > 1 && <Button type="button" variant="outline" onClick={() => setStep(step - 1)} className="flex-1">Back</Button>}
             {step < 4 && (
               <Button type="button" onClick={handleNextStep} size="lg" className={`${step > 1 ? "flex-1" : "w-full"} gap-2`} disabled={loading}>
-                Next <ArrowRight className="h-4 w-4" />
+                Next
               </Button>
             )}
             {step === 4 && (

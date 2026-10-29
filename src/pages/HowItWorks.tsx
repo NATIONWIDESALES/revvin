@@ -1,11 +1,10 @@
-import { FREE_CTA_LABEL } from "@/config/planFeatures";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import MockPageBuilder from "@/components/marketing/MockPageBuilder";
 import MockQRCard from "@/components/marketing/MockQRCard";
 import MockLeadsTable from "@/components/marketing/MockLeadsTable";
 import { PRICE_TEXT } from "@/config/pricing";
+import StepTrack from "@/components/marketing/StepTrack";
+import FinalBand from "@/components/marketing/FinalBand";
 
 const steps = [
   {
@@ -37,11 +36,9 @@ const HowItWorks = () => {
         path="/how-it-works"
       />
 
-      <section className="relative overflow-hidden border-b border-border hero-radial">
-        <div aria-hidden className="absolute inset-0 grid-faint" />
-        <div className="container relative max-w-3xl py-24">
-          <p className="mb-3 text-[11px] font-semibold text-primary">How it works</p>
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-6xl">
+      <section className="border-b border-line">
+        <div className="mk-wrap max-w-4xl py-20 md:py-24">
+          <h1 className="text-5xl leading-[0.98] md:text-7xl">
             Three steps to an engine that runs off your jobs.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
@@ -50,16 +47,20 @@ const HowItWorks = () => {
         </div>
       </section>
 
-      <section className="border-b border-border bg-surface-warm">
-        <div className="container py-24 space-y-24">
+      <section className="mk-section border-b border-line bg-card" aria-labelledby="track-heading">
+        <div className="mk-wrap">
+          <h2 id="track-heading" className="mk-h2">How one text turns into a booked job</h2>
+          <StepTrack />
+        </div>
+      </section>
+
+      <section className="border-b border-line">
+        <div className="container py-20 space-y-20">
           {steps.map((s, i) => (
             <div key={s.n} className="relative grid items-center gap-10 md:grid-cols-12">
-              <span className="watermark-num pointer-events-none absolute -top-12 left-0 hidden text-[200px] md:block">
-                {s.n}
-              </span>
               <div className={`md:col-span-6 ${i % 2 === 1 ? "md:order-2" : ""}`}>
-                <p className="mb-3 text-[11px] font-semibold text-primary">Step {s.n}</p>
-                <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">{s.t}</h2>
+                <p className="mb-2 font-display text-2xl font-bold text-primary">Step {Number(s.n)}</p>
+                <h2 className="text-3xl md:text-4xl">{s.t}</h2>
                 <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">{s.d}</p>
               </div>
               <div className={`md:col-span-6 ${i % 2 === 1 ? "md:order-1" : ""}`}>
@@ -70,17 +71,10 @@ const HowItWorks = () => {
         </div>
       </section>
 
-      <section className="bg-ink text-white">
-        <div className="container max-w-2xl py-24 text-center">
-          <h2 className="text-3xl font-extrabold tracking-tight md:text-5xl">Ready in minutes.</h2>
-          <p className="mt-4 text-lg text-white/70">
-            {`Free to publish and take referrals. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD for the tools that ask your whole customer list for you. Cancel anytime, no contract.`}
-          </p>
-          <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep h-auto min-h-12 max-w-full whitespace-normal py-3 text-center" asChild>
-            <Link to="/signup">{FREE_CTA_LABEL}</Link>
-          </Button>
-        </div>
-      </section>
+      <FinalBand
+        heading="Ready in minutes."
+        body={`Free to publish and take referrals. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD for the tools that ask your whole customer list for you. Cancel anytime, no contract.`}
+      />
     </>
   );
 };

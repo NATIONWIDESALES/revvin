@@ -117,6 +117,10 @@
     font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
     letter-spacing: -0.005em;
   }
+  /* Marketing pages: headings are Barlow Condensed 800 in forest, sentence case. */
+  /* :where keeps specificity at zero so any utility colour (white on forest) wins. */
+  :where(.site-main) :where(h1, h2) { font-weight: 800; color: hsl(var(--forest)); }
+  :where(.dark .site-main) :where(h1, h2) { color: hsl(var(--foreground)); }
 
   h4, h5, h6 {
     font-family: 'Barlow', system-ui, sans-serif;
@@ -685,3 +689,42 @@
 .dash-content h3.text-sm { font-size: 1.25rem; line-height: 1.6rem; }
 .dash-content .rounded-2xl.border { border-radius: 14px; border-color: hsl(var(--line)); }
 .dash-content table tr { border-color: hsl(var(--line)); }
+
+/* The business dashboard rail is its own chrome; the generic app bar steps aside. */
+body[data-dash-shell] .app-topbar { display: none; }
+
+/* A forest surface: remaps the shadcn tokens so any component inside reads
+   white on forest without per-element colour overrides. */
+.surface-forest {
+  --background: var(--forest); --card: var(--forest-night); --surface-warm: var(--forest-night);
+  --foreground: 0 0% 100%; --muted-foreground: 120 12% 82%;
+  --border: 147 30% 30%; --input: 147 30% 30%;
+  --primary: var(--sign); --primary-foreground: var(--forest); --primary-deep: var(--sign-hover);
+  background: hsl(var(--forest)); color: hsl(var(--foreground));
+}
+.surface-forest :where(h1, h2, h3) { color: #fff; }
+
+/* shadcn accordion styled like the homepage FAQ. */
+.mk-accordion [data-radix-collection-item], .mk-accordion button[aria-expanded] {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 24px; line-height: 1.15; color: hsl(var(--forest)); text-align: left;
+}
+.mk-accordion > div { border-color: hsl(var(--line)); }
+
+/* Long-form reading layout for guides, legal pages and about. */
+.article-body { font-size: 19px; line-height: 1.65; color: hsl(var(--foreground)); }
+.article-body :where(h2) { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 34px; line-height: 1.05; margin-top: 2.2rem; margin-bottom: .6rem; color: hsl(var(--forest)); }
+.article-body :where(h3) { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 25px; margin-top: 1.6rem; margin-bottom: .4rem; }
+.article-body :where(p, ul, ol) { margin-top: .9rem; }
+.article-body :where(table) { width: 100%; border-collapse: collapse; font-size: 16px; margin-top: 1.2rem; }
+.article-body :where(th, td) { border-bottom: 1px solid hsl(var(--line)); padding: 10px 8px; text-align: left; vertical-align: top; }
+.article-body :where(th) { font-weight: 700; border-bottom-width: 2px; border-color: hsl(var(--forest)); }
+
+/* Smaller yard sign for trade pages and the signup panel. */
+.yard-scene.yard-compact { height: 540px; }
+.yard-compact .yard-sign-q { font-size: 40px; }
+.surface-forest .yard-sign-panel { box-shadow: 0 0 0 2px hsl(0 0% 100% / .22), 0 24px 40px -18px rgba(0,0,0,.5); }
+.surface-forest .yard-caption { color: hsl(var(--muted-foreground)); }
+@media (max-width: 640px) { .yard-compact .yard-sign-q { font-size: 34px; } }
+
+/* Headings inside dark containers keep the container's light text colour. */
+:where(.bg-forest, .bg-forest-night, .surface-forest, .text-primary-foreground, .text-white, .rf-head) :where(h1, h2, h3) { color: inherit; }

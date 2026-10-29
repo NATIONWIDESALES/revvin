@@ -38,11 +38,9 @@ const GuidesHub = () => (
       ]}
     />
 
-    <section className="relative overflow-hidden border-b border-border hero-radial">
-      <div aria-hidden className="absolute inset-0 grid-faint" />
+    <section className="relative overflow-hidden border-b border-border">
       <div className="container relative max-w-3xl py-24">
-        <p className="mb-3 text-[11px] font-semibold text-primary">Guides</p>
-        <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-5xl">
+        <h1 className="text-5xl leading-[0.98] md:text-6xl">
           Referral program guides
         </h1>
         <p className="mt-5 text-lg text-muted-foreground">
@@ -56,8 +54,8 @@ const GuidesHub = () => (
       <div className="container py-20">
         <div className="grid gap-6 md:grid-cols-2">
           {GUIDES.map((g) => (
-            <article key={g.slug} className="rounded-xl border border-border bg-background p-6">
-              <h2 className="text-lg font-bold tracking-tight text-foreground">
+            <article key={g.slug} className="rounded-[14px] border border-line bg-card p-6">
+              <h2 className="text-lg">
                 <Link to={`/guides/${g.slug}`} className="hover:text-primary">
                   {g.question}
                 </Link>
@@ -75,16 +73,16 @@ const GuidesHub = () => (
       </div>
     </section>
 
-    <section className="bg-ink text-white">
+    <section className="bg-forest text-primary-foreground">
       <div className="container max-w-2xl py-20 text-center">
-        <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">
+        <h2 className="text-3xl md:text-4xl">
           Your referral page is free.
         </h2>
-        <p className="mt-4 text-lg text-white/70">
+        <p className="mt-4 text-lg text-primary-foreground/80">
           Publish it, take referrals on it, pay your referrers directly.{" "}
           {`Pro is ${PRICE_TEXT.monthlyPerMonth} USD when you want it working your whole list.`}
         </p>
-        <Button size="lg" className="mt-8 h-12 px-8 bg-primary text-primary-foreground hover:bg-primary-deep h-auto min-h-12 max-w-full whitespace-normal py-3 text-center" asChild>
+        <Button size="lg" variant="sign" className="mt-8 h-auto min-h-12 max-w-full whitespace-normal py-3 text-center" asChild>
           <Link to="/signup">{FREE_CTA_LABEL}</Link>
         </Button>
       </div>

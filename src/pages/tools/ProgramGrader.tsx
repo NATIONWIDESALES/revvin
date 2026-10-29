@@ -116,11 +116,11 @@ const ProgramGrader = () => {
           </div>
         </form>
       ) : (
-        <div className="rounded-2xl border border-border bg-background p-6 md:p-8">
+        <div className="mk-ticket p-6 pt-8 md:p-8 md:pt-10">
           <p className="text-[11px] font-semibold text-muted-foreground">
             Your result
           </p>
-          <p className="mt-3 text-5xl font-extrabold tracking-tight text-foreground">
+          <p className="mt-3 font-display text-5xl font-extrabold text-forest">
             {result.score}
             <span className="text-xl font-bold text-muted-foreground">/100</span>
           </p>
@@ -129,7 +129,7 @@ const ProgramGrader = () => {
             {`You have ${result.answeredYes} of the ${result.total} basics in place. Every item counts the same, because we have no evidence that would justify weighting one above another. This is a checklist of what is set up, not a prediction of how many referrals you will get, and it is not professional advice.`}
           </p>
 
-          <h2 className="mt-8 text-lg font-bold tracking-tight text-foreground">
+          <h2 className="mt-8 text-lg">
             {result.actions.length > 0 ? "Fix these next, in this order" : "Nothing missing on this checklist"}
           </h2>
           {result.actions.length > 0 ? (

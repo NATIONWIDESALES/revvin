@@ -108,7 +108,7 @@ const RewardCalculator = () => {
       ctaHeading="Set the reward on a page that is free to publish."
       ctaCta={TOOLKIT_CTAS.calculatorSignup}
     >
-      <div className="rounded-2xl border border-border bg-background p-6 md:p-8">
+      <div className="mk-ticket p-6 pt-8 md:p-8 md:pt-10">
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <Label htmlFor="revenue" className="text-sm font-semibold">
@@ -200,15 +200,15 @@ const RewardCalculator = () => {
           </p>
         ) : (
           <div className="mt-8">
-            <h2 className="text-lg font-bold tracking-tight text-foreground">Your figures</h2>
-            <dl className="mt-4 divide-y divide-border rounded-xl border border-border bg-card">
+            <h2 className="text-lg">Your figures</h2>
+            <dl className="mt-4 divide-y divide-line border-y border-line">
               {rows.map((row) => (
                 <div key={row.label} className="flex flex-wrap items-baseline justify-between gap-2 p-4">
                   <div className="min-w-0 flex-1">
                     <dt className="text-sm font-semibold text-foreground">{row.label}</dt>
                     <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{row.help}</p>
                   </div>
-                  <dd className="shrink-0 text-lg font-extrabold tracking-tight text-foreground">
+                  <dd className="shrink-0 font-display text-3xl font-extrabold text-forest">
                     {row.value}
                   </dd>
                 </div>
