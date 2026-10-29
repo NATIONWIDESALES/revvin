@@ -32,7 +32,7 @@ describe("print pack entitlement", () => {
   it("is not gated on the Pro plan in the dashboard", () => {
     expect(read("src/components/dashboard/PrintPack.tsx")).not.toMatch(/isPro|plan\s*===/);
     const dashboard = read("src/pages/dashboard/BusinessDashboard.tsx");
-    const shareTab = dashboard.match(/<TabsContent value="share">[\s\S]*?<\/TabsContent>/)![0];
+    const shareTab = dashboard.match(/\{tab === "share" &&[^\n]*\n/)![0];
     expect(shareTab).not.toMatch(/isPro|ProUpsell/);
   });
 
