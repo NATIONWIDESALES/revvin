@@ -1,3 +1,4 @@
+import { showVerifiedBadge } from "@/lib/verifiedBadge";
 import { copyText } from "@/lib/clipboard";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -34,7 +35,7 @@ interface Business {
   city?: string | null;
   state?: string | null;
   website?: string | null;
-  verified?: boolean | null;
+  is_verified?: boolean | null;
   brand_color?: string | null;
   cover_image_url?: string | null;
   headline?: string | null;
@@ -126,7 +127,7 @@ const PublicReferralPage = () => {
     if (!slug) return;
     (async () => {
       const COLS =
-        "id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,verified,brand_color,cover_image_url,headline,welcome_message,referral_cta_label,testimonials";
+        "id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,is_verified,brand_color,cover_image_url,headline,welcome_message,referral_cta_label,testimonials";
 
       const { data } = await supabase
         .from("businesses_public" as any)
@@ -347,7 +348,7 @@ const PublicReferralPage = () => {
                   <h1 className="text-2xl md:text-3xl font-semibold text-foreground leading-tight tracking-tight">
                     {biz.name}
                   </h1>
-                  {biz.verified && (
+                  {showVerifiedBadge(biz) && (
                     <span
                       className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
                       style={{ background: brandSoft, color: brandInk, border: `1px solid ${brandBorder}` }}

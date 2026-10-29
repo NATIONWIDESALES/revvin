@@ -399,9 +399,9 @@ const SuperAdminCRM = () => {
   };
 
   const verifyBusiness = async (bizId: string) => {
-    const { error } = await supabase.from("businesses").update({ verified: true }).eq("id", bizId);
+    const { error } = await supabase.from("businesses").update({ verified: true, is_verified: true }).eq("id", bizId);
     if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
-    setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, verified: true } : b));
+    setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, verified: true, is_verified: true } : b));
     if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: "business_verified", p_referral_id: bizId });
     toast({ title: "Business verified" });
   };
