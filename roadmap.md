@@ -6,3 +6,4 @@
 - [x] Add Zapier strips where supported
 - [x] Add shared-list regression coverage
 - [x] Run tests and verify preview build
+- [x] Earn metros, city pages, Get my link, invite form, admin Metros panel
