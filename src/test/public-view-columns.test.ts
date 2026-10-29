@@ -31,14 +31,14 @@ describe("businesses_public selects", () => {
   });
 });
 
-// Live check with the public anon key. Skipped without network/env.
+// Live, read-only check with the public anon key. Run with RUN_LIVE_API_TESTS=1.
 const env = Object.fromEntries(
   fs.readFileSync(".env", "utf8").split(/\r?\n/).map((l) => l.match(/^(\w+)\s*=\s*"?([^"]*)"?$/)).filter(Boolean).map((m) => [m![1], m![2]]),
 );
 const url = env.VITE_SUPABASE_URL;
 const key = env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-describe.skipIf(!url || !key || process.env.SKIP_LIVE === "1")("live referral pages (anon)", () => {
+describe.skipIf(!url || !key || process.env.RUN_LIVE_API_TESTS !== "1")("live referral pages (anon)", () => {
   for (const slug of ["next-property", "vancouver-realty-referrals"]) {
     it(`/r/${slug} returns a row with the page's exact select`, async () => {
       const res = await fetch(`${url}/rest/v1/businesses_public?select=${PUBLIC_REFERRAL_PAGE_COLS}&slug=eq.${slug}&limit=1`, {
