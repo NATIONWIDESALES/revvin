@@ -39,7 +39,7 @@ const HowPayoutsWork = ({ className = "" }: { className?: string }) => (
     <p className="mt-5 text-xs text-muted-foreground">
       More detail in the{" "}
       <Link to="/about" className="font-medium text-foreground underline-offset-4 hover:underline">
-        trust overview
+        About Revvin page
       </Link>{" "}
       and the{" "}
       <Link to="/referral-agreement" className="font-medium text-foreground underline-offset-4 hover:underline">

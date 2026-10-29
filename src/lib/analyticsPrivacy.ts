@@ -14,7 +14,7 @@ const PRODUCTION_HOSTS = new Set(["revvin.co", "www.revvin.co"]);
 const PUBLIC_PATHS = new Set([
   "/", "/pricing", "/how-it-works", "/for-businesses", "/for-referrers",
   "/browse", "/marketplace", "/sample", "/ask-kit", "/guides",
-  "/referral-programs", "/about-revvin-llm", "/trust", "/terms", "/privacy",
+  "/referral-programs", "/about-revvin-llm", "/trust", "/about", "/earn", "/terms", "/privacy",
   "/referral-agreement", "/docs/zapier",
   // Free toolkit. The tools never put input in the URL, so an approved path here
   // can only ever be one of these four fixed strings.
