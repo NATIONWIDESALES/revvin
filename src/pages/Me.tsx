@@ -8,6 +8,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { copyText } from "@/lib/clipboard";
 import { personalLink, referrerShareText } from "@/lib/referrerLink";
+import { businessMetro } from "@/lib/earn";
+import { Link } from "react-router-dom";
 import { loadMyReferrals, sendMeSignInLink, type MyBusiness } from "@/lib/myReferrals";
 
 const STATUS_LABEL: Record<string, string> = { new: "New", contacted: "Contacted", quoted: "Quoted", closed: "Closed", lost: "Lost" };
@@ -22,6 +24,11 @@ const Me = () => {
   const [sending, setSending] = useState(false);
   const [rows, setRows] = useState<MyBusiness[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [metro, setMetro] = useState<string | null>(null);
+  useEffect(() => {
+    if (!rows?.length) return;
+    void Promise.all(rows.map((b) => businessMetro(b.slug))).then((m) => setMetro(m.find(Boolean) ?? null));
+  }, [rows]);
 
   useEffect(() => {
     if (!user) { setRows(null); return; }
@@ -66,6 +73,9 @@ const Me = () => {
           {error && <p role="alert" className="mt-4 text-sm font-medium text-destructive">{error}</p>}
           {rows.length === 0 && !error && (
             <p className="mt-8 text-sm text-muted-foreground">No referrals for this email yet. Referrals you send from a Revvin page with this email show up here.</p>
+          )}
+          {metro && (
+            <p className="mt-4 text-sm"><Link to={`/earn/${metro}`} className="font-medium text-primary underline underline-offset-4">Discover more businesses near you</Link></p>
           )}
           <div className="mt-8 space-y-6">
             {rows.map((b) => {

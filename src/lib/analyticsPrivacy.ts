@@ -31,6 +31,7 @@ function approvedPath(path: string): string | null {
   // Business/offer identifiers never enter analytics. Private receipts and
   // malformed/encoded paths cannot match these deliberately narrow patterns.
   if (/^\/r\/(?!status$)[a-z0-9-]{1,80}$/.test(normalized)) return "/r/:business";
+  if (/^\/earn\/[a-z0-9-]{1,40}$/.test(normalized)) return "/earn/:metro";
   if (/^\/offer\/[a-z0-9-]{1,80}(?:\/[a-z0-9-]{1,80})?$/.test(normalized)) return "/offer/:offer";
   return null;
 }

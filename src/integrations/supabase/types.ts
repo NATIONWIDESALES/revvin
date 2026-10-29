@@ -203,6 +203,7 @@ export type Database = {
           referral_cta_label: string | null
           service_area: string | null
           service_radius_km: number | null
+          show_on_earn: boolean
           signup_notified_at: string | null
           slug: string | null
           state: string | null
@@ -274,6 +275,7 @@ export type Database = {
           referral_cta_label?: string | null
           service_area?: string | null
           service_radius_km?: number | null
+          show_on_earn?: boolean
           signup_notified_at?: string | null
           slug?: string | null
           state?: string | null
@@ -345,6 +347,7 @@ export type Database = {
           referral_cta_label?: string | null
           service_area?: string | null
           service_radius_km?: number | null
+          show_on_earn?: boolean
           signup_notified_at?: string | null
           slug?: string | null
           state?: string | null
@@ -615,25 +618,37 @@ export type Database = {
       }
       email_leads: {
         Row: {
+          business_contact: string | null
+          business_name: string | null
+          city: string | null
           created_at: string
           email: string
           id: string
+          metro_slug: string | null
           referrer: string | null
           source: string
           user_agent: string | null
         }
         Insert: {
+          business_contact?: string | null
+          business_name?: string | null
+          city?: string | null
           created_at?: string
           email: string
           id?: string
+          metro_slug?: string | null
           referrer?: string | null
           source?: string
           user_agent?: string | null
         }
         Update: {
+          business_contact?: string | null
+          business_name?: string | null
+          city?: string | null
           created_at?: string
           email?: string
           id?: string
+          metro_slug?: string | null
           referrer?: string | null
           source?: string
           user_agent?: string | null
@@ -984,6 +999,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      metros: {
+        Row: {
+          center_lat: number
+          center_lng: number
+          created_at: string
+          id: string
+          is_live: boolean
+          launched_at: string | null
+          name: string
+          radius_km: number
+          slug: string
+        }
+        Insert: {
+          center_lat: number
+          center_lng: number
+          created_at?: string
+          id?: string
+          is_live?: boolean
+          launched_at?: string | null
+          name: string
+          radius_km?: number
+          slug: string
+        }
+        Update: {
+          center_lat?: number
+          center_lng?: number
+          created_at?: string
+          id?: string
+          is_live?: boolean
+          launched_at?: string | null
+          name?: string
+          radius_km?: number
+          slug?: string
+        }
+        Relationships: []
       }
       mock_inquiries: {
         Row: {
@@ -2986,10 +3037,22 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      fn_admin_metros: {
+        Args: never
+        Returns: {
+          eligible: number
+          id: string
+          is_live: boolean
+          launched_at: string
+          name: string
+          slug: string
+        }[]
+      }
       fn_bot_reason: {
         Args: { p_referrer: string; p_ua: string }
         Returns: string
       }
+      fn_business_metro: { Args: { p_slug: string }; Returns: string }
       fn_business_privileged_unchanged: {
         Args: {
           p_account_status: string
@@ -3111,6 +3174,43 @@ export type Database = {
         }
         Returns: undefined
       }
+      fn_earn_businesses: {
+        Args: { p_metro_slug: string }
+        Returns: {
+          city: string
+          name: string
+          reward: string
+          slug: string
+          trade: string
+        }[]
+      }
+      fn_earn_eligible: {
+        Args: {
+          b: Database["public"]["Tables"]["businesses"]["Row"]
+          m: Database["public"]["Tables"]["metros"]["Row"]
+        }
+        Returns: boolean
+      }
+      fn_earn_get_link: {
+        Args: { p_business_slug: string; p_email: string; p_name: string }
+        Returns: string
+      }
+      fn_earn_metro: {
+        Args: { p_slug: string }
+        Returns: {
+          is_live: boolean
+          name: string
+          slug: string
+        }[]
+      }
+      fn_earn_metros: {
+        Args: never
+        Returns: {
+          name: string
+          slug: string
+        }[]
+      }
+      fn_earn_waiting_count: { Args: { p_metro_slug: string }; Returns: number }
       fn_enqueue_webhook: {
         Args: { p_business_id: string; p_event: string; p_payload: Json }
         Returns: undefined
@@ -3217,6 +3317,17 @@ export type Database = {
       fn_slug_rejection: { Args: { p_slug: string }; Returns: string }
       fn_slug_reserved_words: { Args: never; Returns: string[] }
       fn_slug_status: { Args: { p_slug: string }; Returns: string }
+      fn_submit_earn_lead: {
+        Args: {
+          p_business_contact?: string
+          p_business_name?: string
+          p_city?: string
+          p_email: string
+          p_metro_slug?: string
+          p_source: string
+        }
+        Returns: boolean
+      }
       fn_submit_public_referral: {
         Args: {
           p_consent: boolean

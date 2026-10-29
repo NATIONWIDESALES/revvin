@@ -1,3 +1,4 @@
+import { isRestrictedCategory } from "@/lib/offerUtils";
 import { copyText } from "@/lib/clipboard";
 import { takePendingPlan } from "@/lib/pendingPlan";
 import { useEffect, useState } from "react";
@@ -71,6 +72,7 @@ interface Business {
   stripe_customer_id: string | null;
   launch_package_status: string | null;
   marketplace_listed?: boolean | null;
+  show_on_earn?: boolean | null;
   contact_outreach_consent_at?: string | null;
   google_review_url?: string | null;
   qr_downloaded_at?: string | null;
@@ -1353,6 +1355,18 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
   });
   const [marketplaceListed, setMarketplaceListed] = useState<boolean>(biz.marketplace_listed ?? true);
   const [savingMarketplace, setSavingMarketplace] = useState(false);
+  const [showOnEarn, setShowOnEarn] = useState<boolean>(biz.show_on_earn ?? true);
+  const [savingEarn, setSavingEarn] = useState(false);
+  const toggleEarn = async (next: boolean) => {
+    setShowOnEarn(next);
+    setSavingEarn(true);
+    const { error } = await supabase.from("businesses").update({ show_on_earn: next } as never).eq("id", biz.id);
+    setSavingEarn(false);
+    if (error) {
+      setShowOnEarn(!next);
+      toast({ title: "Could not update", description: friendlyError(error), variant: "destructive" });
+    } else { toast({ title: next ? "Shown on Earn" : "Hidden from Earn" }); onUpdate(); }
+  };
   const [billingPlan, setBillingPlan] = useState<BillingPlan>("monthly");
 
   // Someone who picked a plan on a public page (the free tools, for example)
@@ -1481,6 +1495,22 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
             </p>
           </div>
           <Switch checked={marketplaceListed} onCheckedChange={toggleMarketplace} disabled={savingMarketplace} />
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-foreground">Show my offer on Earn</h3>
+            <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted-foreground">
+              {isRestrictedCategory(biz.category)
+                ? "Not available for your industry"
+                : "Locals who earn rewards for referrals can find your page and get their own link to it."}
+            </p>
+          </div>
+          {!isRestrictedCategory(biz.category) && (
+            <Switch aria-label="Show my offer on Earn" checked={showOnEarn} onCheckedChange={toggleEarn} disabled={savingEarn} />
+          )}
         </div>
       </div>
 

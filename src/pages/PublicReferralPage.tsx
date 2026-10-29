@@ -2,6 +2,7 @@ import { showVerifiedBadge } from "@/lib/verifiedBadge";
 import { copyText } from "@/lib/clipboard";
 import { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
+import { businessMetro } from "@/lib/earn";
 import { activeRef, forgetRef, personalLink, referrerShareText, rememberRef } from "@/lib/referrerLink";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
@@ -104,6 +105,8 @@ const PublicReferralPage = () => {
   const [refToken, setRefToken] = useState<string | null>(null);
   const [refPerson, setRefPerson] = useState<{ first_name: string; has_email: boolean } | null>(null);
   const [myLink, setMyLink] = useState<string | null>(null);
+  const [earnMetro, setEarnMetro] = useState<string | null>(null);
+  useEffect(() => { if (slug) void businessMetro(slug).then(setEarnMetro); }, [slug]);
 
   useEffect(() => {
     if (!slug) return;
@@ -663,6 +666,11 @@ const PublicReferralPage = () => {
           </div>
 
           <div className="mt-8 text-center">
+            {earnMetro && (
+              <p className="mb-3 text-xs">
+                <Link to={`/earn/${earnMetro}`} className="text-muted-foreground underline underline-offset-4 hover:text-foreground">Find more local businesses that pay for referrals</Link>
+              </p>
+            )}
             <Link
               to="/"
               className="text-[10px] tracking-[0.16em] uppercase text-muted-foreground/70 hover:text-foreground"

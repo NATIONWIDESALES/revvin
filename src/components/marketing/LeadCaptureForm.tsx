@@ -14,7 +14,7 @@ export interface LeadField {
 
 /**
  * Small waitlist form. The email field is what is saved to email_leads with
- * the given source. Extra fields are shown for the visitor's context only.
+ * the given source. Extra fields are saved only when onSubmitLead handles them.
  */
 const LeadCaptureForm = ({
   source,
@@ -22,7 +22,12 @@ const LeadCaptureForm = ({
   extraFields = [],
   submitLabel,
   idPrefix,
+  onSubmitLead,
+  initialValues,
 }: {
+  /** Optional custom save, given the email and the extra field values. */
+  onSubmitLead?: (email: string, values: Record<string, string>) => Promise<boolean>;
+  initialValues?: Record<string, string>;
   source: EmailLeadSource;
   emailLabel?: string;
   extraFields?: LeadField[];
@@ -30,7 +35,7 @@ const LeadCaptureForm = ({
   idPrefix: string;
 }) => {
   const [email, setEmail] = useState("");
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>(initialValues ?? {});
   const [state, setState] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -42,8 +47,8 @@ const LeadCaptureForm = ({
     }
     setState("saving");
     setError(null);
-    const res = await submitEmailLead(email, source);
-    if (res.ok) setState("done");
+    const ok = onSubmitLead ? await onSubmitLead(email, values) : (await submitEmailLead(email, source)).ok;
+    if (ok) setState("done");
     else {
       setState("error");
       setError("We could not save that just now. Email info@revvin.co and we will add you.");

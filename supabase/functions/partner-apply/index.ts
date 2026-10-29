@@ -37,6 +37,8 @@ Deno.serve(async (req) => {
     const promoPlan = clean(body?.promo_plan, 1000);
     const payoutMethod = clean(body?.payout_method, 20) === "bank" ? "bank" : "paypal";
     const agreed = body?.agreed_to_terms === true;
+    // Only one fixed source value is recognised; anything else is ignored.
+    const source = body?.source === "earn_invite" ? "earn_invite" : null;
 
     const problems: string[] = [];
     if (name.length < 2) problems.push("Please enter your full name.");
@@ -83,6 +85,7 @@ Deno.serve(async (req) => {
         promo_plan: promoPlan,
         payout_method: payoutMethod,
         status: "pending",
+        notes: source ? `source: ${source}` : null,
       })
       .select("id")
       .limit(1);

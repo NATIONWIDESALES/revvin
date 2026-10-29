@@ -27,6 +27,7 @@ const AskKit = lazy(() => import("./pages/AskKit"));
 const About = lazy(() => import("./pages/About"));
 const Earn = lazy(() => import("./pages/Earn"));
 const Me = lazy(() => import("./pages/Me"));
+const EarnMetro = lazy(() => import("./pages/EarnMetro"));
 const ReferrerProfile = lazy(() => import("./pages/ReferrerProfile"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -128,6 +129,7 @@ const App = () => (
                   <Route path="/about-revvin-llm" element={<Navigate to="/about" replace />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/earn" element={<Earn />} />
+                  <Route path="/earn/:metro" element={<EarnMetro />} />
                   <Route path="/me" element={<Me />} />
                   <Route path="/partners" element={<Partners />} />
                   <Route path="/partners/terms" element={<PartnerTerms />} />
