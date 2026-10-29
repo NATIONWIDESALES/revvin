@@ -58,21 +58,21 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 border-b border-border" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
-        <div className="container flex h-14 items-center justify-between">
+      <nav className="sticky top-0 z-50 border-b border-line bg-paper/95 backdrop-blur-md">
+        <div className="mk-wrap flex h-[72px] items-center justify-between gap-8">
           {/* Left: Logo */}
           <Link to="/" className="flex items-center shrink-0" aria-label="Revvin.co home">
-            <Wordmark size="sm" />
+            <Wordmark size="md" />
           </Link>
 
           {/* Center: Nav links */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:ml-auto md:flex items-center gap-7">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`text-sm font-medium transition-colors hover:text-foreground ${
-                  location.pathname === link.to ? "text-foreground" : "text-muted-foreground"
+                className={`text-base font-semibold text-forest transition-colors hover:text-green ${
+                  location.pathname === link.to ? "underline decoration-2 underline-offset-8" : ""
                 }`}
               >
                 {link.label}
@@ -162,11 +162,11 @@ const Navbar = () => {
               <>
                 <Link
                   to="/auth"
-                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  className="text-base font-semibold text-forest transition-colors hover:text-green"
                 >
                   Log in
                 </Link>
-                <Button size="sm" className="px-5" asChild>
+                <Button className="px-5" asChild>
                    <Link to="/signup" onClick={() => track("cta_clicked", { cta: "nav_signup" })}>{FREE_CTA_LABEL}</Link>
                 </Button>
               </>
@@ -176,8 +176,8 @@ const Navbar = () => {
           {/* Mobile toggle */}
           <div className="flex items-center gap-2 md:hidden">
             {user && <NotificationBell />}
-            <button aria-label="Toggle menu" onClick={() => setOpen(!open)}>
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            <button aria-label="Toggle menu" aria-expanded={open} className="grid h-11 w-11 place-items-center text-forest" onClick={() => setOpen(!open)}>
+              {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
@@ -190,14 +190,14 @@ const Navbar = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="border-t border-border bg-background px-4 pb-4 md:hidden overflow-hidden"
+              className="border-t border-line bg-paper px-6 pb-5 md:hidden overflow-hidden"
             >
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
                   onClick={() => setOpen(false)}
-                  className="block py-3 text-sm font-medium text-muted-foreground hover:text-foreground"
+                  className="block py-3 text-base font-semibold text-forest hover:text-green"
                 >
                   {link.label}
                 </Link>
@@ -227,10 +227,10 @@ const Navbar = () => {
                   </>
                 ) : (
                   <>
-                    <Button variant="outline" size="sm" className="flex-1" asChild>
+                    <Button variant="line" className="flex-1" asChild>
                       <Link to="/auth" onClick={() => setOpen(false)}>Log in</Link>
                     </Button>
-                    <Button size="sm" className="h-auto min-h-9 flex-1 whitespace-normal py-2 text-center" asChild>
+                    <Button className="h-auto min-h-11 flex-1 whitespace-normal py-2 text-center" asChild>
                        <Link to="/signup" onClick={() => { setOpen(false); track("cta_clicked", { cta: "nav_menu_signup" }); }}>{FREE_CTA_LABEL}</Link>
                     </Button>
                   </>
