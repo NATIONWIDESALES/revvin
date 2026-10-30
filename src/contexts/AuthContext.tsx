@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useLocation } from "react-router-dom";
 import type { User, Session } from "@supabase/supabase-js";
+import { isMarketingPath, loadSupabase, mayHaveSession } from "@/lib/supabaseLazy";
 
 interface AuthContextType {
   user: User | null;
@@ -25,8 +26,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<"business" | "referrer" | "admin" | null>(null);
+  const { pathname } = useLocation();
+  // A signed-out visitor on a marketing page never needs the backend client:
+  // with no stored session and no sign-in redirect there is nobody to load.
+  // Any other route, or a browser that may hold a session, loads it.
+  const [needsClient, setNeedsClient] = useState(() => !isMarketingPath(pathname) || mayHaveSession());
+  useEffect(() => {
+    if (!needsClient && !isMarketingPath(pathname)) setNeedsClient(true);
+  }, [pathname, needsClient]);
 
   const fetchRole = async (userId: string) => {
+    const supabase = await loadSupabase();
     // A user can hold several roles (e.g. business + admin). Fetch them all and
     // prefer the most privileged one, otherwise a multi-role account resolves to null.
     const { data } = await supabase
@@ -48,6 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Safety net: ensure profile exists on login (recovers from partial signup failures)
   const ensureProfile = async (user: User) => {
+    const supabase = await loadSupabase();
     const { data: profile } = await supabase
       .from("profiles")
       .select("id")
@@ -61,12 +72,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    if (!needsClient) {
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    let unsubscribe: (() => void) | null = null;
     // Track the user id we've already loaded a role for so background auth
     // events (TOKEN_REFRESHED, USER_UPDATED, INITIAL_SESSION with same user)
     // don't flip `loading` back to true and unmount protected page trees —
     // which would wipe in-progress form state (Create Offer, Referral Wizard, etc.).
     let loadedUserId: string | null = null;
 
+    void loadSupabase().then((supabase) => {
+    if (cancelled) return;
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -110,10 +129,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    unsubscribe = () => subscription.unsubscribe();
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, [needsClient]);
 
   const signOut = async () => {
+    const supabase = await loadSupabase();
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
