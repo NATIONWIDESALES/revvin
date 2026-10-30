@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { loadSupabase } from "@/lib/supabaseLazy";
 import { friendlyError } from "@/lib/errors";
 import {
   AUDIENCE_SIZES,
@@ -81,7 +81,7 @@ const Partners = () => {
       return;
     }
     setBusy(true);
-    const { data, error } = await supabase.functions.invoke("partner-apply", {
+    const { data, error } = await (await loadSupabase()).functions.invoke("partner-apply", {
       body: {
         name: form.name,
         email: form.email,
@@ -109,7 +109,7 @@ const Partners = () => {
   const resendLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setLostBusy(true);
-    const { data } = await supabase.functions.invoke("partner-resend-link", {
+    const { data } = await (await loadSupabase()).functions.invoke("partner-resend-link", {
       body: { email: lostEmail },
     });
     setLostBusy(false);

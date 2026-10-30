@@ -4,7 +4,7 @@ import { Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PlanPicker from "@/components/billing/PlanPicker";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { loadSupabase } from "@/lib/supabaseLazy";
 import { PRICE_TEXT, type BillingPlan } from "@/config/pricing";
 import { setPendingPlan } from "@/lib/pendingPlan";
 import { friendlyError, friendlyInvokeError } from "@/lib/errors";
@@ -48,7 +48,7 @@ const ProCheckoutCard = ({
     }
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
+      const { data } = await (await loadSupabase())
         .from("businesses")
         .select("subscription_status")
         .eq("user_id", user!.id)
@@ -65,7 +65,7 @@ const ProCheckoutCard = ({
 
   const openPortal = async () => {
     setBusy(true);
-    const { data, error } = await supabase.functions.invoke("customer-portal");
+    const { data, error } = await (await loadSupabase()).functions.invoke("customer-portal");
     setBusy(false);
     if (error || !data?.url) {
       toast({
@@ -92,7 +92,7 @@ const ProCheckoutCard = ({
     }
 
     setBusy(true);
-    const { data, error } = await supabase.functions.invoke("create-business-checkout", {
+    const { data, error } = await (await loadSupabase()).functions.invoke("create-business-checkout", {
       body: { includeLaunchPackage: false, plan },
     });
     setBusy(false);

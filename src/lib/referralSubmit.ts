@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { loadSupabase } from "@/lib/supabaseLazy";
 
 /**
  * Guest referral submission.
@@ -116,7 +116,7 @@ export async function submitPublicReferral(
   let requestId: string;
   try { requestId = referralRequestId(input.slug); }
   catch (error) { return { receipt: null, error }; }
-  const { data, error } = await supabase.rpc("fn_submit_public_referral" as never, {
+  const { data, error } = await (await loadSupabase()).rpc("fn_submit_public_referral" as never, {
     p_request_id: requestId,
     p_slug: input.slug,
     p_referrer_name: input.referrer_name.trim(),
