@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import NotFound from "@/pages/NotFound";
 import { FREE_CTA_LABEL } from "@/config/planFeatures";
-import { FOUNDER_PERSON, formatContentDate } from "@/config/brand";
+import { FOUNDER_REF, formatContentDate } from "@/config/brand";
 import {
   BIAS_DISCLOSURE,
   CHECKED_LINE,
@@ -128,7 +128,7 @@ const article = (path: string, headline: string, description: string, tables: Co
   headline,
   description,
   mainEntityOfPage: `${BASE}${path}`,
-  author: FOUNDER_PERSON,
+  author: FOUNDER_REF,
   publisher: { "@id": `${BASE}/#organization` },
   datePublished: COMPARISONS_CHECKED_ON,
   dateModified: COMPARISONS_CHECKED_ON,
