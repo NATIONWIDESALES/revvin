@@ -115,7 +115,7 @@ const createRenderer = async (): Promise<Renderer> => {
           {
             type: "div",
             props: {
-              style: { display: "flex", color: PAPER, fontFamily: "Barlow", fontWeight: 700, fontSize: 30, letterSpacing: 2 },
+              style: { display: "flex", color: PAPER, fontFamily: "Barlow Condensed", fontWeight: 800, fontSize: 36 },
               children: "REVVIN.CO",
             },
           },
