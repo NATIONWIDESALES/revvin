@@ -3,7 +3,7 @@
 // No typical prices or results; the worksheet starts from labelled example
 // numbers the reader replaces.
 
-import { generateMessages, TRADE_OPTIONS, type MessageTiming } from "@/lib/toolkit/messages";
+import { generateMessages, TRADE_OPTIONS, type MessageTiming } from "../lib/toolkit/messages";
 
 export interface TradeFaq {
   q: string;

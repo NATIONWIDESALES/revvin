@@ -6,7 +6,7 @@
 // advice, and every page that touches money or rules says so.
 
 import type { Guide } from "./guides";
-import { CONTENT_UPDATED_AT } from "@/config/brand";
+import { CONTENT_UPDATED_AT } from "../config/brand";
 
 const DATED = { publishedAt: CONTENT_UPDATED_AT, updatedAt: CONTENT_UPDATED_AT };
 
