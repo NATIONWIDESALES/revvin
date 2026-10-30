@@ -41,7 +41,8 @@ function loadWorker(version = "NEW", existing: Record<string, Map<string, Respon
     clients: { claim: vi.fn(async () => {}), matchAll: async () => [], openWindow: async () => {} },
     registration: { showNotification: async () => {}, pushManager: {} },
   };
-  vm.runInNewContext(src, { self, caches, fetch: fetchMock, URL, Request, Response, Promise, console, setTimeout, clearTimeout });
+  class SwRequest extends Request { constructor(u: string | Request, init?: RequestInit) { super(typeof u === "string" ? new URL(u, "https://revvin.co").href : u, init); } }
+  vm.runInNewContext(src, { self, caches, fetch: fetchMock, URL, Request: SwRequest, Response, Promise, console, setTimeout, clearTimeout });
   const dispatch = async (type: string, extra: Record<string, unknown> = {}) => {
     let waited: Promise<unknown> | undefined;
     let responded: Promise<Response> | undefined;
