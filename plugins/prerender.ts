@@ -211,6 +211,7 @@ const CRUMB_NAMES: Record<string, string> = {
   "/earn": "Earn",
   "/tools": "Contractor Growth Toolkit",
   "/guides": "Guides",
+  "/guides/what-is-a-referral-program": "What is a referral program?",
   "/compare": "Compare",
   "/partners": "Partners",
   "/partners/terms": "Partner program terms",
