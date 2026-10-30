@@ -11,7 +11,21 @@ import {
   formatContentDate,
   FOUNDER_REF,
 } from "@/config/brand";
-import { REWARD_CALCULATOR_PATH, tradesForGuide } from "@/content/related";
+import { relatedForGuide } from "@/content/related";
+import { AuthorBox, CopyBlock, GuideTable, RelatedLinks } from "@/components/content/ContentBlocks";
+import type { GuideSection } from "@/content/guides";
+
+const SectionView = ({ s }: { s: GuideSection }) => (
+  <section>
+    <h2>{s.heading}</h2>
+    <p>{s.body}</p>
+    {s.list && (
+      <ul className="list-disc space-y-2 pl-6">
+        {s.list.map((li) => <li key={li}>{li}</li>)}
+      </ul>
+    )}
+  </section>
+);
 
 const BASE = "https://revvin.co";
 
@@ -24,7 +38,9 @@ const GuidePage = () => {
   const path = `/guides/${guide.slug}`;
   const others = GUIDES.filter((g) => g.slug !== guide.slug);
   const isAskGuide = guide.slug === "how-to-ask-a-customer-for-a-referral";
-  const relatedTrades = tradesForGuide(guide.slug);
+  const related = relatedForGuide(guide.slug);
+  const updated = guide.updatedAt ?? GUIDES_UPDATED_AT;
+  const url = `${BASE}${path}`;
 
   return (
     <>
@@ -41,8 +57,8 @@ const GuidePage = () => {
             mainEntityOfPage: `${BASE}${path}`,
             author: FOUNDER_REF,
             publisher: { "@id": `${BASE}/#organization` },
-            datePublished: GUIDES_PUBLISHED_AT,
-            dateModified: GUIDES_UPDATED_AT,
+            datePublished: guide.publishedAt ?? GUIDES_PUBLISHED_AT,
+            dateModified: updated,
           },
           {
             "@context": "https://schema.org",
@@ -53,15 +69,35 @@ const GuidePage = () => {
               { "@type": "ListItem", position: 3, name: guide.label, item: `${BASE}${path}` },
             ],
           },
-          {
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            mainEntity: guide.faqs.map((f) => ({
-              "@type": "Question",
-              name: f.q,
-              acceptedAnswer: { "@type": "Answer", text: f.a },
-            })),
-          },
+          ...(guide.faqs.length
+            ? [
+                {
+                  "@context": "https://schema.org",
+                  "@type": "FAQPage",
+                  mainEntity: guide.faqs.map((f) => ({
+                    "@type": "Question",
+                    name: f.q,
+                    acceptedAnswer: { "@type": "Answer", text: f.a },
+                  })),
+                },
+              ]
+            : []),
+          ...(guide.terms?.length
+            ? [
+                {
+                  "@context": "https://schema.org",
+                  "@type": "DefinedTermSet",
+                  "@id": `${url}#terms`,
+                  name: guide.question,
+                  hasDefinedTerm: guide.terms.map((t) => ({
+                    "@type": "DefinedTerm",
+                    "@id": `${url}#${t.id}`,
+                    name: t.term,
+                    description: t.definition,
+                  })),
+                },
+              ]
+            : []),
         ]}
       />
 
@@ -82,7 +118,7 @@ const GuidePage = () => {
           <p className="mt-5 border-b border-line pb-5 text-sm text-muted-foreground">
             <span className="font-semibold text-foreground">By Karm Sandhu, Founder of Revvin</span>
             <br />
-            {`Last updated ${formatContentDate(GUIDES_UPDATED_AT)}`}
+            {`Last updated ${formatContentDate(updated)}`}
           </p>
           <p className="article-body mt-6 text-[21px]">{guide.answer}</p>
         </div>
@@ -91,15 +127,58 @@ const GuidePage = () => {
       <article>
         <div className="mx-auto w-full max-w-[720px] px-5 pb-16">
           <div className="article-body">
-            {guide.sections.map((s) => (
-              <section key={s.heading}>
-                <h2>
-                  {s.heading}
-                </h2>
-                <p>{s.body}</p>
+            {guide.sections.map((s) => <SectionView key={s.heading} s={s} />)}
+            {guide.table && (
+              <section>
+                <h2>{guide.table.heading}</h2>
+                <p>{guide.table.intro}</p>
               </section>
-            ))}
+            )}
           </div>
+          {guide.table && <GuideTable t={guide.table} />}
+          {guide.copyGroups?.map((g) => (
+            <section key={g.heading} className="mt-10">
+              <div className="article-body">
+                <h2>{g.heading}</h2>
+                <p>{g.intro}</p>
+              </div>
+              <div className="mt-5 space-y-4">
+                {g.items.map((it) => <CopyBlock key={it.label} label={it.label} text={it.text} />)}
+              </div>
+            </section>
+          ))}
+          {guide.terms && (
+            <section className="mt-10">
+              <div className="article-body"><h2>Referral marketing terms, defined</h2></div>
+              <dl className="mt-6 space-y-6">
+                {guide.terms.map((t) => (
+                  <div key={t.id} id={t.id} className="scroll-mt-20 border-b border-line pb-5">
+                    <dt className="font-display text-2xl font-bold text-forest">
+                      <a href={`#${t.id}`} className="hover:underline">{t.term}</a>
+                    </dt>
+                    <dd className="mt-2 text-[17px] leading-relaxed text-muted-foreground">{t.definition}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
+          {guide.closingSections && (
+            <div className="article-body mt-10">
+              {guide.closingSections.map((s) => <SectionView key={s.heading} s={s} />)}
+            </div>
+          )}
+          {guide.sources && (
+            <section className="mt-14 border-t border-line pt-8">
+              <h2 className="text-3xl">Sources</h2>
+              <ul className="mt-4 list-disc space-y-2 pl-5 text-[16px]">
+                {guide.sources.map((src) => (
+                  <li key={src.url}>
+                    <a href={src.url} rel="noopener" target="_blank" className="text-primary underline">{src.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           {isAskGuide && (
             <div className="mt-14 rounded-[14px] border border-line bg-card p-6">
@@ -118,7 +197,7 @@ const GuidePage = () => {
         </div>
       </article>
 
-      <section className="border-t border-line">
+      {guide.faqs.length > 0 && <section className="border-t border-line">
         <div className="mx-auto w-full max-w-[720px] px-5 py-16">
           <h2 className="text-4xl">
             Common questions
@@ -132,7 +211,7 @@ const GuidePage = () => {
             ))}
           </dl>
         </div>
-      </section>
+      </section>}
 
       <section className="border-b border-border">
         <div className="container max-w-4xl py-14">
@@ -153,31 +232,6 @@ const GuidePage = () => {
         </div>
       </section>
 
-      <section className="border-b border-border ">
-        <div className="container max-w-4xl py-14">
-          <h2 className="text-3xl">
-            Referral programs by trade
-          </h2>
-          <div className="mt-5 flex flex-wrap gap-3">
-            {relatedTrades.map((t) => (
-              <Link
-                key={t.slug}
-                to={`/referral-program/${t.slug}`}
-                className="rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-primary hover:text-primary"
-              >
-                {`${t.label} referral programs`}
-              </Link>
-            ))}
-            <Link
-              to={REWARD_CALCULATOR_PATH}
-              className="rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-primary hover:text-primary"
-            >
-              Referral reward calculator
-            </Link>
-          </div>
-        </div>
-      </section>
-
       <section>
         <div className="mx-auto w-full max-w-[720px] px-5 py-14"><div className="rounded-[18px] border border-line bg-card p-6 sm:p-8">
           <h2 className="text-3xl">Get your own referral page</h2>
@@ -189,7 +243,10 @@ const GuidePage = () => {
           <Button size="lg" className="mt-5 h-auto min-h-14 max-w-full whitespace-normal py-3 text-center" asChild>
             <Link to="/signup">{FREE_CTA_LABEL}</Link>
           </Button>
-        </div></div>
+        </div>
+          <RelatedLinks links={related} />
+          <AuthorBox />
+        </div>
       </section>
     </>
   );
