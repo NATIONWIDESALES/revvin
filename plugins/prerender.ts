@@ -7,6 +7,9 @@ import { PRICE_TEXT, MONTHLY_PRICE, ANNUAL_PRICE } from "../src/config/pricing";
 import { isRestrictedCategory } from "../src/lib/offerUtils";
 import { PRERENDER_BUSINESS_COLS } from "../src/lib/publicReferralCols";
 import { buildSitemapEntries, renderSitemap } from "./sitemap";
+import { ogKind, ogUrl, writeOgImages, type OgCard } from "./og";
+import { buildSsrRenderer, type SsrRender } from "./ssr";
+import { FREE_FEATURES, PRO_FEATURES } from "../src/config/planFeatures";
 import { buildBusinessManifest, businessManifestPath } from "../src/lib/webManifest";
 import {
   APP_ID,
@@ -16,6 +19,7 @@ import {
   INDEXNOW_KEY,
   ORG_DISAMBIGUATION,
   FOUNDER_PERSON,
+  FOUNDER_REF,
   ORG_ID,
   ORG_SAME_AS,
   SITE_ID,
@@ -89,10 +93,17 @@ const ORGANIZATION = {
   },
   image: `${SITE}/og-image.png`,
   email: "info@revvin.co",
-  areaServed: ["US", "CA", "AE"],
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "info@revvin.co",
+    contactType: "customer support",
+    availableLanguage: "en",
+  },
+  areaServed: ["US", "CA"],
+  knowsAbout: ["referral marketing", "referral programs", "home services marketing"],
   slogan: "Your customer list, working for you",
   disambiguatingDescription: ORG_DISAMBIGUATION,
-  founder: FOUNDER_PERSON,
+  founder: FOUNDER_REF,
   // Emitted only once real profile URLs exist; an empty sameAs says nothing.
   ...(ORG_SAME_AS.length ? { sameAs: ORG_SAME_AS } : {}),
   ...(FOUNDING_DATE ? { foundingDate: FOUNDING_DATE } : {}),
@@ -127,6 +138,12 @@ const WEBSITE = {
  * asked "what does Revvin cost" read this: a free tier at 0 and Revvin Pro
  * with both the monthly and the annual price, in USD, with no platform fee.
  */
+/**
+ * Built from the plan feature lists the pricing page renders, so the product
+ * description can never claim a feature sits on the wrong plan.
+ */
+export const SOFTWARE_DESCRIPTION = `Referral software for home-service businesses. Free includes: ${FREE_FEATURES.map((f) => f.label.toLowerCase()).join(", ")}. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD or ${PRICE_TEXT.annualPerYear} USD a year and adds ${PRO_FEATURES.map((f) => f.label.toLowerCase()).join(", ")}. Businesses pay their referrers directly; Revvin takes no cut.`;
+
 const SOFTWARE = {
   "@type": "SoftwareApplication",
   "@id": APP_ID,
@@ -135,7 +152,7 @@ const SOFTWARE = {
   operatingSystem: "Web browser",
   url: SITE,
   publisher: { "@id": ORG_ID },
-  description: `Referral software for service businesses. Publishing a referral page and taking referrals on it is free. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once, and adds customer list import, the bulk referral ask, reactivation campaigns, ROI reporting and custom page branding. Businesses pay their referrers directly off-platform; Revvin takes no cut.`,
+  description: SOFTWARE_DESCRIPTION,
   offers: [
     {
       "@type": "Offer",
@@ -143,8 +160,7 @@ const SOFTWARE = {
       price: "0",
       priceCurrency: "USD",
       url: `${SITE}/pricing`,
-      description:
-        "Your referral page on your own link, QR code and share tools, print pack, unlimited referral leads, lead inbox with status tracking, offers, payout tracking and a marketplace listing.",
+      description: `${FREE_FEATURES.map((f) => f.label).join(", ")}.`,
     },
     {
       "@type": "Offer",
@@ -152,8 +168,7 @@ const SOFTWARE = {
       price: String(MONTHLY_PRICE),
       priceCurrency: "USD",
       url: `${SITE}/pricing`,
-      description:
-        "Customer list import, the bulk referral ask sent from your own email app, reactivation campaigns, ROI reporting with a monthly recap and custom page branding. Billed monthly, cancel any time.",
+      description: `Everything in Free, plus: ${PRO_FEATURES.map((f) => f.label.toLowerCase()).join(", ")}. Billed monthly, cancel any time.`,
     },
     {
       "@type": "Offer",
@@ -178,22 +193,47 @@ const PARENT_PAGES: { prefix: string; name: string; item: string }[] = [
   { prefix: "/guides/", name: "Guides", item: `${SITE}/guides` },
   { prefix: "/docs/", name: "Documentation", item: `${SITE}/docs/zapier` },
   { prefix: "/tools/", name: "Contractor Growth Toolkit", item: `${SITE}/tools` },
+  { prefix: "/compare/", name: "Compare", item: `${SITE}/compare` },
+  { prefix: "/partners/", name: "Partners", item: `${SITE}/partners` },
 ];
 
-const titleCase = (segment: string) =>
-  segment.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+/** Short breadcrumb names for pages whose H1 is a sentence rather than a name. */
+const CRUMB_NAMES: Record<string, string> = {
+  "/about": "About",
+  "/pricing": "Pricing",
+  "/how-it-works": "How it works",
+  "/earn": "Earn",
+  "/tools": "Contractor Growth Toolkit",
+  "/guides": "Guides",
+  "/compare": "Compare",
+  "/partners": "Partners",
+  "/partners/terms": "Partner program terms",
+  "/referral-programs": "Referral Programs",
+  "/for-businesses": "For businesses",
+  "/for-referrers": "For referrers",
+  "/sample": "Demo",
+  "/ask-kit": "Referral ask kit",
+  "/trust": "Trust",
+  "/privacy": "Privacy policy",
+  "/terms": "Terms of service",
+  "/docs/zapier": "Zapier and integrations",
+};
 
-const breadcrumbs = (route: PrerenderRoute) => {
+/** The page's own name: articles use their headline, others a short label, else the title. */
+export const crumbName = (route: PrerenderRoute) =>
+  CRUMB_NAMES[route.path] ??
+  (route.article || route.path.startsWith("/guides/") || route.path.startsWith("/referral-program/")
+    ? route.h1
+    : route.title.replace(/\s*\|\s*Revvin$/, ""));
+
+export const breadcrumbs = (route: PrerenderRoute) => {
   const items = [{ name: "Home", item: SITE }];
   if (route.path !== "/") {
     const parent = PARENT_PAGES.find((p) => route.path.startsWith(p.prefix));
     if (parent && `${parent.prefix.replace(/\/$/, "")}` !== route.path) {
       items.push({ name: parent.name, item: parent.item });
     }
-    items.push({
-      name: titleCase(route.path.split("/").filter(Boolean).pop() ?? ""),
-      item: `${SITE}${route.path}`,
-    });
+    items.push({ name: crumbName(route), item: `${SITE}${route.path}` });
   }
   return {
     "@type": "BreadcrumbList",
@@ -222,10 +262,13 @@ export const jsonLd = (route: PrerenderRoute) => {
       about: { "@id": ORG_ID },
       inLanguage: "en-US",
       breadcrumb: { "@id": `${url}#breadcrumb` },
-      primaryImageOfPage: `${SITE}/og-image.png`,
+      primaryImageOfPage: { "@type": "ImageObject", url: ogUrl(SITE, route.path), width: 1200, height: 630 },
     },
     breadcrumbs(route),
   ];
+  // The founder's full Person node lives on /about; every author reference
+  // elsewhere points at its id.
+  if (route.path === "/about") graph.push(FOUNDER_PERSON);
   // The priced product description belongs on the pages that are actually about
   // buying it, not on every document.
   if (route.path === "/" || route.path === "/pricing" || route.path === "/for-businesses") {
@@ -242,11 +285,11 @@ export const jsonLd = (route: PrerenderRoute) => {
       description: route.description,
       mainEntityOfPage: { "@id": `${url}#webpage` },
       inLanguage: "en-US",
-      author: FOUNDER_PERSON,
+      author: FOUNDER_REF,
       publisher: { "@id": ORG_ID },
       datePublished: dated ? COMPARISONS_CHECKED_ON : GUIDES_PUBLISHED_AT,
       dateModified: dated ? COMPARISONS_CHECKED_ON : GUIDES_UPDATED_AT,
-      image: `${SITE}/og-image.png`,
+      image: { "@type": "ImageObject", url: ogUrl(SITE, route.path), width: 1200, height: 630 },
       ...(route.tables?.length
         ? { hasPart: route.tables.map((t) => ({ "@type": "Table", about: t.caption })) }
         : {}),
@@ -277,13 +320,14 @@ export const jsonLd = (route: PrerenderRoute) => {
  * a real "Page not found" document. This runs before first paint, so visitors
  * never see it and requests for "/" itself are untouched.
  */
-const FALLBACK_GUARD = `<script>(function(){var p=location.pathname;if(p==="/")return;var r=document.getElementById("root");if(r)r.textContent="";var c=document.querySelector('link[rel="canonical"]');if(c)c.parentNode.removeChild(c);var legacy=${JSON.stringify(
+const FALLBACK_GUARD = `<script>(function(){var p=location.pathname;if(p==="/")return;var r=document.getElementById("root");if(r){r.textContent="";r.removeAttribute("data-ssr");}var c=document.querySelector('link[rel="canonical"]');if(c)c.parentNode.removeChild(c);var legacy=${JSON.stringify(
   LEGACY_STORE_PREFIXES,
 )}.some(function(x){return p===x||p.indexOf(x+"/")===0||p.indexOf(x+"?")===0;});document.title=legacy?"Page not found | Revvin":"Revvin";var m=document.querySelector('meta[name="robots"]');if(!m){m=document.createElement("meta");m.setAttribute("name","robots");document.head.appendChild(m);}m.setAttribute("content",legacy?"noindex,nofollow":"noindex,follow");if(legacy&&r){var h=document.createElement("h1");h.textContent="Page not found";r.appendChild(h);var q=document.createElement("p");q.textContent="This address does not exist on revvin.co.";r.appendChild(q);}})();</script>`;
 
-const bodyHtml = (route: PrerenderRoute) => {
+const bodyHtml = (route: PrerenderRoute, ssr?: string | null) => {
+  if (ssr) return `<div id="root" data-ssr="1">${ssr}</div>${route.path === "/" ? FALLBACK_GUARD : ""}`;
   const parts: string[] = [`<h1>${esc(route.h1)}</h1>`];
-  if (route.path.startsWith("/guides/") || route.article) parts.push(`<p>By ${esc(FOUNDER_PERSON.name)}, Founder of Revvin</p>`);
+  if (route.path.startsWith("/guides/") || route.article) parts.push(`<p>By ${esc(FOUNDER_REF.name)}, Founder of Revvin</p>`);
   for (const s of route.sections) {
     parts.push(`<h2>${esc(s.heading)}</h2><p>${esc(s.body)}</p>`);
   }
@@ -399,10 +443,13 @@ export const renderRedirectDoc = (template: string, route: PrerenderRoute & { re
   return stripNoscript(html);
 };
 
-export const renderRoute = (template: string, route: PrerenderRoute) => {
+export const renderRoute = (template: string, route: PrerenderRoute, ssr?: string | null) => {
   if (route.redirectTo) return renderRedirectDoc(template, route as PrerenderRoute & { redirectTo: string });
   const url = `${SITE}${route.path === "/" ? "/" : route.path}`;
-  let html = setHead(template, { title: route.title, description: route.description, url });
+  let html = setHead(template, { title: route.title, description: route.description, url, image: ogUrl(SITE, route.path) });
+  if (route.path === "/guides" || route.path.startsWith("/guides/")) {
+    html = html.replace("</head>", `  <link rel="alternate" type="application/rss+xml" title="Revvin guides" href="/guides/rss.xml">\n  </head>`);
+  }
 
   // Every indexable document self references, including the homepage. The SPA
   // fallback is the same file as the homepage document, so the inline guard
@@ -414,10 +461,10 @@ export const renderRoute = (template: string, route: PrerenderRoute) => {
   html = replaceTag(
     html,
     /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
-    `<script type="application/ld+json">${jsonLd(route)}</script>`,
+    `<script type="application/ld+json" data-path="${esc(route.path)}">${jsonLd(route).replace(/</g, "\\u003c")}</script>`,
   );
 
-  html = html.replace(/<div id="root">\s*<\/div>/, bodyHtml(route));
+  html = html.replace(/<div id="root">\s*<\/div>/, bodyHtml(route, ssr));
 
   // The JS-disabled fallback would now duplicate the homepage copy on every
   // page, since #root already carries real per-route content.
