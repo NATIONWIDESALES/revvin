@@ -73,6 +73,8 @@ export const ORG_DISAMBIGUATION =
 /** Dates for the guide library. */
 export const GUIDES_PUBLISHED_AT = "2026-09-05";
 export const GUIDES_UPDATED_AT = "2026-09-16";
+/** Date of the answer-first content build (new guides and trade page sections). */
+export const CONTENT_UPDATED_AT = "2026-10-30";
 
 export const formatContentDate = (iso: string) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", {

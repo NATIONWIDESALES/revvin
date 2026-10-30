@@ -7,7 +7,7 @@
  * the reward field is treated as presentation text and never parsed as money.
  */
 
-export type MessageTiming = "just_completed" | "checking_in" | "dormant";
+export type MessageTiming = "just_completed" | "checking_in" | "seasonal" | "dormant";
 export type MessageTone = "direct" | "warm";
 
 export interface TradeOption {
@@ -31,12 +31,20 @@ export const TRADE_OPTIONS: readonly TradeOption[] = [
   { value: "house-cleaning", label: "House cleaning", phrase: "cleaning work" },
   { value: "remodeling", label: "Remodeling", phrase: "remodeling work" },
   { value: "handyman", label: "Handyman", phrase: "work around the house" },
+  { value: "garage-door", label: "Garage door", phrase: "garage door work" },
+  { value: "flooring", label: "Flooring", phrase: "flooring work" },
+  { value: "window-replacement", label: "Windows", phrase: "window work" },
+  { value: "tree-service", label: "Tree service", phrase: "tree work" },
+  { value: "fencing", label: "Fencing", phrase: "fencing work" },
+  { value: "pressure-washing", label: "Pressure washing", phrase: "pressure washing work" },
+  { value: "carpet-cleaning", label: "Carpet cleaning", phrase: "carpet cleaning work" },
   { value: "other", label: "Other service business", phrase: "the kind of work we do" },
 ];
 
 export const TIMING_OPTIONS: readonly { value: MessageTiming; label: string }[] = [
   { value: "just_completed", label: "The job just finished" },
   { value: "checking_in", label: "Checking in a while later" },
+  { value: "seasonal", label: "A seasonal check-in" },
   { value: "dormant", label: "A customer you have not spoken to in a long time" },
 ];
 
@@ -121,6 +129,10 @@ export function generateMessages(input: MessageInputs): GeneratedMessages {
         ? job
           ? `We finished ${job} for you a while back, and I wanted to check it is all still holding up.`
           : "We finished a job for you a while back, and I wanted to check it is all still holding up."
+        : input.timing === "seasonal"
+          ? job
+            ? `It is that time of year again, so I wanted to check in on the ${job} we did for you.`
+            : "It is that time of year again, so I wanted to check in before the season gets busy."
         : job
           ? `You had us out for ${job} a while back, and I do not think we have spoken since.`
           : "It has been a while since we worked together, and I do not want to lose touch.";
@@ -144,6 +156,10 @@ export function generateMessages(input: MessageInputs): GeneratedMessages {
         ? first
           ? `Quick check-in, ${first}`
           : "Quick check-in on your job"
+        : input.timing === "seasonal"
+          ? first
+            ? `Seasonal check-in, ${first}`
+            : "A seasonal check-in"
         : business
           ? `Still here if you need ${business}`
           : "Still here if you need us";
@@ -172,6 +188,8 @@ export function generateMessages(input: MessageInputs): GeneratedMessages {
         : "Before I head off, how do you feel about how it turned out?"
       : input.timing === "checking_in"
         ? "While I have you, is the work still holding up the way you expected?"
+        : input.timing === "seasonal"
+          ? "It is that time of year again, so I wanted to check everything is ready for the season."
         : "It has been a while, so I wanted to check in rather than only turn up when there is a job.";
 
   const inPersonAsk = warm
