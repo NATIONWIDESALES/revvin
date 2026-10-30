@@ -4,11 +4,9 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut, LayoutDashboard, UserCircle, Settings, Heart, Send } from "lucide-react";
 import Wordmark from "@/components/brand/Wordmark";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import NotificationBell from "@/components/NotificationBell";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +17,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+// Signed-in only, and it needs the backend client, so it loads on demand.
+const NotificationBellLazy = lazy(() => import("@/components/NotificationBell"));
+const NotificationBell = () => (
+  <Suspense fallback={null}>
+    <NotificationBellLazy />
+  </Suspense>
+);
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -99,14 +105,9 @@ const Navbar = () => {
                     </Avatar>
                   </button>
 
-                  <AnimatePresence>
                     {dropdownOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                        transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="absolute right-0 top-11 w-52 rounded-xl border border-border bg-card p-1.5 shadow-lg z-50"
+                      <div
+                        className="absolute right-0 top-11 z-50 w-52 rounded-xl border border-border bg-card p-1.5 shadow-lg animate-in fade-in zoom-in-95 duration-150 motion-reduce:animate-none"
                       >
                         {/* Role badge */}
                         <div className="px-3 py-2 mb-1">
@@ -153,9 +154,8 @@ const Navbar = () => {
                         >
                           <LogOut className="h-4 w-4" /> Sign Out
                         </button>
-                      </motion.div>
+                      </div>
                     )}
-                  </AnimatePresence>
                 </div>
               </>
             ) : (
@@ -183,14 +183,9 @@ const Navbar = () => {
         </div>
 
         {/* Mobile menu */}
-        <AnimatePresence>
           {open && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="border-t border-line bg-paper px-6 pb-5 md:hidden overflow-hidden"
+            <div
+              className="overflow-hidden border-t border-line bg-paper px-6 pb-5 animate-in fade-in slide-in-from-top-2 duration-200 motion-reduce:animate-none md:hidden"
             >
               {navLinks.map((link) => (
                 <Link
@@ -236,9 +231,8 @@ const Navbar = () => {
                   </>
                 )}
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
       </nav>
 
       {/* Sign out confirmation */}
