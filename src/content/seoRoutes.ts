@@ -704,6 +704,18 @@ const compareRoutes: PrerenderRoute[] = COMPARISONS.map((c) => ({
   sources: c.sources,
 }));
 
+const compareHubRoute: PrerenderRoute = {
+  path: "/compare",
+  title: PAGE_META["/compare"].title,
+  description: PAGE_META["/compare"].description,
+  h1: "Compare Revvin with other referral software",
+  sections: [
+    { heading: "Comparisons", body: COMPARISONS.map((c) => `${c.h1}. ${c.metaDescription}`).join(" ") },
+    { heading: ROUNDUP.h1, body: ROUNDUP.answer },
+    { heading: "About these pages", body: BIAS_DISCLOSURE },
+  ],
+};
+
 const roundupRoute: PrerenderRoute = {
   path: `/guides/${ROUNDUP.slug}`,
   title: ROUNDUP.metaTitle,
@@ -725,4 +737,4 @@ const roundupRoute: PrerenderRoute = {
 
 export { CHECKED_LINE };
 
-export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...toolkitRoutes, ...partnerRoutes, guideIndexRoute, ...industryRoutes, ...guideRoutes, roundupRoute, ...compareRoutes];
+export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...toolkitRoutes, ...partnerRoutes, guideIndexRoute, ...industryRoutes, ...guideRoutes, roundupRoute, compareHubRoute, ...compareRoutes];

@@ -55,6 +55,7 @@ const GuidePage = lazy(() => import("./pages/GuidePage"));
 const ComparePage = lazy(() => import("./pages/ComparePage"));
 const RoundupPage = lazy(() => import("./pages/ComparePage").then((m) => ({ default: m.RoundupPage })));
 const GuidesHub = lazy(() => import("./pages/GuidesHub"));
+const CompareHub = lazy(() => import("./pages/CompareHub"));
 const IndustryLanding = lazy(() => import("./pages/IndustryLanding"));
 const SuperAdminCRM = lazy(() => import("./pages/SuperAdminCRM"));
 const ConnectionHealth = lazy(() => import("./pages/ConnectionHealth"));
@@ -133,6 +134,7 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
                   <Route path="/guides" element={<GuidesHub />} />
                   <Route path="/guides/best-referral-software-for-contractors-2026" element={<RoundupPage />} />
                   <Route path="/guides/:slug" element={<GuidePage />} />
+                  <Route path="/compare" element={<CompareHub />} />
                   <Route path="/compare/:slug" element={<ComparePage />} />
                   <Route path="/referral-programs" element={<IndustriesHub />} />
                   <Route path="/referral-program/:industry" element={<IndustryLanding />} />

@@ -734,13 +734,6 @@ export const renderLlmsFull = () => {
   return parts.join("\n");
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const writeDoc = (dist: string, routePath: string, html: string) => {
-  const dir = path.join(dist, routePath.replace(/^\//, ""));
-  fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, "index.html"), html, "utf8");
-};
-
 /**
  * Read the build environment without importing Vite at module scope: this file
  * is also imported by tests, and pulling Vite (and esbuild) in there is not
@@ -892,9 +885,9 @@ export default function prerenderPlugin(): Plugin {
         businesses = await fetchPublishedBusinesses(supabaseUrl, anonKey);
         for (const biz of businesses) {
           const earnMetro = metros.find((m) => m.businesses.some((b) => b.slug === biz.slug))?.slug ?? null;
-          globalThis.__REVVIN_SSR__ = { business: biz, earnMetro };
+          (globalThis as Record<string, unknown>).__REVVIN_SSR__ = { business: biz, earnMetro };
           const ssr = await renderSsr(`/r/${biz.slug}`);
-          globalThis.__REVVIN_SSR__ = undefined;
+          (globalThis as Record<string, unknown>).__REVVIN_SSR__ = undefined;
           addDoc(`/r/${biz.slug}`, renderBusinessDoc(template, biz, ssr, earnMetro), Boolean(ssr));
           ogCards.push({ path: `/r/${biz.slug}`, title: businessMeta(biz).title, kind: "Referral reward" });
           fs.mkdirSync(path.join(dist, "manifests"), { recursive: true });
