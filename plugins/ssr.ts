@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -39,9 +38,5 @@ export const buildSsrRenderer = async (root: string): Promise<SsrRender | null> 
   } catch (err) {
     console.warn(`[prerender] server render build failed, using text documents: ${String(err).slice(0, 400)}`);
     return null;
-  } finally {
-    if (!fs.existsSync(outDir)) {
-      /* nothing to clean */
-    }
   }
 };
