@@ -7,7 +7,21 @@ import SEOHead from "@/components/SEOHead";
 import NotFound from "@/pages/NotFound";
 import { INDUSTRIES, getIndustry } from "@/content/industries";
 import { PRICE_TEXT } from "@/config/pricing";
-import { REWARD_CALCULATOR_PATH, guidesForTrade } from "@/content/related";
+import { relatedForTrade } from "@/content/related";
+import ReferralWorthCalculator from "@/components/marketing/ReferralWorthCalculator";
+import { CopyBlock, RelatedLinks } from "@/components/content/ContentBlocks";
+import { CONTENT_UPDATED_AT, formatContentDate } from "@/config/brand";
+import {
+  REWARD_FORMULA,
+  SCRIPTS_NOTE,
+  TRADE_WORKSHEET_EXAMPLE,
+  TRADE_WORKSHEET_NOTE,
+  rewardAnswer,
+  rewardHeading,
+  scriptsAnswer,
+  scriptsHeading,
+  tradeScripts,
+} from "@/content/tradeExtras";
 
 const BASE = "https://revvin.co";
 
@@ -19,7 +33,8 @@ const IndustryLanding = () => {
 
   const path = `/referral-program/${industry.slug}`;
   const others = INDUSTRIES.filter((i) => i.slug !== industry.slug);
-  const relatedGuides = guidesForTrade(industry.slug);
+  const related = relatedForTrade(industry.slug);
+  const scripts = tradeScripts(industry.slug);
 
   return (
     <>
@@ -96,6 +111,41 @@ const IndustryLanding = () => {
         </div>
       </section>
 
+      <section aria-labelledby="trade-reward" className="border-b border-border">
+        <div className="mk-wrap py-16 md:py-20">
+          <div className="max-w-[720px]">
+            <h2 id="trade-reward" className="text-3xl md:text-4xl">{rewardHeading(industry.trade)}</h2>
+            <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{rewardAnswer(industry.trade)}</p>
+            <p className="mt-4 rounded-[14px] border border-line bg-card px-5 py-4 font-semibold text-forest">{REWARD_FORMULA}</p>
+            <p className="mt-3 text-sm text-muted-foreground">{`Last updated ${formatContentDate(CONTENT_UPDATED_AT)}. Not legal or tax advice.`}</p>
+          </div>
+          <div className="mt-8 min-w-0">
+            <ReferralWorthCalculator defaults={TRADE_WORKSHEET_EXAMPLE} note={TRADE_WORKSHEET_NOTE} />
+          </div>
+          <p className="mt-5 text-base">
+            <Link to="/guides/how-much-to-pay-for-a-referral" className="font-semibold text-primary underline">
+              How much should you pay for a referral?
+            </Link>
+          </p>
+        </div>
+      </section>
+
+      <section aria-labelledby="trade-scripts" className="border-b border-border">
+        <div className="mx-auto w-full max-w-[720px] px-5 py-16 md:py-20">
+          <h2 id="trade-scripts" className="text-3xl md:text-4xl">{scriptsHeading(industry.trade)}</h2>
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{scriptsAnswer(industry.trade)}</p>
+          <div className="mt-8 space-y-4">
+            {scripts.map((sc) => <CopyBlock key={sc.label} label={sc.label} text={sc.text} />)}
+          </div>
+          <p className="mt-5 text-sm text-muted-foreground">{SCRIPTS_NOTE}</p>
+          <p className="mt-3 text-base">
+            <Link to="/guides/referral-text-templates" className="font-semibold text-primary underline">
+              More referral text templates
+            </Link>
+          </p>
+        </div>
+      </section>
+
       <section className="border-b border-border bg-card">
         <div className="container max-w-4xl py-20">
           <h2 className="text-3xl md:text-4xl">
@@ -164,31 +214,6 @@ const IndustryLanding = () => {
       <section className="border-b border-border">
         <div className="container max-w-4xl py-16">
           <h2 className="text-3xl">
-            Read next
-          </h2>
-          <div className="mt-5 flex flex-wrap gap-3">
-            {relatedGuides.map((g) => (
-              <Link
-                key={g.slug}
-                to={`/guides/${g.slug}`}
-                className="rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-primary hover:text-primary"
-              >
-                {g.label}
-              </Link>
-            ))}
-            <Link
-              to={REWARD_CALCULATOR_PATH}
-              className="rounded-full border border-border px-4 py-2 text-sm text-foreground transition-colors hover:border-primary hover:text-primary"
-            >
-              Referral reward calculator
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-border">
-        <div className="container max-w-4xl py-16">
-          <h2 className="text-3xl">
             Other trades
           </h2>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -202,6 +227,12 @@ const IndustryLanding = () => {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="container max-w-4xl pb-16">
+          <RelatedLinks links={related} />
         </div>
       </section>
 
