@@ -9,7 +9,7 @@ import {
   GUIDES_PUBLISHED_AT,
   GUIDES_UPDATED_AT,
   formatContentDate,
-  FOUNDER_PERSON,
+  FOUNDER_REF,
 } from "@/config/brand";
 import { REWARD_CALCULATOR_PATH, tradesForGuide } from "@/content/related";
 
@@ -39,7 +39,7 @@ const GuidePage = () => {
             headline: guide.question,
             description: guide.metaDescription,
             mainEntityOfPage: `${BASE}${path}`,
-            author: FOUNDER_PERSON,
+            author: FOUNDER_REF,
             publisher: { "@id": `${BASE}/#organization` },
             datePublished: GUIDES_PUBLISHED_AT,
             dateModified: GUIDES_UPDATED_AT,
