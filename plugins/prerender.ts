@@ -529,6 +529,8 @@ export interface PublicBusiness {
   category?: string | null;
   is_demo?: boolean | null;
   updated_at?: string | null;
+  service_area?: string | null;
+  [key: string]: unknown;
 }
 
 export const businessMeta = (biz: PublicBusiness) => {
@@ -551,7 +553,18 @@ export const businessJsonLd = (biz: PublicBusiness) => {
     "@id": `${url}#business`,
     name: biz.name,
     url,
-    ...(biz.city ? { areaServed: { "@type": "City", name: biz.city } } : {}),
+    ...((biz.service_area?.trim() || biz.city?.trim())
+      ? { areaServed: biz.service_area?.trim() ? { "@type": "Place", name: biz.service_area.trim() } : { "@type": "City", name: biz.city!.trim() } }
+      : {}),
+    ...(biz.city?.trim()
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: biz.city.trim(),
+            ...(biz.state?.trim() ? { addressRegion: biz.state.trim() } : {}),
+          },
+        }
+      : {}),
     makesOffer: {
       "@type": "Offer",
       name: "Referral reward",
@@ -568,24 +581,25 @@ export const businessJsonLd = (biz: PublicBusiness) => {
  * the business, not the Revvin homepage. Set to noindex, follow for now: these
  * pages belong to the businesses, not to the marketing site.
  */
-export const renderBusinessDoc = (template: string, biz: PublicBusiness) => {
+export const renderBusinessDoc = (template: string, biz: PublicBusiness, ssr?: string | null, earnMetro?: string | null) => {
   const url = `${SITE}/r/${biz.slug}`;
   const { title, description } = businessMeta(biz);
   let html = setHead(template, {
     title,
     description,
     url,
-    image: biz.logo_url || `${SITE}/og-image.png`,
+    image: ogUrl(SITE, `/r/${biz.slug}`),
   });
   html = setCanonical(html, url);
   html = setRobots(html, businessIndexable(biz) ? "index, follow" : "noindex, follow");
   html = replaceTag(
     html,
     /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
-    `<script type="application/ld+json">${JSON.stringify({
+    `<script type="application/ld+json" data-path="/r/${esc(biz.slug)}">${JSON.stringify({
       "@context": "https://schema.org",
       "@graph": [
         ORGANIZATION,
+        WEBSITE,
         businessJsonLd(biz),
         {
           "@type": "WebPage",
@@ -595,6 +609,7 @@ export const renderBusinessDoc = (template: string, biz: PublicBusiness) => {
           description,
           inLanguage: "en-US",
           isPartOf: { "@id": SITE_ID },
+          about: { "@id": `${url}#business` },
         },
       ],
     }).replace(/</g, "\\u003c")}</script>`,
@@ -605,12 +620,20 @@ export const renderBusinessDoc = (template: string, biz: PublicBusiness) => {
     /<link rel="manifest" href="[^"]*"\s*\/?>/,
     `<link rel="manifest" href="${businessManifestPath(biz.slug)}" />`,
   );
-  html = html.replace(
-    /<div id="root">\s*<\/div>/,
-    `<div id="root"><h1>Refer a customer to ${esc(biz.name)}</h1><p>${esc(description)}</p><p><a href="/r/${esc(
-      biz.slug,
-    )}">Open the referral form</a></p></div>`,
-  );
+  if (ssr) {
+    // The page component reads this instead of fetching, so the browser
+    // hydrates the same markup the server produced.
+    const data = JSON.stringify({ business: biz, earnMetro: earnMetro ?? null }).replace(/</g, "\\u003c");
+    html = html.replace(/<div id="root">\s*<\/div>/, `<div id="root" data-ssr="1">${ssr}</div>`);
+    html = html.replace("</body>", `<script>window.__REVVIN_SSR__=${data};</script>\n  </body>`);
+  } else {
+    html = html.replace(
+      /<div id="root">\s*<\/div>/,
+      `<div id="root"><h1>Refer a customer to ${esc(biz.name)}</h1><p>${esc(description)}</p><p><a href="/r/${esc(
+        biz.slug,
+      )}">Open the referral form</a></p></div>`,
+    );
+  }
   return stripNoscript(html);
 };
 
