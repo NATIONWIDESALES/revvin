@@ -27,6 +27,10 @@ export default defineConfig(({ mode }) => ({
         // chunk just because it shares a small utility with it.
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
+          // tslib helpers are shared by the backend client and UI libraries.
+          // Left alone, Rollup files them inside the backend chunk and the app
+          // entry then has to download that whole chunk on every page.
+          if (id.includes("node_modules/tslib")) return "react";
           if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) return "react";
           if (id.includes("node_modules/react-router")) return "router";
           if (id.includes("node_modules/framer-motion")) return "motion";
