@@ -37,13 +37,16 @@ const pageOgImage = (path: string) =>
 const SEOHead = ({ title, description, path = "", canonicalUrl, ogImage, jsonLd, noindex }: SEOHeadProps) => {
   useEffect(() => {
     // A prerendered document already carries this page's full head, including
-    // its structured data. Leave it alone so the head after hydration is the
-    // one crawlers read. After an in-app navigation the static structured
-    // data describes the previous page, so it is removed.
-    const prerendered = document.querySelector('script[type="application/ld+json"][data-path]');
-    if (prerendered) {
-      if (prerendered.getAttribute("data-path") === window.location.pathname) return;
-      prerendered.remove();
+    // its structured data, and its canonical names this page. Leave it alone
+    // so the head after hydration is the one crawlers read. After an in-app
+    // navigation the static structured data describes the previous page, so
+    // it is removed and this component takes over the head from then on.
+    const staticLd = document.querySelector('script[type="application/ld+json"]:not(#seo-jsonld)');
+    if (staticLd) {
+      const canonicalHref = document.querySelector('link[rel="canonical"]')?.getAttribute("href");
+      const here = `${BASE_URL}${window.location.pathname === "/" ? "/" : window.location.pathname}`;
+      if (canonicalHref === here) return;
+      staticLd.remove();
     }
 
     // Title

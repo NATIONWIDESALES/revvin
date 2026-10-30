@@ -461,7 +461,7 @@ export const renderRoute = (template: string, route: PrerenderRoute, ssr?: strin
   html = replaceTag(
     html,
     /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
-    `<script type="application/ld+json" data-path="${esc(route.path)}">${jsonLd(route).replace(/</g, "\\u003c")}</script>`,
+    `<script type="application/ld+json">${jsonLd(route).replace(/</g, "\\u003c")}</script>`,
   );
 
   html = html.replace(/<div id="root">\s*<\/div>/, bodyHtml(route, ssr));
@@ -595,7 +595,7 @@ export const renderBusinessDoc = (template: string, biz: PublicBusiness, ssr?: s
   html = replaceTag(
     html,
     /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
-    `<script type="application/ld+json" data-path="/r/${esc(biz.slug)}">${JSON.stringify({
+    `<script type="application/ld+json">${JSON.stringify({
       "@context": "https://schema.org",
       "@graph": [
         ORGANIZATION,
