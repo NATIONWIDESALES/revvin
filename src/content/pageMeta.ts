@@ -88,7 +88,7 @@ export const PAGE_META = {
   "/guides": {
     title: "Referral program guides for contractors | Revvin",
     description:
-      "Straight answers on referral programs: what to pay for a referral, referrals versus buying leads, how to start a program, whether they work and how to ask.",
+      "Straight answers on referral programs: what they are, what to pay, when and how to ask, text templates, getting paid as a referrer and fair comparisons.",
   },
   "/compare": {
     title: "Compare Revvin with other referral software | Revvin",

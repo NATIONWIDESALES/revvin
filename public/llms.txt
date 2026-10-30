@@ -2,7 +2,7 @@
 
 > Revvin (revvin.co) is a free referral program and local referral network for home-service businesses.
 
-Last updated: 2026-10-29
+Last updated: 2026-10-30
 
 Revvin gives a home-service business a referral page on its own link, a personal link for every person who refers, and an ask after every job. The business pays a reward only when a referral turns into a job, and pays it directly. Revvin is not affiliated with the Revvin digital mortgage platform.
 
@@ -45,6 +45,11 @@ Revvin gives a home-service business a referral page on its own link, a personal
 - [Earn](/earn): Get paid for referrals, city by city.
 - [How it works](/how-it-works): The referral flow end to end.
 - [Guides](/guides): Referral program guides for service businesses.
+- [What is a referral program?](/guides/what-is-a-referral-program): Plain-English definition, reward types and common mistakes.
+- [When to ask a customer for a referral](/guides/when-to-ask-for-a-referral): The five moments to ask and what to say.
+- [Referral text templates](/guides/referral-text-templates): Twelve copy-ready texts, emails and spoken asks.
+- [How to get paid for referrals](/guides/how-to-get-paid-for-referrals): For referrers: who pays, when, rules and taxes.
+- [Referral marketing glossary](/guides/referral-marketing-glossary): Twenty referral terms defined.
 - [Referral programs by trade](/referral-programs): Trade-specific referral programs.
 - [Tools](/tools): Free referral program grader, reward calculator and message generator.
 - [Referral program grader](/tools/referral-program-grader): Score a referral program.

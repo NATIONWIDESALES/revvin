@@ -9,7 +9,7 @@ const photos = import.meta.glob("../../assets/karm.jpg", { eager: true, import: 
 const photo = Object.values(photos)[0];
 
 const FounderSection = () => (
-  <section aria-labelledby="founder-heading" className="mk-section">
+  <section id="karm-sandhu" aria-labelledby="founder-heading" className="mk-section scroll-mt-20">
     <div className="mk-wrap grid items-center gap-10 md:grid-cols-[auto_minmax(0,1fr)] md:gap-14">
       {photo ? (
         <img src={photo} alt={FOUNDER.name} width={200} height={200} className="h-36 w-36 rounded-full object-cover md:h-[200px] md:w-[200px]" />

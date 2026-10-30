@@ -10,6 +10,8 @@
 // monthly email recap (Pro), and custom page branding (Pro).
 // No statistics, testimonials or results are invented.
 
+import { tradeFaqs } from "./tradeExtras";
+
 export interface IndustryFaq {
   q: string;
   a: string;
@@ -53,7 +55,7 @@ const sharedFaqs = (trade: string): IndustryFaq[] => [
   },
 ];
 
-export const INDUSTRIES: Industry[] = [
+const BASE_INDUSTRIES: Industry[] = [
   {
     slug: "roofing",
     trade: "roofing",
@@ -843,6 +845,9 @@ export const INDUSTRIES: Industry[] = [
     ],
   },
 ];
+
+/** Every trade page also answers when to ask, cash or discount, and what if the job does not close. */
+export const INDUSTRIES: Industry[] = BASE_INDUSTRIES.map((i) => ({ ...i, faqs: [...i.faqs, ...tradeFaqs(i.trade)] }));
 
 export const getIndustry = (slug?: string) =>
   INDUSTRIES.find((i) => i.slug === slug);

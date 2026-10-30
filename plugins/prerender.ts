@@ -211,6 +211,7 @@ const CRUMB_NAMES: Record<string, string> = {
   "/earn": "Earn",
   "/tools": "Contractor Growth Toolkit",
   "/guides": "Guides",
+  "/guides/what-is-a-referral-program": "What is a referral program?",
   "/compare": "Compare",
   "/partners": "Partners",
   "/partners/terms": "Partner program terms",
@@ -293,12 +294,28 @@ export const jsonLd = (route: PrerenderRoute) => {
       inLanguage: "en-US",
       author: FOUNDER_REF,
       publisher: { "@id": ORG_ID },
-      datePublished: dated ? COMPARISONS_CHECKED_ON : GUIDES_PUBLISHED_AT,
-      dateModified: dated ? COMPARISONS_CHECKED_ON : GUIDES_UPDATED_AT,
+      datePublished: route.datePublished ?? (dated ? COMPARISONS_CHECKED_ON : GUIDES_PUBLISHED_AT),
+      dateModified: route.dateModified ?? (dated ? COMPARISONS_CHECKED_ON : GUIDES_UPDATED_AT),
       image: { "@type": "ImageObject", url: ogUrl(SITE, route.path), width: 1200, height: 630 },
       ...(route.tables?.length
         ? { hasPart: route.tables.map((t) => ({ "@type": "Table", about: t.caption })) }
         : {}),
+    });
+  }
+  if (route.definedTerms?.length) {
+    graph.push({
+      "@type": "DefinedTermSet",
+      "@id": `${url}#terms`,
+      name: route.h1,
+      url,
+      hasDefinedTerm: route.definedTerms.map((t) => ({
+        "@type": "DefinedTerm",
+        "@id": `${url}#${t.id}`,
+        name: t.term,
+        description: t.definition,
+        url: `${url}#${t.id}`,
+        inDefinedTermSet: { "@id": `${url}#terms` },
+      })),
     });
   }
   if (route.faqs?.length) {
@@ -776,7 +793,7 @@ export const renderRss = () => {
   const items = rssRoutes()
     .map((r) => {
       const dated = r.path.startsWith("/compare/") || Boolean(r.tables?.length);
-      const date = dated ? COMPARISONS_CHECKED_ON : GUIDES_PUBLISHED_AT;
+      const date = r.datePublished ?? (dated ? COMPARISONS_CHECKED_ON : GUIDES_PUBLISHED_AT);
       return { r, date };
     })
     .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))

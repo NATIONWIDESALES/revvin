@@ -12,6 +12,8 @@
 // are invented anywhere on these pages. Where a number would normally go, the
 // mechanism is described instead.
 
+import { NEW_GUIDES } from "./guidesNew";
+
 export interface GuideFaq {
   q: string;
   a: string;
@@ -30,11 +32,63 @@ export interface Guide {
    * opening, so this has to stand on its own without the rest of the page.
    */
   answer: string;
-  sections: { heading: string; body: string }[];
+  sections: GuideSection[];
   faqs: GuideFaq[];
+  /** Hub group on /guides. */
+  group?: GuideGroup;
+  /** ISO dates; guides without them use the library dates in brand.ts. */
+  publishedAt?: string;
+  updatedAt?: string;
+  /** A comparison table with its own H2 and direct-answer intro. */
+  table?: GuideTableData;
+  /** Ready-to-copy messages, grouped under H2s. */
+  copyGroups?: { heading: string; intro: string; items: { label: string; text: string }[] }[];
+  /** Glossary terms; each gets an anchor id and the page a DefinedTermSet. */
+  terms?: GlossaryTerm[];
+  /** Sections printed after the table and copy blocks. */
+  closingSections?: GuideSection[];
+  sources?: { label: string; url: string }[];
 }
 
-export const GUIDES: Guide[] = [
+export interface GuideSection {
+  heading: string;
+  body: string;
+  list?: string[];
+}
+
+export interface GuideTableData {
+  heading: string;
+  intro: string;
+  caption: string;
+  head: string[];
+  rows: string[][];
+}
+
+export interface GlossaryTerm {
+  id: string;
+  term: string;
+  definition: string;
+}
+
+export type GuideGroup = "start" | "ask" | "money";
+
+export const GUIDE_GROUP_LABELS: Record<GuideGroup | "compare", string> = {
+  start: "Getting started",
+  ask: "Asking for referrals",
+  money: "Rewards and money",
+  compare: "Compare",
+};
+
+const BASE_GROUPS: Record<string, GuideGroup> = {
+  "how-much-to-pay-for-a-referral": "money",
+  "referral-program-vs-buying-leads": "money",
+  "how-to-start-a-referral-program": "start",
+  "do-referral-programs-work-for-contractors": "start",
+  "how-to-ask-a-customer-for-a-referral": "ask",
+  "alternative-to-buying-leads": "money",
+};
+
+const BASE_GUIDES: Guide[] = [
   {
     slug: "how-much-to-pay-for-a-referral",
     question: "How much should you pay for a referral?",
@@ -364,5 +418,13 @@ export const GUIDES: Guide[] = [
     ],
   },
 ];
+
+export const GUIDES: Guide[] = [
+  ...BASE_GUIDES.map((g) => ({ ...g, group: g.group ?? BASE_GROUPS[g.slug] ?? "start" })),
+  ...NEW_GUIDES,
+];
+
+/** The guide's group, the date it was last updated, and its full text for the prerender. */
+export const guideGroup = (g: Guide): GuideGroup => g.group ?? "start";
 
 export const getGuide = (slug?: string) => GUIDES.find((g) => g.slug === slug);
