@@ -26,7 +26,7 @@ export function render(url: string): Promise<string> {
         cb();
       },
     });
-    const stream = renderToPipeableStream(<App Router={StaticRouter} location={url} />, {
+    const stream = renderToPipeableStream(<App Router={StaticRouter as unknown as Parameters<typeof App>[0] extends infer P ? P extends { Router?: infer R } ? NonNullable<R> : never : never} location={url} />, {
       onAllReady() {
         stream.pipe(sink);
       },
