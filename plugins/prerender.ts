@@ -949,10 +949,19 @@ export default function prerenderPlugin(): Plugin {
         fs.writeFileSync(doc.file, html, "utf8");
       }
 
-      const ogCount = await writeOgImages(dist, ogCards).catch((err) => {
+      const og = await writeOgImages(dist, ogCards).catch((err) => {
         console.warn(`[prerender] Open Graph images failed: ${String(err).slice(0, 300)}`);
-        return 0;
+        return { written: [] as string[], failed: ogCards.map((c) => c.path) };
       });
+      // Pages whose share image was not written must not reference a missing
+      // file: point their meta and JSON-LD at the static og-image.png instead.
+      for (const failedPath of og.failed) {
+        const file = failedPath === "/" ? indexPath : path.join(dist, failedPath.replace(/^\//, ""), "index.html");
+        if (!fs.existsSync(file)) continue;
+        const html = fs.readFileSync(file, "utf8");
+        fs.writeFileSync(file, html.split(ogUrl(SITE, failedPath)).join(`${SITE}/og-image.png`), "utf8");
+      }
+      const ogCount = og.written.length;
 
       const entries = buildSitemapEntries({
         buildDate: new Date().toISOString().slice(0, 10),
