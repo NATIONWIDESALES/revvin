@@ -95,10 +95,6 @@ export const PAGE_META = {
     description:
       "Side-by-side comparisons of Revvin with Get The Referral, ReferralWise, Clicki, Snoball and Jobber Referrals, plus a roundup for contractors.",
   },
-  "/earn": {
-    title: "Earn money recommending local businesses | Revvin",
-    description: "",
-  },
 } satisfies Record<string, PageMeta>;
 
 export type MetaPath = keyof typeof PAGE_META;

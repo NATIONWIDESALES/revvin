@@ -17,6 +17,7 @@
 import { INDUSTRIES } from "./industries";
 import { PARTNER_TERMS_DOC } from "./partnerTerms";
 import { GUIDES } from "./guides";
+import { PAGE_META } from "./pageMeta";
 import { COMPARISONS, ROUNDUP, CHECKED_LINE, BIAS_DISCLOSURE, type ContentTable, type Source } from "./comparisons";
 import { PRIVACY_DOC, TERMS_DOC, legalPrerenderSections } from "./legal";
 // Relative, not aliased: this module is also imported by the build-time
@@ -93,9 +94,8 @@ const guideRoutes: PrerenderRoute[] = GUIDES.map((g) => ({
 
 const guideIndexRoute: PrerenderRoute = {
   path: "/guides",
-  title: "Referral Program Guides | Revvin",
-  description:
-    "Straight answers on referral programs for service businesses: how much to pay for a referral, referrals versus buying leads, how to start a program, whether they work, and how to ask.",
+  title: PAGE_META["/guides"].title,
+  description: PAGE_META["/guides"].description,
   h1: "Referral program guides",
   sections: [
     {
@@ -115,8 +115,8 @@ const guideIndexRoute: PrerenderRoute = {
 const toolkitRoutes: PrerenderRoute[] = [
   {
     path: "/tools",
-    title: "Contractor Growth Toolkit | Free Referral Tools | Revvin",
-    description: `Free tools for service businesses: grade your referral program, check what a reward leaves you per job, and write the ask. No account, no card. Revvin Pro is ${PRO}.`,
+    title: PAGE_META["/tools"].title,
+    description: PAGE_META["/tools"].description,
     h1: "Turn the customers you already have into the next job.",
     sections: [
       {
@@ -161,9 +161,8 @@ const toolkitRoutes: PrerenderRoute[] = [
   },
   {
     path: "/tools/referral-program-grader",
-    title: "Referral Program Grader | Score Your Referral Program | Revvin",
-    description:
-      "Answer eight yes or no questions about how referrals work in your business today and get a score out of 100 plus the three things to fix first. Free, no account, nothing saved.",
+    title: PAGE_META["/tools/referral-program-grader"].title,
+    description: PAGE_META["/tools/referral-program-grader"].description,
     h1: "Grade your referral program in eight questions.",
     sections: [
       {
@@ -182,9 +181,8 @@ const toolkitRoutes: PrerenderRoute[] = [
   },
   {
     path: "/tools/referral-reward-calculator",
-    title: "Referral Reward Calculator | What a Referral Reward Costs You | Revvin",
-    description:
-      "Enter your average job revenue, your gross margin and the reward you are considering, and see what a closed referred job leaves you. Free, no account, nothing saved.",
+    title: PAGE_META["/tools/referral-reward-calculator"].title,
+    description: PAGE_META["/tools/referral-reward-calculator"].description,
     h1: "See what a referral reward leaves you per closed job.",
     sections: [
       {
@@ -207,9 +205,8 @@ const toolkitRoutes: PrerenderRoute[] = [
   },
   {
     path: "/tools/referral-message-generator",
-    title: "Referral Message Generator | Write Your Referral Ask | Revvin",
-    description:
-      "Generate a text, an email and a spoken script for asking a customer for a referral, written around your trade, your timing and your reward. Free, no account, nothing saved.",
+    title: PAGE_META["/tools/referral-message-generator"].title,
+    description: PAGE_META["/tools/referral-message-generator"].description,
     h1: "Write the referral ask you will actually send.",
     sections: [
       {
@@ -246,8 +243,8 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/about",
-    title: "About Revvin | Free referral program for home-service businesses",
-    description: `${CANONICAL_SENTENCE} Pricing, how it works, what it does not do, and who built it.`,
+    title: PAGE_META["/about"].title,
+    description: PAGE_META["/about"].description,
     h1: "About Revvin",
     sections: ABOUT_SECTIONS,
   },
@@ -263,8 +260,8 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/how-it-works",
-    title: "Revvin | How it works",
-    description: `See how Revvin turns past customers into referrals, repeat work and reviews. Your page is free to publish; Revvin Pro is ${PRO} for the tools that ask your whole customer list for you.`,
+    title: PAGE_META["/how-it-works"].title,
+    description: PAGE_META["/how-it-works"].description,
     h1: "Three steps to an engine that runs off your jobs.",
     sections: [
       {
@@ -352,8 +349,8 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/pricing",
-    title: "Revvin | Pricing",
-    description: `${PLAN_SPLIT.line} Your referral page is free, published and collecting referrals. You pay your referrers directly.`,
+    title: PAGE_META["/pricing"].title,
+    description: PAGE_META["/pricing"].description,
     h1: "Your referral page is free.",
     sections: [
       {
@@ -397,9 +394,8 @@ const handwritten: PrerenderRoute[] = [
   {
     path: "/browse",
     noindex: true,
-    title: "Revvin | Browse referral offers",
-    description:
-      "Browse referral offers from verified service businesses on Revvin. Refer a customer, earn the full advertised payout when the deal closes. Free to join as a referrer.",
+    title: PAGE_META["/browse"].title,
+    description: PAGE_META["/browse"].description,
     h1: "Browse referral offers",
     sections: [
       {
@@ -418,8 +414,8 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/referral-programs",
-    title: "Referral Programs by Industry | Revvin",
-    description: `Referral program software for roofing, HVAC, plumbing, solar, electrical, landscaping, painting and auto detailing. Free to publish. Revvin Pro is ${PRO} for the tools that ask your whole customer list for you.`,
+    title: PAGE_META["/referral-programs"].title,
+    description: PAGE_META["/referral-programs"].description,
     h1: "Referral programs by industry",
     sections: [
       {
@@ -441,9 +437,8 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/ask-kit",
-    title: "The Referral Ask Kit",
-    description:
-      "The exact words to use, and when to use them. Copy any of these referral scripts, swap the braces for your own details, and send it today. Free, no sign-up needed.",
+    title: PAGE_META["/ask-kit"].title,
+    description: PAGE_META["/ask-kit"].description,
     h1: "The Referral Ask Kit",
     sections: [
       {
@@ -559,9 +554,8 @@ const handwritten: PrerenderRoute[] = [
   },
   {
     path: "/docs/zapier",
-    title: "Zapier and integrations | Revvin",
-    description:
-      "Connect job software to Revvin through Zapier or the API so a completed job can schedule an automatic email ask.",
+    title: PAGE_META["/docs/zapier"].title,
+    description: PAGE_META["/docs/zapier"].description,
     h1: "Zapier and integrations",
     sections: [
       {
@@ -635,9 +629,8 @@ const handwritten: PrerenderRoute[] = [
 const partnerRoutes: PrerenderRoute[] = [
   {
     path: "/partners",
-    title: "Revvin Partner Program | Earn 40% on every business you refer",
-    description:
-      "Share Revvin with contractors and home-service owners. Approved partners earn 40% of what their referred customers pay, for as long as those customers keep paying. Free to join.",
+    title: PAGE_META["/partners"].title,
+    description: PAGE_META["/partners"].description,
     h1: "Earn 40% on every business you send to Revvin.",
     sections: [
       {
@@ -684,9 +677,8 @@ const partnerRoutes: PrerenderRoute[] = [
   },
   {
     path: "/partners/terms",
-    title: "Revvin Partner Program Terms",
-    description:
-      "The rules of the Revvin Partner Program: commission, attribution, payment timing, refunds, taxes, disclosure and prohibited promotion methods.",
+    title: PAGE_META["/partners/terms"].title,
+    description: PAGE_META["/partners/terms"].description,
     h1: "Revvin Partner Program Terms",
     sections: PARTNER_TERMS_DOC.sections.map((section) => ({
       heading: section.heading,
