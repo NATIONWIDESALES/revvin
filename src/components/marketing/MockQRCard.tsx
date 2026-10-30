@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import QRCodeStyling from "qr-code-styling";
 import { cn } from "@/lib/utils";
 
 export default function MockQRCard({
@@ -14,7 +13,9 @@ export default function MockQRCard({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!ref.current) return;
+    let cancelled = false;
+    void import("qr-code-styling").then(({ default: QRCodeStyling }) => {
+    if (cancelled || !ref.current) return;
     ref.current.innerHTML = "";
     const qr = new QRCodeStyling({
       width: 180,
@@ -27,6 +28,10 @@ export default function MockQRCard({
       backgroundOptions: { color: "transparent" },
     });
     qr.append(ref.current);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [url]);
 
   return (

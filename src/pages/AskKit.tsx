@@ -5,22 +5,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Copy, Check, FileText, ArrowRight } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 
-const ease = [0.16, 1, 0.3, 1] as const;
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.08, duration: 0.6, ease },
-  }),
-};
-
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-};
-
 const scripts = [
   {
     title: "In person, as you're packing up",
