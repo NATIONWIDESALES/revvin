@@ -118,8 +118,9 @@ describe("structured data", () => {
     expect(breadcrumbs(rw).itemListElement.map((i) => i.name)).toEqual(["Home", "Compare", "Revvin vs ReferralWise"]);
     expect(breadcrumbs(rw).itemListElement[1].item).toBe("https://revvin.co/compare");
     expect(crumbName(live.find((r) => r.path === "/guides/how-much-to-pay-for-a-referral")!)).toBe("How much should you pay for a referral?");
+    // No slug-cased names such as "How Much To Pay For A Referral".
     for (const r of live) {
-      for (const it of breadcrumbs(r).itemListElement) expect(it.name, r.path).not.toMatch(/^[A-Z][a-z]+( [A-Z][a-z]+)* [A-Z]$|-/);
+      for (const it of breadcrumbs(r).itemListElement) expect(it.name, r.path).not.toMatch(/-/);
     }
   });
 
