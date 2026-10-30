@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, type ComponentType, type ReactNode } from "react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -77,13 +77,19 @@ const RouteFallback = () => (
 const queryClient = new QueryClient();
 
 
-const App = () => (
+type RouterComponent = ComponentType<{ children?: ReactNode; location?: string }>;
+
+/**
+ * The browser uses BrowserRouter. The build-time prerender passes a
+ * StaticRouter with the page's path, so the same tree renders to HTML.
+ */
+const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?: RouterComponent; location?: string } = {}) => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <Router {...(location ? { location } : {})}>
           <AuthProvider>
             <CountryProvider>
               <Analytics />
@@ -165,7 +171,7 @@ const App = () => (
               </Suspense>
             </CountryProvider>
           </AuthProvider>
-        </BrowserRouter>
+        </Router>
       </TooltipProvider>
     </QueryClientProvider>
   </ErrorBoundary>
