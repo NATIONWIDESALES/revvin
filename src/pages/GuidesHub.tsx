@@ -3,11 +3,23 @@ import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
-import { GUIDES } from "@/content/guides";
-import { ROUNDUP } from "@/content/comparisons";
+import { GUIDES, GUIDE_GROUP_LABELS } from "@/content/guides";
+import { COMPARISONS, ROUNDUP } from "@/content/comparisons";
 import { PRICE_TEXT } from "@/config/pricing";
 
 const BASE = "https://revvin.co";
+
+const Card = ({ to, title, body }: { to: string; title: string; body: string }) => (
+  <article className="rounded-[14px] border border-line bg-card p-6">
+    <h3 className="text-lg">
+      <Link to={to} className="hover:text-primary">{title}</Link>
+    </h3>
+    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
+    <Link to={to} className="mt-4 inline-block text-sm font-semibold text-primary hover:underline" aria-label={`Read: ${title}`}>
+      Read the guide
+    </Link>
+  </article>
+);
 
 const GuidesHub = () => (
   <>
@@ -52,35 +64,31 @@ const GuidesHub = () => (
       </div>
     </section>
 
-    <section className="border-b border-border bg-surface-warm">
-      <div className="container py-20">
-        <div className="grid gap-6 md:grid-cols-2">
-          <article className="rounded-[14px] border border-line bg-card p-6">
-            <h2 className="text-lg">
-              <Link to={`/guides/${ROUNDUP.slug}`} className="hover:text-primary">{ROUNDUP.h1}</Link>
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{ROUNDUP.answer}</p>
-            <Link to={`/guides/${ROUNDUP.slug}`} className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
-              Read the guide
-            </Link>
-          </article>
-          {GUIDES.map((g) => (
-            <article key={g.slug} className="rounded-[14px] border border-line bg-card p-6">
-              <h2 className="text-lg">
-                <Link to={`/guides/${g.slug}`} className="hover:text-primary">
-                  {g.question}
-                </Link>
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{g.answer}</p>
-              <Link
-                to={`/guides/${g.slug}`}
-                className="mt-4 inline-block text-sm font-semibold text-primary hover:underline"
-              >
-                Read the guide
-              </Link>
-            </article>
+    {(["start", "ask", "money"] as const).map((grp) => (
+      <section key={grp} aria-labelledby={`grp-${grp}`} className="border-b border-border">
+        <div className="container py-14">
+          <h2 id={`grp-${grp}`} className="text-3xl md:text-4xl">{GUIDE_GROUP_LABELS[grp]}</h2>
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            {GUIDES.filter((g) => g.group === grp).map((g) => (
+              <Card key={g.slug} to={`/guides/${g.slug}`} title={g.question} body={g.answer} />
+            ))}
+          </div>
+        </div>
+      </section>
+    ))}
+
+    <section aria-labelledby="grp-compare" className="border-b border-border">
+      <div className="container py-14">
+        <h2 id="grp-compare" className="text-3xl md:text-4xl">{GUIDE_GROUP_LABELS.compare}</h2>
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          <Card to={`/guides/${ROUNDUP.slug}`} title={ROUNDUP.h1} body={ROUNDUP.answer} />
+          {COMPARISONS.map((c) => (
+            <Card key={c.slug} to={`/compare/${c.slug}`} title={c.h1} body={c.metaDescription} />
           ))}
         </div>
+        <Link to="/compare" className="mt-6 inline-block text-sm font-semibold text-primary hover:underline">
+          All comparisons
+        </Link>
       </div>
     </section>
 
