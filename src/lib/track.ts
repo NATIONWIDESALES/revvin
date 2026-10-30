@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { loadSupabase } from "@/lib/supabaseLazy";
 import { captureAttribution, getAttribution } from "@/lib/attribution";
 import {
   analyticsContext,
@@ -115,9 +115,7 @@ function recordFunnelEvent(event: FunnelEvent, context: AnalyticsContext, meta?:
   }
 
   try {
-    void supabase
-      .from("funnel_events")
-      .insert({
+    const row = {
         event,
         session_id: getSessionId(),
         path: context.path,
@@ -130,7 +128,11 @@ function recordFunnelEvent(event: FunnelEvent, context: AnalyticsContext, meta?:
         user_agent:
           typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 512) : null,
         meta: { ...attribution, ...safeAnalyticsMeta(event, context, meta) } as never,
-      })
+      };
+    // The client loads on first event, so a marketing page that never records
+    // anything never downloads it.
+    void loadSupabase()
+      .then((supabase) => supabase.from("funnel_events").insert(row as never))
       .then(
         (result: { error?: unknown } | null | undefined) => {
           if (result?.error) reportTrackDiagnostic({ event, code: "insert_rejected" });

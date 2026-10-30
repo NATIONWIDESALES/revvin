@@ -19,6 +19,7 @@ export const MARKETING_PREFIXES = [
   "/about",
   "/earn",
   "/referral-program",
+  "/referral-programs",
   "/guides",
   "/compare",
   "/tools",
@@ -33,7 +34,7 @@ export const MARKETING_PREFIXES = [
 export function isMarketingPath(pathname: string): boolean {
   if (pathname === "/") return true;
   if (pathname.startsWith("/partners/dashboard") || /^\/earn\/[^/]+/.test(pathname)) return false;
-  return MARKETING_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`) || pathname.startsWith(`${p}s`));
+  return MARKETING_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
 /**
