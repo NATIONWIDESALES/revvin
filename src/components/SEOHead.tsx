@@ -30,8 +30,22 @@ function setMeta(attr: string, key: string, content: string) {
   el.setAttribute("content", content);
 }
 
+/** The build writes one share image per prerendered page at /og/{path}.png. */
+const pageOgImage = (path: string) =>
+  path ? `${BASE_URL}/og/${path === "/" ? "home" : path.replace(/^\//, "").replace(/\//g, "--")}.png` : DEFAULT_OG_IMAGE;
+
 const SEOHead = ({ title, description, path = "", canonicalUrl, ogImage, jsonLd, noindex }: SEOHeadProps) => {
   useEffect(() => {
+    // A prerendered document already carries this page's full head, including
+    // its structured data. Leave it alone so the head after hydration is the
+    // one crawlers read. After an in-app navigation the static structured
+    // data describes the previous page, so it is removed.
+    const prerendered = document.querySelector('script[type="application/ld+json"][data-path]');
+    if (prerendered) {
+      if (prerendered.getAttribute("data-path") === window.location.pathname) return;
+      prerendered.remove();
+    }
+
     // Title
     document.title = title;
 
@@ -51,14 +65,14 @@ const SEOHead = ({ title, description, path = "", canonicalUrl, ogImage, jsonLd,
     setMeta("property", "og:url", url);
     setMeta("property", "og:type", "website");
     setMeta("property", "og:site_name", "Revvin");
-    setMeta("property", "og:image", ogImage || DEFAULT_OG_IMAGE);
+    setMeta("property", "og:image", ogImage || pageOgImage(path));
     setMeta("property", "og:locale", "en_US");
 
     // Twitter tags
     setMeta("name", "twitter:card", "summary_large_image");
     setMeta("name", "twitter:title", title);
     setMeta("name", "twitter:description", description);
-    setMeta("name", "twitter:image", ogImage || DEFAULT_OG_IMAGE);
+    setMeta("name", "twitter:image", ogImage || pageOgImage(path));
 
     // Theme color
     setMeta("name", "theme-color", "#15803D");
