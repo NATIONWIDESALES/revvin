@@ -24,8 +24,19 @@ export async function initServiceWorker(onUpdateReady: () => void) {
     return;
   }
 
+  // A page that was served while an older worker was in control reloads once
+  // when the new worker takes over, so it never stays on a previous deployment.
+  if (navigator.serviceWorker.controller) {
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloaded) return;
+      reloaded = true;
+      window.location.reload();
+    });
+  }
+
   try {
-    const registration = await navigator.serviceWorker.register(SERVICE_WORKER_PATH);
+    const registration = await navigator.serviceWorker.register(SERVICE_WORKER_PATH, { updateViaCache: "none" });
 
     if (registration.waiting && navigator.serviceWorker.controller) onUpdateReady();
 
