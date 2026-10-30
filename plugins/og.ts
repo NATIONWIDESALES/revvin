@@ -128,16 +128,41 @@ const createRenderer = async (): Promise<Renderer> => {
   };
 };
 
-/** Write one image per card into dist/og. Returns the number written. */
-export const writeOgImages = async (dist: string, cards: OgCard[]) => {
-  rendererPromise ??= createRenderer();
-  const render = await rendererPromise;
+export interface OgWriteResult {
+  /** Route paths whose image was written. */
+  written: string[];
+  /** Route paths whose image failed and must fall back to og-image.png. */
+  failed: string[];
+}
+
+/**
+ * Write one image per card into dist/og. Cards render one at a time (capped
+ * concurrency of 1) because satori and the resvg wasm module are the heaviest
+ * memory users of the build; parallel renders have OOMed hosted builders.
+ * A single bad card never fails the batch: its path is returned in `failed`
+ * so the prerender can point that page at the static og-image.png instead.
+ */
+export const writeOgImages = async (dist: string, cards: OgCard[]): Promise<OgWriteResult> => {
+  const written: string[] = [];
+  const failed: string[] = [];
+  let render: Renderer;
+  try {
+    rendererPromise ??= createRenderer();
+    render = await rendererPromise;
+  } catch (err) {
+    console.warn(`[prerender] Open Graph renderer unavailable, using og-image.png: ${String(err).slice(0, 300)}`);
+    return { written, failed: cards.map((c) => c.path) };
+  }
   const dir = path.join(dist, "og");
   fs.mkdirSync(dir, { recursive: true });
-  let n = 0;
   for (const card of cards) {
-    fs.writeFileSync(path.join(dir, ogFileName(card.path)), await render(card));
-    n++;
+    try {
+      fs.writeFileSync(path.join(dir, ogFileName(card.path)), await render(card));
+      written.push(card.path);
+    } catch (err) {
+      console.warn(`[prerender] Open Graph image failed for ${card.path}, using og-image.png: ${String(err).slice(0, 200)}`);
+      failed.push(card.path);
+    }
   }
-  return n;
+  return { written, failed };
 };
