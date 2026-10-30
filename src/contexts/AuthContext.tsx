@@ -76,6 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
       return;
     }
+    setLoading(true);
     let cancelled = false;
     let unsubscribe: (() => void) | null = null;
     // Track the user id we've already loaded a role for so background auth
