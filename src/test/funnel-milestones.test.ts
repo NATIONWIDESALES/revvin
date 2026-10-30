@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi, beforeAll } from "vitest";
 
 const fake = vi.hoisted(() => ({ insert: vi.fn(), capture: vi.fn(), existing: vi.fn() }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { from: (table: string) => {
@@ -9,6 +9,11 @@ vi.mock("@/lib/attribution", () => ({ captureAttribution: fake.capture, getAttri
 import { track } from "@/lib/track";
 import { milestoneContext } from "@/lib/analyticsPrivacy";
 import { setAnalyticsAudience } from "@/lib/analyticsPrivacy";
+import { loadSupabase } from "@/lib/supabaseLazy";
+
+// The client loads on first use; load the mocked one up front so each event
+// is written in the same tick, as it is once a page has the client.
+beforeAll(async () => { await loadSupabase(); });
 
 const MILESTONES = ["signup_succeeded", "onboarding_started", "onboarding_completed", "page_published"] as const;
 

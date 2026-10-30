@@ -7,6 +7,9 @@ import { PRICE_TEXT, MONTHLY_PRICE, ANNUAL_PRICE } from "../src/config/pricing";
 import { isRestrictedCategory } from "../src/lib/offerUtils";
 import { PRERENDER_BUSINESS_COLS } from "../src/lib/publicReferralCols";
 import { buildSitemapEntries, renderSitemap } from "./sitemap";
+import { ogKind, ogUrl, writeOgImages, type OgCard } from "./og";
+import { buildSsrRenderer, type SsrRender } from "./ssr";
+import { FREE_FEATURES, PRO_FEATURES } from "../src/config/planFeatures";
 import { buildBusinessManifest, businessManifestPath } from "../src/lib/webManifest";
 import {
   APP_ID,
@@ -16,6 +19,7 @@ import {
   INDEXNOW_KEY,
   ORG_DISAMBIGUATION,
   FOUNDER_PERSON,
+  FOUNDER_REF,
   ORG_ID,
   ORG_SAME_AS,
   SITE_ID,
@@ -89,10 +93,23 @@ const ORGANIZATION = {
   },
   image: `${SITE}/og-image.png`,
   email: "info@revvin.co",
-  areaServed: ["US", "CA", "AE"],
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "info@revvin.co",
+    contactType: "customer support",
+    availableLanguage: "en",
+  },
+  areaServed: ["US", "CA"],
+  knowsAbout: ["referral marketing", "referral programs", "home services marketing"],
   slogan: "Your customer list, working for you",
   disambiguatingDescription: ORG_DISAMBIGUATION,
-  founder: FOUNDER_PERSON,
+  // The id points at the full Person node on /about; the name, profile and
+  // disambiguation stay inline so every page names the founder on its own.
+  founder: {
+    ...FOUNDER_REF,
+    sameAs: [...FOUNDER_PERSON.sameAs],
+    disambiguatingDescription: FOUNDER_PERSON.disambiguatingDescription,
+  },
   // Emitted only once real profile URLs exist; an empty sameAs says nothing.
   ...(ORG_SAME_AS.length ? { sameAs: ORG_SAME_AS } : {}),
   ...(FOUNDING_DATE ? { foundingDate: FOUNDING_DATE } : {}),
@@ -127,6 +144,12 @@ const WEBSITE = {
  * asked "what does Revvin cost" read this: a free tier at 0 and Revvin Pro
  * with both the monthly and the annual price, in USD, with no platform fee.
  */
+/**
+ * Built from the plan feature lists the pricing page renders, so the product
+ * description can never claim a feature sits on the wrong plan.
+ */
+export const SOFTWARE_DESCRIPTION = `Referral software for home-service businesses. Free includes: ${FREE_FEATURES.map((f) => f.label.toLowerCase()).join(", ")}. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD or ${PRICE_TEXT.annualPerYear} USD a year and adds ${PRO_FEATURES.map((f) => f.label.toLowerCase()).join(", ")}. Businesses pay their referrers directly; Revvin takes no cut.`;
+
 const SOFTWARE = {
   "@type": "SoftwareApplication",
   "@id": APP_ID,
@@ -135,7 +158,7 @@ const SOFTWARE = {
   operatingSystem: "Web browser",
   url: SITE,
   publisher: { "@id": ORG_ID },
-  description: `Referral software for service businesses. Publishing a referral page and taking referrals on it is free. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once, and adds customer list import, the bulk referral ask, reactivation campaigns, ROI reporting and custom page branding. Businesses pay their referrers directly off-platform; Revvin takes no cut.`,
+  description: SOFTWARE_DESCRIPTION,
   offers: [
     {
       "@type": "Offer",
@@ -143,8 +166,7 @@ const SOFTWARE = {
       price: "0",
       priceCurrency: "USD",
       url: `${SITE}/pricing`,
-      description:
-        "Your referral page on your own link, QR code and share tools, print pack, unlimited referral leads, lead inbox with status tracking, offers, payout tracking and a marketplace listing.",
+      description: `${FREE_FEATURES.map((f) => f.label).join(", ")}.`,
     },
     {
       "@type": "Offer",
@@ -152,8 +174,7 @@ const SOFTWARE = {
       price: String(MONTHLY_PRICE),
       priceCurrency: "USD",
       url: `${SITE}/pricing`,
-      description:
-        "Customer list import, the bulk referral ask sent from your own email app, reactivation campaigns, ROI reporting with a monthly recap and custom page branding. Billed monthly, cancel any time.",
+      description: `Everything in Free, plus: ${PRO_FEATURES.map((f) => f.label.toLowerCase()).join(", ")}. Billed monthly, cancel any time.`,
     },
     {
       "@type": "Offer",
@@ -178,22 +199,47 @@ const PARENT_PAGES: { prefix: string; name: string; item: string }[] = [
   { prefix: "/guides/", name: "Guides", item: `${SITE}/guides` },
   { prefix: "/docs/", name: "Documentation", item: `${SITE}/docs/zapier` },
   { prefix: "/tools/", name: "Contractor Growth Toolkit", item: `${SITE}/tools` },
+  { prefix: "/compare/", name: "Compare", item: `${SITE}/compare` },
+  { prefix: "/partners/", name: "Partners", item: `${SITE}/partners` },
 ];
 
-const titleCase = (segment: string) =>
-  segment.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+/** Short breadcrumb names for pages whose H1 is a sentence rather than a name. */
+const CRUMB_NAMES: Record<string, string> = {
+  "/about": "About",
+  "/pricing": "Pricing",
+  "/how-it-works": "How it works",
+  "/earn": "Earn",
+  "/tools": "Contractor Growth Toolkit",
+  "/guides": "Guides",
+  "/compare": "Compare",
+  "/partners": "Partners",
+  "/partners/terms": "Partner program terms",
+  "/referral-programs": "Referral Programs",
+  "/for-businesses": "For businesses",
+  "/for-referrers": "For referrers",
+  "/sample": "Demo",
+  "/ask-kit": "Referral ask kit",
+  "/trust": "Trust",
+  "/privacy": "Privacy policy",
+  "/terms": "Terms of service",
+  "/docs/zapier": "Zapier and integrations",
+};
 
-const breadcrumbs = (route: PrerenderRoute) => {
+/** The page's own name: articles use their headline, others a short label, else the title. */
+export const crumbName = (route: PrerenderRoute) =>
+  CRUMB_NAMES[route.path] ??
+  (route.article || route.path.startsWith("/guides/") || route.path.startsWith("/referral-program/")
+    ? route.h1
+    : route.title.replace(/\s*\|\s*Revvin$/, ""));
+
+export const breadcrumbs = (route: PrerenderRoute) => {
   const items = [{ name: "Home", item: SITE }];
   if (route.path !== "/") {
     const parent = PARENT_PAGES.find((p) => route.path.startsWith(p.prefix));
     if (parent && `${parent.prefix.replace(/\/$/, "")}` !== route.path) {
       items.push({ name: parent.name, item: parent.item });
     }
-    items.push({
-      name: titleCase(route.path.split("/").filter(Boolean).pop() ?? ""),
-      item: `${SITE}${route.path}`,
-    });
+    items.push({ name: crumbName(route), item: `${SITE}${route.path}` });
   }
   return {
     "@type": "BreadcrumbList",
@@ -222,10 +268,13 @@ export const jsonLd = (route: PrerenderRoute) => {
       about: { "@id": ORG_ID },
       inLanguage: "en-US",
       breadcrumb: { "@id": `${url}#breadcrumb` },
-      primaryImageOfPage: `${SITE}/og-image.png`,
+      primaryImageOfPage: { "@type": "ImageObject", url: ogUrl(SITE, route.path), width: 1200, height: 630 },
     },
     breadcrumbs(route),
   ];
+  // The founder's full Person node lives on /about; every author reference
+  // elsewhere points at its id.
+  if (route.path === "/about") graph.push(FOUNDER_PERSON);
   // The priced product description belongs on the pages that are actually about
   // buying it, not on every document.
   if (route.path === "/" || route.path === "/pricing" || route.path === "/for-businesses") {
@@ -242,11 +291,11 @@ export const jsonLd = (route: PrerenderRoute) => {
       description: route.description,
       mainEntityOfPage: { "@id": `${url}#webpage` },
       inLanguage: "en-US",
-      author: FOUNDER_PERSON,
+      author: FOUNDER_REF,
       publisher: { "@id": ORG_ID },
       datePublished: dated ? COMPARISONS_CHECKED_ON : GUIDES_PUBLISHED_AT,
       dateModified: dated ? COMPARISONS_CHECKED_ON : GUIDES_UPDATED_AT,
-      image: `${SITE}/og-image.png`,
+      image: { "@type": "ImageObject", url: ogUrl(SITE, route.path), width: 1200, height: 630 },
       ...(route.tables?.length
         ? { hasPart: route.tables.map((t) => ({ "@type": "Table", about: t.caption })) }
         : {}),
@@ -277,13 +326,14 @@ export const jsonLd = (route: PrerenderRoute) => {
  * a real "Page not found" document. This runs before first paint, so visitors
  * never see it and requests for "/" itself are untouched.
  */
-const FALLBACK_GUARD = `<script>(function(){var p=location.pathname;if(p==="/")return;var r=document.getElementById("root");if(r)r.textContent="";var c=document.querySelector('link[rel="canonical"]');if(c)c.parentNode.removeChild(c);var legacy=${JSON.stringify(
+const FALLBACK_GUARD = `<script>(function(){var p=location.pathname;if(p==="/")return;var r=document.getElementById("root");if(r){r.textContent="";r.removeAttribute("data-ssr");}var c=document.querySelector('link[rel="canonical"]');if(c)c.parentNode.removeChild(c);var legacy=${JSON.stringify(
   LEGACY_STORE_PREFIXES,
 )}.some(function(x){return p===x||p.indexOf(x+"/")===0||p.indexOf(x+"?")===0;});document.title=legacy?"Page not found | Revvin":"Revvin";var m=document.querySelector('meta[name="robots"]');if(!m){m=document.createElement("meta");m.setAttribute("name","robots");document.head.appendChild(m);}m.setAttribute("content",legacy?"noindex,nofollow":"noindex,follow");if(legacy&&r){var h=document.createElement("h1");h.textContent="Page not found";r.appendChild(h);var q=document.createElement("p");q.textContent="This address does not exist on revvin.co.";r.appendChild(q);}})();</script>`;
 
-const bodyHtml = (route: PrerenderRoute) => {
+const bodyHtml = (route: PrerenderRoute, ssr?: string | null) => {
+  if (ssr) return `<div id="root" data-ssr="1">${ssr}</div>${route.path === "/" ? FALLBACK_GUARD : ""}`;
   const parts: string[] = [`<h1>${esc(route.h1)}</h1>`];
-  if (route.path.startsWith("/guides/") || route.article) parts.push(`<p>By ${esc(FOUNDER_PERSON.name)}, Founder of Revvin</p>`);
+  if (route.path.startsWith("/guides/") || route.article) parts.push(`<p>By ${esc(FOUNDER_REF.name)}, Founder of Revvin</p>`);
   for (const s of route.sections) {
     parts.push(`<h2>${esc(s.heading)}</h2><p>${esc(s.body)}</p>`);
   }
@@ -399,10 +449,13 @@ export const renderRedirectDoc = (template: string, route: PrerenderRoute & { re
   return stripNoscript(html);
 };
 
-export const renderRoute = (template: string, route: PrerenderRoute) => {
+export const renderRoute = (template: string, route: PrerenderRoute, ssr?: string | null) => {
   if (route.redirectTo) return renderRedirectDoc(template, route as PrerenderRoute & { redirectTo: string });
   const url = `${SITE}${route.path === "/" ? "/" : route.path}`;
-  let html = setHead(template, { title: route.title, description: route.description, url });
+  let html = setHead(template, { title: route.title, description: route.description, url, image: ogUrl(SITE, route.path) });
+  if (route.path === "/guides" || route.path.startsWith("/guides/")) {
+    html = html.replace("</head>", `  <link rel="alternate" type="application/rss+xml" title="Revvin guides" href="/guides/rss.xml">\n  </head>`);
+  }
 
   // Every indexable document self references, including the homepage. The SPA
   // fallback is the same file as the homepage document, so the inline guard
@@ -414,10 +467,10 @@ export const renderRoute = (template: string, route: PrerenderRoute) => {
   html = replaceTag(
     html,
     /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
-    `<script type="application/ld+json">${jsonLd(route)}</script>`,
+    `<script type="application/ld+json">${jsonLd(route).replace(/</g, "\\u003c")}</script>`,
   );
 
-  html = html.replace(/<div id="root">\s*<\/div>/, bodyHtml(route));
+  html = html.replace(/<div id="root">\s*<\/div>/, bodyHtml(route, ssr));
 
   // The JS-disabled fallback would now duplicate the homepage copy on every
   // page, since #root already carries real per-route content.
@@ -482,6 +535,8 @@ export interface PublicBusiness {
   category?: string | null;
   is_demo?: boolean | null;
   updated_at?: string | null;
+  service_area?: string | null;
+  [key: string]: unknown;
 }
 
 export const businessMeta = (biz: PublicBusiness) => {
@@ -504,7 +559,18 @@ export const businessJsonLd = (biz: PublicBusiness) => {
     "@id": `${url}#business`,
     name: biz.name,
     url,
-    ...(biz.city ? { areaServed: { "@type": "City", name: biz.city } } : {}),
+    ...((biz.service_area?.trim() || biz.city?.trim())
+      ? { areaServed: biz.service_area?.trim() ? { "@type": "Place", name: biz.service_area.trim() } : { "@type": "City", name: biz.city!.trim() } }
+      : {}),
+    ...(biz.city?.trim()
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: biz.city.trim(),
+            ...(biz.state?.trim() ? { addressRegion: biz.state.trim() } : {}),
+          },
+        }
+      : {}),
     makesOffer: {
       "@type": "Offer",
       name: "Referral reward",
@@ -521,14 +587,14 @@ export const businessJsonLd = (biz: PublicBusiness) => {
  * the business, not the Revvin homepage. Set to noindex, follow for now: these
  * pages belong to the businesses, not to the marketing site.
  */
-export const renderBusinessDoc = (template: string, biz: PublicBusiness) => {
+export const renderBusinessDoc = (template: string, biz: PublicBusiness, ssr?: string | null, earnMetro?: string | null) => {
   const url = `${SITE}/r/${biz.slug}`;
   const { title, description } = businessMeta(biz);
   let html = setHead(template, {
     title,
     description,
     url,
-    image: biz.logo_url || `${SITE}/og-image.png`,
+    image: ogUrl(SITE, `/r/${biz.slug}`),
   });
   html = setCanonical(html, url);
   html = setRobots(html, businessIndexable(biz) ? "index, follow" : "noindex, follow");
@@ -539,6 +605,7 @@ export const renderBusinessDoc = (template: string, biz: PublicBusiness) => {
       "@context": "https://schema.org",
       "@graph": [
         ORGANIZATION,
+        WEBSITE,
         businessJsonLd(biz),
         {
           "@type": "WebPage",
@@ -548,6 +615,7 @@ export const renderBusinessDoc = (template: string, biz: PublicBusiness) => {
           description,
           inLanguage: "en-US",
           isPartOf: { "@id": SITE_ID },
+          about: { "@id": `${url}#business` },
         },
       ],
     }).replace(/</g, "\\u003c")}</script>`,
@@ -558,12 +626,20 @@ export const renderBusinessDoc = (template: string, biz: PublicBusiness) => {
     /<link rel="manifest" href="[^"]*"\s*\/?>/,
     `<link rel="manifest" href="${businessManifestPath(biz.slug)}" />`,
   );
-  html = html.replace(
-    /<div id="root">\s*<\/div>/,
-    `<div id="root"><h1>Refer a customer to ${esc(biz.name)}</h1><p>${esc(description)}</p><p><a href="/r/${esc(
-      biz.slug,
-    )}">Open the referral form</a></p></div>`,
-  );
+  if (ssr) {
+    // The page component reads this instead of fetching, so the browser
+    // hydrates the same markup the server produced.
+    const data = JSON.stringify({ business: biz, earnMetro: earnMetro ?? null }).replace(/</g, "\\u003c");
+    html = html.replace(/<div id="root">\s*<\/div>/, `<div id="root" data-ssr="1">${ssr}</div>`);
+    html = html.replace("</body>", `<script>window.__REVVIN_SSR__=${data};</script>\n  </body>`);
+  } else {
+    html = html.replace(
+      /<div id="root">\s*<\/div>/,
+      `<div id="root"><h1>Refer a customer to ${esc(biz.name)}</h1><p>${esc(description)}</p><p><a href="/r/${esc(
+        biz.slug,
+      )}">Open the referral form</a></p></div>`,
+    );
+  }
   return stripNoscript(html);
 };
 
@@ -574,7 +650,7 @@ export const renderEarnMetroDoc = (template: string, metro: EarnMetroDoc) => {
   const url = `${SITE}/earn/${metro.slug}`;
   const title = `Get paid for referrals in ${metro.name} | Revvin`;
   const description = `Local businesses in ${metro.name} that pay a reward when your referral turns into a job. Get your own link to each one, free.`;
-  let html = setHead(template, { title, description, url });
+  let html = setHead(template, { title, description, url, image: ogUrl(SITE, `/earn/${metro.slug}`) });
   html = setCanonical(html, url);
   html = setRobots(html, "index, follow");
   html = replaceTag(
@@ -664,12 +740,6 @@ export const renderLlmsFull = () => {
   return parts.join("\n");
 };
 
-const writeDoc = (dist: string, routePath: string, html: string) => {
-  const dir = path.join(dist, routePath.replace(/^\//, ""));
-  fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, "index.html"), html, "utf8");
-};
-
 /**
  * Read the build environment without importing Vite at module scope: this file
  * is also imported by tests, and pulling Vite (and esbuild) in there is not
@@ -693,87 +763,180 @@ const readBuildEnv = (): Record<string, string> => {
   return out;
 };
 
+/** Article routes (guides and comparisons) for the RSS feed, newest first. */
+export const rssRoutes = () =>
+  PRERENDER_ROUTES.filter(
+    (r) => !r.redirectTo && !r.noindex && (r.path.startsWith("/guides/") || r.path.startsWith("/compare/")),
+  );
+
+const rfc822 = (iso: string) => new Date(`${iso}T12:00:00Z`).toUTCString();
+
+/** RSS 2.0 feed of the guides and comparisons. */
+export const renderRss = () => {
+  const items = rssRoutes()
+    .map((r) => {
+      const dated = r.path.startsWith("/compare/") || Boolean(r.tables?.length);
+      const date = dated ? COMPARISONS_CHECKED_ON : GUIDES_PUBLISHED_AT;
+      return { r, date };
+    })
+    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
+    .map(
+      ({ r, date }) =>
+        `    <item>\n      <title>${esc(r.h1)}</title>\n      <link>${SITE}${r.path}</link>\n      <guid isPermaLink="true">${SITE}${r.path}</guid>\n      <description>${esc(r.description)}</description>\n      <pubDate>${rfc822(date)}</pubDate>\n    </item>`,
+    )
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Revvin guides and comparisons</title>
+    <link>${SITE}/guides</link>
+    <atom:link href="${SITE}/guides/rss.xml" rel="self" type="application/rss+xml" />
+    <description>Referral program guides and honest software comparisons for home-service businesses, from Revvin.</description>
+    <language>en-us</language>
+${items}
+  </channel>
+</rss>
+`;
+};
+
+/** Preload the two above-the-fold font files (hashed names read from the build). */
+export const addFontPreloads = (html: string, assetNames: string[]) => {
+  const pick = (prefix: string) => assetNames.find((n) => n.startsWith(prefix) && n.endsWith(".woff2"));
+  const links = [pick("barlow-condensed-latin-800-normal"), pick("barlow-latin-400-normal")]
+    .filter(Boolean)
+    .map((n) => `<link rel="preload" href="/assets/${n}" as="font" type="font/woff2" crossorigin>`)
+    .join("\n    ");
+  if (!links) return html;
+  return html.replace(/(\s*)(<script type="module")/, `$1${links}$1$2`);
+};
+
 export default function prerenderPlugin(): Plugin {
   return {
     name: "revvin-prerender",
     apply: "build",
     async closeBundle() {
-      const dist = path.resolve(process.cwd(), "dist");
+      const root = process.cwd();
+      const dist = path.resolve(root, "dist");
       const indexPath = path.join(dist, "index.html");
       if (!fs.existsSync(indexPath)) return;
       const template = fs.readFileSync(indexPath, "utf8");
+      const assetNames = fs.existsSync(path.join(dist, "assets")) ? fs.readdirSync(path.join(dist, "assets")) : [];
+
+      // Real page markup for public routes. Falls back to the text documents
+      // if the server build or one route's render fails.
+      const ssrRender: SsrRender | null = process.env.REVVIN_NO_SSR ? null : await buildSsrRenderer(root);
+      let ssrOk = 0;
+      const ssrFailed: string[] = [];
+      const renderSsr = async (url: string) => {
+        if (!ssrRender) return null;
+        try {
+          const out = await ssrRender(url);
+          ssrOk++;
+          return out;
+        } catch (err) {
+          ssrFailed.push(`${url}: ${String(err).split("\n")[0].slice(0, 200)}`);
+          return null;
+        }
+      };
+
+      // Every document is collected first, then finished in one pass: font
+      // preloads everywhere, critical CSS inlined on the server-rendered ones.
+      const docs: { file: string; html: string; inlineCss: boolean }[] = [];
+      const addDoc = (routePath: string, html: string, inlineCss = false) => {
+        const file = routePath === "/" ? indexPath : path.join(dist, routePath.replace(/^\//, ""), "index.html");
+        docs.push({ file, html, inlineCss });
+      };
+      const ogCards: OgCard[] = [];
 
       let count = 0;
-      let rootHtml: string | null = null;
-
       for (const route of PRERENDER_ROUTES) {
-        const html = renderRoute(template, route);
-        if (route.path === "/") {
-          rootHtml = html;
-          continue;
-        }
-        writeDoc(dist, route.path, html);
+        const ssr = route.redirectTo ? null : await renderSsr(route.path);
+        addDoc(route.path, renderRoute(template, route, ssr), Boolean(ssr));
+        if (!route.redirectTo) ogCards.push({ path: route.path, title: route.title, kind: ogKind(route.path) });
         count++;
       }
 
-      if (rootHtml) {
-        fs.writeFileSync(indexPath, rootHtml, "utf8");
-        count++;
-      }
-
-      // Private surfaces get real documents so their noindex is in the served
-      // HTML rather than depending on JavaScript.
       for (const doc of PRIVATE_DOCS) {
-        writeDoc(dist, doc.path, renderPrivateDoc(template, doc));
+        addDoc(doc.path, renderPrivateDoc(template, doc));
         count++;
       }
 
-      // Old store paths from the previous owner of the domain.
       const notFound = renderNotFoundDoc(template);
       for (const legacy of [...LEGACY_STORE_PREFIXES, ...LEGACY_STORE_URLS]) {
-        writeDoc(dist, legacy, notFound);
+        addDoc(legacy, notFound);
         count++;
       }
-      fs.writeFileSync(path.join(dist, "404.html"), notFound, "utf8");
+      docs.push({ file: path.join(dist, "404.html"), html: notFound, inlineCss: false });
 
-      // Published referral pages, so link previews and non-JavaScript crawlers
-      // see the business. If the public view cannot be read at build time the
-      // pages simply fall back to the SPA, which still renders correctly for
-      // real visitors.
       const env = readBuildEnv();
       const supabaseUrl = env.VITE_SUPABASE_URL;
       const anonKey = env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      let businessCount = 0;
-      let businesses: PublicBusiness[] = [];
-      if (supabaseUrl && anonKey) {
-        businesses = await fetchPublishedBusinesses(supabaseUrl, anonKey);
-        for (const biz of businesses) {
-          writeDoc(dist, `/r/${biz.slug}`, renderBusinessDoc(template, biz));
-          fs.mkdirSync(path.join(dist, "manifests"), { recursive: true });
-          fs.writeFileSync(
-            path.join(dist, `manifests/r-${biz.slug}.webmanifest`),
-            JSON.stringify(
-              buildBusinessManifest({ slug: biz.slug, name: biz.name, logoUrl: biz.logo_url }),
-              null,
-              2,
-            ),
-            "utf8",
-          );
-          businessCount++;
-        }
-      }
 
       // Live Earn cities. Non-live cities are never written or listed, so they
       // stay noindex single-page-app routes and out of the sitemap.
       let metros: EarnMetroDoc[] = [];
       if (supabaseUrl && anonKey) {
         metros = await fetchLiveMetros(supabaseUrl, anonKey);
-        for (const m of metros) { writeDoc(dist, `/earn/${m.slug}`, renderEarnMetroDoc(template, m)); count++; }
+        for (const m of metros) {
+          addDoc(`/earn/${m.slug}`, renderEarnMetroDoc(template, m));
+          ogCards.push({ path: `/earn/${m.slug}`, title: `Get paid for referrals in ${m.name}`, kind: "Earn" });
+          count++;
+        }
       }
 
-      // Sitemap, generated from the same route list, the indexable referral
-      // pages and the live Earn cities. Noindex and redirect documents never
-      // appear in it.
+      // Published referral pages, rendered in full with the business data.
+      let businessCount = 0;
+      let businesses: PublicBusiness[] = [];
+      if (supabaseUrl && anonKey) {
+        businesses = await fetchPublishedBusinesses(supabaseUrl, anonKey);
+        for (const biz of businesses) {
+          const earnMetro = metros.find((m) => m.businesses.some((b) => b.slug === biz.slug))?.slug ?? null;
+          (globalThis as Record<string, unknown>).__REVVIN_SSR__ = { business: biz, earnMetro };
+          const ssr = await renderSsr(`/r/${biz.slug}`);
+          (globalThis as Record<string, unknown>).__REVVIN_SSR__ = undefined;
+          addDoc(`/r/${biz.slug}`, renderBusinessDoc(template, biz, ssr, earnMetro), Boolean(ssr));
+          ogCards.push({ path: `/r/${biz.slug}`, title: businessMeta(biz).title, kind: "Referral reward" });
+          fs.mkdirSync(path.join(dist, "manifests"), { recursive: true });
+          fs.writeFileSync(
+            path.join(dist, `manifests/r-${biz.slug}.webmanifest`),
+            JSON.stringify(buildBusinessManifest({ slug: biz.slug, name: biz.name, logoUrl: biz.logo_url }), null, 2),
+            "utf8",
+          );
+          businessCount++;
+        }
+      }
+
+      const { default: Beasties } = await import("beasties");
+      const beasties = new Beasties({
+        path: dist,
+        publicPath: "/",
+        preload: "swap",
+        inlineFonts: true,
+        preloadFonts: false,
+        pruneSource: false,
+        reduceInlineStyles: false,
+        mergeStylesheets: true,
+        compress: true,
+        logLevel: "silent",
+      });
+      for (const doc of docs) {
+        let html = addFontPreloads(doc.html, assetNames);
+        if (doc.inlineCss) {
+          try {
+            html = await beasties.process(html);
+          } catch (err) {
+            console.warn(`[prerender] critical CSS skipped for ${doc.file}: ${String(err).slice(0, 200)}`);
+          }
+        }
+        fs.mkdirSync(path.dirname(doc.file), { recursive: true });
+        fs.writeFileSync(doc.file, html, "utf8");
+      }
+
+      const ogCount = await writeOgImages(dist, ogCards).catch((err) => {
+        console.warn(`[prerender] Open Graph images failed: ${String(err).slice(0, 300)}`);
+        return 0;
+      });
+
       const entries = buildSitemapEntries({
         buildDate: new Date().toISOString().slice(0, 10),
         businesses: businesses.filter(businessIndexable),
@@ -781,14 +944,14 @@ export default function prerenderPlugin(): Plugin {
       });
       fs.writeFileSync(path.join(dist, "sitemap.xml"), renderSitemap(entries), "utf8");
       fs.writeFileSync(path.join(dist, "llms-full.txt"), renderLlmsFull(), "utf8");
-
-      // IndexNow verification key file, read by Bing, Yandex and Seznam when a
-      // URL submission arrives.
+      fs.mkdirSync(path.join(dist, "guides"), { recursive: true });
+      fs.writeFileSync(path.join(dist, "guides", "rss.xml"), renderRss(), "utf8");
       fs.writeFileSync(path.join(dist, `${INDEXNOW_KEY}.txt`), INDEXNOW_KEY, "utf8");
 
       console.log(
-        `[prerender] wrote ${count} static documents, ${businessCount} referral pages, sitemap.xml with ${entries.length} URLs, llms-full.txt, 404.html and the IndexNow key to dist/ (404 status codes are not available on this host)`,
+        `[prerender] wrote ${count} static documents (${ssrOk} with full page markup), ${businessCount} referral pages, ${ogCount} share images, sitemap.xml with ${entries.length} URLs, rss.xml, llms-full.txt, 404.html and the IndexNow key to dist/`,
       );
+      if (ssrFailed.length) console.warn(`[prerender] text fallback for ${ssrFailed.length} routes:\n  ${ssrFailed.join("\n  ")}`);
     },
   };
 }

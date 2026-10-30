@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import SEOHead from "@/components/SEOHead";
 import MockPageBuilder from "@/components/marketing/MockPageBuilder";
 import MockQRCard from "@/components/marketing/MockQRCard";
@@ -31,8 +32,8 @@ const HowItWorks = () => {
   return (
     <>
       <SEOHead
-        title="Revvin | How it works"
-        description={`See how Revvin turns past customers into referrals, repeat work, and reviews. Your page is free to publish; Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD for the tools that ask your whole customer list for you.`}
+        title={PAGE_META["/how-it-works"].title}
+        description={PAGE_META["/how-it-works"].description}
         path="/how-it-works"
       />
 

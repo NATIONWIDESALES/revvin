@@ -24,8 +24,22 @@ export async function initServiceWorker(onUpdateReady: () => void) {
     return;
   }
 
+  // A page that was served while an older worker was in control reloads once
+  // when the new worker takes over right after load, so it never stays on a
+  // previous deployment. Later takeovers do not reload: a visitor in the middle
+  // of a form keeps it, and the next navigation is fetched fresh anyway.
+  if (navigator.serviceWorker.controller) {
+    let reloaded = false;
+    const loadedAt = Date.now();
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloaded || Date.now() - loadedAt > 10_000) return;
+      reloaded = true;
+      window.location.reload();
+    });
+  }
+
   try {
-    const registration = await navigator.serviceWorker.register(SERVICE_WORKER_PATH);
+    const registration = await navigator.serviceWorker.register(SERVICE_WORKER_PATH, { updateViaCache: "none" });
 
     if (registration.waiting && navigator.serviceWorker.controller) onUpdateReady();
 

@@ -15,12 +15,12 @@ export const AUTH_BENEFITS = [
  */
 const AuthSplit = ({ children, showWordmark = true }: { children: ReactNode; showWordmark?: boolean }) => (
   <div className="grid min-h-screen grid-cols-[minmax(0,1fr)] bg-background lg:grid-cols-2">
-    <div className="flex min-w-0 flex-col px-5 py-8 sm:px-10 lg:px-16 lg:py-12">
+    <main className="flex min-w-0 flex-col px-5 py-8 sm:px-10 lg:px-16 lg:py-12">
       {showWordmark && (
-        <Link to="/" className="mb-8 self-start" aria-label="Revvin home"><Wordmark size="md" /></Link>
+        <Link to="/" className="mb-8 self-start" aria-label="REVVIN.CO home"><Wordmark size="md" /></Link>
       )}
       <div className="mx-auto w-full max-w-md flex-1 lg:flex lg:flex-col lg:justify-center">{children}</div>
-    </div>
+    </main>
     <aside className="surface-forest flex min-w-0 flex-col justify-center overflow-hidden px-6 py-12 lg:px-14">
       <ul className="space-y-3">
         {AUTH_BENEFITS.map((b) => (

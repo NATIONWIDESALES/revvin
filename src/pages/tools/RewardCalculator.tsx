@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -98,8 +99,8 @@ const RewardCalculator = () => {
   return (
     <ToolShell
       path="/tools/referral-reward-calculator"
-      metaTitle="Referral Reward Calculator | What a Referral Reward Costs You | Revvin"
-      metaDescription="Enter your average job revenue, your gross margin and the reward you are considering, and see what a closed referred job leaves you. Free, no account, nothing saved."
+      metaTitle={PAGE_META["/tools/referral-reward-calculator"].title}
+      metaDescription={PAGE_META["/tools/referral-reward-calculator"].description}
       eyebrow="Free tool"
       h1="See what a referral reward leaves you per closed job."
       intro="Put in your own figures and this does the arithmetic for you: revenue times margin, minus the reward you are considering. It does not recommend an amount, it does not promise profit, and it is not accounting advice. All amounts are USD."

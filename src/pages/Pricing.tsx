@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -53,8 +54,8 @@ const Pricing = () => {
   return (
     <>
       <SEOHead
-        title="Revvin | Pricing"
-        description="Your referral page is free, published and collecting referrals. Revvin Pro is $49/month USD for the tools that ask your whole customer list for you. You pay your referrers directly."
+        title={PAGE_META["/pricing"].title}
+        description={PAGE_META["/pricing"].description}
         path="/pricing"
         jsonLd={{
           "@context": "https://schema.org",

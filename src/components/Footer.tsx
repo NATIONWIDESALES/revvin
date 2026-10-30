@@ -26,7 +26,7 @@ const Footer = () => {
           </div>
 
           <div className="md:col-span-3">
-            <h4 className={heading}>Product</h4>
+            <p className={heading}>Product</p>
             <div className="space-y-3">
               <Link to="/how-it-works" className={link}>How it works</Link>
               <Link to="/tools" className={link}>Contractor Growth Toolkit</Link>
@@ -41,7 +41,7 @@ const Footer = () => {
           </div>
 
           <div className="md:col-span-3">
-            <h4 className={heading}>Company</h4>
+            <p className={heading}>Company</p>
             <div className="space-y-3">
               <Link to="/about" className={link}>About</Link>
               <Link to="/earn" className={link}>Earn money</Link>
@@ -54,7 +54,7 @@ const Footer = () => {
         </div>
 
         <nav aria-label="Compare" className="mt-12 border-t border-primary-foreground/10 pt-8">
-          <h4 className={heading}>Compare</h4>
+          <p className={heading}>Compare</p>
           <div className="flex flex-wrap gap-x-6 gap-y-3">
             {COMPARISONS.map((c) => (
               <Link key={c.slug} to={`/compare/${c.slug}`} className="text-sm text-primary-foreground/70 transition-colors hover:text-primary-foreground">
@@ -64,11 +64,14 @@ const Footer = () => {
             <Link to={`/guides/${ROUNDUP.slug}`} className="text-sm text-primary-foreground/70 transition-colors hover:text-primary-foreground">
               {ROUNDUP.h1}
             </Link>
+            <Link to="/compare" className="text-sm text-primary-foreground/70 transition-colors hover:text-primary-foreground">
+              All comparisons
+            </Link>
           </div>
         </nav>
 
         <nav aria-label="Referral programs by trade" className="mt-12 border-t border-primary-foreground/10 pt-8">
-          <h4 className={heading}>Referral programs by trade</h4>
+          <p className={heading}>Referral programs by trade</p>
           <div className="flex flex-wrap gap-x-6 gap-y-3">
             {INDUSTRIES.map((i) => (
               <Link key={i.slug} to={`/referral-program/${i.slug}`} className="text-sm text-primary-foreground/70 transition-colors hover:text-primary-foreground">

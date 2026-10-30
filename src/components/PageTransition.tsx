@@ -1,15 +1,13 @@
-import { useEffect, useRef } from "react";
-import { motion, useReducedMotion } from "framer-motion";
 import { Outlet, useLocation } from "react-router-dom";
+import { useEffect, useRef } from "react";
 
 /**
  * The first page a visitor lands on renders in its final state: the
- * prerendered HTML is already visible, so fading it from opacity 0 on mount
- * made the headline vanish and return. Only later in-app navigations fade.
+ * prerendered HTML is already visible. Later in-app navigations get a short
+ * CSS fade, skipped entirely under reduced motion.
  */
 const PageTransition = () => {
   const location = useLocation();
-  const prefersReduced = useReducedMotion();
   const firstPath = useRef(location.pathname);
   const navigated = useRef(false);
 
@@ -17,21 +15,12 @@ const PageTransition = () => {
     if (location.pathname !== firstPath.current) navigated.current = true;
   }, [location.pathname]);
 
-  if (prefersReduced) {
-    return <Outlet />;
-  }
-
   const animateEntry = navigated.current || location.pathname !== firstPath.current;
 
   return (
-    <motion.div
-      key={location.pathname}
-      initial={animateEntry ? { opacity: 0 } : false}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-    >
+    <div key={location.pathname} className={animateEntry ? "animate-in fade-in duration-200 motion-reduce:animate-none" : undefined}>
       <Outlet />
-    </motion.div>
+    </div>
   );
 };
 

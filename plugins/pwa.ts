@@ -14,14 +14,10 @@ import { VAPID_PUBLIC_KEY } from "../src/config/vapid";
  * on the fresh prerendered documents.
  */
 export default function pwaPlugin(): Plugin {
-  const precache = new Set<string>([
-    "/offline.html",
-    "/manifest.webmanifest",
-    "/icons/icon-192.png",
-    "/icons/icon-512.png",
-    "/icons/maskable-192.png",
-    "/icons/badge-96.png",
-  ]);
+  // Only content-hashed build output, plus the offline page the worker serves
+  // when a navigation fails. Unhashed files (manifest, icons, HTML) are never
+  // precached, so nothing here can outlive the deployment that produced it.
+  const precache = new Set<string>(["/offline.html"]);
 
   return {
     name: "revvin-pwa",
@@ -38,7 +34,7 @@ export default function pwaPlugin(): Plugin {
         for (const imp of entry.imports ?? []) precache.add(`/${imp}`);
       }
       for (const file of Object.values(bundle)) {
-        if (file.type === "asset" && file.fileName.endsWith(".css")) {
+        if (file.type === "asset" && /\.(css|woff2)$/.test(file.fileName)) {
           precache.add(`/${file.fileName}`);
         }
       }

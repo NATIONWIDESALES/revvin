@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import { lazy, Suspense } from "react";
 
 // Leaflet is ~150KB: only fetched when the user actually switches to map view.
@@ -249,8 +250,8 @@ const Browse = () => {
   return (
     <div className="py-6">
       <SEOHead
-        title="Revvin | Browse referral offers"
-        description="Browse referral offers from verified service businesses on Revvin. Refer a customer, earn the full advertised payout when the deal closes. Free to join as a referrer."
+        title={PAGE_META["/browse"].title}
+        description={PAGE_META["/browse"].description}
         noindex
         path="/browse"
         jsonLd={filtered.length > 0 ? {

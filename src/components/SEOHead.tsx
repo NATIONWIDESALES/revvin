@@ -30,8 +30,48 @@ function setMeta(attr: string, key: string, content: string) {
   el.setAttribute("content", content);
 }
 
+/** The build writes one share image per prerendered page at /og/{path}.png. */
+const pageOgImage = (path: string) =>
+  path ? `${BASE_URL}/og/${path === "/" ? "home" : path.replace(/^\//, "").replace(/\//g, "--")}.png` : DEFAULT_OG_IMAGE;
+
 const SEOHead = ({ title, description, path = "", canonicalUrl, ogImage, jsonLd, noindex }: SEOHeadProps) => {
   useEffect(() => {
+    // A prerendered document already carries this page's head and its core
+    // structured data, and its canonical names this page. Leave that head
+    // alone so the head after hydration is the one crawlers read, and add only
+    // the structured data types the build did not emit (a tool's
+    // WebApplication, for example). After an in-app navigation the static
+    // structured data describes the previous page, so it is removed and this
+    // component takes over the whole head from then on.
+    const jsonLdId = "seo-jsonld";
+    const staticLd = document.querySelector('script[type="application/ld+json"]:not(#seo-jsonld)');
+    if (staticLd) {
+      const canonicalHref = document.querySelector('link[rel="canonical"]')?.getAttribute("href");
+      const here = `${BASE_URL}${window.location.pathname === "/" ? "/" : window.location.pathname}`;
+      if (canonicalHref === here) {
+        let staticTypes = new Set<string>();
+        try {
+          const parsed = JSON.parse(staticLd.textContent || "{}");
+          const nodes: Record<string, unknown>[] = parsed["@graph"] ?? [parsed];
+          staticTypes = new Set(nodes.map((n) => String(n["@type"])));
+        } catch {
+          /* unreadable static data: add nothing */
+        }
+        const extra = (jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []).filter(
+          (n) => !staticTypes.has(String(n["@type"])),
+        );
+        if (!extra.length) return;
+        const el = document.createElement("script");
+        el.id = jsonLdId;
+        el.type = "application/ld+json";
+        el.textContent = JSON.stringify(extra.length === 1 ? extra[0] : extra);
+        document.getElementById(jsonLdId)?.remove();
+        document.head.appendChild(el);
+        return () => el.remove();
+      }
+      staticLd.remove();
+    }
+
     // Title
     document.title = title;
 
@@ -51,14 +91,14 @@ const SEOHead = ({ title, description, path = "", canonicalUrl, ogImage, jsonLd,
     setMeta("property", "og:url", url);
     setMeta("property", "og:type", "website");
     setMeta("property", "og:site_name", "Revvin");
-    setMeta("property", "og:image", ogImage || DEFAULT_OG_IMAGE);
+    setMeta("property", "og:image", ogImage || pageOgImage(path));
     setMeta("property", "og:locale", "en_US");
 
     // Twitter tags
     setMeta("name", "twitter:card", "summary_large_image");
     setMeta("name", "twitter:title", title);
     setMeta("name", "twitter:description", description);
-    setMeta("name", "twitter:image", ogImage || DEFAULT_OG_IMAGE);
+    setMeta("name", "twitter:image", ogImage || pageOgImage(path));
 
     // Theme color
     setMeta("name", "theme-color", "#15803D");
@@ -73,7 +113,6 @@ const SEOHead = ({ title, description, path = "", canonicalUrl, ogImage, jsonLd,
     canonical.setAttribute("href", url);
 
     // JSON-LD
-    const jsonLdId = "seo-jsonld";
     let scriptEl = document.getElementById(jsonLdId) as HTMLScriptElement | null;
     if (jsonLd) {
       const payload = Array.isArray(jsonLd) ? jsonLd : [jsonLd];

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import NotFound from "@/pages/NotFound";
 import { FREE_CTA_LABEL } from "@/config/planFeatures";
-import { FOUNDER_PERSON, formatContentDate } from "@/config/brand";
+import { FOUNDER_REF, formatContentDate } from "@/config/brand";
 import {
   BIAS_DISCLOSURE,
   CHECKED_LINE,
@@ -19,13 +19,13 @@ const BASE = "https://revvin.co";
 
 const DataTable = ({ t }: { t: ContentTable }) => (
   <figure className="my-8">
-    <div className="overflow-x-auto rounded-[14px] border border-line bg-card">
+    <div className="overflow-x-auto rounded-[14px] border border-line bg-card" tabIndex={0} role="region" aria-label={t.caption}>
       <table className="w-full min-w-[560px] border-collapse text-left text-[15px]">
         <caption className="sr-only">{t.caption}</caption>
         <thead>
           <tr className="border-b border-line">
             {t.head.map((h, i) => (
-              <th key={i} scope="col" className="p-3 font-display text-lg font-bold text-forest">{h}</th>
+              <th key={i} scope="col" className="p-3 font-display text-lg font-bold text-forest">{h || <span className="sr-only">Feature</span>}</th>
             ))}
           </tr>
         </thead>
@@ -128,7 +128,7 @@ const article = (path: string, headline: string, description: string, tables: Co
   headline,
   description,
   mainEntityOfPage: `${BASE}${path}`,
-  author: FOUNDER_PERSON,
+  author: FOUNDER_REF,
   publisher: { "@id": `${BASE}/#organization` },
   datePublished: COMPARISONS_CHECKED_ON,
   dateModified: COMPARISONS_CHECKED_ON,

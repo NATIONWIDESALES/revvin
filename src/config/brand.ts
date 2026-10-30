@@ -35,13 +35,32 @@ export const FOUNDER = {
   sameAs: ["https://www.linkedin.com/in/karm"],
 } as const;
 
+/** Stable id of the founder's Person node, emitted in full on /about. */
+export const PERSON_ID = `${SITE_URL}/about#karm-sandhu`;
+
+/** Third-person founder bio for structured data, from the /about founder section. */
+export const FOUNDER_BIO =
+  "Karm Sandhu started selling door to door in 2016 and went on to run a 120-rep sales team doing $5.5M a year. He built Revvin so every home-service business can run a referral program without a sales team.";
+
+/** The full Person node. Emitted once, on /about; everything else references it by id. */
 export const FOUNDER_PERSON = {
   "@type": "Person",
+  "@id": PERSON_ID,
   name: FOUNDER.name,
   jobTitle: FOUNDER.jobTitle,
+  url: `${SITE_URL}/about`,
+  description: FOUNDER_BIO,
   sameAs: [...FOUNDER.sameAs],
   disambiguatingDescription: "Karm Sandhu is the founder of Revvin (revvin.co), referral program software for home-service businesses.",
   worksFor: { "@id": ORG_ID },
+} as const;
+
+/** A reference to the founder: the id plus the name, so a page without the full node still names the author. */
+export const FOUNDER_REF = {
+  "@type": "Person",
+  "@id": PERSON_ID,
+  name: FOUNDER.name,
+  url: `${SITE_URL}/about`,
 } as const;
 
 /** The one sentence that defines Revvin everywhere. */

@@ -38,7 +38,7 @@ export const CountryProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const formatPayout = useCallback((amount: number, _cur: Currency) => {
-    return `$${amount.toLocaleString()}`;
+    return `$${amount.toLocaleString("en-US")}`;
   }, []);
 
   return (

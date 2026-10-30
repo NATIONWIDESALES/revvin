@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Barlow", "system-ui", "-apple-system", "sans-serif"],
-        display: ["Barlow Condensed", "Arial Narrow", "sans-serif"],
+        sans: ["Barlow", "Barlow Fallback", "system-ui", "-apple-system", "sans-serif"],
+        display: ["Barlow Condensed", "Barlow Condensed Fallback", "Arial Narrow", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi, beforeAll } from "vitest";
 
 // Isolated event sink: the real tracker runs, persistence is intercepted.
 const fake = vi.hoisted(() => ({ insert: vi.fn(), capture: vi.fn(), existing: vi.fn() }));
@@ -11,6 +11,11 @@ vi.mock("@/lib/attribution", () => ({ captureAttribution: fake.capture, getAttri
 import { track, setTrackDiagnosticSink, FUNNEL_EVENTS, type TrackDiagnostic } from "@/lib/track";
 import { setAnalyticsAudience, HOME_CTA_LABELS, SIGNUP_STEP_EVENTS } from "@/lib/analyticsPrivacy";
 import { TOOLKIT_CTA_LABELS } from "@/lib/toolkit/analytics";
+import { loadSupabase } from "@/lib/supabaseLazy";
+
+// The client loads on first use; load the mocked one up front so each event
+// is written in the same tick, as it is once a page has the client.
+beforeAll(async () => { await loadSupabase(); });
 
 // Read-only snapshot of the live funnel_events INSERT policy (pg_policies,
 // 2026-10-14). No migration was made; this pins compatibility.

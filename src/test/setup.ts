@@ -53,7 +53,8 @@ if (pointsAtProduction && !liveOptIn) {
   }) as typeof fetch;
 }
 
-Object.defineProperty(window, "matchMedia", {
+// Node-environment tests (build-time rendering) have no window.
+if (typeof window !== "undefined") Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: (query: string) => ({
     matches: false,

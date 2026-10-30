@@ -35,9 +35,9 @@ const p = (text: string, lead?: string): LegalParagraph => ({ text, lead });
 export const TERMS_DOC: LegalDoc = {
   path: "/terms",
   h1: "Terms of Service",
-  metaTitle: "Terms of Service | Revvin",
+  metaTitle: "Terms of service for businesses and referrers | Revvin",
   metaDescription:
-    "Revvin's Terms of Service: free referral pages, Revvin Pro at $49/month USD, and the fact that businesses pay referral rewards directly while Revvin never holds the money.",
+    "Revvin's terms of service: free referral pages, Revvin Pro at $49/month USD, and businesses pay referral rewards directly. Revvin never holds the money.",
   lastUpdated: "September 8, 2026",
   intro:
     'Welcome to Revvin. These Terms of Service ("Terms") are a plain-language agreement between you and Revvin ("Revvin", "we", "us") covering revvin.co, the branded referral pages we host for businesses, and related services (the "Service"). By creating an account or using the Service you agree to these Terms. If you do not agree, do not use the Service.',
@@ -195,9 +195,9 @@ export const TERMS_DOC: LegalDoc = {
 export const PRIVACY_DOC: LegalDoc = {
   path: "/privacy",
   h1: "Privacy Policy",
-  metaTitle: "Privacy Policy | Revvin",
+  metaTitle: "Privacy policy for businesses and referrers | Revvin",
   metaDescription:
-    "How Revvin collects, uses, and protects personal information across business accounts, referrer accounts, referral page leads, and reactivation campaign email.",
+    "How Revvin collects, uses and protects personal information for business accounts, referrer accounts, referral page leads and campaign email.",
   lastUpdated: "September 8, 2026",
   intro:
     'This Privacy Policy explains how Revvin ("Revvin", "we", "us") collects, uses, shares, and protects personal information when you use revvin.co, our branded business referral pages, and related services (the "Service"). It applies to businesses that subscribe to Revvin, referrers who submit leads, and the prospective customers ("Leads") whose information is submitted through a referral page. If you do not agree with this Policy, do not use the Service.',

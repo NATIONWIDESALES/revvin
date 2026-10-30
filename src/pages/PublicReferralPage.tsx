@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { businessMetro } from "@/lib/earn";
 import { activeRef, forgetRef, personalLink, referrerShareText, rememberRef } from "@/lib/referrerLink";
-import { supabase } from "@/integrations/supabase/client";
+import { loadSupabase } from "@/lib/supabaseLazy";
+import { readSsrBusiness } from "@/lib/ssrData";
 import { track } from "@/lib/track";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -63,8 +64,12 @@ function normalizeWebsite(url: string): string {
 const PublicReferralPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { toast } = useToast();
-  const [biz, setBiz] = useState<Business | null>(null);
-  const [loading, setLoading] = useState(true);
+  // A prerendered page carries the business it was built with, so the first
+  // render (on the server and in the browser) shows the real page. The live
+  // fetch below still runs and replaces it with current data.
+  const [ssr] = useState(() => readSsrBusiness<Business>(slug));
+  const [biz, setBiz] = useState<Business | null>(ssr?.business ?? null);
+  const [loading, setLoading] = useState(!ssr);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [statusUrl, setStatusUrl] = useState<string | null>(null);
@@ -76,7 +81,7 @@ const PublicReferralPage = () => {
   const [refToken, setRefToken] = useState<string | null>(null);
   const [refPerson, setRefPerson] = useState<{ first_name: string; has_email: boolean } | null>(null);
   const [myLink, setMyLink] = useState<string | null>(null);
-  const [earnMetro, setEarnMetro] = useState<string | null>(null);
+  const [earnMetro, setEarnMetro] = useState<string | null>(ssr?.earnMetro ?? null);
   useEffect(() => { if (slug) void businessMetro(slug).then(setEarnMetro); }, [slug]);
 
   useEffect(() => {
@@ -84,6 +89,7 @@ const PublicReferralPage = () => {
     const token = activeRef(slug, location.search);
     if (!token) return;
     (async () => {
+      const supabase = await loadSupabase();
       const { data } = await supabase.rpc("fn_resolve_referrer" as never, { p_slug: slug, p_token: token } as never);
       const person = data as unknown as { first_name: string; has_email: boolean } | null;
       if (person?.first_name) { setRefToken(token); setRefPerson(person); }
@@ -126,6 +132,7 @@ const PublicReferralPage = () => {
     if (!slug) return;
     (async () => {
       const COLS = PUBLIC_REFERRAL_PAGE_COLS;
+      const supabase = await loadSupabase();
 
       const { data, error } = await supabase
         .from("businesses_public" as any)

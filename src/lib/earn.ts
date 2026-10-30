@@ -1,10 +1,10 @@
-import { supabase } from "@/integrations/supabase/client";
+import { loadSupabase } from "@/lib/supabaseLazy";
 
 /** Public Earn data. Every call goes through a narrow server function. */
 export interface EarnMetro { name: string; slug: string }
 export interface EarnBusiness { slug: string; name: string; trade: string | null; city: string | null; reward: string | null }
 
-const rpc = (fn: string, args?: Record<string, unknown>) => supabase.rpc(fn as never, args as never);
+const rpc = async (fn: string, args?: Record<string, unknown>) => (await loadSupabase()).rpc(fn as never, args as never);
 
 export async function liveMetros(): Promise<EarnMetro[]> {
   const { data } = await rpc("fn_earn_metros");
@@ -55,7 +55,7 @@ export async function submitEarnLead(input: {
 
 /** Pending partner application from an Earn invite, through the existing partner-apply flow. */
 export async function applyAsEarnPartner(name: string, email: string, invitedBusiness: string): Promise<boolean> {
-  const { error } = await supabase.functions.invoke("partner-apply", {
+  const { error } = await (await loadSupabase()).functions.invoke("partner-apply", {
     body: {
       name, email, country: "Not given", channels: "Earn invite", audience_size: "Under 1,000",
       promo_plan: `Invited ${invitedBusiness.slice(0, 120)}`, payout_method: "paypal", agreed_to_terms: true, source: "earn_invite",

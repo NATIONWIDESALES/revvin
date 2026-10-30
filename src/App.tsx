@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, type ComponentType, type ReactNode } from "react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -55,6 +55,7 @@ const GuidePage = lazy(() => import("./pages/GuidePage"));
 const ComparePage = lazy(() => import("./pages/ComparePage"));
 const RoundupPage = lazy(() => import("./pages/ComparePage").then((m) => ({ default: m.RoundupPage })));
 const GuidesHub = lazy(() => import("./pages/GuidesHub"));
+const CompareHub = lazy(() => import("./pages/CompareHub"));
 const IndustryLanding = lazy(() => import("./pages/IndustryLanding"));
 const SuperAdminCRM = lazy(() => import("./pages/SuperAdminCRM"));
 const ConnectionHealth = lazy(() => import("./pages/ConnectionHealth"));
@@ -77,13 +78,19 @@ const RouteFallback = () => (
 const queryClient = new QueryClient();
 
 
-const App = () => (
+type RouterComponent = ComponentType<{ children?: ReactNode; location?: string }>;
+
+/**
+ * The browser uses BrowserRouter. The build-time prerender passes a
+ * StaticRouter with the page's path, so the same tree renders to HTML.
+ */
+const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?: RouterComponent; location?: string } = {}) => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <Router {...(location ? { location } : {})}>
           <AuthProvider>
             <CountryProvider>
               <Analytics />
@@ -127,6 +134,7 @@ const App = () => (
                   <Route path="/guides" element={<GuidesHub />} />
                   <Route path="/guides/best-referral-software-for-contractors-2026" element={<RoundupPage />} />
                   <Route path="/guides/:slug" element={<GuidePage />} />
+                  <Route path="/compare" element={<CompareHub />} />
                   <Route path="/compare/:slug" element={<ComparePage />} />
                   <Route path="/referral-programs" element={<IndustriesHub />} />
                   <Route path="/referral-program/:industry" element={<IndustryLanding />} />
@@ -165,7 +173,7 @@ const App = () => (
               </Suspense>
             </CountryProvider>
           </AuthProvider>
-        </BrowserRouter>
+        </Router>
       </TooltipProvider>
     </QueryClientProvider>
   </ErrorBoundary>

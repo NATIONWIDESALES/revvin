@@ -41,7 +41,7 @@ export const GUIDES: Guide[] = [
     label: "How much to pay for a referral",
     metaTitle: "How Much Should You Pay for a Referral? | Revvin",
     metaDescription:
-      "How service business owners choose a referral reward and compare flat amounts, tiers and percentages. Revvin currently tracks a fixed dollar reward per offer and takes no cut.",
+      "How service business owners choose a referral reward and compare flat amounts, tiers and percentages. Revvin tracks a fixed dollar reward and takes no cut.",
     answer:
       "There is no correct figure, and anyone quoting you one is guessing about your business. The amount you pay for a referral is a decision you make from two numbers you already have: what a customer is worth to you over the life of the relationship, and what you currently spend to acquire one somewhere else. A referral reward that sits comfortably below what an acquired customer already costs you is a reward you can afford to pay gladly and repeatedly. Revvin does not set the amount, does not cap it, and takes no cut of it.",
     sections: [
@@ -95,7 +95,7 @@ export const GUIDES: Guide[] = [
     label: "Referral program vs buying leads",
     metaTitle: "Referral Program vs Buying Leads | Revvin",
     metaDescription:
-      "The mechanical difference between a referral program and a lead marketplace: exclusivity, trust and when you pay. A factual comparison for service businesses.",
+      "The mechanical difference between a referral program and a lead marketplace: exclusivity, trust and when you pay. A factual comparison for contractors.",
     answer:
       "The difference is mechanical, and it comes down to three things: who else gets the lead, how much the customer already trusts you, and when the money leaves your account. Lead marketplaces such as Angi, Thumbtack and HomeAdvisor typically sell an enquiry to several businesses at once, so you are competing on response speed and price against companies the customer has never met either, and you generally pay per lead whether or not it turns into work. On Revvin, publishing a referral page is free and Revvin Pro is optional. A referral is exclusive to you, arrives already trusted because someone the customer knows sent them, and the reward is paid by your business only when the job closes. Neither model is dishonest; they simply price different things.",
     sections: [
@@ -147,9 +147,9 @@ export const GUIDES: Guide[] = [
     slug: "how-to-start-a-referral-program",
     question: "How do you start a referral program?",
     label: "How to start a referral program",
-    metaTitle: "How to Start a Referral Program (Step by Step) | Revvin",
+    metaTitle: "How to Start a Referral Program, Step by Step | Revvin",
     metaDescription:
-      "A practical six-step guide to starting a referral program for a service business: set the reward, write the terms, place the link and QR, ask at the right moment, track what is owed, and pay quickly.",
+      "A six-step guide to starting a referral program for a service business: set the reward, write the terms, place the link, ask, track what is owed and pay.",
     answer:
       "Starting a referral program takes six decisions, and you can make all of them in an afternoon: decide the reward, write it down in terms a customer could repeat, put your link and QR code where your customers already are, ask at the moment the work is fresh, track what you owe, and pay it quickly. The programs that fail almost never fail on the reward amount. They fail because nothing was written down, nobody was asked, or someone was owed money and had to chase it.",
     sections: [
@@ -205,9 +205,9 @@ export const GUIDES: Guide[] = [
     slug: "do-referral-programs-work-for-contractors",
     question: "Do referral programs actually work for contractors?",
     label: "Do referral programs work for contractors",
-    metaTitle: "Do Referral Programs Work for Contractors? An Honest Answer | Revvin",
+    metaTitle: "Do Referral Programs Work for Contractors? | Revvin",
     metaDescription:
-      "When contractor referral programs work and when they do not. A candid look at the conditions that make referrals produce, without invented statistics or case studies.",
+      "When contractor referral programs work and when they do not. A candid look at what makes referrals produce, without invented statistics or case studies.",
     answer:
       "Sometimes, and the conditions are predictable enough to check before you start. Referral programs work for contractors when the trade serves customers who talk to each other, when the ask happens close to the job while the work is still visible and the customer is still pleased, and when the reward is a specific named amount that actually gets paid. They work poorly when the ask is generic, when it comes weeks after the crew left, or when the reward is vague enough that nobody can repeat it. The reward amount is rarely the deciding factor. The timing and the specificity of the ask usually are.",
     sections: [
@@ -261,7 +261,7 @@ export const GUIDES: Guide[] = [
     label: "How to ask for a referral",
     metaTitle: "How to Ask a Customer for a Referral | Revvin",
     metaDescription:
-      "The timing and the wording of the referral ask: when to ask, how specific to be, and why a named reward matters. Copy-paste scripts are in the Revvin referral ask kit.",
+      "The timing and wording of the referral ask: when to ask, how specific to be and why a named reward matters. Copy-paste scripts are in the referral ask kit.",
     answer:
       "Ask while the work is fresh, ask for something specific, and give them something concrete to hand over. The best moment is the one where you are still there and the job has just been finished well: a short, plain request to pass your name on if someone asks, followed the same day by a message containing your referral link and the reward. Vagueness is what kills the ask. \"Send people my way\" asks the customer to invent both the wording and the mechanism, so most of them do nothing. A named reward, a clear condition and a link they can forward removes all three obstacles at once.",
     sections: [
@@ -313,9 +313,9 @@ export const GUIDES: Guide[] = [
     slug: "alternative-to-buying-leads",
     question: "What is the alternative to buying leads from Thumbtack, Angi or HomeAdvisor?",
     label: "Alternative to buying leads",
-    metaTitle: "Alternative to Buying Leads (Thumbtack, Angi, HomeAdvisor) | Revvin",
+    metaTitle: "Alternative to Buying Leads from Thumbtack and Angi | Revvin",
     metaDescription:
-      "A factual look at what a referral program replaces when you stop buying shared leads, what it cannot replace, and what running one on Revvin costs: free to publish, $49/month for Pro.",
+      "What a referral program replaces when you stop buying shared leads, what it cannot replace, and what Revvin costs: free to publish, $49/month for Pro.",
     answer:
       "The alternative most service businesses already own is the list of customers who have paid them before. Instead of buying an enquiry that several contractors receive at the same time, you publish a referral page on your own link, tell your past customers what you will pay for a closed referral, and pay that reward only when a job actually closes. That does not make lead marketplaces a mistake. They sell volume from strangers on demand, which a referral program cannot do. It means your cost moves from the top of the funnel, where you pay for contacts, to the bottom, where you pay for outcomes. Publishing a referral page on Revvin is free, Revvin Pro is $49/month USD, and Revvin takes no cut of the reward you pay.",
     sections: [

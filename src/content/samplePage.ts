@@ -7,7 +7,7 @@ import { PRICE_TEXT } from "../config/pricing";
 
 export const SAMPLE_META = {
   path: "/sample",
-  title: "Revvin | Try the referral loop (demo)",
-  description: `Walk a Revvin referral through end to end: an example referral page, the owner's lead inbox, closing the job and recording the reward. Nothing is saved. Publishing your own page is free. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD.`,
+  title: "Try the referral loop demo | Revvin",
+  description: "Walk a referral through end to end: an example referral page, the owner's lead inbox, closing the job and the reward. Nothing is saved. Your page is free.",
   h1: "Try the referral loop yourself",
 } as const;

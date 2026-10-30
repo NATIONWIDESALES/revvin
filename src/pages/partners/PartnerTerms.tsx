@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import { Link } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import { PARTNER_TERMS_DOC } from "@/content/partnerTerms";
@@ -5,8 +6,8 @@ import { PARTNER_TERMS_DOC } from "@/content/partnerTerms";
 const PartnerTerms = () => (
   <>
     <SEOHead
-      title="Revvin Partner Program Terms"
-      description="The rules of the Revvin Partner Program: commission, attribution, payment timing, refunds, taxes, disclosure and prohibited promotion methods."
+      title={PAGE_META["/partners/terms"].title}
+      description={PAGE_META["/partners/terms"].description}
       path="/partners/terms"
     />
     <div className="mx-auto w-full max-w-[720px] px-5 py-16">

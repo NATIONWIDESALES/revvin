@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,8 @@ const BASE = "https://revvin.co";
 const IndustriesHub = () => (
   <>
     <SEOHead
-      title="Referral Programs by Industry | Revvin"
-      description="Referral program software for roofing, HVAC, plumbing, solar, electrical, landscaping, painting and auto detailing. Free to publish. Revvin Pro is $49/month USD for the tools that ask your whole customer list for you."
+      title={PAGE_META["/referral-programs"].title}
+      description={PAGE_META["/referral-programs"].description}
       path="/referral-programs"
       jsonLd={[
         {
