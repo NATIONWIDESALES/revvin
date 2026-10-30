@@ -79,7 +79,7 @@ export const COMPARISONS: Comparison[] = [
     slug: "get-the-referral",
     competitor: "Get The Referral",
     h1: "Revvin vs Get The Referral",
-    metaTitle: "Revvin vs Get The Referral: price, setup and payouts compared",
+    metaTitle: "Revvin vs Get The Referral: price and payouts | Revvin",
     metaDescription:
       "Get The Referral runs $399 to $1,899 a month plus setup fees and starts with a demo. Revvin starts free with self-serve signup. An honest side-by-side.",
     answer:
@@ -124,9 +124,9 @@ export const COMPARISONS: Comparison[] = [
     slug: "referralwise",
     competitor: "ReferralWise",
     h1: "Revvin vs ReferralWise",
-    metaTitle: "Revvin vs ReferralWise: two low-cost referral tools compared",
+    metaTitle: "Revvin vs ReferralWise: two low-cost tools | Revvin",
     metaDescription:
-      "ReferralWise and Revvin are close in price. ReferralWise automates partner payouts through Stripe; Revvin asks your past customers with personal links. Compared.",
+      "ReferralWise and Revvin are close in price. ReferralWise automates partner payouts through Stripe; Revvin asks past customers with personal links.",
     answer:
       "ReferralWise is the closest tool to Revvin at a similar price: it has a free plan, Pro at $19 a month and Business at $49 a month, and it pays partners through Stripe after a job is approved. Revvin's Free plan lets you import and ask up to 100 past customers with personal links, and you pay referrers yourself.",
     table: table("ReferralWise", [
@@ -175,7 +175,7 @@ export const COMPARISONS: Comparison[] = [
     slug: "clicki",
     competitor: "Clicki",
     h1: "Revvin vs Clicki",
-    metaTitle: "Revvin vs Clicki: referral software for service companies compared",
+    metaTitle: "Revvin vs Clicki for service companies | Revvin",
     metaDescription:
       "Clicki starts at $549 a month with texting, instant payouts and field software integrations. Revvin starts free for smaller crews. A fair comparison.",
     answer:
@@ -220,9 +220,9 @@ export const COMPARISONS: Comparison[] = [
     slug: "snoball",
     competitor: "Snoball",
     h1: "Revvin vs Snoball",
-    metaTitle: "Revvin vs Snoball: done-for-you program or self-serve referrals",
+    metaTitle: "Revvin vs Snoball: done for you or self-serve | Revvin",
     metaDescription:
-      "Snoball sells a done-for-you word-of-mouth program with a Results Coach and unpublished pricing. Revvin is self-serve with published pricing and a free start.",
+      "Snoball sells a done-for-you word-of-mouth program with a Results Coach and unpublished pricing. Revvin is self-serve, published pricing, free to start.",
     answer:
       "Snoball sells a done-for-you word-of-mouth program with referrals, reviews, reputation assets and video testimonials, run with a dedicated Results Coach. Its pricing is not published on its site; you book a demo. Revvin publishes its pricing, starts free with self-serve signup, and Pro is $49 a month. Revvin is for owners who run it themselves.",
     table: table("Snoball", [
@@ -265,9 +265,9 @@ export const COMPARISONS: Comparison[] = [
     slug: "jobber-referrals",
     competitor: "Jobber Referrals",
     h1: "Revvin vs Jobber Referrals",
-    metaTitle: "Revvin vs Jobber Referrals: credits or cash rewards",
+    metaTitle: "Revvin vs Jobber Referrals: credits or cash | Revvin",
     metaDescription:
-      "Jobber Referrals rewards with credits on the next service inside Jobber. Revvin gives cash rewards, a public referral page and a print pack, and connects to Jobber via Zapier.",
+      "Jobber Referrals gives credits on the next service. With Revvin you pay cash rewards from a public referral page and print pack, and connect via Zapier.",
     answer:
       "Jobber Referrals is part of Jobber's marketing tools: it emails your customers about referring, gives each one a referral link and applies credits or discounts to the referrer's next service. Revvin gives you a public referral page anyone can use, cash rewards you pay directly and a free print pack, and connects to Jobber through Zapier.",
     table: table("Jobber Referrals", [
