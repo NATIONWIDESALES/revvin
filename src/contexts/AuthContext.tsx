@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, startTransition, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import type { User, Session } from "@supabase/supabase-js";
 import { isMarketingPath, loadSupabase, mayHaveSession } from "@/lib/supabaseLazy";
@@ -22,10 +22,17 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<"business" | "referrer" | "admin" | null>(null);
+  const [user, setUserNow] = useState<User | null>(null);
+  const [session, setSessionNow] = useState<Session | null>(null);
+  const [loading, setLoadingNow] = useState(true);
+  const [userRole, setUserRoleNow] = useState<"business" | "referrer" | "admin" | null>(null);
+  // Auth state lands as a transition. A prerendered page is still hydrating
+  // when these first fire; an urgent update would throw away the server
+  // markup of any part not yet hydrated and log an error.
+  const setUser = (v: User | null) => startTransition(() => setUserNow(v));
+  const setSession = (v: Session | null) => startTransition(() => setSessionNow(v));
+  const setLoading = (v: boolean) => startTransition(() => setLoadingNow(v));
+  const setUserRole = (v: "business" | "referrer" | "admin" | null) => startTransition(() => setUserRoleNow(v));
   const { pathname } = useLocation();
   // A signed-out visitor on a marketing page never needs the backend client:
   // with no stored session and no sign-in redirect there is nobody to load.
@@ -147,8 +154,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUserRole(null);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const value = useMemo(() => ({ user, session, loading, userRole, signOut }), [user, session, loading, userRole]);
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, userRole, signOut }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
