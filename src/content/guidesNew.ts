@@ -1,7 +1,7 @@
 // Answer-first guides added in the October 2026 content build.
 //
 // Same rules as guides.ts: no statistics, benchmarks, typical prices,
-// testimonials or "most businesses" claims. Examples are labelled and use round
+// testimonials or sweeping claims about other businesses. Examples are labelled and use round
 // numbers the reader replaces with their own. Nothing here is legal or tax
 // advice, and every page that touches money or rules says so.
 
@@ -212,7 +212,7 @@ export const NEW_GUIDES: Guide[] = [
       },
       {
         heading: "What are the common mistakes?",
-        body: "Most referral programs that stall do so for simple reasons: nobody asks, the reward is vague, or rewards are paid late. None of these need software to fix, but they do need a routine. Ask every time, state the reward plainly, and pay promptly when the job closes.",
+        body: "When a referral program stalls, the cause is often simple: nobody asks, the reward is vague, or rewards are paid late. None of these need software to fix, but they do need a routine. Ask every time, state the reward plainly, and pay promptly when the job closes.",
         list: [
           "Not asking. A program customers never hear about does nothing.",
           "Rewards too vague. \"Something for your trouble\" is hard to repeat.",
