@@ -1,11 +1,12 @@
+import { PAGE_META } from "@/content/pageMeta";
 import SEOHead from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 
 const ZapierDocs = () => (
   <div className="min-h-screen bg-background">
     <SEOHead
-      title="Zapier and integrations | Revvin"
-      description="Connect job software to Revvin through Zapier or the API so a completed job can schedule an automatic email ask."
+      title={PAGE_META["/docs/zapier"].title}
+      description={PAGE_META["/docs/zapier"].description}
       path="/docs/zapier"
     />
 

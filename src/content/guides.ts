@@ -315,7 +315,7 @@ export const GUIDES: Guide[] = [
     label: "Alternative to buying leads",
     metaTitle: "Alternative to Buying Leads from Thumbtack and Angi | Revvin",
     metaDescription:
-      "A factual look at what a referral program replaces when you stop buying shared leads, what it cannot replace, and what running one on Revvin costs: free to publish, $49/month for Pro.",
+      "What a referral program replaces when you stop buying shared leads, what it cannot replace, and what Revvin costs: free to publish, $49/month for Pro.",
     answer:
       "The alternative most service businesses already own is the list of customers who have paid them before. Instead of buying an enquiry that several contractors receive at the same time, you publish a referral page on your own link, tell your past customers what you will pay for a closed referral, and pay that reward only when a job actually closes. That does not make lead marketplaces a mistake. They sell volume from strangers on demand, which a referral program cannot do. It means your cost moves from the top of the funnel, where you pay for contacts, to the bottom, where you pay for outcomes. Publishing a referral page on Revvin is free, Revvin Pro is $49/month USD, and Revvin takes no cut of the reward you pay.",
     sections: [

@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,8 @@ const BASE = "https://revvin.co";
 const GuidesHub = () => (
   <>
     <SEOHead
-      title="Referral Program Guides | Revvin"
-      description="Straight answers on referral programs for service businesses: how much to pay for a referral, referrals versus buying leads, how to start a program, whether they work, and how to ask."
+      title={PAGE_META["/guides"].title}
+      description={PAGE_META["/guides"].description}
       path="/guides"
       jsonLd={[
         {

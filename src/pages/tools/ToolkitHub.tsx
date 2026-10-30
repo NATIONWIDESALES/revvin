@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
@@ -77,8 +78,8 @@ const FAQS = [
 const ToolkitHub = () => (
   <>
     <SEOHead
-      title="Contractor Growth Toolkit | Free Referral Tools | Revvin"
-      description="Three free tools for service businesses: grade your referral program out of 100, check what a referral reward leaves you per job, and write the ask. No account, no card, nothing saved."
+      title={PAGE_META["/tools"].title}
+      description={PAGE_META["/tools"].description}
       path="/tools"
       jsonLd={[
         {

@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import SEOHead from "@/components/SEOHead";
 import FounderSection from "@/components/marketing/FounderSection";
 import { ABOUT_SECTIONS, ABOUT_UPDATED_AT } from "@/content/aboutPage";
@@ -7,8 +8,8 @@ const About = () => (
   <>
   <main className="mx-auto w-full max-w-[760px] px-5 py-16 md:py-24">
     <SEOHead
-      title="About Revvin | Free referral program for home-service businesses"
-      description={`${CANONICAL_SENTENCE} Pricing, how it works, what it does not do, and who built it.`}
+      title={PAGE_META["/about"].title}
+      description={PAGE_META["/about"].description}
       path="/about"
       jsonLd={{
         "@context": "https://schema.org",

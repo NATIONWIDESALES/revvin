@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
@@ -122,8 +123,8 @@ const Partners = () => {
   return (
     <>
       <SEOHead
-        title="Revvin Partner Program | Earn 40% on every business you refer"
-        description="Share Revvin with contractors and home-service owners. Approved partners earn 40% of what their referred customers pay, for as long as they stay."
+        title={PAGE_META["/partners"].title}
+        description={PAGE_META["/partners"].description}
         path="/partners"
         jsonLd={jsonLd}
       />

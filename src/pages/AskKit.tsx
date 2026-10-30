@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -115,8 +116,8 @@ const AskKit = () => {
   return (
     <div>
       <SEOHead
-        title="The Referral Ask Kit"
-        description="The exact words to use, and when to use them. Copy any of these referral scripts, swap the braces for your own details, and send it today. Free, no sign-up needed."
+        title={PAGE_META["/ask-kit"].title}
+        description={PAGE_META["/ask-kit"].description}
         path="/ask-kit"
       />
 
