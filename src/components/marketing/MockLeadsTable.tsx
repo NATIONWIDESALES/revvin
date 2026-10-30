@@ -10,7 +10,7 @@ const rows = [
 
 const toneClass: Record<string, string> = {
   green: "bg-primary/10 text-primary",
-  amber: "bg-accent/10 text-accent",
+  amber: "bg-muted text-foreground",
   "green-dark": "bg-primary text-primary-foreground",
 };
 

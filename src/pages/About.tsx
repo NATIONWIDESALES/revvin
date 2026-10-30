@@ -6,7 +6,7 @@ import { CANONICAL_SENTENCE, FOUNDER_PERSON, ORG_ID, SITE_URL, formatContentDate
 
 const About = () => (
   <>
-  <main className="mx-auto w-full max-w-[760px] px-5 py-16 md:py-24">
+  <div className="mx-auto w-full max-w-[760px] px-5 py-16 md:py-24">
     <SEOHead
       title={PAGE_META["/about"].title}
       description={PAGE_META["/about"].description}
@@ -31,7 +31,7 @@ const About = () => (
       </section>
     ))}
     <p className="mt-12 text-sm text-muted-foreground">Last updated {formatContentDate(ABOUT_UPDATED_AT)}</p>
-  </main>
+  </div>
   <FounderSection />
   </>
 );

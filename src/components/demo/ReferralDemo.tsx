@@ -177,9 +177,9 @@ const ReferralDemo = () => {
         {stage === "form" && (
           <form onSubmit={submit} className="space-y-4" noValidate>
             <div>
-              <h3 className="text-base font-semibold text-foreground">
+              <h2 className="font-sans text-base font-semibold text-foreground">
                 Step 1. Send a referral <DemoBadge className="ml-1 align-middle" />
-              </h3>
+              </h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Already filled in with made-up people, so you can just press send. Change anything
                 you like: nothing is saved or sent anywhere.
@@ -242,16 +242,16 @@ const ReferralDemo = () => {
         {stage !== "form" && (
           <div className="space-y-5">
             <div>
-              <h3
+              <h2
                 ref={headingRef}
                 tabIndex={-1}
-                className="text-base font-semibold text-foreground outline-none"
+                className="font-sans text-base font-semibold text-foreground outline-none"
               >
                 {stage === "inbox" && "Step 2. The owner's lead inbox"}
                 {stage === "won" && "Step 3. Job won, reward owed"}
                 {stage === "paid" && "Step 4. Reward recorded as paid"}
                 <DemoBadge className="ml-2 align-middle" />
-              </h3>
+              </h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {stage === "inbox" &&
                   "This is what lands in the owner's dashboard when a referral is submitted through the page."}

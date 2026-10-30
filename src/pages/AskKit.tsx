@@ -126,7 +126,7 @@ const AskKit = () => {
         <div className="container relative max-w-3xl py-24">
           <div>
             <div>
-              <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary">
+              <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-1.5 text-xs font-medium text-forest">
                 <FileText className="h-3.5 w-3.5" /> Free resource
               </span>
             </div>

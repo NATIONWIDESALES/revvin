@@ -19,13 +19,13 @@ const BASE = "https://revvin.co";
 
 const DataTable = ({ t }: { t: ContentTable }) => (
   <figure className="my-8">
-    <div className="overflow-x-auto rounded-[14px] border border-line bg-card">
+    <div className="overflow-x-auto rounded-[14px] border border-line bg-card" tabIndex={0} role="region" aria-label={t.caption}>
       <table className="w-full min-w-[560px] border-collapse text-left text-[15px]">
         <caption className="sr-only">{t.caption}</caption>
         <thead>
           <tr className="border-b border-line">
             {t.head.map((h, i) => (
-              <th key={i} scope="col" className="p-3 font-display text-lg font-bold text-forest">{h}</th>
+              <th key={i} scope="col" className="p-3 font-display text-lg font-bold text-forest">{h || <span className="sr-only">Feature</span>}</th>
             ))}
           </tr>
         </thead>
