@@ -16,10 +16,17 @@ const Field = ({ id, label, prefix, suffix, value, onChange }: { id: string; lab
 );
 
 /** The referral worksheet. Pure arithmetic, nothing saved or sent. */
-const ReferralWorthCalculator = () => {
-  const [revenue, setRevenue] = useState("8000");
-  const [margin, setMargin] = useState("30");
-  const [reward, setReward] = useState("250");
+interface Props {
+  /** Starting numbers. Pages other than the homepage pass round example figures. */
+  defaults?: { revenue: string; margin: string; reward: string };
+  /** Replaces the header tag line, for example "Example: change these to your numbers". */
+  note?: string;
+}
+
+const ReferralWorthCalculator = ({ defaults, note }: Props = {}) => {
+  const [revenue, setRevenue] = useState(defaults?.revenue ?? "8000");
+  const [margin, setMargin] = useState(defaults?.margin ?? "30");
+  const [reward, setReward] = useState(defaults?.reward ?? "250");
   const r = useMemo(
     () => calculateReward({ revenue: num(revenue), marginPct: num(margin), reward: num(reward), jobsPerMonth: 1 }),
     [revenue, margin, reward],
@@ -29,7 +36,7 @@ const ReferralWorthCalculator = () => {
     <div className="mk-ticket">
       <div className="flex flex-wrap justify-between gap-2 border-b-2 border-dashed border-line px-6 pb-[18px] pt-7 font-bold text-forest sm:px-8">
         <span>Referral worksheet</span>
-        <span className="font-semibold text-muted-foreground">Your numbers, not ours</span>
+        <span className="font-semibold text-muted-foreground">{note ?? "Your numbers, not ours"}</span>
       </div>
       <div className="grid sm:grid-cols-2">
         <div className="min-w-0 border-line px-6 pb-8 pt-6 sm:border-r sm:px-8">
