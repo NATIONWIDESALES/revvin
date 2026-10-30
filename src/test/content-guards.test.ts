@@ -53,6 +53,9 @@ const SKIP_EXACT_PATHS = [
   // Competitor facts quoted from their own sites (wallets, payout fees, $19/mo
   // plans, Starter tiers). These describe other companies, not Revvin pricing.
   "src/content/comparisons.ts",
+  // The referrer tax guide cites a Tremendous blog post on the 1099 threshold
+  // as its source (requested). It is a citation, not a Revvin payout claim.
+  "src/content/guidesNew.ts",
   "supabase/functions/_shared/tremendous/config.ts",
   "supabase/functions/_shared/tremendous/index.ts",
   "supabase/functions/_shared/tremendous/obligation.ts",
