@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import { BatteryFull, Signal, Wifi } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
 
@@ -13,6 +12,7 @@ interface PhoneMockupProps {
   interactive?: boolean;
 }
 
+/** Decorative phone frame. Pointer tilt and float are plain CSS, off under reduced motion. */
 export default function PhoneMockup({
   children,
   className,
@@ -22,38 +22,40 @@ export default function PhoneMockup({
   tiltZ,
   interactive = false,
 }: PhoneMockupProps) {
-  const prefersReduced = useReducedMotion();
   const [finePointer, setFinePointer] = useState(false);
-  const desktopMotion = interactive && finePointer && !prefersReduced;
+  const [reduced, setReduced] = useState(false);
+  const [extra, setExtra] = useState({ x: 0, y: 0 });
+  const desktopMotion = interactive && finePointer && !reduced;
   const baseX = finePointer ? tiltX : tiltX * 0.45;
   const baseY = finePointer ? tiltY : tiltY * 0.45;
   const baseZ = tiltZ ?? rotate;
-  const pointerX = useMotionValue(0);
-  const pointerY = useMotionValue(0);
-  const extraX = useSpring(pointerY, { stiffness: 90, damping: 18, mass: 0.7 });
-  const extraY = useSpring(pointerX, { stiffness: 90, damping: 18, mass: 0.7 });
-  const rotateX = useTransform(extraX, (value) => baseX + value);
-  const rotateY = useTransform(extraY, (value) => baseY + value);
 
   useEffect(() => {
-    const query = window.matchMedia("(pointer: fine)");
-    const update = () => setFinePointer(query.matches);
+    const pointer = window.matchMedia("(pointer: fine)");
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => {
+      setFinePointer(pointer.matches);
+      setReduced(motion.matches);
+    };
     update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
+    pointer.addEventListener("change", update);
+    motion.addEventListener("change", update);
+    return () => {
+      pointer.removeEventListener("change", update);
+      motion.removeEventListener("change", update);
+    };
   }, []);
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!desktopMotion) return;
     const bounds = event.currentTarget.getBoundingClientRect();
-    pointerX.set(((event.clientX - bounds.left) / bounds.width - 0.5) * 12);
-    pointerY.set(-((event.clientY - bounds.top) / bounds.height - 0.5) * 12);
+    setExtra({
+      x: -((event.clientY - bounds.top) / bounds.height - 0.5) * 12,
+      y: ((event.clientX - bounds.left) / bounds.width - 0.5) * 12,
+    });
   };
 
-  const resetPointer = () => {
-    pointerX.set(0);
-    pointerY.set(0);
-  };
+  const resetPointer = () => setExtra({ x: 0, y: 0 });
 
   return (
     <div
@@ -63,17 +65,11 @@ export default function PhoneMockup({
     >
       <div aria-hidden className="phone-aura absolute -inset-10 -z-10 rounded-full blur-3xl" />
       <div aria-hidden className="phone-ground-shadow absolute -bottom-8 left-1/2 -z-10 h-10 w-56 -translate-x-1/2 rounded-full" />
-      <motion.div
-        className="mx-auto"
-        animate={desktopMotion ? { y: [0, -8, 0] } : { y: 0 }}
-        transition={desktopMotion ? { duration: 6, ease: "easeInOut", repeat: Infinity } : { duration: 0 }}
-      >
-        <motion.div
-          className="phone-frame relative mx-auto h-[660px] w-[320px] p-[7px]"
+      <div className={cn("mx-auto", desktopMotion && "phone-float")}>
+        <div
+          className="phone-frame relative mx-auto h-[660px] w-[320px] p-[7px] transition-transform duration-300 ease-out"
           style={{
-            rotateX: desktopMotion ? rotateX : baseX,
-            rotateY: desktopMotion ? rotateY : baseY,
-            rotateZ: baseZ,
+            transform: `rotateX(${baseX + (desktopMotion ? extra.x : 0)}deg) rotateY(${baseY + (desktopMotion ? extra.y : 0)}deg) rotateZ(${baseZ}deg)`,
             transformStyle: "preserve-3d",
           }}
         >
@@ -94,8 +90,8 @@ export default function PhoneMockup({
             <div className="absolute inset-x-0 bottom-0 top-11 overflow-hidden">{children}</div>
             <div aria-hidden className="phone-sheen pointer-events-none absolute inset-0 z-40" />
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

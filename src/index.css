@@ -728,3 +728,9 @@ body[data-dash-shell] .app-topbar { display: none; }
 
 /* Headings inside dark containers keep the container's light text colour. */
 :where(.bg-forest, .bg-forest-night, .surface-forest, .text-primary-foreground, .text-white, .rf-head) :where(h1, h2, h3) { color: inherit; }
+
+@layer utilities {
+  .phone-float { animation: phone-float 6s ease-in-out infinite; }
+  @keyframes phone-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  @media (prefers-reduced-motion: reduce) { .phone-float { animation: none; } }
+}
