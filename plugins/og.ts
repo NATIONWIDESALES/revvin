@@ -70,8 +70,9 @@ const createRenderer = async (): Promise<Renderer> => {
       type: "div",
       props: {
         style: {
-          width: 1200,
-          height: 630,
+          width: "100%",
+          height: "100%",
+          boxSizing: "border-box",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
