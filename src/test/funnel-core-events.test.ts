@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi, beforeAll } from "vitest";
 
 const fake = vi.hoisted(() => ({ insert: vi.fn() }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { from: () => ({ insert: fake.insert }) } }));
@@ -6,6 +6,11 @@ vi.mock("@/lib/attribution", () => ({ captureAttribution: () => ({}), getAttribu
 
 import { track } from "@/lib/track";
 import { setAnalyticsAudience } from "@/lib/analyticsPrivacy";
+import { loadSupabase } from "@/lib/supabaseLazy";
+
+// The client loads on first use; load the mocked one up front so each event
+// is written in the same tick, as it is once a page has the client.
+beforeAll(async () => { await loadSupabase(); });
 
 const at = (href: string) => vi.stubGlobal("location", new URL(href));
 const flush = () => new Promise((r) => setTimeout(r, 0));

@@ -7,8 +7,8 @@ describe("founder identity", () => {
   it("names Karm Sandhu as founder in brand facts, guides and structured data", () => {
     expect(read("src/config/brand.ts")).toMatch(/name: "Karm Sandhu"/);
     expect(read("src/pages/GuidePage.tsx")).toContain("By Karm Sandhu, Founder of Revvin");
-    expect(read("src/pages/GuidePage.tsx")).toContain("author: FOUNDER_PERSON");
-    expect(read("plugins/prerender.ts")).toContain("founder: FOUNDER_PERSON");
+    expect(read("src/pages/GuidePage.tsx")).toContain("author: FOUNDER_REF");
+    expect(read("plugins/prerender.ts")).toContain("founder: FOUNDER_REF");
   });
   it("does not deny the job-done ask", () => {
     const s = read("src/content/seoRoutes.ts") + read("public/llms.txt");
