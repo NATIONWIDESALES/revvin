@@ -2,6 +2,8 @@ import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import NotFound from "@/pages/NotFound";
+import { AuthorBox, RelatedLinks } from "@/components/content/ContentBlocks";
+import { relatedForCompare } from "@/content/related";
 import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { FOUNDER_REF, formatContentDate } from "@/config/brand";
 import {
@@ -175,6 +177,8 @@ export const RoundupPage = () => {
           <CtaCard />
           <MoreCompare current={path} />
           <Sources sources={ROUNDUP.sources} />
+          <RelatedLinks links={relatedForCompare(path)} />
+          <AuthorBox />
         </div>
       </article>
     </>
@@ -231,6 +235,8 @@ const ComparePage = () => {
           <CtaCard />
           <MoreCompare current={path} />
           <Sources sources={c.sources} />
+          <RelatedLinks links={relatedForCompare(path)} />
+          <AuthorBox />
         </div>
       </article>
     </>
