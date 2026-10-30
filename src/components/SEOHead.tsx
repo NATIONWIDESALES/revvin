@@ -36,16 +36,39 @@ const pageOgImage = (path: string) =>
 
 const SEOHead = ({ title, description, path = "", canonicalUrl, ogImage, jsonLd, noindex }: SEOHeadProps) => {
   useEffect(() => {
-    // A prerendered document already carries this page's full head, including
-    // its structured data, and its canonical names this page. Leave it alone
-    // so the head after hydration is the one crawlers read. After an in-app
-    // navigation the static structured data describes the previous page, so
-    // it is removed and this component takes over the head from then on.
+    // A prerendered document already carries this page's head and its core
+    // structured data, and its canonical names this page. Leave that head
+    // alone so the head after hydration is the one crawlers read, and add only
+    // the structured data types the build did not emit (a tool's
+    // WebApplication, for example). After an in-app navigation the static
+    // structured data describes the previous page, so it is removed and this
+    // component takes over the whole head from then on.
+    const jsonLdId = "seo-jsonld";
     const staticLd = document.querySelector('script[type="application/ld+json"]:not(#seo-jsonld)');
     if (staticLd) {
       const canonicalHref = document.querySelector('link[rel="canonical"]')?.getAttribute("href");
       const here = `${BASE_URL}${window.location.pathname === "/" ? "/" : window.location.pathname}`;
-      if (canonicalHref === here) return;
+      if (canonicalHref === here) {
+        let staticTypes = new Set<string>();
+        try {
+          const parsed = JSON.parse(staticLd.textContent || "{}");
+          const nodes: Record<string, unknown>[] = parsed["@graph"] ?? [parsed];
+          staticTypes = new Set(nodes.map((n) => String(n["@type"])));
+        } catch {
+          /* unreadable static data: add nothing */
+        }
+        const extra = (jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []).filter(
+          (n) => !staticTypes.has(String(n["@type"])),
+        );
+        if (!extra.length) return;
+        const el = document.createElement("script");
+        el.id = jsonLdId;
+        el.type = "application/ld+json";
+        el.textContent = JSON.stringify(extra.length === 1 ? extra[0] : extra);
+        document.getElementById(jsonLdId)?.remove();
+        document.head.appendChild(el);
+        return () => el.remove();
+      }
       staticLd.remove();
     }
 
@@ -90,7 +113,6 @@ const SEOHead = ({ title, description, path = "", canonicalUrl, ogImage, jsonLd,
     canonical.setAttribute("href", url);
 
     // JSON-LD
-    const jsonLdId = "seo-jsonld";
     let scriptEl = document.getElementById(jsonLdId) as HTMLScriptElement | null;
     if (jsonLd) {
       const payload = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
