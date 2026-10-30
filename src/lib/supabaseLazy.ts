@@ -6,9 +6,10 @@ import type { supabase as SupabaseClient } from "@/integrations/supabase/client"
  * ~45 KB client stays out of their initial download.
  */
 let pending: Promise<typeof SupabaseClient> | null = null;
+let resolved: typeof SupabaseClient | null = null;
 
 export function loadSupabase(): Promise<typeof SupabaseClient> {
-  pending ??= import("@/integrations/supabase/client").then((m) => m.supabase);
+  pending ??= import("@/integrations/supabase/client").then((m) => (resolved = m.supabase));
   return pending;
 }
 
@@ -84,8 +85,6 @@ export async function restInsert(
   return { error: res.ok ? null : { status: res.status } };
 }
 
-let clientLoaded = false;
-
 /**
  * Insert one row as the current visitor. A signed-out visitor on a production
  * build goes over plain REST; a signed-in visitor, or a page that already has
@@ -93,9 +92,10 @@ let clientLoaded = false;
  * and development always use the client, which is what they mock.
  */
 export async function insertAsVisitor(table: string, row: Record<string, unknown>) {
-  const useRest = import.meta.env.PROD && !clientLoaded && !pending && !mayHaveSession();
+  // Already loaded: insert in the same tick, with whatever session it holds.
+  if (resolved) return resolved.from(table as never).insert(row as never);
+  const useRest = import.meta.env.PROD && !pending && !mayHaveSession();
   if (useRest) return restInsert(table, row);
   const supabase = await loadSupabase();
-  clientLoaded = true;
   return supabase.from(table as never).insert(row as never);
 }
