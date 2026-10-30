@@ -103,7 +103,13 @@ const ORGANIZATION = {
   knowsAbout: ["referral marketing", "referral programs", "home services marketing"],
   slogan: "Your customer list, working for you",
   disambiguatingDescription: ORG_DISAMBIGUATION,
-  founder: FOUNDER_REF,
+  // The id points at the full Person node on /about; the name, profile and
+  // disambiguation stay inline so every page names the founder on its own.
+  founder: {
+    ...FOUNDER_REF,
+    sameAs: [...FOUNDER_PERSON.sameAs],
+    disambiguatingDescription: FOUNDER_PERSON.disambiguatingDescription,
+  },
   // Emitted only once real profile URLs exist; an empty sameAs says nothing.
   ...(ORG_SAME_AS.length ? { sameAs: ORG_SAME_AS } : {}),
   ...(FOUNDING_DATE ? { foundingDate: FOUNDING_DATE } : {}),
