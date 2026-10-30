@@ -13,12 +13,14 @@ export function render(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     let html = "";
     let failed: unknown = null;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const sink = new Writable({
       write(chunk, _enc, cb) {
         html += chunk.toString();
         cb();
       },
       final(cb) {
+        clearTimeout(timer);
         if (failed) reject(failed);
         else resolve(html);
         cb();
@@ -29,13 +31,14 @@ export function render(url: string): Promise<string> {
         stream.pipe(sink);
       },
       onShellError(err) {
+        clearTimeout(timer);
         reject(err);
       },
       onError(err) {
         failed = err;
       },
     });
-    setTimeout(() => {
+    timer = setTimeout(() => {
       stream.abort();
       reject(new Error(`render timed out: ${url}`));
     }, 15000);
