@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -92,8 +93,8 @@ const MessageGenerator = () => {
   return (
     <ToolShell
       path="/tools/referral-message-generator"
-      metaTitle="Referral Message Generator | Write Your Referral Ask | Revvin"
-      metaDescription="Generate a text, an email and a spoken script for asking a customer for a referral, written around your trade, your timing and your reward. Free, no account, nothing saved."
+      metaTitle={PAGE_META["/tools/referral-message-generator"].title}
+      metaDescription={PAGE_META["/tools/referral-message-generator"].description}
       eyebrow="Free tool"
       h1="Write the referral ask you will actually send."
       intro="Fill in as much or as little as you like and you get three versions of the same ask: a text, an email with a subject line, and something you can say out loud. Every field is optional except the trade, and you send the messages yourself from your own phone or email app."

@@ -1,3 +1,4 @@
+import { PAGE_META } from "@/content/pageMeta";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -46,8 +47,8 @@ const ProgramGrader = () => {
   return (
     <ToolShell
       path="/tools/referral-program-grader"
-      metaTitle="Referral Program Grader | Score Your Referral Program | Revvin"
-      metaDescription="Answer eight yes or no questions about how referrals work in your business today and get a score out of 100 plus the three things to fix first. Free, no account, nothing saved."
+      metaTitle={PAGE_META["/tools/referral-program-grader"].title}
+      metaDescription={PAGE_META["/tools/referral-program-grader"].description}
       eyebrow="Free tool"
       h1="Grade your referral program in eight questions."
       intro="Each question is about what is true today, not what you plan to do. Answer all eight and you get a score out of 100 and the three things worth fixing first. This is an operational checklist, not a forecast, and not professional advice."
