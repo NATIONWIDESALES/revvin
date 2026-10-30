@@ -6,7 +6,7 @@
 // service role before attributing a business, and the click endpoint confirms
 // the code belongs to an approved partner before anything is stored.
 
-import { supabase } from "@/integrations/supabase/client";
+import { loadSupabase } from "@/lib/supabaseLazy";
 import { ATTRIBUTION_WINDOW_DAYS } from "@/config/partners";
 
 const STORAGE_KEY = "rv_partner";
@@ -102,6 +102,7 @@ export async function capturePartnerFromSearch(search?: string): Promise<string 
   if (!code) return null;
 
   try {
+    const supabase = await loadSupabase();
     const { data } = await supabase.functions.invoke("partner-click", {
       body: {
         code,

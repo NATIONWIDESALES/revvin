@@ -1,4 +1,4 @@
-import { loadSupabase } from "@/lib/supabaseLazy";
+import { insertAsVisitor } from "@/lib/supabaseLazy";
 import { captureAttribution, getAttribution } from "@/lib/attribution";
 import {
   analyticsContext,
@@ -131,8 +131,7 @@ function recordFunnelEvent(event: FunnelEvent, context: AnalyticsContext, meta?:
       };
     // The client loads on first event, so a marketing page that never records
     // anything never downloads it.
-    void loadSupabase()
-      .then((supabase) => supabase.from("funnel_events").insert(row as never))
+    void insertAsVisitor("funnel_events", row as Record<string, unknown>)
       .then(
         (result: { error?: unknown } | null | undefined) => {
           if (result?.error) reportTrackDiagnostic({ event, code: "insert_rejected" });

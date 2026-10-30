@@ -57,3 +57,45 @@ export function mayHaveSession(): boolean {
   }
   return false;
 }
+
+/**
+ * A single anonymous row insert over the REST endpoint, the same request the
+ * client library makes for a signed-out visitor (publishable key, no user
+ * token). Used for public analytics so a pageview never pulls in the client.
+ */
+export async function restInsert(
+  table: string,
+  row: Record<string, unknown>,
+  opts: { url?: string; key?: string; fetchImpl?: typeof fetch } = {},
+): Promise<{ error: { status: number } | null }> {
+  const url = opts.url ?? import.meta.env.VITE_SUPABASE_URL;
+  const key = opts.key ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const res = await (opts.fetchImpl ?? fetch)(`${url}/rest/v1/${table}`, {
+    method: "POST",
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify(row),
+    keepalive: true,
+  });
+  return { error: res.ok ? null : { status: res.status } };
+}
+
+let clientLoaded = false;
+
+/**
+ * Insert one row as the current visitor. A signed-out visitor on a production
+ * build goes over plain REST; a signed-in visitor, or a page that already has
+ * the client, uses the client so the row carries the user's session. Tests
+ * and development always use the client, which is what they mock.
+ */
+export async function insertAsVisitor(table: string, row: Record<string, unknown>) {
+  const useRest = import.meta.env.PROD && !clientLoaded && !pending && !mayHaveSession();
+  if (useRest) return restInsert(table, row);
+  const supabase = await loadSupabase();
+  clientLoaded = true;
+  return supabase.from(table as never).insert(row as never);
+}
