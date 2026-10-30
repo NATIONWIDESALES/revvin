@@ -63,7 +63,7 @@ export const PAGE_META = {
   "/tools/referral-program-grader": {
     title: "Referral program grader for contractors | Revvin",
     description:
-      "Answer eight yes or no questions about how referrals work in your business and get a score out of 100, plus the three things to fix first. Free, no account.",
+      "Answer eight yes or no questions about how referrals work in your business and get a score out of 100 plus the three things to fix first. Free.",
   },
   "/tools/referral-reward-calculator": {
     title: "Referral reward calculator | Revvin",

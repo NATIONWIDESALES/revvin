@@ -243,7 +243,7 @@ export const INDUSTRIES: Industry[] = [
     h1: "Referral program software for landscapers",
     metaTitle: "Landscaping Referral Program Software | Revvin",
     metaDescription:
-      "Run a landscaping referral program and seasonal outreach from one customer list. Free to publish; Pro is $49/month USD.",
+      "Run a landscaping referral program and seasonal outreach from one customer list, with a referral page and QR code. Free to publish; Pro is $49/month USD.",
     intro:
       "Landscaping is the most visible trade there is, and your best advertisement is the yard you finished this morning. Revvin makes that yard referable with a branded page, a QR code for the sign out front and an easy way to ask the customer who paid for it.",
     loops: [
