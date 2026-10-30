@@ -8,10 +8,10 @@ import vm from "node:vm";
  */
 function loadWorker(version = "NEW", existing: Record<string, Map<string, Response>> = {}) {
   const src = readFileSync("src/pwa/service-worker.js", "utf8")
-    .replaceAll("__VERSION__", version)
-    .replaceAll("__PRECACHE__", JSON.stringify(["/offline.html", "/assets/index-abc.js"]))
-    .replaceAll("__VAPID_PUBLIC_KEY__", "k")
-    .replaceAll("__RESUBSCRIBE_URL__", "/functions/v1/push-resubscribe");
+    .split("__VERSION__").join(version)
+    .split("__PRECACHE__").join(JSON.stringify(["/offline.html", "/assets/index-abc.js"]))
+    .split("__VAPID_PUBLIC_KEY__").join("k")
+    .split("__RESUBSCRIBE_URL__").join("/functions/v1/push-resubscribe");
 
   const store: Record<string, Map<string, Response>> = { ...existing };
   const keyOf = (r: Request | string) => (typeof r === "string" ? new URL(r, "https://revvin.co").href : r.url);

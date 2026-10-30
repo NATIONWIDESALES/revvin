@@ -1,7 +1,11 @@
 import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 import { Writable } from "node:stream";
+import type { ComponentType, ReactNode } from "react";
 import App from "./App";
+
+// StaticRouter requires location; App always passes it on the server.
+const ServerRouter = StaticRouter as unknown as ComponentType<{ children?: ReactNode; location?: string }>;
 
 /**
  * Build-time render of one public route to HTML. Waits for every lazy route
@@ -26,7 +30,7 @@ export function render(url: string): Promise<string> {
         cb();
       },
     });
-    const stream = renderToPipeableStream(<App Router={StaticRouter as unknown as Parameters<typeof App>[0] extends infer P ? P extends { Router?: infer R } ? NonNullable<R> : never : never} location={url} />, {
+    const stream = renderToPipeableStream(<App Router={ServerRouter} location={url} />, {
       onAllReady() {
         stream.pipe(sink);
       },
