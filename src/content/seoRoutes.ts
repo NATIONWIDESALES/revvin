@@ -15,8 +15,9 @@
 // rendered legal pages use.
 
 import { INDUSTRIES } from "./industries";
+import { REWARD_FORMULA, SCRIPTS_NOTE, rewardAnswer, rewardHeading, scriptsAnswer, scriptsHeading, tradeScripts } from "./tradeExtras";
 import { PARTNER_TERMS_DOC } from "./partnerTerms";
-import { GUIDES } from "./guides";
+import { GUIDES, GUIDE_GROUP_LABELS } from "./guides";
 import { PAGE_META } from "./pageMeta";
 import { COMPARISONS, ROUNDUP, CHECKED_LINE, BIAS_DISCLOSURE, type ContentTable, type Source } from "./comparisons";
 import { PRIVACY_DOC, TERMS_DOC, legalPrerenderSections } from "./legal";
@@ -57,6 +58,11 @@ export interface PrerenderRoute {
   sources?: Source[];
   /** Written article (guides, comparisons): Article JSON-LD and byline. */
   article?: boolean;
+  /** Article dates (ISO); default to the guide library dates. */
+  datePublished?: string;
+  dateModified?: string;
+  /** Glossary terms: emitted as a DefinedTermSet. */
+  definedTerms?: { id: string; term: string; definition: string }[];
   /** Moved page: rendered as a redirect document pointing here. */
   redirectTo?: string;
 }
@@ -74,6 +80,8 @@ const industryRoutes: PrerenderRoute[] = INDUSTRIES.map((i) => ({
   h1: i.h1,
   sections: [
     { heading: `Referrals for ${i.trade} businesses`, body: i.intro },
+    { heading: rewardHeading(i.trade), body: `${rewardAnswer(i.trade)} ${REWARD_FORMULA}.` },
+    { heading: scriptsHeading(i.trade), body: `${scriptsAnswer(i.trade)} ${tradeScripts(i.slug).map((t) => `${t.label}: ${t.text}`).join(" ")} ${SCRIPTS_NOTE}` },
     ...i.loops.map((l) => ({ heading: l.title, body: l.body })),
     {
       heading: "Where to put your link",
@@ -88,8 +96,26 @@ const guideRoutes: PrerenderRoute[] = GUIDES.map((g) => ({
   title: g.metaTitle,
   description: g.metaDescription,
   h1: g.question,
-  sections: [{ heading: "The short answer", body: g.answer }, ...g.sections],
-  faqs: g.faqs,
+  article: true,
+  datePublished: g.publishedAt,
+  dateModified: g.updatedAt,
+  sections: [
+    { heading: "The short answer", body: g.answer },
+    ...g.sections.map((s) => ({ heading: s.heading, body: [s.body, ...(s.list ?? [])].join(" ") })),
+    ...(g.table
+      ? [{ heading: g.table.heading, body: `${g.table.intro} ${g.table.rows.map((r) => r.join(": ")).join(". ")}.` }]
+      : []),
+    ...(g.copyGroups ?? []).map((c) => ({
+      heading: c.heading,
+      body: `${c.intro} ${c.items.map((it) => `${it.label}: ${it.text.replace(/\n+/g, " ")}`).join(" ")}`,
+    })),
+    ...(g.terms?.length
+      ? [{ heading: "Terms", body: g.terms.map((t) => `${t.term}: ${t.definition}`).join(" ") }]
+      : []),
+    ...(g.closingSections ?? []),
+  ],
+  faqs: g.faqs.length ? g.faqs : undefined,
+  definedTerms: g.terms,
 }));
 
 const guideIndexRoute: PrerenderRoute = {
@@ -100,11 +126,15 @@ const guideIndexRoute: PrerenderRoute = {
   sections: [
     {
       heading: "Questions owners ask before they start",
-      body: "These direct guides cover referral rewards, referrals versus buying leads, starting a program, whether referral programs work for contractors, and how to ask a customer for a referral. They explain the mechanics without invented benchmarks, testimonials or results.",
+      body: "These direct guides cover what a referral program is, referral rewards, when and how to ask, ready-to-copy text templates, getting paid as a referrer, and honest software comparisons. They explain the mechanics without invented benchmarks, testimonials or results.",
     },
+    ...(["start", "ask", "money"] as const).map((grp) => ({
+      heading: GUIDE_GROUP_LABELS[grp],
+      body: GUIDES.filter((g) => g.group === grp).map((g) => g.question).join("; "),
+    })),
     {
-      heading: "Five practical guides",
-      body: GUIDES.map((g) => g.question).join("; "),
+      heading: GUIDE_GROUP_LABELS.compare,
+      body: [ROUNDUP.h1, ...COMPARISONS.map((c) => c.h1)].join("; "),
     },
   ],
 };
