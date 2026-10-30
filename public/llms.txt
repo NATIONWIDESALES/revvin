@@ -54,6 +54,7 @@ Revvin gives a home-service business a referral page on its own link, a personal
 
 ## Comparisons
 
+- [All comparisons](/compare): Every Revvin comparison page and the roundup in one place.
 - [Best referral software for contractors in 2026](/guides/best-referral-software-for-contractors-2026): Six tools compared on price, free plan and fit.
 - [Revvin vs Get The Referral](/compare/get-the-referral): Price, setup fees and payouts compared.
 - [Revvin vs ReferralWise](/compare/referralwise): Two low-cost referral tools compared.
