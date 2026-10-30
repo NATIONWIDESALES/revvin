@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Copy, Check, FileText, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -140,44 +139,36 @@ const AskKit = () => {
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border">
         <div className="container relative max-w-3xl py-24">
-          <motion.div initial="hidden" animate="visible" variants={stagger}>
-            <motion.div variants={fadeUp} custom={0}>
+          <div>
+            <div>
               <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary">
                 <FileText className="h-3.5 w-3.5" /> Free resource
               </span>
-            </motion.div>
-            <motion.h1
-              variants={fadeUp}
-              custom={1}
+            </div>
+            <h1
               className="text-5xl leading-[0.98] md:text-7xl"
             >
               The Referral Ask Kit
-            </motion.h1>
-            <motion.p
-              variants={fadeUp}
-              custom={2}
+            </h1>
+            <p
               className="mt-5 text-lg text-muted-foreground"
             >
               The exact words to use, and when to use them. Copy any of these,
               swap the braces for your own details, and send it today. Free, no
               sign-up needed.
-            </motion.p>
-          </motion.div>
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Scripts */}
       <section className="border-b border-border bg-surface-warm">
         <div className="container py-24">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={stagger}
+          <div
             className="mx-auto max-w-3xl space-y-10"
           >
             {scripts.map((s, i) => (
-              <motion.div key={s.title} variants={fadeUp} custom={i}>
+              <div key={s.title}>
                 <Card className="overflow-hidden">
                   <CardHeader className="pb-4">
                     <h2 className="text-xl md:text-2xl">
@@ -201,32 +192,24 @@ const AskKit = () => {
                     </p>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Four rules */}
       <section className="border-b border-border">
         <div className="container py-24">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={stagger}
+          <div
             className="mx-auto max-w-3xl"
           >
-            <motion.h2
-              variants={fadeUp}
-              custom={0}
+            <h2
               className="text-2xl font-bold tracking-tight text-foreground md:text-3xl"
             >
               Four rules that make any of this work
-            </motion.h2>
-            <motion.ol
-              variants={fadeUp}
-              custom={1}
+            </h2>
+            <ol
               className="mt-8 list-decimal space-y-4 pl-5 text-base leading-relaxed text-foreground md:text-lg"
             >
               {rules.map((rule) => (
@@ -234,37 +217,29 @@ const AskKit = () => {
                   {rule}
                 </li>
               ))}
-            </motion.ol>
-          </motion.div>
+            </ol>
+          </div>
         </div>
       </section>
 
       {/* CTA */}
       <section className="bg-surface">
         <div className="container py-24">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={stagger}
+          <div
             className="mx-auto max-w-2xl text-center"
           >
-            <motion.h2
-              variants={fadeUp}
-              custom={0}
+            <h2
               className="text-3xl font-bold tracking-tight text-foreground md:text-4xl"
             >
               Put these scripts to work
-            </motion.h2>
-            <motion.p
-              variants={fadeUp}
-              custom={1}
+            </h2>
+            <p
               className="mt-4 text-lg text-muted-foreground"
             >
               Revvin gives you the link, the QR code and the inbox these scripts
               point at. Publishing your page is free.
-            </motion.p>
-            <motion.div variants={fadeUp} custom={2} className="mt-8">
+            </p>
+            <div className="mt-8">
               <Button
                 size="lg"
                 className="h-12 px-8 text-sm gap-2"
@@ -274,8 +249,8 @@ const AskKit = () => {
                   Create your free page
                 </Link>
               </Button>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
