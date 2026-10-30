@@ -537,9 +537,8 @@ const handwritten: PrerenderRoute[] = [
     // offer listing as /browse, so it canonicals there and is kept out of the
     // sitemap.
     canonical: "https://revvin.co/browse",
-    title: "Revvin | Browse referral offers",
-    description:
-      "Browse referral offers from verified service businesses on Revvin. Refer a customer, earn the full advertised payout when the deal closes. Free to join as a referrer.",
+    title: PAGE_META["/browse"].title,
+    description: PAGE_META["/browse"].description,
     h1: "Browse referral offers",
     sections: [
       {
@@ -597,8 +596,8 @@ const handwritten: PrerenderRoute[] = [
     // so this variant has no distinct content: it redirects to the homepage and
     // canonicals there rather than self-canonicalising.
     canonical: "https://revvin.co/",
-    title: "Revvin · Your customer list, working for you",
-    description: `Revvin prices in USD everywhere. Your referral page is free to publish. Revvin Pro is ${PRO}.`,
+    title: "Revvin prices in US dollars everywhere | Revvin",
+    description: `Revvin prices in USD in every country it serves. Your referral page is free to publish and collects referrals. Revvin Pro is ${PRO}.`,
     h1: "Your customer list, working for you.",
     sections: [
       {
@@ -612,8 +611,8 @@ const handwritten: PrerenderRoute[] = [
     // Same as /en-usd: a legacy currency variant with no distinct content.
     // Revvin bills in USD only, including in Canada.
     canonical: "https://revvin.co/",
-    title: "Revvin · Your customer list, working for you",
-    description: `Revvin bills in USD, including in Canada. Your referral page is free to publish. Revvin Pro is ${PRO}.`,
+    title: "Revvin bills in US dollars in Canada too | Revvin",
+    description: `Revvin bills in USD, including for businesses in Canada. Your referral page is free to publish and collects referrals. Revvin Pro is ${PRO}.`,
     h1: "Your customer list, working for you.",
     sections: [
       {
