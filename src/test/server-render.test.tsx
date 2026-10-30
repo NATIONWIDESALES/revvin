@@ -32,7 +32,8 @@ describe("server render", () => {
     expect(html).toContain("Acme Roofing");
     expect(html).toContain("$250");
     expect(html).toContain("Your name");
-    expect(html).toMatch(/permission|consent/i);
+    expect(html).toMatch(/They said it(&#x27;|')s okay to share their details with Acme Roofing/);
+    expect(html).toContain('role="checkbox"');
     expect(html).toContain('href="/earn/fraser-valley"');
     expect(html).not.toContain("not live");
   }, 30000);
