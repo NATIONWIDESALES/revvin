@@ -644,7 +644,7 @@ export const renderEarnMetroDoc = (template: string, metro: EarnMetroDoc) => {
   const url = `${SITE}/earn/${metro.slug}`;
   const title = `Get paid for referrals in ${metro.name} | Revvin`;
   const description = `Local businesses in ${metro.name} that pay a reward when your referral turns into a job. Get your own link to each one, free.`;
-  let html = setHead(template, { title, description, url });
+  let html = setHead(template, { title, description, url, image: ogUrl(SITE, `/earn/${metro.slug}`) });
   html = setCanonical(html, url);
   html = setRobots(html, "index, follow");
   html = replaceTag(
@@ -734,6 +734,7 @@ export const renderLlmsFull = () => {
   return parts.join("\n");
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const writeDoc = (dist: string, routePath: string, html: string) => {
   const dir = path.join(dist, routePath.replace(/^\//, ""));
   fs.mkdirSync(dir, { recursive: true });
@@ -763,87 +764,180 @@ const readBuildEnv = (): Record<string, string> => {
   return out;
 };
 
+/** Article routes (guides and comparisons) for the RSS feed, newest first. */
+export const rssRoutes = () =>
+  PRERENDER_ROUTES.filter(
+    (r) => !r.redirectTo && !r.noindex && (r.path.startsWith("/guides/") || r.path.startsWith("/compare/")),
+  );
+
+const rfc822 = (iso: string) => new Date(`${iso}T12:00:00Z`).toUTCString();
+
+/** RSS 2.0 feed of the guides and comparisons. */
+export const renderRss = () => {
+  const items = rssRoutes()
+    .map((r) => {
+      const dated = r.path.startsWith("/compare/") || Boolean(r.tables?.length);
+      const date = dated ? COMPARISONS_CHECKED_ON : GUIDES_PUBLISHED_AT;
+      return { r, date };
+    })
+    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
+    .map(
+      ({ r, date }) =>
+        `    <item>\n      <title>${esc(r.h1)}</title>\n      <link>${SITE}${r.path}</link>\n      <guid isPermaLink="true">${SITE}${r.path}</guid>\n      <description>${esc(r.description)}</description>\n      <pubDate>${rfc822(date)}</pubDate>\n    </item>`,
+    )
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Revvin guides and comparisons</title>
+    <link>${SITE}/guides</link>
+    <atom:link href="${SITE}/guides/rss.xml" rel="self" type="application/rss+xml" />
+    <description>Referral program guides and honest software comparisons for home-service businesses, from Revvin.</description>
+    <language>en-us</language>
+${items}
+  </channel>
+</rss>
+`;
+};
+
+/** Preload the two above-the-fold font files (hashed names read from the build). */
+export const addFontPreloads = (html: string, assetNames: string[]) => {
+  const pick = (prefix: string) => assetNames.find((n) => n.startsWith(prefix) && n.endsWith(".woff2"));
+  const links = [pick("barlow-condensed-latin-800-normal"), pick("barlow-latin-400-normal")]
+    .filter(Boolean)
+    .map((n) => `<link rel="preload" href="/assets/${n}" as="font" type="font/woff2" crossorigin>`)
+    .join("\n    ");
+  if (!links) return html;
+  return html.replace(/(\s*)(<script type="module")/, `$1${links}$1$2`);
+};
+
 export default function prerenderPlugin(): Plugin {
   return {
     name: "revvin-prerender",
     apply: "build",
     async closeBundle() {
-      const dist = path.resolve(process.cwd(), "dist");
+      const root = process.cwd();
+      const dist = path.resolve(root, "dist");
       const indexPath = path.join(dist, "index.html");
       if (!fs.existsSync(indexPath)) return;
       const template = fs.readFileSync(indexPath, "utf8");
+      const assetNames = fs.existsSync(path.join(dist, "assets")) ? fs.readdirSync(path.join(dist, "assets")) : [];
+
+      // Real page markup for public routes. Falls back to the text documents
+      // if the server build or one route's render fails.
+      const ssrRender: SsrRender | null = process.env.REVVIN_NO_SSR ? null : await buildSsrRenderer(root);
+      let ssrOk = 0;
+      const ssrFailed: string[] = [];
+      const renderSsr = async (url: string) => {
+        if (!ssrRender) return null;
+        try {
+          const out = await ssrRender(url);
+          ssrOk++;
+          return out;
+        } catch (err) {
+          ssrFailed.push(`${url}: ${String(err).split("\n")[0].slice(0, 200)}`);
+          return null;
+        }
+      };
+
+      // Every document is collected first, then finished in one pass: font
+      // preloads everywhere, critical CSS inlined on the server-rendered ones.
+      const docs: { file: string; html: string; inlineCss: boolean }[] = [];
+      const addDoc = (routePath: string, html: string, inlineCss = false) => {
+        const file = routePath === "/" ? indexPath : path.join(dist, routePath.replace(/^\//, ""), "index.html");
+        docs.push({ file, html, inlineCss });
+      };
+      const ogCards: OgCard[] = [];
 
       let count = 0;
-      let rootHtml: string | null = null;
-
       for (const route of PRERENDER_ROUTES) {
-        const html = renderRoute(template, route);
-        if (route.path === "/") {
-          rootHtml = html;
-          continue;
-        }
-        writeDoc(dist, route.path, html);
+        const ssr = route.redirectTo ? null : await renderSsr(route.path);
+        addDoc(route.path, renderRoute(template, route, ssr), Boolean(ssr));
+        if (!route.redirectTo) ogCards.push({ path: route.path, title: route.title, kind: ogKind(route.path) });
         count++;
       }
 
-      if (rootHtml) {
-        fs.writeFileSync(indexPath, rootHtml, "utf8");
-        count++;
-      }
-
-      // Private surfaces get real documents so their noindex is in the served
-      // HTML rather than depending on JavaScript.
       for (const doc of PRIVATE_DOCS) {
-        writeDoc(dist, doc.path, renderPrivateDoc(template, doc));
+        addDoc(doc.path, renderPrivateDoc(template, doc));
         count++;
       }
 
-      // Old store paths from the previous owner of the domain.
       const notFound = renderNotFoundDoc(template);
       for (const legacy of [...LEGACY_STORE_PREFIXES, ...LEGACY_STORE_URLS]) {
-        writeDoc(dist, legacy, notFound);
+        addDoc(legacy, notFound);
         count++;
       }
-      fs.writeFileSync(path.join(dist, "404.html"), notFound, "utf8");
+      docs.push({ file: path.join(dist, "404.html"), html: notFound, inlineCss: false });
 
-      // Published referral pages, so link previews and non-JavaScript crawlers
-      // see the business. If the public view cannot be read at build time the
-      // pages simply fall back to the SPA, which still renders correctly for
-      // real visitors.
       const env = readBuildEnv();
       const supabaseUrl = env.VITE_SUPABASE_URL;
       const anonKey = env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      let businessCount = 0;
-      let businesses: PublicBusiness[] = [];
-      if (supabaseUrl && anonKey) {
-        businesses = await fetchPublishedBusinesses(supabaseUrl, anonKey);
-        for (const biz of businesses) {
-          writeDoc(dist, `/r/${biz.slug}`, renderBusinessDoc(template, biz));
-          fs.mkdirSync(path.join(dist, "manifests"), { recursive: true });
-          fs.writeFileSync(
-            path.join(dist, `manifests/r-${biz.slug}.webmanifest`),
-            JSON.stringify(
-              buildBusinessManifest({ slug: biz.slug, name: biz.name, logoUrl: biz.logo_url }),
-              null,
-              2,
-            ),
-            "utf8",
-          );
-          businessCount++;
-        }
-      }
 
       // Live Earn cities. Non-live cities are never written or listed, so they
       // stay noindex single-page-app routes and out of the sitemap.
       let metros: EarnMetroDoc[] = [];
       if (supabaseUrl && anonKey) {
         metros = await fetchLiveMetros(supabaseUrl, anonKey);
-        for (const m of metros) { writeDoc(dist, `/earn/${m.slug}`, renderEarnMetroDoc(template, m)); count++; }
+        for (const m of metros) {
+          addDoc(`/earn/${m.slug}`, renderEarnMetroDoc(template, m));
+          ogCards.push({ path: `/earn/${m.slug}`, title: `Get paid for referrals in ${m.name}`, kind: "Earn" });
+          count++;
+        }
       }
 
-      // Sitemap, generated from the same route list, the indexable referral
-      // pages and the live Earn cities. Noindex and redirect documents never
-      // appear in it.
+      // Published referral pages, rendered in full with the business data.
+      let businessCount = 0;
+      let businesses: PublicBusiness[] = [];
+      if (supabaseUrl && anonKey) {
+        businesses = await fetchPublishedBusinesses(supabaseUrl, anonKey);
+        for (const biz of businesses) {
+          const earnMetro = metros.find((m) => m.businesses.some((b) => b.slug === biz.slug))?.slug ?? null;
+          globalThis.__REVVIN_SSR__ = { business: biz, earnMetro };
+          const ssr = await renderSsr(`/r/${biz.slug}`);
+          globalThis.__REVVIN_SSR__ = undefined;
+          addDoc(`/r/${biz.slug}`, renderBusinessDoc(template, biz, ssr, earnMetro), Boolean(ssr));
+          ogCards.push({ path: `/r/${biz.slug}`, title: businessMeta(biz).title, kind: "Referral reward" });
+          fs.mkdirSync(path.join(dist, "manifests"), { recursive: true });
+          fs.writeFileSync(
+            path.join(dist, `manifests/r-${biz.slug}.webmanifest`),
+            JSON.stringify(buildBusinessManifest({ slug: biz.slug, name: biz.name, logoUrl: biz.logo_url }), null, 2),
+            "utf8",
+          );
+          businessCount++;
+        }
+      }
+
+      const { default: Beasties } = await import("beasties");
+      const beasties = new Beasties({
+        path: dist,
+        publicPath: "/",
+        preload: "swap",
+        inlineFonts: true,
+        preloadFonts: false,
+        pruneSource: false,
+        reduceInlineStyles: false,
+        mergeStylesheets: true,
+        compress: true,
+        logLevel: "silent",
+      });
+      for (const doc of docs) {
+        let html = addFontPreloads(doc.html, assetNames);
+        if (doc.inlineCss) {
+          try {
+            html = await beasties.process(html);
+          } catch (err) {
+            console.warn(`[prerender] critical CSS skipped for ${doc.file}: ${String(err).slice(0, 200)}`);
+          }
+        }
+        fs.mkdirSync(path.dirname(doc.file), { recursive: true });
+        fs.writeFileSync(doc.file, html, "utf8");
+      }
+
+      const ogCount = await writeOgImages(dist, ogCards).catch((err) => {
+        console.warn(`[prerender] Open Graph images failed: ${String(err).slice(0, 300)}`);
+        return 0;
+      });
+
       const entries = buildSitemapEntries({
         buildDate: new Date().toISOString().slice(0, 10),
         businesses: businesses.filter(businessIndexable),
@@ -851,14 +945,14 @@ export default function prerenderPlugin(): Plugin {
       });
       fs.writeFileSync(path.join(dist, "sitemap.xml"), renderSitemap(entries), "utf8");
       fs.writeFileSync(path.join(dist, "llms-full.txt"), renderLlmsFull(), "utf8");
-
-      // IndexNow verification key file, read by Bing, Yandex and Seznam when a
-      // URL submission arrives.
+      fs.mkdirSync(path.join(dist, "guides"), { recursive: true });
+      fs.writeFileSync(path.join(dist, "guides", "rss.xml"), renderRss(), "utf8");
       fs.writeFileSync(path.join(dist, `${INDEXNOW_KEY}.txt`), INDEXNOW_KEY, "utf8");
 
       console.log(
-        `[prerender] wrote ${count} static documents, ${businessCount} referral pages, sitemap.xml with ${entries.length} URLs, llms-full.txt, 404.html and the IndexNow key to dist/ (404 status codes are not available on this host)`,
+        `[prerender] wrote ${count} static documents (${ssrOk} with full page markup), ${businessCount} referral pages, ${ogCount} share images, sitemap.xml with ${entries.length} URLs, rss.xml, llms-full.txt, 404.html and the IndexNow key to dist/`,
       );
+      if (ssrFailed.length) console.warn(`[prerender] text fallback for ${ssrFailed.length} routes:\n  ${ssrFailed.join("\n  ")}`);
     },
   };
 }
