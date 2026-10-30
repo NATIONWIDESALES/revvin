@@ -15,7 +15,7 @@ const Card = ({ to, title, body }: { to: string; title: string; body: string }) 
       <Link to={to} className="hover:text-primary">{title}</Link>
     </h3>
     <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
-    <Link to={to} className="mt-4 inline-block text-sm font-semibold text-primary hover:underline" aria-label={`Read: ${title}`}>
+    <Link to={to} className="mt-4 inline-block text-sm font-semibold text-primary hover:underline" aria-label={`Read the guide: ${title}`}>
       Read the guide
     </Link>
   </article>
