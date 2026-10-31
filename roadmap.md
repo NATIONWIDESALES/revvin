@@ -14,10 +14,13 @@
 - [x] Redeploy affected email functions without sending messages
 - [x] Produce exact branding changelog and report verification limits
 - [ ] Verify fresh production images, frontend typecheck and Lighthouse 100: automatic production artifact/check output is unavailable locally; manual builds/typechecks are prohibited
-- [ ] 1. Hero preview, storage/query handoff and prefilled signup/onboarding
-- [ ] 2. Noindex Start pages and preserved campaign data
-- [ ] 3. Acquisition/mobile capture and signup/publish team alerts
-- [ ] 4. Secure 14-day Pro trial, effective-plan gates and expiry notices
-- [ ] 5. Mobile sticky CTA with focus and safe-area behavior
-- [ ] 6. Empty Pixel slot with consent-safe delayed activation
-- [ ] 7. Tests, real flow, build signals and acquisition changelog
+- [x] 1. Hero preview, storage/query handoff and prefilled signup/onboarding
+- [x] 2. Noindex Start pages and preserved campaign data
+- [x] 3. Acquisition/mobile capture and signup/publish team alerts
+- [x] 4. Secure 14-day Pro trial, effective-plan gates and expiry notices
+- [x] 5. Mobile sticky CTA with focus and safe-area behavior
+- [x] 6. Empty Pixel slot with consent-safe delayed activation
+- [x] 7. Full tests, preview handoff, build signals and acquisition changelog
+- [ ] Verify new-account signup-to-publish and actual team email delivery: no live account or messages created during this run
+- [ ] Verify hourly calls and owner text delivery: human team follow-up required, no automatic SMS sender added
+- [ ] Verify enabled Pixel provider receipt: Pixel id deliberately empty and regional consent question not answered
