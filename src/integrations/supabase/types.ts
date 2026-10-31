@@ -152,6 +152,21 @@ export type Database = {
           },
         ]
       }
+      business_trial_history: {
+        Row: {
+          granted_at: string
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       businesses: {
         Row: {
           account_status: string
@@ -174,6 +189,7 @@ export type Database = {
           google_review_url: string | null
           headline: string | null
           id: string
+          index_approved: boolean
           industry: string | null
           invite_code: string | null
           is_demo: boolean | null
@@ -249,6 +265,7 @@ export type Database = {
           google_review_url?: string | null
           headline?: string | null
           id?: string
+          index_approved?: boolean
           industry?: string | null
           invite_code?: string | null
           is_demo?: boolean | null
@@ -324,6 +341,7 @@ export type Database = {
           google_review_url?: string | null
           headline?: string | null
           id?: string
+          index_approved?: boolean
           industry?: string | null
           invite_code?: string | null
           is_demo?: boolean | null
@@ -3234,6 +3252,7 @@ export type Database = {
       }
       fn_earn_waiting_count: { Args: { p_metro_slug: string }; Returns: number }
       fn_effective_plan: { Args: { p_business_id: string }; Returns: string }
+      fn_email_owned: { Args: never; Returns: boolean }
       fn_enqueue_webhook: {
         Args: { p_business_id: string; p_event: string; p_payload: Json }
         Returns: undefined
@@ -3322,6 +3341,16 @@ export type Database = {
           p_status: string
         }
         Returns: boolean
+      }
+      fn_referrer_lead_summary: {
+        Args: never
+        Returns: {
+          business_name: string
+          lead_first_name: string
+          reward_amount: number
+          reward_status: string
+          status: string
+        }[]
       }
       fn_release_invite_code: {
         Args: { p_session_id: string }
