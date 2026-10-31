@@ -184,6 +184,20 @@ Deno.serve(async (req) => {
 
   const supabase: SupabaseClient<any, any, any> = createClient(supabaseUrl, supabaseServiceKey)
 
+  // 0. Outbound email kill switch. Queued messages stay queued and send once
+  // the pause is lifted.
+  const { data: pauseFlag } = await supabase
+    .from('platform_flags')
+    .select('enabled')
+    .eq('key', 'outbound_email_paused')
+    .limit(1)
+  if (pauseFlag?.[0]?.enabled) {
+    return new Response(
+      JSON.stringify({ skipped: true, reason: 'outbound_paused' }),
+      { headers: { 'Content-Type': 'application/json' } }
+    )
+  }
+
   // 1. Check rate-limit cooldown and read queue config
   const { data: state } = await supabase
     .from('email_send_state')

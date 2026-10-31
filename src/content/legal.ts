@@ -296,6 +296,10 @@ export const PRIVACY_DOC: LegalDoc = {
         p(
           "We retain account information for as long as your account is active. Referral records, including the parties involved and status changes, are retained while either the referrer or the business account is active and for a reasonable period afterward so that disputes about closed deals can be resolved. Unsubscribe and bounce records are kept indefinitely to preserve recorded opt-outs and delivery restrictions. We may keep limited records longer where required by law (for example, tax records) or for fraud prevention. You can request deletion of your account at any time as described in Section 8.",
         ),
+        p(
+          "Leads that reached a final state (won, lost or invalid) and have been untouched for 24 months are anonymized: the referred person's name, phone, email and description of need are removed, while the record, its status, reward and dates are kept. Contact details collected through job-completion asks are removed 90 days after the ask is processed. Email and notification send logs are deleted after 180 days. Analytics events are deleted after 13 months. A business's own customer list is never deleted by these rules, and a lead that is still open is never anonymized.",
+          "How long we keep data.",
+        ),
       ],
     },
     {

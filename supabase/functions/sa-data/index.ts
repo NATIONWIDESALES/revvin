@@ -178,6 +178,51 @@ ${isApproved ? `
       });
     }
 
+    // Kill switches: read platform flags
+    if (req.method === "GET" && action === "get_flags") {
+      const { data } = await admin.from("platform_flags").select("key, enabled, updated_at");
+      return new Response(JSON.stringify({ flags: data ?? [] }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Kill switches: flip a flag. Only known keys, boolean values.
+    if (req.method === "POST" && action === "set_flag") {
+      const body = await req.json();
+      const { key, enabled } = body;
+      if (!["signups_paused", "outbound_email_paused"].includes(key) || typeof enabled !== "boolean") {
+        return new Response(JSON.stringify({ error: "Invalid params" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { error } = await admin
+        .from("platform_flags")
+        .update({ enabled, updated_at: new Date().toISOString(), updated_by: user.id })
+        .eq("key", key);
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Recent security alerts for the CRM panel
+    if (req.method === "GET" && action === "get_security_alerts") {
+      const { data } = await admin
+        .from("security_alerts")
+        .select("id, alert_type, summary, details, sent_at")
+        .order("sent_at", { ascending: false })
+        .limit(50);
+      return new Response(JSON.stringify({ alerts: data ?? [] }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Lazy load referrals for a specific business
     if (bizId) {
       const { data: referrals } = await admin
