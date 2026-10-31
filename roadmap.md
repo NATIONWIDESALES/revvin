@@ -14,3 +14,10 @@
 - [x] Redeploy affected email functions without sending messages
 - [x] Produce exact branding changelog and report verification limits
 - [ ] Verify fresh production images, frontend typecheck and Lighthouse 100: automatic production artifact/check output is unavailable locally; manual builds/typechecks are prohibited
+- [ ] 1. Hero preview, storage/query handoff and prefilled signup/onboarding
+- [ ] 2. Noindex Start pages and preserved campaign data
+- [ ] 3. Acquisition/mobile capture and signup/publish team alerts
+- [ ] 4. Secure 14-day Pro trial, effective-plan gates and expiry notices
+- [ ] 5. Mobile sticky CTA with focus and safe-area behavior
+- [ ] 6. Empty Pixel slot with consent-safe delayed activation
+- [ ] 7. Tests, real flow, build signals and acquisition changelog
