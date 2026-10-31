@@ -107,6 +107,7 @@ const Pricing = () => {
             Free asks your first 100 customers. Pro asks all of them.
           </h1>
           <p className="sr-only">{PLAN_SPLIT.line}</p>
+          <p className="mt-4 text-muted-foreground">Every new account gets Pro free for 14 days. No card.</p>
           <div className="mx-auto mt-6 grid max-w-2xl gap-3 text-left sm:grid-cols-2">
             <div className="rounded-xl border border-border bg-card p-4">
               <p className="text-sm font-semibold text-foreground">Free: {PLAN_SPLIT.freeSubtitle.toLowerCase()}</p>

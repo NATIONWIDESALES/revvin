@@ -28,6 +28,7 @@ export async function publishPage(surface: PublishSurface): Promise<{ ok: boolea
     }
     track("publish_succeeded", { surface });
     track("page_published");
+    void supabase.functions.invoke("notify-business-signup", { body: { event: "published" } });
     return { ok: true };
   } catch (e) {
     track("publish_failed", { surface });

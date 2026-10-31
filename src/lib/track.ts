@@ -1,5 +1,7 @@
 import { insertAsVisitor } from "@/lib/supabaseLazy";
 import { captureAttribution, getAttribution } from "@/lib/attribution";
+import { acquisitionEventPath, ACQUISITION_EVENTS } from "@/lib/acquisitionEvents";
+import { loadSupabase } from "@/lib/supabaseLazy";
 import {
   analyticsContext,
   analyticsEventAllowed,
@@ -18,6 +20,7 @@ import {
  * and is not derived from anything identifying.
  */
 export const FUNNEL_EVENTS = [
+  "preview_started", "preview_submitted", "signup_completed",
   "page_viewed",
   "signup_viewed",
   "signup_submitted",
@@ -89,6 +92,16 @@ function getSessionId(): string | null {
  */
 export function track(event: FunnelEvent, meta?: Record<string, unknown>): void {
   try {
+    if (typeof window !== "undefined" && ["preview_submitted", "signup_completed", "page_published"].includes(event)) {
+      window.dispatchEvent(new CustomEvent("revvin:conversion", { detail: event }));
+    }
+    if (ACQUISITION_EVENTS.has(event)) {
+      const path = typeof location !== "undefined" ? acquisitionEventPath(event, location.pathname) : null;
+      if (path && ["revvin.co", "www.revvin.co"].includes(location.hostname)) {
+        void loadSupabase().then(db => db.rpc("fn_record_acquisition_event", { p_event: event, p_path: path }));
+      }
+      return;
+    }
     const href = typeof location !== "undefined" ? location.href : "";
     // Signup and activation milestones live on private, signed-in routes, so the
     // public boundary drops them. The milestone lane records those four fixed

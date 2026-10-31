@@ -360,6 +360,7 @@ const BusinessDashboard = () => {
 
   return (
     <DashboardShell active={tab} onSelect={changeTab} isPro={isPro} newLeads={newLeads}>
+      {biz.plan !== "pro" && trialDaysLeft(biz.pro_trial_ends_at) > 0 && <div className="mb-5 flex items-center justify-between gap-3 border-b border-line pb-3 text-sm"><p>Pro trial: {trialDaysLeft(biz.pro_trial_ends_at)} days left.</p><Button variant="link" onClick={() => changeTab("billing")}>Keep Pro</Button></div>}
       <div className="dash-content">
       {!isLive && <div id="publish-prompt"><PublishPrompt surface="dashboard_banner" onPublished={loadAll} /></div>}
       <InstallPrompt />
