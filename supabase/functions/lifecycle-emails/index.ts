@@ -29,7 +29,7 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
 const BIZ_COLUMNS =
-  "id, name, slug, user_id, business_email, is_published, is_demo, is_disabled, first_share_at, offer_amount, created_at, plan, subscription_status, promo_emails_opt_out";
+  "id, name, slug, user_id, business_email, is_published, is_demo, is_disabled, first_share_at, offer_amount, created_at, plan, subscription_status, promo_emails_opt_out, pro_trial_ends_at";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });

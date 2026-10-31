@@ -246,6 +246,7 @@ const AdminDashboard = () => {
                       <div key={biz.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-3">
                         <div>
                           <p className="text-sm font-medium">{biz.name}</p>
+                          <p className="text-xs text-muted-foreground break-all">Source: {Object.entries(biz.acquisition ?? {}).map(([key,value]) => `${key}: ${String(value)}`).join(" · ") || "Not recorded"}</p>
                           <p className="text-xs text-muted-foreground">{biz.industry ?? "·"} • {biz.city ?? "·"}</p>
                         </div>
                         <Badge variant={biz.verified ? "default" : "secondary"}>{biz.verified ? "Verified" : "Pending"}</Badge>

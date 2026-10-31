@@ -15,6 +15,7 @@ export function loadSupabase(): Promise<typeof SupabaseClient> {
 
 /** Marketing routes, which must not fetch the backend client on first load. */
 export const MARKETING_PREFIXES = [
+  "/start",
   "/how-it-works",
   "/pricing",
   "/about",
