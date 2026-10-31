@@ -107,6 +107,8 @@ function fakeDb(tables: Record<string, Row[]>) {
           state.notNulls.push(key);
           return chain;
         },
+        gte: () => chain,
+        lte: () => chain,
         order: () => chain,
         limit: () => chain,
         then: (yes: any, no: any) => Promise.resolve().then(settle).then(yes, no),
@@ -188,10 +190,10 @@ describe("attribution", () => {
   const now = Date.parse("2026-09-10T00:00:00Z");
 
   it("attributes a business referred by an approved partner link", async () => {
-    const db = world({ businesses: [{ ...business, partner_id: null }] });
+    const db = world({ businesses: [{ ...business, partner_id: null }], partner_clicks: [{ id: "click-1", partner_id: partner.id, created_at: clickedAt }] });
     const result = await attributeBusinessToPartner({
       db,
-      business: { id: "biz-1", partner_id: null, is_demo: false },
+      business: { id: "biz-1", partner_id: null, is_demo: false, created_at: new Date(now - 1000).toISOString() },
       ownerEmail: "owner@example.test",
       clickCode: "creator",
       clickedAt,
@@ -268,7 +270,7 @@ describe("commission recording", () => {
   });
 
   it("records nothing for a business with no partner", async () => {
-    const db = world({ businesses: [{ ...business, partner_id: null }] });
+    const db = world({ businesses: [{ ...business, partner_id: null }], partner_clicks: [{ id: "click-1", partner_id: partner.id, created_at: clickedAt }] });
     expect(await handlePartnerInvoicePaid(db, invoice())).toEqual({
       created: false,
       reason: "not_attributed",

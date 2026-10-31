@@ -56,7 +56,7 @@ export default function ContactBusinessDialog({
       email: email || null,
       phone: phone || null,
       message: message || null,
-    });
+    } });
     setSubmitting(false);
     if (error) {
       toast({ title: "Could not send", description: friendlyError(error), variant: "destructive" });

@@ -41,6 +41,7 @@ export async function partnerByCode(db: Database, rawCode: unknown) {
 
 export async function attributeBusinessToPartner(input: AttributeInput): Promise<AttributeResult> {
   const { db, business } = input;
+  if (business.partner_id) return { attributed: false, reason: "already_attributed" };
   const now = input.now ?? Date.now();
   const created = Date.parse(business.created_at ?? "");
   if (!Number.isFinite(created) || now - created > 30 * 60_000 || created > now) return { attributed: false, reason: "business_too_old" };

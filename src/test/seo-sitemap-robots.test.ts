@@ -87,7 +87,7 @@ describe("generated sitemap", () => {
 });
 
 describe("referral page documents", () => {
-  const base = { slug: "good-roof", name: "Good Roof", city: "Langley", offer_amount: "$200", category: "Roofing" };
+  const base = { index_approved: true, slug: "good-roof", name: "Good Roof", city: "Langley", offer_amount: "$200", category: "Roofing" };
   it("title and description follow the template; city omitted when missing", () => {
     expect(businessMeta(base).title).toBe("Refer a customer to Good Roof in Langley, earn $200");
     expect(businessMeta({ ...base, city: null }).title).toBe("Refer a customer to Good Roof, earn $200");

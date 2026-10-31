@@ -1,4 +1,7 @@
-import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
+import { checkCronAuth } from "../_shared/cron-auth.ts";
+import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
+import { globalSuppression } from "../_shared/global-suppression.ts";
+import { sendLovableEmail } from 'npm:@lovable.dev/email-js@0.1.0'
 import { createClient, SupabaseClient } from 'npm:@supabase/supabase-js@2.97.0'
 import { suppressContact } from '../_shared/outreach.ts'
 import { effectivePlan } from '../_shared/effective-plan.ts'
@@ -195,25 +198,7 @@ Deno.serve(async (req) => {
     )
   }
 
-  const authHeader = req.headers.get('Authorization')
-  if (!authHeader?.startsWith('Bearer ')) {
-    return new Response(
-      JSON.stringify({ error: 'Unauthorized' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
-    )
-  }
-
-  // Defense in depth: verify_jwt=true already requires a valid JWT at the
-  // gateway layer. This adds an explicit role check so only service-role
-  // callers can trigger queue processing.
-  const token = authHeader.slice('Bearer '.length).trim()
-  const claims = parseJwtClaims(token)
-  if (claims?.role !== 'service_role') {
-    return new Response(
-      JSON.stringify({ error: 'Forbidden' }),
-      { status: 403, headers: { 'Content-Type': 'application/json' } }
-    )
-  }
+  if (!checkCronAuth(req).ok) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
 
   const supabase: SupabaseClient<any, any, any> = createClient(supabaseUrl, supabaseServiceKey)
 
@@ -374,6 +359,19 @@ Deno.serve(async (req) => {
       }
 
       try {
+        if (typeof payload.to !== 'string') throw new Error('Invalid recipient');
+        if (await globalSuppression(payload.to)) throw new Error('recipient_suppressed');
+        if (queue === CAMPAIGN_QUEUE) {
+          const token = String(payload.unsubscribe_token ?? '');
+          if (!/^[a-zA-Z0-9_-]{16,200}$/.test(token)) throw new Error('Missing unsubscribe token');
+          const result = await sendEmailViaGateway({
+            from: String(payload.from), to: payload.to, reply_to: String(payload.reply_to ?? ''),
+            subject: String(payload.subject), html: String(payload.html),
+            idempotencyKey: String(payload.idempotency_key),
+            unsubscribeUrl: `${supabaseUrl}/functions/v1/handle-unsubscribe?token=${encodeURIComponent(token)}`,
+          });
+          if (!result.success) throw new Error(result.error ?? 'send_failed');
+        } else {
         await sendLovableEmail(
           {
             run_id: payload.run_id,
@@ -392,6 +390,8 @@ Deno.serve(async (req) => {
           },
           { apiKey, sendUrl: Deno.env.get('LOVABLE_SEND_URL') }
         )
+
+        }
 
         await supabase.from('email_send_log').insert({
           message_id: payload.message_id,
