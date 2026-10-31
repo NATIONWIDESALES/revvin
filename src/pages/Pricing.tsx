@@ -233,7 +233,7 @@ const Pricing = () => {
             </div>
           </div>
 
-          {FOUNDING_OFFER_ACTIVE && SETUP_CALL_URL && (
+          {false && FOUNDING_OFFER_ACTIVE && SETUP_CALL_URL && (
             <div className="mx-auto mt-10 max-w-3xl rounded-[14px] bg-sign p-6 text-center text-forest md:p-8">
               <h2 className="text-2xl">Founding businesses: first 25 only</h2>
               <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-forest">

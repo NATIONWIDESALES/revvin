@@ -191,7 +191,7 @@ const Index = () => {
             </Button>
           </div>
         </div>
-        {FOUNDING_OFFER_ACTIVE && SETUP_CALL_URL && (
+        {false && FOUNDING_OFFER_ACTIVE && SETUP_CALL_URL && (
           <div className="mt-6 flex flex-col items-start justify-between gap-6 rounded-2xl bg-sign px-7 py-7 text-forest md:flex-row md:items-center md:px-9">
             <div className="min-w-0">
               <h3 className="font-display text-[30px] font-extrabold leading-none">Founding businesses: first 25 only</h3>
