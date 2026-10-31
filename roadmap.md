@@ -7,3 +7,4 @@
 - [x] Add shared-list regression coverage
 - [x] Run tests and verify preview build
 - [x] Earn metros, city pages, Get my link, invite form, admin Metros panel
+- [ ] Targeted Home and Pricing mobile layout optimization, tests and three-run Lighthouse comparison
