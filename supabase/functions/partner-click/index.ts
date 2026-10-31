@@ -4,7 +4,7 @@
 // random browser id the client generates, so a partner cannot be click-farmed
 // from one browser and no personal identifier reaches the database.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { normalizePartnerCode } from "../_shared/partner-rules.ts";
 
 const corsHeaders = {

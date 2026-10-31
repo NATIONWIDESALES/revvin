@@ -5,8 +5,8 @@
 // The timestamp travels in its own header so a receiver can reject replays.
 // Receivers must recompute over the raw body, so we send exactly the string
 // we signed.
-import { createClient } from 'npm:@supabase/supabase-js@2'
-import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
+import { createClient } from 'npm:@supabase/supabase-js@2.97.0'
+import { corsHeaders } from 'npm:@supabase/supabase-js@2.97.0/cors'
 import { checkCronAuth } from '../_shared/cron-auth.ts'
 import { validateWebhookDns } from '../_shared/security.ts'
 

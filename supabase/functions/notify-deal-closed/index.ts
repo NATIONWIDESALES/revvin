@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { appUrl } from "../_shared/app-config.ts";
 import { notify } from "../_shared/notify.ts";
 
@@ -50,15 +50,6 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const body = await req.json().catch(() => ({}));
-    const { lead_id, referral_id } = body ?? {};
-    if (!lead_id && !referral_id) {
-      return new Response(JSON.stringify({ error: "lead_id or referral_id required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -86,6 +77,16 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const body = await req.json().catch(() => ({}));
+    const { lead_id, referral_id } = body ?? {};
+    if (!lead_id && !referral_id) {
+      return new Response(JSON.stringify({ error: "lead_id or referral_id required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+
 
     let businessId: string | null = null;
     let customerName = "";

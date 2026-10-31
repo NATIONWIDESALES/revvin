@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import {
   ADMIN_NOTIFICATION_EMAIL,
   appUrl,
@@ -8,7 +8,8 @@ import {
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { sendLifecycleEmail } from "../_shared/lifecycle-email.ts";
 import { attributeBusinessToPartner } from "../_shared/partner-attribution.ts";
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { corsHeaders } from "npm:@supabase/supabase-js@2.97.0/cors";
+import { checkCronAuth } from "../_shared/cron-auth.ts";
 import { acquisitionSubject } from "../_shared/acquisition-notification.ts";
 
 
@@ -31,6 +32,16 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false },
     });
+    if (!checkCronAuth(req).ok) {
+      const token = req.headers.get("Authorization")?.replace(/^Bearer /, "");
+      const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+      if (!token || !anonKey) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const anonClient = createClient(supabaseUrl, anonKey);
+      const { data: { user }, error } = await anonClient.auth.getUser(token);
+      if (error || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (payload.user_id && payload.user_id !== user.id) return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      payload.user_id = user.id;
+    }
     if (published) {
       const token = req.headers.get("Authorization")?.replace(/^Bearer /, "");
       const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
@@ -86,9 +97,7 @@ Deno.serve(async (req) => {
       console.error("[notify-business-signup] partner attribution failed", attrErr);
     }
 
-    // At-most-once claim. Called right after signUp when a session may not yet
-    // exist, so it cannot require a JWT. Repeatability is the real risk, and a
-    // single conditional UPDATE closes it even under concurrent calls.
+    // Authenticated at-most-once notification claim.
     const { data: claimed } = await supabase
       .from("businesses")
       .update(published ? { published_notified_at: new Date().toISOString() } : { signup_notified_at: new Date().toISOString() })

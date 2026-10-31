@@ -17,7 +17,7 @@
 //   - The lead's personal details are NEVER included. The referrer only ever
 //     sees the business name, the amount, and their own links.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { appUrl, RESEND_FROM_ADDRESS } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { customerFromAddress, customerReplyTo } from "../_shared/email-format.ts";
@@ -46,11 +46,6 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const body = await req.json().catch(() => ({}));
-    const rewardId = body?.reward_id ? String(body.reward_id) : "";
-    const kind = body?.kind === "paid" ? "paid" : body?.kind === "created" ? "created" : "";
-    if (!rewardId || !kind) return json({ error: "reward_id and kind (created|paid) required" }, 400);
-
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -69,6 +64,12 @@ Deno.serve(async (req) => {
     const { data: userRes } = await anonClient.auth.getUser(token);
     const user = userRes?.user;
     if (!user) return json({ error: "unauthorized" }, 401);
+    const body = await req.json().catch(() => ({}));
+    const rewardId = body?.reward_id ? String(body.reward_id) : "";
+    const kind = body?.kind === "paid" ? "paid" : body?.kind === "created" ? "created" : "";
+    if (!rewardId || !kind) return json({ error: "reward_id and kind (created|paid) required" }, 400);
+
+
 
     const { data: rewardRows } = await supabase
       .from("rewards")

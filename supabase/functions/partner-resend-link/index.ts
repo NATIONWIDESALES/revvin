@@ -2,7 +2,7 @@
 // same neutral message, so the endpoint cannot be used to test which addresses
 // are partners.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { appUrl } from "../_shared/app-config.ts";
 import { sendPartnerEmail } from "../_shared/partner-email.ts";
 import { COMMISSION_RATE, HOLD_DAYS, MIN_PAYOUT_USD } from "../_shared/partner-config.ts";
@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     const { data: partners } = await admin
       .from("partners")
       .select("id, name, code, dashboard_token, status")
-      .ilike("email", email)
+      .eq("email", email)
       .limit(1);
     const partner = partners?.[0];
     if (!partner || partner.status !== "approved" || !partner.dashboard_token) {

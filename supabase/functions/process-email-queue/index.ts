@@ -1,5 +1,5 @@
 import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
-import { createClient, SupabaseClient } from 'npm:@supabase/supabase-js@2'
+import { createClient, SupabaseClient } from 'npm:@supabase/supabase-js@2.97.0'
 import { suppressContact } from '../_shared/outreach.ts'
 import { effectivePlan } from '../_shared/effective-plan.ts'
 

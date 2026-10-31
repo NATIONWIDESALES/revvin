@@ -4,7 +4,7 @@
 // or any customer detail. Referred businesses appear as "Business #1", "#2" and
 // so on, with their plan and status only. A bad or unknown token is a 404.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { appUrl } from "../_shared/app-config.ts";
 import {
   COMMISSION_RATE,

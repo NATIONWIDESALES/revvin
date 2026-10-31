@@ -9,8 +9,8 @@
 //   3. the delay + queue     (same scheduled_send_at, same worker, same
 //                             unsubscribe footer at send time)
 // If you are tempted to add a "skip_checks" flag here, don't.
-import { createClient } from 'npm:@supabase/supabase-js@2'
-import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
+import { createClient } from 'npm:@supabase/supabase-js@2.97.0'
+import { corsHeaders } from 'npm:@supabase/supabase-js@2.97.0/cors'
 
 const DELAY_HOURS = 2
 const RATE_LIMIT_PER_HOUR = 120

@@ -22,7 +22,7 @@
 //   - Cron-only: guarded with the same x-cron-secret / service-role check as
 //     monthly-roi-recap.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { appUrl, RESEND_FROM_ADDRESS } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { checkCronAuth } from "../_shared/cron-auth.ts";
@@ -161,7 +161,7 @@ Deno.serve(async (req) => {
       if (biz.is_demo === true) { await stop("suppressed", "demo_business"); continue; }
       if (!biz.contact_outreach_consent_at) { await stop("failed", "owner_attestation_missing"); continue; }
       if (biz.is_disabled || !biz.is_published) { await stop("failed", "business_page_not_live"); continue; }
-      if (!biz.google_review_url) { await stop("failed", "no_review_link_on_profile"); continue; }
+      if (!biz.google_review_url || !/^https:\/\//i.test(biz.google_review_url)) { await stop("failed", "no_review_link_on_profile"); continue; }
       if (await isSuppressed(supabase, biz.id, email)) { await stop("suppressed", "recipient_suppressed"); continue; }
 
       const unsubscribeUrl = await unsubscribeUrlFor(supabase, biz.id, email);
@@ -176,9 +176,9 @@ Deno.serve(async (req) => {
     <p style="margin:0 0 18px">${button(biz.google_review_url, "Leave a review")}</p>
     <p style="margin:0 0 6px;color:#475569;font-size:14px">You can also just tell us directly:</p>
     <p style="margin:0 0 18px;font-size:14px">
-      <a href="${feedbackBase}?happy=1" style="color:#15803d;font-weight:600">I was happy</a>
+      <a href="${esc(feedbackBase)}?happy=1" style="color:#15803d;font-weight:600">I was happy</a>
       &nbsp;&nbsp;·&nbsp;&nbsp;
-      <a href="${feedbackBase}?happy=0" style="color:#64748b;font-weight:600">Something was not right</a>
+      <a href="${esc(feedbackBase)}?happy=0" style="color:#64748b;font-weight:600">Something was not right</a>
     </p>`;
 
       const idempotencyKey = `review-request-${row.id}`;
