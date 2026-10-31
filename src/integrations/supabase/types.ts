@@ -3294,6 +3294,10 @@ export type Database = {
         }
         Returns: Json
       }
+      fn_referral_action: {
+        Args: { p_action: string; p_referral_id: string }
+        Returns: boolean
+      }
       fn_referral_privileged_unchanged: {
         Args: {
           p_business_id: string

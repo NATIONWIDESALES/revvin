@@ -78,6 +78,13 @@
       "when": 1793466501487,
       "tag": "0010_security_public_projection",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793466701428,
+      "tag": "0011_security_referrer_actions_and_private_email_checks",
+      "breakpoints": true
     }
   ]
 }
