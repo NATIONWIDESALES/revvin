@@ -9,6 +9,7 @@ export const assertPublicBrand = (text: string, label: string) => {
 };
 
 export const validatePublicBrandSources = (root: string) => {
+  assertPublicBrand(fs.readFileSync(path.join(root, "index.html"), "utf8"), "index.html");
   const visit = (dir: string) => {
     if (!fs.existsSync(dir)) return;
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -17,7 +18,7 @@ export const validatePublicBrandSources = (root: string) => {
       else if (/\.(tsx?|html|txt|xml)$/.test(entry.name)) assertPublicBrand(fs.readFileSync(file, "utf8"), file);
     }
   };
-  for (const dir of ["src/pages", "src/components", "src/config", "public"]) visit(path.join(root, dir));
+  for (const dir of ["src/pages", "src/components", "src/config", "public", "supabase/functions/_shared/transactional-email-templates"]) visit(path.join(root, dir));
   // This guard contains the banned words itself, so exclude it from the content scan.
   const content = path.join(root, "src/content");
   for (const name of fs.readdirSync(content)) {
