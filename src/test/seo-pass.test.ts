@@ -16,7 +16,7 @@ import {
 } from "../../plugins/prerender";
 import { ogFileName } from "../../plugins/og";
 import { buildSitemapEntries } from "../../plugins/sitemap";
-import { PERSON_ID } from "@/config/brand";
+import { ORG_ID } from "@/config/brand";
 import { COMPARISONS, ROUNDUP } from "@/content/comparisons";
 
 const template = fs.readFileSync(path.resolve(__dirname, "../../index.html"), "utf8");
@@ -82,7 +82,7 @@ describe("structured data", () => {
 
   it("the full Person node is on /about with job title, employer, LinkedIn and bio", () => {
     const person = graphOf(renderRoute(template, live.find((r) => r.path === "/about")!)).find((n) => n["@type"] === "Person")!;
-    expect(person["@id"]).toBe(PERSON_ID);
+    expect(person["@id"]).toBe(ORG_ID);
     expect(person.jobTitle).toBe("Founder");
     expect(person.worksFor).toEqual({ "@id": "https://revvin.co/#organization" });
     expect(person.sameAs).toEqual(["https://www.linkedin.com/in/karm"]);
@@ -94,7 +94,7 @@ describe("structured data", () => {
     expect(articles.length).toBeGreaterThan(10);
     for (const r of articles) {
       const art = graphOf(renderRoute(template, r)).find((n) => n["@type"] === "Article")!;
-      expect(art.author["@id"], r.path).toBe(PERSON_ID);
+      expect(art.author["@id"], r.path).toBe(ORG_ID);
       expect(art.author.name).toBe("Karm Sandhu");
       expect(art.datePublished).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(art.dateModified).toMatch(/^\d{4}-\d{2}-\d{2}$/);

@@ -19,7 +19,7 @@ export interface PageMeta {
 
 export const PAGE_META = {
   "/about": {
-    title: "About Revvin and founder Karm Sandhu | Revvin",
+    title: "About Revvin and the team behind it | Revvin",
     description:
       "Revvin is a free referral program and local referral network for home-service businesses. What it does, what it does not do, pricing and who built it.",
   },

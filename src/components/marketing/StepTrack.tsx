@@ -16,7 +16,7 @@ export const STEPS = [
     artifact: (
       <>
         <div className="mk-mini-field"><small>Referring as</small>Dana</div>
-        <div className="mk-mini-field"><small>Who needs a roof?</small>Mike, 604 555 0142</div>
+        <div className="mk-mini-field"><small>Who needs a roof?</small>Mike, 555 0142</div>
         <div className="mk-mini-btn">Send referral</div>
       </>
     ),

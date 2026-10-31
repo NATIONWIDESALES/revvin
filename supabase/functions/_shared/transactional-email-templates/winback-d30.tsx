@@ -20,13 +20,13 @@ const Email = ({ businessName, publicUrl, pricingUrl, unsubscribeUrl, postalAddr
   >
     <Text style={heading}>Your page is still live</Text>
     <Text style={paragraph}>
-      Hi, it's Karm. Just so you know, the referral page for {businessName || 'your business'} is still live and still
+      Hi, it's the Revvin team. Just so you know, the referral page for {businessName || 'your business'} is still live and still
       free, and your leads and your customer list are all still there.
       {publicUrl ? ` ${publicUrl}` : ''}
     </Text>
     <Text style={paragraph}>{PRO_PRICE_LINE}</Text>
     {pricingUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(pricingUrl, 'See Revvin Pro')}</Text> : null}
-    <Text style={paragraph}>Karm</Text>
+    <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )
 
@@ -39,6 +39,6 @@ export const template = {
     publicUrl: 'https://revvin.co/r/summit-roofing',
     pricingUrl: 'https://revvin.co/pricing',
     unsubscribeUrl: 'https://revvin.co/unsubscribe?token=sample',
-    postalAddress: 'Revvin, 123 Example St, Vancouver BC, Canada',
+    postalAddress: 'Revvin, 123 Example St, Dallas, TX (example only)',
   },
 } satisfies TemplateEntry

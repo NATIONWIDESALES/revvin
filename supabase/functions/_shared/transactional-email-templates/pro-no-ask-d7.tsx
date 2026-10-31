@@ -14,7 +14,7 @@ const Email = ({ businessName, askMessage, customersUrl, unsubscribeUrl }: Props
   <RevvinShell previewText="Copy this, then use Open in Gmail." unsubscribeUrl={unsubscribeUrl}>
     <Text style={heading}>Your list is ready. Here is the first ask to send</Text>
     <Text style={paragraph}>
-      Hi, it's Karm. {businessName || 'Your account'} has customers imported but no ask has gone out yet. This is the
+      Hi, it's the Revvin team. {businessName || 'Your account'} has customers imported but no ask has gone out yet. This is the
       message I would send.
     </Text>
     {askMessage ? <Text style={quoted}>{askMessage}</Text> : null}
@@ -23,7 +23,7 @@ const Email = ({ businessName, askMessage, customersUrl, unsubscribeUrl }: Props
       arrives from you.
     </Text>
     {customersUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(customersUrl, 'Send my first batch')}</Text> : null}
-    <Text style={paragraph}>Karm</Text>
+    <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )
 

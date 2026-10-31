@@ -1,7 +1,7 @@
 // Partner Program email sending.
 //
 // Reuses the existing path: templates come from the transactional registry, the
-// send goes through the Resend gateway with the same "Karm at Revvin" sender,
+// send goes through the Resend gateway with the same "Revvin" sender,
 // the global suppression list is honoured, and every attempt is written to
 // email_send_log.
 //

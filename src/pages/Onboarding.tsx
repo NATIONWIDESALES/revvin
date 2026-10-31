@@ -242,7 +242,7 @@ const Onboarding = () => {
                   </div>
                   <div>
                     <Label htmlFor="service-area">City</Label>
-                    <ServiceAreaAutocomplete id="service-area" value={serviceArea} onChange={setServiceArea} onPlaceSelected={setPlaceGeo} placeholder="Vancouver, BC" />
+                    <ServiceAreaAutocomplete id="service-area" value={serviceArea} onChange={setServiceArea} onPlaceSelected={setPlaceGeo} placeholder="Dallas, TX" />
                   </div>
                   <div>
                     <Label htmlFor="payout-amount">Reward</Label>

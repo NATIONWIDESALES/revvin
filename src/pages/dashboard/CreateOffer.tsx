@@ -325,7 +325,7 @@ const CreateOffer = () => {
               <p className="text-sm text-muted-foreground">Define what makes a qualified lead so referrers send you the right customers.</p>
               <div><Label>Lead Freshness Requirement</Label><Input value={form.leadFreshness} onChange={(e) => update("leadFreshness", e.target.value)} placeholder="e.g. Lead must not be an existing customer" className="mt-1" /></div>
               <div><Label>Minimum Project Size ($)</Label><Input type="number" value={form.minProjectSize} onChange={(e) => update("minProjectSize", e.target.value)} placeholder="e.g. 5000" className="mt-1" /></div>
-              <div><Label>Eligible Locations</Label><Input value={form.eligibleLocations} onChange={(e) => update("eligibleLocations", e.target.value)} placeholder="e.g. Metro Vancouver, Fraser Valley" className="mt-1" /></div>
+              <div><Label>Eligible Locations</Label><Input value={form.eligibleLocations} onChange={(e) => update("eligibleLocations", e.target.value)} placeholder="e.g. Dallas, TX" className="mt-1" /></div>
               <div>
                 <Label>Payout Timeline</Label>
                 <div className="mt-1 flex gap-2">

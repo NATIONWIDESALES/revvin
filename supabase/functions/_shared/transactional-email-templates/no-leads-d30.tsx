@@ -13,7 +13,7 @@ const Email = ({ businessName, setupCallUrl, unsubscribeUrl }: Props) => (
   <RevvinShell previewText="A free 30 minute call to work out who to ask." unsubscribeUrl={unsubscribeUrl}>
     <Text style={heading}>Your page has been live for a month</Text>
     <Text style={paragraph}>
-      Hi, it's Karm. {businessName || 'Your page'} has been live for a month and no referrals have come in yet. That is
+      Hi, it's the Revvin team. {businessName || 'Your page'} has been live for a month and no referrals have come in yet. That is
       almost always about who has seen the link, not the page itself.
     </Text>
     <Text style={paragraph}>
@@ -21,7 +21,7 @@ const Email = ({ businessName, setupCallUrl, unsubscribeUrl }: Props) => (
       on the phone.
     </Text>
     {setupCallUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(setupCallUrl, 'Book a free 30 minute call')}</Text> : null}
-    <Text style={paragraph}>Karm</Text>
+    <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )
 

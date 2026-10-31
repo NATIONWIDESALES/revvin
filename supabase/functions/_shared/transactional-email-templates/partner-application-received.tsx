@@ -19,8 +19,8 @@ const Email = ({ name }: Props) => (
       If you have not looked at the product yet, build a free referral page for yourself first. It is the
       quickest way to know what you are talking about.
     </Text>
-    <Text style={partnerParagraph}>Reply with any questions. It comes straight to me.</Text>
-    <Text style={partnerParagraph}>Karm</Text>
+    <Text style={partnerParagraph}>Reply with any questions. It comes straight to our team.</Text>
+    <Text style={partnerParagraph}>The Revvin team</Text>
   </PartnerShell>
 )
 

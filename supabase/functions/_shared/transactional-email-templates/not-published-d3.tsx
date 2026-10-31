@@ -14,13 +14,13 @@ const Email = ({ businessName, publishUrl, setupCallUrl, unsubscribeUrl }: Props
   <RevvinShell previewText="Reply with your logo and reward and I will set the page up." unsubscribeUrl={unsubscribeUrl}>
     <Text style={heading}>Want me to set it up for you?</Text>
     <Text style={paragraph}>
-      Hi, it's Karm. Your Revvin page for {businessName || 'your business'} is still in draft. If it is easier, reply with
+      Hi, it's the Revvin team. Your Revvin page for {businessName || 'your business'} is still in draft. If it is easier, reply with
       your logo and the reward you want to offer and I will set the page up for you. Or grab a free 30 minute call and we
       will do it together.
     </Text>
     {publishUrl ? <Text style={{ margin: '0 0 12px' }}>{ctaButton(publishUrl, 'Publish my page')}</Text> : null}
     {setupCallUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(setupCallUrl, 'Book a free 30 minute call')}</Text> : null}
-    <Text style={paragraph}>Karm</Text>
+    <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )
 

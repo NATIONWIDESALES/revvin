@@ -1,4 +1,4 @@
-// Admin only: everything Karm needs to run the partner program.
+// Admin only: everything the team needs to run the partner program.
 //
 // Authorization reuses the existing platform-admin check. Every read and write
 // on the partner tables happens here with the service role, because those tables

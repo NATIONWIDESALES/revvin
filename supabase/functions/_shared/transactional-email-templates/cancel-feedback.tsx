@@ -12,13 +12,13 @@ const Email = ({ businessName, unsubscribeUrl }: Props) => (
   <RevvinShell previewText="One line back would help me a lot." unsubscribeUrl={unsubscribeUrl}>
     <Text style={heading}>Can I ask what didn't work?</Text>
     <Text style={paragraph}>
-      Hi, it's Karm. I saw {businessName || 'your account'} cancelled Pro. If you have a second, reply with one line on
+      Hi, it's the Revvin team. I saw {businessName || 'your account'} cancelled Pro. If you have a second, reply with one line on
       what did not work. I read every one myself.
     </Text>
     <Text style={paragraph}>
       Nothing is lost. Your referral page stays live and free, and your leads and your customer list are still there.
     </Text>
-    <Text style={paragraph}>Karm</Text>
+    <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )
 

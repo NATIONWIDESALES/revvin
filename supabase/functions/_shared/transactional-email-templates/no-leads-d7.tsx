@@ -13,7 +13,7 @@ const Email = ({ businessName, setupCallUrl, unsubscribeUrl }: Props) => (
   <RevvinShell previewText="A free 30 minute call to get your first referral in." unsubscribeUrl={unsubscribeUrl}>
     <Text style={heading}>Want me to set this up with you?</Text>
     <Text style={paragraph}>
-      {businessName ? `Hi, it's Karm at Revvin. ${businessName} has been live for a week` : 'Hi, it is Karm at Revvin. Your page has been live for a week'}{' '}
+      {businessName ? `Hi, it's The Revvin team at Revvin. ${businessName} has been live for a week` : 'Hi, it is The Revvin team at Revvin. Your page has been live for a week'}{' '}
       and no referrals have come in yet. That is almost always because the link has not gone out to enough past customers.
     </Text>
     <Text style={paragraph}>
@@ -21,7 +21,7 @@ const Email = ({ businessName, setupCallUrl, unsubscribeUrl }: Props) => (
       the phone.
     </Text>
     {setupCallUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(setupCallUrl, 'Book a free 30 minute call')}</Text> : null}
-    <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to me. Karm</Text>
+    <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to our team. The Revvin team</Text>
   </RevvinShell>
 )
 

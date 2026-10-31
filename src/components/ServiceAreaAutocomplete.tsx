@@ -39,7 +39,7 @@ const ServiceAreaAutocomplete = ({
   value,
   onChange,
   onPlaceSelected,
-  placeholder = "Vancouver, BC",
+  placeholder = "Dallas, TX",
   id,
 }: Props) => {
   const [suggestions, setSuggestions] = useState<any[]>([]);

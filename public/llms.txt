@@ -2,7 +2,7 @@
 
 > Revvin (revvin.co) is a free referral program and local referral network for home-service businesses.
 
-Last updated: 2026-10-30
+Last updated: 2026-10-31
 
 Revvin gives a home-service business a referral page on its own link, a personal link for every person who refers, and an ask after every job. The business pays a reward only when a referral turns into a job, and pays it directly. Revvin is not affiliated with the Revvin digital mortgage platform.
 
@@ -30,18 +30,18 @@ Revvin gives a home-service business a referral page on its own link, a personal
 ## Earn, for referrers
 
 - Locals earn a reward, paid directly by the business, when a referral turns into a job.
-- Earn opens city by city, starting with the Fraser Valley, BC.
+- Earn opens city by city across the US and Canada.
 - Free for referrers. No earnings are promised.
 
-## Founder
+## Team
 
-- Revvin was founded by Karm Sandhu.
+- Revvin is built by a team serving home-service businesses across the US and Canada.
 
 ## Key pages
 
 - [Home](/): What Revvin is and how it works.
 - [Pricing](/pricing): Free and Revvin Pro.
-- [About](/about): The company, what it does not do and the founder.
+- [About](/about): The company, what it does not do and the team.
 - [Earn](/earn): Get paid for referrals, city by city.
 - [How it works](/how-it-works): The referral flow end to end.
 - [Guides](/guides): Referral program guides for service businesses.

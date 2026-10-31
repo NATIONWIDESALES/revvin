@@ -13,7 +13,7 @@ const Email = ({ businessName, customersUrl, unsubscribeUrl }: Props) => (
   <RevvinShell previewText="Any spreadsheet with a name and email works." unsubscribeUrl={unsubscribeUrl}>
     <Text style={heading}>Need a hand importing your customer list?</Text>
     <Text style={paragraph}>
-      Hi, it's Karm. {businessName || 'Your account'} is on Pro but there are no customers in the list yet, and the list is
+      Hi, it's the Revvin team. {businessName || 'Your account'} is on Pro but there are no customers in the list yet, and the list is
       where the referrals come from.
     </Text>
     <Text style={paragraph}>
@@ -21,7 +21,7 @@ const Email = ({ businessName, customersUrl, unsubscribeUrl }: Props) => (
       quicker, reply to this email with the file and I will import it for you.
     </Text>
     {customersUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(customersUrl, 'Import my customers')}</Text> : null}
-    <Text style={paragraph}>Karm</Text>
+    <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )
 

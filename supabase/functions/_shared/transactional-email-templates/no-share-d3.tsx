@@ -20,7 +20,7 @@ const Email = ({ businessName, askMessage, dashboardUrl, unsubscribeUrl }: Props
     {askMessage ? <Text style={quoted}>{askMessage}</Text> : null}
     <Text style={paragraph}>That is the whole task. It takes about five minutes.</Text>
     {dashboardUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(dashboardUrl, 'Open my dashboard')}</Text> : null}
-    <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to me. Karm</Text>
+    <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to our team. The Revvin team</Text>
   </RevvinShell>
 )
 

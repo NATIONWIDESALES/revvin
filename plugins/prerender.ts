@@ -18,8 +18,7 @@ import {
   GUIDES_UPDATED_AT,
   INDEXNOW_KEY,
   ORG_DISAMBIGUATION,
-  FOUNDER_PERSON,
-  FOUNDER_REF,
+  TEAM_REF,
   ORG_ID,
   ORG_SAME_AS,
   SITE_ID,
@@ -103,13 +102,6 @@ const ORGANIZATION = {
   knowsAbout: ["referral marketing", "referral programs", "home services marketing"],
   slogan: "Your customer list, working for you",
   disambiguatingDescription: ORG_DISAMBIGUATION,
-  // The id points at the full Person node on /about; the name, profile and
-  // disambiguation stay inline so every page names the founder on its own.
-  founder: {
-    ...FOUNDER_REF,
-    sameAs: [...FOUNDER_PERSON.sameAs],
-    disambiguatingDescription: FOUNDER_PERSON.disambiguatingDescription,
-  },
   // Emitted only once real profile URLs exist; an empty sameAs says nothing.
   ...(ORG_SAME_AS.length ? { sameAs: ORG_SAME_AS } : {}),
   ...(FOUNDING_DATE ? { foundingDate: FOUNDING_DATE } : {}),
@@ -273,9 +265,6 @@ export const jsonLd = (route: PrerenderRoute) => {
     },
     breadcrumbs(route),
   ];
-  // The founder's full Person node lives on /about; every author reference
-  // elsewhere points at its id.
-  if (route.path === "/about") graph.push(FOUNDER_PERSON);
   // The priced product description belongs on the pages that are actually about
   // buying it, not on every document.
   if (route.path === "/" || route.path === "/pricing" || route.path === "/for-businesses") {
@@ -292,7 +281,7 @@ export const jsonLd = (route: PrerenderRoute) => {
       description: route.description,
       mainEntityOfPage: { "@id": `${url}#webpage` },
       inLanguage: "en-US",
-      author: FOUNDER_REF,
+      author: TEAM_REF,
       publisher: { "@id": ORG_ID },
       datePublished: route.datePublished ?? (dated ? COMPARISONS_CHECKED_ON : GUIDES_PUBLISHED_AT),
       dateModified: route.dateModified ?? (dated ? COMPARISONS_CHECKED_ON : GUIDES_UPDATED_AT),
@@ -350,7 +339,7 @@ const FALLBACK_GUARD = `<script>(function(){var p=location.pathname;if(p==="/")r
 const bodyHtml = (route: PrerenderRoute, ssr?: string | null) => {
   if (ssr) return `<div id="root" data-ssr="1">${ssr}</div>${route.path === "/" ? FALLBACK_GUARD : ""}`;
   const parts: string[] = [`<h1>${esc(route.h1)}</h1>`];
-  if (route.path.startsWith("/guides/") || route.article) parts.push(`<p>By ${esc(FOUNDER_REF.name)}, Founder of Revvin</p>`);
+  if (route.path.startsWith("/guides/") || route.article) parts.push(`<p>By the Revvin team</p>`);
   for (const s of route.sections) {
     parts.push(`<h2>${esc(s.heading)}</h2><p>${esc(s.body)}</p>`);
   }
