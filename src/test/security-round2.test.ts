@@ -68,9 +68,9 @@ describe("2. data retention", () => {
       (await db.query<any>(`SELECT customer_email, customer_phone FROM public.referral_triggers WHERE customer_email = $1`, [email])).rows;
     // The ask processed 100 days ago was scrubbed.
     expect((await db.query<any>(`SELECT count(*)::int n FROM public.referral_triggers WHERE customer_email IS NULL AND customer_phone IS NULL`)).rows[0].n).toBe(1);
-    expect((await trigger("new@example.com")).rows[0]).toEqual({ customer_email: "new@example.com", customer_phone: "5550002222" });
+    expect((await trigger("new@example.com"))[0]).toEqual({ customer_email: "new@example.com", customer_phone: "5550002222" });
     // A still-pending ask keeps its contact details.
-    expect((await trigger("pending@example.com")).rows[0]).toEqual({ customer_email: "pending@example.com", customer_phone: "5550003333" });
+    expect((await trigger("pending@example.com"))[0]).toEqual({ customer_email: "pending@example.com", customer_phone: "5550003333" });
 
     expect((await db.query<any>(`SELECT count(*)::int n FROM public.notifications_log`)).rows[0].n).toBe(1);
     expect((await db.query<any>(`SELECT count(*)::int n FROM public.email_send_log`)).rows[0].n).toBe(1);
