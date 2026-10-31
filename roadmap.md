@@ -24,3 +24,5 @@
 - [ ] Verify new-account signup-to-publish and actual team email delivery: no live account or messages created during this run
 - [ ] Verify hourly calls and owner text delivery: human team follow-up required, no automatic SMS sender added
 - [ ] Verify enabled Pixel provider receipt: Pixel id deliberately empty and regional consent question not answered
+- [ ] Security hardening 1-25: database trust, function authorization, email abuse, public metadata, storage and frame protection
+- [ ] Security regression suite, preview verification and itemized hardening changelog
