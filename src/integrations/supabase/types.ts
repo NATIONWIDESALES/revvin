@@ -1797,6 +1797,27 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_flags: {
+        Row: {
+          enabled: boolean
+          key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          enabled?: boolean
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          enabled?: boolean
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -2503,6 +2524,51 @@ export type Database = {
         }
         Relationships: []
       }
+      security_alerts: {
+        Row: {
+          alert_type: string
+          details: Json | null
+          id: string
+          sent_at: string
+          summary: string
+        }
+        Insert: {
+          alert_type: string
+          details?: Json | null
+          id?: string
+          sent_at?: string
+          summary: string
+        }
+        Update: {
+          alert_type?: string
+          details?: Json | null
+          id?: string
+          sent_at?: string
+          summary?: string
+        }
+        Relationships: []
+      }
+      security_events: {
+        Row: {
+          created_at: string
+          details: Json | null
+          event_type: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          event_type: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          event_type?: string
+          id?: string
+        }
+        Relationships: []
+      }
       send_log: {
         Row: {
           body: string | null
@@ -3182,6 +3248,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      fn_data_retention: { Args: never; Returns: Json }
       fn_earn_businesses: {
         Args: { p_metro_slug: string }
         Returns: {
@@ -3269,6 +3336,7 @@ export type Database = {
         Returns: boolean
       }
       fn_platform_counts: { Args: never; Returns: Json }
+      fn_platform_flag: { Args: { p_key: string }; Returns: boolean }
       fn_rate_bucket_hit: {
         Args: { p_key: string; p_max_hits: number; p_window: string }
         Returns: boolean
