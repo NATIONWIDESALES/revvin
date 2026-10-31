@@ -152,6 +152,21 @@ export type Database = {
           },
         ]
       }
+      business_trial_history: {
+        Row: {
+          granted_at: string
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       businesses: {
         Row: {
           account_status: string
@@ -174,6 +189,7 @@ export type Database = {
           google_review_url: string | null
           headline: string | null
           id: string
+          index_approved: boolean
           industry: string | null
           invite_code: string | null
           is_demo: boolean | null
@@ -249,6 +265,7 @@ export type Database = {
           google_review_url?: string | null
           headline?: string | null
           id?: string
+          index_approved?: boolean
           industry?: string | null
           invite_code?: string | null
           is_demo?: boolean | null
@@ -324,6 +341,7 @@ export type Database = {
           google_review_url?: string | null
           headline?: string | null
           id?: string
+          index_approved?: boolean
           industry?: string | null
           invite_code?: string | null
           is_demo?: boolean | null
@@ -2891,110 +2909,74 @@ export type Database = {
     Views: {
       businesses_public: {
         Row: {
-          account_status: string | null
           brand_color: string | null
           category: string | null
           city: string | null
           cover_image_url: string | null
-          created_at: string | null
           description: string | null
           headline: string | null
           id: string | null
-          industry: string | null
+          index_approved: boolean | null
           is_demo: boolean | null
-          is_disabled: boolean | null
-          is_published: boolean | null
           is_verified: boolean | null
-          latitude: number | null
           logo_url: string | null
-          longitude: number | null
           name: string | null
           offer_amount: string | null
           offer_fine_print: string | null
           offer_trigger: string | null
-          plan: string | null
           referral_cta_label: string | null
           service_area: string | null
-          show_on_earn: boolean | null
           slug: string | null
           state: string | null
-          subscription_status: string | null
           testimonials: Json | null
-          updated_at: string | null
-          user_id: string | null
-          verified: boolean | null
           website: string | null
           welcome_message: string | null
         }
         Insert: {
-          account_status?: string | null
           brand_color?: string | null
           category?: string | null
           city?: string | null
           cover_image_url?: string | null
-          created_at?: string | null
           description?: string | null
           headline?: string | null
           id?: string | null
-          industry?: string | null
+          index_approved?: boolean | null
           is_demo?: never
-          is_disabled?: boolean | null
-          is_published?: boolean | null
           is_verified?: boolean | null
-          latitude?: number | null
           logo_url?: string | null
-          longitude?: number | null
           name?: string | null
           offer_amount?: string | null
           offer_fine_print?: string | null
           offer_trigger?: string | null
-          plan?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
-          show_on_earn?: boolean | null
           slug?: string | null
           state?: string | null
-          subscription_status?: string | null
           testimonials?: Json | null
-          updated_at?: string | null
-          user_id?: string | null
-          verified?: boolean | null
           website?: string | null
           welcome_message?: string | null
         }
         Update: {
-          account_status?: string | null
           brand_color?: string | null
           category?: string | null
           city?: string | null
           cover_image_url?: string | null
-          created_at?: string | null
           description?: string | null
           headline?: string | null
           id?: string | null
-          industry?: string | null
+          index_approved?: boolean | null
           is_demo?: never
-          is_disabled?: boolean | null
-          is_published?: boolean | null
           is_verified?: boolean | null
-          latitude?: number | null
           logo_url?: string | null
-          longitude?: number | null
           name?: string | null
           offer_amount?: string | null
           offer_fine_print?: string | null
           offer_trigger?: string | null
-          plan?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
-          show_on_earn?: boolean | null
           slug?: string | null
           state?: string | null
-          subscription_status?: string | null
           testimonials?: Json | null
-          updated_at?: string | null
-          user_id?: string | null
-          verified?: boolean | null
           website?: string | null
           welcome_message?: string | null
         }
@@ -3186,6 +3168,10 @@ export type Database = {
             }
             Returns: undefined
           }
+      fn_create_job_ask: {
+        Args: { p_business_id: string; p_data: Json }
+        Returns: string
+      }
       fn_create_notification: {
         Args: {
           p_body: string
@@ -3234,6 +3220,7 @@ export type Database = {
       }
       fn_earn_waiting_count: { Args: { p_metro_slug: string }; Returns: number }
       fn_effective_plan: { Args: { p_business_id: string }; Returns: string }
+      fn_email_owned: { Args: never; Returns: boolean }
       fn_enqueue_webhook: {
         Args: { p_business_id: string; p_event: string; p_payload: Json }
         Returns: undefined
@@ -3265,6 +3252,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      fn_me_email_eligible: { Args: { p_email: string }; Returns: boolean }
       fn_my_referrals: { Args: never; Returns: Json }
       fn_new_referrer_token: { Args: never; Returns: string }
       fn_normalize_slug: { Args: { p_slug: string }; Returns: string }
@@ -3306,6 +3294,10 @@ export type Database = {
         }
         Returns: Json
       }
+      fn_referral_action: {
+        Args: { p_action: string; p_referral_id: string }
+        Returns: boolean
+      }
       fn_referral_privileged_unchanged: {
         Args: {
           p_business_id: string
@@ -3323,10 +3315,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      fn_referrer_lead_summary: {
+        Args: never
+        Returns: {
+          business_name: string
+          lead_first_name: string
+          reward_amount: number
+          reward_status: string
+          status: string
+        }[]
+      }
       fn_release_invite_code: {
         Args: { p_session_id: string }
         Returns: boolean
       }
+      fn_request_bucket: { Args: never; Returns: string }
       fn_resolve_referrer: {
         Args: { p_slug: string; p_token: string }
         Returns: Json
@@ -3353,6 +3356,10 @@ export type Database = {
           p_metro_slug?: string
           p_source: string
         }
+        Returns: boolean
+      }
+      fn_submit_public_capture: {
+        Args: { p_data: Json; p_kind: string }
         Returns: boolean
       }
       fn_submit_public_referral: {

@@ -57,6 +57,55 @@
       "when": 1793462113085,
       "tag": "0007_acquisition_pro_trial",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793466409460,
+      "tag": "0008_security_identity_grants_moderation",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793466468336,
+      "tag": "0009_security_rate_limited_submissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793466501487,
+      "tag": "0010_security_public_projection",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793466701428,
+      "tag": "0011_security_referrer_actions_and_private_email_checks",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793466792350,
+      "tag": "0012_security_earn_token_delivery",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793466866955,
+      "tag": "0013_security_job_limits_and_bucket_validation",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793467169048,
+      "tag": "0014_security_image_upload_policy",
+      "breakpoints": true
     }
   ]
 }

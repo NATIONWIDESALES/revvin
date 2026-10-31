@@ -9,8 +9,8 @@
 //   3. the delay + queue     (same scheduled_send_at, same worker, same
 //                             unsubscribe footer at send time)
 // If you are tempted to add a "skip_checks" flag here, don't.
-import { createClient } from 'npm:@supabase/supabase-js@2'
-import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
+import { createClient } from 'npm:@supabase/supabase-js@2.97.0'
+import { corsHeaders } from 'npm:@supabase/supabase-js@2.97.0/cors'
 
 const DELAY_HOURS = 2
 const RATE_LIMIT_PER_HOUR = 120
@@ -209,7 +209,7 @@ Deno.serve(async (req) => {
 
   if (error) {
     console.error('ingest-job-completed insert failed:', error.message)
-    return json({ error: 'Could not record the job', details: error.message }, 500)
+    return json({ error: 'Could not record the job' }, 500)
   }
 
   await admin.from('api_keys').update({ last_used_at: new Date().toISOString() }).eq('id', key.id)

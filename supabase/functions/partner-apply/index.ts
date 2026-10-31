@@ -1,7 +1,7 @@
 // Public: accepts a partner application, emails the applicant a receipt and
 // alerts info@revvin.co. Rate limited, with a honeypot field.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { appUrl } from "../_shared/app-config.ts";
 import { sendPartnerEmail } from "../_shared/partner-email.ts";
 
@@ -55,19 +55,22 @@ Deno.serve(async (req) => {
       { auth: { persistSession: false } },
     );
 
+    const { data: globalAllowed, error: globalError } = await admin.rpc("fn_rate_bucket_hit", { p_key: "partner_apply:global", p_window: "1 hour", p_max_hits: 50 });
+    if (globalError || globalAllowed !== true) return json({ error: "Please try again later." }, 429);
+
     const { data: allowed } = await admin.rpc("fn_rate_bucket_hit", {
       p_key: `partner_apply:${email}`,
       p_window: "1 hour",
       p_max_hits: 3,
     });
-    if (allowed === false) {
+    if (allowed !== true) {
       return json({ error: "We already have your application. Give us a few days." }, 429);
     }
 
     const { data: existing } = await admin
       .from("partners")
       .select("id, status")
-      .ilike("email", email)
+      .eq("email", email)
       .limit(1);
     if (existing?.length) {
       // Never confirm or deny an existing application: the same neutral reply.

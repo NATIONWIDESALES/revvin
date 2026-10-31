@@ -2,6 +2,7 @@ import * as React from 'npm:react@18.3.1'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { EmailAPIError, sendLovableEmail } from 'npm:@lovable.dev/email-js@0.1.0'
 import { TEMPLATES } from './registry.ts'
+import { globalSuppression } from '../global-suppression.ts'
 
 // Server-only: reads LOVABLE_API_KEY. Import from edge functions only — never
 // expose sending to the browser.
@@ -58,6 +59,7 @@ export async function sendTemplateEmail(
   }
 
   const templateData = options.templateData ?? {}
+  if (await globalSuppression(recipient)) return { success: false, error: 'recipient_suppressed' };
   const element = React.createElement(template.component, templateData)
   const html = await renderAsync(element)
   const text = await renderAsync(element, { plainText: true })

@@ -55,7 +55,7 @@ const Me = () => {
       ) : !user ? (
         <div className="mt-6 max-w-md rounded-2xl border border-border bg-card p-6">
           {sent ? (
-            <p role="status" className="text-sm text-foreground">Check your email. We sent a sign-in link to {email.trim()}.</p>
+            <p role="status" className="text-sm text-foreground">If this email is registered, a sign-in link will arrive shortly.</p>
           ) : (
             <form onSubmit={send} className="space-y-3" noValidate>
               <p className="text-sm text-muted-foreground">Enter the email you use when you refer. We'll send you a sign-in link.</p>

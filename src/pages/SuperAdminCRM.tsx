@@ -53,7 +53,7 @@ const payoutStatusConfig: Record<string, { bg: string; text: string; label: stri
 };
 
 interface Business {
-  id: string; name: string; verified: boolean | null; is_verified?: boolean | null; created_at: string; city: string | null; state: string | null; industry: string | null; account_status?: string;
+  id: string; name: string; verified: boolean | null; is_verified?: boolean | null; index_approved?: boolean; created_at: string; city: string | null; state: string | null; industry: string | null; account_status?: string;
 }
 interface Profile {
   user_id: string; full_name: string | null; city: string | null;
@@ -409,7 +409,7 @@ const SuperAdminCRM = () => {
     const { error } = await supabase.from("businesses").update({ verified: true, is_verified: true }).eq("id", bizId);
     if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
     setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, verified: true, is_verified: true } : b));
-    if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: "business_verified", p_referral_id: bizId });
+
     toast({ title: "Business verified" });
   };
 
@@ -676,6 +676,12 @@ const SuperAdminCRM = () => {
                           {accountStatus === "rejected" && (
                             <Button size="sm" onClick={() => approveAccount(biz.id)} className="gap-1"><CheckCircle2 className="h-3 w-3" /> Approve</Button>
                           )}
+                          <Button size="sm" variant="outline" onClick={async () => {
+                            const approved = !biz.index_approved;
+                            const { error } = await supabase.from("businesses").update({ index_approved: approved }).eq("id", biz.id);
+                            if (error) { toast({ title: "Could not change search approval", description: friendlyError(error), variant: "destructive" }); return; }
+                            setBusinesses(prev => prev.map(b => b.id === biz.id ? { ...b, index_approved: approved } : b));
+                          }}>{biz.index_approved ? "Remove search approval" : "Approve for search"}</Button>
                           {!biz.verified && (
                             <Button size="sm" variant="outline" onClick={() => verifyBusiness(biz.id)} className="gap-1"><BadgeCheck className="h-3 w-3" /> Verify</Button>
                           )}

@@ -1,5 +1,5 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
+import { corsHeaders } from "npm:@supabase/supabase-js@2.97.0/cors";
 
 /**
  * Called by the service worker's pushsubscriptionchange handler, which has no

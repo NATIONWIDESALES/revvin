@@ -1,6 +1,6 @@
 // Daily cron: a pending commission whose hold has elapsed becomes payable.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { checkCronAuth } from "../_shared/cron-auth.ts";
 
 const corsHeaders = {

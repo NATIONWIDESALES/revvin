@@ -41,10 +41,19 @@ export async function partnerByCode(db: Database, rawCode: unknown) {
 
 export async function attributeBusinessToPartner(input: AttributeInput): Promise<AttributeResult> {
   const { db, business } = input;
+  if (business.partner_id) return { attributed: false, reason: "already_attributed" };
+  const now = input.now ?? Date.now();
+  const created = Date.parse(business.created_at ?? "");
+  if (!Number.isFinite(created) || now - created > 30 * 60_000 || created > now) return { attributed: false, reason: "business_too_old" };
+  const clicked = Date.parse(input.clickedAt ?? "");
+  if (!Number.isFinite(clicked) || clicked > now || now - clicked > 60 * 86400_000) return { attributed: false, reason: "click_required" };
   const code = preferredCode(input.typedCode, input.clickCode);
   if (!code) return { attributed: false, reason: "no_code" };
 
   const partner = await partnerByCode(db, code);
+  if (!partner) return { attributed: false, reason: "unknown_partner" };
+  const { data: clicks, error: clickError } = await db.from("partner_clicks").select("id").eq("partner_id", partner.id).gte("created_at", new Date(clicked - 60_000).toISOString()).lte("created_at", new Date(clicked + 60_000).toISOString()).limit(1);
+  if (clickError || !clicks?.length) return { attributed: false, reason: "click_required" };
   const decision = attributionDecision({
     typedCode: input.typedCode,
     clickCode: input.clickCode,

@@ -1,4 +1,5 @@
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
+import { globalSuppression } from "./global-suppression.ts";
 
 export interface SendEmailParams {
   from: string;
@@ -9,6 +10,7 @@ export interface SendEmailParams {
   reply_to?: string;
   idempotencyKey?: string;
   tags?: { name: string; value: string }[];
+  unsubscribeUrl?: string;
 }
 
 export interface SendEmailResult {
@@ -18,6 +20,11 @@ export interface SendEmailResult {
 }
 
 export async function sendEmailViaGateway(params: SendEmailParams): Promise<SendEmailResult> {
+  try {
+    for (const email of Array.isArray(params.to) ? params.to : [params.to]) {
+      if (await globalSuppression(email)) return { success: false, error: "recipient_suppressed" };
+    }
+  } catch { return { success: false, error: "suppression_unavailable" }; }
   const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
   const resendApiKey = Deno.env.get("RESEND_API_KEY");
 
@@ -40,6 +47,9 @@ export async function sendEmailViaGateway(params: SendEmailParams): Promise<Send
   if (params.text) body.text = params.text;
   if (params.reply_to) body.reply_to = params.reply_to;
   if (params.tags) body.tags = params.tags;
+  if (params.unsubscribeUrl) {
+    body.headers = { "List-Unsubscribe": `<${params.unsubscribeUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" };
+  }
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",

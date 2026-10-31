@@ -25,7 +25,7 @@ describe("businesses_public selects", () => {
     for (const c of PRERENDER_BUSINESS_COLS.split(",")) expect(viewCols.has(c), c).toBe(true);
   });
   it("the view exposes no private contact or owner fields", () => {
-    for (const c of ["business_email", "phone", "street_address", "stripe_customer_id", "invite_code", "partner_id"]) {
+    for (const c of ["business_email", "phone", "street_address", "stripe_customer_id", "invite_code", "partner_id", "user_id", "account_status", "subscription_status", "plan", "is_disabled", "created_at", "updated_at", "latitude", "longitude"]) {
       expect(viewCols.has(c), c).toBe(false);
     }
   });

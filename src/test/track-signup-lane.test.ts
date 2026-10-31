@@ -2,9 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi, beforeAll } from "vite
 
 // Isolated event sink: the real tracker runs, persistence is intercepted.
 const fake = vi.hoisted(() => ({ insert: vi.fn(), capture: vi.fn(), existing: vi.fn() }));
-vi.mock("@/integrations/supabase/client", () => ({ supabase: { from: (table: string) => {
-  if (table !== "funnel_events") throw new Error("Unexpected persistence target");
-  return { insert: fake.insert };
+vi.mock("@/integrations/supabase/client", () => ({ supabase: { rpc: (fn: string, args: { p_kind: string; p_data: unknown }) => {
+  if (fn !== "fn_submit_public_capture" || args.p_kind !== "funnel_events") throw new Error("Unexpected persistence target");
+  return fake.insert(args.p_data);
 } } }));
 vi.mock("@/lib/attribution", () => ({ captureAttribution: fake.capture, getAttribution: fake.existing }));
 

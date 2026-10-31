@@ -24,3 +24,8 @@
 - [ ] Verify new-account signup-to-publish and actual team email delivery: no live account or messages created during this run
 - [ ] Verify hourly calls and owner text delivery: human team follow-up required, no automatic SMS sender added
 - [ ] Verify enabled Pixel provider receipt: Pixel id deliberately empty and regional consent question not answered
+- [x] Code/database security hardening and upload policy mitigation, with limitations documented
+- [ ] Bucket MIME configuration and hosted password length/HIBP: tooling does not expose MIME configuration or safe current auth-settings read
+- [ ] Security authenticated end-to-end checks: no matching own-account session; no customer messages sent
+- [ ] Production old-client compatibility after live permission/view tightening: frontend publication forbidden in this run
+- [x] Security regression suite, public preview verification and itemized hardening changelog

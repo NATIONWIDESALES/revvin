@@ -101,6 +101,7 @@ export async function sendLifecycleEmail(input: LifecycleSendInput): Promise<Lif
     reply_to: LIFECYCLE_REPLY_TO,
     subject,
     html,
+    unsubscribeUrl,
     idempotencyKey: input.idempotencyKey,
   });
 

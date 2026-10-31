@@ -1,10 +1,11 @@
+import { csvCell } from "../_shared/security.ts";
 // Admin only: everything the team needs to run the partner program.
 //
 // Authorization reuses the existing platform-admin check. Every read and write
 // on the partner tables happens here with the service role, because those tables
 // have no client-facing policies at all.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { isPlatformAdmin } from "../_shared/admin-auth.ts";
 import { appUrl } from "../_shared/app-config.ts";
 import { sendPartnerEmail } from "../_shared/partner-email.ts";
@@ -41,7 +42,7 @@ function csv(rows: (string | number | null)[][]): string {
     .map((row) =>
       row
         .map((cell) => {
-          const value = cell === null || cell === undefined ? "" : String(cell);
+          const value = csvCell(cell);
           return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
         })
         .join(","),

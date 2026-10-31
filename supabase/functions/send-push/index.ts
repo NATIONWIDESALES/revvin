@@ -1,5 +1,5 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
+import { corsHeaders } from "npm:@supabase/supabase-js@2.97.0/cors";
 import { sendPush, vapidConfigured } from "../_shared/push.ts";
 import { checkCronAuth } from "../_shared/cron-auth.ts";
 
@@ -29,8 +29,26 @@ const str = (value: unknown, max: number) =>
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
-  if (!vapidConfigured()) return json({ error: "Push is not configured" }, 503);
 
+
+  const db = admin();
+  const backend = checkCronAuth(req, {
+    cronSecret: Deno.env.get("CRON_SECRET") ?? "",
+    serviceRoleKey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+  }).ok;
+
+  // Signed in test path: the caller's own devices only, whatever they ask for.
+  const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+  if (!backend && !token) return json({ error: "Unauthorized" }, 401);
+  const anonClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { auth: { persistSession: false } },
+  );
+  const { data: userData, error: userErr } = await anonClient.auth.getUser(token);
+  const user = userData?.user;
+  if (!backend && (userErr || !user)) return json({ error: "Unauthorized" }, 401);
+  if (!vapidConfigured()) return json({ error: "Push is not configured" }, 503);
   let payload: Record<string, unknown>;
   try {
     payload = await req.json();
@@ -44,12 +62,6 @@ Deno.serve(async (req) => {
   const tag = str(payload.tag, 60) || "revvin";
   if (!title) return json({ error: "title is required" }, 400);
 
-  const db = admin();
-  const backend = checkCronAuth(req, {
-    cronSecret: Deno.env.get("CRON_SECRET") ?? "",
-    serviceRoleKey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-  }).ok;
-
   if (backend) {
     const target = {
       user_id: str(payload.user_id, 40) || null,
@@ -62,17 +74,8 @@ Deno.serve(async (req) => {
     return json({ ok: true, ...result });
   }
 
-  // Signed in test path: the caller's own devices only, whatever they ask for.
-  const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
-  if (!token) return json({ error: "Unauthorized" }, 401);
-  const anonClient = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_ANON_KEY")!,
-    { auth: { persistSession: false } },
-  );
-  const { data: userData, error: userErr } = await anonClient.auth.getUser(token);
-  const user = userData?.user;
-  if (userErr || !user) return json({ error: "Unauthorized" }, 401);
+
+  if (!user) return json({ error: "Unauthorized" }, 401);
 
   const result = await sendPush(db, { user_id: user.id }, { title, body, url, tag });
   return json({ ok: true, ...result });

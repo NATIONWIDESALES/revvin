@@ -283,7 +283,7 @@ const PublicReferralPage = () => {
         title={`Refer a customer to ${biz.name}${biz.city ? ` in ${biz.city}` : ""}, earn ${biz.offer_amount?.trim() || "a reward"}`}
         description={`${biz.name} pays ${biz.offer_amount?.trim() || "a reward"} when your referral turns into a job. Submit a referral or get your own link.`}
         path={`/r/${biz.slug}`}
-        noindex={ownerPreview || !!(biz as { is_demo?: boolean | null }).is_demo || isRestrictedCategory(biz.category)}
+        noindex={(biz as { index_approved?: boolean }).index_approved !== true || ownerPreview || !!(biz as { is_demo?: boolean | null }).is_demo || isRestrictedCategory(biz.category)}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "LocalBusiness",

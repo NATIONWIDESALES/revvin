@@ -10,11 +10,9 @@ export interface Segment {
 }
 
 export const SEGMENTS: Segment[] = [
-  { key: "m24_plus", label: "24 months or more", description: "Biggest opportunity", minMonths: 24, maxMonths: null },
   { key: "m12_24", label: "12 to 24 months", description: "Long-lapsed customers", minMonths: 12, maxMonths: 24 },
   { key: "m6_12", label: "6 to 12 months", description: "Due for a check-in", minMonths: 6, maxMonths: 12 },
   { key: "recent", label: "Under 6 months", description: "Recent customers", minMonths: 0, maxMonths: 6 },
-  { key: "unknown", label: "No last job date", description: "Add dates to improve targeting", minMonths: null, maxMonths: null },
 ];
 
 export const segmentByKey = (key: string) => SEGMENTS.find((s) => s.key === key) ?? null;
@@ -33,10 +31,10 @@ export interface RecencyContact {
 export const recencyDate = (c: RecencyContact) => c.last_job_at ? new Date(c.last_job_at) : null;
 
 export function inSegment(contact: RecencyContact, segment: Segment): boolean {
-  if (!contact.last_job_at) return segment.key === "unknown";
+  if (!contact.last_job_at) return false;
   const timestamp = new Date(contact.last_job_at).getTime();
-  if (!Number.isFinite(timestamp)) return segment.key === "unknown";
-  if (segment.key === "unknown") return false;
+  if (!Number.isFinite(timestamp)) return false;
+  if (segment.key === "unknown" || segment.key === "m24_plus") return false;
   if (segment.minMonths !== null && timestamp > monthsAgo(segment.minMonths).getTime()) return false;
   if (segment.maxMonths == null) return true;
   return timestamp >= monthsAgo(segment.maxMonths).getTime();

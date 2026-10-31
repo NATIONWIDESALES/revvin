@@ -134,6 +134,7 @@ describe("private and not-found documents", () => {
 describe("published referral pages", () => {
   const biz = {
     slug: "summit-roofing",
+    index_approved: true,
     name: "Summit Roofing",
     description: "Residential roofing",
     offer_amount: "$500",

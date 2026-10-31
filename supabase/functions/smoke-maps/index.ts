@@ -1,3 +1,4 @@
+import { checkCronAuth } from "../_shared/cron-auth.ts";
 // Server-side smoke test for the Google Maps Platform connector.
 // Geocodes a stable, well-known address via the Lovable connector gateway and
 // reports back the number of results. Used by the frontend Vitest smoke test
@@ -19,6 +20,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  if (!checkCronAuth(req).ok) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   const GOOGLE_MAPS_API_KEY = Deno.env.get("GOOGLE_MAPS_API_KEY");

@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { appUrl, RESEND_FROM_ADDRESS } from "../_shared/app-config.ts";
 import { effectivePlan } from "../_shared/effective-plan.ts";
 import {
@@ -22,11 +22,9 @@ const MAX_RECIPIENTS = 500;
 const UNDELIVERABLE_DOMAINS = new Set(["example.com", "example.net", "example.org", "test.com"]);
 
 const SEGMENTS: Record<string, { label: string; minMonths: number | null; maxMonths: number | null }> = {
-  m24_plus: { label: "24 months or more", minMonths: 24, maxMonths: null },
   m12_24: { label: "12 to 24 months", minMonths: 12, maxMonths: 24 },
   m6_12: { label: "6 to 12 months", minMonths: 6, maxMonths: 12 },
   recent: { label: "Under 6 months", minMonths: 0, maxMonths: 6 },
-  unknown: { label: "No last job date", minMonths: null, maxMonths: null },
 };
 
 function json(data: unknown, status = 200) {
@@ -43,10 +41,9 @@ function monthsAgo(months: number) {
 }
 
 function inSegment(contact: { last_job_at?: string | null }, segment: typeof SEGMENTS[string]) {
-  if (!contact.last_job_at) return segment === SEGMENTS.unknown;
+  if (!contact.last_job_at) return false;
   const time = new Date(contact.last_job_at).getTime();
-  if (!Number.isFinite(time)) return segment === SEGMENTS.unknown;
-  if (segment === SEGMENTS.unknown) return false;
+  if (!Number.isFinite(time) || time < monthsAgo(24)) return false;
   if (segment.minMonths !== null && time > monthsAgo(segment.minMonths)) return false;
   return segment.maxMonths === null || time >= monthsAgo(segment.maxMonths);
 }
@@ -208,7 +205,7 @@ Deno.serve(async (req) => {
       business_name: String(business.name),
     };
     const subject = renderTokens(subjectTemplate, tokens, false);
-    const body = renderTokens(bodyTemplate, tokens, true);
+    const body = renderTokens(esc(bodyTemplate), tokens, true);
     const inner = `<h1 style="margin:8px 0 14px;font-size:22px;line-height:1.3">${esc(subject)}</h1>${paragraphs(body)}<p style="margin:18px 0 0"><a href="${esc(referralUrl)}" style="display:inline-block;background:#15803d;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px">Get in touch</a></p>`;
     messages.push({
       campaign_id: campaign.id,

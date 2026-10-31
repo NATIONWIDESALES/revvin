@@ -49,14 +49,14 @@ export default function ContactBusinessDialog({
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    const { error } = await supabase.from("mock_inquiries").insert({
+    const { error } = await supabase.rpc("fn_submit_public_capture", { p_kind: "mock_inquiries", p_data: {
       listing_slug: slug,
       kind,
       name: name || null,
       email: email || null,
       phone: phone || null,
       message: message || null,
-    });
+    } });
     setSubmitting(false);
     if (error) {
       toast({ title: "Could not send", description: friendlyError(error), variant: "destructive" });

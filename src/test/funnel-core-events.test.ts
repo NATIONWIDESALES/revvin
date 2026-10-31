@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi, beforeAll } from "vitest";
 
 const fake = vi.hoisted(() => ({ insert: vi.fn() }));
-vi.mock("@/integrations/supabase/client", () => ({ supabase: { from: () => ({ insert: fake.insert }) } }));
+vi.mock("@/integrations/supabase/client", () => ({ supabase: { rpc: (_fn: string, args: { p_data: unknown }) => fake.insert(args.p_data) } }));
 vi.mock("@/lib/attribution", () => ({ captureAttribution: () => ({}), getAttribution: () => ({}) }));
 
 import { track } from "@/lib/track";

@@ -14,7 +14,7 @@
 // the footer. Transactional and referral messages continue to use the compact
 // footer because they do not use the campaign composer.
 
-import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { esc } from "./email-format.ts";
 
 export {
@@ -39,7 +39,7 @@ export async function isSuppressed(
 ): Promise<boolean> {
   const value = email.trim().toLowerCase();
   if (!value) return true;
-  const [{ data: perBusiness }, { data: platform }] = await Promise.all([
+  const [{ data: perBusiness, error: businessError }, { data: platform, error: platformError }] = await Promise.all([
     supabase
       .from("suppressed_contacts")
       .select("id")
@@ -49,6 +49,7 @@ export async function isSuppressed(
       .limit(1),
     supabase.from("suppressed_emails").select("id").eq("email", value).limit(1),
   ]);
+  if (businessError || platformError) throw new Error("Suppression lookup failed");
   return Boolean(perBusiness?.length || platform?.length);
 }
 

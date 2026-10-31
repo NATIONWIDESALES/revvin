@@ -5,8 +5,10 @@
 // The timestamp travels in its own header so a receiver can reject replays.
 // Receivers must recompute over the raw body, so we send exactly the string
 // we signed.
-import { createClient } from 'npm:@supabase/supabase-js@2'
-import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
+import { createClient } from 'npm:@supabase/supabase-js@2.97.0'
+import { corsHeaders } from 'npm:@supabase/supabase-js@2.97.0/cors'
+import { checkCronAuth } from '../_shared/cron-auth.ts'
+import { validateWebhookDns } from '../_shared/security.ts'
 
 const BATCH = 25
 const MAX_ATTEMPTS = 6
@@ -28,6 +30,7 @@ const hmacHex = async (secret: string, message: string) => {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+  if (!checkCronAuth(req).ok) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 
   const admin = createClient(
     Deno.env.get('SUPABASE_URL')!,
@@ -60,6 +63,7 @@ Deno.serve(async (req) => {
       .from('webhook_endpoints')
       .select('url, secret, active, include_contact')
       .eq('id', row.endpoint_id)
+      .eq('business_id', row.business_id)
       .limit(1)
     const ep = eps?.[0]
 
@@ -80,6 +84,7 @@ Deno.serve(async (req) => {
         .from('leads')
         .select('lead_name, lead_email, lead_phone, referrer_name, referrer_email')
         .eq('id', data.lead_id)
+        .eq('business_id', row.business_id)
         .limit(1)
       if (leads?.[0]) data = { ...data, contact: leads[0] }
     }
@@ -100,10 +105,12 @@ Deno.serve(async (req) => {
     let errText: string | null = null
 
     try {
+      await validateWebhookDns(ep.url)
       const controller = new AbortController()
       const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
       const res = await fetch(ep.url, {
         method: 'POST',
+        redirect: 'manual',
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': 'Revvin-Webhooks/1',

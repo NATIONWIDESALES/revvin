@@ -1,0 +1,3 @@
+DROP VIEW public.businesses_public;
+CREATE VIEW public.businesses_public WITH (security_invoker=false) AS SELECT id,name,slug,description,category,service_area,logo_url,offer_amount,offer_trigger,offer_fine_print,city,state,website,is_verified,brand_color,cover_image_url,headline,welcome_message,referral_cta_label,testimonials,coalesce(is_demo,false) AS is_demo,index_approved FROM public.businesses WHERE public.fn_page_live(account_status,is_published,is_disabled);
+GRANT SELECT ON public.businesses_public TO anon,authenticated,service_role;
