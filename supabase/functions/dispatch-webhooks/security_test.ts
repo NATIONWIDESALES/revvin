@@ -13,7 +13,7 @@ Deno.test("11: block localhost, private and reserved IP destinations", () => {
 Deno.test("11: DNS validation fails closed on mixed private/public answers", async () => {
   const original = Deno.resolveDns;
   try {
-    Deno.resolveDns = (() => Promise.resolve(["8.8.8.8", "127.0.0.1"])) as typeof Deno.resolveDns;
+    Deno.resolveDns = (() => Promise.resolve(["8.8.8.8", "127.0.0.1"])) as unknown as typeof Deno.resolveDns;
     let blocked = false; try { await validateWebhookDns("https://example.com/hook"); } catch { blocked = true; } equal(blocked, true);
   } finally { Deno.resolveDns = original; }
 });
