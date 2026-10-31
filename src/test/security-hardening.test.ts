@@ -109,6 +109,11 @@ describe("security hardening item regressions", () => {
     expect(protectedFramePath("/pricing")).toBe(false);
     expect(read("index.html")).toContain("object-src 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://billing.stripe.com");
   });
+  it("17: restrictive image policies reject SVG and oversized files without loosening ownership", () => {
+    const source = migration("0014");
+    expect(source).toContain("AS RESTRICTIVE FOR INSERT"); expect(source).toContain("AS RESTRICTIVE FOR UPDATE");
+    expect(source).toContain("'image/png','image/jpeg','image/webp'"); expect(source).not.toContain("image/svg+xml"); expect(source).toContain("<=2097152");
+  });
   it("19: smoke Maps now requires backend credentials", () => { expect(fn("smoke-maps/index.ts")).toContain("checkCronAuth(req)"); });
   it("20: partner CSV uses formula-safe cells", () => { expect(fn("partner-admin/index.ts")).toContain("csvCell(cell)"); expect(fn("_shared/security.ts")).toContain("[=+\\-@]"); });
   it("21: actual SQL trigger rejects owner identity rewrites", () => { expect(sql).toContain("NEW.referrer_user_id IS DISTINCT FROM OLD.referrer_user_id OR NEW.status_token IS DISTINCT FROM OLD.status_token"); });
