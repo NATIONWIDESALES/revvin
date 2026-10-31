@@ -88,7 +88,7 @@ export function emailFooter(
   const postal = address
     ? `<p style="margin:8px 0 0;font-size:12px;color:#94a3b8">${esc(businessName)}, ${esc(address.street_address)}, ${esc(address.city)} ${esc(address.postal_code)}, ${esc(address.country)}</p>`
     : "";
-  return `<p style="margin:28px 0 0;font-size:12px;color:#94a3b8">You are getting this because you are a customer of ${esc(businessName)}. <a href="${unsubscribeUrl}" style="color:#64748b">Unsubscribe</a> to stop these messages.</p>
+  return `<p style="margin:28px 0 0;font-size:12px;color:#94a3b8">You are getting this because you are a customer of ${esc(businessName)}. <a href="${esc(unsubscribeUrl)}" style="color:#64748b">Unsubscribe</a> to stop these messages.</p>
     ${postal}
     <p style="margin:8px 0 0;font-size:12px;color:#94a3b8">Sent through Revvin on behalf of ${esc(businessName)}.</p>`;
 }

@@ -59,7 +59,7 @@ export async function sendTemplateEmail(
   }
 
   const templateData = options.templateData ?? {}
-  if (await globalSuppression(recipient)) return { sent: false, reason: 'recipient_suppressed' };
+  if (await globalSuppression(recipient)) return { success: false, error: 'recipient_suppressed' };
   const element = React.createElement(template.component, templateData)
   const html = await renderAsync(element)
   const text = await renderAsync(element, { plainText: true })

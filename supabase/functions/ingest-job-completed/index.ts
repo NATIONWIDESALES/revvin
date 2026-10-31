@@ -209,7 +209,7 @@ Deno.serve(async (req) => {
 
   if (error) {
     console.error('ingest-job-completed insert failed:', error.message)
-    return json({ error: 'Could not record the job', details: error.message }, 500)
+    return json({ error: 'Could not record the job' }, 500)
   }
 
   await admin.from('api_keys').update({ last_used_at: new Date().toISOString() }).eq('id', key.id)

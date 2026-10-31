@@ -13,7 +13,7 @@ import SenderLine from "@/components/dashboard/SenderLine";
 import ProUpsell from "@/components/dashboard/ProUpsell";
 import { track } from "@/lib/track";
 
-const SEGMENT_ORDER = ["m24_plus", "m12_24", "m6_12", "recent", "unknown"];
+const SEGMENT_ORDER = ["m12_24", "m6_12", "recent"];
 const MAX_CAMPAIGN_RECIPIENTS = 500;
 
 interface Contact extends RecencyContact {
@@ -111,7 +111,7 @@ const CampaignsTab = ({ biz, publicUrl, isPro }: Props) => {
   const [consent, setConsent] = useState(false);
   const [form, setForm] = useState({
     name: "",
-    segment_key: "m24_plus",
+    segment_key: "m12_24",
     subject: "",
     body: "",
   });
@@ -293,7 +293,7 @@ const CampaignsTab = ({ biz, publicUrl, isPro }: Props) => {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-base font-semibold text-foreground">Who could use a return visit</h2>
-                <p className="mt-1 text-sm text-muted-foreground">Choose a customer group by time since their last job. Customers with no last job date are in their own group. Add dates in Customers to target them properly.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Choose customers whose last job was within 24 months. Add missing job dates in Customers before sending.</p>
               </div>
               <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
             </div>
@@ -313,7 +313,7 @@ const CampaignsTab = ({ biz, publicUrl, isPro }: Props) => {
                     <span>
                       <span className="block text-2xl font-semibold text-foreground">{row.contacts}</span>
                       <span className="mt-1 block text-sm font-medium text-foreground">{row.segment_label}</span>
-                      <span className="mt-1 block text-xs font-normal text-muted-foreground">{key === "m24_plus" ? "Biggest opportunity" : key === "unknown" ? "No date recorded" : "Past customers"}</span>
+                      <span className="mt-1 block text-xs font-normal text-muted-foreground">Past customers</span>
                     </span>
                   </Button>
                 );

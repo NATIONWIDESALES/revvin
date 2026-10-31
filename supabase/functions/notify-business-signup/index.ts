@@ -32,7 +32,12 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false },
     });
-    if (!checkCronAuth(req).ok) {
+    const trustedWorker = checkCronAuth(req).ok;
+    if (trustedWorker && payload.record?.id) {
+      const { data } = await supabase.from("businesses").select("*").eq("id", payload.record.id).limit(1);
+      record = data?.[0];
+    }
+    if (!trustedWorker) {
       const token = req.headers.get("Authorization")?.replace(/^Bearer /, "");
       const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
       if (!token || !anonKey) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
