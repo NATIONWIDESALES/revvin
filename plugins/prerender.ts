@@ -923,19 +923,27 @@ export default function prerenderPlugin(): Plugin {
         }
       }
 
-      const { default: Beasties } = await import("beasties");
-      const beasties = new Beasties({
-        path: dist,
-        publicPath: "/",
-        preload: "swap",
-        inlineFonts: true,
-        preloadFonts: false,
-        pruneSource: false,
-        reduceInlineStyles: false,
-        mergeStylesheets: true,
-        compress: true,
-        logLevel: "silent",
-      });
+      // Critical CSS inlining is a performance pass, not a correctness one:
+      // if beasties cannot load or run on the hosted builder, the documents
+      // are still written with their normal stylesheet link.
+      let beasties: { process: (html: string) => Promise<string> } | null = null;
+      try {
+        const { default: Beasties } = await import("beasties");
+        beasties = new Beasties({
+          path: dist,
+          publicPath: "/",
+          preload: "swap",
+          inlineFonts: true,
+          preloadFonts: false,
+          pruneSource: false,
+          reduceInlineStyles: false,
+          mergeStylesheets: true,
+          compress: true,
+          logLevel: "silent",
+        });
+      } catch (err) {
+        console.warn(`[prerender] critical CSS unavailable, writing documents without it: ${String(err).slice(0, 200)}`);
+      }
       for (const doc of docs) {
         let html = addFontPreloads(doc.html, assetNames);
         if (doc.inlineCss) {
