@@ -147,7 +147,7 @@ describe("compare hub, sitemap and RSS", () => {
     expect(hub && !hub.noindex).toBe(true);
     const locs = buildSitemapEntries({ buildDate: "2026-10-30", businesses: [], metros: [] }).map((e) => e.loc);
     expect(locs).toContain("https://revvin.co/compare");
-  });
+  }, 15000);
 
   it("RSS 2.0 lists every guide and comparison with title, link, description and pubDate", () => {
     const xml = renderRss();

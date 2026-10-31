@@ -685,15 +685,12 @@ const CustomersTab = ({
   const bulkSubject = `A referral opportunity from ${biz.name}`;
 
   const openBulk = async () => {
-    if (!isDemo) {
-      const allowed = await Promise.all(pending.map(async c => ({ c, ok: await authoritativeAskAllowed(c) })));
-      if (!allowed.some(c => c.ok)) { toast({ title: "Asks paused", description: "Keep Pro to ask customers beyond the first 100." }); return; }
-    }
+    const planAllowed = new Set(isDemo ? pending.map(c => c.id) : (await Promise.all(pending.map(async c => ({ c, ok: await authoritativeAskAllowed(c) })))).filter(row => row.ok).map(row => row.c.id));
     // Re-check before building the batch: an unsubscribe from ten minutes ago
     // must not end up in a BCC field.
     const snapshot = await refreshSuppression();
     const allowed = pending.filter(
-      (c) => !!c.email && channelAllowed(contactEligibility(c, snapshot), "email"),
+      (c) => planAllowed.has(c.id) && !!c.email && channelAllowed(applyPlan(c, contactEligibility(c, snapshot)), "email"),
     );
     if (allowed.length === 0) {
       toast({
@@ -847,7 +844,7 @@ const CustomersTab = ({
 
   const openTapThrough = async () => {
     const snapshot = await refreshSuppression();
-    const run = pending.filter((c) => contactEligibility(c, snapshot).canPrepare);
+    const run = pending.filter((c) => applyPlan(c, contactEligibility(c, snapshot)).canPrepare);
     if (run.length === 0) {
       toast({
         title: snapshot ? "No contacts to ask" : "Sending is paused",
