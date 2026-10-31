@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import { track } from "@/lib/track";
-import FounderSection from "@/components/marketing/FounderSection";
+import TeamSection from "@/components/marketing/TeamSection";
 import ReferralWorthCalculator from "@/components/marketing/ReferralWorthCalculator";
 import HeroYardSign from "@/components/marketing/HeroYardSign";
 import StepTrack from "@/components/marketing/StepTrack";
@@ -16,7 +16,7 @@ import { HOME_SEO } from "@/content/homeSeo";
 
 /**
  * Homepage, yard-sign design. Order: hero, how one text turns into a job,
- * referral worksheet, two ways referrals reach you, founder, pricing, questions,
+ * referral worksheet, two ways referrals reach you, team, pricing, questions,
  * final action. Copy rule: every line has to be true of the shipped product.
  * The only ambient motion is the yard sign swapping trades.
  */
@@ -34,9 +34,9 @@ const YOUR_CUSTOMERS = [
   ["Yard signs, door hangers, invoice inserts", "Free print pack"],
 ];
 const LOCALS = [
-  ["Summit Roofing, Langley", "$250"],
-  ["Cedar HVAC, Surrey", "$150"],
-  ["Greenline Landscaping, Maple Ridge", "$100"],
+  ["Summit Roofing, Dallas", "$250"],
+  ["Cedar HVAC, Phoenix", "$150"],
+  ["Greenline Landscaping, Toronto", "$100"],
 ];
 
 const Index = () => (
@@ -88,7 +88,7 @@ const Index = () => (
               <>
                 {" "}Or{" "}
                 <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_clicked", { cta: "hero_setup_link" })} className="font-semibold text-forest underline underline-offset-4">
-                  book a 30-minute setup call with Karm
+                  Book a free 30-minute setup call
                 </a>
                 .
               </>
@@ -149,7 +149,7 @@ const Index = () => (
               ))}
             </ul>
             <p className="mt-5 text-sm text-primary-foreground/80">
-              Examples. The network opens city by city, starting in the Fraser Valley.{" "}
+              Examples. The Revvin network is opening city by city across the US and Canada.{" "}
               <Link to="/earn" onClick={() => track("cta_clicked", { cta: "home_earn" })} className="font-semibold text-sign underline underline-offset-4">How earning works</Link>
             </p>
           </div>
@@ -157,7 +157,7 @@ const Index = () => (
       </div>
     </section>
 
-    <FounderSection />
+    <TeamSection />
 
     {/* Pricing */}
     <section className="mk-section border-t border-line bg-card" aria-labelledby="pricing-heading">

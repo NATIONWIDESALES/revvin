@@ -99,7 +99,7 @@ describe("redirects", () => {
 describe("no em dashes in the new copy", () => {
   const files = [
     "src/pages/Index.tsx", "src/pages/About.tsx", "src/pages/Earn.tsx", "src/pages/Pricing.tsx",
-    "src/components/Navbar.tsx", "src/components/marketing/FounderSection.tsx",
+    "src/components/Navbar.tsx", "src/components/marketing/TeamSection.tsx",
     "src/components/marketing/ReferralWorthCalculator.tsx", "src/components/marketing/LeadCaptureForm.tsx",
     "src/content/homeFaqs.ts", "src/content/aboutPage.ts", "src/content/earnPage.ts", "src/content/homeSeo.ts",
     "index.html", "public/llms.txt",

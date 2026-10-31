@@ -16,7 +16,7 @@ const Email = ({ businessName, customersUrl, unsubscribeUrl }: Props) => (
   <RevvinShell previewText="Three steps to get your list asking." unsubscribeUrl={unsubscribeUrl}>
     <Text style={heading}>Welcome to Revvin Pro. Here is where to start</Text>
     <Text style={paragraph}>
-      Hi, it's Karm. Thanks for going Pro{businessName ? ` with ${businessName}` : ''}. Three steps and your past
+      Hi, it's the Revvin team. Thanks for going Pro{businessName ? ` with ${businessName}` : ''}. Three steps and your past
       customers are working for you.
     </Text>
     <Text style={step}>1. Import your past customers in the Customers tab. A CSV works, or paste them in.</Text>
@@ -26,8 +26,8 @@ const Email = ({ businessName, customersUrl, unsubscribeUrl }: Props) => (
     <Text style={paragraph}>
       {INSTALL_EMAIL_TIP} <a href="https://revvin.co/dashboard">revvin.co/dashboard</a>
     </Text>
-    <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to me.</Text>
-    <Text style={paragraph}>Karm</Text>
+    <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to our team.</Text>
+    <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )
 

@@ -43,8 +43,8 @@ describe("lifecycle email copy", () => {
     expect(new Date(LIFECYCLE_COHORT_START).toISOString()).toBe("2026-09-14T00:00:00.000Z");
   });
 
-  it("sends from Karm at Revvin with the info@revvin.co address", () => {
-    expect(LIFECYCLE_FROM).toBe("Karm at Revvin <info@revvin.co>");
+  it("sends from Revvin with the info@revvin.co address", () => {
+    expect(LIFECYCLE_FROM).toBe("Revvin <info@revvin.co>");
     expect(LIFECYCLE_REPLY_TO).toBe("info@revvin.co");
   });
 });

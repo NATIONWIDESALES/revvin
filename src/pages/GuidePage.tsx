@@ -9,7 +9,7 @@ import {
   GUIDES_PUBLISHED_AT,
   GUIDES_UPDATED_AT,
   formatContentDate,
-  FOUNDER_REF,
+  TEAM_REF,
 } from "@/config/brand";
 import { relatedForGuide } from "@/content/related";
 import { AuthorBox, CopyBlock, GuideTable, RelatedLinks } from "@/components/content/ContentBlocks";
@@ -55,7 +55,7 @@ const GuidePage = () => {
             headline: guide.question,
             description: guide.metaDescription,
             mainEntityOfPage: `${BASE}${path}`,
-            author: FOUNDER_REF,
+            author: TEAM_REF,
             publisher: { "@id": `${BASE}/#organization` },
             datePublished: guide.publishedAt ?? GUIDES_PUBLISHED_AT,
             dateModified: updated,
@@ -116,7 +116,7 @@ const GuidePage = () => {
             {guide.question}
           </h1>
           <p className="mt-5 border-b border-line pb-5 text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">By Karm Sandhu, Founder of Revvin</span>
+            <span className="font-semibold text-foreground">By the Revvin team</span>
             <br />
             {`Last updated ${formatContentDate(updated)}`}
           </p>

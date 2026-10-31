@@ -28,39 +28,14 @@ export const ORG_SAME_AS: string[] = [];
  * digital mortgage software, so every Organization node states plainly which
  * Revvin this is.
  */
-/** The founder, shown on the homepage, /about, guide bylines and in JSON-LD. */
-export const FOUNDER = {
-  name: "Karm Sandhu",
-  jobTitle: "Founder",
-  sameAs: ["https://www.linkedin.com/in/karm"],
-} as const;
-
-/** Stable id of the founder's Person node, emitted in full on /about. */
-export const PERSON_ID = `${SITE_URL}/about#karm-sandhu`;
-
-/** Third-person founder bio for structured data, from the /about founder section. */
-export const FOUNDER_BIO =
-  "Karm Sandhu started selling door to door in 2016 and went on to run a 120-rep sales team doing $5.5M a year. He built Revvin so every home-service business can run a referral program without a sales team.";
-
-/** The full Person node. Emitted once, on /about; everything else references it by id. */
-export const FOUNDER_PERSON = {
-  "@type": "Person",
-  "@id": PERSON_ID,
-  name: FOUNDER.name,
-  jobTitle: FOUNDER.jobTitle,
-  url: `${SITE_URL}/about`,
-  description: FOUNDER_BIO,
-  sameAs: [...FOUNDER.sameAs],
-  disambiguatingDescription: "Karm Sandhu is the founder of Revvin (revvin.co), referral program software for home-service businesses.",
-  worksFor: { "@id": ORG_ID },
-} as const;
-
-/** A reference to the founder: the id plus the name, so a page without the full node still names the author. */
-export const FOUNDER_REF = {
-  "@type": "Person",
-  "@id": PERSON_ID,
-  name: FOUNDER.name,
-  url: `${SITE_URL}/about`,
+/** Team identity shared by public copy and Article authors. */
+export const TEAM_HEADING = "Built by people who've run real sales teams.";
+export const TEAM_BIO = "Revvin is built by operators who have recruited, trained and managed door-to-door and phone sales teams of 120+ reps, selling 8,000+ accounts a year for national telecom carriers across North America. The cheapest jobs those teams ever closed came from happy customers. Revvin turns that play into software any home-service business can run without a sales team.";
+export const TEAM_REF = {
+  "@type": "Organization",
+  "@id": ORG_ID,
+  name: "Revvin",
+  url: SITE_URL,
 } as const;
 
 /** The one sentence that defines Revvin everywhere. */

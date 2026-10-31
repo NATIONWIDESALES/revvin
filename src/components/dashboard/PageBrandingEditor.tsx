@@ -331,7 +331,7 @@ const PageBrandingEditor = ({ businessId, slug, isPro = false, initial, onSaved 
           value={serviceArea}
           onChange={setServiceArea}
           onPlaceSelected={setPlaceGeo}
-          placeholder="Vancouver, BC"
+          placeholder="Dallas, TX"
         />
         <p className="mt-1 text-[11px] text-muted-foreground">
           Pick your city or region from the list so you appear on the map and in nearby searches.

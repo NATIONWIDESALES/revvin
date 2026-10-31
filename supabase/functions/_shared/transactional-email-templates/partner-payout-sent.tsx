@@ -27,9 +27,9 @@ const Email = ({ name, amount, method, reference, dashboardLink }: Props) => (
     {reference ? <Text style={partnerRow}>Reference: {reference}</Text> : null}
     {dashboardLink ? <Text style={{ margin: '16px 0 20px' }}>{partnerCta(dashboardLink, 'See it in your dashboard')}</Text> : null}
     <Text style={partnerParagraph}>
-      If anything looks wrong, reply and I will check it with you. It comes straight to me.
+      If anything looks wrong, reply and we will check it with you. It comes straight to our team.
     </Text>
-    <Text style={partnerParagraph}>Karm</Text>
+    <Text style={partnerParagraph}>The Revvin team</Text>
   </PartnerShell>
 )
 

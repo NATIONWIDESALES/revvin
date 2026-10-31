@@ -6,7 +6,7 @@ import { PRERENDER_ROUTES } from "@/content/seoRoutes";
 import { jsonLd, renderRoute, renderRss } from "../../plugins/prerender";
 import { buildSitemapEntries } from "../../plugins/sitemap";
 import { render } from "@/entry-server";
-import { PERSON_ID } from "@/config/brand";
+import { ORG_ID } from "@/config/brand";
 import { INDUSTRIES } from "@/content/industries";
 import { NEW_GUIDES } from "@/content/guidesNew";
 import { tradeScripts } from "@/content/tradeExtras";
@@ -40,7 +40,7 @@ describe("new guides", () => {
       expect(r.description.length).toBeLessThanOrEqual(155);
 
       const article = graph(p).find((n) => n["@type"] === "Article")!;
-      expect(article.author["@id"]).toBe(PERSON_ID);
+      expect(article.author["@id"]).toBe(ORG_ID);
       expect(article.dateModified).toBe("2026-10-30");
       const crumbs = graph(p).find((n) => n["@type"] === "BreadcrumbList")!;
       expect(crumbs.itemListElement.map((i: any) => i.name)).toEqual(["Home", "Guides", expect.any(String)]);
@@ -52,7 +52,7 @@ describe("new guides", () => {
       expect(html.match(/<h1[\s>]/g)?.length).toBe(1);
       expect(html).toContain('data-block="related"');
       expect(html).toContain('data-block="author"');
-      expect(html).toContain('href="/about#karm-sandhu"');
+      expect(html).toContain('href="/about#team"');
       expect(html).toContain("Last updated October 30, 2026");
 
       expect(sitemap).toContain(`https://revvin.co${p}`);

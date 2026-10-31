@@ -43,7 +43,7 @@ describe("comparison pages and roundup", () => {
       expect(html).not.toContain("\u2014");
       const graph = graphOf(html);
       const art = graph.find((n: { "@type": string }) => n["@type"] === "Article");
-      expect(art?.author?.name).toBe("Karm Sandhu");
+      expect(art?.author?.name).toBe("Revvin");
       expect(art?.publisher).toBeTruthy();
       const hasFaq = graph.some((n: { "@type": string }) => n["@type"] === "FAQPage");
       expect(hasFaq).toBe(p !== ROUNDUP_PATH);

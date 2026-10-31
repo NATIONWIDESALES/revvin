@@ -360,7 +360,7 @@ export const NEW_GUIDES: Guide[] = [
       },
       {
         heading: "How do you start on Revvin Earn?",
-        body: "Revvin Earn lists local businesses that pay for referrals, city by city, starting with the Fraser Valley. Open the Earn page, join the list for your city, and get your own link for any business listed there. Where Earn is not live yet, you can join the waitlist.",
+        body: "Revvin Earn lists local businesses that pay for referrals, city by city across the US and Canada. Open the Earn page, join the list for your city, and get your own link for any business listed there. Where Earn is not live yet, you can join the waitlist.",
       },
     ],
     sources: [

@@ -9,3 +9,8 @@
 - [x] Earn metros, city pages, Get my link, invite form, admin Metros panel
 - [x] Targeted Home and Pricing font/script priority optimization and tests
 - [ ] Fresh local production-build Lighthouse comparison: no dist artifact available from the automatic build; diagnostic comparison used downloaded production assets
+- [x] Replace public personal and regional branding, metadata and email copy; preserve behavior
+- [x] Enforce team identity in source and generated-content tests, verify full suite and preview
+- [x] Redeploy affected email functions without sending messages
+- [x] Produce exact branding changelog and report verification limits
+- [ ] Verify fresh production images, frontend typecheck and Lighthouse 100: automatic production artifact/check output is unavailable locally; manual builds/typechecks are prohibited

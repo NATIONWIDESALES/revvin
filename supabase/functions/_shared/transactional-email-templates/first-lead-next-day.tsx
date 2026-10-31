@@ -18,14 +18,14 @@ const Email = ({ businessName, pricingUrl, unsubscribeUrl, postalAddress }: Prop
   >
     <Text style={heading}>Nice work on your first referral</Text>
     <Text style={paragraph}>
-      Hi, it's Karm. {businessName || 'Your page'} got its first referral. That is the hard one.
+      Hi, it's the Revvin team. {businessName || 'Your page'} got its first referral. That is the hard one.
     </Text>
     <Text style={paragraph}>
       The next ones come faster when every past customer has seen your link. Revvin Pro imports your whole list and helps
       you ask everyone in a few batches, sent from your own email.
     </Text>
     {pricingUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(pricingUrl, 'See Revvin Pro')}</Text> : null}
-    <Text style={paragraph}>Karm</Text>
+    <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )
 
@@ -37,6 +37,6 @@ export const template = {
     businessName: 'Summit Roofing',
     pricingUrl: 'https://revvin.co/pricing',
     unsubscribeUrl: 'https://revvin.co/unsubscribe?token=sample',
-    postalAddress: 'Revvin, 123 Example St, Vancouver BC, Canada',
+    postalAddress: 'Revvin, 123 Example St, Dallas, TX (example only)',
   },
 } satisfies TemplateEntry

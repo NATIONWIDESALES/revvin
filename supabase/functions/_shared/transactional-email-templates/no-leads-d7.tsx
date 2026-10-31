@@ -10,24 +10,24 @@ interface Props {
 }
 
 const Email = ({ businessName, setupCallUrl, unsubscribeUrl }: Props) => (
-  <RevvinShell previewText="A free 30 minute call to get your first referral in." unsubscribeUrl={unsubscribeUrl}>
-    <Text style={heading}>Want me to set this up with you?</Text>
+  <RevvinShell previewText="A free 30-minute setup call to get your first referral in." unsubscribeUrl={unsubscribeUrl}>
+    <Text style={heading}>Want us to set this up with you?</Text>
     <Text style={paragraph}>
-      {businessName ? `Hi, it's Karm at Revvin. ${businessName} has been live for a week` : 'Hi, it is Karm at Revvin. Your page has been live for a week'}{' '}
+      {businessName ? `Hi, it's the Revvin team. ${businessName} has been live for a week` : 'Hi, it is the Revvin team. Your page has been live for a week'}{' '}
       and no referrals have come in yet. That is almost always because the link has not gone out to enough past customers.
     </Text>
     <Text style={paragraph}>
-      I will do it with you on a free 30 minute call. We pick the customers, write the message, and send it while we are on
+      We will do it with you on a free 30-minute setup call. We pick the customers, write the message, and send it while we are on
       the phone.
     </Text>
-    {setupCallUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(setupCallUrl, 'Book a free 30 minute call')}</Text> : null}
-    <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to me. Karm</Text>
+    {setupCallUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(setupCallUrl, 'Book a free 30-minute setup call')}</Text> : null}
+    <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to our team. The Revvin team</Text>
   </RevvinShell>
 )
 
 export const template = {
   component: Email,
-  subject: 'Want me to set this up with you?',
+  subject: 'Want us to set this up with you?',
   displayName: 'No leads after 7 days',
   previewData: {
     businessName: 'Summit Roofing',

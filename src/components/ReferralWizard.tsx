@@ -395,7 +395,7 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium">Customer City</label>
-                  <Input placeholder="e.g. Vancouver" value={formData.city} onChange={(e) => setFormData((f) => ({ ...f, city: e.target.value }))} />
+                  <Input placeholder="e.g. Dallas" value={formData.city} onChange={(e) => setFormData((f) => ({ ...f, city: e.target.value }))} />
                 </div>
               </div>
             )}

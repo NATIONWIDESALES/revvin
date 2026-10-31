@@ -16,7 +16,7 @@ import {
 } from "../../plugins/prerender";
 import { ogFileName } from "../../plugins/og";
 import { buildSitemapEntries } from "../../plugins/sitemap";
-import { PERSON_ID } from "@/config/brand";
+import { ORG_ID } from "@/config/brand";
 import { COMPARISONS, ROUNDUP } from "@/content/comparisons";
 
 const template = fs.readFileSync(path.resolve(__dirname, "../../index.html"), "utf8");
@@ -70,23 +70,19 @@ describe("head", () => {
 });
 
 describe("structured data", () => {
-  it("Organization: logo ImageObject, contact point, US and CA, knowsAbout, founder by id", () => {
+  it("Organization: logo ImageObject, contact point, US and CA, knowsAbout, no founder", () => {
     const org = graphOf(renderRoute(template, live.find((r) => r.path === "/")!)).find((n) => n["@type"] === "Organization")!;
     expect(org.logo).toMatchObject({ "@type": "ImageObject", width: 192, height: 192 });
     expect(org.contactPoint).toMatchObject({ email: "info@revvin.co", contactType: "customer support" });
     expect(org.areaServed).toEqual(["US", "CA"]);
     expect(org.knowsAbout).toEqual(["referral marketing", "referral programs", "home services marketing"]);
-    expect(org.founder["@id"]).toBe("https://revvin.co/about#karm-sandhu");
-    expect(org.founder.sameAs).toEqual(["https://www.linkedin.com/in/karm"]);
+    expect(org).not.toHaveProperty("founder");
   });
 
-  it("the full Person node is on /about with job title, employer, LinkedIn and bio", () => {
-    const person = graphOf(renderRoute(template, live.find((r) => r.path === "/about")!)).find((n) => n["@type"] === "Person")!;
-    expect(person["@id"]).toBe(PERSON_ID);
-    expect(person.jobTitle).toBe("Founder");
-    expect(person.worksFor).toEqual({ "@id": "https://revvin.co/#organization" });
-    expect(person.sameAs).toEqual(["https://www.linkedin.com/in/karm"]);
-    expect(person.description).toMatch(/door to door in 2016/);
+  it("no public route emits a Person node", () => {
+    for (const r of live) {
+      expect(graphOf(renderRoute(template, r)).some((n) => n["@type"] === "Person"), r.path).toBe(false);
+    }
   });
 
   it("every guide and comparison Article: author by id, dates, mainEntityOfPage, own image", () => {
@@ -94,8 +90,9 @@ describe("structured data", () => {
     expect(articles.length).toBeGreaterThan(10);
     for (const r of articles) {
       const art = graphOf(renderRoute(template, r)).find((n) => n["@type"] === "Article")!;
-      expect(art.author["@id"], r.path).toBe(PERSON_ID);
-      expect(art.author.name).toBe("Karm Sandhu");
+      expect(art.author["@id"], r.path).toBe(ORG_ID);
+      expect(art.author.name).toBe("Revvin");
+      expect(art.author["@type"]).toBe("Organization");
       expect(art.datePublished).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(art.dateModified).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(art.mainEntityOfPage).toEqual({ "@id": `https://revvin.co${r.path}#webpage` });

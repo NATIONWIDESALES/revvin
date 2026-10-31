@@ -19,12 +19,12 @@ const Email = ({ businessName, pricingUrl, unsubscribeUrl, postalAddress }: Prop
   >
     <Text style={heading}>Want us to set it all up for you?</Text>
     <Text style={paragraph}>
-      Hi, it's Karm. If getting {businessName || 'your page'} in front of customers keeps sliding down the list, we can do
+      Hi, it's the Revvin team. If getting {businessName || 'your page'} in front of customers keeps sliding down the list, we can do
       the setup with you.
     </Text>
     <Text style={paragraph}>{LAUNCH_PACKAGE_LINE}</Text>
     {pricingUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(pricingUrl, 'See the Launch Package')}</Text> : null}
-    <Text style={paragraph}>Karm</Text>
+    <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )
 
@@ -36,6 +36,6 @@ export const template = {
     businessName: 'Summit Roofing',
     pricingUrl: 'https://revvin.co/pricing',
     unsubscribeUrl: 'https://revvin.co/unsubscribe?token=sample',
-    postalAddress: 'Revvin, 123 Example St, Vancouver BC, Canada',
+    postalAddress: 'Revvin, 123 Example St, Dallas, TX (example only)',
   },
 } satisfies TemplateEntry

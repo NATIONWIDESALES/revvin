@@ -224,11 +224,11 @@ const ProfileEdit = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label>City</Label>
-                  <Input value={form.city} onChange={(e) => update("city", e.target.value)} placeholder="e.g. Vancouver" className="mt-1" />
+                  <Input value={form.city} onChange={(e) => update("city", e.target.value)} placeholder="e.g. Dallas" className="mt-1" />
                 </div>
                 <div>
                   <Label>Province / State</Label>
-                  <Input value={form.state} onChange={(e) => update("state", e.target.value)} placeholder="e.g. BC, TX, or Dubai" className="mt-1" />
+                  <Input value={form.state} onChange={(e) => update("state", e.target.value)} placeholder="e.g. TX or ON" className="mt-1" />
                 </div>
               </div>
 
@@ -308,7 +308,7 @@ const ProfileEdit = () => {
                       <Input
                         value={bizForm.city}
                         onChange={(e) => updateBiz("city", e.target.value)}
-                        placeholder="Vancouver"
+                        placeholder="Dallas"
                         className="mt-1"
                       />
                     </div>
@@ -317,7 +317,7 @@ const ProfileEdit = () => {
                       <Input
                         value={bizForm.state}
                         onChange={(e) => updateBiz("state", e.target.value)}
-                        placeholder="BC"
+                        placeholder="TX"
                         className="mt-1"
                       />
                     </div>

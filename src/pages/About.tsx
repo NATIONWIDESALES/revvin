@@ -1,8 +1,8 @@
 import { PAGE_META } from "@/content/pageMeta";
 import SEOHead from "@/components/SEOHead";
-import FounderSection from "@/components/marketing/FounderSection";
+import TeamSection from "@/components/marketing/TeamSection";
 import { ABOUT_SECTIONS, ABOUT_UPDATED_AT } from "@/content/aboutPage";
-import { CANONICAL_SENTENCE, FOUNDER_PERSON, ORG_ID, SITE_URL, formatContentDate } from "@/config/brand";
+import { CANONICAL_SENTENCE, ORG_ID, SITE_URL, formatContentDate } from "@/config/brand";
 
 const About = () => (
   <>
@@ -17,7 +17,7 @@ const About = () => (
         url: `${SITE_URL}/about`,
         name: "About Revvin",
         about: { "@id": ORG_ID },
-        mainEntity: { "@type": "Organization", "@id": ORG_ID, name: "Revvin", url: SITE_URL, founder: FOUNDER_PERSON },
+        mainEntity: { "@type": "Organization", "@id": ORG_ID, name: "Revvin", url: SITE_URL },
       }}
     />
     <h1 className="text-5xl leading-[0.98] md:text-7xl">About Revvin</h1>
@@ -32,7 +32,7 @@ const About = () => (
     ))}
     <p className="mt-12 text-sm text-muted-foreground">Last updated {formatContentDate(ABOUT_UPDATED_AT)}</p>
   </div>
-  <FounderSection />
+  <TeamSection />
   </>
 );
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { FOUNDER, FOUNDER_BIO } from "@/config/brand";
+import { TEAM_BIO } from "@/config/brand";
 
 export interface RelatedLink {
   to: string;
@@ -31,10 +31,10 @@ export const RelatedLinks = ({ links }: { links: RelatedLink[] }) => (
 export const AuthorBox = () => (
   <aside aria-labelledby="author-heading" data-block="author" className="mt-10 rounded-[14px] border border-line bg-card p-6">
     <h2 id="author-heading" className="text-2xl">About the author</h2>
-    <p className="mt-3 font-semibold text-foreground">{`${FOUNDER.name}, Founder of Revvin`}</p>
-    <p className="mt-2 text-[16px] leading-relaxed text-muted-foreground">{FOUNDER_BIO}</p>
-    <Link to="/about#karm-sandhu" className="mt-3 inline-block text-sm font-semibold text-primary underline">
-      More about Karm Sandhu
+    <p className="mt-3 font-semibold text-foreground">The Revvin team</p>
+    <p className="mt-2 text-[16px] leading-relaxed text-muted-foreground">{TEAM_BIO}</p>
+    <Link to="/about#team" className="mt-3 inline-block text-sm font-semibold text-primary underline">
+      More about the Revvin team
     </Link>
   </aside>
 );

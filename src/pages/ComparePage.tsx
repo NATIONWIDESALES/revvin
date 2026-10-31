@@ -5,7 +5,7 @@ import NotFound from "@/pages/NotFound";
 import { AuthorBox, RelatedLinks } from "@/components/content/ContentBlocks";
 import { relatedForCompare } from "@/content/related";
 import { FREE_CTA_LABEL } from "@/config/planFeatures";
-import { FOUNDER_REF, formatContentDate } from "@/config/brand";
+import { TEAM_REF, formatContentDate } from "@/config/brand";
 import {
   BIAS_DISCLOSURE,
   CHECKED_LINE,
@@ -84,7 +84,7 @@ const Header = ({ h1, answer, crumb }: { h1: string; answer: string; crumb: { la
       </nav>
       <h1 className="text-[2.6rem] leading-[1] md:text-6xl">{h1}</h1>
       <p className="mt-5 border-b border-line pb-5 text-sm text-muted-foreground">
-        <span className="font-semibold text-foreground">By Karm Sandhu, Founder of Revvin</span>
+        <span className="font-semibold text-foreground">By the Revvin team</span>
         <br />
         {`Last updated ${formatContentDate(COMPARISONS_CHECKED_ON)}`}
       </p>
@@ -130,7 +130,7 @@ const article = (path: string, headline: string, description: string, tables: Co
   headline,
   description,
   mainEntityOfPage: `${BASE}${path}`,
-  author: FOUNDER_REF,
+  author: TEAM_REF,
   publisher: { "@id": `${BASE}/#organization` },
   datePublished: COMPARISONS_CHECKED_ON,
   dateModified: COMPARISONS_CHECKED_ON,

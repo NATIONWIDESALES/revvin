@@ -51,8 +51,8 @@ const Email = ({ name, code, partnerLink, dashboardLink, commissionLine, payoutL
     <Text style={partnerParagraph}>
       The full terms are at revvin.co/partners/terms. We need a tax form before your first payout.
     </Text>
-    <Text style={partnerParagraph}>Reply with any questions. It comes straight to me.</Text>
-    <Text style={partnerParagraph}>Karm</Text>
+    <Text style={partnerParagraph}>Reply with any questions. It comes straight to our team.</Text>
+    <Text style={partnerParagraph}>The Revvin team</Text>
   </PartnerShell>
 )
 

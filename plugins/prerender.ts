@@ -10,6 +10,7 @@ import { buildSitemapEntries, renderSitemap } from "./sitemap";
 import { ogKind, ogUrl, writeOgImages, type OgCard } from "./og";
 import { buildSsrRenderer, type SsrRender } from "./ssr";
 import { FREE_FEATURES, PRO_FEATURES } from "../src/config/planFeatures";
+import { assertPublicBrand, validatePublicBrandSources } from "../src/content/publicBrandGuard";
 import { buildBusinessManifest, businessManifestPath } from "../src/lib/webManifest";
 import {
   APP_ID,
@@ -18,8 +19,7 @@ import {
   GUIDES_UPDATED_AT,
   INDEXNOW_KEY,
   ORG_DISAMBIGUATION,
-  FOUNDER_PERSON,
-  FOUNDER_REF,
+  TEAM_REF,
   ORG_ID,
   ORG_SAME_AS,
   SITE_ID,
@@ -103,13 +103,6 @@ const ORGANIZATION = {
   knowsAbout: ["referral marketing", "referral programs", "home services marketing"],
   slogan: "Your customer list, working for you",
   disambiguatingDescription: ORG_DISAMBIGUATION,
-  // The id points at the full Person node on /about; the name, profile and
-  // disambiguation stay inline so every page names the founder on its own.
-  founder: {
-    ...FOUNDER_REF,
-    sameAs: [...FOUNDER_PERSON.sameAs],
-    disambiguatingDescription: FOUNDER_PERSON.disambiguatingDescription,
-  },
   // Emitted only once real profile URLs exist; an empty sameAs says nothing.
   ...(ORG_SAME_AS.length ? { sameAs: ORG_SAME_AS } : {}),
   ...(FOUNDING_DATE ? { foundingDate: FOUNDING_DATE } : {}),
@@ -273,9 +266,6 @@ export const jsonLd = (route: PrerenderRoute) => {
     },
     breadcrumbs(route),
   ];
-  // The founder's full Person node lives on /about; every author reference
-  // elsewhere points at its id.
-  if (route.path === "/about") graph.push(FOUNDER_PERSON);
   // The priced product description belongs on the pages that are actually about
   // buying it, not on every document.
   if (route.path === "/" || route.path === "/pricing" || route.path === "/for-businesses") {
@@ -292,7 +282,7 @@ export const jsonLd = (route: PrerenderRoute) => {
       description: route.description,
       mainEntityOfPage: { "@id": `${url}#webpage` },
       inLanguage: "en-US",
-      author: FOUNDER_REF,
+      author: TEAM_REF,
       publisher: { "@id": ORG_ID },
       datePublished: route.datePublished ?? (dated ? COMPARISONS_CHECKED_ON : GUIDES_PUBLISHED_AT),
       dateModified: route.dateModified ?? (dated ? COMPARISONS_CHECKED_ON : GUIDES_UPDATED_AT),
@@ -350,7 +340,7 @@ const FALLBACK_GUARD = `<script>(function(){var p=location.pathname;if(p==="/")r
 const bodyHtml = (route: PrerenderRoute, ssr?: string | null) => {
   if (ssr) return `<div id="root" data-ssr="1">${ssr}</div>${route.path === "/" ? FALLBACK_GUARD : ""}`;
   const parts: string[] = [`<h1>${esc(route.h1)}</h1>`];
-  if (route.path.startsWith("/guides/") || route.article) parts.push(`<p>By ${esc(FOUNDER_REF.name)}, Founder of Revvin</p>`);
+  if (route.path.startsWith("/guides/") || route.article) parts.push(`<p>By the Revvin team</p>`);
   for (const s of route.sections) {
     parts.push(`<h2>${esc(s.heading)}</h2><p>${esc(s.body)}</p>`);
   }
@@ -864,6 +854,7 @@ export default function prerenderPlugin(): Plugin {
 
       // Every document is collected first, then finished in one pass: font
       // preloads everywhere, critical CSS inlined on the server-rendered ones.
+      validatePublicBrandSources(process.cwd());
       const docs: { file: string; html: string; inlineCss: boolean }[] = [];
       const addDoc = (routePath: string, html: string, inlineCss = false) => {
         const file = routePath === "/" ? indexPath : path.join(dist, routePath.replace(/^\//, ""), "index.html");
@@ -902,7 +893,7 @@ export default function prerenderPlugin(): Plugin {
         metros = await fetchLiveMetros(supabaseUrl, anonKey);
         for (const m of metros) {
           addDoc(`/earn/${m.slug}`, renderEarnMetroDoc(template, m));
-          ogCards.push({ path: `/earn/${m.slug}`, title: `Get paid for referrals in ${m.name}`, kind: "Earn" });
+          ogCards.push({ path: `/earn/${m.slug}`, title: "Get paid for local referrals", kind: "Earn" });
           count++;
         }
       }
@@ -918,7 +909,7 @@ export default function prerenderPlugin(): Plugin {
           const ssr = await renderSsr(`/r/${biz.slug}`);
           (globalThis as Record<string, unknown>).__REVVIN_SSR__ = undefined;
           addDoc(`/r/${biz.slug}`, renderBusinessDoc(template, biz, ssr, earnMetro), Boolean(ssr));
-          ogCards.push({ path: `/r/${biz.slug}`, title: businessMeta(biz).title, kind: "Referral reward" });
+          ogCards.push({ path: `/r/${biz.slug}`, title: `Refer a customer to ${biz.name}`, kind: "Referral reward" });
           fs.mkdirSync(path.join(dist, "manifests"), { recursive: true });
           fs.writeFileSync(
             path.join(dist, `manifests/r-${biz.slug}.webmanifest`),
@@ -960,6 +951,7 @@ export default function prerenderPlugin(): Plugin {
             console.warn(`[prerender] critical CSS skipped for ${doc.file}: ${String(err).slice(0, 200)}`);
           }
         }
+        assertPublicBrand(html, doc.file);
         fs.mkdirSync(path.dirname(doc.file), { recursive: true });
         fs.writeFileSync(doc.file, html, "utf8");
       }
@@ -984,6 +976,8 @@ export default function prerenderPlugin(): Plugin {
         metros: metros.map((m) => m.slug),
       });
       fs.writeFileSync(path.join(dist, "sitemap.xml"), renderSitemap(entries), "utf8");
+      assertPublicBrand(renderLlmsFull(), "llms-full.txt");
+      assertPublicBrand(renderRss(), "guides/rss.xml");
       fs.writeFileSync(path.join(dist, "llms-full.txt"), renderLlmsFull(), "utf8");
       fs.mkdirSync(path.join(dist, "guides"), { recursive: true });
       fs.writeFileSync(path.join(dist, "guides", "rss.xml"), renderRss(), "utf8");
