@@ -9,3 +9,7 @@
 - [x] Earn metros, city pages, Get my link, invite form, admin Metros panel
 - [x] Targeted Home and Pricing font/script priority optimization and tests
 - [ ] Fresh local production-build Lighthouse comparison: no dist artifact available from the automatic build; diagnostic comparison used downloaded production assets
+- [ ] Replace public personal and regional branding, metadata and email copy; preserve behavior
+- [ ] Enforce team identity in source and generated-content tests, verify full suite and preview
+- [ ] Redeploy affected email functions without sending messages
+- [ ] Produce exact branding changelog and report verification limits
