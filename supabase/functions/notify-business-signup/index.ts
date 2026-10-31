@@ -9,6 +9,7 @@ import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { sendLifecycleEmail } from "../_shared/lifecycle-email.ts";
 import { attributeBusinessToPartner } from "../_shared/partner-attribution.ts";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { acquisitionSubject } from "../_shared/acquisition-notification.ts";
 
 
 Deno.serve(async (req) => {
@@ -174,7 +175,7 @@ ${phone !== "Not provided" ? `<p><a href="tel:${escapeHtml(phone.replace(/[^+0-9
     </html>`;
 
     // Send via Resend connector gateway
-    const subject = published ? `Published: ${businessName}` : `New signup: ${businessName} (${industry})`;
+    const subject = acquisitionSubject(published ? "published" : "signup", businessName, industry);
     let emailStatus = "sent";
 
     const result = await sendEmailViaGateway({

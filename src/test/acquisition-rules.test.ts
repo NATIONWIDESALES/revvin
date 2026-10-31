@@ -10,6 +10,7 @@ import { META_PIXEL_ID } from "@/config/brand";
 import { hasMobileStartBar } from "@/components/marketing/MobileStartBar";
 import { trialNotice } from "../../supabase/functions/_shared/trial-notices";
 import { effectivePlan } from "../../supabase/functions/_shared/effective-plan";
+import { acquisitionSubject } from "../../supabase/functions/_shared/acquisition-notification";
 beforeEach(() => sessionStorage.clear());
 describe("1. instant preview handoff", () => {
   it("preserves name, trade, reward and campaign data through either handoff", () => {
@@ -54,6 +55,12 @@ describe("4. trial deadline and authority", () => {
   });
   it("fails closed if server cannot verify effective plan", async () => {
     await expect(effectivePlan({ rpc: async () => ({ error: {}, data: null }) }, "biz")).rejects.toThrow("effective_plan_unavailable");
+  });
+});
+describe("3. team signup and publication notification", () => {
+  it("uses distinct subjects for the two specific business events", () => {
+    expect(acquisitionSubject("signup", "Acme Roofing", "Roofing")).toBe("New signup: Acme Roofing (Roofing)");
+    expect(acquisitionSubject("published", "Acme Roofing", "Roofing")).toBe("Published: Acme Roofing");
   });
 });
 describe("5. sticky CTA eligibility", () => {
