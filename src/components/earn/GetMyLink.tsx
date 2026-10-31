@@ -18,6 +18,7 @@ const GetMyLink = ({ biz, onDone }: { biz: EarnBusiness; onDone: () => void }) =
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [link, setLink] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
 
   const go = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -25,9 +26,11 @@ const GetMyLink = ({ biz, onDone }: { biz: EarnBusiness; onDone: () => void }) =
     const res = await getEarnLink(biz.slug, name, user?.email ?? email);
     setBusy(false);
     if (res.token) setLink(personalLink(window.location.origin, biz.slug, res.token));
+    else if (!res.error) setEmailSent(true);
     else setError(res.error);
   };
 
+  if (emailSent) return <p role="status">Check your email for your personal link.</p>;
   if (link) {
     const text = referrerShareText(biz.name, biz.trade, link);
     return (

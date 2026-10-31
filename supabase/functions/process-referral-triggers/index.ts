@@ -188,6 +188,7 @@ Deno.serve(async (req) => {
         reply_to: await replyToFor(biz),
         subject: service ? `How did your ${service} go?` : `How did we do, ${first}?`,
         html: emailShell(biz.name, inner, unsubscribeUrl, postalAddressOf(biz)),
+        unsubscribeUrl,
         idempotencyKey,
       });
 
@@ -347,6 +348,7 @@ Deno.serve(async (req) => {
         reply_to: await replyToFor(biz),
         subject,
         html: emailShell(biz.name, inner, unsubscribeUrl, postalAddressOf(biz)),
+        unsubscribeUrl,
         idempotencyKey,
       });
 
