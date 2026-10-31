@@ -1,4 +1,4 @@
-import { INDUSTRIES } from "../content/industries";
+import { PREVIEW_TRADES as INDUSTRIES } from "../content/previewTrades";
 
 export const PREVIEW_KEY = "revvin_instant_preview";
 export const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
@@ -15,9 +15,7 @@ export interface PreviewData {
 }
 export const previewSlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 65) || "your-business";
 export const suggestedReward = (trade: string) => {
-  const example = INDUSTRIES.find(i => i.slug === trade)?.rewardExample;
-  const amount = example?.match(/\$(\d[\d,]*)/);
-  return amount ? Number(amount[1].replace(/,/g, "")) : 100;
+  return INDUSTRIES.find(i => i.slug === trade)?.reward ?? 100;
 };
 export const previewQuestion = (trade: string, name: string) => {
   const questions: Record<string, string> = {

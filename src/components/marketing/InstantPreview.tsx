@@ -1,6 +1,6 @@
 import { useId, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { INDUSTRIES } from "@/content/industries";
+import { PREVIEW_TRADES as INDUSTRIES } from "@/content/previewTrades";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

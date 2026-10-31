@@ -1,5 +1,4 @@
 import { copyText } from "@/lib/clipboard";
-import { loadEffectivePlan } from "@/lib/effectivePlan";
 import { friendlyError } from "@/lib/errors";
 import { FREE_CONTACT_LIMIT, FREE_LIMIT_COPY, isFreeContactLimitError } from "@/config/planFeatures";
 import { track } from "@/lib/track";
@@ -684,6 +683,10 @@ const CustomersTab = ({
   const bulkSubject = `A referral opportunity from ${biz.name}`;
 
   const openBulk = async () => {
+    if (!isDemo) {
+      const allowed = await Promise.all(pending.map(async c => ({ c, ok: await authoritativeAskAllowed(c) })));
+      if (!allowed.some(c => c.ok)) { toast({ title: "Asks paused", description: "Keep Pro to ask customers beyond the first 100." }); return; }
+    }
     // Re-check before building the batch: an unsubscribe from ten minutes ago
     // must not end up in a BCC field.
     const snapshot = await refreshSuppression();

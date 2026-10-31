@@ -11,6 +11,7 @@
 // No statistics, testimonials or results are invented.
 
 import { tradeFaqs } from "./tradeExtras";
+export { PREVIEW_TRADES } from "./previewTrades";
 
 export interface IndustryFaq {
   q: string;
