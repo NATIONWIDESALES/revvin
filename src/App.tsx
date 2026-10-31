@@ -20,6 +20,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 const Browse = lazy(() => import("./pages/Browse"));
+const Start = lazy(() => import("./pages/Start"));
 const OfferDetail = lazy(() => import("./pages/OfferDetail"));
 const SavedOffers = lazy(() => import("./pages/SavedOffers"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
@@ -102,6 +103,8 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/start" element={<Start />} />
+                <Route path="/start/:trade" element={<Start />} />
                 <Route path="/login" element={<Auth />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/i/:code" element={<InviteLanding />} />
