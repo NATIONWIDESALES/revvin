@@ -65,7 +65,7 @@ describe("2. data retention", () => {
     expect(leads.find((l) => l.lead_name === "Lee Recent")).toBeDefined();
 
     const trigger = async (email: string) =>
-      (await db.query<any>(`SELECT customer_email, customer_phone FROM public.referral_triggers WHERE customer_email = $1 OR $1 = 'old@example.com' AND customer_email IS NULL`, [email])).rows;
+      (await db.query<any>(`SELECT customer_email, customer_phone FROM public.referral_triggers WHERE customer_email = $1`, [email])).rows;
     // The ask processed 100 days ago was scrubbed.
     expect((await db.query<any>(`SELECT count(*)::int n FROM public.referral_triggers WHERE customer_email IS NULL AND customer_phone IS NULL`)).rows[0].n).toBe(1);
     expect((await trigger("new@example.com")).rows[0]).toEqual({ customer_email: "new@example.com", customer_phone: "5550002222" });
