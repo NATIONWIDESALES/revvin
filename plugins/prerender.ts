@@ -10,6 +10,7 @@ import { buildSitemapEntries, renderSitemap } from "./sitemap";
 import { ogKind, ogUrl, writeOgImages, type OgCard } from "./og";
 import { buildSsrRenderer, type SsrRender } from "./ssr";
 import { FREE_FEATURES, PRO_FEATURES } from "../src/config/planFeatures";
+import { assertPublicBrand, validatePublicBrandSources } from "../src/content/publicBrandGuard";
 import { buildBusinessManifest, businessManifestPath } from "../src/lib/webManifest";
 import {
   APP_ID,
@@ -853,6 +854,7 @@ export default function prerenderPlugin(): Plugin {
 
       // Every document is collected first, then finished in one pass: font
       // preloads everywhere, critical CSS inlined on the server-rendered ones.
+      validatePublicBrandSources(process.cwd());
       const docs: { file: string; html: string; inlineCss: boolean }[] = [];
       const addDoc = (routePath: string, html: string, inlineCss = false) => {
         const file = routePath === "/" ? indexPath : path.join(dist, routePath.replace(/^\//, ""), "index.html");
@@ -891,7 +893,7 @@ export default function prerenderPlugin(): Plugin {
         metros = await fetchLiveMetros(supabaseUrl, anonKey);
         for (const m of metros) {
           addDoc(`/earn/${m.slug}`, renderEarnMetroDoc(template, m));
-          ogCards.push({ path: `/earn/${m.slug}`, title: `Get paid for referrals in ${m.name}`, kind: "Earn" });
+          ogCards.push({ path: `/earn/${m.slug}`, title: "Get paid for local referrals", kind: "Earn" });
           count++;
         }
       }
@@ -907,7 +909,7 @@ export default function prerenderPlugin(): Plugin {
           const ssr = await renderSsr(`/r/${biz.slug}`);
           (globalThis as Record<string, unknown>).__REVVIN_SSR__ = undefined;
           addDoc(`/r/${biz.slug}`, renderBusinessDoc(template, biz, ssr, earnMetro), Boolean(ssr));
-          ogCards.push({ path: `/r/${biz.slug}`, title: businessMeta(biz).title, kind: "Referral reward" });
+          ogCards.push({ path: `/r/${biz.slug}`, title: `Refer a customer to ${biz.name}`, kind: "Referral reward" });
           fs.mkdirSync(path.join(dist, "manifests"), { recursive: true });
           fs.writeFileSync(
             path.join(dist, `manifests/r-${biz.slug}.webmanifest`),
@@ -949,6 +951,7 @@ export default function prerenderPlugin(): Plugin {
             console.warn(`[prerender] critical CSS skipped for ${doc.file}: ${String(err).slice(0, 200)}`);
           }
         }
+        assertPublicBrand(html, doc.file);
         fs.mkdirSync(path.dirname(doc.file), { recursive: true });
         fs.writeFileSync(doc.file, html, "utf8");
       }
@@ -973,6 +976,8 @@ export default function prerenderPlugin(): Plugin {
         metros: metros.map((m) => m.slug),
       });
       fs.writeFileSync(path.join(dist, "sitemap.xml"), renderSitemap(entries), "utf8");
+      assertPublicBrand(renderLlmsFull(), "llms-full.txt");
+      assertPublicBrand(renderRss(), "guides/rss.xml");
       fs.writeFileSync(path.join(dist, "llms-full.txt"), renderLlmsFull(), "utf8");
       fs.mkdirSync(path.join(dist, "guides"), { recursive: true });
       fs.writeFileSync(path.join(dist, "guides", "rss.xml"), renderRss(), "utf8");
