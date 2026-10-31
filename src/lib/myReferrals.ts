@@ -24,10 +24,6 @@ export async function loadMyReferrals(): Promise<{ data: MyBusiness[]; error: st
 
 /** Email sign-in link back to /me. */
 export async function sendMeSignInLink(email: string) {
-  const { data, error } = await supabase.rpc("fn_me_email_eligible" as never, { p_email: email.trim().toLowerCase() } as never);
-  if (error || data !== true) return { error: null };
-  return supabase.auth.signInWithOtp({
-    email: email.trim().toLowerCase(),
-    options: { emailRedirectTo: `${window.location.origin}/me`, shouldCreateUser: true },
-  });
+  await supabase.functions.invoke("referrer-signin", { body: { email: email.trim().toLowerCase() } });
+  return { error: null };
 }
