@@ -18,7 +18,7 @@ const Email = ({ businessName, customersUrl, unsubscribeUrl }: Props) => (
     </Text>
     <Text style={paragraph}>
       Any spreadsheet with a name and an email works. You can also paste names straight from your phone contacts. If it is
-      quicker, reply to this email with the file and I will import it for you.
+      quicker, reply to this email with the file and we will import it for you.
     </Text>
     {customersUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(customersUrl, 'Import my customers')}</Text> : null}
     <Text style={paragraph}>The Revvin team</Text>
