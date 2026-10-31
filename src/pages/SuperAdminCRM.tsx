@@ -923,6 +923,10 @@ const SuperAdminCRM = () => {
                   </div>
                 </div>
               </TabsContent>
+
+              <TabsContent value="security">
+                <SecurityPanel />
+              </TabsContent>
             </Tabs>
           </>
         )}
