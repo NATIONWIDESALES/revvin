@@ -85,7 +85,7 @@ const Index = () => {
             </Button>
           </div>
           <p className="mt-[18px] text-base text-muted-foreground">
-            <span>{HOME_SEO.underCta}</span>
+            <span>Every new account gets Pro free for 14 days. No card.</span>
             {SETUP_CALL_URL && (
               <>
                 {" "}Or{" "}

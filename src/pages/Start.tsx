@@ -12,7 +12,7 @@ export default function Start() {
   if (trade && !INDUSTRIES.some(i => i.slug === trade)) return <NotFound />;
   const headline = startHeadline(trade);
   return <div className="min-h-screen bg-background">
-    <SEOHead title={`${trade ? INDUSTRIES.find(i => i.slug === trade)?.label : "Home-service"} referral page | Revvin`} description="Set your reward, create your free account and publish your referral page. Every new account gets Pro free for 14 days. No card required." path={trade ? `/start/${trade}` : "/start"} noindex jsonLd={{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: START_FAQS.map(f => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }} />
+    <SEOHead title={`Free ${trade ? INDUSTRIES.find(i => i.slug === trade)?.label : "home service"} referral page | Revvin`} description="Set your reward, create your free account and publish your referral page. Every new account gets Pro free for 14 days. No card required." path={trade ? `/start/${trade}` : "/start"} noindex jsonLd={{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: START_FAQS.map(f => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }} />
     <header className="mk-wrap py-6"><a href="/" className="font-display text-3xl font-extrabold text-forest" aria-label="Revvin home">REVVIN.CO</a></header>
     <main>
       <section className="mk-wrap grid items-center gap-10 py-10 lg:grid-cols-2">

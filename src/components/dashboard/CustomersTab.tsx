@@ -265,8 +265,10 @@ const CustomersTab = ({
     ? { ...eligible, blocked: new Set<Channel>(["sms", "email", "share"]), canPrepare: false, reason: "Asks beyond your first 100 customers are paused on Free.", unknown: false }
     : eligible;
   const authoritativeAskAllowed = async (c: ReferralContact) => {
-    const { data, error } = await supabase.rpc("fn_contact_ask_allowed", { p_business_id: biz.id, p_contact_id: c.id });
-    return !error && data === true;
+    try {
+      const { data, error } = await supabase.rpc("fn_contact_ask_allowed", { p_business_id: biz.id, p_contact_id: c.id });
+      return !error && data === true;
+    } catch { return false; }
   };
 
   const handleImport = async () => {

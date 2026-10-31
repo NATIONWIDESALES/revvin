@@ -72,6 +72,7 @@ vi.mock("@/integrations/supabase/client", () => {
     return api;
   };
   return { supabase: { from: (t: string) => builder(t), rpc: async (name: string, args: any) => {
+    if (name === "fn_contact_ask_allowed" && args?.p_business_id === "biz-1") return { data: true, error: null };
     if (name !== "fn_suppressed_emails_for_business" || args?.p_business_id !== "biz-1") throw new Error("Unexpected RPC fixture");
     return { data: [], error: null };
   } } };

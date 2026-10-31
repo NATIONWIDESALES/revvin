@@ -769,7 +769,7 @@ const roundupRoute: PrerenderRoute = {
 export { CHECKED_LINE };
 
 const startRoutes: PrerenderRoute[] = START_PATHS.map(path => ({
-  path, title: `${INDUSTRIES.find(i => path === `/start/${i.slug}`)?.label ?? "Home-service"} referral page | Revvin`,
+  path, title: `Free ${INDUSTRIES.find(i => path === `/start/${i.slug}`)?.label ?? "home service"} referral page | Revvin`,
   description: "Set your reward, create your free account and publish your referral page. Every new account gets Pro free for 14 days. No card required.",
   h1: startHeadline(path.split("/")[2]), noindex: true,
   sections: [{ heading: "Make it live, free", body: "Business name. Trade. Reward per closed job. Free for your first 100 customers. No card." }], faqs: START_FAQS,
