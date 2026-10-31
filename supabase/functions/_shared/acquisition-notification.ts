@@ -1,0 +1,1 @@
+export const acquisitionSubject = (event: "signup" | "published", name: string, trade: string) => event === "published" ? `Published: ${name}` : `New signup: ${name} (${trade})`;

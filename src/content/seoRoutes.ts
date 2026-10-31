@@ -34,6 +34,7 @@ import { ABOUT_SECTIONS } from "./aboutPage";
 import { EARN_COPY } from "./earnPage";
 import { CANONICAL_SENTENCE } from "../config/brand";
 import { HOME_SEO } from "./homeSeo";
+import { START_PATHS, START_FAQS, startHeadline } from "./startPages";
 
 
 
@@ -767,4 +768,10 @@ const roundupRoute: PrerenderRoute = {
 
 export { CHECKED_LINE };
 
-export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...toolkitRoutes, ...partnerRoutes, guideIndexRoute, ...industryRoutes, ...guideRoutes, roundupRoute, compareHubRoute, ...compareRoutes];
+const startRoutes: PrerenderRoute[] = START_PATHS.map(path => ({
+  path, title: `Free ${INDUSTRIES.find(i => path === `/start/${i.slug}`)?.label ?? "home service"} referral page | Revvin`,
+  description: "Set your reward, create your free account and publish your referral page. Every new account gets Pro free for 14 days. No card required.",
+  h1: startHeadline(path.split("/")[2]), noindex: true,
+  sections: [{ heading: "Make it live, free", body: "Business name. Trade. Reward per closed job. Free for your first 100 customers. No card." }], faqs: START_FAQS,
+}));
+export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...toolkitRoutes, ...partnerRoutes, guideIndexRoute, ...industryRoutes, ...guideRoutes, roundupRoute, compareHubRoute, ...compareRoutes, ...startRoutes];

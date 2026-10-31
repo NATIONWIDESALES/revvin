@@ -1,5 +1,6 @@
 import type { ComponentType } from 'npm:react@18.3.1'
 import { template as welcomeTemplate } from './welcome.tsx'
+import { template as trialEndingTemplate } from './trial-ending.tsx'
 import { template as notPublishedD1Template } from './not-published-d1.tsx'
 import { template as notPublishedD3Template } from './not-published-d3.tsx'
 import { template as noShareD3Template } from './no-share-d3.tsx'
@@ -45,6 +46,8 @@ export interface TemplateEntry {
  * the same lead.
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
+  trial_ends_3_days: trialEndingTemplate,
+  trial_ends_today: trialEndingTemplate,
   welcome: welcomeTemplate,
   not_published_d1: notPublishedD1Template,
   not_published_d3: notPublishedD3Template,

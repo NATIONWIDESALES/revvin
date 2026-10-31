@@ -12,6 +12,8 @@
 export type LifecycleCategory = "setup" | "promo";
 
 export const LIFECYCLE_CATEGORIES: Record<string, LifecycleCategory> = {
+  trial_ends_3_days: "setup",
+  trial_ends_today: "setup",
   welcome: "setup",
   not_published_d1: "setup",
   not_published_d3: "setup",

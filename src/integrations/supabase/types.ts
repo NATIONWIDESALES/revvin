@@ -155,6 +155,7 @@ export type Database = {
       businesses: {
         Row: {
           account_status: string
+          acquisition: Json | null
           app_installed_at: string | null
           brand_color: string | null
           business_email: string | null
@@ -198,7 +199,9 @@ export type Database = {
           phone: string | null
           plan: string
           postal_code: string | null
+          pro_trial_ends_at: string | null
           promo_emails_opt_out: boolean
+          published_notified_at: string | null
           qr_downloaded_at: string | null
           referral_cta_label: string | null
           service_area: string | null
@@ -227,6 +230,7 @@ export type Database = {
         }
         Insert: {
           account_status?: string
+          acquisition?: Json | null
           app_installed_at?: string | null
           brand_color?: string | null
           business_email?: string | null
@@ -270,7 +274,9 @@ export type Database = {
           phone?: string | null
           plan?: string
           postal_code?: string | null
+          pro_trial_ends_at?: string | null
           promo_emails_opt_out?: boolean
+          published_notified_at?: string | null
           qr_downloaded_at?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
@@ -299,6 +305,7 @@ export type Database = {
         }
         Update: {
           account_status?: string
+          acquisition?: Json | null
           app_installed_at?: string | null
           brand_color?: string | null
           business_email?: string | null
@@ -342,7 +349,9 @@ export type Database = {
           phone?: string | null
           plan?: string
           postal_code?: string | null
+          pro_trial_ends_at?: string | null
           promo_emails_opt_out?: boolean
+          published_notified_at?: string | null
           qr_downloaded_at?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
@@ -3147,6 +3156,10 @@ export type Database = {
         }
       }
       fn_claim_referrer_leads: { Args: never; Returns: number }
+      fn_contact_ask_allowed: {
+        Args: { p_business_id: string; p_contact_id: string }
+        Returns: boolean
+      }
       fn_contact_segments: {
         Args: never
         Returns: {
@@ -3220,6 +3233,7 @@ export type Database = {
         }[]
       }
       fn_earn_waiting_count: { Args: { p_metro_slug: string }; Returns: number }
+      fn_effective_plan: { Args: { p_business_id: string }; Returns: string }
       fn_enqueue_webhook: {
         Args: { p_business_id: string; p_event: string; p_payload: Json }
         Returns: undefined
@@ -3269,6 +3283,10 @@ export type Database = {
       fn_platform_counts: { Args: never; Returns: Json }
       fn_rate_bucket_hit: {
         Args: { p_key: string; p_max_hits: number; p_window: string }
+        Returns: boolean
+      }
+      fn_record_acquisition_event: {
+        Args: { p_event: string; p_path: string }
         Returns: boolean
       }
       fn_record_satisfaction: {

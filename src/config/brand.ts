@@ -65,3 +65,5 @@ export const formatContentDate = (iso: string) =>
  * file changes too, so treat it as permanent.
  */
 export const INDEXNOW_KEY = "b7f4a1c93e5d42f8ab6c05719d3e8a42";
+/** Empty until an advertising dataset and regional consent route are approved. */
+export const META_PIXEL_ID = "";

@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import { track } from "@/lib/track";
 import TeamSection from "@/components/marketing/TeamSection";
 import ReferralWorthCalculator from "@/components/marketing/ReferralWorthCalculator";
-import HeroYardSign from "@/components/marketing/HeroYardSign";
+import HeroYardSign, { SIGN_EXAMPLES, type SignExample } from "@/components/marketing/HeroYardSign";
+import InstantPreview from "@/components/marketing/InstantPreview";
 import StepTrack from "@/components/marketing/StepTrack";
 import FinalBand from "@/components/marketing/FinalBand";
 import { PRICE_TEXT, MONTHLY_PRICE, FOUNDING_OFFER_ACTIVE } from "@/config/pricing";
@@ -39,7 +41,9 @@ const LOCALS = [
   ["Greenline Landscaping, Toronto", "$100"],
 ];
 
-const Index = () => (
+const Index = () => {
+  const [preview, setPreview] = useState<SignExample | null>(null);
+  return (
   <>
     <SEOHead
       title={HOME_SEO.title}
@@ -74,16 +78,14 @@ const Index = () => (
             <strong className="font-semibold text-foreground">Every customer gets a personal link, every finished job sends an ask,</strong>{" "}
             and locals who earn rewards for referrals can find you. You pay a reward only when a job closes.
           </p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Button size="lg" className="w-full sm:w-auto" asChild>
-              <Link to="/signup" onClick={() => track("cta_clicked", { cta: "hero_signup" })}>{FREE_CTA_LABEL}</Link>
-            </Button>
+          <InstantPreview onPreview={setPreview} />
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button size="lg" variant="line" className="h-auto min-h-14 w-full whitespace-normal py-3 sm:w-auto" asChild>
               <Link to="/sample" onClick={() => track("cta_clicked", { cta: "hero_sample" })}>See a real referral page</Link>
             </Button>
           </div>
           <p className="mt-[18px] text-base text-muted-foreground">
-            <span>{HOME_SEO.underCta}</span>
+            <span>Every new account gets Pro free for 14 days. No card.</span>
             {SETUP_CALL_URL && (
               <>
                 {" "}Or{" "}
@@ -96,7 +98,7 @@ const Index = () => (
           </p>
         </div>
         <div className="min-w-0">
-          <HeroYardSign />
+          <HeroYardSign example={preview ?? SIGN_EXAMPLES[0]} preview={Boolean(preview)} />
         </div>
       </div>
     </section>
@@ -189,7 +191,7 @@ const Index = () => (
             </Button>
           </div>
         </div>
-        {FOUNDING_OFFER_ACTIVE && SETUP_CALL_URL && (
+        {false && FOUNDING_OFFER_ACTIVE && SETUP_CALL_URL && (
           <div className="mt-6 flex flex-col items-start justify-between gap-6 rounded-2xl bg-sign px-7 py-7 text-forest md:flex-row md:items-center md:px-9">
             <div className="min-w-0">
               <h3 className="font-display text-[30px] font-extrabold leading-none">Founding businesses: first 25 only</h3>
@@ -230,5 +232,6 @@ const Index = () => (
     <FinalBand cta="footer_signup" />
   </>
 );
+};
 
 export default Index;

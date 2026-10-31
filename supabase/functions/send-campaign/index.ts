@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { appUrl, RESEND_FROM_ADDRESS } from "../_shared/app-config.ts";
+import { effectivePlan } from "../_shared/effective-plan.ts";
 import {
   customerFromAddress,
   customerReplyTo,
@@ -105,7 +106,10 @@ Deno.serve(async (req) => {
   const business = businesses?.[0];
   if (businessError || !business) return json({ error: "Business not found" }, 404);
   if (business.is_disabled) return json({ error: "This business is disabled" }, 403);
-  if ((business.plan || "free") !== "pro") return json({ error: "Reactivation campaigns require Revvin Pro" }, 403);
+  let plan: string;
+  try { plan = await effectivePlan(supabase, business.id); }
+  catch { return json({ error: "Could not verify your plan. Try again." }, 503); }
+  if (plan !== "pro") return json({ error: "Reactivation campaigns require Revvin Pro" }, 403);
   if (business.is_demo === true) return json({ error: "Campaign sending is disabled for demo accounts" }, 403);
 
   // Re-check every readiness field on the server. The browser is never trusted

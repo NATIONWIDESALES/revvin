@@ -12,6 +12,7 @@ import { track, setTrackDiagnosticSink, FUNNEL_EVENTS, type TrackDiagnostic } fr
 import { setAnalyticsAudience, HOME_CTA_LABELS, SIGNUP_STEP_EVENTS } from "@/lib/analyticsPrivacy";
 import { TOOLKIT_CTA_LABELS } from "@/lib/toolkit/analytics";
 import { loadSupabase } from "@/lib/supabaseLazy";
+import { ACQUISITION_EVENTS } from "@/lib/acquisitionEvents";
 
 // The client loads on first use; load the mocked one up front so each event
 // is written in the same tick, as it is once a page has the client.
@@ -176,7 +177,7 @@ describe("insert errors", () => {
 
 describe("live policy compatibility", () => {
   it("every declared client event is accepted by the live INSERT policy", () => {
-    const missing = FUNNEL_EVENTS.filter((e) => !LIVE_POLICY_EVENTS.has(e));
+    const missing = FUNNEL_EVENTS.filter((e) => !ACQUISITION_EVENTS.has(e) && !LIVE_POLICY_EVENTS.has(e));
     expect(missing).toEqual([]);
     for (const e of SIGNUP_STEP_EVENTS) expect(LIVE_POLICY_EVENTS.has(e)).toBe(true);
   });

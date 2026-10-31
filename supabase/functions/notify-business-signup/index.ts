@@ -8,12 +8,9 @@ import {
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { sendLifecycleEmail } from "../_shared/lifecycle-email.ts";
 import { attributeBusinessToPartner } from "../_shared/partner-attribution.ts";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { acquisitionSubject } from "../_shared/acquisition-notification.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -25,7 +22,8 @@ Deno.serve(async (req) => {
     //   - Database-webhook payload: { type, table, record, ... }
     //   - Direct invocation:        { user_id }
     const payload = await req.json().catch(() => ({}));
-    let record = payload.record;
+    let record: any = null;
+    const published = payload.event === "published";
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -33,8 +31,18 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false },
     });
+    if (published) {
+      const token = req.headers.get("Authorization")?.replace(/^Bearer /, "");
+      const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+      if (!token || !anonKey) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const anonClient = createClient(supabaseUrl, anonKey);
+      const { data: { user }, error } = await anonClient.auth.getUser(token);
+      if (error || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const { data } = await supabase.from("businesses").select("*").eq("user_id", user.id).eq("is_published", true).limit(1);
+      record = data?.[0];
+    }
 
-    if (!record && payload.user_id) {
+    if (!published && !record && typeof payload.user_id === "string" && /^[0-9a-f-]{36}$/i.test(payload.user_id)) {
       // Direct invocation: load the most recently created business for this user.
       const { data: bizRows } = await supabase
         .from("businesses")
@@ -83,9 +91,9 @@ Deno.serve(async (req) => {
     // single conditional UPDATE closes it even under concurrent calls.
     const { data: claimed } = await supabase
       .from("businesses")
-      .update({ signup_notified_at: new Date().toISOString() })
+      .update(published ? { published_notified_at: new Date().toISOString() } : { signup_notified_at: new Date().toISOString() })
       .eq("id", record.id)
-      .is("signup_notified_at", null)
+      .is(published ? "published_notified_at" : "signup_notified_at", null)
       .select("id");
     if (!claimed?.length) {
       return new Response(
@@ -103,7 +111,7 @@ Deno.serve(async (req) => {
       ownerUser?.user_metadata?.full_name || ownerEmail.split("@")[0];
 
     const businessName = record.name || "Unnamed Business";
-    const industry = record.industry || "Not specified";
+    const industry = record.category || record.industry || "Not specified";
     const city = record.city || "Not specified";
     const state = record.state || "";
     const phone = record.phone || "Not provided";
@@ -140,6 +148,8 @@ Deno.serve(async (req) => {
 <tr><td style="padding:6px 0;color:#6B7280;font-size:14px;vertical-align:top;">Industry</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:500;">${escapeHtml(industry)}</td></tr>
 <tr><td style="padding:6px 0;color:#6B7280;font-size:14px;vertical-align:top;">Service Area</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:500;">${escapeHtml(serviceArea)}</td></tr>
 <tr><td style="padding:6px 0;color:#6B7280;font-size:14px;vertical-align:top;">Phone</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:500;">${escapeHtml(phone)}</td></tr>
+<tr><td style="padding:6px 0;color:#6B7280;font-size:14px;vertical-align:top;">Reward</td><td>${escapeHtml(String(record.offer_amount || "Not set"))}</td></tr>
+<tr><td style="padding:6px 0;color:#6B7280;font-size:14px;vertical-align:top;">Acquisition</td><td>${escapeHtml(JSON.stringify(record.acquisition || {}))}</td></tr>
 <tr><td style="padding:6px 0;color:#6B7280;font-size:14px;vertical-align:top;">Signed Up</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:500;">${escapeHtml(signupTime)}</td></tr>
 </table>
 </td></tr>
@@ -148,7 +158,9 @@ Deno.serve(async (req) => {
 <!-- CTA -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
 <tr><td align="center" style="padding:24px 0 0 0;">
-<a href="${appUrl("/__sa")}" target="_blank" style="display:inline-block;background-color:#15803D;color:#FFFFFF;font-size:15px;font-weight:500;text-decoration:none;padding:12px 28px;border-radius:8px;">Review &amp; Approve</a>
+<a href="${appUrl(`/__sa?business=${record.id}`)}" target="_blank" style="display:inline-block;background-color:#15803D;color:#FFFFFF;font-size:15px;font-weight:500;text-decoration:none;padding:12px 28px;border-radius:8px;">Open business record</a>
+${record.slug ? `<p><a href="${appUrl(`/r/${encodeURIComponent(record.slug)}`)}">Open public page</a></p>` : "<p>Public page link not set yet.</p>"}
+${phone !== "Not provided" ? `<p><a href="tel:${escapeHtml(phone.replace(/[^+0-9]/g, ""))}">Call the owner</a></p><p>${published && record.slug ? `<a href="sms:${escapeHtml(phone.replace(/[^+0-9]/g, ""))}?body=${encodeURIComponent(`Your Revvin page is live: ${appUrl(`/r/${record.slug}`)}`)}">Text the page link</a>` : ""}</p>` : ""}
 </td></tr>
 </table>
 
@@ -163,7 +175,7 @@ Deno.serve(async (req) => {
     </html>`;
 
     // Send via Resend connector gateway
-    const subject = `New Business Signup: ${businessName}`;
+    const subject = acquisitionSubject(published ? "published" : "signup", businessName, industry);
     let emailStatus = "sent";
 
     const result = await sendEmailViaGateway({
@@ -172,6 +184,7 @@ Deno.serve(async (req) => {
       reply_to: RESEND_REPLY_TO,
       subject,
       html,
+      idempotencyKey: `${published ? "published" : "signup"}-${record.id}`,
     });
 
     if (!result.success) {
@@ -181,7 +194,7 @@ Deno.serve(async (req) => {
 
     // Log to notifications_log
     await supabase.from("notifications_log").insert({
-      type: "business_signup",
+      type: published ? "business_published" : "business_signup",
       recipient_email: "info@revvin.co",
       recipient_name: "Admin",
       subject,
@@ -195,7 +208,7 @@ Deno.serve(async (req) => {
     // this is a second, separate send and a failure here never fails signup.
     // The unique claim row keeps it at most once per business.
     try {
-      if (record.is_demo !== true && ownerUser?.email) {
+      if (!published && record.is_demo !== true && ownerUser?.email) {
         const { error: claimErr } = await supabase
           .from("business_lifecycle_emails")
           .insert({ business_id: record.id, template: "welcome" });

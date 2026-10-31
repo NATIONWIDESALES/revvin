@@ -260,6 +260,16 @@ const CustomersTab = ({
   // keeps the import from sending rows the server would refuse.
   const capped = !isPro && !isDemo;
   const remaining = capped ? Math.max(0, FREE_CONTACT_LIMIT - contacts.length) : Infinity;
+  const freeAllowedIds = useMemo(() => new Set([...contacts].sort((a,b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id)).slice(0, FREE_CONTACT_LIMIT).map(c => c.id)), [contacts]);
+  const applyPlan = (c: ReferralContact, eligible: Eligibility): Eligibility => capped && !freeAllowedIds.has(c.id)
+    ? { ...eligible, blocked: new Set<Channel>(["sms", "email", "share"]), canPrepare: false, reason: "Asks beyond your first 100 customers are paused on Free.", unknown: false }
+    : eligible;
+  const authoritativeAskAllowed = async (c: ReferralContact) => {
+    try {
+      const { data, error } = await supabase.rpc("fn_contact_ask_allowed", { p_business_id: biz.id, p_contact_id: c.id });
+      return !error && data === true;
+    } catch { return false; }
+  };
 
   const handleImport = async () => {
     // Explain the no-op instead of returning quietly: pasted rows can all be
@@ -349,18 +359,19 @@ const CustomersTab = ({
   // or the suppression snapshot changes.
   const eligibility = useMemo(() => {
     const map = new Map<string, Eligibility>();
-    for (const c of contacts) map.set(c.id, contactEligibility(c, suppression));
+    for (const c of contacts) map.set(c.id, applyPlan(c, contactEligibility(c, suppression)));
     return map;
-  }, [contacts, suppression]);
+  }, [contacts, suppression, capped, freeAllowedIds]);
 
   const eligibilityFor = (c: ReferralContact): Eligibility =>
-    eligibility.get(c.id) ?? contactEligibility(c, suppression);
+    eligibility.get(c.id) ?? applyPlan(c, contactEligibility(c, suppression));
 
   /**
    * Last gate before anything is prepared. Re-reads suppression so a change made
    * while the composer was open is honoured, and fails closed on a lookup error.
    */
   const guardChannel = async (c: ReferralContact, channel: Channel): Promise<boolean> => {
+    if (!isDemo && !await authoritativeAskAllowed(c)) { toast({ title: "Ask paused", description: "Free asks your first 100 customers. Keep Pro to ask your whole list.", variant: "destructive" }); return false; }
     const snapshot = await refreshSuppression();
     const fresh = contactEligibility(c, snapshot);
     if (!channelAllowed(fresh, channel)) {
@@ -375,6 +386,7 @@ const CustomersTab = ({
   };
 
   const markSent = async (c: ReferralContact, channel: Channel) => {
+    if (!isDemo && !await authoritativeAskAllowed(c)) return false;
     // Never let a confirmation overwrite an opt-out.
     const fresh = contactEligibility(c, await refreshSuppression());
     if (!channelAllowed(fresh, channel)) {
@@ -673,11 +685,12 @@ const CustomersTab = ({
   const bulkSubject = `A referral opportunity from ${biz.name}`;
 
   const openBulk = async () => {
+    const planAllowed = new Set(isDemo ? pending.map(c => c.id) : (await Promise.all(pending.map(async c => ({ c, ok: await authoritativeAskAllowed(c) })))).filter(row => row.ok).map(row => row.c.id));
     // Re-check before building the batch: an unsubscribe from ten minutes ago
     // must not end up in a BCC field.
     const snapshot = await refreshSuppression();
     const allowed = pending.filter(
-      (c) => !!c.email && channelAllowed(contactEligibility(c, snapshot), "email"),
+      (c) => planAllowed.has(c.id) && !!c.email && channelAllowed(applyPlan(c, contactEligibility(c, snapshot)), "email"),
     );
     if (allowed.length === 0) {
       toast({
@@ -831,7 +844,7 @@ const CustomersTab = ({
 
   const openTapThrough = async () => {
     const snapshot = await refreshSuppression();
-    const run = pending.filter((c) => contactEligibility(c, snapshot).canPrepare);
+    const run = pending.filter((c) => applyPlan(c, contactEligibility(c, snapshot)).canPrepare);
     if (run.length === 0) {
       toast({
         title: snapshot ? "No contacts to ask" : "Sending is paused",

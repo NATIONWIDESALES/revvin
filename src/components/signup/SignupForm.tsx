@@ -14,6 +14,7 @@ import { friendlyError } from "@/lib/errors";
 import { getPartnerClick } from "@/lib/partnerLink";
 import { CHECKOUT_FALLBACK_TOAST, holdCheckoutIntent, parsePlan, startHeldCheckout, clearCheckoutIntent } from "@/lib/proCheckoutIntent";
 import type { BillingPlan } from "@/config/pricing";
+import { readPreview, storePreview, previewSignupUrl, previewCategory, acquisitionOf } from "@/lib/instantPreview";
 
 /**
  * The one signup form. Rendered on /signup and embedded in the invite landing
@@ -46,6 +47,8 @@ const SignupForm = ({
   const [plan, setPlan] = useState<BillingPlan | null>(null);
 
   useEffect(() => {
+    const preview = readPreview(window.location.search);
+    if (preview) { setBusinessName(preview.name); storePreview(preview); }
     // Purchase intent from /pricing. Anything other than monthly|annual is ignored.
     const fromUrl = parsePlan(new URLSearchParams(window.location.search).get("plan"));
     if (fromUrl) {
@@ -79,7 +82,10 @@ const SignupForm = ({
     track("signup_form_started");
   };
 
-  const welcomeUrl = `${window.location.origin}/welcome${plan ? `?plan=${plan}` : ""}`;
+  const preview = readPreview(typeof window === "undefined" ? "" : window.location.search);
+  const welcomeParams = new URLSearchParams(preview ? previewSignupUrl(preview).split("?")[1] : "");
+  if (plan) welcomeParams.set("plan", plan);
+  const welcomeUrl = `${window.location.origin}/welcome${welcomeParams.size ? `?${welcomeParams}` : ""}`;
   const submitLabel = plan ? "Create account & continue to Pro" : "Create free account";
 
   const resendConfirmation = async () => {
@@ -118,6 +124,9 @@ const SignupForm = ({
           role: "business",
           full_name: fullName.trim() || email.split("@")[0],
           business_name: businessName.trim(),
+          preview_trade: preview ? previewCategory(preview.trade) : null,
+          preview_reward: preview ? String(preview.reward) : null,
+          acquisition: acquisitionOf(preview, window.location.href),
         },
       },
     });
@@ -128,6 +137,7 @@ const SignupForm = ({
       return;
     }
     track("signup_succeeded");
+    track("signup_completed");
     // Fire admin notification (info@revvin.co). Non-blocking.
     if (data.user?.id) {
       supabase.functions

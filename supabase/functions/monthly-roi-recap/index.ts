@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { effectivePlan } from "../_shared/effective-plan.ts";
 import { appUrl, RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { checkCronAuth } from "../_shared/cron-auth.ts";
@@ -108,8 +109,7 @@ serve(async (req) => {
       // Demo accounts are excluded from every scheduled send.
       .not("is_demo", "is", true)
       .eq("is_disabled", false)
-      .eq("is_published", true)
-      .in("subscription_status", ["active", "trialing", "past_due"]);
+      .eq("is_published", true);
     if (onlyBusinessId) q = q.eq("id", onlyBusinessId);
     const { data: businesses, error: bizErr } = await q;
     if (bizErr) throw bizErr;
@@ -117,6 +117,7 @@ serve(async (req) => {
     const results: any[] = [];
 
     for (const biz of businesses ?? []) {
+      if (await effectivePlan(supabase, biz.id) !== "pro") continue;
       // Skip if already sent for this month (idempotency)
       const { data: existing } = await supabase
         .from("monthly_recap_log")

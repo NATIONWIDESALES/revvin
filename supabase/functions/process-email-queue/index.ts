@@ -1,6 +1,7 @@
 import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
 import { createClient, SupabaseClient } from 'npm:@supabase/supabase-js@2'
 import { suppressContact } from '../_shared/outreach.ts'
+import { effectivePlan } from '../_shared/effective-plan.ts'
 
 const MAX_RETRIES = 5
 const DEFAULT_BATCH_SIZE = 10
@@ -352,6 +353,19 @@ Deno.serve(async (req) => {
 
       // A retried campaign message becomes in-flight again. This keeps a
       // transient failed attempt from being mistaken for a finished campaign.
+      if (queue === CAMPAIGN_QUEUE) {
+        const businessId = typeof payload.business_id === 'string' ? payload.business_id : '';
+        let plan: string;
+        try { plan = businessId ? await effectivePlan(supabase, businessId) : 'free'; }
+        catch { continue; }
+        if (plan !== 'pro') {
+          const reason = 'Reactivation campaigns paused: Pro trial or paid access ended';
+          await moveToDlq(supabase, queue, msg, reason);
+          await recordCampaignOutcome(supabase, payload, { ok: false, reason });
+          await reconcileCampaignForPayload(supabase, payload);
+          continue;
+        }
+      }
       if (queue === CAMPAIGN_QUEUE && typeof payload.campaign_send_id === 'string') {
         await supabase
           .from('campaign_sends')

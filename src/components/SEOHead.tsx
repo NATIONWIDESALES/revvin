@@ -18,6 +18,7 @@ interface SEOHeadProps {
   ogImage?: string;
   jsonLd?: Record<string, any> | Record<string, any>[];
   noindex?: boolean;
+  follow?: boolean;
 }
 
 function setMeta(attr: string, key: string, content: string) {
@@ -34,7 +35,7 @@ function setMeta(attr: string, key: string, content: string) {
 const pageOgImage = (path: string) =>
   path ? `${BASE_URL}/og/${path === "/" ? "home" : path.replace(/^\//, "").replace(/\//g, "--")}.png` : DEFAULT_OG_IMAGE;
 
-const SEOHead = ({ title, description, path = "", canonicalUrl, ogImage, jsonLd, noindex }: SEOHeadProps) => {
+const SEOHead = ({ title, description, path = "", canonicalUrl, ogImage, jsonLd, noindex, follow }: SEOHeadProps) => {
   useEffect(() => {
     // A prerendered document already carries this page's head and its core
     // structured data, and its canonical names this page. Leave that head
@@ -78,7 +79,7 @@ const SEOHead = ({ title, description, path = "", canonicalUrl, ogImage, jsonLd,
     // Standard meta
     setMeta("name", "description", description);
     if (noindex) {
-      setMeta("name", "robots", "noindex, nofollow");
+      setMeta("name", "robots", follow ? "noindex, follow" : "noindex, nofollow");
     } else {
       const robotsEl = document.querySelector('meta[name="robots"]');
       if (robotsEl) robotsEl.remove();

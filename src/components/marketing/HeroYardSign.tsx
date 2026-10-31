@@ -17,7 +17,7 @@ const prefersReducedMotion = () =>
  */
 export interface SignExample { biz: string; q: string; amt?: string; url: string }
 
-const HeroYardSign = ({ example, compact = false }: { example?: SignExample; compact?: boolean } = {}) => {
+const HeroYardSign = ({ example, compact = false, preview = false }: { example?: SignExample; compact?: boolean; preview?: boolean } = {}) => {
   const [i, setI] = useState(0);
   useEffect(() => {
     if (example || prefersReducedMotion()) return;
@@ -26,12 +26,12 @@ const HeroYardSign = ({ example, compact = false }: { example?: SignExample; com
   }, [example]);
   const s: SignExample = example ?? SIGN_EXAMPLES[i];
   return (
-    <figure className={compact ? "yard-scene yard-compact" : "yard-scene"} aria-label="Example yard sign">
+    <figure className={compact ? "yard-scene yard-compact" : "yard-scene"} aria-label={preview ? "Your referral sign preview" : "Example yard sign"}>
       <div className="yard-sign">
         <div className="yard-sign-panel">
           <p className="yard-sign-biz">{s.biz}</p>
           <p className="yard-sign-q">{s.q}</p>
-          <p className="yard-sign-sub">{s.amt ? <>Scan to send them our way. We pay you {s.amt} when they book.</> : <>Scan to send them our way. We pay a reward when they book.</>}</p>
+          <p className="yard-sign-sub">{s.amt ? <>Scan to send them our way. We pay you {s.amt} when the job closes.</> : <>Scan to send them our way. We pay a reward when the job closes.</>}</p>
           <div className="yard-sign-foot">
             <span className="yard-sign-url">{s.url}</span>
             <div className="yard-qr" aria-hidden="true">
@@ -48,7 +48,7 @@ const HeroYardSign = ({ example, compact = false }: { example?: SignExample; com
         <div className="yard-stakes" aria-hidden="true"><i /><i /></div>
       </div>
       <div className="yard-lawn" aria-hidden="true" />
-      <figcaption className="yard-caption">Example sign from the free print pack. Not a real business.</figcaption>
+      <figcaption className="yard-caption">{preview ? "Your referral page preview. Not live yet." : "Example sign from the free print pack. Not a real business."}</figcaption>
     </figure>
   );
 };
