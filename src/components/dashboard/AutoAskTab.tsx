@@ -114,7 +114,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
     setSaving(true);
     const scheduledAt = new Date(Date.now() + DELAY_HOURS * 60 * 60 * 1000).toISOString();
     const amount = form.amount.trim() ? Number(form.amount.trim()) : null;
-    const { error } = await supabase.from("referral_triggers").insert({
+    const { error } = await supabase.rpc("fn_create_job_ask", { p_business_id: biz.id, p_data: {
       business_id: biz.id,
       source: "manual",
       source_event_id: crypto.randomUUID(),
@@ -130,7 +130,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
       channel: email ? "email" : null,
       failure_reason: email ? null : "no_email_send_by_text_from_your_phone",
       scheduled_send_at: scheduledAt,
-    });
+    } });
     setSaving(false);
     if (error) {
       toast({ title: "Could not save", description: friendlyError(error), variant: "destructive" });

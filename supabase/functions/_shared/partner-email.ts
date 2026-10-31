@@ -27,11 +27,12 @@ export interface PartnerEmailInput {
 export type PartnerEmailResult = { sent: true; id: string | null } | { sent: false; reason: string };
 
 async function suppressed(supabase: any, email: string): Promise<boolean> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("suppressed_emails")
     .select("email")
     .eq("email", email)
     .limit(1);
+  if (error) throw new Error("Suppression lookup failed");
   return Boolean(data?.length);
 }
 

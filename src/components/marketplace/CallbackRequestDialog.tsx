@@ -34,7 +34,7 @@ export default function CallbackRequestDialog({ trigger }: Props) {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    const { error } = await supabase.from("callback_requests").insert(form);
+    const { error } = await supabase.rpc("fn_submit_public_capture", { p_kind: "callback_requests", p_data: form });
     setSubmitting(false);
     if (error) {
       toast({ title: "Could not send", description: friendlyError(error), variant: "destructive" });

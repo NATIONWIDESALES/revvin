@@ -72,7 +72,7 @@ export async function restInsert(
 ): Promise<{ error: { status: number } | null }> {
   const url = opts.url ?? import.meta.env.VITE_SUPABASE_URL;
   const key = opts.key ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-  const res = await (opts.fetchImpl ?? fetch)(`${url}/rest/v1/${table}`, {
+  const res = await (opts.fetchImpl ?? fetch)(`${url}/rest/v1/rpc/fn_submit_public_capture`, {
     method: "POST",
     headers: {
       apikey: key,
@@ -80,7 +80,7 @@ export async function restInsert(
       "Content-Type": "application/json",
       Prefer: "return=minimal",
     },
-    body: JSON.stringify(row),
+    body: JSON.stringify({ p_kind: table, p_data: row }),
     keepalive: true,
   });
   return { error: res.ok ? null : { status: res.status } };
@@ -94,9 +94,9 @@ export async function restInsert(
  */
 export async function insertAsVisitor(table: string, row: Record<string, unknown>) {
   // Already loaded: insert in the same tick, with whatever session it holds.
-  if (resolved) return resolved.from(table as never).insert(row as never);
+  if (resolved) return resolved.rpc("fn_submit_public_capture", { p_kind: table, p_data: row as never });
   const useRest = import.meta.env.PROD && !pending && !mayHaveSession();
   if (useRest) return restInsert(table, row);
   const supabase = await loadSupabase();
-  return supabase.from(table as never).insert(row as never);
+  return supabase.rpc("fn_submit_public_capture", { p_kind: table, p_data: row as never });
 }

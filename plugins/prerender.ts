@@ -556,7 +556,7 @@ export const businessMeta = (biz: PublicBusiness) => {
 };
 
 /** Indexable only when published (the public view holds only live pages), not a demo and not restricted. */
-export const businessIndexable = (biz: PublicBusiness) => !biz.is_demo && !isRestrictedCategory(biz.category);
+export const businessIndexable = (biz: PublicBusiness) => biz.index_approved === true && !biz.is_demo && !isRestrictedCategory(biz.category);
 
 export const businessJsonLd = (biz: PublicBusiness) => {
   const url = `${SITE}/r/${biz.slug}`;

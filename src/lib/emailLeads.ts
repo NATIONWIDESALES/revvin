@@ -32,14 +32,14 @@ export async function submitEmailLead(
       track("email_lead_submitted", { source });
       return { ok: true };
     }
-    const { error } = await (await loadSupabase()).from("email_leads").insert({
+    const { error } = await (await loadSupabase()).rpc("fn_submit_public_capture", { p_kind: "email_leads", p_data: {
       email: email.trim().toLowerCase(),
       source,
       user_agent:
         typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : null,
       referrer:
         typeof document !== "undefined" ? document.referrer.slice(0, 500) : null,
-    });
+    } });
     if (error) {
       console.error("[submitEmailLead] insert failed", error);
       return { ok: false, error: error.message };

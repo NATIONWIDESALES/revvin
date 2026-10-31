@@ -7,7 +7,7 @@ export const esc = (s: unknown) =>
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
 /** Postal address block required in the footer of every campaign email. */
 export interface SenderAddress {

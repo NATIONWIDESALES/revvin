@@ -39,52 +39,52 @@ const templates: Record<
         d.role === "business"
           ? "You can now create referral offers and start receiving qualified leads from our referrer network."
           : "Browse high-paying referral opportunities and start earning commissions today."
-      }\n\nGet started: ${appUrl("/dashboard")}\n\n— The Revvin Team`,
+      }\n\nGet started: ${appUrl("/dashboard")}\n\n- The Revvin Team`,
   },
   business_invite: {
-    subject: "You've been invited to Revvin — ${businessName}",
+    subject: "You've been invited to Revvin - ${businessName}",
     body: (d) =>
-      `Hi ${d.name},\n\nSomeone thinks ${d.businessName} should be on Revvin, the referral program platform for service businesses. Flat $49/month USD, branded referral page, QR code, and a simple lead inbox.\n\nCreate your free account: ${d.signupUrl || appUrl("/auth?mode=signup&role=business")}\n\n— The Revvin Team`,
+      `Hi ${d.name},\n\nSomeone thinks ${d.businessName} should be on Revvin, the referral program platform for service businesses. Flat $49/month USD, branded referral page, QR code, and a simple lead inbox.\n\nCreate your free account: ${d.signupUrl || appUrl("/auth?mode=signup&role=business")}\n\n- The Revvin Team`,
   },
   referral_submitted: {
-    subject: "New Referral Submitted — ${offerTitle}",
+    subject: "New Referral Submitted - ${offerTitle}",
     body: (d) =>
-      `Hi ${d.businessName},\n\nA new referral has been submitted for your offer "${d.offerTitle}".\n\nCustomer: ${d.customerName}\nSubmitted by: ${d.referrerName}\n\nLog in to review and accept: ${appUrl("/dashboard")}\n\n— Revvin`,
+      `Hi ${d.businessName},\n\nA new referral has been submitted for your offer "${d.offerTitle}".\n\nCustomer: ${d.customerName}\nSubmitted by: ${d.referrerName}\n\nLog in to review and accept: ${appUrl("/dashboard")}\n\n- Revvin`,
   },
   referral_accepted: {
     subject: "Your Referral Was Accepted!",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nGreat news! Your referral for ${d.customerName} to "${d.offerTitle}" has been accepted.\n\nYou'll be paid directly by the business when the deal closes.\n\nTrack progress: ${appUrl("/dashboard")}\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nGreat news! Your referral for ${d.customerName} to "${d.offerTitle}" has been accepted.\n\nYou'll be paid directly by the business when the deal closes.\n\nTrack progress: ${appUrl("/dashboard")}\n\n- Revvin`,
   },
   deal_closed: {
-    subject: "Deal Closed — Payout Incoming!",
+    subject: "Deal Closed - Payout Incoming!",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nCongratulations! The deal for ${d.customerName} ("${d.offerTitle}") has been marked as closed/won.\n\nYour payout of $${d.payoutAmount} has been approved and will be processed shortly.\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nCongratulations! The deal for ${d.customerName} ("${d.offerTitle}") has been marked as closed/won.\n\nYour payout of $${d.payoutAmount} has been approved and will be processed shortly.\n\n- Revvin`,
   },
   deal_lost: {
-    subject: "Referral Update — Deal Lost",
+    subject: "Referral Update - Deal Lost",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nUnfortunately, the deal for ${d.customerName} ("${d.offerTitle}") did not close.\n\nKeep referring — your next win is around the corner.\n\nBrowse offers: ${appUrl("/browse")}\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nUnfortunately, the deal for ${d.customerName} ("${d.offerTitle}") did not close.\n\nKeep referring - your next win is around the corner.\n\nBrowse offers: ${appUrl("/browse")}\n\n- Revvin`,
   },
   payout_released: {
-    subject: "Payout Released — $${payoutAmount}",
+    subject: "Payout Released - $${payoutAmount}",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nYour payout of $${d.payoutAmount} for "${d.offerTitle}" has been released.\n\nCheck your earnings dashboard: ${appUrl("/dashboard")}\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nYour payout of $${d.payoutAmount} for "${d.offerTitle}" has been released.\n\nCheck your earnings dashboard: ${appUrl("/dashboard")}\n\n- Revvin`,
   },
   referral_declined: {
-    subject: "Referral Update — Declined",
+    subject: "Referral Update - Declined",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nYour referral for ${d.customerName} to "${d.offerTitle}" was declined by the business.\n\nDon't be discouraged — browse more opportunities and keep referring.\n\nBrowse offers: ${appUrl("/browse")}\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nYour referral for ${d.customerName} to "${d.offerTitle}" was declined by the business.\n\nDon't be discouraged - browse more opportunities and keep referring.\n\nBrowse offers: ${appUrl("/browse")}\n\n- Revvin`,
   },
   dispute_submitted: {
-    subject: "Dispute Received — ${offerTitle}",
+    subject: "Dispute Received - ${offerTitle}",
     body: (d) =>
-      `Hi ${d.businessName},\n\nA dispute has been submitted for a referral on "${d.offerTitle}".\n\nCustomer: ${d.customerName}\nSubmitted by: ${d.referrerName}\n\nOur team will review and reach out shortly.\n\nLog in: ${appUrl("/dashboard")}\n\n— Revvin`,
+      `Hi ${d.businessName},\n\nA dispute has been submitted for a referral on "${d.offerTitle}".\n\nCustomer: ${d.customerName}\nSubmitted by: ${d.referrerName}\n\nOur team will review and reach out shortly.\n\nLog in: ${appUrl("/dashboard")}\n\n- Revvin`,
   },
   dispute_resolved: {
-    subject: "Dispute Resolved — ${offerTitle}",
+    subject: "Dispute Resolved - ${offerTitle}",
     body: (d) =>
-      `Hi ${d.referrerName},\n\nThe dispute for your referral of ${d.customerName} on "${d.offerTitle}" has been resolved.\n\nOutcome: ${d.outcome}\n\nView details: ${appUrl("/dashboard")}\n\n— Revvin`,
+      `Hi ${d.referrerName},\n\nThe dispute for your referral of ${d.customerName} on "${d.offerTitle}" has been resolved.\n\nOutcome: ${d.outcome}\n\nView details: ${appUrl("/dashboard")}\n\n- Revvin`,
   },
 };
 
@@ -140,7 +140,7 @@ serve(async (req) => {
 
     const rawPayload = await req.json();
 
-    // Support simple {to, subject, html} payloads — ADMIN ONLY
+    // Support simple {to, subject, html} payloads - ADMIN ONLY
     if (rawPayload.to && rawPayload.subject && rawPayload.html) {
       // Verify the caller has the admin role before allowing arbitrary emails
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -231,6 +231,8 @@ serve(async (req) => {
       }
 
       if (type === "business_invite") {
+        const { data: allowed, error: capError } = await supabase.rpc("fn_rate_bucket_hit", { p_key: `business_invite:${user.id}`, p_window: "1 day", p_max_hits: 5 });
+        if (capError || allowed !== true) return new Response(JSON.stringify({ error: "Daily invitation limit reached" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         // Recipient is user-supplied by design (it is an invitation), but the
         // body is fully server-controlled: no attacker-chosen links or amounts.
         const email = String(recipientEmail ?? "").trim().toLowerCase();
