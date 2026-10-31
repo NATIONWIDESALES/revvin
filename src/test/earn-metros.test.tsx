@@ -56,7 +56,7 @@ describe("/earn/{metro}", () => {
   it("not live: noindex and the waitlist, no business list", async () => {
     h.live = false;
     metroPage();
-    await screen.findByText(/is not live yet/);
+    await screen.findByText(/Revvin is opening city by city across the US and Canada/);
     expect(document.querySelector('meta[name="robots"]')?.getAttribute("content")).toMatch(/noindex/);
     expect(screen.queryByTestId("earn-business")).toBeNull();
     expect((screen.getByLabelText("City") as HTMLInputElement).value).toBe("Fraser Valley, BC");
