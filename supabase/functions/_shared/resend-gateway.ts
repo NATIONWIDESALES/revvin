@@ -38,6 +38,9 @@ export interface SendEmailResult {
 }
 
 export async function sendEmailViaGateway(params: SendEmailParams): Promise<SendEmailResult> {
+  if (!params.allowWhenPaused && (await outboundEmailPaused())) {
+    return { success: false, error: "outbound_paused" };
+  }
   try {
     for (const email of Array.isArray(params.to) ? params.to : [params.to]) {
       if (await globalSuppression(email)) return { success: false, error: "recipient_suppressed" };
