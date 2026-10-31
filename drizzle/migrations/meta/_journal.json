@@ -71,6 +71,13 @@
       "when": 1793466468336,
       "tag": "0009_security_rate_limited_submissions",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793466501487,
+      "tag": "0010_security_public_projection",
+      "breakpoints": true
     }
   ]
 }

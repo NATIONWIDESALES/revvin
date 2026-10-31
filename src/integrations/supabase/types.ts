@@ -2909,110 +2909,74 @@ export type Database = {
     Views: {
       businesses_public: {
         Row: {
-          account_status: string | null
           brand_color: string | null
           category: string | null
           city: string | null
           cover_image_url: string | null
-          created_at: string | null
           description: string | null
           headline: string | null
           id: string | null
-          industry: string | null
+          index_approved: boolean | null
           is_demo: boolean | null
-          is_disabled: boolean | null
-          is_published: boolean | null
           is_verified: boolean | null
-          latitude: number | null
           logo_url: string | null
-          longitude: number | null
           name: string | null
           offer_amount: string | null
           offer_fine_print: string | null
           offer_trigger: string | null
-          plan: string | null
           referral_cta_label: string | null
           service_area: string | null
-          show_on_earn: boolean | null
           slug: string | null
           state: string | null
-          subscription_status: string | null
           testimonials: Json | null
-          updated_at: string | null
-          user_id: string | null
-          verified: boolean | null
           website: string | null
           welcome_message: string | null
         }
         Insert: {
-          account_status?: string | null
           brand_color?: string | null
           category?: string | null
           city?: string | null
           cover_image_url?: string | null
-          created_at?: string | null
           description?: string | null
           headline?: string | null
           id?: string | null
-          industry?: string | null
+          index_approved?: boolean | null
           is_demo?: never
-          is_disabled?: boolean | null
-          is_published?: boolean | null
           is_verified?: boolean | null
-          latitude?: number | null
           logo_url?: string | null
-          longitude?: number | null
           name?: string | null
           offer_amount?: string | null
           offer_fine_print?: string | null
           offer_trigger?: string | null
-          plan?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
-          show_on_earn?: boolean | null
           slug?: string | null
           state?: string | null
-          subscription_status?: string | null
           testimonials?: Json | null
-          updated_at?: string | null
-          user_id?: string | null
-          verified?: boolean | null
           website?: string | null
           welcome_message?: string | null
         }
         Update: {
-          account_status?: string | null
           brand_color?: string | null
           category?: string | null
           city?: string | null
           cover_image_url?: string | null
-          created_at?: string | null
           description?: string | null
           headline?: string | null
           id?: string | null
-          industry?: string | null
+          index_approved?: boolean | null
           is_demo?: never
-          is_disabled?: boolean | null
-          is_published?: boolean | null
           is_verified?: boolean | null
-          latitude?: number | null
           logo_url?: string | null
-          longitude?: number | null
           name?: string | null
           offer_amount?: string | null
           offer_fine_print?: string | null
           offer_trigger?: string | null
-          plan?: string | null
           referral_cta_label?: string | null
           service_area?: string | null
-          show_on_earn?: boolean | null
           slug?: string | null
           state?: string | null
-          subscription_status?: string | null
           testimonials?: Json | null
-          updated_at?: string | null
-          user_id?: string | null
-          verified?: boolean | null
           website?: string | null
           welcome_message?: string | null
         }
