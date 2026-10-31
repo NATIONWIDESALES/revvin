@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import LeadCaptureForm from "@/components/marketing/LeadCaptureForm";
 import InviteBusinessForm from "@/components/earn/InviteBusinessForm";
 import GetMyLink from "@/components/earn/GetMyLink";
+import { EARN_COPY } from "@/content/earnPage";
 import { earnDescription, earnTitle, metroBusinesses, metroInfo, submitEarnLead, waitingCount, type EarnBusiness } from "@/lib/earn";
 
 const EarnMetro = () => {
@@ -47,7 +48,7 @@ const EarnMetro = () => {
           {info.is_live ? (
             <p className="mt-4 text-muted-foreground">Local businesses that pay a reward when your referral turns into a job. Get your own link to each one.</p>
           ) : (
-            <p className="mt-4 text-muted-foreground">{info.name} is not live yet. Join the list and we'll tell you when businesses near you are live.</p>
+            <p className="mt-4 text-muted-foreground">{EARN_COPY.rollout}</p>
           )}
         </div>
       </section>

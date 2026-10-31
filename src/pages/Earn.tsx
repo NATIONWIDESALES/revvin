@@ -27,7 +27,7 @@ const Earn = () => {
               <ul className="mt-4 divide-y divide-line">
                 {metros.map((m) => (
                   <li key={m.slug} className="flex items-center justify-between gap-4 py-3">
-                    <span className="font-semibold text-foreground">{m.name}</span>
+                    <span className="font-semibold text-foreground">Live city</span>
                     <Link to={`/earn/${m.slug}`} className="font-semibold text-primary underline underline-offset-4">See businesses</Link>
                   </li>
                 ))}

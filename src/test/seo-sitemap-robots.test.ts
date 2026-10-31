@@ -31,23 +31,21 @@ describe("prerendered public routes", () => {
     });
   }
 
-  it("Organization has founder with sameAs and disambiguation, no empty sameAs; WebSite has alternateName", () => {
+  it("Organization has no founder or empty sameAs; WebSite has alternateName", () => {
     const html = renderRoute(template, PRERENDER_ROUTES.find((r) => r.path === "/")!);
     const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)![1])["@graph"];
     const org = graph.find((n: { "@type": string }) => n["@type"] === "Organization");
-    expect(org.founder.name).toBe("Karm Sandhu");
-    expect(org.founder.sameAs.length).toBeGreaterThan(0);
-    expect(org.founder.disambiguatingDescription).toBeTruthy();
+    expect(org).not.toHaveProperty("founder");
     expect("sameAs" in org).toBe(false);
     const site = graph.find((n: { "@type": string }) => n["@type"] === "WebSite");
     expect(site).toMatchObject({ name: "Revvin", alternateName: "Revvin.co" });
   });
 
-  it("guides keep Article with Person author and Organization publisher", () => {
+  it("guides keep Article with Organization author and publisher", () => {
     const g = PRERENDER_ROUTES.find((r) => r.path.startsWith("/guides/"))!;
     const graph = JSON.parse(renderRoute(template, g).match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)![1])["@graph"];
     const art = graph.find((n: { "@type": string }) => n["@type"] === "Article");
-    expect(art.author["@type"]).toBe("Person");
+    expect(art.author["@type"]).toBe("Organization");
     expect(art.publisher["@id"]).toContain("#organization");
   });
 
