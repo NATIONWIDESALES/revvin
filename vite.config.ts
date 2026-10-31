@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, type PluginOption } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
@@ -15,7 +15,9 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), mode === "development" && componentTagger(), mcpPlugin(), prerenderPlugin(), pwaPlugin()].filter(Boolean),
+  // Installed plugins may resolve a second copy of Vite's recursive types.
+  // Their runtime hooks remain identical; normalize the plugin boundary once.
+  plugins: [react(), mode === "development" && componentTagger(), mcpPlugin(), prerenderPlugin(), pwaPlugin()].filter(Boolean) as unknown as PluginOption[],
   build: {
     rollupOptions: {
       output: {

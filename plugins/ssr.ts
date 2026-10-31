@@ -21,7 +21,7 @@ export const buildSsrRenderer = async (root: string): Promise<SsrRender | null> 
       root,
       mode: "production",
       logLevel: "error",
-      plugins: [react()],
+      plugins: [react()] as unknown as import("vite").PluginOption[],
       resolve: { alias: { "@": path.join(root, "src") } },
       build: {
         ssr: path.join(root, "src/entry-server.tsx"),
