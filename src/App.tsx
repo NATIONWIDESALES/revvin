@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CountryProvider } from "@/contexts/CountryContext";
 import Layout from "@/components/Layout";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import FrameGuard from "@/components/FrameGuard";
 import Analytics from "@/components/Analytics";
 import MetaPixel from "@/components/MetaPixel";
 import PartnerCapture from "@/components/partners/PartnerCapture";
@@ -99,7 +100,7 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
               <PartnerCapture />
               <UpdateToast />
 
-              <Suspense fallback={<RouteFallback />}>
+              <FrameGuard><Suspense fallback={<RouteFallback />}>
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/signup" element={<Signup />} />
@@ -173,7 +174,7 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
                 <Route path="/en-cad/*" element={<Navigate to="/" replace />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              </Suspense>
+              </Suspense></FrameGuard>
             </CountryProvider>
           </AuthProvider>
         </Router>
