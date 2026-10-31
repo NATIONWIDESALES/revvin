@@ -64,11 +64,13 @@ describe("2. data retention", () => {
     expect(leads.find((l) => l.lead_name === "Kay Open")).toMatchObject({ status: "new", lead_phone: "5555556666" });
     expect(leads.find((l) => l.lead_name === "Lee Recent")).toBeDefined();
 
-    const triggers = (await db.query<any>(`SELECT customer_email, customer_phone FROM public.referral_triggers ORDER BY created_at`)).rows;
-    expect(triggers[0]).toEqual({ customer_email: null, customer_phone: null });
-    expect(triggers[1]).toEqual({ customer_email: "new@example.com", customer_phone: "5550002222" });
+    const trigger = async (email: string) =>
+      (await db.query<any>(`SELECT customer_email, customer_phone FROM public.referral_triggers WHERE customer_email = $1 OR $1 = 'old@example.com' AND customer_email IS NULL`, [email])).rows;
+    // The ask processed 100 days ago was scrubbed.
+    expect((await db.query<any>(`SELECT count(*)::int n FROM public.referral_triggers WHERE customer_email IS NULL AND customer_phone IS NULL`)).rows[0].n).toBe(1);
+    expect((await trigger("new@example.com")).rows[0]).toEqual({ customer_email: "new@example.com", customer_phone: "5550002222" });
     // A still-pending ask keeps its contact details.
-    expect(triggers[2]).toEqual({ customer_email: "pending@example.com", customer_phone: "5550003333" });
+    expect((await trigger("pending@example.com")).rows[0]).toEqual({ customer_email: "pending@example.com", customer_phone: "5550003333" });
 
     expect((await db.query<any>(`SELECT count(*)::int n FROM public.notifications_log`)).rows[0].n).toBe(1);
     expect((await db.query<any>(`SELECT count(*)::int n FROM public.email_send_log`)).rows[0].n).toBe(1);
@@ -154,7 +156,7 @@ describe("4 and 5. outbound pause, privacy copy and security.txt", () => {
 
   it("privacy policy states the retention periods", () => {
     const retention = PRIVACY_DOC.sections.find((s) => s.heading === "6. Data Retention");
-    const text = retention!.paragraphs.map((para) => para.body).join(" ");
+    const text = retention!.paragraphs.map((para) => para.text).join(" ");
     for (const period of ["24 months", "90 days", "180 days", "13 months"]) expect(text).toContain(period);
     expect(text).toContain("customer list is never deleted");
     expect(text).not.toContain("—");
