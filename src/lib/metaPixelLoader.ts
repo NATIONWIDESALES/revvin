@@ -1,13 +1,15 @@
-type Pixel = ((...args: unknown[]) => void) & { callMethod?: (...args: unknown[]) => void; queue: unknown[][]; push?: Pixel; loaded?: boolean; version?: string };
-declare global { interface Window { fbq?: Pixel; _fbq?: Pixel } }
+/** The SDK lives in a separate, no-referrer document and cannot inspect signup forms or SPA URLs. */
 export function loadPixel(id: string) {
-  if (!/^\d+$/.test(id)) return;
-  if (!window.fbq) {
-    const pixel: Pixel = Object.assign((...args: unknown[]) => {
-      if (pixel.callMethod) pixel.callMethod.apply(pixel, args); else pixel.queue.push(args);
-    }, { queue: [] as unknown[][], loaded: true, version: "2.0" });
-    pixel.push = pixel; window.fbq = pixel; window._fbq = pixel;
-    const script = document.createElement("script"); script.async = true; script.src = "https://connect.facebook.net/en_US/fbevents.js"; document.head.appendChild(script);
-    pixel("init", id, {}, { agent: "lovable" });
-  }
+  if (!/^\d+$/.test(id)) return null;
+  const frame = document.createElement("iframe");
+  frame.src = "/ad-events.html"; frame.referrerPolicy = "no-referrer"; frame.hidden = true; frame.title = "Advertising measurement";
+  let ready = false;
+  const pending: string[] = [];
+  const send = (event: string) => {
+    if (ready) frame.contentWindow?.postMessage({ type: "revvin-pixel", id, event }, location.origin);
+    else pending.push(event);
+  };
+  frame.addEventListener("load", () => { ready = true; for (const event of pending.splice(0)) send(event); });
+  document.body.appendChild(frame);
+  return { send, dispose: () => { pending.length = 0; frame.remove(); } };
 }

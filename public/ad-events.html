@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>Revvin ad measurement</title></head><body>
+<script>
+(() => {
+  let id = "";
+  const allowed = new Set(["PageView", "Lead", "CompleteRegistration", "PagePublished"]);
+  addEventListener("message", event => {
+    if (event.origin !== location.origin || event.source !== parent || event.data?.type !== "revvin-pixel") return;
+    const data = event.data;
+    if (!/^\d+$/.test(data.id) || !allowed.has(data.event)) return;
+    if (!id) {
+      id = data.id;
+      const pixel = (...args) => pixel.callMethod ? pixel.callMethod.apply(pixel,args) : pixel.queue.push(args);
+      pixel.queue = []; pixel.push = pixel; pixel.loaded = true; pixel.version = "2.0";
+      window.fbq = pixel; window._fbq = pixel;
+      const script = document.createElement("script"); script.async = true; script.src = "https://connect.facebook.net/en_US/fbevents.js"; document.head.appendChild(script);
+      pixel("init", id, {}, { agent: "lovable" });
+    }
+    if (id !== data.id) return;
+    window.fbq(data.event === "PagePublished" ? "trackCustom" : "track",data.event);
+  });
+})();
+</script>
+</body></html>
