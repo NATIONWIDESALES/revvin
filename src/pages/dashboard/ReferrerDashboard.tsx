@@ -60,12 +60,8 @@ const ReferrerDashboard = () => {
         .order("created_at", { ascending: false });
       setReferrals(refRes.data ?? []);
 
-      const leadsRes = await (supabase as any)
-        .from("leads")
-        .select("id, lead_name, lead_need, status, created_at, business_id, businesses:business_id(name, slug)")
-        .eq("referrer_user_id", user.id)
-        .order("created_at", { ascending: false });
-      setPublicLeads((leadsRes.data as any[]) ?? []);
+      const leadsRes = await supabase.rpc("fn_referrer_lead_summary");
+      setPublicLeads(leadsRes.data ?? []);
 
       setLoading(false);
     };
@@ -110,29 +106,13 @@ const ReferrerDashboard = () => {
     // Disputes are tracked via audit_log + admin notification; we intentionally
     // do NOT mutate referrals.status (the column has a CHECK constraint that
     // only allows submitted/contacted/in_progress/won/lost).
-    const { error: auditError } = await supabase.rpc("fn_create_audit_entry", {
-      p_referral_id: refId,
-      p_event_type: "dispute_submitted",
-      p_payload: { previous_status: ref.status, customer_name: ref.customer_name } as any,
-    });
+    const { error: auditError } = await supabase.rpc("fn_referral_action", { p_referral_id: refId, p_action: "dispute_submitted" });
     if (auditError) {
       toast({ title: "Error", description: "Failed to submit dispute.", variant: "destructive" });
       return;
     }
     // Notify business via in-app + email
     if (ref.business_id) {
-      let businessOwnerId = ref.businesses?.user_id;
-
-      if (businessOwnerId) {
-        await supabase.rpc("fn_create_notification", {
-          p_user_id: businessOwnerId,
-          p_title: "Dispute submitted",
-          p_body: `A dispute has been filed for a referral on "${ref.offers?.title}".`,
-          p_type: "dispute_submitted",
-          p_referral_id: refId,
-        });
-      }
-
       // Await the email invocation so it's not lost if the user navigates away.
       try {
         await supabase.functions.invoke("send-notification", {
@@ -241,18 +221,8 @@ const ReferrerDashboard = () => {
                         <div className="flex items-center gap-2 flex-wrap">
                         {["submitted", "contacted", "in_progress", "qualified"].includes(ref.status) && (
                           <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={async () => {
-                            // Send in-app notification to business owner
-                            const { data: biz } = await supabase.from("businesses_public" as any).select("user_id, name").eq("id", ref.business_id).maybeSingle();
-                            const bizRow = biz as any;
-                            if (bizRow?.user_id) {
-                              await supabase.rpc("fn_create_notification", {
-                                p_user_id: bizRow.user_id,
-                                p_title: "Referral Nudge",
-                                p_body: `A referrer is following up on their referral for "${ref.offers?.title ?? "an offer"}".`,
-                                p_type: "nudge",
-                                p_referral_id: ref.id,
-                              });
-                            }
+                            const { error } = await supabase.rpc("fn_referral_action", { p_referral_id: ref.id, p_action: "nudge" });
+                            if (error) { toast({ title: "Could not send reminder", variant: "destructive" }); return; }
                             toast({ title: "Nudge sent", description: `Reminder sent to ${ref.businesses?.name ?? "the business"}.` });
                           }}>
                             <Bell className="h-3 w-3" /> Nudge
@@ -294,20 +264,18 @@ const ReferrerDashboard = () => {
                 Referrals you submitted through a business's referral page. The business pays you directly when the deal closes.
               </p>
               <div className="space-y-3">
-                {publicLeads.map((l: any) => {
+                {publicLeads.map((l: any, index: number) => {
                   const sc = statusConfig[l.status] ?? statusConfig.submitted;
                   return (
-                    <div key={l.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+                    <div key={index} className="rounded-xl border border-border bg-card p-4 shadow-sm">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-foreground truncate">{l.lead_name}</p>
+                          <p className="font-medium text-foreground truncate">{l.lead_first_name}</p>
                           <p className="text-sm text-muted-foreground truncate">
-                            {l.businesses?.name ?? "Business"}
-                            {l.lead_need ? ` • ${l.lead_need}` : ""}
+                            {l.business_name ?? "Business"}
+
                           </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Submitted {new Date(l.created_at).toLocaleDateString()}
-                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{l.reward_amount != null ? `$${l.reward_amount} ${l.reward_status === "paid" ? "paid" : "owed"}` : ""}</p>
                         </div>
                         <Badge className={`${sc.bg} ${sc.text} border-0`}>{sc.label}</Badge>
                       </div>

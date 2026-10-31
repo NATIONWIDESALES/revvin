@@ -53,7 +53,7 @@ const payoutStatusConfig: Record<string, { bg: string; text: string; label: stri
 };
 
 interface Business {
-  id: string; name: string; verified: boolean | null; is_verified?: boolean | null; created_at: string; city: string | null; state: string | null; industry: string | null; account_status?: string;
+  id: string; name: string; verified: boolean | null; is_verified?: boolean | null; index_approved?: boolean; created_at: string; city: string | null; state: string | null; industry: string | null; account_status?: string;
 }
 interface Profile {
   user_id: string; full_name: string | null; city: string | null;

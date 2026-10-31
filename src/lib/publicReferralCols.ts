@@ -10,4 +10,4 @@ export const PUBLIC_REFERRAL_PAGE_COLS =
  * The build renders the full referral page, so it reads everything the page
  * reads, plus the date used for the sitemap.
  */
-export const PRERENDER_BUSINESS_COLS = PUBLIC_REFERRAL_PAGE_COLS as const;
+export const PRERENDER_BUSINESS_COLS = PUBLIC_REFERRAL_PAGE_COLS;

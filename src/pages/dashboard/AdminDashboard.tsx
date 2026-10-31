@@ -109,7 +109,6 @@ const AdminDashboard = () => {
     const { error } = await supabase.from("businesses").update({ verified: true }).eq("id", bizId);
     if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
     setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, verified: true } : b));
-    if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: "business_verified", p_referral_id: bizId });
     toast({ title: "Business verified" });
   };
 
@@ -156,7 +155,6 @@ const AdminDashboard = () => {
     const { error } = await supabase.from("referrals").update(updates).eq("id", referralId);
     if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
     setReferrals(prev => prev.map(r => r.id === referralId ? { ...r, ...updates } : r));
-    if (user) await supabase.rpc("fn_create_audit_entry", { p_event_type: "dispute_resolved", p_referral_id: referralId, p_payload: { resolution: newStatus, notes } });
     toast({ title: "Dispute resolved", description: `Referral status changed to ${newStatus}` });
     setDisputeNotes(prev => ({ ...prev, [referralId]: "" }));
   };

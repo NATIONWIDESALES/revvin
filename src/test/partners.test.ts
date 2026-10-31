@@ -270,7 +270,7 @@ describe("commission recording", () => {
   });
 
   it("records nothing for a business with no partner", async () => {
-    const db = world({ businesses: [{ ...business, partner_id: null }], partner_clicks: [{ id: "click-1", partner_id: partner.id, created_at: clickedAt }] });
+    const db = world({ businesses: [{ ...business, partner_id: null }] });
     expect(await handlePartnerInvoicePaid(db, invoice())).toEqual({
       created: false,
       reason: "not_attributed",
