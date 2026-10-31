@@ -817,14 +817,20 @@ ${items}
 };
 
 /** Preload the two above-the-fold font files (hashed names read from the build). */
-export const addFontPreloads = (html: string, assetNames: string[]) => {
+export const addFontPreloads = (html: string, assetNames: string[], prioritizeHero = false) => {
   const pick = (prefix: string) => assetNames.find((n) => n.startsWith(prefix) && n.endsWith(".woff2"));
   const links = [pick("barlow-condensed-latin-800-normal"), pick("barlow-latin-400-normal")]
     .filter(Boolean)
-    .map((n) => `<link rel="preload" href="/assets/${n}" as="font" type="font/woff2" crossorigin>`)
+    .map((n) => `<link rel="preload" href="/assets/${n}"${prioritizeHero ? ' fetchpriority="high"' : ""} as="font" type="font/woff2" crossorigin>`)
     .join("\n    ");
   if (!links) return html;
-  return html.replace(/(\s*)(<script type="module")/, `$1${links}$1$2`);
+  const withFonts = html.replace(/(\s*)(<script type="module")/, `$1${links}$1$2`);
+  if (!prioritizeHero) return withFonts;
+  // These text-led pages compete with a large shared entry for bandwidth.
+  // Keep SSR visible and controls eager; only lower script fetch priority.
+  return withFonts
+    .replace(/<script type="module"/g, '<script fetchpriority="low" type="module"')
+    .replace(/rel="modulepreload"/g, 'fetchpriority="low" rel="modulepreload"');
 };
 
 export default function prerenderPlugin(): Plugin {
@@ -945,7 +951,8 @@ export default function prerenderPlugin(): Plugin {
         console.warn(`[prerender] critical CSS unavailable, writing documents without it: ${String(err).slice(0, 200)}`);
       }
       for (const doc of docs) {
-        let html = addFontPreloads(doc.html, assetNames);
+        const prioritizeHero = doc.file === indexPath || doc.file === path.join(dist, "pricing", "index.html");
+        let html = addFontPreloads(doc.html, assetNames, prioritizeHero);
         if (doc.inlineCss && beasties) {
           try {
             html = await beasties.process(html);
