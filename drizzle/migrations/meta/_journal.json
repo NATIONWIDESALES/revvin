@@ -64,6 +64,13 @@
       "when": 1793466409460,
       "tag": "0008_security_identity_grants_moderation",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793466468336,
+      "tag": "0009_security_rate_limited_submissions",
+      "breakpoints": true
     }
   ]
 }

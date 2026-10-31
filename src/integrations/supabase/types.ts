@@ -3204,6 +3204,10 @@ export type Database = {
             }
             Returns: undefined
           }
+      fn_create_job_ask: {
+        Args: { p_business_id: string; p_data: Json }
+        Returns: string
+      }
       fn_create_notification: {
         Args: {
           p_body: string
@@ -3284,6 +3288,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      fn_me_email_eligible: { Args: { p_email: string }; Returns: boolean }
       fn_my_referrals: { Args: never; Returns: Json }
       fn_new_referrer_token: { Args: never; Returns: string }
       fn_normalize_slug: { Args: { p_slug: string }; Returns: string }
@@ -3356,6 +3361,7 @@ export type Database = {
         Args: { p_session_id: string }
         Returns: boolean
       }
+      fn_request_bucket: { Args: never; Returns: string }
       fn_resolve_referrer: {
         Args: { p_slug: string; p_token: string }
         Returns: Json
@@ -3382,6 +3388,10 @@ export type Database = {
           p_metro_slug?: string
           p_source: string
         }
+        Returns: boolean
+      }
+      fn_submit_public_capture: {
+        Args: { p_data: Json; p_kind: string }
         Returns: boolean
       }
       fn_submit_public_referral: {
