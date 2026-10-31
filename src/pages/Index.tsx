@@ -40,7 +40,7 @@ const LOCALS = [
 ];
 
 const Index = () => (
-  <div className="mk-home-performance">
+  <>
     <SEOHead
       title={HOME_SEO.title}
       description={HOME_SEO.description}
@@ -228,7 +228,7 @@ const Index = () => (
 
     {/* Final */}
     <FinalBand cta="footer_signup" />
-  </div>
+  </>
 );
 
 export default Index;

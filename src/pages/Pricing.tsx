@@ -52,7 +52,7 @@ const Pricing = () => {
   };
 
   return (
-    <div className="mk-pricing-performance">
+    <>
       <SEOHead
         title={PAGE_META["/pricing"].title}
         description={PAGE_META["/pricing"].description}
@@ -357,7 +357,7 @@ const Pricing = () => {
           </Accordion>
         </div>
       </section>
-    </div>
+    </>
   );
 };
 

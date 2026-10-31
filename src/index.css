@@ -752,16 +752,16 @@ body[data-dash-shell] .app-topbar { display: none; }
    stays in the document and becomes fully rendered before entering view.
    Remember the measured height after rendering to preserve scroll position. */
 @media (max-width: 767px) {
-  .mk-home-performance > section:not(:first-of-type) {
+  .site-main > div:has(> section.overflow-hidden.pt-14) > section:not(:first-of-type) {
     content-visibility: auto;
     contain-intrinsic-size: auto 1200px;
   }
-  .mk-pricing-performance > section:nth-of-type(n + 3) {
+  .site-main > div:has([aria-label="Billing period"]) > section:nth-of-type(n + 3) {
     content-visibility: auto;
     contain-intrinsic-size: auto 550px;
   }
 }
 @media print {
-  .mk-home-performance > section,
-  .mk-pricing-performance > section { content-visibility: visible; }
+  .site-main > div:has(> section.overflow-hidden.pt-14) > section,
+  .site-main > div:has([aria-label="Billing period"]) > section { content-visibility: visible; }
 }
