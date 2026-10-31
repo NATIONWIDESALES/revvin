@@ -47,6 +47,7 @@ import PlanPicker from "@/components/billing/PlanPicker";
 import BillingHistoryCard from "@/components/billing/BillingHistoryCard";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 import { friendlyError, friendlyInvokeError } from "@/lib/errors";
+import { loadEffectivePlan, trialDaysLeft } from "@/lib/effectivePlan";
 
 interface Business {
   id: string;
@@ -65,6 +66,7 @@ interface Business {
   is_published: boolean;
   is_disabled: boolean;
   plan: string;
+  pro_trial_ends_at?: string | null;
   subscription_status: string | null;
   current_period_end: string | null;
 
@@ -138,6 +140,16 @@ const BusinessDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [biz, setBiz] = useState<Business | null>(null);
+  const [effectivePlan, setEffectivePlan] = useState("free");
+  useEffect(() => {
+    if (!biz?.id) return;
+    let current = true;
+    const refresh = () => { void loadEffectivePlan(biz.id).then(plan => { if (current) setEffectivePlan(plan); }); };
+    refresh();
+    const timer = window.setInterval(refresh, 60000);
+    window.addEventListener("focus", refresh);
+    return () => { current = false; clearInterval(timer); window.removeEventListener("focus", refresh); };
+  }, [biz?.id]);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
   const [offers, setOffers] = useState<OfferRow[]>([]);
@@ -277,7 +289,7 @@ const BusinessDashboard = () => {
   const subStatus = (biz.subscription_status || "").toLowerCase();
 
   const isLive = biz.is_published && !biz.is_disabled;
-  const isPro = (biz.plan || "free") === "pro";
+  const isPro = effectivePlan === "pro";
 
 
   // Setup has not produced a URL yet, there is nothing to show or preview.

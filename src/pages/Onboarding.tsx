@@ -21,6 +21,7 @@ import { friendlyError } from "@/lib/errors";
 import { publishPage } from "@/lib/publishPage";
 import { copyText } from "@/lib/clipboard";
 import { CHECKOUT_FALLBACK_TOAST, parsePlan, peekCheckoutIntent, startHeldCheckout } from "@/lib/proCheckoutIntent";
+import { readPreview, previewCategory } from "@/lib/instantPreview";
 
 const Onboarding = () => {
   const { user } = useAuth();
@@ -58,6 +59,7 @@ const Onboarding = () => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [serviceArea, setServiceArea] = useState("");
+  const [mobile, setMobile] = useState("");
   const [placeGeo, setPlaceGeo] = useState<PlaceSelection | null>(null);
   const [offerAmount, setOfferAmount] = useState("");
   const [existingSlug, setExistingSlug] = useState<string | null>(null);
@@ -75,17 +77,19 @@ const Onboarding = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id,name,category,service_area,offer_amount,slug,business_email,launch_package_status")
+        .select("id,name,category,service_area,offer_amount,slug,business_email,launch_package_status,phone")
         .eq("user_id", user.id)
         .limit(1);
       const b = data?.[0];
       if (b) {
+        const preview = readPreview(window.location.search);
         setBizId(b.id);
         setLaunchPackageStatus(b.launch_package_status || null);
-        setName(b.name || "");
-        setCategory(b.category || "");
+        setName(b.name || preview?.name || "");
+        setCategory(b.category || (preview ? previewCategory(preview.trade) : ""));
         setServiceArea(b.service_area || "");
-        setOfferAmount(b.offer_amount || "");
+        setOfferAmount(b.offer_amount || (preview ? `$${preview.reward}` : ""));
+        setMobile(b.phone || "");
         setExistingSlug(b.slug || null);
         setBusinessEmail(b.business_email || null);
       }
@@ -130,6 +134,7 @@ const Onboarding = () => {
         service_area: trimmedArea,
         offer_amount: offerAmount.trim(),
         slug,
+        phone: mobile.trim() || null,
       };
       if (!businessEmail && user?.email) patch.business_email = user.email;
       if (matchedPlace) {
@@ -219,6 +224,7 @@ const Onboarding = () => {
               <form onSubmit={(e) => { e.preventDefault(); void publishNow(); }} noValidate>
                 <h1 className="text-4xl sm:text-5xl">Your referral page, live in a minute</h1>
                 <p className="mt-1 text-sm text-muted-foreground">Four answers and you are live. Publishing is free.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Every new account gets Pro free for 14 days. No card.</p>
                 <div className="mt-6 space-y-4">
                   <div>
                     <Label htmlFor="biz-name">Business name</Label>
@@ -250,6 +256,10 @@ const Onboarding = () => {
                       aria-invalid={showReasons && missingReward} className="mt-1.5" placeholder="$100" />
                     <p className="mt-1.5 text-xs text-muted-foreground">A fixed dollar amount you pay when a referred job closes.</p>
                     {showReasons && missingReward && <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">Enter the reward you pay, for example $100.</p>}
+                  </div>
+                  <div>
+                    <Label htmlFor="owner-mobile">Mobile number (we'll text you your page link)</Label>
+                    <Input id="owner-mobile" type="tel" autoComplete="tel" value={mobile} onChange={e => setMobile(e.target.value)} placeholder="Optional" className="mt-1.5" />
                   </div>
                 </div>
                 {publishError && <p role="alert" className="mt-4 text-sm font-medium text-destructive">{publishError}</p>}

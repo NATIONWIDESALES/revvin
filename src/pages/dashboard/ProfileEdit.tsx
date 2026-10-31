@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import BusinessLogoUpload from "@/components/BusinessLogoUpload";
 import AvatarUpload from "@/components/AvatarUpload";
 import PageBrandingEditor from "@/components/dashboard/PageBrandingEditor";
+import { loadEffectivePlan } from "@/lib/effectivePlan";
 import {
   Select,
   SelectContent,
@@ -46,6 +47,13 @@ const ProfileEdit = () => {
     country: "",
   });
   const [business, setBusiness] = useState<any>(null);
+  const [effectivePlan, setEffectivePlan] = useState("free");
+  useEffect(() => {
+    if (!business?.id) return;
+    let current = true;
+    void loadEffectivePlan(business.id).then(plan => { if (current) setEffectivePlan(plan); });
+    return () => { current = false; };
+  }, [business?.id]);
 
   const isBusiness = userRole === "business";
 
@@ -354,7 +362,7 @@ const ProfileEdit = () => {
               <PageBrandingEditor
                 businessId={business.id}
                 slug={business.slug ?? null}
-                isPro={(business.plan ?? "free") === "pro"}
+                isPro={effectivePlan === "pro"}
 
                 initial={{
                   brand_color: business.brand_color ?? null,
