@@ -10,6 +10,8 @@ import {
 import { firstAskMessage } from "../_shared/lifecycle-copy.ts";
 import { ownerEmail, sendLifecycleEmail } from "../_shared/lifecycle-email.ts";
 import { hoursSince, pickCandidate, withinFrequencyCap, type Candidate } from "../_shared/lifecycle-rules.ts";
+import { effectivePlan } from "../_shared/effective-plan.ts";
+import { trialNotice } from "../_shared/trial-notices.ts";
 
 // Hourly cron worker. For each business it works out the single most important
 // lifecycle email still owed, then sends that one. Guardrails:
@@ -78,7 +80,7 @@ Deno.serve(async (req) => {
 
       const inCohort = new Date(biz.created_at).getTime() >= new Date(LIFECYCLE_COHORT_START).getTime();
       const ageHours = hoursSince(biz.created_at, now);
-      const plan = String(biz.plan ?? "free").toLowerCase();
+      const plan = await effectivePlan(supabase, biz.id);
       const status = String(biz.subscription_status ?? "").toLowerCase();
       const publicUrl = biz.slug ? appUrl(`/r/${biz.slug}`) : null;
       const askMessage = firstAskMessage(biz.name ?? "us", publicUrl ?? appUrl(), biz.offer_amount ?? null);
@@ -102,6 +104,8 @@ Deno.serve(async (req) => {
 
       // Candidates in priority order. Setup first, promotional last.
       const candidates: Candidate[] = [];
+      const notice = trialNotice(biz.pro_trial_ends_at, biz.plan, now);
+      if (notice) candidates.push({ template: notice, data: { today: notice === "trial_ends_today" } });
 
       if (status === "canceled") {
         candidates.push({ template: "cancel_feedback", data: { businessName: biz.name } });
