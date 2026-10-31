@@ -946,7 +946,7 @@ export default function prerenderPlugin(): Plugin {
       }
       for (const doc of docs) {
         let html = addFontPreloads(doc.html, assetNames);
-        if (doc.inlineCss) {
+        if (doc.inlineCss && beasties) {
           try {
             html = await beasties.process(html);
           } catch (err) {
