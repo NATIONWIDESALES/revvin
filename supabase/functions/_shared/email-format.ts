@@ -109,7 +109,7 @@ export function emailShell(
 }
 
 export function button(href: string, label: string) {
-  return `<a href="${href}" style="display:inline-block;background:#15803d;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px">${esc(label)}</a>`;
+  return `<a href="${esc(href)}" style="display:inline-block;background:#15803d;color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px">${esc(label)}</a>`;
 }
 
 /**

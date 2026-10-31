@@ -124,7 +124,8 @@ Deno.serve(async (req) => {
       businessId = ref.business_id;
       customerName = ref.customer_name;
       dealValue = ref.deal_value == null ? null : Number(ref.deal_value);
-      source = ref.offers?.title ? `Marketplace · ${ref.offers.title}` : "Marketplace referral";
+      const offer = Array.isArray(ref.offers) ? ref.offers[0] : ref.offers;
+      source = offer?.title ? `Marketplace · ${offer.title}` : "Marketplace referral";
       referralIdForNotif = ref.id;
       idempotencyKey = `closed-referral-${ref.id}`;
     }

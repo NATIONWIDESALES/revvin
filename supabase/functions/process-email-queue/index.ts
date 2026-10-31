@@ -2,7 +2,7 @@ import { checkCronAuth } from "../_shared/cron-auth.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { globalSuppression } from "../_shared/global-suppression.ts";
 import { sendLovableEmail } from 'npm:@lovable.dev/email-js@0.1.0'
-import { createClient, SupabaseClient } from 'npm:@supabase/supabase-js@2.97.0'
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.97.0'
 import { suppressContact } from '../_shared/outreach.ts'
 import { effectivePlan } from '../_shared/effective-plan.ts'
 
@@ -150,7 +150,7 @@ async function recordCampaignOutcome(
       }
     : {
         status: 'failed',
-        failure_reason: outcome.reason.slice(0, 500),
+        failure_reason: ('reason' in outcome ? outcome.reason : 'send_failed').slice(0, 500),
       }
 
   const { error } = await supabase.from('campaign_sends').update(update as any).eq('id', sendId)
@@ -356,19 +356,19 @@ Deno.serve(async (req) => {
         } else {
         await sendLovableEmail(
           {
-            run_id: payload.run_id,
+            run_id: typeof payload.run_id === "string" ? payload.run_id : undefined,
             to: payload.to,
-            from: payload.from,
-            sender_domain: payload.sender_domain,
-            reply_to: payload.reply_to,
-            subject: payload.subject,
-            html: payload.html,
-            text: payload.text,
-            purpose: payload.purpose,
-            label: payload.label,
-            idempotency_key: payload.idempotency_key,
-            unsubscribe_token: payload.unsubscribe_token,
-            message_id: payload.message_id,
+            from: typeof payload.from === "string" ? payload.from : undefined,
+            sender_domain: typeof payload.sender_domain === "string" ? payload.sender_domain : undefined,
+            reply_to: typeof payload.reply_to === "string" ? payload.reply_to : undefined,
+            subject: typeof payload.subject === "string" ? payload.subject : undefined,
+            html: typeof payload.html === "string" ? payload.html : undefined,
+            text: typeof payload.text === "string" ? payload.text : undefined,
+            purpose: typeof payload.purpose === "string" ? payload.purpose : undefined,
+            label: typeof payload.label === "string" ? payload.label : undefined,
+            idempotency_key: typeof payload.idempotency_key === "string" ? payload.idempotency_key : undefined,
+            unsubscribe_token: typeof payload.unsubscribe_token === "string" ? payload.unsubscribe_token : undefined,
+            message_id: typeof payload.message_id === "string" ? payload.message_id : undefined,
           },
           { apiKey, sendUrl: Deno.env.get('LOVABLE_SEND_URL') }
         )

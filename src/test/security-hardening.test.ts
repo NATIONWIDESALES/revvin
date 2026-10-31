@@ -81,7 +81,7 @@ describe("security hardening item regressions", () => {
   });
   it("11: webhooks reject insecure writes, check DNS and never follow redirects", () => {
     expect(sql).toContain("^https://([^/:?#]+)");
-    const source = fn("dispatch-webhooks/index.ts"); expect(source).toContain("checkCronAuth(req)"); expect(source).toContain("validateWebhookDns(endpoint.url)"); expect(source).toContain("redirect: 'manual'");
+    const source = fn("dispatch-webhooks/index.ts"); expect(source).toContain("checkCronAuth(req)"); expect(source).toContain("validateWebhookDns(ep.url)"); expect(source).toContain("redirect: 'manual'");
   });
   it("12: one business per owner, no client lifecycle, and persistent trial history", () => {
     expect(sql).toContain("UNIQUE(user_id)"); expect(sql).toContain('DROP POLICY IF EXISTS "Owners manage business"'); expect(sql).toContain('DROP POLICY IF EXISTS "Owners delete business"'); expect(sql).toContain("IF n=0 THEN NEW.pro_trial_ends_at:=NULL");
@@ -110,7 +110,7 @@ describe("security hardening item regressions", () => {
     expect(read("index.html")).toContain("object-src 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://billing.stripe.com");
   });
   it("19: smoke Maps now requires backend credentials", () => { expect(fn("smoke-maps/index.ts")).toContain("checkCronAuth(req)"); });
-  it("20: partner CSV uses formula-safe cells", () => { expect(fn("partner-admin/index.ts")).toContain("csvCell(c)"); expect(fn("_shared/security.ts")).toContain("[=+\\-@]"); });
+  it("20: partner CSV uses formula-safe cells", () => { expect(fn("partner-admin/index.ts")).toContain("csvCell(cell)"); expect(fn("_shared/security.ts")).toContain("[=+\\-@]"); });
   it("21: actual SQL trigger rejects owner identity rewrites", () => { expect(sql).toContain("NEW.referrer_user_id IS DISTINCT FROM OLD.referrer_user_id OR NEW.status_token IS DISTINCT FROM OLD.status_token"); });
   it("22: authentication precedes JSON validation", () => {
     for (const name of ["send-push", "notify-deal-closed", "notify-referrer-reward"]) { const source=fn(`${name}/index.ts`); expect(source.indexOf("auth.getUser(token)")).toBeLessThan(source.indexOf("req.json()")); }
