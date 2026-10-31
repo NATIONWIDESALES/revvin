@@ -111,12 +111,6 @@ const SuperAdminCRM = () => {
   const [stageFilter, setStageFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("overview");
   const [expandedBiz, setExpandedBiz] = useState<Record<string, boolean>>({});
-  useEffect(() => {
-    if (loading || !isAuthorized) return;
-    const id = new URLSearchParams(window.location.search).get("business");
-    if (!id || !businesses.some(b => b.id === id)) return;
-    document.getElementById(`business-${id}`)?.scrollIntoView({ block: "center", behavior: "auto" });
-  }, [loading, isAuthorized, businesses]);
   const [bizReferrals, setBizReferrals] = useState<Record<string, Referral[]>>({});
   const [bizAudit, setBizAudit] = useState<Record<string, AuditEntry[]>>({});
   const [bizPayouts, setBizPayouts] = useState<Record<string, PayoutRecord[]>>({});
@@ -213,6 +207,12 @@ const SuperAdminCRM = () => {
   }, []);
 
   const isAuthorized = userRole === "admin";
+  useEffect(() => {
+    if (loading || !isAuthorized) return;
+    const id = new URLSearchParams(window.location.search).get("business");
+    if (!id || !businesses.some(b => b.id === id)) return;
+    document.getElementById(`business-${id}`)?.scrollIntoView({ block: "center", behavior: "auto" });
+  }, [loading, isAuthorized, businesses]);
 
   // Load data
   useEffect(() => {
