@@ -111,6 +111,12 @@ const SuperAdminCRM = () => {
   const [stageFilter, setStageFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("overview");
   const [expandedBiz, setExpandedBiz] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    if (loading || !isAuthorized) return;
+    const id = new URLSearchParams(window.location.search).get("business");
+    if (!id || !businesses.some(b => b.id === id)) return;
+    document.getElementById(`business-${id}`)?.scrollIntoView({ block: "center", behavior: "auto" });
+  }, [loading, isAuthorized, businesses]);
   const [bizReferrals, setBizReferrals] = useState<Record<string, Referral[]>>({});
   const [bizAudit, setBizAudit] = useState<Record<string, AuditEntry[]>>({});
   const [bizPayouts, setBizPayouts] = useState<Record<string, PayoutRecord[]>>({});
@@ -572,9 +578,11 @@ const SuperAdminCRM = () => {
                     <h2 className="text-base font-bold mb-3 flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /> Businesses ({businesses.length})</h2>
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {businesses.length === 0 ? <p className="text-sm text-muted-foreground py-6 text-center">No businesses yet</p> : businesses.map((biz) => (
-                        <div key={biz.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-3">
+                        <div id={`business-${biz.id}`} key={biz.id} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 p-3">
                           <div>
                             <p className="text-sm font-medium">{biz.name}</p>
+                            <p className="text-xs text-muted-foreground break-all">Source: {Object.entries(biz.acquisition ?? {}).map(([key,value]) => `${key}: ${String(value)}`).join(" · ") || "Not recorded"}</p>
+                            {biz.phone && <a className="text-xs text-forest underline" href={`tel:${biz.phone}`}>Call {biz.phone}</a>}
                             <p className="text-xs text-muted-foreground">{[biz.industry, biz.city].filter(Boolean).join(" • ") || "No details yet"}</p>
                           </div>
                           <Badge variant={biz.verified ? "default" : "secondary"}>{biz.verified ? "Verified" : "Pending"}</Badge>
