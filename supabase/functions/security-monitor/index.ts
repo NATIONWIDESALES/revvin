@@ -5,7 +5,7 @@
 // On Mondays (UTC) it sends one weekly summary instead of staying silent.
 
 import { createClient } from "npm:@supabase/supabase-js@2.97.0";
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { corsHeaders } from "npm:@supabase/supabase-js@2.97.0/cors";
 import { checkCronAuth } from "../_shared/cron-auth.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
