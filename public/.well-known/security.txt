@@ -1,0 +1,4 @@
+Contact: mailto:info@revvin.co
+Expires: 2027-10-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://revvin.co/.well-known/security.txt

@@ -6,7 +6,10 @@ import { SERVICE_WORKER_PATH, shouldRegisterServiceWorker } from "@/config/pwa";
  * that a previous visit may have left behind, so a stale cache can never keep
  * serving deleted chunks in the editor.
  */
-export async function initServiceWorker(onUpdateReady: () => void) {
+export async function initServiceWorker(
+  onUpdateReady: () => void,
+  reload: () => void = () => window.location.reload(),
+) {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
 
   const allowed = shouldRegisterServiceWorker({
@@ -25,21 +28,30 @@ export async function initServiceWorker(onUpdateReady: () => void) {
   }
 
   // A page that was served while an older worker was in control reloads once
-  // when the new worker takes over right after load, so it never stays on a
-  // previous deployment. Later takeovers do not reload: a visitor in the middle
-  // of a form keeps it, and the next navigation is fetched fresh anyway.
+  // the moment a new worker takes over, so a returning visitor never stays on
+  // a previous deployment. The worker itself never caches HTML, so the reload
+  // always fetches the current document from the network.
   if (navigator.serviceWorker.controller) {
     let reloaded = false;
-    const loadedAt = Date.now();
     navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (reloaded || Date.now() - loadedAt > 10_000) return;
+      if (reloaded) return;
       reloaded = true;
-      window.location.reload();
+      reload();
     });
   }
 
   try {
     const registration = await navigator.serviceWorker.register(SERVICE_WORKER_PATH, { updateViaCache: "none" });
+
+    // Ask the browser for a new worker right away, again whenever the tab
+    // becomes visible, and hourly while the tab stays open. Without this the
+    // browser may not check for a new deployment for up to a day.
+    const checkForUpdate = () => void registration.update().catch(() => {});
+    checkForUpdate();
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") checkForUpdate();
+    });
+    window.setInterval(checkForUpdate, 60 * 60 * 1000);
 
     if (registration.waiting && navigator.serviceWorker.controller) onUpdateReady();
 
