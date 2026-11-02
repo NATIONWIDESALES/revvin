@@ -69,7 +69,7 @@ describe("prospect_pages in isolated PostgreSQL", () => {
       CREATE FUNCTION public.fn_rate_bucket_hit(text, interval, integer) RETURNS boolean LANGUAGE sql AS $$ SELECT true $$;
       CREATE FUNCTION public.fn_request_bucket() RETURNS text LANGUAGE sql AS $$ SELECT 'test' $$;
       CREATE FUNCTION public.enqueue_email(text, jsonb) RETURNS void LANGUAGE sql AS $$ SELECT $$;`);
-    await db.exec(MIGRATION.replace(/SELECT cron\.schedule\([\s\S]*?\$\$;/, "SELECT 1;"));
+    await db.exec(MIGRATION.replace(/SELECT cron\.schedule\([\s\S]*?\n\);/, "SELECT 1;"));
     await db.exec(PEEK_MIGRATION);
   }, 30000);
   afterAll(async () => { await db.close(); });
@@ -236,7 +236,10 @@ describe("Earn network hidden until a metro is live", () => {
 });
 
 describe("preview page guards", () => {
-  const page = readFileSync("src/pages/ProspectPreview.tsx", "utf8");
+  // Strip comments so the checks cover rendered copy only.
+  const page = readFileSync("src/pages/ProspectPreview.tsx", "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
   it("is noindex, nofollow", () => {
     expect(page).toContain("noindex");
     expect(page).toContain("follow={false}");
