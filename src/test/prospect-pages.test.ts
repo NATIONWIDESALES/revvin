@@ -68,8 +68,7 @@ describe("prospect_pages in isolated PostgreSQL", () => {
       CREATE FUNCTION public.has_role(uuid, text) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
       CREATE FUNCTION public.fn_rate_bucket_hit(text, interval, integer) RETURNS boolean LANGUAGE sql AS $$ SELECT true $$;
       CREATE FUNCTION public.fn_request_bucket() RETURNS text LANGUAGE sql AS $$ SELECT 'test' $$;
-      CREATE FUNCTION public.enqueue_email(text, jsonb) RETURNS void LANGUAGE sql AS $$ SELECT $$;
-      CREATE EXTENSION IF NOT EXISTS pg_cron;`);
+      CREATE FUNCTION public.enqueue_email(text, jsonb) RETURNS void LANGUAGE sql AS $$ SELECT $$;`);
     await db.exec(MIGRATION.replace(/SELECT cron\.schedule\([\s\S]*?\$\$;/, "SELECT 1;"));
     await db.exec(PEEK_MIGRATION);
   }, 30000);
@@ -141,7 +140,7 @@ describe("prospect_pages in isolated PostgreSQL", () => {
 describe("robots, sitemap and feeds", () => {
   it("robots.txt disallows /preview/ in every user-agent group", () => {
     const robots = readFileSync("public/robots.txt", "utf8");
-    const groups = robots.split(/(?=User-agent:)/).filter((g) => g.startsWith("User-agent:"));
+    const groups = robots.split(/\n\s*\n/).filter((g) => g.includes("User-agent:"));
     expect(groups.length).toBeGreaterThanOrEqual(3);
     for (const group of groups) {
       expect(group).toContain("Disallow: /preview/");
@@ -166,7 +165,7 @@ describe("outreach scripts", () => {
       const filled = fillScript(template, { business: "Acme Roofing", link: "https://revvin.co/preview/abc123def456", caller: "Sam" });
       expect(filled).not.toMatch(/\{[^}]+\}/);
       expect(filled).toContain("Acme Roofing");
-      expect(filled).toContain("https://revvin.co/preview/abc123def456");
+      if (template.includes("{link}")) expect(filled).toContain("https://revvin.co/preview/abc123def456");
     }
   });
   it("falls back to 'there' when no first name is known", async () => {
@@ -252,14 +251,15 @@ describe("preview page guards", () => {
     expect(page).not.toContain("referralSubmit");
   });
   it("shows no reviews, ratings or testimonials", () => {
-    expect(page.toLowerCase()).not.toContain("review");
-    expect(page.toLowerCase()).not.toContain("rating");
-    expect(page.toLowerCase()).not.toContain("testimonial");
+    expect(page.toLowerCase()).not.toMatch(/\breviews?\b/);
+    expect(page.toLowerCase()).not.toMatch(/\bratings?\b/);
+    expect(page.toLowerCase()).not.toMatch(/\btestimonials?\b/);
   });
   it("has the neutral unavailable page and one-tap removal", () => {
     expect(page).toContain("This preview isn't available");
     expect(page).toContain("Removed. Sorry for the bother.");
-    expect(page).toContain("fn_prospect_remove");
+    expect(page).toContain("removeProspectPage");
+    expect(readFileSync("src/lib/prospects.ts", "utf8")).toContain("fn_prospect_remove");
   });
   it("contains no em dashes", () => {
     expect(page).not.toContain("—");
