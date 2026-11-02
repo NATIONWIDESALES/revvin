@@ -100,7 +100,7 @@ Deno.serve(async (req) => {
 
     // 60 lookups per user per hour, via the shared rate bucket table.
     const { data: allowed, error: rateErr } = await admin.rpc("fn_rate_bucket_hit", {
-      p_bucket: `prospect_lookup:${user.id}`,
+      p_key: `prospect_lookup:${user.id}`,
       p_window: "1 hour",
       p_limit: RATE_LIMIT_PER_HOUR,
     } as never);

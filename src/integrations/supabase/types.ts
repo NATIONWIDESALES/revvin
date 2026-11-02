@@ -3438,6 +3438,7 @@ export type Database = {
         Returns: boolean
       }
       fn_prospect_expire: { Args: never; Returns: Json }
+      fn_prospect_peek: { Args: { p_code: string }; Returns: Json }
       fn_prospect_remove: { Args: { p_code: string }; Returns: boolean }
       fn_prospect_view: { Args: { p_code: string }; Returns: Json }
       fn_rate_bucket_hit: {
