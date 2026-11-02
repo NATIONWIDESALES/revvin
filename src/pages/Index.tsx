@@ -13,6 +13,7 @@ import { PRICE_TEXT, MONTHLY_PRICE, FOUNDING_OFFER_ACTIVE } from "@/config/prici
 import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT, FREE_CTA_LABEL } from "@/config/planFeatures";
 import { SETUP_CALL_URL } from "@/config/setupCall";
 import { CANONICAL_SENTENCE } from "@/config/brand";
+import { useEarnLive } from "@/lib/earnLive";
 import { HOME_FAQS } from "@/content/homeFaqs";
 import { HOME_SEO } from "@/content/homeSeo";
 
@@ -128,7 +129,7 @@ const Index = () => {
       <div className="mk-wrap">
         <h2 id="ways-heading" className="mk-h2 text-primary-foreground">Two ways referrals reach you</h2>
         <p className="mk-intro text-primary-foreground/80">Your own customers come first. Then the Revvin network: people in your city who get paid to recommend businesses they trust.</p>
-        <div className="mt-14 grid gap-0.5 overflow-hidden rounded-[18px] bg-primary-foreground/15 lg:grid-cols-2">
+        <div className={`mt-14 grid gap-0.5 overflow-hidden rounded-[18px] bg-primary-foreground/15 ${earnLive ? "lg:grid-cols-2" : ""}`}>
           <div className="min-w-0 bg-forest p-7 sm:p-10">
             <h3 className="font-display text-[38px] font-extrabold leading-none">Your customers</h3>
             <p className="mt-3 text-primary-foreground/80">Everyone you've ever worked for, asked the right way at the right time.</p>
