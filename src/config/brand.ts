@@ -67,3 +67,11 @@ export const formatContentDate = (iso: string) =>
 export const INDEXNOW_KEY = "b7f4a1c93e5d42f8ab6c05719d3e8a42";
 /** Empty until an advertising dataset and regional consent route are approved. */
 export const META_PIXEL_ID = "";
+
+/**
+ * Microsoft Clarity project id. Empty means session recording is off
+ * everywhere. When set, ClarityLoader loads it only on marketing pages,
+ * /start, /preview and signup/onboarding, after first interaction or 3s idle,
+ * with input masking on. Never on the dashboard, /r/ referral forms or /me.
+ */
+export const CLARITY_PROJECT_ID = "";

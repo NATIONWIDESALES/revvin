@@ -6,6 +6,7 @@ import { Menu, X, LogOut, LayoutDashboard, UserCircle, Settings, Heart, Send } f
 import Wordmark from "@/components/brand/Wordmark";
 import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEarnLive } from "@/lib/earnLive";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   AlertDialog,
@@ -33,6 +34,8 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const { user, userRole, signOut } = useAuth();
+  // Earn links stay hidden until at least one metro is live.
+  const earnLive = useEarnLive();
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -49,7 +52,7 @@ const Navbar = () => {
   const navLinks = [
     { to: "/how-it-works", label: "How it works" },
     { to: "/pricing", label: "Pricing" },
-    { to: "/earn", label: "Earn money" },
+    ...(earnLive ? [{ to: "/earn", label: "Earn money" }] : []),
     { to: "/guides", label: "Guides" },
   ];
 

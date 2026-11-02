@@ -68,6 +68,8 @@ const MessageGenerator = lazy(() => import("./pages/tools/MessageGenerator"));
 const Partners = lazy(() => import("./pages/partners/Partners"));
 const PartnerTerms = lazy(() => import("./pages/partners/PartnerTerms"));
 const PartnerDashboard = lazy(() => import("./pages/partners/PartnerDashboard"));
+const ProspectPreview = lazy(() => import("./pages/ProspectPreview"));
+const ClarityLoader = lazy(() => import("./components/ClarityLoader"));
 
 // Deliberately quiet: same background as every page, fixed viewport height, no
 // text or skeleton, so a route chunk arriving does not shift layout or flash.
@@ -98,6 +100,7 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
               <Analytics />
               <MetaPixel />
               <PartnerCapture />
+              <Suspense fallback={null}><ClarityLoader /></Suspense>
               <UpdateToast />
 
               <FrameGuard><Suspense fallback={<RouteFallback />}>
@@ -109,6 +112,7 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
                 <Route path="/login" element={<Auth />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/i/:code" element={<InviteLanding />} />
+                <Route path="/preview/:code" element={<ProspectPreview />} />
                 <Route path="/__sa" element={<SuperAdminCRM />} />
                 <Route path="/__health" element={<ConnectionHealth />} />
                 <Route element={<Layout />}>

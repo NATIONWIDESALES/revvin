@@ -22,6 +22,7 @@ import { publishPage } from "@/lib/publishPage";
 import { copyText } from "@/lib/clipboard";
 import { CHECKOUT_FALLBACK_TOAST, parsePlan, peekCheckoutIntent, startHeldCheckout } from "@/lib/proCheckoutIntent";
 import { readPreview, previewCategory } from "@/lib/instantPreview";
+import { claimProspectPage } from "@/lib/prospects";
 
 const Onboarding = () => {
   const { user } = useAuth();
@@ -84,6 +85,11 @@ const Onboarding = () => {
       if (b) {
         const preview = readPreview(window.location.search);
         setBizId(b.id);
+        // Claimed through a prebuilt prospect page: mark it claimed server-side.
+        // The RPC verifies ownership, the acquisition snapshot and validity.
+        if (preview?.prospect_code) {
+          void claimProspectPage(preview.prospect_code, b.id);
+        }
         setLaunchPackageStatus(b.launch_package_status || null);
         setName(b.name || preview?.name || "");
         setCategory(b.category || (preview ? previewCategory(preview.trade) : ""));

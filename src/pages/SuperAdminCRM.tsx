@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronRight, Search, CheckCircle2, Clock, AlertTriangle, XCircle, Shield, Building2, Users, DollarSign, Activity, BadgeCheck, History, FileText, Pause, Play, TrendingUp, BarChart3, Send, Loader2, MapPin, Bell, Handshake } from "lucide-react";
 import PushSettings from "@/components/pwa/PushSettings";
 import PartnersPanel from "@/components/admin/PartnersPanel";
+import ProspectsPanel from "@/components/admin/ProspectsPanel";
 import MetrosPanel from "@/components/admin/MetrosPanel";
 import SecurityPanel from "@/components/admin/SecurityPanel";
 import { format } from "date-fns";
@@ -207,7 +208,9 @@ const SuperAdminCRM = () => {
     return () => { document.head.removeChild(meta); };
   }, []);
 
-  const isAuthorized = userRole === "admin";
+   const isAuthorized = userRole === "admin" || userRole === "sales";
+  // Sales users see only the Prospects tools, nothing else admin.
+  const isSalesOnly = userRole === "sales";
   useEffect(() => {
     if (loading || !isAuthorized) return;
     const id = new URLSearchParams(window.location.search).get("business");
@@ -217,7 +220,7 @@ const SuperAdminCRM = () => {
 
   // Load data
   useEffect(() => {
-    if (!isAuthorized) return;
+     if (!isAuthorized || isSalesOnly) return;
     const load = async () => {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
@@ -445,6 +448,24 @@ const SuperAdminCRM = () => {
   if (authLoading) return <div className="flex items-center justify-center min-h-screen"><Skeleton className="h-8 w-48" /></div>;
   if (!isAuthorized) return <NotFound />;
 
+  // Sales users get the prospect tools only, none of the admin data above.
+  if (isSalesOnly) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
+            <Shield className="h-6 w-6 text-primary" />
+            <h1 className="text-xl font-bold text-foreground">Revvin Prospects</h1>
+            <span className="text-xs text-muted-foreground ml-auto">{user?.email}</span>
+          </div>
+        </header>
+        <main className="max-w-7xl mx-auto px-4 py-6">
+          <ProspectsPanel />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -494,6 +515,7 @@ const SuperAdminCRM = () => {
                 <TabsTrigger value="emails" className="gap-1"><Send className="h-3.5 w-3.5" /> Emails</TabsTrigger>
                 <TabsTrigger value="push" className="gap-1"><Bell className="h-3.5 w-3.5" /> Push</TabsTrigger>
                 <TabsTrigger value="partners" className="gap-1"><Handshake className="h-3.5 w-3.5" /> Partners</TabsTrigger>
+                <TabsTrigger value="prospects" className="gap-1"><Building2 className="h-3.5 w-3.5" /> Prospects</TabsTrigger>
                 <TabsTrigger value="metros" className="gap-1">Metros</TabsTrigger>
                 <TabsTrigger value="audit" className="gap-1"><History className="h-3.5 w-3.5" /> Audit Log</TabsTrigger>
                 <TabsTrigger value="security" className="gap-1"><Shield className="h-3.5 w-3.5" /> Security</TabsTrigger>
@@ -883,9 +905,13 @@ const SuperAdminCRM = () => {
                 <PartnersPanel />
               </TabsContent>
 
+              <TabsContent value="prospects">
+                <ProspectsPanel />
+              </TabsContent>
+
               <TabsContent value="metros">
                 <MetrosPanel />
-              </TabsContent>
+               </TabsContent>
 
               <TabsContent value="audit">
                 <div className="rounded-xl border border-border bg-card p-5 shadow-sm">

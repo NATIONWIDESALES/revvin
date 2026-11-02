@@ -113,6 +113,27 @@
       "when": 1793470348038,
       "tag": "0015_security_round2_flags_events_retention",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793579969167,
+      "tag": "0016_app_role_sales",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793580007342,
+      "tag": "0017_prospect_pages",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793580053075,
+      "tag": "0018_prospect_peek",
+      "breakpoints": true
     }
   ]
 }

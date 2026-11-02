@@ -4,11 +4,14 @@ import Wordmark from "@/components/brand/Wordmark";
 import { PRICE_TEXT } from "@/config/pricing";
 import { INDUSTRIES } from "@/content/industries";
 import { COMPARISONS, ROUNDUP } from "@/content/comparisons";
+import { useEarnLive } from "@/lib/earnLive";
 
 const link = "block text-[15px] text-primary-foreground/80 transition-colors hover:text-primary-foreground";
 const heading = "mb-4 text-sm font-bold text-primary-foreground";
 
 const Footer = () => {
+  // Earn links stay hidden until at least one metro is live.
+  const earnLive = useEarnLive();
   return (
     <footer className="bg-forest-night text-primary-foreground/70">
       <div className="mk-wrap py-14">
@@ -44,7 +47,7 @@ const Footer = () => {
             <p className={heading}>Company</p>
             <div className="space-y-3">
               <Link to="/about" className={link}>About</Link>
-              <Link to="/earn" className={link}>Earn money</Link>
+              {earnLive && <Link to="/earn" className={link}>Earn money</Link>}
               <Link to="/partners" className={link}>Partners</Link>
               <Link to="/terms" className={link}>Terms</Link>
               <Link to="/privacy" className={link}>Privacy</Link>

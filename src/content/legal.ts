@@ -8,6 +8,8 @@
  * there is now exactly one copy of the text.
  */
 
+import { CLARITY_PROJECT_ID } from "../config/brand";
+
 export interface LegalParagraph {
   /** Bolded lead-in, e.g. "Account information." */
   lead?: string;
@@ -312,6 +314,15 @@ export const PRIVACY_DOC: LegalDoc = {
           "Browser Meta (Facebook) and Plausible measurement is currently paused. We use first-party measurement of public marketing page views, selected actions and labeled demo activity. These events exclude signed-in visitors, account and authentication routes, private receipt links, and preview environments. Recorded page paths and referring addresses omit query strings, fragments and private identifiers. We do not currently measure signup or account milestones through browser analytics.",
           "Public marketing measurement.",
         ),
+        // Shown only while session recording is enabled in src/config/brand.ts.
+        ...(CLARITY_PROJECT_ID
+          ? [
+              p(
+                "We use Microsoft Clarity to record anonymized sessions on our public marketing pages and signup flow so we can see where visitors get stuck. Clarity is never loaded on dashboards, referral forms or account pages, and form inputs are masked. Recordings start only after you interact with a page.",
+                "Session recording.",
+              ),
+            ]
+          : []),
       ],
     },
     {
