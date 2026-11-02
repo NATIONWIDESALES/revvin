@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  userRole: "business" | "referrer" | "admin" | null;
+  userRole: "business" | "referrer" | "admin" | "sales" | null;
   signOut: () => Promise<void>;
 }
 
@@ -25,14 +25,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserNow] = useState<User | null>(null);
   const [session, setSessionNow] = useState<Session | null>(null);
   const [loading, setLoadingNow] = useState(true);
-  const [userRole, setUserRoleNow] = useState<"business" | "referrer" | "admin" | null>(null);
+  const [userRole, setUserRoleNow] = useState<"business" | "referrer" | "admin" | "sales" | null>(null);
   // Auth state lands as a transition. A prerendered page is still hydrating
   // when these first fire; an urgent update would throw away the server
   // markup of any part not yet hydrated and log an error.
   const setUser = (v: User | null) => startTransition(() => setUserNow(v));
   const setSession = (v: Session | null) => startTransition(() => setSessionNow(v));
   const setLoading = (v: boolean) => startTransition(() => setLoadingNow(v));
-  const setUserRole = (v: "business" | "referrer" | "admin" | null) => startTransition(() => setUserRoleNow(v));
+  const setUserRole = (v: "business" | "referrer" | "admin" | "sales" | null) => startTransition(() => setUserRoleNow(v));
   const { pathname } = useLocation();
   // A signed-out visitor on a marketing page never needs the backend client:
   // with no stored session and no sign-in redirect there is nobody to load.
@@ -51,14 +51,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .select("role")
       .eq("user_id", userId)
       .limit(10);
-    const roles = (data ?? []).map((r) => r.role as "business" | "referrer" | "admin");
+    const roles = (data ?? []).map((r) => r.role as "business" | "referrer" | "admin" | "sales");
     const resolved = roles.includes("admin")
       ? "admin"
-      : roles.includes("business")
-        ? "business"
-        : roles.includes("referrer")
-          ? "referrer"
-          : null;
+      : roles.includes("sales")
+        ? "sales"
+        : roles.includes("business")
+          ? "business"
+          : roles.includes("referrer")
+            ? "referrer"
+            : null;
     setUserRole(resolved);
     return resolved;
   };
