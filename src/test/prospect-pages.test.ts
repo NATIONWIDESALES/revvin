@@ -123,7 +123,7 @@ describe("prospect_pages in isolated PostgreSQL", () => {
 
   it("expires old pages and scrubs contact details 30 days later", async () => {
     await db.exec(`INSERT INTO public.prospect_pages(code, name, trade, phone, website, notes, expires_at)
-      VALUES('old123old123', 'Old Co', 'hvac', '555-0101', 'https://old.example', 'note', now() - interval '31 days')`);
+      VALUES('old123old123', 'Old Co', 'hvac', '555-0101', 'https://old.example', 'note', now() - interval '1 day')`);
     let { rows } = await db.query<any>(`SELECT public.fn_prospect_expire() AS r`);
     expect(rows[0].r.expired).toBe(1);
     // Not scrubbed yet: only 1 day past expiry.
