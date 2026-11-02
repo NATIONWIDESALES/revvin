@@ -1857,6 +1857,102 @@ export type Database = {
         }
         Relationships: []
       }
+      prospect_pages: {
+        Row: {
+          city: string | null
+          claimed_business_id: string | null
+          code: string
+          country: string
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          first_viewed_at: string | null
+          google_place_id: string | null
+          headline_override: string | null
+          id: string
+          last_viewed_at: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          region: string | null
+          removed_at: string | null
+          status: string
+          suggested_reward: number | null
+          trade: string
+          updated_at: string
+          view_alert_sent_at: string | null
+          view_count: number
+          website: string | null
+        }
+        Insert: {
+          city?: string | null
+          claimed_business_id?: string | null
+          code?: string
+          country?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          first_viewed_at?: string | null
+          google_place_id?: string | null
+          headline_override?: string | null
+          id?: string
+          last_viewed_at?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          region?: string | null
+          removed_at?: string | null
+          status?: string
+          suggested_reward?: number | null
+          trade: string
+          updated_at?: string
+          view_alert_sent_at?: string | null
+          view_count?: number
+          website?: string | null
+        }
+        Update: {
+          city?: string | null
+          claimed_business_id?: string | null
+          code?: string
+          country?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          first_viewed_at?: string | null
+          google_place_id?: string | null
+          headline_override?: string | null
+          id?: string
+          last_viewed_at?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          region?: string | null
+          removed_at?: string | null
+          status?: string
+          suggested_reward?: number | null
+          trade?: string
+          updated_at?: string
+          view_alert_sent_at?: string | null
+          view_count?: number
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospect_pages_claimed_business_id_fkey"
+            columns: ["claimed_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prospect_pages_claimed_business_id_fkey"
+            columns: ["claimed_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_send_log: {
         Row: {
           business_id: string | null
@@ -3337,6 +3433,13 @@ export type Database = {
       }
       fn_platform_counts: { Args: never; Returns: Json }
       fn_platform_flag: { Args: { p_key: string }; Returns: boolean }
+      fn_prospect_claim: {
+        Args: { p_business_id: string; p_code: string }
+        Returns: boolean
+      }
+      fn_prospect_expire: { Args: never; Returns: Json }
+      fn_prospect_remove: { Args: { p_code: string }; Returns: boolean }
+      fn_prospect_view: { Args: { p_code: string }; Returns: Json }
       fn_rate_bucket_hit: {
         Args: { p_key: string; p_max_hits: number; p_window: string }
         Returns: boolean
