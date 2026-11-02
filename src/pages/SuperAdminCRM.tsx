@@ -905,9 +905,13 @@ const SuperAdminCRM = () => {
                 <PartnersPanel />
               </TabsContent>
 
+              <TabsContent value="prospects">
+                <ProspectsPanel />
+              </TabsContent>
+
               <TabsContent value="metros">
                 <MetrosPanel />
-              </TabsContent>
+               </TabsContent>
 
               <TabsContent value="audit">
                 <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
