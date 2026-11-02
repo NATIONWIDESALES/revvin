@@ -12,6 +12,15 @@ export interface PreviewData {
   utm_campaign?: string;
   utm_content?: string;
   utm_term?: string;
+  /** Prebuilt prospect preview fields, present only on /preview/{code} claims. */
+  city?: string;
+  region?: string;
+  country?: string;
+  phone?: string;
+  website?: string;
+  google_place_id?: string;
+  prospect_code?: string;
+  caller_id?: string;
 }
 export const previewSlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 65) || "your-business";
 export const suggestedReward = (trade: string) => {
@@ -34,9 +43,17 @@ export function capturePreview(name: string, trade: string, reward: number, href
   }
   return data;
 }
+
+/** Optional prospect fields carried from a /preview/{code} claim into signup. */
+export const PROSPECT_KEYS = ["city", "region", "country", "phone", "website", "google_place_id", "prospect_code", "caller_id"] as const;
+const PROSPECT_LIMITS: Record<(typeof PROSPECT_KEYS)[number], number> = {
+  city: 120, region: 120, country: 2, phone: 32, website: 300, google_place_id: 128, prospect_code: 64, caller_id: 36,
+};
+
 export function previewSignupUrl(data: PreviewData) {
   const params = new URLSearchParams({ name: data.name, trade: data.trade, reward: String(data.reward), landing_path: data.landing_path });
   for (const key of UTM_KEYS) if (data[key]) params.set(key, data[key]);
+  for (const key of PROSPECT_KEYS) if (data[key]) params.set(key, String(data[key]));
   return `/signup?${params}`;
 }
 export function storePreview(data: PreviewData) {
@@ -52,8 +69,14 @@ export function readPreview(search = ""): PreviewData | null {
     const trade = typeof input.trade === "string" && (input.trade === "other" || INDUSTRIES.some(i => i.slug === input.trade)) ? input.trade : "other";
     const reward = Number(input.reward);
     if (!name || !Number.isFinite(reward) || reward <= 0 || reward > 1000000) return null;
-    const data: PreviewData = { name, trade, reward, landing_path: typeof input.landing_path === "string" && /^\/(?:start(?:\/[a-z-]+)?)?$/.test(input.landing_path) ? input.landing_path : "/" };
+    const data: PreviewData = { name, trade, reward, landing_path: typeof input.landing_path === "string" && /^\/(?:start(?:\/[a-z-]+)?|preview\/[A-Za-z0-9_-]{10,64})?$/.test(input.landing_path) ? input.landing_path : "/" };
     for (const key of UTM_KEYS) if (typeof input[key] === "string") data[key] = input[key].slice(0, 200);
+    for (const key of PROSPECT_KEYS) {
+      const value = input[key];
+      if (typeof value === "string" && value) data[key] = value.slice(0, PROSPECT_LIMITS[key]);
+    }
+    if (data.country && data.country !== "US" && data.country !== "CA") delete data.country;
+    if (data.prospect_code && !/^[A-Za-z0-9_-]{10,64}$/.test(data.prospect_code)) delete data.prospect_code;
     return data;
   } catch { return null; }
 }
@@ -61,7 +84,7 @@ export const previewCategory = (trade: string) => INDUSTRIES.find(i => i.slug ==
 export const acquisitionOf = (data: PreviewData | null, href?: string) => {
   const source = data ?? (href ? capturePreview("", "other", 100, href) : null);
   if (!source) return {};
-  return Object.fromEntries([...["landing_path"], ...UTM_KEYS].flatMap(key => {
+  return Object.fromEntries([...["landing_path"], ...UTM_KEYS, ...PROSPECT_KEYS].flatMap(key => {
     const value = source[key as keyof PreviewData];
     return typeof value === "string" ? [[key, value]] : [];
   }));
