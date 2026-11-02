@@ -141,6 +141,7 @@ const Index = () => {
               ))}
             </ul>
           </div>
+          {earnLive && (
           <div className="min-w-0 bg-forest p-7 sm:p-10">
             <h3 className="font-display text-[38px] font-extrabold leading-none">Locals who earn</h3>
             <p className="mt-3 text-primary-foreground/80">Referrers see every business near them that pays for referrals, and get their own link to each.</p>
@@ -156,6 +157,7 @@ const Index = () => {
               <Link to="/earn" onClick={() => track("cta_clicked", { cta: "home_earn" })} className="font-semibold text-sign underline underline-offset-4">How earning works</Link>
             </p>
           </div>
+          )}
         </div>
       </div>
     </section>
