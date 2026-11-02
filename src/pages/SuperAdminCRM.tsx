@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronRight, Search, CheckCircle2, Clock, AlertTriangle, XCircle, Shield, Building2, Users, DollarSign, Activity, BadgeCheck, History, FileText, Pause, Play, TrendingUp, BarChart3, Send, Loader2, MapPin, Bell, Handshake } from "lucide-react";
 import PushSettings from "@/components/pwa/PushSettings";
 import PartnersPanel from "@/components/admin/PartnersPanel";
+import ProspectsPanel from "@/components/admin/ProspectsPanel";
 import MetrosPanel from "@/components/admin/MetrosPanel";
 import SecurityPanel from "@/components/admin/SecurityPanel";
 import { format } from "date-fns";
@@ -207,7 +208,9 @@ const SuperAdminCRM = () => {
     return () => { document.head.removeChild(meta); };
   }, []);
 
-  const isAuthorized = userRole === "admin";
+   const isAuthorized = userRole === "admin" || userRole === "sales";
+  // Sales users see only the Prospects tools, nothing else admin.
+  const isSalesOnly = userRole === "sales";
   useEffect(() => {
     if (loading || !isAuthorized) return;
     const id = new URLSearchParams(window.location.search).get("business");
@@ -217,7 +220,7 @@ const SuperAdminCRM = () => {
 
   // Load data
   useEffect(() => {
-    if (!isAuthorized) return;
+     if (!isAuthorized || isSalesOnly) return;
     const load = async () => {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
