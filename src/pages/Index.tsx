@@ -44,6 +44,8 @@ const LOCALS = [
 
 const Index = () => {
   const [preview, setPreview] = useState<SignExample | null>(null);
+  // The Earn network column stays hidden until at least one metro is live.
+  const earnLive = useEarnLive();
   return (
   <>
     <SEOHead
