@@ -8,6 +8,8 @@
  * there is now exactly one copy of the text.
  */
 
+import { CLARITY_PROJECT_ID } from "../config/brand";
+
 export interface LegalParagraph {
   /** Bolded lead-in, e.g. "Account information." */
   lead?: string;
