@@ -31,6 +31,7 @@ Disallow: /feedback/
 Disallow: /r/status/
 Disallow: /saved
 Disallow: /me
+Disallow: /preview/
 
 # Search engines and social preview fetchers: crawl the public site, stay out of
 # the private paths.
@@ -53,6 +54,7 @@ Disallow: /feedback/
 Disallow: /r/status/
 Disallow: /saved
 Disallow: /me
+Disallow: /preview/
 
 # AI answer engines and training crawlers: intentionally allowed on public
 # pages, with the same private-path exclusions.
@@ -83,5 +85,6 @@ Disallow: /feedback/
 Disallow: /r/status/
 Disallow: /saved
 Disallow: /me
+Disallow: /preview/
 
 Sitemap: https://revvin.co/sitemap.xml
