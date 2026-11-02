@@ -1,31 +1,12 @@
-- [x] Confirm actual Free and Pro plan gating
-- [x] Create shared plan feature source
-- [x] Unify homepage, pricing, and dashboard upsells
-- [x] Add pricing audience, launch package, and setup call content
-- [x] Update desktop and mobile navigation
-- [x] Add Zapier strips where supported
-- [x] Add shared-list regression coverage
-- [x] Run tests and verify preview build
-- [x] Earn metros, city pages, Get my link, invite form, admin Metros panel
-- [x] Targeted Home and Pricing font/script priority optimization and tests
-- [ ] Fresh local production-build Lighthouse comparison: no dist artifact available from the automatic build; diagnostic comparison used downloaded production assets
-- [x] Replace public personal and regional branding, metadata and email copy; preserve behavior
-- [x] Enforce team identity in source and generated-content tests, verify full suite and preview
-- [x] Redeploy affected email functions without sending messages
-- [x] Produce exact branding changelog and report verification limits
-- [ ] Verify fresh production images, frontend typecheck and Lighthouse 100: automatic production artifact/check output is unavailable locally; manual builds/typechecks are prohibited
-- [x] 1. Hero preview, storage/query handoff and prefilled signup/onboarding
-- [x] 2. Noindex Start pages and preserved campaign data
-- [x] 3. Acquisition/mobile capture and signup/publish team alerts
-- [x] 4. Secure 14-day Pro trial, effective-plan gates and expiry notices
-- [x] 5. Mobile sticky CTA with focus and safe-area behavior
-- [x] 6. Empty Pixel slot with consent-safe delayed activation
-- [x] 7. Full tests, preview handoff, build signals and acquisition changelog
-- [ ] Verify new-account signup-to-publish and actual team email delivery: no live account or messages created during this run
-- [ ] Verify hourly calls and owner text delivery: human team follow-up required, no automatic SMS sender added
-- [ ] Verify enabled Pixel provider receipt: Pixel id deliberately empty and regional consent question not answered
-- [x] Code/database security hardening and upload policy mitigation, with limitations documented
-- [ ] Bucket MIME configuration and hosted password length/HIBP: tooling does not expose MIME configuration or safe current auth-settings read
-- [ ] Security authenticated end-to-end checks: no matching own-account session; no customer messages sent
-- [ ] Production old-client compatibility after live permission/view tightening: frontend publication forbidden in this run
-- [x] Security regression suite, public preview verification and itemized hardening changelog
+# Prebuilt pages for outbound sales
+
+- [ ] Migration: prospect_pages table, sales role, RLS, grants, RPCs, expiry cron
+- [ ] Edge function prospect-lookup (Google Places, sales/admin, 60/hour)
+- [ ] CRM Prospects tab (admin + sales; sales sees only prospect tools)
+- [ ] Public /preview/:code page (noindex, banner, mock, sign+QR, claim, remove)
+- [ ] Alerts: first-view + claim emails to info@revvin.co and caller
+- [ ] Clarity slot in brand.ts (empty default, masked, allowed routes only)
+- [ ] Hide Earn from homepage/nav/footer until a metro is live
+- [ ] Tests for every item
+- [ ] Changelog docs/prebuilt-pages-2026-11-01.md
+- [ ] Full suite + preview build; report Google key used; do not publish
