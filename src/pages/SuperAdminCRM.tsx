@@ -448,6 +448,24 @@ const SuperAdminCRM = () => {
   if (authLoading) return <div className="flex items-center justify-center min-h-screen"><Skeleton className="h-8 w-48" /></div>;
   if (!isAuthorized) return <NotFound />;
 
+  // Sales users get the prospect tools only, none of the admin data above.
+  if (isSalesOnly) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
+            <Shield className="h-6 w-6 text-primary" />
+            <h1 className="text-xl font-bold text-foreground">Revvin Prospects</h1>
+            <span className="text-xs text-muted-foreground ml-auto">{user?.email}</span>
+          </div>
+        </header>
+        <main className="max-w-7xl mx-auto px-4 py-6">
+          <ProspectsPanel />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -497,6 +515,7 @@ const SuperAdminCRM = () => {
                 <TabsTrigger value="emails" className="gap-1"><Send className="h-3.5 w-3.5" /> Emails</TabsTrigger>
                 <TabsTrigger value="push" className="gap-1"><Bell className="h-3.5 w-3.5" /> Push</TabsTrigger>
                 <TabsTrigger value="partners" className="gap-1"><Handshake className="h-3.5 w-3.5" /> Partners</TabsTrigger>
+                <TabsTrigger value="prospects" className="gap-1"><Building2 className="h-3.5 w-3.5" /> Prospects</TabsTrigger>
                 <TabsTrigger value="metros" className="gap-1">Metros</TabsTrigger>
                 <TabsTrigger value="audit" className="gap-1"><History className="h-3.5 w-3.5" /> Audit Log</TabsTrigger>
                 <TabsTrigger value="security" className="gap-1"><Shield className="h-3.5 w-3.5" /> Security</TabsTrigger>
