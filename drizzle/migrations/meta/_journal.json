@@ -134,6 +134,13 @@
       "when": 1793580053075,
       "tag": "0018_prospect_peek",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793814834244,
+      "tag": "0019_keep_prospect_code_on_signup",
+      "breakpoints": true
     }
   ]
 }

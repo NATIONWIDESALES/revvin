@@ -268,3 +268,12 @@ describe("preview page guards", () => {
     expect(page).not.toContain("—");
   });
 });
+
+import { readFileSync as __rf } from "node:fs";
+describe("signup trigger keeps prospect_code for claims", () => {
+  it("latest acquisition trigger copies a validated prospect_code", () => {
+    const sql = __rf("drizzle/migrations/0019_keep_prospect_code_on_signup.sql", "utf8");
+    expect(sql).toMatch(/'prospect_code', metadata->'acquisition'->>'prospect_code'/);
+    expect(sql).toContain("^[A-Za-z0-9_-]{10,64}$");
+  });
+});

@@ -15,8 +15,8 @@ export function fillScript(
   vars: { firstName?: string; caller?: string; business: string; link: string },
 ): string {
   return template
-    .replaceAll("{first name}", vars.firstName?.trim() || "there")
-    .replaceAll("{caller}", vars.caller?.trim() || "the Revvin team")
-    .replaceAll("{business}", vars.business)
-    .replaceAll("{link}", vars.link);
+    .split("{first name}").join(vars.firstName?.trim() || "there")
+    .split("{caller}").join(vars.caller?.trim() || "the Revvin team")
+    .split("{business}").join(vars.business)
+    .split("{link}").join(vars.link);
 }

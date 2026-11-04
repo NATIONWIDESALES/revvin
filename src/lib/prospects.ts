@@ -61,6 +61,7 @@ export async function removeProspectPage(code: string): Promise<boolean> {
 /** Marks the prospect claimed after the owner signs up through the preview. */
 export async function claimProspectPage(code: string, businessId: string): Promise<boolean> {
   const { error } = await supabase.rpc("fn_prospect_claim", { p_code: code, p_business_id: businessId } as never);
+  if (error) console.error("prospect claim failed", error.message);
   return !error;
 }
 
