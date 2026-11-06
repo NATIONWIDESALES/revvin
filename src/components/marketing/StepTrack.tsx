@@ -12,7 +12,7 @@ export const STEPS = [
   },
   {
     title: "They send a friend",
-    body: "Dana taps her link and passes along her neighbour's name and number. It takes about 30 seconds.",
+    body: "Dana taps her link and passes along her neighbor's name and number. It takes about 30 seconds.",
     artifact: (
       <>
         <div className="mk-mini-field"><small>Referring as</small>Dana</div>

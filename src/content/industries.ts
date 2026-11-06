@@ -66,7 +66,7 @@ const BASE_INDUSTRIES: Industry[] = [
     metaDescription:
       "Run a roofing referral program off your past-customer list. Branded referral page, QR code and lead inbox. Free to publish; Pro is $49/month USD.",
     intro:
-      "A finished roof is visible from the street, and the neighbours ask about it. A roofing referral program turns those conversations into tracked leads instead of lost ones. Revvin gives you a branded referral page, a shareable link and a QR code, and makes it easy to ask your past customers to pass it on.",
+      "A finished roof is visible from the street, and the neighbors ask about it. A roofing referral program turns those conversations into tracked leads instead of lost ones. Revvin gives you a branded referral page, a shareable link and a QR code, and makes it easy to ask your past customers to pass it on.",
     loops: [
       {
         title: "Referrals from finished roofs",
@@ -106,7 +106,7 @@ const BASE_INDUSTRIES: Industry[] = [
     metaDescription:
       "Run an HVAC referral program plus maintenance outreach off one customer list. Free to publish; $49/month USD for Pro. You pay your referrers directly.",
     intro:
-      "HVAC has the two things a referral engine needs: a service list that ages predictably and neighbours on the same equipment cycle. Revvin turns your past-customer list into a branded referral page, a seasonal outreach habit and a lead inbox, all running off the customers you already have.",
+      "HVAC has the two things a referral engine needs: a service list that ages predictably and neighbors on the same equipment cycle. Revvin turns your past-customer list into a branded referral page, a seasonal outreach habit and a lead inbox, all running off the customers you already have.",
     loops: [
       {
         title: "Referrals after an install",
@@ -180,7 +180,7 @@ const BASE_INDUSTRIES: Industry[] = [
     metaDescription:
       "Run a solar referral program from your installed-customer list. Branded referral page, QR code, tracked rewards. Free to publish; $49/month USD for Pro.",
     intro:
-      "Solar is sold neighbour to neighbour, and your installed base is the most credible sales team you will ever have. Revvin gives every past customer a branded page and link to share, tracks the reward from pending to paid, and keeps your leads organised so nobody gets chased or forgotten.",
+      "Solar is sold neighbor to neighbor, and your installed base is the most credible sales team you will ever have. Revvin gives every past customer a branded page and link to share, tracks the reward from pending to paid, and keeps your leads organized so nobody gets chased or forgotten.",
     loops: [
       {
         title: "Referrals from the installed base",
@@ -200,7 +200,7 @@ const BASE_INDUSTRIES: Industry[] = [
     placements: [
       "Inverter or electrical panel sticker",
       "Handover pack and monitoring app onboarding",
-      "Neighbourhood open-house signage",
+      "Neighborhood open-house signage",
       "Emailed production report footer",
     ],
     faqs: sharedFaqs("solar"),
@@ -252,7 +252,7 @@ const BASE_INDUSTRIES: Industry[] = [
     loops: [
       {
         title: "Referrals from the street",
-        body: "Neighbours notice new work immediately. A QR code on the yard sign and a referral link sent to the homeowner turn that attention into leads in your inbox, each with a name, contact details and what they want done.",
+        body: "Neighbors notice new work immediately. A QR code on the yard sign and a referral link sent to the homeowner turn that attention into leads in your inbox, each with a name, contact details and what they want done.",
       },
       {
         title: "Repeat work by season",
@@ -294,7 +294,7 @@ const BASE_INDUSTRIES: Industry[] = [
       },
       {
         title: "A quiet ask on every surface",
-        body: "The yard sign during the job and the QR code on the final invoice keep your referral page in front of neighbours and guests. Anyone can refer in a couple of taps, and you see it the moment it happens.",
+        body: "The yard sign during the job and the QR code on the final invoice keep your referral page in front of neighbors and guests. Anyone can refer in a couple of taps, and you see it the moment it happens.",
       },
     ],
     rewardExample:
@@ -302,7 +302,7 @@ const BASE_INDUSTRIES: Industry[] = [
     placements: [
       "Yard sign during the job",
       "Touch-up paint can label",
-      "Final invoice and colour record sheet",
+      "Final invoice and color record sheet",
       "Van signage",
     ],
     faqs: sharedFaqs("painting"),
@@ -350,11 +350,11 @@ const BASE_INDUSTRIES: Industry[] = [
     metaDescription:
       "Run a pest control referral program off your recurring service list. Branded page, QR code, tracked rewards. Free to publish; $49/month USD for Pro.",
     intro:
-      "Pest control is one of the few home services where you are already in the driveway every quarter, and where the problem does not respect property lines. Ants, termites, rodents and mosquitoes move along a block, so the customer you treated on Tuesday has neighbours with the same complaint. Revvin gives that customer a branded page and link to hand over, and puts the referral in your inbox with the address attached so you can quote a stop you are already routing past.",
+      "Pest control is one of the few home services where you are already in the driveway every quarter, and where the problem does not respect property lines. Ants, termites, rodents and mosquitoes move along a block, so the customer you treated on Tuesday has neighbors with the same complaint. Revvin gives that customer a branded page and link to hand over, and puts the referral in your inbox with the address attached so you can quote a stop you are already routing past.",
     loops: [
       {
         title: "Referrals along the same block",
-        body: "The neighbours share the infestation, so they are the warmest list you have. Ask at the quarterly visit while the truck is still parked out front, and every referral arrives in your lead inbox with a name, contact and address, with one-tap call or text back.",
+        body: "The neighbors share the infestation, so they are the warmest list you have. Ask at the quarterly visit while the truck is still parked out front, and every referral arrives in your lead inbox with a name, contact and address, with one-tap call or text back.",
       },
       {
         title: "Recurring contracts that stay renewed",
@@ -420,7 +420,7 @@ const BASE_INDUSTRIES: Industry[] = [
         a: "You decide, and your offer text should say so. Most pool owners treat the reward as won once the new customer's recurring service begins, sometimes after the first month is billed. Revvin tracks whatever rule you publish and moves the reward from pending to paid when you say it is paid.",
       },
       {
-        q: "Can I focus my referral asks on one neighbourhood?",
+        q: "Can I focus my referral asks on one neighborhood?",
         a: "Yes. On Pro you choose exactly who goes into each batch when you import your customer list, so you can ask only the customers on the streets where you want more density and leave the rest out.",
       },
     ],
@@ -434,7 +434,7 @@ const BASE_INDUSTRIES: Industry[] = [
     metaDescription:
       "Run a garage door referral program from repairs and installs. Branded page, QR code, lead inbox, tracked rewards. Free to publish; $49/month USD for Pro.",
     intro:
-      "A garage door fails suddenly and the homeowner decides fast, often on whoever a neighbour names first. It is also the largest moving object on the front of the house, so a new door is seen by everyone who drives past. That combination is why garage door work refers well: the decision is quick and the product is visible. Revvin gives you a branded page for the neighbour who asks and a lead inbox so a same-day call gets returned same day.",
+      "A garage door fails suddenly and the homeowner decides fast, often on whoever a neighbor names first. It is also the largest moving object on the front of the house, so a new door is seen by everyone who drives past. That combination is why garage door work refers well: the decision is quick and the product is visible. Revvin gives you a branded page for the neighbor who asks and a lead inbox so a same-day call gets returned same day.",
     loops: [
       {
         title: "Referrals from a fast decision",
@@ -560,12 +560,12 @@ const BASE_INDUSTRIES: Industry[] = [
     h1: "Referral program software for tree service companies",
     metaTitle: "Tree Service Referral Program Software | Revvin",
     metaDescription:
-      "Run a tree service referral program off jobs neighbours already watched. Branded page, QR code, tracked rewards. Free to publish; $49/month USD for Pro.",
+      "Run a tree service referral program off jobs neighbors already watched. Branded page, QR code, tracked rewards. Free to publish; $49/month USD for Pro.",
     intro:
-      "A crane and a climber in someone's back yard is a spectacle, and half the street watches it. Everyone with a leaning limb over their roof is thinking about their own tree while your crew works. That is the referral moment for tree service, and it happens on the day of the job, not weeks later. Revvin gives your customer a page to hand across the fence and puts the neighbour's request in your inbox with an address, so you can quote it before you demobilise.",
+      "A crane and a climber in someone's back yard is a spectacle, and half the street watches it. Everyone with a leaning limb over their roof is thinking about their own tree while your crew works. That is the referral moment for tree service, and it happens on the day of the job, not weeks later. Revvin gives your customer a page to hand across the fence and puts the neighbor's request in your inbox with an address, so you can quote it before you demobilize.",
     loops: [
       {
-        title: "Referrals from the neighbours watching",
+        title: "Referrals from the neighbors watching",
         body: "The audience is already there. Give the customer your referral link and QR card on the morning of the job so they can pass it to whoever comes over to look, and every referral arrives in your lead inbox with a name, contact and address while the equipment is still on the street.",
       },
       {
@@ -592,7 +592,7 @@ const BASE_INDUSTRIES: Industry[] = [
         a: "Each offer tracks one fixed dollar reward. Choose an amount that suits the work covered by the offer and state which jobs qualify. Revvin does not calculate different tiers for pruning, removal and grinding.",
       },
       {
-        q: "Can neighbours refer me even if they were never my customer?",
+        q: "Can neighbors refer me even if they were never my customer?",
         a: "Anyone with your link or QR code can send you a referral, and it arrives in your lead inbox the same way. Your offer text decides who qualifies for the reward, so be explicit if you want to include or exclude people who have not hired you yet.",
       },
     ],
@@ -610,7 +610,7 @@ const BASE_INDUSTRIES: Industry[] = [
     loops: [
       {
         title: "Referrals from a trusted relationship",
-        body: "Your clients are asked for a cleaner recommendation constantly, by neighbours, coworkers and family. Give them a link and a QR card so the answer is one message instead of a phone number they cannot find, and take the referral in your inbox with contact details and one-tap reply.",
+        body: "Your clients are asked for a cleaner recommendation constantly, by neighbors, coworkers and family. Give them a link and a QR card so the answer is one message instead of a phone number they cannot find, and take the referral in your inbox with contact details and one-tap reply.",
       },
       {
         title: "Recurring clients and the ones who lapsed",
@@ -668,7 +668,7 @@ const BASE_INDUSTRIES: Industry[] = [
     rewardExample:
       "You publish the reward and pay it directly. Remodel contracts are among the largest tickets in home services, so some owners set a flat amount per signed project and others stage it, with part at contract and the balance at completion. Revvin shows the offer as you write it.",
     placements: [
-      "Closeout binder with warranties and paint colours",
+      "Closeout binder with warranties and paint colors",
       "Utility room or panel label listing the trades used",
       "Job-site sign and dumpster banner during a multi-week build",
       "Proposal and final invoice footer",
@@ -694,11 +694,11 @@ const BASE_INDUSTRIES: Industry[] = [
     metaDescription:
       "Run a fencing referral program off street-visible installs. Branded page, QR code, tracked rewards. Free to publish; $49/month USD for Pro.",
     intro:
-      "A new fence has an unusual property: it literally touches the neighbours. Two or three households share a boundary with every job you install, they watch the posts go in, and a fresh fence next door makes the old one look older. Fencing also clusters by neighbourhood age, so whole streets come due at once. Revvin turns that geography into tracked leads with a page your customer can pass over the rail and an inbox that shows you the address.",
+      "A new fence has an unusual property: it literally touches the neighbors. Two or three households share a boundary with every job you install, they watch the posts go in, and a fresh fence next door makes the old one look older. Fencing also clusters by neighborhood age, so whole streets come due at once. Revvin turns that geography into tracked leads with a page your customer can pass over the rail and an inbox that shows you the address.",
     loops: [
       {
         title: "Referrals from the households on the boundary",
-        body: "The neighbours on either side are the most qualified prospects you will meet that week. Give the customer your referral link and a few QR cards during the install, and every referral arrives in your lead inbox with a name, contact and address you can go and measure.",
+        body: "The neighbors on either side are the most qualified prospects you will meet that week. Give the customer your referral link and a few QR cards during the install, and every referral arrives in your lead inbox with a name, contact and address you can go and measure.",
       },
       {
         title: "Repeat work on gates, stain and repair",
@@ -714,13 +714,13 @@ const BASE_INDUSTRIES: Industry[] = [
     placements: [
       "Yard sign at the fence line during and after the build",
       "QR sticker on the gate post or hardware",
-      "Door hangers for both adjoining neighbours",
+      "Door hangers for both adjoining neighbors",
       "Estimate and invoice footer",
     ],
     faqs: [
       ...sharedFaqs("fencing"),
       {
-        q: "Can I reward a neighbour who refers a whole street?",
+        q: "Can I reward a neighbor who refers a whole street?",
         a: "Every referral through your link is tracked separately in your lead inbox, so one person can send several and each reward is followed from pending to paid on its own. You pay them directly, and you can stack multiple rewards or publish a tier for volume if you want to.",
       },
     ],
@@ -734,7 +734,7 @@ const BASE_INDUSTRIES: Industry[] = [
     metaDescription:
       "Run a pressure washing referral program off street-visible results. Branded page, QR code, tracked rewards. Free to publish; $49/month USD for Pro.",
     intro:
-      "Pressure washing is the most instantly obvious result in home services. A driveway that was grey at nine is clean at eleven, and every neighbour who walks past sees the line where you stopped. The job also takes hours rather than weeks, so you can quote and complete a referral on the same street the same day. Revvin gives your customer a link to send while the concrete is still drying and puts the neighbour's request in your inbox with an address.",
+      "Pressure washing is the most instantly obvious result in home services. A driveway that was grey at nine is clean at eleven, and every neighbor who walks past sees the line where you stopped. The job also takes hours rather than weeks, so you can quote and complete a referral on the same street the same day. Revvin gives your customer a link to send while the concrete is still drying and puts the neighbor's request in your inbox with an address.",
     loops: [
       {
         title: "Referrals from a visible before and after",
@@ -742,7 +742,7 @@ const BASE_INDUSTRIES: Industry[] = [
       },
       {
         title: "Repeat work on a dirt cycle",
-        body: "Mould, algae and grime come back on a predictable schedule, and driveways, roofs, decks and gutters are separate jobs. On Pro, import your customer list and send the annual reclean or next-surface offer yourself, in batches from your own email app.",
+        body: "Mold, algae and grime come back on a predictable schedule, and driveways, roofs, decks and gutters are separate jobs. On Pro, import your customer list and send the annual reclean or next-surface offer yourself, in batches from your own email app.",
       },
       {
         title: "Asking a whole street at once",
@@ -761,7 +761,7 @@ const BASE_INDUSTRIES: Industry[] = [
       ...sharedFaqs("pressure washing"),
       {
         q: "Is a small reward worth tracking?",
-        a: "That is why the tracking exists. Even a modest reward needs to be remembered and paid, and Revvin holds each one from pending to paid and notifies the referrer at both points, so a five-minute favour does not turn into an awkward conversation later.",
+        a: "That is why the tracking exists. Even a modest reward needs to be remembered and paid, and Revvin holds each one from pending to paid and notifies the referrer at both points, so a five-minute favor does not turn into an awkward conversation later.",
       },
     ],
   },
@@ -814,7 +814,7 @@ const BASE_INDUSTRIES: Industry[] = [
     metaDescription:
       "Run a handyman referral program off repeat customers and small jobs. Branded page, QR code, tracked rewards. Free to publish; $49/month USD for Pro.",
     intro:
-      "A handyman's business is built on being the person someone already has in their phone. The jobs are small and frequent, one visit turns into a list of four more things, and a good handyman is the single most requested recommendation in any neighbourhood group. The difficulty is volume: dozens of short jobs a month and no time to track who sent whom. Revvin handles that with a branded page, a link you can send in seconds and reward tracking that runs in the background.",
+      "A handyman's business is built on being the person someone already has in their phone. The jobs are small and frequent, one visit turns into a list of four more things, and a good handyman is the single most requested recommendation in any neighborhood group. The difficulty is volume: dozens of short jobs a month and no time to track who sent whom. Revvin handles that with a branded page, a link you can send in seconds and reward tracking that runs in the background.",
     loops: [
       {
         title: "Referrals from being the trusted name",
@@ -841,7 +841,7 @@ const BASE_INDUSTRIES: Industry[] = [
       ...sharedFaqs("handyman"),
       {
         q: "I do dozens of small jobs a month. Is tracking rewards realistic?",
-        a: "That is the point of a lead inbox. Each referral arrives with contact details and a status you control, and each reward sits at pending until you mark it paid, so a busy month does not turn into unpaid favours you cannot reconstruct.",
+        a: "That is the point of a lead inbox. Each referral arrives with contact details and a status you control, and each reward sits at pending until you mark it paid, so a busy month does not turn into unpaid favors you cannot reconstruct.",
       },
     ],
   },

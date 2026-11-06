@@ -32,7 +32,7 @@ export const PRINT_ASSETS: PrintAsset[] = [
     where:
       "In the front yard while you are on site, and for a week after if the customer is happy to leave it. Face it at the footpath, not the house.",
     say:
-      "Ask before you put it in: \"Mind if I leave our sign out front for a week? If a neighbour scans it and books, you get the reward.\" Most people say yes when there is something in it for them.",
+      "Ask before you put it in: \"Mind if I leave our sign out front for a week? If a neighbor scans it and books, you get the reward.\" Most people say yes when there is something in it for them.",
     printNote:
       "Print at 24 by 18 inches on 4mm corflute with H stakes. Any local sign shop does this in a day.",
   },

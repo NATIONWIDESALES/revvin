@@ -32,7 +32,7 @@ serve(async (req) => {
     const user = authData.user;
 
     let includeLaunchPackage = false;
-    // Unrecognised values fall back to monthly rather than erroring or charging
+    // Unrecognized values fall back to monthly rather than erroring or charging
     // something unexpected.
     let plan: BillingPlan = "monthly";
     let rawInviteCode: string | null = null;

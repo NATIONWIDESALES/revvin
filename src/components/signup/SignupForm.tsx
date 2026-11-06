@@ -274,6 +274,6 @@ const SignupForm = ({
 export const SIGNUP_SUBHEAD = (inviteCode: string | null) =>
   inviteCode
     ? "Publishing your page is free. Your invite also gets you Revvin Pro at a discount when you want it."
-    : `Build your referral page, offer, and QR code, and publish it free. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} when you want it working your whole list. Cancel anytime.`;
+    : "Build your referral page, offer and QR code, and publish it free. Every new account gets Pro free for 14 days. No card.";
 
 export default SignupForm;

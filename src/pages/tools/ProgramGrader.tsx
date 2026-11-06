@@ -16,7 +16,7 @@ import {
 /**
  * The questionnaire is a list of fieldsets, each with a legend and two native
  * radios, so it is keyboard and screen-reader navigable without any custom
- * widget behaviour. Answers live in component state only: nothing is stored,
+ * widget behavior. Answers live in component state only: nothing is stored,
  * put in the address bar, or sent anywhere.
  */
 const ProgramGrader = () => {

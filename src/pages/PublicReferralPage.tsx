@@ -263,7 +263,7 @@ const PublicReferralPage = () => {
   }
 
   const initial = biz.name.charAt(0).toUpperCase();
-  // Pro branding: a valid brand colour replaces forest in the header.
+  // Pro branding: a valid brand color replaces forest in the header.
   const headerBg = isValidHex(biz.brand_color) ? biz.brand_color.trim() : "hsl(var(--forest))";
   const locationLabel = [biz.city, biz.state].filter(Boolean).join(", ") || biz.service_area || null;
   const whereLine = biz.category && biz.city ? `${biz.category} in ${biz.city}` : biz.category || locationLabel;

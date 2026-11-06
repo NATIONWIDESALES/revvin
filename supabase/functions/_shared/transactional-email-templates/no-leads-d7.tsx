@@ -21,7 +21,8 @@ const Email = ({ businessName, setupCallUrl, unsubscribeUrl }: Props) => (
       the phone.
     </Text>
     {setupCallUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(setupCallUrl, 'Book a free 30-minute setup call')}</Text> : null}
-    <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to our team. The Revvin team</Text>
+    <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to our team.</Text>
+    <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )
 

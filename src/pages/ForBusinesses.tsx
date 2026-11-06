@@ -199,7 +199,7 @@ const ForBusinesses = () => (
             Your page is free. Pro is $49/month.
           </motion.h2>
           <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-sm mb-8 max-w-lg mx-auto">
-            Build your page, publish it, and take referrals at no cost. Revvin Pro is one flat $49/month, billed monthly, and adds the tools that ask your whole customer list for you across referrals, repeat work, and reviews. Cancel any time and your page stays live and your referrals keep coming in; you only lose the Pro tools. No contract, no setup fee, no per-referral cut. You pay referrers directly when deals close.
+            Build your page, publish it, and take referrals at no cost. Revvin Pro is one flat $49/month, billed monthly, and adds the tools that ask your whole customer list for you across referrals, repeat work, and reviews. Cancel anytime and your page stays live and your referrals keep coming in; you only lose the Pro tools. No contract, no setup fee, no per-referral cut. You pay referrers directly when deals close.
           </motion.p>
           <motion.div variants={fadeUp} custom={2} className="inline-flex flex-wrap items-center justify-center gap-4">
             {["Free referral page", "Revvin Pro $49/month", "All three loops included", "You set the payout", "Cancel anytime", "Pay referrers directly"].map(item => (

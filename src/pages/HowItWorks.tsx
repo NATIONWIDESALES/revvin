@@ -17,7 +17,7 @@ const steps = [
   {
     n: "02",
     t: "Mark jobs done and let the asks fire",
-    d: "When a job is finished, send the review ask with a pre-written message, then follow up with the customers who said they were happy and ask them to refer someone. The referral ask is personalised with the customer name and the service, and opens in your own texting or email app, so it comes from you. Customers who have not booked in a while get a pre-written rebooking message the same way.",
+    d: "When a job is finished, send the review ask with a pre-written message, then follow up with the customers who said they were happy and ask them to refer someone. The referral ask is personalized with the customer name and the service, and opens in your own texting or email app, so it comes from you. Customers who have not booked in a while get a pre-written rebooking message the same way.",
     visual: <MockQRCard />,
   },
   {
@@ -40,7 +40,7 @@ const HowItWorks = () => {
       <section className="border-b border-line">
         <div className="mk-wrap max-w-4xl py-20 md:py-24">
           <h1 className="text-5xl leading-[0.98] md:text-7xl">
-            Three steps to an engine that runs off your jobs.
+            How Revvin turns finished jobs into referrals.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
             Set up your page once, then send the asks yourself with pre-written messages after each finished job. Referrals, repeat work, and reviews from the customer list you already have. You handle the relationship.

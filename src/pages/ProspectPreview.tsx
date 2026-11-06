@@ -200,7 +200,7 @@ const ProspectPreviewPage = () => {
               <h2 id="ask-heading" className="font-display text-3xl font-extrabold text-forest">The first ask you would send</h2>
               <div className="mt-6 max-w-xl rounded-2xl border-[1.5px] border-line bg-card p-6">
                 <p className="text-forest">
-                  Hi, it's {prospect.name}. Thanks for having us out. If a neighbour or friend needs {tradeLabel(prospect.trade).toLowerCase()} work, would you send them our way? It takes a minute here, and we pay you ${reward} when their job closes: your link
+                  Hi, it's {prospect.name}. Thanks for having us out. If a neighbor or friend needs {tradeLabel(prospect.trade).toLowerCase()} work, would you send them our way? It takes a minute here, and we pay you ${reward} when their job closes: your link
                 </p>
                 <p className="mt-3 text-xs text-muted-foreground">Sent from your own phone or email app, to customers you choose.</p>
               </div>

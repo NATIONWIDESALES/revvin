@@ -199,7 +199,7 @@ const CustomersTab = ({
 
   /**
    * Refresh the do-not-contact state. Called on mount and again whenever a
-   * composer opens, so an unsubscribe recorded a minute ago is honoured before
+   * composer opens, so an unsubscribe recorded a minute ago is honored before
    * the owner prepares anything.
    */
   const refreshSuppression = useCallback(async () => {
@@ -273,7 +273,7 @@ const CustomersTab = ({
 
   const handleImport = async () => {
     // Explain the no-op instead of returning quietly: pasted rows can all be
-    // duplicates or unparseable, which looks identical to a broken button.
+    // duplicates or unparsable, which looks identical to a broken button.
     if (dedupedPreview.length === 0) {
       const hasInput = source === "file" ? fileRows.length > 0 || parseErrors.length > 0 : !!paste.trim();
       toast({
@@ -368,10 +368,10 @@ const CustomersTab = ({
 
   /**
    * Last gate before anything is prepared. Re-reads suppression so a change made
-   * while the composer was open is honoured, and fails closed on a lookup error.
+   * while the composer was open is honored, and fails closed on a lookup error.
    */
   const guardChannel = async (c: ReferralContact, channel: Channel): Promise<boolean> => {
-    if (!isDemo && !await authoritativeAskAllowed(c)) { toast({ title: "Ask paused", description: "Free asks your first 100 customers. Keep Pro to ask your whole list.", variant: "destructive" }); return false; }
+    if (!isDemo && !await authoritativeAskAllowed(c)) { toast({ title: "Ask paused", description: "Free covers your first 100 customers. Keep Pro to ask your whole list.", variant: "destructive" }); return false; }
     const snapshot = await refreshSuppression();
     const fresh = contactEligibility(c, snapshot);
     if (!channelAllowed(fresh, channel)) {

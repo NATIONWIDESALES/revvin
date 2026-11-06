@@ -85,7 +85,7 @@ const ROICalculator = () => {
             aria-label="Gross margin percentage on a job"
           />
           <p className="mt-1 text-xs text-muted-foreground">
-            What is left of the job after materials, labour and subs. Revenue is not profit.
+            What is left of the job after materials, labor and subs. Revenue is not profit.
           </p>
         </div>
 

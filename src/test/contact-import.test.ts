@@ -81,9 +81,9 @@ describe("last job dates", () => {
     expect(parseJobDate("2026-02-30")).toBeUndefined();
   });
 
-  it("rejects a future date and an unrecognised format", () => {
+  it("rejects a future date and an unrecognized format", () => {
     expect(jobDateProblem("2999-01-01")).toMatch(/future/);
-    expect(jobDateProblem("last spring")).toMatch(/not a date we recognise/);
+    expect(jobDateProblem("last spring")).toMatch(/not a date we recognize/);
   });
 
   it("reports a broken date rather than importing the row silently", () => {

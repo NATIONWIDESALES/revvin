@@ -293,7 +293,7 @@ const handwritten: PrerenderRoute[] = [
     path: "/how-it-works",
     title: PAGE_META["/how-it-works"].title,
     description: PAGE_META["/how-it-works"].description,
-    h1: "Three steps to an engine that runs off your jobs.",
+    h1: "How Revvin turns finished jobs into referrals.",
     sections: [
       {
         heading: "Step one: build your page",
@@ -382,7 +382,7 @@ const handwritten: PrerenderRoute[] = [
     path: "/pricing",
     title: PAGE_META["/pricing"].title,
     description: PAGE_META["/pricing"].description,
-    h1: "Your referral page is free.",
+    h1: PLAN_SPLIT.line,
     sections: [
       {
         heading: "Free and Pro, plainly",
@@ -398,7 +398,7 @@ const handwritten: PrerenderRoute[] = [
       },
 
       {
-        heading: "Cancel any time",
+        heading: "Cancel anytime",
         body: "Cancel from the billing portal whenever you like. On the annual plan Pro keeps working to the end of the year you paid for. After Pro ends your page stays live and your referrals keep coming in, because publishing is free: you only lose the Pro tools. There are no platform fees on referral rewards: Revvin does not take a cut and does not move the money. You pay your referrer directly when a deal closes.",
       },
     ],
@@ -439,7 +439,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "Are you a business?",
-        body: "Publishing your referral page and appearing in the marketplace is free. Set your offer and your reward, publish, and referrers can find you. Revvin Pro is available at " + PRO + " for the tools that ask your whole customer list for you.",
+        body: "Publishing your referral page and appearing in the marketplace as it opens city by city is free. Set your offer and your reward, publish, and referrers will be able to find you there. Revvin Pro is available at " + PRO + " for the tools that ask your whole customer list for you.",
       },
     ],
   },

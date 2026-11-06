@@ -1,6 +1,6 @@
 // /about content. Shared by the rendered page and the prerendered document.
 import { PRICE_TEXT } from "../config/pricing";
-import { CANONICAL_SENTENCE, TEAM_HEADING, TEAM_BIO } from "../config/brand";
+import { CANONICAL_SENTENCE } from "../config/brand";
 
 export const ABOUT_UPDATED_AT = "2026-10-31";
 
@@ -24,10 +24,6 @@ export const ABOUT_SECTIONS: { heading: string; body: string }[] = [
   {
     heading: "What Revvin does not do",
     body: "Revvin does not pay referrers for you. It does not send texts for you: personal asks open in your own phone or email app. It does not take a cut of any reward. It is not the Revvin digital mortgage platform.",
-  },
-  {
-    heading: TEAM_HEADING,
-    body: TEAM_BIO,
   },
   {
     heading: "Contact",
