@@ -273,7 +273,7 @@ const CustomersTab = ({
 
   const handleImport = async () => {
     // Explain the no-op instead of returning quietly: pasted rows can all be
-    // duplicates or unparseable, which looks identical to a broken button.
+    // duplicates or unparsable, which looks identical to a broken button.
     if (dedupedPreview.length === 0) {
       const hasInput = source === "file" ? fileRows.length > 0 || parseErrors.length > 0 : !!paste.trim();
       toast({
