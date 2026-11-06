@@ -22,6 +22,20 @@ import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { friendlyError } from "@/lib/errors";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+
+type AdminBusinessPatch = { is_verified?: boolean; index_approved?: boolean; account_status?: "approved" | "rejected" | "pending_approval"; is_disabled?: boolean };
+type AdminBusinessRow = { id: string; name: string; is_verified: boolean; verified: boolean; index_approved: boolean; account_status: string; is_disabled: boolean };
+type CoreNumbers = { businesses: number; live_pages: number; leads: number; leads_won: number; referrers: number; rewards_pending_count: number; rewards_pending_sum: number; rewards_paid_count: number; rewards_paid_sum: number; active_subscriptions: number; signups_7d: number };
+
+function adminUpdateMessage(error: { message?: string } | null): string {
+  const m = error?.message ?? "";
+  if (m.includes("not_authorized")) return "Only admins can make this change.";
+  if (m.includes("not_found")) return "That business no longer exists.";
+  if (m.includes("invalid_field")) return "That change is not allowed here.";
+  if (m.includes("Only a super admin")) return "You cannot change verification or search approval on your own business.";
+  return "The change was not saved. Please try again.";
+}
 
 const STAGES = ["submitted", "accepted", "in_progress", "won", "lost", "declined", "void"] as const;
 
@@ -107,6 +121,7 @@ const SuperAdminCRM = () => {
   const [profiles, setProfiles] = useState<any[]>([]);
   const [payouts, setPayouts] = useState<any[]>([]);
   const [auditLog, setAuditLog] = useState<any[]>([]);
+  const [coreNumbers, setCoreNumbers] = useState<CoreNumbers | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -234,14 +249,16 @@ const SuperAdminCRM = () => {
         if (res.data) setOverview(res.data);
 
         // Load comprehensive data for tabs
-        const [refRes, offRes, roleRes, bizRes, profRes, auditRes] = await Promise.all([
+        const [refRes, offRes, roleRes, bizRes, profRes, auditRes, coreRes] = await Promise.all([
           supabase.from("referrals").select("*, offers(title, payout, payout_type), businesses(name)").order("created_at", { ascending: false }),
           supabase.from("offers").select("*, businesses(name)").order("created_at", { ascending: false }),
           supabase.from("user_roles").select("*"),
           supabase.from("businesses").select("*").order("created_at", { ascending: false }),
           supabase.from("profiles").select("*").order("created_at", { ascending: false }),
           supabase.from("audit_log").select("*").order("created_at", { ascending: false }).limit(50),
+          supabase.rpc("fn_admin_core_numbers"),
         ]);
+        if (!coreRes.error) setCoreNumbers(coreRes.data as unknown as CoreNumbers);
         
         setReferrals(refRes.data ?? []);
         setOffers(offRes.data ?? []);
@@ -298,25 +315,20 @@ const SuperAdminCRM = () => {
     return m;
   }, [profiles]);
 
-  // Stats
-  const totalBusinesses = roles.filter(r => r.role === "business").length;
-  const totalReferrers = roles.filter(r => r.role === "referrer").length;
-  const wonDeals = referrals.filter(r => r.status === "won").length;
-  const totalPlatformRevenue = referrals.filter(r => r.status === "won").reduce((sum, r) => sum + (r.payout_amount ?? r.offers?.payout ?? 0) * 0.1, 0);
-  const totalPayoutsAmount = referrals.filter(r => r.status === "won").reduce((sum, r) => sum + (r.payout_amount ?? r.offers?.payout ?? 0), 0);
-  const activeOffers = offers.filter(o => o.status === "active").length;
-  const conversionRate = referrals.length > 0 ? Math.round((wonDeals / referrals.length) * 100) : 0;
-  const pendingPayouts = payouts.filter(p => p.status === "ready" || p.status === "processing").length;
-
+  // Headline numbers come from fn_admin_core_numbers (demo businesses excluded).
+  const n = coreNumbers;
+  const fmt = (v: number | undefined) => (n ? (v ?? 0).toLocaleString() : "...");
+  const money = (v: number | undefined) => (n ? `$${Math.round(Number(v ?? 0)).toLocaleString()}` : "...");
   const dashboardStats = [
-    { label: "Businesses", value: totalBusinesses.toString(), icon: Building2, color: "text-primary", bgColor: "bg-primary/10" },
-    { label: "Referrers", value: totalReferrers.toString(), icon: Users, color: "text-accent-foreground", bgColor: "bg-accent/10" },
-    { label: "Active Offers", value: activeOffers.toString(), icon: Activity, color: "text-primary", bgColor: "bg-primary/10" },
-    { label: "Deals Won", value: wonDeals.toString(), icon: CheckCircle2, color: "text-earnings", bgColor: "bg-earnings/10" },
-    { label: "Conversion", value: `${conversionRate}%`, icon: TrendingUp, color: "text-accent-foreground", bgColor: "bg-accent/10" },
-    { label: "Total Payouts", value: `$${totalPayoutsAmount.toLocaleString()}`, icon: DollarSign, color: "text-earnings", bgColor: "bg-earnings/10" },
-    { label: "Platform Revenue", value: `$${Math.round(totalPlatformRevenue).toLocaleString()}`, icon: BarChart3, color: "text-primary", bgColor: "bg-primary/10" },
-    { label: "Pending Payouts", value: pendingPayouts.toString(), icon: Clock, color: pendingPayouts > 0 ? "text-accent-foreground" : "text-muted-foreground", bgColor: pendingPayouts > 0 ? "bg-accent/10" : "bg-muted" },
+    { label: "Businesses", value: fmt(n?.businesses), icon: Building2, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "Live pages", value: fmt(n?.live_pages), icon: Activity, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "Leads", value: fmt(n?.leads), icon: TrendingUp, color: "text-accent-foreground", bgColor: "bg-accent/10" },
+    { label: "Leads won", value: fmt(n?.leads_won), icon: CheckCircle2, color: "text-earnings", bgColor: "bg-earnings/10" },
+    { label: "Referrers", value: fmt(n?.referrers), icon: Users, color: "text-accent-foreground", bgColor: "bg-accent/10" },
+    { label: `Rewards pending (${fmt(n?.rewards_pending_count)})`, value: money(n?.rewards_pending_sum), icon: Clock, color: "text-accent-foreground", bgColor: "bg-accent/10" },
+    { label: `Rewards paid (${fmt(n?.rewards_paid_count)})`, value: money(n?.rewards_paid_sum), icon: DollarSign, color: "text-earnings", bgColor: "bg-earnings/10" },
+    { label: "Active Pro subscriptions", value: fmt(n?.active_subscriptions), icon: BarChart3, color: "text-primary", bgColor: "bg-primary/10" },
+    { label: "Signups, last 7 days", value: fmt(n?.signups_7d), icon: Building2, color: "text-primary", bgColor: "bg-primary/10" },
   ];
 
   // Filtered businesses for the list
@@ -380,42 +392,26 @@ const SuperAdminCRM = () => {
     setSavingNotes(false);
   };
 
-  const updateBusinessStatus = async (bizId: string, newStatus: string) => {
+  const adminUpdateBusiness = async (bizId: string, patch: AdminBusinessPatch, successTitle: string) => {
     setApprovingBiz(bizId);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { setApprovingBiz(null); return; }
-    const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sa-data?action=update_business_status`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ business_id: bizId, account_status: newStatus }),
-    });
-    if (response.ok) {
-      if (overview) {
-        setOverview({
-          ...overview,
-          businesses: overview.businesses.map((b) =>
-            b.id === bizId ? { ...b, account_status: newStatus } : b
-          ),
-        });
-      }
-      setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, account_status: newStatus } : b));
-      toast({ title: `Business status updated to ${newStatus}` });
-    }
+    const { data, error } = await supabase.rpc("fn_admin_update_business", { p_business_id: bizId, p_patch: patch });
     setApprovingBiz(null);
+    if (error || !data) {
+      toast({ title: "Not saved", description: adminUpdateMessage(error), variant: "destructive" });
+      return;
+    }
+    const row = data as unknown as AdminBusinessRow;
+    const fields = { is_verified: row.is_verified, verified: row.verified, index_approved: row.index_approved, account_status: row.account_status, is_disabled: row.is_disabled };
+    setBusinesses(prev => prev.map(b => b.id === row.id ? { ...b, ...fields } : b));
+    setOverview(prev => prev ? { ...prev, businesses: prev.businesses.map(b => b.id === row.id ? { ...b, ...fields } : b) } : prev);
+    toast({ title: successTitle });
   };
 
-  const verifyBusiness = async (bizId: string) => {
-    const { error } = await supabase.from("businesses").update({ verified: true, is_verified: true }).eq("id", bizId);
-    if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
-    setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, verified: true, is_verified: true } : b));
+  const updateBusinessStatus = (bizId: string, newStatus: "approved" | "rejected" | "pending_approval") =>
+    adminUpdateBusiness(bizId, { account_status: newStatus }, `Business status updated to ${newStatus}`);
 
-    toast({ title: "Business verified" });
-  };
+  const toggleVerified = (bizId: string, next: boolean) =>
+    adminUpdateBusiness(bizId, { is_verified: next }, next ? "Business verified" : "Verification removed");
 
   const approveAccount = async (bizId: string) => {
     await updateBusinessStatus(bizId, "approved");
@@ -609,7 +605,7 @@ const SuperAdminCRM = () => {
                             {biz.phone && <a className="text-xs text-forest underline" href={`tel:${biz.phone}`}>Call {biz.phone}</a>}
                             <p className="text-xs text-muted-foreground">{[biz.industry, biz.city].filter(Boolean).join(" • ") || "No details yet"}</p>
                           </div>
-                          <Badge variant={biz.verified ? "default" : "secondary"}>{biz.verified ? "Verified" : "Pending"}</Badge>
+                          <Badge variant={biz.is_verified ? "default" : "secondary"}>{biz.is_verified ? "Verified" : "Pending"}</Badge>
                         </div>
                       ))}
                     </div>
@@ -683,7 +679,8 @@ const SuperAdminCRM = () => {
                           <p className="font-medium">{biz.name}</p>
                           <p className="text-xs text-muted-foreground">{[biz.industry, biz.city, (biz as any).phone, `Joined ${new Date(biz.created_at).toLocaleDateString()}`].filter(Boolean).join(" • ")}</p>
                           <div className="flex items-center gap-2 mt-2">
-                            <Badge variant={biz.verified ? "default" : "secondary"}>{biz.verified ? "Verified" : "Unverified"}</Badge>
+                            <Badge variant={biz.is_verified ? "default" : "secondary"}>{biz.is_verified ? "Verified" : "Unverified"}</Badge>
+                            {biz.is_disabled && <Badge variant="destructive">Page disabled</Badge>}
                             <Badge variant={accountStatus === "approved" ? "default" : accountStatus === "rejected" ? "destructive" : "secondary"}>
                               {accountStatus === "approved" ? "Account Approved" : accountStatus === "rejected" ? "Account Rejected" : "Pending Approval"}
                             </Badge>
@@ -700,14 +697,32 @@ const SuperAdminCRM = () => {
                           {accountStatus === "rejected" && (
                             <Button size="sm" onClick={() => approveAccount(biz.id)} className="gap-1"><CheckCircle2 className="h-3 w-3" /> Approve</Button>
                           )}
-                          <Button size="sm" variant="outline" onClick={async () => {
-                            const approved = !biz.index_approved;
-                            const { error } = await supabase.from("businesses").update({ index_approved: approved }).eq("id", biz.id);
-                            if (error) { toast({ title: "Could not change search approval", description: friendlyError(error), variant: "destructive" }); return; }
-                            setBusinesses(prev => prev.map(b => b.id === biz.id ? { ...b, index_approved: approved } : b));
-                          }}>{biz.index_approved ? "Remove search approval" : "Approve for search"}</Button>
-                          {!biz.verified && (
-                            <Button size="sm" variant="outline" onClick={() => verifyBusiness(biz.id)} className="gap-1"><BadgeCheck className="h-3 w-3" /> Verify</Button>
+                          <Button size="sm" variant="outline" disabled={approvingBiz === biz.id} onClick={() => adminUpdateBusiness(biz.id, { index_approved: !biz.index_approved }, biz.index_approved ? "Search approval removed" : "Approved for search")}>
+                            {biz.index_approved ? "Remove search approval" : "Approve for search"}
+                          </Button>
+                          <Button size="sm" variant="outline" disabled={approvingBiz === biz.id} onClick={() => toggleVerified(biz.id, !biz.is_verified)} className="gap-1">
+                            <BadgeCheck className="h-3 w-3" /> {biz.is_verified ? "Remove verification" : "Verify"}
+                          </Button>
+                          {biz.is_disabled ? (
+                            <Button size="sm" variant="outline" disabled={approvingBiz === biz.id} onClick={() => adminUpdateBusiness(biz.id, { is_disabled: false }, "Page enabled")} className="gap-1">
+                              <Play className="h-3 w-3" /> Enable page
+                            </Button>
+                          ) : (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="destructive" disabled={approvingBiz === biz.id} className="gap-1"><Pause className="h-3 w-3" /> Disable page</Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Disable {biz.name}'s page?</AlertDialogTitle>
+                                  <AlertDialogDescription>The referral page stops accepting referrals and is hidden from the public until you enable it again.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => adminUpdateBusiness(biz.id, { is_disabled: true }, "Page disabled")}>Disable page</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           )}
                         </div>
                       </div>
@@ -790,12 +805,12 @@ const SuperAdminCRM = () => {
                       </p>
                     </div>
                     <div className="rounded-xl border border-border bg-muted/30 p-3">
-                      <p className="text-xs text-muted-foreground">Deals closed (won)</p>
-                      <p className="text-xl font-bold text-foreground">{wonDeals}</p>
+                      <p className="text-xs text-muted-foreground">Leads won</p>
+                      <p className="text-xl font-bold text-foreground">{fmt(n?.leads_won)}</p>
                     </div>
                     <div className="rounded-xl border border-border bg-muted/30 p-3">
-                      <p className="text-xs text-muted-foreground">Total payouts owed to referrers</p>
-                      <p className="text-xl font-bold text-foreground">${totalPayoutsAmount.toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground">Rewards pending for referrers</p>
+                      <p className="text-xl font-bold text-foreground">{money(n?.rewards_pending_sum)}</p>
                     </div>
                   </div>
                 </div>

@@ -1,3 +1,4 @@
+import { Navigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +7,6 @@ import { Building2, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ReferrerDashboard from "./ReferrerDashboard";
 import BusinessDashboard from "./BusinessDashboard";
-import AdminDashboard from "./AdminDashboard";
 import { friendlyError } from "@/lib/errors";
 
 const RoleSelector = () => {
@@ -88,7 +88,7 @@ const DashboardRouter = () => {
   // No role assigned (e.g. Google OAuth first login), show role selector
   if (!userRole) return <RoleSelector />;
 
-  if (userRole === "admin") return <AdminDashboard />;
+  if (userRole === "admin") return <Navigate to="/__sa" replace />;
   if (userRole === "business") return <BusinessDashboard />;
   return <ReferrerDashboard />;
 };

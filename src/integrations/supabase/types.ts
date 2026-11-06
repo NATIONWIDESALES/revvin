@@ -3226,6 +3226,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      fn_admin_core_numbers: { Args: never; Returns: Json }
       fn_admin_metros: {
         Args: never
         Returns: {
@@ -3236,6 +3237,10 @@ export type Database = {
           name: string
           slug: string
         }[]
+      }
+      fn_admin_update_business: {
+        Args: { p_business_id: string; p_patch: Json }
+        Returns: Json
       }
       fn_bot_reason: {
         Args: { p_referrer: string; p_ua: string }
