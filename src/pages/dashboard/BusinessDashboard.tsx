@@ -1234,6 +1234,8 @@ const ShareTab = ({ biz, publicUrl, isLive, onPublished, onQrDownloaded, onShare
             name: biz.name,
             slug: biz.slug,
             logo_url: biz.logo_url,
+            brand_color: biz.brand_color,
+            headline: biz.headline,
             offer_amount: biz.offer_amount,
             offer_trigger: biz.offer_trigger,
             offer_fine_print: biz.offer_fine_print,
