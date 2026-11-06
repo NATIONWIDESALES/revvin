@@ -150,6 +150,92 @@ Deno.serve(async (req) => {
     });
   }
 
+  // Customer journey and delivery health. Throttled to one email per check per
+  // 3 hours while failing, plus one "recovered" email when it passes again.
+  // Sent directly, never through the email queue being checked.
+  const dryRun = new URL(req.url).searchParams.get("dry_run") === "1";
+  const healthSent: string[] = [];
+  const healthWould: { type: string; subject: string; text: string }[] = [];
+  const { data: health, error: healthError } = await db.rpc("fn_monitor_health" as never);
+  const h = (health ?? {}) as Record<string, any>;
+  const checks: { type: string; failing: boolean; subject: string; text: string; recovered: string }[] = [];
+  if (healthError) {
+    checks.push({ type: "health_monitor", failing: true, subject: "Revvin alert: the health check could not run", text: healthError.message, recovered: "Revvin recovered: the health check runs again" });
+  } else {
+    const smoke = h.latest_smoke as { ran_at: string; ok: boolean; failed_step: string | null; steps: { step: string; ok: boolean; error?: string }[] } | null;
+    const stale = !smoke || now - new Date(smoke.ran_at).getTime() > 2 * HOUR_MS;
+    const smokeErr = smoke?.steps?.find((s) => !s.ok)?.error ?? "";
+    checks.push({
+      type: "health_smoke",
+      failing: stale || !smoke?.ok,
+      subject: stale ? "Revvin alert: the hourly customer journey check has not run" : `Revvin alert: customer journey broke at ${smoke?.failed_step}`,
+      text: stale ? `No customer journey run in the last 2 hours. Last run: ${smoke?.ran_at ?? "never"}.` : `Failed step: ${smoke?.failed_step}\nError: ${smokeErr}\nRan at: ${smoke?.ran_at}\n\n${JSON.stringify(smoke?.steps, null, 2)}`,
+      recovered: "Revvin recovered: the customer journey check passes again",
+    });
+    const http = (h.http_non_200 ?? {}) as Record<string, number>;
+    const httpTotal = Object.values(http).reduce((a, b) => a + Number(b), 0);
+    checks.push({
+      type: "health_http",
+      failing: httpTotal > 3,
+      subject: `Revvin alert: ${httpTotal} scheduled calls failed in the last hour`,
+      text: `Non-200 responses from scheduled jobs in the last hour, by status: ${JSON.stringify(http)}`,
+      recovered: "Revvin recovered: scheduled calls succeed again",
+    });
+    const oldest = Math.max(Number(h.oldest_auth_email_min ?? 0), Number(h.oldest_transactional_email_min ?? 0));
+    checks.push({
+      type: "health_email_queue",
+      failing: oldest > 15,
+      subject: "Revvin alert: emails are stuck in the queue",
+      text: `Oldest queued email: ${Math.round(oldest)} minutes (sign-in emails: ${h.oldest_auth_email_min ?? "none"}, other emails: ${h.oldest_transactional_email_min ?? "none"}).`,
+      recovered: "Revvin recovered: queued emails are going out again",
+    });
+    checks.push({
+      type: "health_new_lead",
+      failing: Number(h.stuck_new_lead_jobs ?? 0) > 0,
+      subject: "Revvin alert: new lead notifications are not going out",
+      text: `${h.stuck_new_lead_jobs} new lead notification(s) for real businesses still not sent 10 minutes after the lead came in.`,
+      recovered: "Revvin recovered: new lead notifications are going out again",
+    });
+    checks.push({
+      type: "health_publish",
+      failing: Number(h.publish_failed_1h ?? 0) > 0,
+      subject: "Revvin alert: a business could not publish its page",
+      text: `${h.publish_failed_1h} failed publish attempt(s) from real visitors in the last hour.`,
+      recovered: "Revvin recovered: no failed publish attempts in the last hour",
+    });
+  }
+  for (const c of checks) {
+    const { data: last } = await db
+      .from("security_alerts")
+      .select("alert_type, sent_at")
+      .in("alert_type", [c.type, `${c.type}_recovered`])
+      .order("sent_at", { ascending: false })
+      .limit(1);
+    const prev = last?.[0];
+    const wasFailing = prev?.alert_type === c.type;
+    let subject: string | null = null;
+    let text = "";
+    if (c.failing && !(wasFailing && now - new Date(prev!.sent_at).getTime() < 3 * HOUR_MS)) {
+      subject = c.subject; text = c.text;
+    } else if (!c.failing && wasFailing) {
+      subject = c.recovered; text = "This check passes again.";
+    }
+    if (!subject) continue;
+    const type = c.failing ? c.type : `${c.type}_recovered`;
+    if (dryRun) { healthWould.push({ type, subject, text }); continue; }
+    const result = await sendEmailViaGateway({
+      from: RESEND_FROM_ADDRESS, to: ALERT_EMAIL, reply_to: RESEND_REPLY_TO,
+      subject, text, allowWhenPaused: true,
+    });
+    await db.from("security_alerts").insert({
+      alert_type: type,
+      summary: subject,
+      details: { text, email_sent: result.success, email_error: result.error ?? null },
+    });
+    healthSent.push(type);
+  }
+  if (dryRun) return json({ ok: true, dry_run: true, health: h, would_send: healthWould });
+
   // Throttle: at most one email per alert type per 6 hours. Every alert is
   // recorded even when throttled, so the CRM shows what happened.
   const sent: string[] = [];
@@ -235,5 +321,5 @@ Deno.serve(async (req) => {
     }
   }
 
-  return json({ ok: true, alerts_found: alerts.length, sent, weekly_summary_sent: weekly });
+  return json({ ok: true, alerts_found: alerts.length, sent, health_sent: healthSent, weekly_summary_sent: weekly });
 });
