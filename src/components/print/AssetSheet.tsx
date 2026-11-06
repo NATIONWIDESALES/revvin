@@ -85,7 +85,7 @@ interface Spec {
 // (0.5in type) on the yard sign and magnet.
 const SPECS: Record<string, Spec> = {
   "yard-sign": { layout: "row", pad: 0.9, band: 3, name: 1.6, nameMin: 0.9, logo: 2.1, kicker: 0.85, amount: 3.1, sub: 1.25, label: 0.6, foot: 0.75, gap: 0.45 },
-  "door-hanger": { layout: "stack", pad: 0.3, hole: 2.25, band: 0.95, name: 0.36, nameMin: 0.2, logo: 0.62, kicker: 0.16, amount: 0.62, sub: 0.24, label: 0.14, steps: 0.135, foot: 0.13, phone: true, fine: 0.125, gap: 0.13 },
+  "door-hanger": { layout: "stack", pad: 0.3, hole: 2.25, band: 0.95, name: 0.36, nameMin: 0.2, logo: 0.62, kicker: 0.16, amount: 0.7, sub: 0.26, label: 0.15, steps: 0.14, foot: 0.13, phone: true, fine: 0.125, gap: 0.13 },
   "invoice-insert": { layout: "stack", pad: 0.55, band: 1.35, name: 0.6, nameMin: 0.3, logo: 0.95, kicker: 0.28, amount: 1.05, sub: 0.38, label: 0.2, steps: 0.19, paidWhen: true, foot: 0.17, phone: true, fine: 0.14, gap: 0.2 },
   "card-back": { layout: "card", pad: 0.16, band: 0.12, name: 0, nameMin: 0, logo: 0, amount: 0.3, sub: 0.12, label: 0.1, gap: 0.06 },
   "truck-magnet": { layout: "stack", pad: 0.3, band: 1.2, name: 0.62, nameMin: 0.5, logo: 0.85, amount: 1.1, sub: 0.5, label: 0.5, foot: 0.5, gap: 0.1 },
@@ -202,7 +202,7 @@ const AssetSheet = ({ asset, biz, url, scale = 1 }: Props) => {
 
   const linkSize = s.foot ? fit(link, s.foot, innerW, 0.5, Math.min(s.foot, s.layout === "row" ? 0.5 : 0.125)) : 0;
   const footer = s.foot ? (
-    <div style={{ padding: `0 ${s.pad}in ${s.pad * 0.8}in`, flexShrink: 0 }}>
+    <div style={{ padding: s.layout === "row" ? `0 ${s.pad}in ${s.pad * 0.8}in` : 0, flexShrink: 0 }}>
       <div style={{ borderTop: `${Math.max(0.01, s.foot * 0.06)}in solid ${RULE}`, paddingTop: `${s.foot * 0.5}in`, textAlign: s.layout === "row" ? "left" : "center" }}>
         <div style={{ fontWeight: 600, fontSize: `${linkSize}in`, lineHeight: 1.2, whiteSpace: "nowrap", color: INK }}>
           {link}
@@ -257,9 +257,10 @@ const AssetSheet = ({ asset, biz, url, scale = 1 }: Props) => {
           {qrBlock}
           {steps}
           {paidWhen}
+          <div style={{ alignSelf: "stretch", marginTop: `${s.gap}in` }}>{footer}</div>
         </div>
       )}
-      {footer}
+      {s.layout === "row" ? footer : null}
     </div>
   );
 };
