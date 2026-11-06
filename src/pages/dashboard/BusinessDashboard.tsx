@@ -50,6 +50,8 @@ import { friendlyError, friendlyInvokeError } from "@/lib/errors";
 import { loadEffectivePlan, trialDaysLeft } from "@/lib/effectivePlan";
 
 interface Business {
+  brand_color?: string | null;
+  headline?: string | null;
   id: string;
   name: string;
   slug: string | null;
