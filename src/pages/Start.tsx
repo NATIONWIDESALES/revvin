@@ -16,7 +16,7 @@ export default function Start() {
     <header className="mk-wrap py-6"><a href="/" className="font-display text-3xl font-extrabold text-forest" aria-label="Revvin home">REVVIN.CO</a></header>
     <main>
       <section className="mk-wrap grid items-center gap-10 py-10 lg:grid-cols-2">
-        <div><h1 className="font-display text-5xl leading-none text-forest sm:text-6xl">{headline}</h1><div id="start-preview"><InstantPreview lockedTrade={trade} showSign /></div>
+        <div><h1 className="font-display text-[38px] leading-[.95] text-forest sm:text-6xl sm:leading-none">{headline}</h1><div id="start-preview"><InstantPreview lockedTrade={trade} showSign /></div>
         {SETUP_CALL_URL && <a href={SETUP_CALL_URL} className="mt-4 inline-block text-sm font-semibold text-forest underline">Book a free 30-minute setup call</a>}</div>
         <div className="space-y-8">{["Set your reward", "Customers refer", "Pay only when the job closes"].map((s, i) => <div key={s}><p className="font-display text-4xl text-forest">{i + 1}</p><h2 className="text-3xl">{s}</h2></div>)}</div>
       </section>

@@ -72,7 +72,7 @@ const Index = () => {
     <section className="overflow-hidden pt-14">
       <div className="mk-wrap grid items-end gap-10 lg:grid-cols-[1.1fr_.9fr]">
         <div className="min-w-0 pb-0 lg:pb-[72px]">
-          <h1 className="max-w-[13.5ch] font-display text-[clamp(50px,6.2vw,88px)] leading-[.92] text-forest">
+          <h1 className="max-w-[13.5ch] font-display text-[clamp(38px,6.2vw,88px)] max-sm:text-[38px] max-sm:leading-[.95] leading-[.92] text-forest">
             Your happy customers are your best salespeople.{" "}
             <span className="block text-foreground">Put them to work.</span>
           </h1>
@@ -131,7 +131,7 @@ const Index = () => {
       <div className="mk-wrap">
         <h2 id="ways-heading" className="mk-h2 text-primary-foreground">Two ways referrals reach you</h2>
         <p className="mk-intro text-primary-foreground/80">Your own customers come first. Coming to your city: the Revvin network, where locals will earn rewards for recommending businesses they trust.</p>
-        <div className={`mt-14 grid gap-0.5 overflow-hidden rounded-[18px] bg-primary-foreground/15 ${earnLive ? "lg:grid-cols-2" : ""}`}>
+        <div className={`mt-14 grid gap-0.5 overflow-hidden rounded-[18px] bg-primary-foreground/15 lg:grid-cols-2`}>
           <div className="min-w-0 bg-forest p-7 sm:p-10">
             <h3 className="font-display text-[38px] font-extrabold leading-none">Your customers</h3>
             <p className="mt-3 text-primary-foreground/80">Everyone you've ever worked for, asked the right way at the right time.</p>
@@ -143,6 +143,12 @@ const Index = () => {
               ))}
             </ul>
           </div>
+          {!earnLive && (
+          <div className="min-w-0 bg-forest p-7 sm:p-10">
+            <h3 className="font-display text-[38px] font-extrabold leading-none">Coming to your city</h3>
+            <p className="mt-3 text-primary-foreground/80">As Revvin opens city by city, locals who earn rewards for referrals will be able to find businesses near them and get their own link to each.</p>
+          </div>
+          )}
           {earnLive && (
           <div className="min-w-0 bg-forest p-7 sm:p-10">
             <h3 className="font-display text-[38px] font-extrabold leading-none">Locals who earn</h3>
