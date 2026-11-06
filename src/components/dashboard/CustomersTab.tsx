@@ -371,7 +371,7 @@ const CustomersTab = ({
    * while the composer was open is honored, and fails closed on a lookup error.
    */
   const guardChannel = async (c: ReferralContact, channel: Channel): Promise<boolean> => {
-    if (!isDemo && !await authoritativeAskAllowed(c)) { toast({ title: "Ask paused", description: "Free asks your first 100 customers. Keep Pro to ask your whole list.", variant: "destructive" }); return false; }
+    if (!isDemo && !await authoritativeAskAllowed(c)) { toast({ title: "Ask paused", description: "Free covers your first 100 customers. Keep Pro to ask your whole list.", variant: "destructive" }); return false; }
     const snapshot = await refreshSuppression();
     const fresh = contactEligibility(c, snapshot);
     if (!channelAllowed(fresh, channel)) {
