@@ -74,3 +74,7 @@ have been exposed:
 7. If personal data was exposed: follow the breach notification steps above.
 8. When it is over: turn the kill switches back off and tell affected users
    what happened in plain language.
+
+## Out-of-band database change, Nov 5 2026
+
+`public.email_queue_dispatch()` and `public.email_queue_wake()` were updated directly in the database, outside migrations, to add the header `x-cron-secret`, read from the vault secret `cron_secret`. The agent migration tool blocks vault references, so this change is not in `drizzle/migrations`. The `process-email-queue` edge function needs that header to pass `checkCronAuth`. Any future migration or email scaffold that redefines either function must keep the header, or every queued email (including password reset and magic links) stops sending with 401 errors.
