@@ -105,7 +105,7 @@ const EditOffer = () => {
       toast({
         title: "Offer updated",
         description: isRestrictedCategory(form.category)
-          ? "Offers in this category are reviewed before they appear on the public marketplace."
+          ? "Your referral page works fully. Offers in this category are not listed in the public marketplace."
           : "Your changes are live.",
       });
       navigate("/dashboard");

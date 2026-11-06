@@ -1,4 +1,4 @@
-import { isRestrictedCategory } from "@/lib/offerUtils";
+import { isRestrictedCategory, isBareAmount } from "@/lib/offerUtils";
 import { PUBLIC_REFERRAL_PAGE_COLS } from "@/lib/publicReferralCols";
 import { showVerifiedBadge } from "@/lib/verifiedBadge";
 import { copyText } from "@/lib/clipboard";
@@ -518,7 +518,7 @@ const PublicReferralPage = () => {
             <section className="rounded-[18px] border border-line bg-card p-[22px] md:p-8" aria-labelledby="rf-about">
               <h2 id="rf-about" className="font-display text-[30px] font-extrabold leading-none text-forest">About {biz.name}</h2>
               {biz.description && <p className="mt-4 text-base leading-relaxed text-foreground">{biz.description}</p>}
-              {biz.offer_trigger && <p className="mt-3 text-base text-muted-foreground">{biz.offer_trigger}</p>}
+              {biz.offer_trigger && !isBareAmount(biz.offer_trigger) && <p className="mt-3 text-base text-muted-foreground">{biz.offer_trigger}</p>}
               <p className="mt-4 text-sm text-muted-foreground">
                 {biz.offer_fine_print?.trim()
                   ? `${biz.offer_fine_print.trim()} `

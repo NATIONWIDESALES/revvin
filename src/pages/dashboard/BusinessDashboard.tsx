@@ -32,7 +32,7 @@ import DashboardShell from "@/components/dashboard/DashboardShell";
 import HomeView from "@/components/dashboard/HomeView";
 import { resolveTab, type DashTab } from "@/lib/dashboardHome";
 import WelcomeLiveCard from "@/components/dashboard/WelcomeLiveCard";
-import PublishPrompt, { PUBLISH_COPY } from "@/components/dashboard/PublishPrompt";
+import PublishPrompt, { PUBLISH_COPY, missingForPublish } from "@/components/dashboard/PublishPrompt";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import InstallAppButton from "@/components/pwa/InstallAppButton";
 import HomeScreenChecklistStep from "@/components/pwa/HomeScreenChecklistStep";
@@ -362,7 +362,7 @@ const BusinessDashboard = () => {
     <DashboardShell active={tab} onSelect={changeTab} isPro={isPro} newLeads={newLeads}>
       {biz.plan !== "pro" && trialDaysLeft(biz.pro_trial_ends_at) > 0 && <div className="mb-5 flex items-center justify-between gap-3 border-b border-line pb-3 text-sm"><p>Pro trial: {trialDaysLeft(biz.pro_trial_ends_at)} days left.</p><Button variant="link" onClick={() => changeTab("billing")}>Keep Pro</Button></div>}
       <div className="dash-content">
-      {!isLive && <div id="publish-prompt"><PublishPrompt surface="dashboard_banner" onPublished={loadAll} /></div>}
+      {!isLive && <div id="publish-prompt"><PublishPrompt surface="dashboard_banner" onPublished={loadAll} missing={missingForPublish(biz)} /></div>}
       <InstallPrompt />
       <IosInstallSheet open={showIosSteps} onClose={() => setShowIosSteps(false)} />
       {subStatus === "past_due" && <PastDueBanner />}
@@ -571,8 +571,8 @@ const OffersTab = ({ offers }: { offers: OfferRow[] }) => {
                   <td className="px-4 py-3 text-muted-foreground">{o.category || "·"}</td>
                   <td className="px-4 py-3 text-foreground">{o.payout ? `$${o.payout}` : "·"}</td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex rounded-full bg-muted px-2 py-0.5 text-xs capitalize text-muted-foreground">
-                      {o.approval_status === "approved" ? (o.status || "active") : (o.approval_status || "pending")}
+                    <span className="inline-flex rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                      {o.approval_status === "approved" ? "Live" : "Page only (not in marketplace)"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">

@@ -101,11 +101,11 @@ const TrustCenter = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-3">Business Approval</motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-muted-foreground mb-10 max-w-xl">
-              Marketplace listings in restricted categories are reviewed before they appear. Revvin does not vouch for the quality, licensing, or insurance of any business. Referrers should do their own diligence before sending leads.
+              Offers in restricted categories are not listed in the public marketplace. Revvin does not vouch for the quality, licensing, or insurance of any business. Referrers should do their own diligence before sending leads.
             </motion.p>
             <div className="grid gap-6 md:grid-cols-3">
               {[
-                { level: "Pending Review", icon: AlertTriangle, color: "text-muted-foreground", bg: "bg-muted", desc: "A restricted-category marketplace listing is waiting for review. The business's branded referral page works either way." },
+                { level: "Page only", icon: AlertTriangle, color: "text-muted-foreground", bg: "bg-muted", desc: "Restricted-category offers are not listed in the public marketplace. The business's branded referral page works fully." },
                 { level: "Approved", icon: BadgeCheck, color: "text-primary", bg: "bg-primary/10", desc: "A restricted-category marketplace listing has passed its review and may appear after the business publishes its referral page." },
                 { level: "Suspended", icon: Shield, color: "text-earnings", bg: "bg-earnings/10", desc: "Removed from the marketplace due to a pattern of unpaid referrals, dishonest status reporting, or terms violations." },
               ].map((item, i) => (

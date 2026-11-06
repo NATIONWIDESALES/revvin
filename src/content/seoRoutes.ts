@@ -500,7 +500,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "Verification and approval",
-        body: "Businesses are reviewed before their first offer goes live, and some categories require approval before an offer is published. Outcomes are confirmed by the business in its dashboard, and status changes are kept in an audit log.",
+        body: "Restricted categories (real estate, mortgage and insurance) are not listed in the public marketplace. Outcomes are confirmed by the business in its dashboard, and status changes are kept in an audit log.",
       },
       {
         heading: "Disputes and non-payment",

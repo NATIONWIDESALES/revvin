@@ -15,7 +15,7 @@ import SEOHead from "@/components/SEOHead";
 import ServiceAreaAutocomplete, { type PlaceSelection } from "@/components/ServiceAreaAutocomplete";
 import { Loader2, ArrowRight, Check } from "lucide-react";
 import { track } from "@/lib/track";
-import { BUSINESS_CATEGORIES, isRestrictedCategory } from "@/lib/offerUtils";
+import { BUSINESS_CATEGORIES, isRestrictedCategory, normalizeRewardAmount } from "@/lib/offerUtils";
 import { resolveAvailableSlug, suggestSlug, slugRejectionMessage, type SlugRejection } from "@/lib/slugRules";
 import { friendlyError } from "@/lib/errors";
 import { publishPage } from "@/lib/publishPage";
@@ -138,7 +138,7 @@ const Onboarding = () => {
         name: name.trim(),
         category,
         service_area: trimmedArea,
-        offer_amount: offerAmount.trim(),
+        offer_amount: normalizeRewardAmount(offerAmount),
         slug,
         phone: mobile.trim() || null,
       };
@@ -247,7 +247,7 @@ const Onboarding = () => {
                     {showReasons && missingCategory && <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">Pick your trade.</p>}
                     {isRestrictedCategory(category) && (
                       <div className="mt-1.5 space-y-1.5 text-xs text-muted-foreground">
-                        <p>Offers in this category are reviewed before they appear on the public marketplace. Your branded referral page works either way.</p>
+                        <p>Your referral page works fully. Real estate, mortgage and insurance pages are not listed in the public marketplace.</p>
                         <p>Rules on paying for referrals differ in your industry. In many US states, real estate, mortgage and insurance professionals cannot pay unlicensed people for referrals. Check your own rules before you publish a reward.</p>
                       </div>
                     )}
@@ -279,7 +279,7 @@ const Onboarding = () => {
               <>
                 <h1 className="text-4xl sm:text-5xl">Your page is live</h1>
                 {offerAmount.trim() && (
-                  <p className="mt-4"><span data-testid="live-reward-chip" className="inline-block -rotate-2 rounded-[10px] bg-sign px-3 py-1.5 font-display text-3xl font-extrabold text-forest">Get {offerAmount.trim()}.</span></p>
+                  <p className="mt-4"><span data-testid="live-reward-chip" className="inline-block -rotate-2 rounded-[10px] bg-sign px-3 py-1.5 font-display text-3xl font-extrabold text-forest">Get {normalizeRewardAmount(offerAmount)}.</span></p>
                 )}
                 <p className="mt-1 text-sm text-muted-foreground">Anyone with this link can now send you referrals.</p>
                 <div className="mt-6 rounded-lg border border-border bg-muted/30 px-3 py-2 font-mono text-sm text-foreground break-all">{liveUrl}</div>
