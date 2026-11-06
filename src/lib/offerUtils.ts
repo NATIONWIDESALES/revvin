@@ -142,3 +142,16 @@ export function getCitySlots(offers: Offer[]): CitySlot[] {
   });
   return Object.values(slotMap).sort((a, b) => b.filledSlots - a.filledSlots);
 }
+
+const BARE_NUMBER = /^[0-9][0-9,]*(\.[0-9]+)?$/;
+
+/** "500" or "1,000.50" becomes "$500" / "$1,000.50"; anything with a sign, % or words is kept. Mirrors the database trigger. */
+export function normalizeRewardAmount(value: string): string {
+  const v = value.trim();
+  return BARE_NUMBER.test(v) ? `$${v}` : v;
+}
+
+/** True when text is only a number or currency amount, e.g. "500" or "$500". */
+export function isBareAmount(value: string): boolean {
+  return /^\s*(?:US)?\$?\s*[0-9][0-9,]*(\.[0-9]+)?\s*(?:USD)?\s*$/i.test(value);
+}

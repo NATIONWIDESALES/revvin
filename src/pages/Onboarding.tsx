@@ -15,7 +15,7 @@ import SEOHead from "@/components/SEOHead";
 import ServiceAreaAutocomplete, { type PlaceSelection } from "@/components/ServiceAreaAutocomplete";
 import { Loader2, ArrowRight, Check } from "lucide-react";
 import { track } from "@/lib/track";
-import { BUSINESS_CATEGORIES, isRestrictedCategory } from "@/lib/offerUtils";
+import { BUSINESS_CATEGORIES, isRestrictedCategory, normalizeRewardAmount } from "@/lib/offerUtils";
 import { resolveAvailableSlug, suggestSlug, slugRejectionMessage, type SlugRejection } from "@/lib/slugRules";
 import { friendlyError } from "@/lib/errors";
 import { publishPage } from "@/lib/publishPage";

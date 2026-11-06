@@ -1,4 +1,4 @@
-import { isRestrictedCategory } from "@/lib/offerUtils";
+import { isRestrictedCategory, isBareAmount } from "@/lib/offerUtils";
 import { PUBLIC_REFERRAL_PAGE_COLS } from "@/lib/publicReferralCols";
 import { showVerifiedBadge } from "@/lib/verifiedBadge";
 import { copyText } from "@/lib/clipboard";
