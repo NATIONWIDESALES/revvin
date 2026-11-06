@@ -199,7 +199,7 @@ const CreateOffer = () => {
 
       if (isRestricted) {
         toast({
-          title: "Offer sent for review",
+          title: "Offer saved",
           description: "Your referral page works fully. Offers in this category are not listed in the public marketplace.",
         });
       } else {
