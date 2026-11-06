@@ -92,7 +92,7 @@ const Pricing = () => {
               priceCurrency: "USD",
               url: `${SITE_URL}/pricing`,
               description:
-                "The same Revvin Pro tools billed once for a year. Cancel any time; the free referral page stays live afterwards.",
+                "The same Revvin Pro tools billed once for a year. Cancel anytime; the free referral page stays live afterwards.",
             },
           ],
         }}
@@ -104,9 +104,9 @@ const Pricing = () => {
           {/* Every figure reads from the pricing config so the numbers can
               never drift between pages. */}
           <h1 className="text-5xl leading-[0.98] md:text-7xl">
-            Free asks your first 100 customers. Pro asks all of them.
+            {PLAN_SPLIT.line}
           </h1>
-          <p className="sr-only">{PLAN_SPLIT.line}</p>
+          <p className="mt-5 text-lg text-foreground">{PLAN_SPLIT.subline}</p>
           <p className="mt-4 text-muted-foreground">Every new account gets Pro free for 14 days. No card.</p>
           <div className="mx-auto mt-6 grid max-w-2xl gap-3 text-left sm:grid-cols-2">
             <div className="rounded-xl border border-border bg-card p-4">
@@ -263,7 +263,7 @@ const Pricing = () => {
           )}
 
           <p className="mt-10 text-center text-sm font-medium text-foreground">
-            Cancel any time. Your page stays live and your referrals keep coming in. You only lose the Pro tools.
+            Cancel anytime. Your page stays live and your referrals keep coming in. You only lose the Pro tools.
           </p>
 
           <p className="mt-3 text-center text-xs text-muted-foreground">

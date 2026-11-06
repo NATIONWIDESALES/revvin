@@ -26,7 +26,7 @@ describe("Free plan customer cap", () => {
   it("describes the plans consistently", () => {
     expect(FREE_FEATURES.map((f) => f.label)).toContain("Import and ask up to 100 customers");
     expect(PRO_FEATURES[0].label).toBe("Unlimited customers, imported and asked");
-    expect(PLAN_SPLIT.line).toBe("Free asks your first 100 customers. Pro asks all of them, automatically.");
+    expect(PLAN_SPLIT.line).toBe("Free covers your first 100 customers. Pro covers your whole list.");
   });
 });
 

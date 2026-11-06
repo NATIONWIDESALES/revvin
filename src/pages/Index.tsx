@@ -79,7 +79,7 @@ const Index = () => {
           <p className="mt-7 max-w-[34em] text-[21px] leading-normal text-muted-foreground">
             Revvin sets up your referral program in 5 minutes.{" "}
             <strong className="font-semibold text-foreground">Every customer gets a personal link, every finished job sends an ask,</strong>{" "}
-            and locals who earn rewards for referrals can find you. You pay a reward only when a job closes.
+            and as Revvin opens city by city, locals who earn rewards for referrals will be able to find you. You pay a reward only when a job closes.
           </p>
           <InstantPreview onPreview={setPreview} />
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -130,7 +130,7 @@ const Index = () => {
     <section className="mk-section bg-forest text-primary-foreground" aria-labelledby="ways-heading">
       <div className="mk-wrap">
         <h2 id="ways-heading" className="mk-h2 text-primary-foreground">Two ways referrals reach you</h2>
-        <p className="mk-intro text-primary-foreground/80">Your own customers come first. Then the Revvin network: people in your city who get paid to recommend businesses they trust.</p>
+        <p className="mk-intro text-primary-foreground/80">Your own customers come first. Coming to your city: the Revvin network, where locals will earn rewards for recommending businesses they trust.</p>
         <div className={`mt-14 grid gap-0.5 overflow-hidden rounded-[18px] bg-primary-foreground/15 ${earnLive ? "lg:grid-cols-2" : ""}`}>
           <div className="min-w-0 bg-forest p-7 sm:p-10">
             <h3 className="font-display text-[38px] font-extrabold leading-none">Your customers</h3>

@@ -541,7 +541,7 @@ const OffersTab = ({ offers }: { offers: OfferRow[] }) => {
         <Inbox className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
         <h2 className="text-lg font-semibold text-foreground">No marketplace offers yet</h2>
         <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-          Create a public offer so outside referrers on the Revvin marketplace can find you and submit referrals.
+          Create a public offer so outside referrers will be able to find you and submit referrals as the Revvin marketplace opens city by city.
         </p>
         <Button asChild className="mt-6"><Link to="/dashboard/create-offer"><Plus className="mr-2 h-3.5 w-3.5" /> Create your first offer</Link></Button>
       </div>
@@ -1411,7 +1411,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
             <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted-foreground">
               {isRestrictedCategory(biz.category)
                 ? "Not available for your industry"
-                : "Locals who earn rewards for referrals can find your page and get their own link to it."}
+                : "As Earn opens city by city, locals who earn rewards for referrals will be able to find your page and get their own link to it."}
             </p>
           </div>
           {!isRestrictedCategory(biz.category) && (

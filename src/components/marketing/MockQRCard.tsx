@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 export default function MockQRCard({
-  url = "https://your-business.revvin.co",
-  label = "your-business.revvin.co",
+  url = "https://revvin.co/r/your-business",
+  label = "revvin.co/r/your-business",
   className,
 }: {
   url?: string;

@@ -29,7 +29,8 @@ const Email = ({ businessName, publicUrl, publishUrl, isPublished, unsubscribeUr
     <Text style={paragraph}>
       {INSTALL_EMAIL_TIP} <a href="https://revvin.co/dashboard">revvin.co/dashboard</a>
     </Text>
-    <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to our team. The Revvin team</Text>
+    <Text style={paragraph}>Reply to this email if you get stuck. It comes straight to our team.</Text>
+    <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )
 

@@ -95,7 +95,8 @@ export const isFreeContactLimitError = (e: { message?: string } | null | undefin
   !!e?.message && /free_contact_limit/.test(e.message);
 
 export const PLAN_SPLIT = {
-  line: "Free asks your first 100 customers. Pro asks all of them, automatically.",
+  line: "Free covers your first 100 customers. Pro covers your whole list.",
+  subline: "Your referral page and every referral are free. Pro adds unlimited customers and the automatic asks.",
   freeSubtitle: "Every job from here on",
   proSubtitle: "Every customer you've ever had",
   freeDetail:
