@@ -805,12 +805,12 @@ const SuperAdminCRM = () => {
                       </p>
                     </div>
                     <div className="rounded-xl border border-border bg-muted/30 p-3">
-                      <p className="text-xs text-muted-foreground">Deals closed (won)</p>
-                      <p className="text-xl font-bold text-foreground">{wonDeals}</p>
+                      <p className="text-xs text-muted-foreground">Leads won</p>
+                      <p className="text-xl font-bold text-foreground">{fmt(n?.leads_won)}</p>
                     </div>
                     <div className="rounded-xl border border-border bg-muted/30 p-3">
-                      <p className="text-xs text-muted-foreground">Total payouts owed to referrers</p>
-                      <p className="text-xl font-bold text-foreground">${totalPayoutsAmount.toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground">Rewards pending for referrers</p>
+                      <p className="text-xl font-bold text-foreground">{money(n?.rewards_pending_sum)}</p>
                     </div>
                   </div>
                 </div>
