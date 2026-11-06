@@ -141,6 +141,13 @@
       "when": 1793814834244,
       "tag": "0019_keep_prospect_code_on_signup",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1793923353041,
+      "tag": "0020_owner_publish_toggle_and_reward_format",
+      "breakpoints": true
     }
   ]
 }
