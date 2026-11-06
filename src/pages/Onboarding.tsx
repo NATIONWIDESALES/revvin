@@ -279,7 +279,7 @@ const Onboarding = () => {
               <>
                 <h1 className="text-4xl sm:text-5xl">Your page is live</h1>
                 {offerAmount.trim() && (
-                  <p className="mt-4"><span data-testid="live-reward-chip" className="inline-block -rotate-2 rounded-[10px] bg-sign px-3 py-1.5 font-display text-3xl font-extrabold text-forest">Get {offerAmount.trim()}.</span></p>
+                  <p className="mt-4"><span data-testid="live-reward-chip" className="inline-block -rotate-2 rounded-[10px] bg-sign px-3 py-1.5 font-display text-3xl font-extrabold text-forest">Get {normalizeRewardAmount(offerAmount)}.</span></p>
                 )}
                 <p className="mt-1 text-sm text-muted-foreground">Anyone with this link can now send you referrals.</p>
                 <div className="mt-6 rounded-lg border border-border bg-muted/30 px-3 py-2 font-mono text-sm text-foreground break-all">{liveUrl}</div>
