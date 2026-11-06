@@ -24,7 +24,7 @@ const PrintAssetPage = () => {
       }
       const { data } = await supabase
         .from("businesses")
-        .select("name, slug, logo_url, offer_amount, offer_trigger, offer_fine_print, phone")
+        .select("name, slug, logo_url, brand_color, headline, offer_amount, offer_trigger, offer_fine_print, phone")
         .eq("user_id", auth.user.id)
         .limit(1);
       setBiz((data?.[0] as never) ?? null);
@@ -62,7 +62,8 @@ const PrintAssetPage = () => {
           html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
           .print-chrome { display: none !important; }
           .print-stage { padding: 0 !important; background: #fff !important; }
-          .asset-sheet { box-shadow: none !important; transform: none !important; }
+          .asset-sheet { box-shadow: none !important; transform: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .asset-cut-guide { display: none !important; }
         }
       `}</style>
 
