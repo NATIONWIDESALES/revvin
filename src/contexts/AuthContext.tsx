@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let unsubscribe: (() => void) | null = null;
     // Track the user id we've already loaded a role for so background auth
     // events (TOKEN_REFRESHED, USER_UPDATED, INITIAL_SESSION with same user)
-    // don't flip `loading` back to true and unmount protected page trees —
+    // don't flip `loading` back to true and unmount protected page trees,
     // which would wipe in-progress form state (Create Offer, Referral Wizard, etc.).
     let loadedUserId: string | null = null;
 
