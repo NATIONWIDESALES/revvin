@@ -2,7 +2,7 @@
 //
 // Reuses the existing path: templates come from the transactional registry, the
 // send goes through the Resend gateway with the same "Revvin" sender,
-// the global suppression list is honoured, and every attempt is written to
+// the global suppression list is honored, and every attempt is written to
 // email_send_log.
 //
 // Partner email is transactional, so it carries no promotional opt-out link.

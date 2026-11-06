@@ -85,7 +85,7 @@ export async function unsubscribeUrlFor(
  * Permanently stop sending to an address for one business.
  *
  * Revvin sends every business's campaign mail from one shared domain, so a hard
- * bounce or a spam complaint has to be honoured immediately. Retrying a bad
+ * bounce or a spam complaint has to be honored immediately. Retrying a bad
  * address is what gets the domain blocked, and that would take down signup and
  * lead-notification email for every business on the platform.
  *

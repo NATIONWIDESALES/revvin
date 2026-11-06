@@ -40,7 +40,7 @@ const PAYING_STATUSES = new Set(["active", "trialing"]);
 
 /**
  * Promotional email is commercial email. It needs a postal address in the
- * footer, it stops permanently once the business is paying, and it honours its
+ * footer, it stops permanently once the business is paying, and it honors its
  * own opt-out flag.
  */
 export function promoAllowed(input: PromoGateInput): { allowed: boolean; reason?: string } {

@@ -282,7 +282,7 @@ const MessageGenerator = () => {
         <div className="mt-8 rounded-xl border border-border p-5">
           <h3 className="text-sm font-bold text-foreground">Before you send it</h3>
           <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
-            <li>Ask once. A second ask to the same customer reads as pressure, not a favour.</li>
+            <li>Ask once. A second ask to the same customer reads as pressure, not a favor.</li>
             <li>Say what actually earns the reward, so nobody feels moved once a job closes.</li>
             <li>
               Only use a phone number or email address the customer gave you for contact like this.

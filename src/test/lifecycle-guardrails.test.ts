@@ -54,7 +54,7 @@ describe("promotional email gate", () => {
     expect(promoAllowed({ postalAddress: ADDRESS, subscriptionStatus: "canceled" }).allowed).toBe(true);
   });
 
-  it("honours the promotional opt-out flag", () => {
+  it("honors the promotional opt-out flag", () => {
     expect(promoAllowed({ postalAddress: ADDRESS, promoOptOut: true })).toEqual({
       allowed: false,
       reason: "promo_opted_out",

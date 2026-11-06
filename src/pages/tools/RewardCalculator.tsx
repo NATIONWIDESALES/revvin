@@ -149,7 +149,7 @@ const RewardCalculator = () => {
               className="mt-2"
             />
             <p className="mt-1.5 text-xs text-muted-foreground">
-              What is left after materials and labour, before overheads. Between 0 and 100.
+              What is left after materials and labor, before overheads. Between 0 and 100.
             </p>
           </div>
 

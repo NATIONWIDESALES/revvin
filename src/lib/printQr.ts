@@ -1,7 +1,7 @@
 import QRCodeStyling from "qr-code-styling";
 
 // Same qr-code-styling setup as the on-screen QR, with one deliberate change:
-// print codes are pure black on white. Brand colour on the corner markers looks
+// print codes are pure black on white. Brand color on the corner markers looks
 // fine on a screen and costs you scans on a sign in daylight, on cheap card, or
 // under a car park light. Contrast wins.
 export const createPrintQr = (data: string, px: number) =>

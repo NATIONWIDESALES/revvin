@@ -424,7 +424,7 @@ const BusinessDashboard = () => {
       {tab === "referrers" && <ReferrersTab publicUrl={publicUrl} />}
 
       {tab === "jobdone" && (!isLive ? (
-        <LockedTab title="Publish your page to run the auto-ask" body="Once your referral page is live, logging a finished job schedules a personalised referral ask to that customer." />
+        <LockedTab title="Publish your page to run the auto-ask" body="Once your referral page is live, logging a finished job schedules a personalized referral ask to that customer." />
       ) : attest(
         <AutoAskTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, google_review_url: biz.google_review_url ?? null, business_email: biz.business_email ?? null }} publicUrl={publicUrl} />
       ))}

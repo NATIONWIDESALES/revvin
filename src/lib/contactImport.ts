@@ -93,7 +93,7 @@ function monthFromName(name: string): number | null {
 export function jobDateProblem(value: string | undefined): string | null {
   const raw = value?.trim();
   if (!raw) return null;
-  if (!looksLikeDate(raw)) return "is not a date we recognise (use YYYY-MM-DD)";
+  if (!looksLikeDate(raw)) return "is not a date we recognize (use YYYY-MM-DD)";
   const built = buildDate(raw);
   if (!built) return `is not a real calendar date`;
   if (built.getUTCFullYear() < 1990) return "is before 1990";
@@ -276,7 +276,7 @@ export function splitDelimited(line: string, delimiters = ",;\t"): string[] {
 }
 
 /**
- * Split a whole CSV into records, honouring newlines inside quoted cells.
+ * Split a whole CSV into records, honoring newlines inside quoted cells.
  * Each record keeps the 1-based line number it STARTED on, so an error points
  * at the right place in the owner's file even when a record spans three lines.
  */

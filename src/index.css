@@ -131,7 +131,7 @@
     letter-spacing: -0.005em;
   }
   /* Marketing pages: headings are Barlow Condensed 800 in forest, sentence case. */
-  /* :where keeps specificity at zero so any utility colour (white on forest) wins. */
+  /* :where keeps specificity at zero so any utility color (white on forest) wins. */
   :where(.site-main) :where(h1, h2) { font-weight: 800; color: hsl(var(--forest)); }
   :where(.dark .site-main) :where(h1, h2) { color: hsl(var(--foreground)); }
 
@@ -707,7 +707,7 @@
 body[data-dash-shell] .app-topbar { display: none; }
 
 /* A forest surface: remaps the shadcn tokens so any component inside reads
-   white on forest without per-element colour overrides. */
+   white on forest without per-element color overrides. */
 .surface-forest {
   --background: var(--forest); --card: var(--forest-night); --surface-warm: var(--forest-night);
   --foreground: 0 0% 100%; --muted-foreground: 120 12% 82%;
@@ -739,7 +739,7 @@ body[data-dash-shell] .app-topbar { display: none; }
 .surface-forest .yard-caption { color: #fff; }
 @media (max-width: 640px) { .yard-compact .yard-sign-q { font-size: 34px; } }
 
-/* Headings inside dark containers keep the container's light text colour. */
+/* Headings inside dark containers keep the container's light text color. */
 :where(.bg-forest, .bg-forest-night, .surface-forest, .text-primary-foreground, .text-white, .rf-head) :where(h1, h2, h3) { color: inherit; }
 
 @layer utilities {

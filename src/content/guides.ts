@@ -101,7 +101,7 @@ const BASE_GUIDES: Guide[] = [
     sections: [
       {
         heading: "The three ways owners usually set it",
-        body: "The first is a flat amount per closed job: one number, advertised plainly, paid whenever a referral turns into paid work. It is the easiest to explain and the easiest for a customer to repeat to a neighbour, which is the whole point. Other reward models include tiers by job type and a percentage of the job value. Revvin currently tracks one fixed dollar amount per offer. It does not calculate percentage rewards or select a reward tier based on the job, so choose a fixed amount for the offer you publish.",
+        body: "The first is a flat amount per closed job: one number, advertised plainly, paid whenever a referral turns into paid work. It is the easiest to explain and the easiest for a customer to repeat to a neighbor, which is the whole point. Other reward models include tiers by job type and a percentage of the job value. Revvin currently tracks one fixed dollar amount per offer. It does not calculate percentage rewards or select a reward tier based on the job, so choose a fixed amount for the offer you publish.",
       },
       {
         heading: "The real anchor is what a customer is worth to you",
@@ -221,7 +221,7 @@ const BASE_GUIDES: Guide[] = [
       },
       {
         heading: "Step four: ask at the right moment",
-        body: "The ask does more work than the reward. Ask while the job is fresh and the customer is pleased, in person as you pack up or by message the same day, and ask for something specific rather than for a vague favour. Then ask your past customers as well, in batches, because that list is where the fastest referrals come from. On Pro you can import that list and Revvin will open your own email app with the recipients and text filled in, batch by batch, so it always sends from your address.",
+        body: "The ask does more work than the reward. Ask while the job is fresh and the customer is pleased, in person as you pack up or by message the same day, and ask for something specific rather than for a vague favor. Then ask your past customers as well, in batches, because that list is where the fastest referrals come from. On Pro you can import that list and Revvin will open your own email app with the recipients and text filled in, batch by batch, so it always sends from your address.",
       },
       {
         heading: "Step five: track what is owed",
@@ -267,7 +267,7 @@ const BASE_GUIDES: Guide[] = [
     sections: [
       {
         heading: "When they work: the customer has someone to tell",
-        body: "Trades where the work is visible from the street or discussed between neighbours have a built-in advantage. A new roof, a driveway, a fence, a tree that came down, a fresh coat on the exterior: these start conversations without you doing anything. Trades where the work is invisible are not excluded, but the referral has to travel through a different route, usually a landlord, a property manager, a family member or a group of people in the same building or the same trade.",
+        body: "Trades where the work is visible from the street or discussed between neighbors have a built-in advantage. A new roof, a driveway, a fence, a tree that came down, a fresh coat on the exterior: these start conversations without you doing anything. Trades where the work is invisible are not excluded, but the referral has to travel through a different route, usually a landlord, a property manager, a family member or a group of people in the same building or the same trade.",
       },
       {
         heading: "When they work: the ask lands near the job",

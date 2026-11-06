@@ -93,7 +93,7 @@ export const NEW_GUIDES: Guide[] = [
           },
           {
             label: "Say it out loud: one week after",
-            text: "I wanted to check everything is working the way you wanted. If it is, and a neighbour or friend ever asks who did the work, I would be grateful if you passed my name on. I can text you the link so you have it.",
+            text: "I wanted to check everything is working the way you wanted. If it is, and a neighbor or friend ever asks who did the work, I would be grateful if you passed my name on. I can text you the link so you have it.",
           },
         ],
       },
@@ -119,7 +119,7 @@ export const NEW_GUIDES: Guide[] = [
       {
         heading: "Moment four: the seasonal check-in",
         intro:
-          "Before the season that matters for your trade, check in with past customers. It is a useful reminder for them and a fresh chance to share your link with neighbours who are thinking about the same work. Offer help first, then mention the referral.",
+          "Before the season that matters for your trade, check in with past customers. It is a useful reminder for them and a fresh chance to share your link with neighbors who are thinking about the same work. Offer help first, then mention the referral.",
         items: [
           {
             label: "Text: seasonal check-in",
@@ -127,7 +127,7 @@ export const NEW_GUIDES: Guide[] = [
           },
           {
             label: "Email: seasonal check-in",
-            text: "Subject: Getting ready for the season\n\nHi [first name],\n\nIt is that time of year again, so I wanted to check in before things get busy. If you need anything looked at, reply and we will find a time.\n\nIf friends or neighbours are planning the same work, this link sends them to me: [your link]. There is [your reward] for you if it turns into a job.\n\nThanks,\n[your name]",
+            text: "Subject: Getting ready for the season\n\nHi [first name],\n\nIt is that time of year again, so I wanted to check in before things get busy. If you need anything looked at, reply and we will find a time.\n\nIf friends or neighbors are planning the same work, this link sends them to me: [your link]. There is [your reward] for you if it turns into a job.\n\nThanks,\n[your name]",
           },
           {
             label: "Say it out loud: seasonal check-in",
@@ -165,7 +165,7 @@ export const NEW_GUIDES: Guide[] = [
       },
       {
         q: "How often can I ask the same customer?",
-        a: "Asking at each natural moment is reasonable: when the job is done, a week later, after a review and at a seasonal check-in. Stop if they ask you to, and honour any opt-out the rules where you work require.",
+        a: "Asking at each natural moment is reasonable: when the job is done, a week later, after a review and at a seasonal check-in. Stop if they ask you to, and honor any opt-out the rules where you work require.",
       },
     ],
   },
@@ -280,7 +280,7 @@ export const NEW_GUIDES: Guide[] = [
       },
       {
         heading: "Ask at seasonal maintenance",
-        body: "A seasonal check-in gives you a reason to contact past customers that is useful to them, and their neighbours are often thinking about the same work at the same time. Offer help first, then mention your referral link. This is how customers from past seasons stay in touch.",
+        body: "A seasonal check-in gives you a reason to contact past customers that is useful to them, and their neighbors are often thinking about the same work at the same time. Offer help first, then mention your referral link. This is how customers from past seasons stay in touch.",
       },
       {
         heading: "Ask after a problem you fixed well",
@@ -288,7 +288,7 @@ export const NEW_GUIDES: Guide[] = [
       },
       {
         heading: "Why asking every time beats asking once",
-        body: "One ask is easy to forget. Customers mean to pass your name on and then the moment passes. Asking at each natural moment gives them several chances to act when it is convenient, and makes referrals part of how you finish every job rather than an occasional favour.",
+        body: "One ask is easy to forget. Customers mean to pass your name on and then the moment passes. Asking at each natural moment gives them several chances to act when it is convenient, and makes referrals part of how you finish every job rather than an occasional favor.",
       },
     ],
     table: {

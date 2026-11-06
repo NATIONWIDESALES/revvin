@@ -15,7 +15,7 @@ const scripts = [
   {
     title: "The text, two hours after you leave",
     body: "Hi {first name} - {your name} from {business}. Thanks for having us out today. If anyone you know needs {trade} work, this link comes straight to me: {your link}. There's {reward} in it for you if it turns into a job.",
-    why: "Two hours is deliberate. Same day you are a person they just met. Two weeks later you are a stranger asking for a favour.",
+    why: "Two hours is deliberate. Same day you are a person they just met. Two weeks later you are a stranger asking for a favor.",
   },
   {
     title: "The 30-day check-in, for jobs already finished",

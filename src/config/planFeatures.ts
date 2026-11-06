@@ -70,7 +70,7 @@ export const PRO_FEATURES = [
   },
   {
     label: "Custom page branding",
-    description: "Add your colour, cover image, headline, welcome message and testimonials.",
+    description: "Add your color, cover image, headline, welcome message and testimonials.",
   },
 ] as const satisfies readonly PlanFeature[];
 /**

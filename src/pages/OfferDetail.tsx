@@ -121,7 +121,7 @@ const OfferDetail = () => {
   const canonicalUrl = `https://revvin.co${offerPath}`;
   const payoutText = formatPayout(offer.payout, offer.currency);
 
-  // Title: keep under ~60 chars where possible. Format prioritises payout
+  // Title: keep under ~60 chars where possible. Format prioritizes payout
   // (the value prop) + business name + brand.
   const seoTitle = `Earn ${payoutText} referring ${offer.business} | Revvin`;
 

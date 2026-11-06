@@ -199,7 +199,7 @@ const CustomersTab = ({
 
   /**
    * Refresh the do-not-contact state. Called on mount and again whenever a
-   * composer opens, so an unsubscribe recorded a minute ago is honoured before
+   * composer opens, so an unsubscribe recorded a minute ago is honored before
    * the owner prepares anything.
    */
   const refreshSuppression = useCallback(async () => {
@@ -368,7 +368,7 @@ const CustomersTab = ({
 
   /**
    * Last gate before anything is prepared. Re-reads suppression so a change made
-   * while the composer was open is honoured, and fails closed on a lookup error.
+   * while the composer was open is honored, and fails closed on a lookup error.
    */
   const guardChannel = async (c: ReferralContact, channel: Channel): Promise<boolean> => {
     if (!isDemo && !await authoritativeAskAllowed(c)) { toast({ title: "Ask paused", description: "Free asks your first 100 customers. Keep Pro to ask your whole list.", variant: "destructive" }); return false; }

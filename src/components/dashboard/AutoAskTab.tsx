@@ -11,7 +11,7 @@ import { friendlyError } from "@/lib/errors";
 import SenderLine from "@/components/dashboard/SenderLine";
 
 // "Job done" auto-ask. The owner logs a finished job, we schedule a single
-// personalised referral ask about two hours later.
+// personalized referral ask about two hours later.
 //
 // Compliance: automatic sending is EMAIL ONLY. SMS here is device-native only
 // (the owner taps and their own Messages app sends it), because referral texts
@@ -104,7 +104,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
     const email = form.email.trim().toLowerCase();
     const phone = form.phone.trim();
     if (!first) {
-      toast({ title: "Add a first name", description: "The ask is personalised, so we need it.", variant: "destructive" });
+      toast({ title: "Add a first name", description: "The ask is personalized, so we need it.", variant: "destructive" });
       return;
     }
     if (!email && !phone) {
@@ -187,7 +187,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
       <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
         <h2 className="text-base font-semibold text-foreground">Job done</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Log a finished job and we send that customer one personalised referral ask about {DELAY_HOURS} hours
+          Log a finished job and we send that customer one personalized referral ask about {DELAY_HOURS} hours
           later, using their first name, the service and who did the work. Automatic asks go by email only.
           Texts are sent from your own phone.
         </p>
