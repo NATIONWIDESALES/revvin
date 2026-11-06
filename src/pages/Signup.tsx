@@ -15,6 +15,7 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const [confirmPending, setConfirmPending] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [inviteCode, setInviteCodeState] = useState<string | null>(null);
 
   useEffect(() => {
@@ -26,12 +27,14 @@ const Signup = () => {
   // Signup never touches Stripe. An already-authenticated visitor belongs in
   // the app, not on this form.
   useEffect(() => {
-    if (authLoading || !user || confirmPending) return;
+    // While the form is submitting it owns navigation (held checkout first).
+    if (authLoading || !user || confirmPending || submitting) return;
     navigate("/welcome", { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, authLoading]);
+  }, [user, authLoading, submitting]);
 
-  if (authLoading) {
+  // Keep the form mounted mid-submit so its post-signup navigation can run.
+  if (authLoading && !submitting) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -58,7 +61,7 @@ const Signup = () => {
                 <p className="mt-1.5 text-sm text-muted-foreground">{SIGNUP_SUBHEAD(inviteCode)}</p>
               </div>
             )}
-            <SignupForm onConfirmPendingChange={setConfirmPending} />
+            <SignupForm onConfirmPendingChange={setConfirmPending} onBusyChange={setSubmitting} />
           </div>
         </div>
       </AuthSplit>
