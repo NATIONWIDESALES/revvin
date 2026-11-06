@@ -951,7 +951,8 @@ export default function prerenderPlugin(): Plugin {
             console.warn(`[prerender] critical CSS skipped for ${doc.file}: ${String(err).slice(0, 200)}`);
           }
         }
-        assertPublicBrand(html, doc.file);
+        // Referral pages show a customer's own business name, which may match a retired term.
+        if (!doc.file.startsWith(path.join(dist, "r") + path.sep)) assertPublicBrand(html, doc.file);
         fs.mkdirSync(path.dirname(doc.file), { recursive: true });
         fs.writeFileSync(doc.file, html, "utf8");
       }
