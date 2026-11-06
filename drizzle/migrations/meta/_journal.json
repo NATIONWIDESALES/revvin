@@ -169,6 +169,13 @@
       "when": 1793924577067,
       "tag": "0023_fix_email_queue_payloads_claim_earn",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793926100281,
+      "tag": "0024_admin_update_business_and_core_numbers",
+      "breakpoints": true
     }
   ]
 }
