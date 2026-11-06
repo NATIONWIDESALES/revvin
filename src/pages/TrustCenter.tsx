@@ -101,7 +101,7 @@ const TrustCenter = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.h2 variants={fadeUp} custom={0} className="text-3xl font-bold mb-3">Business Approval</motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-muted-foreground mb-10 max-w-xl">
-              Marketplace listings in restricted categories are reviewed before they appear. Revvin does not vouch for the quality, licensing, or insurance of any business. Referrers should do their own diligence before sending leads.
+              Offers in restricted categories are not listed in the public marketplace. Revvin does not vouch for the quality, licensing, or insurance of any business. Referrers should do their own diligence before sending leads.
             </motion.p>
             <div className="grid gap-6 md:grid-cols-3">
               {[

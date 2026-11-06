@@ -20,7 +20,7 @@ export const BUSINESS_CATEGORIES = [
 // Note: cityJumpsCA / cityJumpsUS are retained for backward compatibility
 // but MapView now derives city chips dynamically from the filtered offers.
 
-// Categories whose PUBLIC MARKETPLACE listings are reviewed before they appear.
+// Categories kept out of the PUBLIC MARKETPLACE and Earn.
 // This is a listing review, not a restriction on using Revvin: a business in
 // one of these categories can still build and use its own branded referral
 // page privately.
