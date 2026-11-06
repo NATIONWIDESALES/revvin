@@ -34,8 +34,8 @@ const ResetPassword = () => {
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 6) {
-      toast({ title: "Password too short", description: "Must be at least 6 characters.", variant: "destructive" });
+    if (password.length < 8) {
+      toast({ title: "Password too short", description: "Use at least 8 characters.", variant: "destructive" });
       return;
     }
     if (password !== confirm) {
@@ -48,8 +48,8 @@ const ResetPassword = () => {
     if (error) {
       toast({ title: "Error", description: friendlyError(error), variant: "destructive" });
     } else {
-      toast({ title: "Password updated", description: "You can now sign in with your new password." });
-      navigate("/auth");
+      toast({ title: "Password updated", description: "You are signed in with your new password." });
+      navigate("/dashboard", { replace: true });
     }
   };
 
@@ -60,7 +60,7 @@ const ResetPassword = () => {
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center max-w-md px-6">
           <KeyRound className="mx-auto mb-4 h-12 w-12 text-primary" />
-          <h1 className="text-2xl mb-2">Reset Password</h1>
+          <h1 className="text-2xl mb-2">Reset your password</h1>
           <p className="text-muted-foreground">Click the link in your email to reset your password. If you've already clicked it, this page will update automatically.</p>
         </div>
       </div>
@@ -74,25 +74,25 @@ const ResetPassword = () => {
     <AuthSplit>
       <div className="w-full">
         <div className="mb-8">
-          <h1 className="text-4xl sm:text-5xl">Set New Password</h1>
+          <h1 className="text-4xl sm:text-5xl">Set a new password</h1>
           <p className="text-muted-foreground mt-2">Enter your new password below.</p>
         </div>
         <form onSubmit={handleReset} className="space-y-4">
           <div>
-            <Label>New Password</Label>
+            <Label>New password</Label>
             <div className="relative mt-1">
-              <Input type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
+              <Input type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={8} />
               <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                 {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
           <div>
-            <Label>Confirm Password</Label>
-            <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" required minLength={6} className="mt-1" />
+            <Label>Confirm password</Label>
+            <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" required minLength={8} className="mt-1" />
           </div>
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
-            {loading ? "Updating..." : "Update Password"}
+            {loading ? "Updating..." : "Update password"}
           </Button>
         </form>
       </div>

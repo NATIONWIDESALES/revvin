@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,12 +25,18 @@ const SignupForm = ({
   formId = "signup-form",
   showStickyMobileBar = true,
   onConfirmPendingChange,
+  onBusyChange,
 }: {
   formId?: string;
   showStickyMobileBar?: boolean;
   onConfirmPendingChange?: (pending: boolean) => void;
+  onBusyChange?: (busy: boolean) => void;
 }) => {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const [mounted, setMounted] = useState(false);
+  const [pendingNav, setPendingNav] = useState<string | null>(null);
+  useEffect(() => setMounted(true), []);
   const { toast } = useToast();
 
   const [businessName, setBusinessName] = useState("");
@@ -69,6 +76,19 @@ const SignupForm = ({
       setShowPartnerField(true);
     }
   }, []);
+
+  useEffect(() => {
+    onBusyChange?.(busy);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [busy]);
+
+  // Navigate only after the auth context reports the new user, never on the
+  // same tick as signUp, so the protected route never sees a null user.
+  useEffect(() => {
+    if (!pendingNav || authLoading || !user) return;
+    navigate(pendingNav, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingNav, user, authLoading]);
 
   useEffect(() => {
     onConfirmPendingChange?.(confirmPending);
@@ -160,7 +180,7 @@ const SignupForm = ({
       if (redirected) return;
       toast(CHECKOUT_FALLBACK_TOAST);
     }
-    navigate("/welcome", { replace: true });
+    setPendingNav("/welcome");
   };
 
   if (confirmPending) {
@@ -199,7 +219,7 @@ const SignupForm = ({
     <>
       {inviteCode && <InviteBanner code={inviteCode} compact className="mb-3" />}
 
-      <form id={formId} onSubmit={handleSubmit} onFocus={handleFieldFocus} className="space-y-3">
+      <form id={formId} method="post" action="" onSubmit={handleSubmit} onFocus={handleFieldFocus} className="space-y-3">
         <div>
           <Label htmlFor={`${formId}-biz`}>Business name</Label>
           <Input id={`${formId}-biz`} autoComplete="organization" value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Your business name" className="mt-1.5" required />
@@ -237,7 +257,7 @@ const SignupForm = ({
             Have a partner code?
           </button>
         )}
-        <Button type="submit" size="lg" className={showStickyMobileBar ? "hidden w-full h-11 sm:flex" : "w-full h-11"} disabled={busy}>
+        <Button type="submit" size="lg" className={showStickyMobileBar ? "hidden w-full h-11 sm:flex" : "w-full h-11"} disabled={busy || !mounted}>
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : submitLabel}
         </Button>
         {inviteCode ? (
@@ -262,7 +282,7 @@ const SignupForm = ({
 
       {showStickyMobileBar && (
         <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden">
-          <Button type="submit" form={formId} size="lg" className="w-full h-11" disabled={busy}>
+          <Button type="submit" form={formId} size="lg" className="w-full h-11" disabled={busy || !mounted}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : submitLabel}
           </Button>
         </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import NotFound from "./NotFound";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -105,7 +106,12 @@ interface OfferRecord {
 }
 
 const SuperAdminCRM = () => {
-  const { user, userRole, loading: authLoading } = useAuth();
+  const { user, userRole, loading: authLoading, signOut } = useAuth();
+  const navigateTo = useNavigate();
+  const handleSignOut = async () => {
+    await signOut();
+    navigateTo("/auth", { replace: true });
+  };
   const { toast } = useToast();
   const [overview, setOverview] = useState<{
     businesses: Business[]; profiles: Profile[]; referral_summary: ReferralSummary[];
@@ -453,6 +459,7 @@ const SuperAdminCRM = () => {
             <Shield className="h-6 w-6 text-primary" />
             <h1 className="text-xl font-bold text-foreground">Revvin Prospects</h1>
             <span className="text-xs text-muted-foreground ml-auto">{user?.email}</span>
+            <Button variant="outline" size="sm" onClick={handleSignOut}>Sign out</Button>
           </div>
         </header>
         <main className="max-w-7xl mx-auto px-4 py-6">
@@ -470,6 +477,7 @@ const SuperAdminCRM = () => {
           <Shield className="h-6 w-6 text-primary" />
           <h1 className="text-xl font-bold text-foreground">Revvin Super Admin</h1>
           <span className="text-xs text-muted-foreground ml-auto">{user?.email}</span>
+            <Button variant="outline" size="sm" onClick={handleSignOut}>Sign out</Button>
         </div>
       </header>
 

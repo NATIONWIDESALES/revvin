@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,39 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
+  const [mounted, setMounted] = useState(false);
+  const [showReset, setShowReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetSending, setResetSending] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // Navigate only once the auth context reports the signed-in user, never on
+  // the same tick as the sign-in call. This also sends an already signed-in
+  // visitor straight past the form.
+  useEffect(() => {
+    if (authLoading || !user) return;
+    const raw = searchParams.get("redirect");
+    const target = raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : "/dashboard";
+    navigate(target, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authLoading]);
+
+  const sendReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail) return;
+    setResetSending(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+      redirectTo: window.location.origin + "/reset-password",
+    });
+    setResetSending(false);
+    if (error) {
+      toast({ title: "Could not send reset link", description: friendlyError(error), variant: "destructive" });
+      return;
+    }
+    setResetSent(true);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,11 +60,9 @@ const Auth = () => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      const redirectTo = searchParams.get("redirect");
-      navigate(redirectTo || "/dashboard");
+      // Stay busy; the effect above navigates once the session is in context.
     } catch (err: any) {
       toast({ title: "Sign in failed", description: friendlyError(err, "Please try again."), variant: "destructive" });
-    } finally {
       setLoading(false);
     }
   };
@@ -53,7 +85,7 @@ const Auth = () => {
             </Link>
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <form method="post" action="" onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="mt-1" />
@@ -69,29 +101,37 @@ const Auth = () => {
               <button
                 type="button"
                 className="mt-2 text-xs text-primary hover:underline"
-                onClick={async () => {
-                  if (!email) {
-                    toast({ title: "Enter your email first", description: "We need your email to send a reset link.", variant: "destructive" });
-                    return;
-                  }
-                  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                    redirectTo: window.location.origin + "/reset-password",
-                  });
-                  if (error) {
-                    toast({ title: "Error", description: friendlyError(error), variant: "destructive" });
-                  } else {
-                    toast({ title: "Check your email", description: "We sent a password reset link." });
-                  }
+                aria-expanded={showReset}
+                onClick={() => {
+                  setResetEmail((v) => v || email);
+                  setShowReset((v) => !v);
                 }}
               >
                 Forgot password?
               </button>
             </div>
 
-            <Button type="submit" className="w-full gap-2" size="lg" disabled={loading}>
+            <Button type="submit" className="w-full gap-2" size="lg" disabled={loading || !mounted}>
               {loading ? "Please wait..." : "Sign In"}
             </Button>
           </form>
+
+          {showReset && (
+            <form method="post" action="" onSubmit={sendReset} className="mt-6 rounded-lg border border-border p-4 space-y-3">
+              <Label htmlFor="reset-email">Email for your reset link</Label>
+              <div className="flex gap-2">
+                <Input id="reset-email" type="email" autoComplete="email" inputMode="email" value={resetEmail} onChange={(e) => { setResetEmail(e.target.value); setResetSent(false); }} placeholder="you@example.com" required />
+                <Button type="submit" variant="outline" disabled={resetSending || !mounted}>
+                  {resetSending ? "Sending..." : "Send reset link"}
+                </Button>
+              </div>
+              {resetSent && (
+                <p role="status" className="text-sm text-muted-foreground">
+                  Check your email for a reset link. It can take a minute.
+                </p>
+              )}
+            </form>
+          )}
         </div>
     </AuthSplit>
   );
