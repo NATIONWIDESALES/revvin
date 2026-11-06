@@ -26,13 +26,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSessionNow] = useState<Session | null>(null);
   const [loading, setLoadingNow] = useState(true);
   const [userRole, setUserRoleNow] = useState<"business" | "referrer" | "admin" | "sales" | null>(null);
-  // Auth state lands as a transition. A prerendered page is still hydrating
-  // when these first fire; an urgent update would throw away the server
-  // markup of any part not yet hydrated and log an error.
-  const setUser = (v: User | null) => startTransition(() => setUserNow(v));
-  const setSession = (v: Session | null) => startTransition(() => setSessionNow(v));
-  const setLoading = (v: boolean) => startTransition(() => setLoadingNow(v));
-  const setUserRole = (v: "business" | "referrer" | "admin" | "sales" | null) => startTransition(() => setUserRoleNow(v));
+  // Only the very first session restore (getSession / INITIAL_SESSION) lands
+  // as a transition: a prerendered page is still hydrating then, and an urgent
+  // update would throw away server markup not yet hydrated. Every later auth
+  // event (SIGNED_IN, SIGNED_OUT, TOKEN_REFRESHED, ...) is applied urgently so
+  // a navigation right after sign-in never renders with a stale null user.
+  const apply = (urgent: boolean, fn: () => void) => (urgent ? fn() : startTransition(fn));
+  const setLoading = (v: boolean, urgent = false) => apply(urgent, () => setLoadingNow(v));
+  const setUserRole = (v: "business" | "referrer" | "admin" | "sales" | null, urgent = false) =>
+    apply(urgent, () => setUserRoleNow(v));
   const { pathname } = useLocation();
   // A signed-out visitor on a marketing page never needs the backend client:
   // with no stored session and no sign-in redirect there is nobody to load.
@@ -42,7 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!needsClient && !isMarketingPath(pathname)) setNeedsClient(true);
   }, [pathname, needsClient]);
 
-  const fetchRole = async (userId: string) => {
+  const fetchRole = async (userId: string, urgent = false) => {
     const supabase = await loadSupabase();
     // A user can hold several roles (e.g. business + admin). Fetch them all and
     // prefer the most privileged one, otherwise a multi-role account resolves to null.
@@ -61,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           : roles.includes("referrer")
             ? "referrer"
             : null;
-    setUserRole(resolved);
+    setUserRole(resolved, urgent);
     return resolved;
   };
 
@@ -96,36 +98,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     void loadSupabase().then((supabase) => {
     if (cancelled) return;
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      const urgent = event !== "INITIAL_SESSION";
       const nextUserId = session?.user?.id ?? null;
 
       if (!nextUserId) {
         loadedUserId = null;
-        setUserRole(null);
-        setLoading(false);
+        apply(urgent, () => {
+          setSessionNow(null);
+          setUserNow(null);
+          setUserRoleNow(null);
+          setLoadingNow(false);
+        });
         return;
       }
 
       // Same user as already loaded (token refresh, user update): do NOT
       // toggle loading or remount children. Roles rarely change; skip refetch.
       if (nextUserId === loadedUserId) {
+        apply(urgent, () => {
+          setSessionNow(session);
+          setUserNow(session!.user);
+        });
         return;
       }
 
       loadedUserId = nextUserId;
-      setLoading(true);
+      // New user: user, session and loading=true commit together, so a
+      // protected route shows its spinner instead of redirecting to /auth.
+      apply(urgent, () => {
+        setSessionNow(session);
+        setUserNow(session!.user);
+        setLoadingNow(true);
+      });
       // Defer to avoid deadlocks with the auth callback.
       setTimeout(() => {
-        fetchRole(nextUserId).finally(() => setLoading(false));
+        fetchRole(nextUserId, urgent).finally(() => setLoading(false, urgent));
         ensureProfile(session!.user);
       }, 0);
     });
 
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+      // A sign-in event may already have handled a newer session.
+      if (loadedUserId && session?.user?.id !== loadedUserId) return;
+      startTransition(() => {
+        setSessionNow(session);
+        setUserNow(session?.user ?? null);
+      });
       if (session?.user) {
         loadedUserId = session.user.id;
         try {
@@ -151,9 +170,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     const supabase = await loadSupabase();
     await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setUserRole(null);
+    setUserNow(null);
+    setSessionNow(null);
+    setUserRoleNow(null);
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
