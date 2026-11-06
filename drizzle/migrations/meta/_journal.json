@@ -162,6 +162,13 @@
       "when": 1793923982456,
       "tag": "0022_smoke_test_runs_revoke_anon",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1793924577067,
+      "tag": "0023_fix_email_queue_payloads_claim_earn",
+      "breakpoints": true
     }
   ]
 }
