@@ -111,7 +111,7 @@ const AboutRevvinLLM = () => (
       <section className="mb-8">
         <h2 className="text-xl mb-3">Trust and verification</h2>
         <ul>
-          <li>Marketplace listings in restricted categories are reviewed before they appear.</li>
+          <li>Offers in restricted categories are not listed in the public marketplace.</li>
           <li>Referrers can flag any closed referral that hasn't been paid within 30 days for Revvin review.</li>
           <li>Revvin maintains an immutable audit log of referral status changes.</li>
         </ul>

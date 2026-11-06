@@ -94,7 +94,7 @@ const FinishPageCard = ({
         <div><Label htmlFor="fp-email">Business email</Label><Input id="fp-email" type="email" value={businessEmail} onChange={(e) => setBusinessEmail(e.target.value)} className="mt-1.5" /></div>
         <div><Label htmlFor="fp-web">Website</Label><Input id="fp-web" value={website} onChange={(e) => setWebsite(e.target.value)} className="mt-1.5" placeholder="https://" /></div>
         <div><Label htmlFor="fp-radius">Service radius (km)</Label><Input id="fp-radius" inputMode="numeric" value={radius} onChange={(e) => setRadius(e.target.value.replace(/\D/g, ""))} className="mt-1.5" /></div>
-        <div className="sm:col-span-2"><Label htmlFor="fp-trigger">Payout trigger</Label><Input id="fp-trigger" value={trigger} onChange={(e) => setTrigger(e.target.value)} className="mt-1.5" placeholder="per closed roofing job" /></div>
+        <div className="sm:col-span-2"><Label htmlFor="fp-trigger">When do you pay? (optional)</Label><Input id="fp-trigger" value={trigger} onChange={(e) => setTrigger(e.target.value)} className="mt-1.5" placeholder="When the job is finished and paid" /></div>
         <div className="sm:col-span-2"><Label htmlFor="fp-fine">Fine print</Label><Textarea id="fp-fine" rows={2} value={finePrint} onChange={(e) => setFinePrint(e.target.value)} className="mt-1.5" /></div>
       </div>
       <Button onClick={save} disabled={saving} className="mt-5 h-11 w-full sm:h-10 sm:w-auto">

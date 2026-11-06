@@ -105,7 +105,7 @@ const TrustCenter = () => {
             </motion.p>
             <div className="grid gap-6 md:grid-cols-3">
               {[
-                { level: "Pending Review", icon: AlertTriangle, color: "text-muted-foreground", bg: "bg-muted", desc: "A restricted-category marketplace listing is waiting for review. The business's branded referral page works either way." },
+                { level: "Page only", icon: AlertTriangle, color: "text-muted-foreground", bg: "bg-muted", desc: "Restricted-category offers are not listed in the public marketplace. The business's branded referral page works fully." },
                 { level: "Approved", icon: BadgeCheck, color: "text-primary", bg: "bg-primary/10", desc: "A restricted-category marketplace listing has passed its review and may appear after the business publishes its referral page." },
                 { level: "Suspended", icon: Shield, color: "text-earnings", bg: "bg-earnings/10", desc: "Removed from the marketplace due to a pattern of unpaid referrals, dishonest status reporting, or terms violations." },
               ].map((item, i) => (

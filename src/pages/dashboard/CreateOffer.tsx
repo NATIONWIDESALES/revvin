@@ -200,7 +200,7 @@ const CreateOffer = () => {
       if (isRestricted) {
         toast({
           title: "Offer sent for review",
-          description: "Offers in this category are reviewed before they appear on the public marketplace. Your branded referral page keeps working in the meantime.",
+          description: "Your referral page works fully. Offers in this category are not listed in the public marketplace.",
         });
       } else {
         toast({ title: "Offer published!", description: "Your offer is now live on the marketplace." });
@@ -372,9 +372,9 @@ const CreateOffer = () => {
                 <div className="rounded-xl bg-accent/10 border border-accent/20 p-4 flex items-start gap-3">
                   <Info className="h-5 w-5 text-accent-foreground shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-accent-foreground">Reviewed before it appears publicly</p>
+                    <p className="text-sm font-medium text-accent-foreground">Page only, not in the marketplace</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Offers in this category ({form.category}) are reviewed before they appear on the public marketplace. Your branded referral page stays available to your own customers either way.
+                      Offers in this category ({form.category}) are not listed in the public marketplace. Your branded referral page works fully for your own customers.
                     </p>
                   </div>
                 </div>

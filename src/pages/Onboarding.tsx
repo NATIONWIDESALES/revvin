@@ -138,7 +138,7 @@ const Onboarding = () => {
         name: name.trim(),
         category,
         service_area: trimmedArea,
-        offer_amount: offerAmount.trim(),
+        offer_amount: normalizeRewardAmount(offerAmount),
         slug,
         phone: mobile.trim() || null,
       };
@@ -247,7 +247,7 @@ const Onboarding = () => {
                     {showReasons && missingCategory && <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">Pick your trade.</p>}
                     {isRestrictedCategory(category) && (
                       <div className="mt-1.5 space-y-1.5 text-xs text-muted-foreground">
-                        <p>Offers in this category are reviewed before they appear on the public marketplace. Your branded referral page works either way.</p>
+                        <p>Your referral page works fully. Real estate, mortgage and insurance pages are not listed in the public marketplace.</p>
                         <p>Rules on paying for referrals differ in your industry. In many US states, real estate, mortgage and insurance professionals cannot pay unlicensed people for referrals. Check your own rules before you publish a reward.</p>
                       </div>
                     )}
