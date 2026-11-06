@@ -148,6 +148,20 @@
       "when": 1793923353041,
       "tag": "0020_owner_publish_toggle_and_reward_format",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793923942125,
+      "tag": "0021_smoke_customer_journey_and_monitor_health",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1793923982456,
+      "tag": "0022_smoke_test_runs_revoke_anon",
+      "breakpoints": true
     }
   ]
 }

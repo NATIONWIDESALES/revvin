@@ -15,6 +15,13 @@ interface PlatformFlag {
   updated_at: string;
 }
 
+interface SmokeRun {
+  id: string;
+  ran_at: string;
+  ok: boolean;
+  failed_step: string | null;
+}
+
 interface SecurityAlert {
   id: string;
   alert_type: string;
@@ -39,6 +46,7 @@ const SecurityPanel = () => {
   const { toast } = useToast();
   const [flags, setFlags] = useState<PlatformFlag[]>([]);
   const [alerts, setAlerts] = useState<SecurityAlert[]>([]);
+  const [runs, setRuns] = useState<SmokeRun[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
 
@@ -57,10 +65,12 @@ const SecurityPanel = () => {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [flagsRes, alertsRes] = await Promise.all([
+      const [flagsRes, alertsRes, runsRes] = await Promise.all([
         callAdmin("get_flags"),
         callAdmin("get_security_alerts"),
+        supabase.from("smoke_test_runs").select("id, ran_at, ok, failed_step").order("ran_at", { ascending: false }).limit(24),
       ]);
+      setRuns((runsRes.data ?? []) as SmokeRun[]);
       setFlags(flagsRes?.flags ?? []);
       setAlerts(alertsRes?.alerts ?? []);
     } catch (e) {
@@ -121,6 +131,37 @@ const SecurityPanel = () => {
               </div>
             );
           })}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-semibold">Customer journey check</h2>
+          <p className="text-sm text-muted-foreground">
+            Every hour a test signup, publish, referral and reward runs and is fully undone. Failures email info@revvin.co.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {runs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No runs yet.</p>
+          ) : (
+            <>
+              <p className="text-sm">
+                Last run {format(new Date(runs[0].ran_at), "MMM d, h:mm a")}:{" "}
+                <Badge variant={runs[0].ok ? "outline" : "destructive"}>{runs[0].ok ? "Passed" : "Failed"}</Badge>
+                {!runs[0].ok && runs[0].failed_step && <span className="ml-2 text-muted-foreground">at {runs[0].failed_step}</span>}
+              </p>
+              <div className="flex gap-1" aria-label="Last 24 runs, newest on the right">
+                {[...runs].reverse().map((r) => (
+                  <span
+                    key={r.id}
+                    title={`${format(new Date(r.ran_at), "MMM d, h:mm a")}: ${r.ok ? "passed" : `failed at ${r.failed_step ?? "unknown"}`}`}
+                    className={`h-5 w-2 rounded-sm ${r.ok ? "bg-primary" : "bg-destructive"}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 

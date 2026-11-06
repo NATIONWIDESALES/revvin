@@ -2710,6 +2710,33 @@ export type Database = {
         }
         Relationships: []
       }
+      smoke_test_runs: {
+        Row: {
+          duration_ms: number | null
+          failed_step: string | null
+          id: string
+          ok: boolean
+          ran_at: string
+          steps: Json
+        }
+        Insert: {
+          duration_ms?: number | null
+          failed_step?: string | null
+          id?: string
+          ok: boolean
+          ran_at?: string
+          steps?: Json
+        }
+        Update: {
+          duration_ms?: number | null
+          failed_step?: string | null
+          id?: string
+          ok?: boolean
+          ran_at?: string
+          steps?: Json
+        }
+        Relationships: []
+      }
       sms_outbound_log: {
         Row: {
           body: string
@@ -3416,6 +3443,7 @@ export type Database = {
         Returns: boolean
       }
       fn_me_email_eligible: { Args: { p_email: string }; Returns: boolean }
+      fn_monitor_health: { Args: never; Returns: Json }
       fn_my_referrals: { Args: never; Returns: Json }
       fn_new_referrer_token: { Args: never; Returns: string }
       fn_normalize_slug: { Args: { p_slug: string }; Returns: string }
@@ -3519,6 +3547,7 @@ export type Database = {
       fn_slug_rejection: { Args: { p_slug: string }; Returns: string }
       fn_slug_reserved_words: { Args: never; Returns: string[] }
       fn_slug_status: { Args: { p_slug: string }; Returns: string }
+      fn_smoke_customer_journey: { Args: never; Returns: Json }
       fn_submit_earn_lead: {
         Args: {
           p_business_contact?: string
