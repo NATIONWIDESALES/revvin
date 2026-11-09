@@ -1,6 +1,7 @@
 /** Explicit public-analytics boundary. This is data minimization, not consent. */
 import { TOOLKIT_CTA_LABELS } from "@/lib/toolkit/analytics";
 import { INSTALL_SURFACES } from "@/config/installCopy";
+import { PUBLISH_FAILURE_REASONS } from "@/lib/publishFailure";
 
 export type AnalyticsAudience = "unknown" | "anonymous" | "signed-in";
 export type AnalyticsTraffic = "marketing" | "demo" | "referral" | "product";
@@ -146,6 +147,7 @@ export const ONBOARDING_STEP_LABELS = ["basics", "logo", "reward", "link", "publ
 const STEP_LABELS = new Set<string>(ONBOARDING_STEP_LABELS);
 const CAMPAIGN_SEGMENTS = new Set(["m24_plus", "m12_24", "m6_12", "recent", "unknown"]);
 const PUBLISH_SURFACES = new Set(["onboarding", "dashboard_banner", "share_tools", "checklist"]);
+const PUBLISH_REASONS = new Set<string>(PUBLISH_FAILURE_REASONS);
 export function safeAnalyticsMeta(event: string, context: AnalyticsContext, input?: Record<string, unknown>) {
   const demo = context.traffic === "demo" || event.startsWith("demo_") || input?.cta === "demo_signup";
   const result: Record<string, string | boolean> = { traffic: demo ? "demo" : context.traffic, is_demo: demo };
@@ -156,6 +158,7 @@ export function safeAnalyticsMeta(event: string, context: AnalyticsContext, inpu
   if (typeof input?.surface === "string" && (SURFACE_LABELS.has(input.surface as never) || PUBLISH_SURFACES.has(input.surface))) result.surface = input.surface;
   if (typeof input?.segment === "string" && CAMPAIGN_SEGMENTS.has(input.segment)) result.segment = input.segment;
   if (typeof input?.step === "string" && STEP_LABELS.has(input.step)) result.step = input.step;
+  if (event === "publish_failed" && context.traffic === "product" && typeof input?.reason === "string" && PUBLISH_REASONS.has(input.reason)) result.reason = input.reason;
   return result;
 }
 
