@@ -18,14 +18,15 @@ import { track } from "@/lib/track";
 import { BUSINESS_CATEGORIES, isRestrictedCategory, normalizeRewardAmount } from "@/lib/offerUtils";
 import { resolveAvailableSlug, suggestSlug, slugRejectionMessage, type SlugRejection } from "@/lib/slugRules";
 import { friendlyError } from "@/lib/errors";
-import { publishPage } from "@/lib/publishPage";
+import { publishPage, PUBLISH_FAILED_MESSAGE } from "@/lib/publishPage";
+import { publishFailure } from "@/lib/publishFailure";
 import { copyText } from "@/lib/clipboard";
 import { CHECKOUT_FALLBACK_TOAST, parsePlan, peekCheckoutIntent, startHeldCheckout } from "@/lib/proCheckoutIntent";
 import { readPreview, previewCategory } from "@/lib/instantPreview";
 import { claimProspectPage } from "@/lib/prospects";
 
 const Onboarding = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { toast } = useToast();
@@ -55,6 +56,7 @@ const Onboarding = () => {
   const [launchPackageStatus, setLaunchPackageStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
 
   // One screen: the four things a referral page needs to go live.
   const [name, setName] = useState("");
@@ -109,6 +111,7 @@ const Onboarding = () => {
 
   /** Saves, picks a free link, publishes. One tap. */
   const publishNow = async () => {
+    if (savingRef.current || authLoading) return;
     setPublishError(null);
     if (missingName || missingCategory || missingReward) {
       setShowReasons(true);
@@ -118,10 +121,12 @@ const Onboarding = () => {
       return;
     }
     if (!bizId) {
+      track("publish_failed", { surface: "onboarding", reason: "no_business" });
       setPublishError("We lost track of your business. Refresh the page and try again.");
       return;
     }
     setSaving(true);
+    savingRef.current = true;
     try {
       let slug = existingSlug;
       if (!slug) {
@@ -150,12 +155,22 @@ const Onboarding = () => {
           geocoded_at: new Date().toISOString(), geocode_status: "ok",
         });
       }
-      const { error } = await supabase.from("businesses").update(patch).eq("id", bizId);
+      const { data: saved, error } = await supabase.from("businesses").update(patch).eq("id", bizId)
+        .select("id,slug,name,offer_amount").limit(1);
       if (error) {
+        track("publish_failed", { surface: "onboarding", reason: publishFailure(error).reason });
         const match = /invalid_slug:(\w+)/.exec(error.message);
         setPublishError(match ? slugRejectionMessage(match[1] as SlugRejection) : friendlyError(error));
         return;
       }
+      const row = saved?.[0];
+      if (!row || !row.slug?.trim() || !row.name?.trim() || !row.offer_amount?.trim()) {
+        const reason = !row ? "no_business" : !row.slug?.trim() ? "missing_slug" : !row.name?.trim() ? "missing_name" : "missing_reward";
+        track("publish_failed", { surface: "onboarding", reason });
+        setPublishError(PUBLISH_FAILED_MESSAGE);
+        return;
+      }
+      slug = row.slug;
       setExistingSlug(slug);
       // Never blocks: coordinates stay empty if this fails.
       if (!matchedPlace && trimmedArea) {
@@ -167,7 +182,12 @@ const Onboarding = () => {
       track("onboarding_step_completed", { step: "publish" });
       track("onboarding_completed");
       setLiveUrl(`${window.location.origin}/r/${slug}`);
+    } catch (error) {
+      const failure = publishFailure(error);
+      track("publish_failed", { surface: "onboarding", reason: failure.reason });
+      setPublishError(failure.safeMessage ?? PUBLISH_FAILED_MESSAGE);
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   };
@@ -183,7 +203,7 @@ const Onboarding = () => {
     setTimeout(() => setCopied(false), 1500);
   };
 
-  if (loading || !user || redirectingToCheckout) {
+  if (loading || authLoading || !user || redirectingToCheckout) {
     return <div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
 

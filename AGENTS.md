@@ -16,3 +16,5 @@
 - Security-sensitive submissions and referrer actions use bounded, ownership-checking RPCs; unrestricted writer functions remain service-only. Why: public and authenticated clients cannot forge audit, notification, lead identity or job-ask records.
 - Referrer email trust requires an OTP session or a completed email challenge, not auto-confirmed password signup. Why: preserve instant business signup without exposing another person's referrals.
 - Referral search approval is separate from publication and defaults off. Why: moderation must not break the live referral form.
+- Publish failure analytics use an allowlisted reason classifier shared with the privacy filter; onboarding must confirm an awaited owner save returned required fields before publishing. Why: failures stay diagnosable without personal data or silent zero-row writes.
+- SQL email regression tests resolve the latest function definition in migration order and execute payload capture in isolated PostgreSQL. Why: historical migrations remain immutable while active writers meet the delivery contract.
