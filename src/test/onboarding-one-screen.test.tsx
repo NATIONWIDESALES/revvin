@@ -7,6 +7,7 @@ const h = vi.hoisted(() => ({
   rpc: vi.fn(),
   publish: vi.fn(),
   track: vi.fn(),
+  save: vi.fn(),
   taken: new Set<string>(),
 }));
 
@@ -14,7 +15,11 @@ vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     from: () => ({
       select: () => ({ eq: () => ({ limit: async () => ({ data: [{ id: "biz-1", name: "Summit Roofing", category: "Roofing", service_area: "", offer_amount: "$100", slug: null, business_email: null, launch_package_status: null }] }) }) }),
-      update: (patch: unknown) => ({ eq: async () => { h.update(patch); return { error: null }; } }),
+      update: (patch: unknown) => ({ eq: () => {
+        h.update(patch);
+        const result = h.save(patch);
+        return Object.assign(result, { select: () => ({ limit: () => result }) });
+      } }),
     }),
     rpc: async (_fn: string, args: { p_slug: string }) => { h.rpc(args.p_slug); return { data: h.taken.has(args.p_slug) ? "taken" : "ok", error: null }; },
     functions: { invoke: vi.fn(async () => ({})) },
@@ -30,9 +35,31 @@ vi.mock("@/components/SEOHead", () => ({ default: () => null }));
 import Onboarding from "@/pages/Onboarding";
 import { resolveAvailableSlug } from "@/lib/slugRules";
 
-beforeEach(() => { h.update.mockReset(); h.rpc.mockReset(); h.publish.mockReset(); h.track.mockReset(); h.taken.clear(); });
+beforeEach(() => {
+  h.update.mockReset(); h.rpc.mockReset(); h.publish.mockReset(); h.track.mockReset(); h.taken.clear();
+  h.save.mockReset(); h.save.mockImplementation(async (patch) => ({ data: [{ id: "biz-1", ...patch }], error: null }));
+});
 
 describe("one-screen onboarding", () => {
+  it("waits for the saved required fields before publishing", async () => {
+    let finish: ((value: unknown) => void) | undefined;
+    h.save.mockImplementation((patch) => new Promise(resolve => { finish = () => resolve({ data: [{ id: "biz-1", ...patch }], error: null }); }));
+    render(<MemoryRouter initialEntries={["/welcome"]}><Onboarding /></MemoryRouter>);
+    fireEvent.click(await screen.findByRole("button", { name: "Publish my page" }));
+    await waitFor(() => expect(h.update).toHaveBeenCalledTimes(1));
+    expect(h.publish).not.toHaveBeenCalled();
+    finish?.({});
+    await screen.findByRole("heading", { name: "Your page is live" });
+    expect(h.publish).toHaveBeenCalledTimes(1);
+  });
+  it("does not publish when an owner save silently returns no row", async () => {
+    h.save.mockResolvedValue({ data: [], error: null });
+    render(<MemoryRouter initialEntries={["/welcome"]}><Onboarding /></MemoryRouter>);
+    fireEvent.click(await screen.findByRole("button", { name: "Publish my page" }));
+    await waitFor(() => expect(h.update).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Publish my page" })).not.toBeDisabled());
+    expect(h.publish).not.toHaveBeenCalled();
+  });
   it("publishes in one submit and appends -2 when the link is taken", async () => {
     h.taken.add("summit-roofing");
     render(<MemoryRouter initialEntries={["/welcome"]}><Onboarding /></MemoryRouter>);
