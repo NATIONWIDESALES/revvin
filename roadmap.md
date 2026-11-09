@@ -16,3 +16,9 @@
 - [x] Check all current SQL writers and live grants/guards without modifying them
 - [x] Harden awaited onboarding save and fixed publish failure diagnostics
 - [x] Run full suite, inspect build signal, and document verification limits
+
+# Sales rep partner engine
+- [ ] Add rep linking, versioned terms, applied-rate snapshots and guarded attribution RPCs
+- [ ] Connect claim precedence and collected-payment commissions to the existing ledger
+- [ ] Add own-rep earnings and admin terms/leaderboard controls
+- [ ] Isolated migration/security/arithmetic tests, full suite, deployment and changelog; no frontend publish
