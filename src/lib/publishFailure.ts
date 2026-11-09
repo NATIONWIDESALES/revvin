@@ -15,7 +15,7 @@ const SAFE_MESSAGES: Record<string, PublishFailureReason> = {
 export function publishFailure(error: unknown): { reason: PublishFailureReason; safeMessage?: string } {
   const value = error && typeof error === "object" ? error as { message?: unknown; code?: unknown } : {};
   const message = typeof value.message === "string" ? value.message : "";
-  const known = Object.hasOwn(SAFE_MESSAGES, message) ? SAFE_MESSAGES[message] : undefined;
+  const known = Object.prototype.hasOwnProperty.call(SAFE_MESSAGES, message) ? SAFE_MESSAGES[message] : undefined;
   if (known) return { reason: known, safeMessage: message };
   if (/failed to fetch|networkerror|network request failed|load failed|timeout/i.test(message)) return { reason: "network" };
   if (/jwt|not authenticated|session.*expired/i.test(message) || value.code === "PGRST301") return { reason: "not_signed_in" };

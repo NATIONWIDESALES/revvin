@@ -26,7 +26,10 @@ vi.mock("@/integrations/supabase/client", () => ({
   },
 }));
 vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => ({ user: { id: "u1", email: "o@example.test" } }) }));
-vi.mock("@/lib/publishPage", () => ({ publishPage: async (s: string) => { h.publish(s); return { ok: true }; } }));
+vi.mock("@/lib/publishPage", async (importOriginal) => ({
+  ...await importOriginal<typeof import("@/lib/publishPage")>(),
+  publishPage: async (s: string) => { h.publish(s); return { ok: true }; },
+}));
 vi.mock("@/lib/track", () => ({ track: (...a: unknown[]) => h.track(...a) }));
 vi.mock("@/lib/proCheckoutIntent", () => ({ CHECKOUT_FALLBACK_TOAST: {}, parsePlan: () => null, peekCheckoutIntent: () => null, startHeldCheckout: vi.fn() }));
 vi.mock("@/components/ServiceAreaAutocomplete", () => ({ default: (p: { value: string; onChange: (v: string) => void; id: string }) => <input id={p.id} value={p.value} onChange={(e) => p.onChange(e.target.value)} /> }));
