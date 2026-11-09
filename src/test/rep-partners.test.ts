@@ -2,7 +2,6 @@
 import { PGlite } from "@electric-sql/pglite";
 import { readFileSync } from "node:fs";
 import { beforeAll, afterAll, expect, it } from "vitest";
-import { migrationFunctions } from "./helpers/migrationFunctions";
 import { reversalPlan } from "../../supabase/functions/_shared/partner-rules";
 
 let db: PGlite;
@@ -11,7 +10,14 @@ const repUser = "00000000-0000-4000-8000-000000000002";
 const owner = "00000000-0000-4000-8000-000000000003";
 let rep: string;
 let affiliate: string;
-const migration = readFileSync("/tmp/rep-claim.sql", "utf8");
+// Candidate only: Cloud rejected schema access. Never used by the running app.
+const base = readFileSync("src/test/helpers/repPartnerMigration.sql", "utf8");
+const archived = readFileSync("drizzle/migrations/0023_fix_email_queue_payloads_claim_earn.sql", "utf8");
+const claimFunction = (`CREATE OR REPLACE FUNCTION public.fn_prospect_claim${archived.split("CREATE OR REPLACE FUNCTION public.fn_prospect_claim")[1]}`)
+  .replace("WHERE code = p_code LIMIT 1;", "WHERE code = p_code LIMIT 1 FOR UPDATE;")
+  .replace("claimed_business_id = b.id, updated_at = now()", "claimed_business_id = b.id, claimed_at = now(), updated_at = now()")
+  .replace("  IF p.created_by IS NOT NULL THEN", "  PERFORM public.fn_attribute_rep_claim(p.id, b.id);\n  IF p.created_by IS NOT NULL THEN");
+const migration = `${base}\n${claimFunction}\nALTER FUNCTION public.fn_prospect_claim(text,uuid) OWNER TO service_role;`;
 beforeAll(async () => {
   db = new PGlite();
   await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS;
@@ -23,7 +29,7 @@ beforeAll(async () => {
     CREATE TABLE auth.users(id uuid PRIMARY KEY,email text,raw_user_meta_data jsonb DEFAULT '{}');
     CREATE TABLE user_roles(user_id uuid,role app_role,UNIQUE(user_id,role));
     CREATE FUNCTION has_role(uuid,app_role) RETURNS boolean LANGUAGE sql SECURITY DEFINER AS $$ SELECT (auth.role()='service_role' OR $1=auth.uid() OR EXISTS(SELECT 1 FROM user_roles WHERE user_id=auth.uid() AND role='admin')) AND EXISTS(SELECT 1 FROM user_roles WHERE user_id=$1 AND role=$2) $$;
-    CREATE TABLE businesses(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),user_id uuid,name text,category text,industry text,is_demo boolean DEFAULT false,acquisition jsonb DEFAULT '{}',subscription_status text,pro_trial_ends_at timestamptz);
+    CREATE TABLE businesses(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),user_id uuid,name text,category text,industry text,is_demo boolean DEFAULT false,acquisition jsonb DEFAULT '{}',subscription_status text,pro_trial_ends_at timestamptz,stripe_customer_id text);
     CREATE TABLE stripe_payments(business_id uuid,paid_at timestamptz,collected boolean,amount_paid_cents bigint);
     CREATE TABLE audit_log(id uuid DEFAULT gen_random_uuid(),actor_id uuid,event_type text,payload jsonb);
     CREATE FUNCTION fn_offer_is_restricted_category(text) RETURNS boolean LANGUAGE sql AS $$ SELECT lower($1) IN ('real estate','real-estate','mortgage','insurance') $$;
