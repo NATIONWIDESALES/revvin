@@ -27,7 +27,8 @@ beforeAll(async () => {
       pro_trial_ends_at timestamptz,published_notified_at timestamptz,acquisition jsonb,partner_id uuid,partner_attributed_at timestamptz,contact_outreach_consent_at timestamptz,plan text DEFAULT 'free');
     CREATE FUNCTION has_role(uuid,app_role) RETURNS boolean LANGUAGE sql SECURITY DEFINER AS $$ SELECT EXISTS(SELECT 1 FROM user_roles WHERE user_id=$1 AND role=$2) $$;
     CREATE FUNCTION fn_slug_rejection(text) RETURNS text LANGUAGE sql AS $$ SELECT NULL::text $$;`);
-  for (const name of ["handle_new_user", "fn_new_business_acquisition_trial", "fn_guard_is_verified", "fn_guard_first_trial", "enforce_business_slug_rules", "fn_business_derive_plan", "prevent_partner_attribution_changes", "prevent_consent_timestamp_rollback", "fn_business_privileged_unchanged"]) {
+  await db.exec(readFileSync("src/test/helpers/derivePlanFixture.sql", "utf8"));
+  for (const name of ["handle_new_user", "fn_new_business_acquisition_trial", "fn_guard_is_verified", "fn_guard_first_trial", "enforce_business_slug_rules", "prevent_partner_attribution_changes", "prevent_consent_timestamp_rollback", "fn_business_privileged_unchanged"]) {
     const sql = functions.get(name);
     if (!sql) throw new Error(`Missing migration function ${name}`);
     await db.exec(sql);
