@@ -15,4 +15,4 @@
 - [x] Reproduce historical SQL email payload and owner publish failures
 - [x] Check all current SQL writers and live grants/guards without modifying them
 - [x] Harden awaited onboarding save and fixed publish failure diagnostics
-- [ ] Run full suite, inspect build signal, and document verification limits
+- [x] Run full suite, inspect build signal, and document verification limits
