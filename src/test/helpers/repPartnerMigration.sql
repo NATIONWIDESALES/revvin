@@ -7,6 +7,22 @@ ALTER TABLE public.partners
 ALTER TABLE public.partners ADD CONSTRAINT partner_rep_link CHECK((kind='rep' AND user_id IS NOT NULL) OR (kind='affiliate' AND user_id IS NULL));
 ALTER TABLE public.partner_commissions ADD COLUMN applied_rate numeric NOT NULL DEFAULT 0.40;
 ALTER TABLE public.prospect_pages ADD COLUMN claimed_at timestamptz;
+ALTER TABLE public.businesses ADD COLUMN partner_first_paid_at timestamptz, ADD COLUMN partner_last_product text;
+CREATE OR REPLACE FUNCTION public.fn_partner_cash_guard() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF (NEW.partner_first_paid_at,NEW.partner_last_product) IS DISTINCT FROM (OLD.partner_first_paid_at,OLD.partner_last_product) AND current_user<>'service_role' THEN RAISE EXCEPTION 'Partner cash history is server managed'; END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER partner_cash_guard BEFORE UPDATE ON public.businesses FOR EACH ROW EXECUTE FUNCTION public.fn_partner_cash_guard();
+CREATE OR REPLACE FUNCTION public.fn_partner_observe_payment(p_customer_id text,p_user_id uuid,p_paid_at timestamptz,p_product text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public,pg_catalog AS $$
+BEGIN
+ IF p_paid_at IS NULL OR p_product NOT IN ('launch_package','pro_monthly','pro_yearly') OR length(coalesce(p_customer_id,''))>255 THEN RAISE EXCEPTION 'invalid_payment'; END IF;
+ UPDATE public.businesses SET partner_first_paid_at=least(partner_first_paid_at,p_paid_at),partner_last_product=CASE WHEN p_product<>'launch_package' THEN p_product ELSE partner_last_product END
+ WHERE id=(SELECT id FROM public.businesses WHERE stripe_customer_id=p_customer_id OR (p_user_id IS NOT NULL AND user_id=p_user_id) ORDER BY CASE WHEN stripe_customer_id=p_customer_id THEN 0 ELSE 1 END LIMIT 1);
+END $$;
+ALTER FUNCTION public.fn_partner_observe_payment(text,uuid,timestamptz,text) OWNER TO service_role;
+REVOKE ALL ON FUNCTION public.fn_partner_observe_payment(text,uuid,timestamptz,text) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.fn_partner_observe_payment(text,uuid,timestamptz,text) TO service_role;
 
 CREATE TABLE public.partner_term_versions(
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),partner_id uuid NOT NULL REFERENCES public.partners(id),
@@ -136,6 +152,7 @@ BEGIN
  SELECT min(t) INTO first_at FROM (
   SELECT paid_at t FROM public.stripe_payments WHERE business_id=p_business_id AND collected AND amount_paid_cents>0
   UNION ALL SELECT paid_at FROM public.partner_commissions WHERE business_id=p_business_id AND amount_collected_cents>0
+  UNION ALL SELECT partner_first_paid_at FROM public.businesses WHERE id=p_business_id
   UNION ALL SELECT p_paid_at) paid;
  rate:=CASE WHEN p_product='launch_package' THEN v.setup_rate ELSE v.recurring_rate END;
  IF p_product<>'launch_package' AND v.recurring_months IS NOT NULL AND p_paid_at>=first_at+make_interval(months=>v.recurring_months) THEN rate:=0; END IF;
@@ -164,13 +181,13 @@ CREATE OR REPLACE FUNCTION public.fn_rep_earnings_data(p_partner_id uuid) RETURN
   'viewed',(SELECT count(*) FROM public.prospect_pages x WHERE x.created_by=p.user_id AND x.first_viewed_at IS NOT NULL),
   'claimed',(SELECT count(*) FROM public.prospect_pages x WHERE x.created_by=p.user_id AND x.claimed_business_id IS NOT NULL),
   'paying',(SELECT count(*) FROM public.businesses b WHERE b.partner_id=p.id AND NOT coalesce(b.is_demo,false) AND b.subscription_status IN ('active','past_due','paid') AND EXISTS(SELECT 1 FROM public.stripe_payments s WHERE s.business_id=b.id AND s.collected AND s.amount_paid_cents>0)),
-  'paying_month',(SELECT count(DISTINCT b.id) FROM public.businesses b JOIN public.stripe_payments s ON s.business_id=b.id WHERE b.partner_id=p.id AND NOT coalesce(b.is_demo,false) AND s.collected AND s.amount_paid_cents>0 AND s.paid_at>=date_trunc('month',now())),
+  'paying_month',(SELECT count(DISTINCT b.id) FROM public.businesses b JOIN public.stripe_payments s ON s.business_id=b.id WHERE b.partner_id=p.id AND NOT coalesce(b.is_demo,false) AND s.collected AND s.amount_paid_cents>0 AND s.paid_at>=date_trunc('month',now()) AND s.paid_at<=now()),
   'paying_all_time',(SELECT count(*) FROM public.businesses b WHERE b.partner_id=p.id AND NOT coalesce(b.is_demo,false) AND EXISTS(SELECT 1 FROM public.stripe_payments s WHERE s.business_id=b.id AND s.collected AND s.amount_paid_cents>0)),
   'pending_cents',(SELECT coalesce(sum(commission_cents),0) FROM public.partner_commissions WHERE partner_id=p.id AND status='pending'),
   'payable_cents',greatest(0,(SELECT coalesce(sum(commission_cents),0) FROM public.partner_commissions WHERE partner_id=p.id AND status='payable')+(SELECT coalesce(sum(amount_cents),0) FROM public.partner_adjustments WHERE partner_id=p.id AND payout_id IS NULL)),
   'paid_cents',(SELECT coalesce(sum(amount_cents),0) FROM public.partner_payouts WHERE partner_id=p.id),
   'businesses',coalesce((SELECT jsonb_agg(jsonb_build_object('name',b.name,'claimed_at',(SELECT min(x.claimed_at) FROM public.prospect_pages x WHERE x.claimed_business_id=b.id AND x.created_by=p.user_id),
-   'plan',CASE WHEN b.subscription_status IN ('active','past_due','paid') THEN coalesce((SELECT CASE WHEN c.product='pro_yearly' THEN 'Pro yearly' ELSE 'Pro monthly' END FROM public.partner_commissions c WHERE c.business_id=b.id AND c.product IN ('pro_monthly','pro_yearly') ORDER BY c.paid_at DESC LIMIT 1),'Pro monthly') WHEN b.pro_trial_ends_at>now() OR b.subscription_status='trialing' THEN 'trial' ELSE 'free' END,
+   'plan',CASE WHEN b.subscription_status IN ('active','past_due','paid') THEN CASE WHEN coalesce(b.partner_last_product,(SELECT c.product FROM public.partner_commissions c WHERE c.business_id=b.id AND c.product IN ('pro_monthly','pro_yearly') ORDER BY c.paid_at DESC LIMIT 1))='pro_yearly' THEN 'Pro yearly' ELSE 'Pro monthly' END WHEN b.pro_trial_ends_at>now() OR b.subscription_status='trialing' THEN 'trial' ELSE 'free' END,
    'earned_cents',(SELECT coalesce(sum(commission_cents),0) FROM public.partner_commissions WHERE partner_id=p.id AND business_id=b.id AND status<>'reversed')) ORDER BY b.partner_attributed_at DESC) FROM public.businesses b WHERE b.partner_id=p.id AND NOT coalesce(b.is_demo,false)),'[]'::jsonb))
  FROM public.partners p WHERE p.id=p_partner_id AND p.kind='rep';
 $$;
