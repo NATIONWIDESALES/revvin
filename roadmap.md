@@ -18,7 +18,8 @@
 - [x] Run full suite, inspect build signal, and document verification limits
 
 # Sales rep partner engine
-- [ ] Add rep linking, versioned terms, applied-rate snapshots and guarded attribution RPCs
-- [ ] Connect claim precedence and collected-payment commissions to the existing ledger
-- [ ] Add own-rep earnings and admin terms/leaderboard controls
-- [ ] Isolated migration/security/arithmetic tests, full suite, deployment and changelog; no frontend publish
+- [ ] Add rep linking, versioned terms, applied-rate snapshots and guarded attribution RPCs. Blocked: migration tool lacks public schema permission; nothing applied.
+- [ ] Connect claim precedence and collected-payment commissions to the existing ledger. Blocked: required schema/functions unavailable.
+- [ ] Add own-rep earnings and admin terms/leaderboard controls. Blocked: required schema/functions unavailable.
+- [x] Save isolated candidate tests and blocked-work changelog; no frontend publish
+- [ ] Deploy and verify integrated admin/rep/payment flows. Blocked: Cloud schema permission refusal.

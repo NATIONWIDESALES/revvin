@@ -59,7 +59,7 @@ async function payment(partner: string, business: string, product: string, amoun
   return (await db.query<{ commission_cents: number; applied_rate: string }>(`SELECT commission_cents::int,applied_rate::text FROM partner_commissions WHERE stripe_object_id='${object}'`)).rows[0];
 }
 async function claim(options: { typed?: string; existing?: string; demo?: boolean; category?: string; self?: boolean } = {}) {
-  const id = crypto.randomUUID(); const code = id.replaceAll("-", ""); const user = options.self ? repUser : owner;
+  const id = crypto.randomUUID(); const code = id.replace(/-/g, ""); const user = options.self ? repUser : owner;
   await as(user);
   await db.exec(`UPDATE auth.users SET raw_user_meta_data='${JSON.stringify({ partner_typed_code: options.typed })}' WHERE id='${user}';
     INSERT INTO businesses(id,user_id,name,category,is_demo,acquisition,partner_id) VALUES('${id}','${user}','Fixture Business','${options.category ?? "Roofing"}',${!!options.demo},'{"prospect_code":"${code}"}',${options.existing ? `'${options.existing}'` : "NULL"});
