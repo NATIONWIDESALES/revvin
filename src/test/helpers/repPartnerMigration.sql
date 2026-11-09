@@ -6,6 +6,7 @@ ALTER TABLE public.partners
  ADD COLUMN recurring_months integer CHECK(recurring_months IS NULL OR recurring_months>0);
 ALTER TABLE public.partners ADD CONSTRAINT partner_rep_link CHECK((kind='rep' AND user_id IS NOT NULL) OR (kind='affiliate' AND user_id IS NULL));
 ALTER TABLE public.partner_commissions ADD COLUMN applied_rate numeric NOT NULL DEFAULT 0.40;
+ALTER TABLE public.prospect_pages ADD COLUMN claimed_at timestamptz;
 
 CREATE TABLE public.partner_term_versions(
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),partner_id uuid NOT NULL REFERENCES public.partners(id),
@@ -92,7 +93,7 @@ BEGIN
  IF auth.uid() IS NULL OR b.user_id IS DISTINCT FROM auth.uid() OR p.claimed_business_id IS DISTINCT FROM b.id OR p.status<>'claimed' OR b.acquisition->>'prospect_code' IS DISTINCT FROM p.code THEN RAISE EXCEPTION 'not_authorized'; END IF;
  IF b.partner_id IS NOT NULL OR coalesce(b.is_demo,false) OR public.fn_offer_is_restricted_category(b.category) OR public.fn_offer_is_restricted_category(b.industry) THEN RETURN false; END IF;
  SELECT * INTO rep FROM public.partners WHERE user_id=p.created_by AND kind='rep' AND status='approved' LIMIT 1;
- IF rep.id IS NULL OR NOT public.has_role(rep.user_id,'sales') THEN RETURN false; END IF;
+ IF rep.id IS NULL OR NOT EXISTS(SELECT 1 FROM public.user_roles WHERE user_id=rep.user_id AND role='sales') THEN RETURN false; END IF;
  SELECT email INTO owner_email FROM auth.users WHERE id=b.user_id;
  SELECT email INTO rep_email FROM auth.users WHERE id=rep.user_id;
  IF owner_email IS NULL OR rep_email IS NULL OR lower(owner_email)=lower(rep_email) OR lower(owner_email)=lower(rep.email) THEN RETURN false; END IF;
@@ -193,5 +194,3 @@ BEGIN
 END $$;
 REVOKE ALL ON FUNCTION public.fn_admin_rep_earnings() FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION public.fn_admin_rep_earnings() TO authenticated;
-
-ALTER TABLE public.prospect_pages ADD COLUMN claimed_at timestamptz;
