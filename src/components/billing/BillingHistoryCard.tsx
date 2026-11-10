@@ -17,7 +17,7 @@ const money = (cents: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format((cents || 0) / 100);
 
 const reasonLabel = (row: PaymentRow) => {
-  if (row.kind === "launch_package") return "Launch Package";
+  if (row.kind === "launch_package") return "Done-for-you launch";
   switch (row.billing_reason) {
     case "subscription_create":
       return "Pro started";
@@ -33,7 +33,7 @@ const reasonLabel = (row: PaymentRow) => {
 /**
  * Payment history for the signed in owner, read from the server invoice
  * ledger. Amounts shown here are only what Revvin charged for Pro. Rewards
- * paid to referrers live in the Payouts tab and are paid directly by the
+ * paid to referrers live in the Rewards tab and are paid directly by the
  * business.
  */
 const BillingHistoryCard = ({ className = "" }: { className?: string }) => {
@@ -67,7 +67,7 @@ const BillingHistoryCard = ({ className = "" }: { className?: string }) => {
         </Button>
       </div>
       <p className="mb-4 text-xs text-muted-foreground">
-        Every Revvin charge that cleared, straight from our payment records. Rewards you pay referrers are in the Payouts tab.
+        Every Revvin charge that cleared, straight from our payment records. Rewards you pay referrers are in the Rewards tab.
       </p>
 
       {loading ? (

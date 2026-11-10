@@ -18,9 +18,9 @@ export const NAV_GROUPS: NavGroup[] = [
   { title: "Your page", items: [
     { tab: "page", label: "Edit page" },
     { tab: "share", label: "Print pack and QR" },
-    { tab: "jobdone", label: "Job done asks" },
   ] },
   { title: "Pro", items: [
+    { tab: "jobdone", label: "Job done asks", pro: true },
     { tab: "campaigns", label: "Campaigns", pro: true },
     { tab: "reports", label: "Reports", pro: true },
   ] },
