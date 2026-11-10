@@ -18,19 +18,19 @@
 - [x] Run full suite, inspect build signal, and document verification limits
 
 # Sales rep partner engine
-- [ ] Add rep linking, versioned terms, applied-rate snapshots and guarded attribution RPCs. Blocked: migration tool lacks public schema permission; nothing applied.
-- [ ] Connect claim precedence and collected-payment commissions to the existing ledger. Blocked: required schema/functions unavailable.
-- [ ] Add own-rep earnings and admin terms/leaderboard controls. Blocked: required schema/functions unavailable.
+- [ ] Add rep linking, versioned terms, applied-rate snapshots and guarded attribution RPCs. Ready to resume after pricing verification; permission probe now succeeds.
+- [ ] Connect claim precedence and collected-payment commissions to the existing ledger. Pending additive rep migration and integration.
+- [ ] Add own-rep earnings and admin terms/leaderboard controls. Pending additive rep migration and integration.
 - [x] Save isolated candidate tests and blocked-work changelog; no frontend publish
-- [ ] Deploy and verify integrated admin/rep/payment flows. Blocked: Cloud schema permission refusal.
+- [ ] Deploy and verify integrated admin/rep/payment flows. Pending authenticated verification.
 
 # Approved pricing and plan change, active before rep commissions
 - [x] Owner sequencing correction: pricing proceeds now, rep commissions resume afterwards. Permission probe succeeded as postgres.
-- [ ] Create new recurring prices on existing Pro product ($97/month USD, $970/year USD); preserve legacy prices and the existing $17 subscriber. Stop before checkout/public copy changes if price creation is unavailable.
-- [ ] Version checkout so absent version retains legacy prices; recognize both generations throughout billing and commissions without repricing subscriptions.
-- [ ] Pause new invite redemptions behind one default-paused flag; preserve redeemed offers and coupons; paused surfaces apply standard offer.
-- [ ] Confirm no real business exceeds 25 contacts or uses automatic asks before migrating; enforce 25 Free contacts and Pro automatic-job asks at every server entry without deleting contacts/settings/connections.
-- [ ] Sweep config, marketing, product, SEO/generated documents, emails, legal, MCP and partner/admin surfaces to the approved split; preserve competitor facts.
-- [ ] Delete the $29 founding offer completely: hidden Pricing branch and homepage strips, FOUNDING_OFFER_ACTIVE, offer-only configuration/copy/CTA names/email/legal/tests/docs/admin references. Keep SETUP_CALL_URL and Done-for-you launch booking links. Confirm no code references a $29 Stripe price; add $29 and founding-as-Revvin-offer to retired-phrases guard. Report removals and justified retained references.
-- [ ] Add launch guarantee: $297 refund if no referral within 60 days of first asks, at least 50 customers asked, email request within 90 days of purchase; manual refunds only.
-- [ ] Update guards and isolated entitlement tests, run full suite and inspect build; report contradictions, exclusions, checkout test-mode verification and ordered publish steps. Do not publish frontend.
+- [x] Create new recurring prices on existing Pro product ($97/month USD, $970/year USD); preserve legacy prices and the existing $17 subscriber. Stop before checkout/public copy changes if price creation is unavailable.
+- [x] Version checkout so absent version retains legacy prices; recognize both generations throughout billing and commissions without repricing subscriptions.
+- [x] Pause new invite redemptions behind one default-paused flag; preserve redeemed offers and coupons; paused surfaces apply standard offer.
+- [x] Confirm no real business exceeds 25 contacts or uses automatic asks before migrating; enforce 25 Free contacts and Pro automatic-job asks at every server entry without deleting contacts/settings/connections.
+- [x] Sweep config, marketing, product, SEO/generated documents, emails, legal, MCP and partner/admin surfaces to the approved split; preserve competitor facts.
+- [x] Delete the $29 founding offer completely: hidden Pricing branch and homepage strips, FOUNDING_OFFER_ACTIVE, offer-only configuration/copy/CTA names/email/legal/tests/docs/admin references. Keep SETUP_CALL_URL and Done-for-you launch booking links. Confirm no code references a $29 Stripe price; add $29 and founding-as-Revvin-offer to retired-phrases guard. Report removals and justified retained references.
+- [x] Add launch guarantee: $297 refund if no referral within 60 days of first asks, at least 50 customers asked, email request within 90 days of purchase; manual refunds only.
+- [x] Update guards and isolated entitlement tests, run full suite and inspect build; report contradictions, exclusions, checkout verification limits and ordered publish steps. Do not publish frontend.
