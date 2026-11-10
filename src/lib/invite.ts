@@ -7,6 +7,8 @@
  * claims a use atomically. Locally held codes are hints only.
  */
 const STORAGE_KEY = "revvin_invite_code";
+import { INVITE_PROMOTION_PAUSED } from "../../supabase/functions/_shared/promo";
+import { PRICE_TEXT } from "@/config/pricing";
 const MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000; // 90 days
 const MAX_LEN = 40;
 
@@ -20,6 +22,7 @@ function normalize(raw: string): string | null {
 
 /** The held invite code, or null when absent, malformed, or expired. */
 export function getInviteCode(): string | null {
+  if (INVITE_PROMOTION_PAUSED) return null;
   try {
     if (typeof localStorage === "undefined") return null;
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -39,6 +42,7 @@ export function getInviteCode(): string | null {
 
 /** Store a code. A newer invite replaces an older one. */
 export function setInviteCode(raw: string): string | null {
+  if (INVITE_PROMOTION_PAUSED) return null;
   const code = normalize(raw);
   if (!code) return null;
   try {
@@ -64,4 +68,4 @@ export function captureInviteFromSearch(search?: string): string | null {
 
 /** Plain-English terms of the invite offer. Used verbatim in the UI. */
 export const INVITE_TERMS =
-  "No card needed to sign up. If you upgrade to Pro later, your invite applies: 3 months free, then $17/month instead of $97. Cancel anytime and your page stays live.";
+  `New invite promotions are paused. Publishing is free. Pro is ${PRICE_TEXT.monthlyPerMonth} USD or ${PRICE_TEXT.annualPerYear} USD. Cancel anytime and your page stays live.`;

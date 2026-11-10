@@ -115,7 +115,7 @@ const InviteLanding = () => {
             <p className="mt-2 text-sm text-muted-foreground">
               The value here is your own page and your own customers. Our public marketplace is still
               filling up, so do not count on strangers finding you there yet. Publishing is free. {PLAN_SPLIT.line}{" "}
-              {PLAN_SPLIT.proDetail} Your invite holds Revvin Pro at $17/month instead of $97, after three months free.
+              {PLAN_SPLIT.proDetail}
             </p>
           </section>
 

@@ -29,15 +29,6 @@ export const FREE_FEATURES = [
     description: "Track each fixed reward from owed to paid, with the referrer notified at both moments.",
   },
   {
-    label: "Automatic ask after each job",
-    description:
-      "Tap Job done, or connect your job software, and Revvin asks for a Google review and a referral.",
-  },
-  {
-    label: "API and Zapier connection",
-    description: "Let your job software tell Revvin when a job is finished.",
-  },
-  {
     label: "Import and ask up to 25 customers",
     description: "Add up to 25 past customers and send each ask from your own phone or email app.",
   },
@@ -57,6 +48,14 @@ export const PRO_FEATURES = [
     description: "Bring your whole customer list into Revvin, with no cap.",
   },
   {
+    label: "Automatic ask after each job",
+    description: "Tap Job done for a review and referral ask, or trigger it through job software, API or Zapier.",
+  },
+  {
+    label: "API and Zapier connection",
+    description: "Connect job software to trigger automatic review and referral asks.",
+  },
+  {
     label: "Send your ask to the whole list",
     description: "Work through customers in batches, with each ask opening in your own phone or email app.",
   },
@@ -74,15 +73,14 @@ export const PRO_FEATURES = [
   },
 ] as const satisfies readonly PlanFeature[];
 /**
- * The one-line answer to "what do I get for $97": Free works forward on every
- * job from here on; Pro works backward through every customer already served.
+ * Shared Free and Pro split for marketing and account screens.
  * Used on the homepage, pricing page and invite landing so they never differ.
  */
 /** The one label for every "start on Free" button across public pages. */
 export const FREE_CTA_LABEL = "Start free";
 
 /** Free plan cap on stored customers. The database enforces the same number. */
-export const FREE_CONTACT_LIMIT = 100;
+export const FREE_CONTACT_LIMIT = 25;
 
 export const FREE_LIMIT_COPY = {
   /** Shown when the server refuses with free_contact_limit. */
@@ -97,10 +95,10 @@ export const isFreeContactLimitError = (e: { message?: string } | null | undefin
 export const PLAN_SPLIT = {
   line: "Free covers your first 25 customers. Pro covers your whole list.",
   subline: "Your referral page and every referral are free. Pro adds unlimited customers and the automatic asks.",
-  freeSubtitle: "Every job from here on",
-  proSubtitle: "Every customer you've ever had",
+  freeSubtitle: "Your first 25 customers",
+  proSubtitle: "Your whole list, automatically",
   freeDetail:
-    "Referral page, QR codes, lead inbox, the review and referral ask that fires when you mark a job done, and up to 25 imported customers to ask.",
-  proDetail: "Import your whole list with no cap and Revvin emails them from your business name to win back repeat work, with replies going to your own inbox. Plus ROI reporting and custom branding.",
+    "Referral page, personal referrer links, QR code and print pack, lead inbox, referral email alerts, reward tracking and up to 25 customers to ask from your own phone or email app.",
+  proDetail: "Unlimited customers, automatic job-completion review and referral asks through Job done or job software, API and Zapier, reactivation email campaigns, ROI reporting and monthly recap, and custom page branding.",
   proLead: "Revvin emails your whole past-customer list for you, from your business name, to win back repeat work.",
 } as const;

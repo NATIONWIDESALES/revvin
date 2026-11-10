@@ -15,6 +15,8 @@ import {
   PRICE_ANNUAL_450,
   PRICE_LAUNCH_PACKAGE_297,
   PRICE_MONTHLY_49,
+  PRICE_MONTHLY_97,
+  PRICE_ANNUAL_970,
 } from "./stripe-prices.ts";
 
 const DAY = 86_400_000;
@@ -104,8 +106,10 @@ export function meetsPayoutMinimum(balanceCents: number): boolean {
 export function productFromPriceId(priceId: unknown): PartnerProduct | null {
   switch (String(priceId ?? "")) {
     case PRICE_MONTHLY_49:
+    case PRICE_MONTHLY_97:
       return "pro_monthly";
     case PRICE_ANNUAL_450:
+    case PRICE_ANNUAL_970:
       return "pro_yearly";
     case PRICE_LAUNCH_PACKAGE_297:
       return "launch_package";

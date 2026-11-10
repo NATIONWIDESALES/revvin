@@ -1,5 +1,6 @@
 import { Ticket } from "lucide-react";
 import { INVITE_TERMS } from "@/lib/invite";
+import { INVITE_PROMOTION_PAUSED } from "../../../supabase/functions/_shared/promo";
 
 /**
  * Honest invite banner. No validation tick: the code is only truly checked at
@@ -18,6 +19,7 @@ const InviteBanner = ({
   className?: string;
   compact?: boolean;
 }) => {
+  if (INVITE_PROMOTION_PAUSED) return null;
   if (compact) {
     return (
       <p
@@ -25,7 +27,7 @@ const InviteBanner = ({
       >
         <Ticket className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
         <span>
-          Invite <span className="font-mono">{code}</span> applied &middot; Revvin Pro at $17/month instead of $97, after 3 months free
+          Invite <span className="font-mono">{code}</span> held for checkout
         </span>
       </p>
     );
@@ -37,7 +39,7 @@ const InviteBanner = ({
         <Ticket className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
         <div>
           <p className="text-sm font-medium text-foreground">
-            Invite <span className="font-mono">{code}</span> held: Revvin Pro at $17/month instead of $97, after 3 months free
+            Invite <span className="font-mono">{code}</span> held for checkout
           </p>
           <p className="mt-1 text-xs text-muted-foreground">{INVITE_TERMS}</p>
         </div>
