@@ -176,6 +176,13 @@
       "when": 1793926100281,
       "tag": "0024_admin_update_business_and_core_numbers",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794274922270,
+      "tag": "0025_rollback_schema_permission_probe",
+      "breakpoints": true
     }
   ]
 }
