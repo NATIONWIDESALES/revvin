@@ -5,7 +5,7 @@
 - Explicit `2026-11` checkout version selects new prices. Versionless requests retain legacy prices; unknown versions fail closed. Both generations remain commission-eligible.
 - Migration 0026 enforces 25 Free contacts and Pro automatic job asks, including trial. Migration 0027 gates new API keys/webhook endpoints. Contacts, settings and connections are retained; delivery checks pause Pro-only asks/connections on Free.
 - New invite redemptions are default-paused. Existing redemption records/coupons remain unchanged.
-- Removed hidden founding Pricing block, homepage strips, founding offer flag and offer CTA. No $29 Stripe price reference remains. Company founding-date metadata remains because it is not an offer; setup-call URL remains for the launch service.
+- Removed the hidden retired-offer Pricing block, homepage strips, configuration flag and offer CTA. No retired-offer Stripe price reference remains. Company founding-date metadata remains because it is not an offer; setup-call URL remains for the launch service.
 - Updated marketing, product, metadata, structured data, generated-route/feed text, emails, legal and partner price mappings; competitor prices remain unchanged.
 - Added full conditional $297 launch refund guarantee; refunds remain manual.
 
