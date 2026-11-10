@@ -37,4 +37,7 @@ export const ANNUAL_TERMS_COPY =
 
 
 export const CHECKOUT_PRICE_VERSION = "2026-11";
-export const LAUNCH_GUARANTEE = "If no referral arrives within 60 days of your first asks, we refund the $297 launch fee, provided you asked at least 50 customers and email info@revvin.co within 90 days of purchase. Refunds are issued manually.";
+// The one full statement of the done-for-you launch guarantee. Wherever the
+// guarantee is stated in full it must be this exact sentence; the parity test
+// in src/test/pricing-rollout.test.ts checks every surface against it.
+export const LAUNCH_GUARANTEE = "If no referral arrives within 60 days of your first asks, we refund the $297 in full, provided you asked at least 50 customers and email info@revvin.co within 90 days of purchase. Refunds are issued manually.";

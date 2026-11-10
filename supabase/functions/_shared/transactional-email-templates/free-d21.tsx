@@ -13,7 +13,7 @@ interface Props {
 
 const Email = ({ businessName, pricingUrl, unsubscribeUrl, postalAddress }: Props) => (
   <RevvinShell
-    previewText="The Launch Package, set up with you."
+    previewText="The done-for-you launch, set up with you."
     unsubscribeUrl={unsubscribeUrl}
     postalAddress={postalAddress}
   >
@@ -23,7 +23,7 @@ const Email = ({ businessName, pricingUrl, unsubscribeUrl, postalAddress }: Prop
       the setup with you.
     </Text>
     <Text style={paragraph}>{LAUNCH_PACKAGE_LINE}</Text>
-    {pricingUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(pricingUrl, 'See the Launch Package')}</Text> : null}
+    {pricingUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(pricingUrl, 'See the done-for-you launch')}</Text> : null}
     <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )
@@ -31,7 +31,7 @@ const Email = ({ businessName, pricingUrl, unsubscribeUrl, postalAddress }: Prop
 export const template = {
   component: Email,
   subject: 'Want us to set it all up for you?',
-  displayName: 'Free, day 21 (Launch Package)',
+  displayName: 'Free, day 21 (done-for-you launch)',
   previewData: {
     businessName: 'Summit Roofing',
     pricingUrl: 'https://revvin.co/pricing',

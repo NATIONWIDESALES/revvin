@@ -19,9 +19,11 @@ export const LAUNCH_PACKAGE_TEXT = `$${LAUNCH_PACKAGE_PRICE} one-time`;
 export const PRO_PRICE_LINE =
   `Revvin Pro is ${PRICE_MONTHLY_TEXT} or ${PRICE_ANNUAL_TEXT} USD billed once, two months free. Cancel anytime and your referral page stays live and free.`;
 
-/** How the pricing page describes the Launch Package today. */
+/** How the pricing page describes the done-for-you launch today. The
+ *  guarantee sentence must stay identical to LAUNCH_GUARANTEE in
+ *  src/config/pricing.ts; the pricing-rollout parity test checks it. */
 export const LAUNCH_PACKAGE_LINE =
-  `Optional. We load your customer list, set up your page and reward with you, and send the first asks with you. ${LAUNCH_PACKAGE_TEXT}. If no referral arrives within 60 days of your first asks, we refund the $297 launch fee, provided you asked at least 50 customers and email info@revvin.co within 90 days of purchase. Refunds are issued manually.`;
+  `Optional done-for-you launch. We load your customer list, set up your page and reward with you, and send the first asks with you. ${LAUNCH_PACKAGE_TEXT}. If no referral arrives within 60 days of your first asks, we refund the $297 in full, provided you asked at least 50 customers and email info@revvin.co within 90 days of purchase. Refunds are issued manually.`;
 
 /** Mirrors PRO_FEATURES in src/config/planFeatures.ts (labels only). */
 export const PRO_FEATURE_LABELS: string[] = [

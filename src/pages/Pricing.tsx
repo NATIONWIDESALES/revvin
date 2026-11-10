@@ -202,7 +202,7 @@ const Pricing = () => {
               )}
               <Button size="lg" className="mt-6 h-auto min-h-11 w-full whitespace-normal py-2.5 text-center " variant="sign" asChild onClick={() => setLaunchFlag(LAUNCH_PACKAGE_ENABLED && addLaunch)}>
                 <Link to={`/signup?plan=${plan}`}>
-                  {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Start Pro + Launch Package" : "Start with Revvin Pro"}
+                  {LAUNCH_PACKAGE_ENABLED && addLaunch ? "Start Pro + done-for-you launch" : "Start with Revvin Pro"}
                 </Link>
               </Button>
               {!annual && (
@@ -239,7 +239,7 @@ const Pricing = () => {
               <div className="flex items-center gap-2">
                 <Checkbox id="add-launch" checked={addLaunch} onCheckedChange={(v) => toggleLaunch(v === true)} />
                 <Label htmlFor="add-launch" className="cursor-pointer font-normal text-muted-foreground">
-                  Want us to load your customer list, set up your page and reward, and send the first asks with you? Add the optional launch, $297 one-time.
+                  Want us to load your customer list, set up your page and reward with you, and send the first asks with you? Add the done-for-you launch, $297 one-time.
                 </Label>
               </div>
               {addLaunch && <p className="text-xs">Added. It is charged once at checkout when you start Pro.</p>}
@@ -325,7 +325,7 @@ const Pricing = () => {
             </AccordionItem>
             {LAUNCH_PACKAGE_ENABLED && (
               <AccordionItem value="p2">
-                <AccordionTrigger>What's in the $297 Launch Package?</AccordionTrigger>
+                <AccordionTrigger>What's in the $297 done-for-you launch?</AccordionTrigger>
                 <AccordionContent>
                   We load your customer list, set up your page and reward with you, and send the first asks with you. It is optional. {LAUNCH_GUARANTEE}
                 </AccordionContent>

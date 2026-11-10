@@ -11,6 +11,7 @@ import AuthSplit from "@/components/AuthSplit";
 import SEOHead from "@/components/SEOHead";
 import Wordmark from "@/components/brand/Wordmark";
 import { friendlyError } from "@/lib/errors";
+import { PRICE_TEXT } from "@/config/pricing";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
