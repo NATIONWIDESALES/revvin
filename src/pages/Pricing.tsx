@@ -211,7 +211,7 @@ const Pricing = () => {
                   onClick={() => setPlan("annual")}
                   className="mt-3 text-xs font-medium text-primary underline-offset-2 hover:underline"
                 >
-                  {`Pay yearly instead and save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off)`}
+                  Pay yearly instead, two months free
                 </button>
               )}
               <p className="mt-8 flex items-start gap-2.5 border-t border-border pt-6 text-sm font-semibold text-foreground">

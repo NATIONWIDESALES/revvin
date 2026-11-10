@@ -8,6 +8,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.97.0'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2.97.0/cors'
 import { checkCronAuth } from '../_shared/cron-auth.ts'
+import { effectivePlan } from '../_shared/effective-plan.ts'
 import { validateWebhookDns } from '../_shared/security.ts'
 
 const BATCH = 25
@@ -59,6 +60,12 @@ Deno.serve(async (req) => {
   let failed = 0
 
   for (const row of due ?? []) {
+    try {
+      if (await effectivePlan(admin, row.business_id) !== 'pro') {
+        await admin.from('webhook_deliveries').update({ last_error: 'pro_required_automatic_ask', next_attempt_at: new Date(Date.now()+3600000).toISOString() }).eq('id', row.id)
+        continue
+      }
+    } catch { continue }
     const { data: eps } = await admin
       .from('webhook_endpoints')
       .select('url, secret, active, include_contact')

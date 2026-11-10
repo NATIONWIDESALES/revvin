@@ -135,6 +135,7 @@ const IntegrationsTab = ({ biz, isPro }: { isPro: boolean; biz: { id: string; co
   };
 
   const addEndpoint = async () => {
+    if (!isPro) { toast({ title: "Pro is required for integrations", description: "Existing connections are kept but paused on Free." }); return; }
     let parsed: URL;
     try {
       parsed = new URL(url.trim());
@@ -196,6 +197,7 @@ const IntegrationsTab = ({ biz, isPro }: { isPro: boolean; biz: { id: string; co
 
   return (
     <div className="space-y-6">
+      {!isPro && <p className="text-sm text-muted-foreground">Automatic job-software, API, Zapier and webhook connections are paused on Free. Your settings and connections are kept. Upgrade to Pro from Plan &amp; billing to resume.</p>}
       <div className="rounded-2xl border border-border bg-card p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -212,7 +214,7 @@ const IntegrationsTab = ({ biz, isPro }: { isPro: boolean; biz: { id: string; co
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" />
             <span>
               The API will reject jobs until you complete the customer outreach attestation in the Job done tab.
-              You can create keys now and they will start working straight after.
+              Pro accounts can create keys; requests start working after the attestation is complete.
             </span>
           </div>
         )}
@@ -245,7 +247,7 @@ const IntegrationsTab = ({ biz, isPro }: { isPro: boolean; biz: { id: string; co
             <Label htmlFor="keyLabel" className="text-xs">Label</Label>
             <Input id="keyLabel" value={keyLabel} onChange={(e) => setKeyLabel(e.target.value)} placeholder="Jobber, Zapier, office laptop" maxLength={60} />
           </div>
-          <Button onClick={createKey} disabled={busy || !keyLabel.trim()}><Plus className="mr-1.5 h-3.5 w-3.5" /> Create key</Button>
+          <Button onClick={createKey} disabled={busy || !isPro || !keyLabel.trim()}><Plus className="mr-1.5 h-3.5 w-3.5" /> Create key</Button>
         </div>
 
         <div className="mt-4 space-y-2">

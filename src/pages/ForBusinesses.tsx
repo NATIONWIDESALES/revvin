@@ -37,7 +37,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "What happens if a referral does not close?",
-    a: "You pay your referrer nothing because they only earn when a deal closes. Your referral page costs nothing, and the only optional cost is the flat $97/month Revvin Pro subscription.",
+    a: "You pay your referrer nothing because they only earn when a deal closes. Your referral page costs nothing, and Pro is optional at $97/month USD or $970/year USD. An optional done-for-you launch is $297 one-time.",
   },
   {
     q: "Who decides the referral payout amount?",
