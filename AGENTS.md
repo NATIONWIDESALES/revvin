@@ -18,3 +18,6 @@
 - Referral search approval is separate from publication and defaults off. Why: moderation must not break the live referral form.
 - Publish failure analytics use an allowlisted reason classifier shared with the privacy filter; onboarding must confirm an awaited owner save returned required fields before publishing. Why: failures stay diagnosable without personal data or silent zero-row writes.
 - SQL email regression tests resolve the latest function definition in migration order and execute payload capture in isolated PostgreSQL. Why: historical migrations remain immutable while active writers meet the delivery contract.
+
+- Checkout price selection is explicit-versioned; absent version uses legacy IDs and unknown versions fail closed. Why: live functions and unpublished price copy deploy separately.
+- Automatic job asks use fn_effective_plan at creation and immediately before scheduled delivery; paused rows and connections remain stored. Why: trial expiry cannot silently send a Pro-only ask.
