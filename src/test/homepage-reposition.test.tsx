@@ -27,7 +27,7 @@ describe("homepage", () => {
     const start = screen.getAllByRole("link", { name: /Start free/ });
     expect(start[0].getAttribute("href")).toBe("/signup");
     expect(screen.getByRole("link", { name: "See a real referral page" }).getAttribute("href")).toBe("/sample");
-    expect(screen.getByText("Free for your first 100 customers. No card.")).toBeTruthy();
+    expect(screen.getByText("Free for your first 25 customers. No card.")).toBeTruthy();
   });
 
   it("has a FAQPage with exactly six questions", () => {

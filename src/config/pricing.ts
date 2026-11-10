@@ -3,14 +3,14 @@
 // numbers can never drift between the homepage, pricing page, dashboard and
 // checkout.
 
-export const MONTHLY_PRICE = 49;
-export const ANNUAL_PRICE = 450;
+export const MONTHLY_PRICE = 97;
+export const ANNUAL_PRICE = 970;
 export const MONTHS_PER_YEAR = 12;
 
-export const ANNUAL_LIST_PRICE = MONTHLY_PRICE * MONTHS_PER_YEAR; // 588
-export const ANNUAL_SAVING = ANNUAL_LIST_PRICE - ANNUAL_PRICE; // 138
-export const ANNUAL_DISCOUNT_PCT = Math.round((ANNUAL_SAVING / ANNUAL_LIST_PRICE) * 100); // 23
-export const ANNUAL_EFFECTIVE_MONTHLY = ANNUAL_PRICE / MONTHS_PER_YEAR; // 37.5
+export const ANNUAL_LIST_PRICE = MONTHLY_PRICE * MONTHS_PER_YEAR;
+export const ANNUAL_SAVING = ANNUAL_LIST_PRICE - ANNUAL_PRICE;
+export const ANNUAL_DISCOUNT_PCT = Math.round((ANNUAL_SAVING / ANNUAL_LIST_PRICE) * 100);
+export const ANNUAL_EFFECTIVE_MONTHLY = ANNUAL_PRICE / MONTHS_PER_YEAR;
 
 export type BillingPlan = "monthly" | "annual";
 
@@ -18,14 +18,14 @@ const money = (n: number) =>
   n % 1 === 0 ? `$${n}` : `$${n.toFixed(2)}`;
 
 export const PRICE_TEXT = {
-  monthly: money(MONTHLY_PRICE), // $49
+  monthly: money(MONTHLY_PRICE),
   monthlyPerMonth: `${money(MONTHLY_PRICE)}/month`,
-  annual: money(ANNUAL_PRICE), // $450
+  annual: money(ANNUAL_PRICE),
   annualPerYear: `${money(ANNUAL_PRICE)}/year`,
-  annualListPrice: money(ANNUAL_LIST_PRICE), // $588
-  saving: money(ANNUAL_SAVING), // $138
-  discount: `${ANNUAL_DISCOUNT_PCT}%`, // 23%
-  effectiveMonthly: `${money(ANNUAL_EFFECTIVE_MONTHLY)}/month`, // $37.50/month
+  annualListPrice: money(ANNUAL_LIST_PRICE),
+  saving: money(ANNUAL_SAVING),
+  discount: `${ANNUAL_DISCOUNT_PCT}%`, // two months free
+  effectiveMonthly: `${money(ANNUAL_EFFECTIVE_MONTHLY)}/month`,
 } as const;
 
 // Reusable, factual cancellation copy for the annual plan. Two separate facts,
@@ -34,8 +34,7 @@ export const PRICE_TEXT = {
 export const ANNUAL_TERMS_COPY =
   `Billed once at ${PRICE_TEXT.annual} for the year. Cancel anytime and Pro keeps working to the end of the year you paid for. After that your referral page stays live and keeps taking referrals, because publishing is free. No partial refunds.`;
 
-/**
- * Founding offer on the pricing page. The founding price is applied by hand on
- * the setup call; there is no self-serve checkout for it.
- */
-export const FOUNDING_OFFER_ACTIVE = true;
+
+
+export const CHECKOUT_PRICE_VERSION = "2026-11";
+export const LAUNCH_GUARANTEE = "If no referral arrives within 60 days of your first asks, we refund the $297 launch fee, provided you asked at least 50 customers and email info@revvin.co within 90 days of purchase. Refunds are issued manually.";

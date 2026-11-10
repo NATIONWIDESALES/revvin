@@ -128,7 +128,7 @@ export const HOME_CTA_LABELS = [
   "home_demo_inline", "hero_setup_link", "pricing_setup_link",
   "home_tool_grader", "home_tool_calculator", "home_tool_generator", "home_tools_all",
   "nav_signup", "nav_menu_signup", "invite_signup",
-  "hero_sample", "home_founder_call", "home_earn", "pricing_founding_call",
+  "hero_sample", "home_founder_call", "home_earn",
 ] as const;
 // Toolkit steps ride on cta_clicked with a fixed label, so measuring the free
 // tools needs no new event name. A label names the tool and the step and nothing

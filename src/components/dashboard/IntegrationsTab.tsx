@@ -55,7 +55,7 @@ const sha256Hex = async (s: string) => {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 };
 
-const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_at: string | null } }) => {
+const IntegrationsTab = ({ biz, isPro }: { isPro: boolean; biz: { id: string; contact_outreach_consent_at: string | null } }) => {
   const { toast } = useToast();
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
@@ -99,6 +99,7 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
   // The plaintext key never leaves this function except into the owner's
   // clipboard. Only its SHA-256 hash and a short prefix are stored.
   const createKey = async () => {
+    if (!isPro) { toast({ title: "Pro is required for automatic job asks", description: "Existing connections are kept but paused on Free." }); return; }
     if (!keyLabel.trim()) {
       toast({ title: "Name the key first", description: "A label like \"Zapier\" helps you know what to revoke later.", variant: "destructive" });
       return;
@@ -134,6 +135,7 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
   };
 
   const addEndpoint = async () => {
+    if (!isPro) { toast({ title: "Pro is required for integrations", description: "Existing connections are kept but paused on Free." }); return; }
     let parsed: URL;
     try {
       parsed = new URL(url.trim());
@@ -195,6 +197,7 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
 
   return (
     <div className="space-y-6">
+      {!isPro && <p className="text-sm text-muted-foreground">Automatic job-software, API, Zapier and webhook connections are paused on Free. Your settings and connections are kept. Upgrade to Pro from Plan &amp; billing to resume.</p>}
       <div className="rounded-2xl border border-border bg-card p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -211,7 +214,7 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" />
             <span>
               The API will reject jobs until you complete the customer outreach attestation in the Job done tab.
-              You can create keys now and they will start working straight after.
+              Pro accounts can create keys; requests start working after the attestation is complete.
             </span>
           </div>
         )}
@@ -244,7 +247,7 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
             <Label htmlFor="keyLabel" className="text-xs">Label</Label>
             <Input id="keyLabel" value={keyLabel} onChange={(e) => setKeyLabel(e.target.value)} placeholder="Jobber, Zapier, office laptop" maxLength={60} />
           </div>
-          <Button onClick={createKey} disabled={busy || !keyLabel.trim()}><Plus className="mr-1.5 h-3.5 w-3.5" /> Create key</Button>
+          <Button onClick={createKey} disabled={busy || !isPro || !keyLabel.trim()}><Plus className="mr-1.5 h-3.5 w-3.5" /> Create key</Button>
         </div>
 
         <div className="mt-4 space-y-2">

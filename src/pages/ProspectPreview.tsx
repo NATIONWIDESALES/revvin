@@ -212,7 +212,7 @@ const ProspectPreviewPage = () => {
               <ol className="mt-6 grid gap-4 sm:grid-cols-3">
                 {[
                   { t: "Create your free account", b: "Everything on this page is carried over: name, trade, reward and city." },
-                  { t: "Publish in one tap", b: "Your page goes live on your own Revvin link, free for your first 100 customers." },
+                  { t: "Publish in one tap", b: "Your page goes live on your own Revvin link, free for your first 25 customers." },
                   { t: "Send your first ask", b: "Every new account gets Pro free for 14 days, no card. Ask a past customer today." },
                 ].map((s, i) => (
                   <li key={s.t} className="rounded-2xl border-[1.5px] border-line bg-card p-6">

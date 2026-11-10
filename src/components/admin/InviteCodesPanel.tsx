@@ -1,3 +1,4 @@
+import { INVITE_PROMOTION_PAUSED } from "../../../supabase/functions/_shared/promo";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -112,13 +113,13 @@ const InviteCodesPanel = () => {
     <div className="rounded-2xl border border-border bg-card p-5">
       <h2 className="text-base font-semibold text-foreground">Invite codes</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Each redemption gives 3 months free, then $17/month USD. Monthly only. Card is collected at checkout.
+        New invite promotions are paused. Existing redemptions remain honored; invite links use the standard offer.
       </p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-5">
         <div>
           <Label htmlFor="ic-code">Code</Label>
-          <Input id="ic-code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="FOUNDER3" className="mt-1 font-mono" />
+          <Input id="ic-code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="INVITE" className="mt-1 font-mono" />
         </div>
         <div>
           <Label htmlFor="ic-label">Label</Label>
@@ -137,7 +138,7 @@ const InviteCodesPanel = () => {
           <Input id="ic-trial" value={trialDays} onChange={(e) => setTrialDays(e.target.value)} inputMode="numeric" className="mt-1" />
         </div>
       </div>
-      <Button onClick={create} disabled={busy} className="mt-3">
+      <Button onClick={create} disabled={busy || INVITE_PROMOTION_PAUSED} className="mt-3">
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create code"}
       </Button>
 

@@ -28,8 +28,8 @@ const allCopy = () =>
 
 describe("pricing facts", () => {
   it("keeps one source of truth for the prices", () => {
-    expect(MONTHLY_PRICE).toBe(49);
-    expect(ANNUAL_PRICE).toBe(450);
+    expect(MONTHLY_PRICE).toBe(97);
+    expect(ANNUAL_PRICE).toBe(970);
   });
 
   it("says Pro runs to the end of the paid term and the free page stays live", () => {
@@ -40,8 +40,8 @@ describe("pricing facts", () => {
   it("puts both prices in the prerendered pricing document", () => {
     const pricing = PRERENDER_ROUTES.find((r) => r.path === "/pricing")!;
     const text = JSON.stringify(pricing);
-    expect(text).toContain("$49");
-    expect(text).toContain("$450");
+    expect(text).toContain("$97");
+    expect(text).toContain("$970");
   });
 });
 
@@ -129,14 +129,14 @@ describe("legal content is shared, not summarised twice", () => {
 
   it("flattens every paragraph and bullet into the prerendered body", () => {
     const section = legalPrerenderSections(TERMS_DOC).find((s) => /Subscription/i.test(s.heading))!;
-    expect(section.body).toContain("$49 per month");
-    expect(section.body).toContain("$450 per year");
+    expect(section.body).toContain("$97 per month");
+    expect(section.body).toContain("$970 per year");
   });
 
   it("says in the terms that Revvin sends reactivation campaign email", () => {
     const outreach = TERMS_DOC.sections.find((s) => /Contacting your own customers/i.test(s.heading))!;
     const text = JSON.stringify(outreach);
-    expect(text).toMatch(/Reactivation campaigns/);
+    expect(text).toMatch(/reactivation campaigns/i);
     expect(text).toMatch(/unsubscribe/i);
     expect(text).toMatch(/postal address/i);
     expect(text).toMatch(/never sends SMS/i);

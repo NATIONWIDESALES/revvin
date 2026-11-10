@@ -5,7 +5,7 @@ import HeroYardSign from "@/components/marketing/HeroYardSign";
 
 export const AUTH_BENEFITS = [
   "Live in about a minute",
-  "Free for your first 100 customers",
+  "Free for your first 25 customers",
   "You pay rewards only when a job closes",
 ] as const;
 

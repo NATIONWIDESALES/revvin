@@ -73,7 +73,7 @@ const Sample = () => {
               </h2>
               <p className="mt-3 text-base text-muted-foreground">
                 A branded page at your own link, plus a QR code you can print. Publishing is free.
-                Revvin Pro, $49/month USD, adds the tools for asking your whole customer list and
+                Revvin Pro, $97/month USD, adds the tools for asking your whole customer list and
                 reporting on what it returned. You pay your referrers directly: Revvin never
                 handles the money.
               </p>

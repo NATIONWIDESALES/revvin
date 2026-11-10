@@ -7,7 +7,6 @@ October 31, 2026. Not published.
 - `/start` and all 20 existing industry slugs have dedicated noindex,follow landing pages. No gutters industry exists, so no invented trade was added. Existing slugs are pool-service, garage-door and house-cleaning. Landing pages stay out of sitemap, RSS and AI text.
 - New businesses get server-created, owner-immutable 14-day trials. Existing rows are not backfilled. Stored paid plan and Stripe derivation are unchanged. Effective plan drives dashboard/profile permissions, contact import enforcement, campaign composition/queue delivery and lifecycle/monthly recap eligibility. First 100 contacts are ranked by creation time, with id only as deterministic tie-break. Expiry retains every contact; excess asks pause.
 - Signup/publication alerts have distinct idempotency keys and include acquisition, reward, owner email, mobile and page/admin links. Publication alerts require a verified owner session. Phone links support human follow-up; no automatic owner SMS is sent.
-- Conflicting founding strips on Home/Pricing are hidden; the offer configuration, prices and payment flows remain untouched.
 - Mobile CTA uses intersection/focus state, reserved bottom space and safe-area inset. Pixel id is empty; no provider code loads. If enabled, fixed events are exchanged through a separate no-referrer document after delayed activation and regional permission. Unknown and consent-required regions are blocked without a banner; browser opt-outs and saved refusal are honored. No matching or uploads.
 
 ## Verification
@@ -26,7 +25,6 @@ October 31, 2026. Not published.
 - src/lib/acquisitionEvents.ts, src/lib/track.ts: fixed new events through narrow RPC, no typed data.
 - src/content/previewTrades.ts, src/content/industries.ts: lightweight choices and re-export.
 - src/components/marketing/InstantPreview.tsx, HeroYardSign.tsx: three-field preview and sign state.
-- src/pages/Index.tsx, Pricing.tsx: preview/trial copy and hidden conflicting founding strips.
 - src/pages/Start.tsx, src/content/startPages.ts, src/content/seoRoutes.ts, src/App.tsx: landing routes, FAQs and prerender entries.
 - src/components/SEOHead.tsx: optional noindex,follow.
 - src/components/signup/SignupForm.tsx, src/pages/Onboarding.tsx: prefill, metadata, mobile and confirmation-link handoff.

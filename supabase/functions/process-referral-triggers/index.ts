@@ -44,6 +44,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-cron-secret",
 };
 
+import { effectivePlan } from "../_shared/effective-plan.ts";
+
 const MAX_ATTEMPTS = 3;
 /** How long the referral follow-up waits after the review request goes out. */
 const FOLLOW_UP_DELAY_HOURS = 48;
@@ -132,6 +134,12 @@ Deno.serve(async (req) => {
       .limit(100);
 
     for (const row of reviewDue ?? []) {
+      try {
+        if (await effectivePlan(supabase, row.business_id) !== "pro") {
+          reviewResults.push({ id: row.id, status: "paused", detail: "pro_required_automatic_ask" });
+          continue;
+        }
+      } catch { continue; }
       // At-most-once: one conditional claim per job row.
       const { data: claimed } = await supabase
         .from("referral_triggers")
@@ -229,6 +237,12 @@ Deno.serve(async (req) => {
     if (scanErr) throw scanErr;
 
     for (const row of due ?? []) {
+      try {
+        if (await effectivePlan(supabase, row.business_id) !== "pro") {
+          referralResults.push({ id: row.id, status: "paused", detail: "pro_required_automatic_ask" });
+          continue;
+        }
+      } catch { continue; }
       // Wait for the review request to actually go out first.
       if (["scheduled", "sending"].includes(row.review_request_status)) {
         referralResults.push({ id: row.id, status: "waiting_on_review_request" });

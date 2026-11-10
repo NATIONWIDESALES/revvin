@@ -215,7 +215,7 @@ const TrustCenter = () => {
               <div className="grid grid-cols-3 gap-4">
                 <div className="rounded-xl bg-muted/50 border border-border p-5">
                   <Briefcase className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-                  <div className="text-3xl font-bold text-foreground">$49</div>
+                  <div className="text-3xl font-bold text-foreground">$97</div>
                   <p className="text-xs text-muted-foreground mt-1">/month, business plan</p>
                 </div>
                 <div className="rounded-xl bg-earnings/10 border border-earnings/20 p-5">
@@ -230,7 +230,7 @@ const TrustCenter = () => {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mt-6">
-                Referrers receive the full advertised payout directly from the business. Publishing is free. Revvin Pro is $49/month USD or $450/year, with no per-referral fee from Revvin.
+                Referrers receive the full advertised payout directly from the business. Publishing is free. Revvin Pro is $97/month USD or $970/year, with no per-referral fee from Revvin.
               </p>
             </motion.div>
           </motion.div>

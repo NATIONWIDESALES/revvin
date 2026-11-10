@@ -1,3 +1,4 @@
+import { CHECKOUT_PRICE_VERSION } from "@/config/pricing";
 import { isRestrictedCategory } from "@/lib/offerUtils";
 import { copyText } from "@/lib/clipboard";
 import { takePendingPlan } from "@/lib/pendingPlan";
@@ -428,7 +429,7 @@ const BusinessDashboard = () => {
       {tab === "jobdone" && (!isLive ? (
         <LockedTab title="Publish your page to run the auto-ask" body="Once your referral page is live, logging a finished job schedules a personalized referral ask to that customer." />
       ) : attest(
-        <AutoAskTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, google_review_url: biz.google_review_url ?? null, business_email: biz.business_email ?? null }} publicUrl={publicUrl} />
+        <AutoAskTab isPro={isPro} biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, google_review_url: biz.google_review_url ?? null, business_email: biz.business_email ?? null }} publicUrl={publicUrl} />
       ))}
 
       {tab === "campaigns" && (!isLive ? (
@@ -465,7 +466,7 @@ const BusinessDashboard = () => {
       {(tab === "account" || tab === "billing" || tab === "integrations") && (
         <div className="space-y-8">
           <AccountTab biz={biz} onUpdate={loadAll} />
-          <IntegrationsTab biz={{ id: biz.id, contact_outreach_consent_at: biz.contact_outreach_consent_at ?? null }} />
+          <IntegrationsTab isPro={isPro} biz={{ id: biz.id, contact_outreach_consent_at: biz.contact_outreach_consent_at ?? null }} />
         </div>
       )}
       </div>
@@ -1357,7 +1358,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     track("go_live_clicked");
     setBusy(true);
     const { data, error } = await supabase.functions.invoke("create-business-checkout", {
-      body: { includeLaunchPackage: false, plan: billingPlan },
+      body: { includeLaunchPackage: false, plan: billingPlan, price_version: CHECKOUT_PRICE_VERSION },
     });
     setBusy(false);
     if (error || !data?.url) {

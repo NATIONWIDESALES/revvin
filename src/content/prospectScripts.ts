@@ -8,7 +8,7 @@ export const PROSPECT_TEXT_SCRIPT =
 export const PROSPECT_EMAIL_SUBJECT = "{business}: your referral page is ready";
 
 export const PROSPECT_EMAIL_SCRIPT =
-  "Hi {first name},\n\nI'm {caller} with Revvin. We built a free referral page for {business} so your past customers can send you jobs with one tap.\n\nTake a look: {link}\n\nIt's yours if you want it. Claiming is free, takes about a minute, and nothing is live until you say so.\n\n{caller}\nRevvin";
+  "Hi {first name},\n\nI'm {caller} with Revvin. We built a free referral page for {business} so your past customers can send you jobs with one tap.\n\nTake a look: {link}\n\nIt's yours if you want it. Claiming is free and takes about a minute. Your business page goes live at signup. Free covers your first 25 customers.\n\n{caller}\nRevvin";
 
 export function fillScript(
   template: string,

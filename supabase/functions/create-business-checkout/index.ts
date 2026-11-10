@@ -3,11 +3,10 @@ import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import {
   PRICE_LAUNCH_PACKAGE_297,
-  PLAN_PRICE,
-  PLAN_METADATA,
+  checkoutPricing,
   type BillingPlan,
 } from "../_shared/stripe-prices.ts";
-import { promoCouponFor, promoMetadataFor, PROMO_COUPON_MONTHLY } from "../_shared/promo.ts";
+import { promoCouponFor, promoMetadataFor, PROMO_COUPON_MONTHLY, INVITE_PROMOTION_PAUSED } from "../_shared/promo.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -36,9 +35,11 @@ serve(async (req) => {
     // something unexpected.
     let plan: BillingPlan = "monthly";
     let rawInviteCode: string | null = null;
+    let priceVersion: unknown;
     try {
       if (req.headers.get("content-type")?.includes("application/json")) {
         const body = await req.json();
+        priceVersion = body?.price_version;
         includeLaunchPackage = !!body?.includeLaunchPackage;
         if (body?.plan === "annual") plan = "annual";
         if (typeof body?.invite_code === "string" && body.invite_code.trim()) {
@@ -47,7 +48,8 @@ serve(async (req) => {
       }
     } catch (_) { /* no body */ }
 
-    const planMetadata = PLAN_METADATA[plan];
+    const pricing = checkoutPricing(plan, priceVersion);
+    const planMetadata = pricing.metadata;
 
     const admin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -89,7 +91,7 @@ serve(async (req) => {
     let invite: { id: string; code: string; trial_days: number } | null = null;
     let inviteApplied = false;
     let inviteRejected = false;
-    if (rawInviteCode && plan === "monthly") {
+    if (!INVITE_PROMOTION_PAUSED && rawInviteCode && plan === "monthly") {
       // Atomic claim: a single conditional UPDATE ... RETURNING inside the
       // function. No row back means missing, inactive, expired, or exhausted.
       const { data: claimed, error: claimErr } = await admin.rpc("fn_claim_invite_code", {
@@ -110,14 +112,14 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "https://revvin.co";
 
     const line_items: Array<{ price: string; quantity: number }> = [
-      { price: PLAN_PRICE[plan], quantity: 1 },
+      { price: pricing.price, quantity: 1 },
     ];
     if (includeLaunchPackage) {
       line_items.push({ price: PRICE_LAUNCH_PACKAGE_297, quantity: 1 });
     }
 
-    // Launch promotion: $17/month instead of $49/month, or $204/year instead of
-    // $450/year, locked forever while the subscription stays active. Applies to
+    // Launch promotion: $17/month instead of $97/month, or $204/year instead of
+    // $970/year, locked forever while the subscription stays active. Applies to
     // both plans, each with its own coupon, and the deadline is checked against
     // the SERVER clock so a client cannot claim it late.
     // Invite redemptions always get the launch coupon, even after the public
@@ -158,7 +160,7 @@ serve(async (req) => {
       // field otherwise.
       ...(promoCoupon
         ? { discounts: [{ coupon: promoCoupon }] }
-        : { allow_promotion_codes: true }),
+        : { allow_promotion_codes: !INVITE_PROMOTION_PAUSED }),
       success_url: `${origin}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/dashboard?checkout=canceled`,
     });

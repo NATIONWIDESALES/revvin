@@ -18,7 +18,7 @@ const FounderNote = () => {
           <div className="mt-4 space-y-4 text-base leading-relaxed text-muted-foreground">
             <p>
               Revvin is small and independent. There are no case studies yet:
-              the product is new and we are onboarding founding businesses one
+              the product is new and we are onboarding businesses one
               by one. If something is not working or you have a question before
               signing up, email{" "}
               <a

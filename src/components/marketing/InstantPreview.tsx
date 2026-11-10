@@ -35,7 +35,7 @@ export default function InstantPreview({ lockedTrade, onPreview, showSign = fals
         <div><Label htmlFor={`${id}-reward`}>Reward per closed job</Label><div className="relative mt-1"><span className="absolute left-3 top-2 text-muted-foreground" aria-hidden="true">$</span><Input id={`${id}-reward`} type="number" min="1" max="1000000" step="1" value={reward} required className="pl-7" onChange={e => { setReward(e.target.value); update(name, trade, e.target.value); }} /></div></div>
       </div>
       <Button type="submit" size="lg" className="w-full">Make it live, free</Button>
-      <p className="text-sm text-muted-foreground">Free for your first 100 customers. No card.</p>
+      <p className="text-sm text-muted-foreground">Free for your first 25 customers. No card.</p>
       <p className="sr-only" aria-live="polite" aria-atomic="true">{started.current ? `${example.biz}. ${example.q} Reward ${example.amt} per closed job. ${example.url}` : "Example: Summit Roofing, $250 reward per closed job."}</p>
     </form>
     {showSign && <HeroYardSign example={example} preview={started.current} />}

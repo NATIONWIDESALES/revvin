@@ -12,6 +12,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.97.0'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2.97.0/cors'
 
+import { effectivePlan } from '../_shared/effective-plan.ts'
+
 const DELAY_HOURS = 2
 const RATE_LIMIT_PER_HOUR = 120
 
@@ -141,6 +143,9 @@ Deno.serve(async (req) => {
   const biz = bizRows?.[0]
   if (!biz) return json({ error: 'Business not found for this key' }, 401)
   if (biz.is_disabled) return json({ error: 'Account is disabled' }, 403)
+  try {
+    if (await effectivePlan(admin, biz.id) !== 'pro') return json({ error: 'pro_required_automatic_ask', detail: 'Automatic job asks require Pro or an active Pro trial. Existing connections are kept but paused on Free.' }, 403)
+  } catch { return json({ error: 'entitlement_unavailable' }, 503) }
   if (!biz.contact_outreach_consent_at) {
     return json({
       error: 'Outreach attestation not completed',

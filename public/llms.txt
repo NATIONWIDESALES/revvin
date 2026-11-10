@@ -2,7 +2,7 @@
 
 > Revvin (revvin.co) is a free referral program and local referral network for home-service businesses.
 
-Last updated: 2026-10-31
+Last updated: 2026-11-10
 
 Revvin gives a home-service business a referral page on its own link, a personal link for every person who refers, and an ask after every job. The business pays a reward only when a referral turns into a job, and pays it directly. Revvin is not affiliated with the Revvin digital mortgage platform.
 
@@ -11,15 +11,20 @@ Revvin gives a home-service business a referral page on its own link, a personal
 - A published referral page on your own link, free.
 - Unlimited referrals on that page.
 - A personal link for every referrer, so each referral is credited automatically.
-- Import and ask up to 100 customers, sent from your own phone or email app.
-- The Job done ask: mark a job done and the customer gets a review and referral ask.
+- Import and ask up to 25 customers, sent from your own phone or email app.
+- QR code and print pack, lead inbox, referral email alerts, reward tracking and mobile use.
 - An Earn listing where Earn is live, so locals can find you and get their own link.
 
 ## Pro
 
-- Revvin Pro is $49/month USD, or $450/year USD billed once.
-- Adds unlimited customer import, the ask to your whole list, reactivation email campaigns, ROI reporting with a monthly recap and custom page branding.
+- Revvin Pro is $97/month USD, or $970/year USD billed once.
+- Adds unlimited customers, automatic Job done and job-software/API/Zapier review and referral asks, reactivation email campaigns, ROI reporting and monthly recap, and custom page branding.
+- New accounts get a 14-day Pro trial, no card. Yearly billing gives two months free.
 - Cancel any time; the referral page stays live.
+
+## Optional done-for-you launch
+
+$297 one-time: we load your customer list, set up your page and reward with you, and send the first asks with you. If no referral arrives within 60 days of your first asks, we refund the $297, provided you asked at least 50 customers and email info@revvin.co within 90 days of purchase. Refunds are issued manually.
 
 ## What Revvin does not do
 

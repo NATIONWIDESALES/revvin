@@ -14,11 +14,14 @@ export const PROMO_COUPON_ANNUAL = "IriZexoc"; // $246.00 off USD
 export const PROMO_COUPON_ID = PROMO_COUPON_MONTHLY;
 
 export type PromoPlan = "monthly" | "annual";
+// New redemptions are paused. Existing redeemed subscriptions and coupons stay intact.
+export const INVITE_PROMOTION_PAUSED = true;
 
 // 2026-08-17 23:59 America/Vancouver (PDT, UTC-7).
 export const PROMO_END_ISO = "2026-08-18T06:59:00.000Z";
 
 export function isPromoLive(now: Date = new Date()): boolean {
+  if (INVITE_PROMOTION_PAUSED) return false;
   return now.getTime() < new Date(PROMO_END_ISO).getTime();
 }
 

@@ -13,7 +13,7 @@ interface Props {
 /** The forest closing band from the homepage, reused on marketing pages. */
 const FinalBand = ({
   heading = "Your next job is already in your customer list.",
-  body = "Set up your referral program in 5 minutes. Free for your first 100 customers.",
+  body = "Set up your referral program in 5 minutes. Free for your first 25 customers.",
   cta = "footer_signup",
 }: Props) => (
   <section className="bg-forest py-24 text-primary-foreground md:py-[120px]">

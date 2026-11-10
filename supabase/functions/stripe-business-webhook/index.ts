@@ -263,7 +263,7 @@ serve(async (req) => {
             const businessName = biz?.name || "New Business";
             const total = (s.amount_total ?? 0) / 100;
             const currency = (s.currency || "usd").toUpperCase();
-            const items: string[] = ["$49/mo Pro subscription"];
+            const items: string[] = ["$97/mo Pro subscription"];
             if (launchPackagePurchased) items.push("$297 Launch Package");
 
             const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">

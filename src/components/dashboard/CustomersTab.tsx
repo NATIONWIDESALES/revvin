@@ -262,7 +262,7 @@ const CustomersTab = ({
   const remaining = capped ? Math.max(0, FREE_CONTACT_LIMIT - contacts.length) : Infinity;
   const freeAllowedIds = useMemo(() => new Set([...contacts].sort((a,b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id)).slice(0, FREE_CONTACT_LIMIT).map(c => c.id)), [contacts]);
   const applyPlan = (c: ReferralContact, eligible: Eligibility): Eligibility => capped && !freeAllowedIds.has(c.id)
-    ? { ...eligible, blocked: new Set<Channel>(["sms", "email", "share"]), canPrepare: false, reason: "Asks beyond your first 100 customers are paused on Free.", unknown: false }
+    ? { ...eligible, blocked: new Set<Channel>(["sms", "email", "share"]), canPrepare: false, reason: "Asks beyond your first 25 customers are paused on Free.", unknown: false }
     : eligible;
   const authoritativeAskAllowed = async (c: ReferralContact) => {
     try {
@@ -371,7 +371,7 @@ const CustomersTab = ({
    * while the composer was open is honored, and fails closed on a lookup error.
    */
   const guardChannel = async (c: ReferralContact, channel: Channel): Promise<boolean> => {
-    if (!isDemo && !await authoritativeAskAllowed(c)) { toast({ title: "Ask paused", description: "Free covers your first 100 customers. Keep Pro to ask your whole list.", variant: "destructive" }); return false; }
+    if (!isDemo && !await authoritativeAskAllowed(c)) { toast({ title: "Ask paused", description: "Free covers your first 25 customers. Keep Pro to ask your whole list.", variant: "destructive" }); return false; }
     const snapshot = await refreshSuppression();
     const fresh = contactEligibility(c, snapshot);
     if (!channelAllowed(fresh, channel)) {

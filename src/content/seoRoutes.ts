@@ -1,8 +1,9 @@
+import { LAUNCH_GUARANTEE } from "../config/pricing";
 // Prerender content for crawlers that do not execute JavaScript (GPTBot,
 // ClaudeBot, PerplexityBot, CCBot, and Googlebot's first pass).
 //
 // Every claim below must be true of the product: publishing a referral page is
-// free, Revvin Pro is $49/month USD, and businesses pay their referrers
+// free, Revvin Pro is $97/month USD, and businesses pay their referrers
 // directly off-platform. Personal referral asks are prepared by Revvin and sent
 // from the owner's own email or SMS app; Revvin itself sends
 // Pro reactivation campaign email, by email only, with the business postal
@@ -71,7 +72,7 @@ export interface PrerenderRoute {
 // Derived from the single pricing source so the initial HTML can never quote a
 // figure the rendered page has moved on from.
 const PRO = `${PRICE_TEXT.monthlyPerMonth} USD`;
-const ANNUAL = `${PRICE_TEXT.annualPerYear} USD billed once, which saves ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off)`;
+const ANNUAL = `${PRICE_TEXT.annualPerYear} USD billed once, with two months free`;
 
 
 const industryRoutes: PrerenderRoute[] = INDUSTRIES.map((i) => ({
@@ -322,7 +323,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "Simple economics",
-        body: `Your referral page is free to build and publish, and your marketplace listing costs nothing. Revvin Pro is ${PRO} with no contract and no setup fee. There are no platform fees and no per-referral charges: the reward you advertise is the reward your referrer receives, paid by you directly when the deal closes.`,
+        body: `Your referral page is free to build and publish, and your marketplace listing costs nothing. Revvin Pro is ${PRO} with no contract and no required setup fee. There are no platform fees and no per-referral charges: the reward you advertise is the reward your referrer receives, paid by you directly when the deal closes.`,
       },
       {
         heading: "What you get on day one",
@@ -335,7 +336,7 @@ const handwritten: PrerenderRoute[] = [
     faqs: [
       {
         q: "How much does Revvin cost?",
-        a: `Publishing your referral page and taking referrals on it is free. Revvin Pro costs a flat ${PRO} and adds the tools that ask your whole customer list for you: import, the bulk referral ask, ROI reporting and custom branding. Cancel anytime, no contract, no setup fee, no platform fees. You pay your referrers directly off-platform when deals close.`,
+        a: `Publishing your referral page and taking referrals on it is free. Revvin Pro costs a flat ${PRO} and adds the tools that ask your whole customer list for you: import, the bulk referral ask, ROI reporting and custom branding. Cancel anytime, no contract, no required setup fee, no platform fees. You pay your referrers directly off-platform when deals close.`,
       },
       {
         q: "What are the three loops?",
@@ -385,6 +386,10 @@ const handwritten: PrerenderRoute[] = [
     h1: PLAN_SPLIT.line,
     sections: [
       {
+        heading: "Optional done-for-you launch",
+        body: `We load your customer list, set up your page and reward with you, and send the first asks with you. $297 one-time. ${LAUNCH_GUARANTEE}`,
+      },
+      {
         heading: "Free and Pro, plainly",
         body: `${PLAN_SPLIT.line} Free: ${PLAN_SPLIT.freeDetail} Pro: ${PLAN_SPLIT.proDetail}`,
       },
@@ -394,7 +399,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: `Revvin Pro, ${PRO}: ${PLAN_SPLIT.proSubtitle.toLowerCase()}`,
-        body: `${PLAN_SPLIT.proLead} Everything in Free, plus importing your past-customer list and sending your referral ask in bulk from your own email app, reactivation campaigns that Revvin sends by email from your account with an unsubscribe link in every message and a cap of 500 recipients per send, ROI reporting with a monthly email recap, and custom page branding. Annual billing is ${ANNUAL}. No contract and no setup fee.`,
+        body: `${PLAN_SPLIT.proLead} Everything in Free, plus importing your past-customer list and sending your referral ask in bulk from your own email app, reactivation campaigns that Revvin sends by email from your account with an unsubscribe link in every message and a cap of 500 recipients per send, ROI reporting with a monthly email recap, and custom page branding. Annual billing is ${ANNUAL}. No contract and no required setup fee.`,
       },
 
       {
@@ -409,7 +414,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         q: `What do I get for the ${PRO}?`,
-        a: "Revvin Pro adds importing your past-customer list, sending your referral ask in bulk from your own email app, reactivation campaigns that Revvin sends by email from your account, ROI reporting with a monthly email recap, and custom page branding.",
+        a: PLAN_SPLIT.proDetail,
       },
 
       {
@@ -431,7 +436,7 @@ const handwritten: PrerenderRoute[] = [
     sections: [
       {
         heading: "The marketplace is launching",
-        body: "Listings are limited while founding businesses come on board. You can filter what is live by category, by country and region across the United States, Canada and the UAE, by payout, and by distance from where you are. If nothing matches yet you can leave your email and hear when offers go live in your area.",
+        body: "Listings are limited while businesses come on board. You can filter what is live by category, by country and region across the United States, Canada and the UAE, by payout, and by distance from where you are. If nothing matches yet you can leave your email and hear when offers go live in your area.",
       },
       {
         heading: "How a marketplace referral works",
@@ -526,7 +531,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "Business model",
-        body: `Publishing a referral page is free, including the marketplace listing. Revvin Pro is ${PRO}, or an annual price billed once, with no contract and no setup fee, cancellable from the billing portal. Revvin takes no cut of referral rewards; referrers receive 100% of the advertised payout, paid directly by the business.`,
+        body: `Publishing a referral page is free, including the marketplace listing. Revvin Pro is ${PRO}, or an annual price billed once, with no contract and no required setup fee, cancellable from the billing portal. Revvin takes no cut of referral rewards; referrers receive 100% of the advertised payout, paid directly by the business.`,
       },
       {
         heading: "How a referral flows",
@@ -574,7 +579,7 @@ const handwritten: PrerenderRoute[] = [
     sections: [
       {
         heading: "The marketplace is launching",
-        body: "This is the same listing as the Revvin browse page. Listings are limited while founding businesses come on board. You can filter what is live by category, by country and region across the United States, Canada and the UAE, by payout, and by distance from where you are. If nothing matches yet you can leave your email and hear when offers go live in your area.",
+        body: "This is the same listing as the Revvin browse page. Listings are limited while businesses come on board. You can filter what is live by category, by country and region across the United States, Canada and the UAE, by payout, and by distance from where you are. If nothing matches yet you can leave your email and hear when offers go live in your area.",
       },
       {
         heading: "How referring works",
@@ -772,6 +777,6 @@ const startRoutes: PrerenderRoute[] = START_PATHS.map(path => ({
   path, title: `Free ${INDUSTRIES.find(i => path === `/start/${i.slug}`)?.label ?? "home service"} referral page | Revvin`,
   description: "Set your reward, create your free account and publish your referral page. Every new account gets Pro free for 14 days. No card required.",
   h1: startHeadline(path.split("/")[2]), noindex: true,
-  sections: [{ heading: "Make it live, free", body: "Business name. Trade. Reward per closed job. Free for your first 100 customers. No card." }], faqs: START_FAQS,
+  sections: [{ heading: "Make it live, free", body: "Business name. Trade. Reward per closed job. Free for your first 25 customers. No card." }], faqs: START_FAQS,
 }));
 export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...toolkitRoutes, ...partnerRoutes, guideIndexRoute, ...industryRoutes, ...guideRoutes, roundupRoute, compareHubRoute, ...compareRoutes, ...startRoutes];
