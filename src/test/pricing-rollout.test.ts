@@ -55,6 +55,70 @@ describe("approved checkout contract", () => {
   });
 });
 
+describe("pricing congruency guards", () => {
+  it("auth page describes free publishing and derives the Pro price from config", () => {
+    const auth = read("src/pages/Auth.tsx");
+    expect(auth).not.toContain("when they go live");
+    expect(auth).toContain("PRICE_TEXT.monthlyPerMonth");
+  });
+  it("Free features match the approved model, with no phone support", () => {
+    expect(FREE_FEATURES.some((f) => /phone support/i.test(f.label))).toBe(false);
+  });
+  it("Job done asks sit in the Pro nav group with a Pro marker", () => {
+    const shell = read("src/components/dashboard/DashboardShell.tsx");
+    const proGroup = shell.split('{ title: "Pro"')[1] ?? "";
+    expect(proGroup).toContain('{ tab: "jobdone", label: "Job done asks", pro: true }');
+  });
+  it("billing history points at the real Rewards tab label", () => {
+    const card = read("src/components/billing/BillingHistoryCard.tsx");
+    expect(card).toContain("Rewards tab");
+    expect(card).not.toContain("Payouts tab");
+  });
+  it("the launch guarantee is identical on every surface that states it in full", () => {
+    expect(read("supabase/functions/_shared/pricing-copy.ts")).toContain(LAUNCH_GUARANTEE);
+    expect(read("public/llms.txt")).toContain(LAUNCH_GUARANTEE);
+  });
+  it("customer-facing surfaces use one name for the done-for-you launch", () => {
+    for (const p of [
+      "src/pages/Pricing.tsx",
+      "src/content/aboutPage.ts",
+      "src/pages/Onboarding.tsx",
+      "src/pages/dashboard/BusinessDashboard.tsx",
+      "src/components/billing/BillingHistoryCard.tsx",
+      "src/config/partners.ts",
+      "src/content/partnerTerms.ts",
+      "src/content/seoRoutes.ts",
+      "public/llms.txt",
+      "supabase/functions/_shared/transactional-email-templates/free-d21.tsx",
+    ]) {
+      expect(read(p), p).not.toContain("Launch Package");
+    }
+  });
+  it("setup fee is always qualified next to the paid launch offer", () => {
+    expect(read("src/components/marketing/RiskReversalStrip.tsx")).toContain("No required setup fee");
+    expect(read("src/pages/ComparePage.tsx")).toContain("No required setup fee");
+  });
+  it("competitor facts keep their own wording", () => {
+    // ReferralWise's own row, a competitor fact the pricing sweep must not touch.
+    expect(read("src/content/comparisons.ts")).toContain('"No setup fees"');
+  });
+  it("partner earnings examples derive from the shared config", () => {
+    expect(read("src/content/seoRoutes.ts")).not.toContain("19.60");
+    expect(PARTNER_EARNINGS[0].earn).toContain("$38.80");
+    expect(PARTNER_EARNINGS[1].earn).toContain("$388");
+  });
+  it("the paused invite promotion fails closed on the 2026-11 price version", () => {
+    expect(promoAllowedForPriceVersion(CHECKOUT_PRICE_VERSION)).toBe(false);
+    expect(promoAllowedForPriceVersion(undefined)).toBe(true);
+    expect(promoCouponFor("monthly", new Date("2026-01-01"), CHECKOUT_PRICE_VERSION)).toBeNull();
+  });
+  it("the webhook labels the subscription from the real price, not a fixed string", () => {
+    const wh = read("supabase/functions/stripe-business-webhook/index.ts");
+    expect(wh).not.toContain('"$97/mo Pro subscription"');
+    expect(wh).toContain("unit_amount");
+  });
+});
+
 describe("retired Revvin offer guard, including generated route documents", () => {
   const forbidden = /\$49\b|\$450\b|\$588\b|\$138\b|\$37\.50\b|23%|100 customers|first 100|up to 100 on Free|\$29\b|founding (?:businesses|spot|offer)|locked for life/i;
   const exceptions = new Set([
