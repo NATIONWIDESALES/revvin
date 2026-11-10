@@ -1,4 +1,5 @@
 import { LAUNCH_GUARANTEE } from "../config/pricing";
+import { PARTNER_EARNINGS, PARTNER_EARNINGS_NOTE } from "../config/partners";
 // Prerender content for crawlers that do not execute JavaScript (GPTBot,
 // ClaudeBot, PerplexityBot, CCBot, and Googlebot's first pass).
 //
@@ -670,7 +671,7 @@ const partnerRoutes: PrerenderRoute[] = [
     sections: [
       {
         heading: "What you earn",
-        body: `Revvin Pro monthly at ${PRO} pays ${'$'}19.60 every month the customer pays. Revvin Pro yearly at ${PRICE_TEXT.annualPerYear} pays ${'$'}180 every year the customer pays. The ${'$'}297 Launch Package pays ${'$'}118.80. Earnings depend entirely on the customers you refer. There is no base pay and no guaranteed income.`,
+        body: `${PARTNER_EARNINGS.map((e) => `${e.product} pays ${e.earn}`).join(". ")}. ${PARTNER_EARNINGS_NOTE}`,
       },
       {
         heading: "How it works",

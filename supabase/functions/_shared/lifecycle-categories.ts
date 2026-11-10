@@ -1,7 +1,7 @@
 // Category of every lifecycle email, and the single source of truth for it.
 //
 // "setup" email helps someone use the account they created. It can send now.
-// "promo" email exists to promote Revvin Pro, the Launch Package or a win back.
+// "promo" email exists to promote Revvin Pro, the done-for-you launch or a win back.
 // That is commercial email under CAN-SPAM and CASL, so it carries Revvin's
 // postal address and its own opt-out link, and it is skipped entirely while
 // REVVIN_POSTAL_ADDRESS is empty.
