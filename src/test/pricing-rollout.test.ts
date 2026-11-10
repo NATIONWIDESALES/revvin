@@ -11,7 +11,7 @@ import { productFromPriceId } from "../../supabase/functions/_shared/partner-rul
 import { MONTHLY_PRICE as emailMonthly, ANNUAL_PRICE as emailAnnual, PRO_FEATURE_LABELS } from "../../supabase/functions/_shared/pricing-copy";
 import { migrationFunctions } from "./helpers/migrationFunctions";
 import { PRERENDER_ROUTES } from "@/content/seoRoutes";
-import { renderRoute } from "../../plugins/prerender";
+import { renderLlmsFull, renderRss, renderRoute } from "../../plugins/prerender";
 
 const read = (p: string) => readFileSync(p, "utf8");
 describe("approved checkout contract", () => {
@@ -79,6 +79,7 @@ describe("retired Revvin offer guard, including generated route documents", () =
     expect(violations).toEqual([]);
   });
   it("prerendered public documents contain no retired own offer", () => {
+    for (const text of [renderLlmsFull(), renderRss()]) expect(text.replace(/Business (?:at )?\$49(?: a month|\/month)/g, "Business COMPETITOR_PRICE")).not.toMatch(forbidden);
     for (const route of PRERENDER_ROUTES) {
       const html = renderRoute(read("index.html"), route).replace(/Business (?:at )?\$49(?: a month|\/month)/g, "Business COMPETITOR_PRICE");
       expect(html, route.path).not.toMatch(forbidden);
@@ -98,11 +99,14 @@ describe("real pricing migration in isolated PostgreSQL", () => {
       CREATE FUNCTION auth.role() RETURNS text LANGUAGE sql AS $$ SELECT 'authenticated'::text $$;
       CREATE TABLE businesses(id uuid PRIMARY KEY,user_id uuid,plan text,is_demo boolean,pro_trial_ends_at timestamptz,google_review_url text,trigger_delay_hours int);
       CREATE TABLE referral_contacts(id uuid PRIMARY KEY,business_id uuid,created_at timestamptz);
+      CREATE TABLE api_keys(business_id uuid); CREATE TABLE webhook_endpoints(business_id uuid);
       CREATE TABLE referral_triggers(id uuid DEFAULT gen_random_uuid(),business_id uuid,created_at timestamptz DEFAULT now(),source text,source_event_id text,customer_first_name text,customer_email text,customer_phone text,service_description text,technician_name text,amount_paid numeric,review_request_status text,referral_requires_positive_signal boolean,status text,channel text,failure_reason text,scheduled_send_at timestamptz);
       CREATE FUNCTION fn_effective_plan(uuid) RETURNS text LANGUAGE sql AS $$ SELECT CASE WHEN plan='pro' OR pro_trial_ends_at>now() THEN 'pro' ELSE 'free' END FROM businesses WHERE id=$1 $$;
       CREATE FUNCTION fn_rate_bucket_hit(text,interval,int) RETURNS boolean LANGUAGE sql AS $$ SELECT true $$;
       INSERT INTO businesses VALUES('${biz}','${owner}','free',false,NULL,NULL,2);`);
+    await db.exec("CREATE ROLE anon; CREATE ROLE authenticated;");
     await db.exec(read("drizzle/migrations/0026_pricing_25_contacts_pro_job_asks.sql"));
+    await db.exec(read("drizzle/migrations/0027_pricing_pro_integration_creation_gate.sql"));
     const guard = migrationFunctions().get("fn_guard_contact_ask_limit");
     if (!guard) throw new Error("Missing contact ask guard");
     await db.exec(guard);
@@ -114,6 +118,10 @@ describe("real pricing migration in isolated PostgreSQL", () => {
   it("Free accepts exactly 25 and refuses the 26th import", async () => {
     await expect(db.exec(`INSERT INTO referral_contacts VALUES('${contact(26)}','${biz}',now())`)).rejects.toThrow("free_contact_limit");
     expect((await db.query<{n:number}>("SELECT count(*)::int n FROM referral_contacts")).rows[0].n).toBe(25);
+  });
+  it("Free refuses API keys and webhook creation without changing existing records", async () => {
+    await expect(db.exec(`INSERT INTO api_keys VALUES('${biz}')`)).rejects.toThrow("pro_required_automatic_ask");
+    await expect(db.exec(`INSERT INTO webhook_endpoints VALUES('${biz}')`)).rejects.toThrow("pro_required_automatic_ask");
   });
   it("Free refuses both Job done and direct API-style trigger insertion", async () => {
     await expect(db.exec(`SELECT fn_create_job_ask('${biz}','{"customer_first_name":"Fixture"}')`)).rejects.toThrow("pro_required_automatic_ask");
