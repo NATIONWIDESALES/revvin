@@ -75,7 +75,8 @@ describe("rail", () => {
     render(<DashboardShell active="home" onSelect={() => {}} isPro={isPro} newLeads={2}>x</DashboardShell>);
   it("shows Pro tags only on Free", () => {
     renderShell(false);
-    expect(screen.getAllByTestId("pro-tag")).toHaveLength(2);
+    // Job done asks, Campaigns and Reports are the Pro-entitled tabs.
+    expect(screen.getAllByTestId("pro-tag")).toHaveLength(3);
   });
   it("hides Pro tags on Pro", () => {
     renderShell(true);

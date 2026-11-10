@@ -25,9 +25,21 @@ export function isPromoLive(now: Date = new Date()): boolean {
   return now.getTime() < new Date(PROMO_END_ISO).getTime();
 }
 
-// Returns the coupon for the given plan, or null when the promo is not live.
-export function promoCouponFor(plan: PromoPlan, now: Date = new Date()): string | null {
+// The $17/$204 coupons are FLAT-amount coupons priced against the LEGACY
+// $49/$450 prices. Against the 2026-11 prices ($97/$970) the same coupons
+// would charge $65/$724, which is not the promotion, so the promo branch
+// must refuse the new price version outright. Before this promotion can
+// resume it must be redefined for the current prices: new coupons, new
+// copy, new metadata tags.
+export function promoAllowedForPriceVersion(version: unknown): boolean {
+  return version === undefined;
+}
+
+// Returns the coupon for the given plan, or null when the promo is not live
+// or the request uses a price version the flat coupons were never priced for.
+export function promoCouponFor(plan: PromoPlan, now: Date = new Date(), priceVersion?: unknown): string | null {
   if (!isPromoLive(now)) return null;
+  if (!promoAllowedForPriceVersion(priceVersion)) return null;
   return plan === "annual" ? PROMO_COUPON_ANNUAL : PROMO_COUPON_MONTHLY;
 }
 

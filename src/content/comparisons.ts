@@ -131,7 +131,7 @@ export const COMPARISONS: Comparison[] = [
       "ReferralWise is a tool with lower published subscription prices than Revvin: it has a free plan, Pro at $19 a month and Business at $49 a month, and it pays partners through Stripe after a job is approved. Revvin's Free plan lets you import and ask up to 25 past customers with personal links, and you pay referrers yourself.",
     table: table("ReferralWise", [
       "Free; Pro $19/month; Business $49/month",
-      "No required setup fees",
+      "No setup fees",
       "Yes, with limited partners and 3 referrals a month",
       "See referralwise.app",
       "After a job is marked won and approved, it charges the contractor's saved card and pays the partner by Stripe direct deposit",

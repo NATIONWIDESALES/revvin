@@ -19,7 +19,7 @@ export const ABOUT_SECTIONS: { heading: string; body: string }[] = [
   },
   {
     heading: "Pricing",
-    body: `Free: your referral page, unlimited referrals, and importing and asking up to 25 customers, with no card and no expiry. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} USD billed once, and adds unlimited customers, automatic job-completion review and referral asks through Job done, job software, API and Zapier, reactivation email campaigns, ROI reporting and monthly recap, and custom branding. An optional Launch Package is $297 one time.`,
+    body: `Free: your referral page, unlimited referrals, and importing and asking up to 25 customers, with no card and no expiry. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} USD billed once, and adds unlimited customers, automatic job-completion review and referral asks through Job done, job software, API and Zapier, reactivation email campaigns, ROI reporting and monthly recap, and custom branding. An optional done-for-you launch is $297 one time: we load your customer list, set up your page and reward with you, and send the first asks with you.`,
   },
   {
     heading: "What Revvin does not do",

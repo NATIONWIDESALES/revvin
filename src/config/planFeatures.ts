@@ -33,10 +33,6 @@ export const FREE_FEATURES = [
     description: "Add up to 25 past customers and send each ask from your own phone or email app.",
   },
   {
-    label: "Phone support",
-    description: "Get help from the Revvin team by phone.",
-  },
-  {
     label: "Works on your phone",
     description: "Add Revvin to your home screen, no app store needed.",
   },

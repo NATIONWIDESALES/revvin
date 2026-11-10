@@ -11,6 +11,7 @@ import AuthSplit from "@/components/AuthSplit";
 import SEOHead from "@/components/SEOHead";
 import Wordmark from "@/components/brand/Wordmark";
 import { friendlyError } from "@/lib/errors";
+import { PRICE_TEXT } from "@/config/pricing";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -71,7 +72,7 @@ const Auth = () => {
     <AuthSplit>
       <SEOHead
         title="Revvin | Sign in or create your account"
-        description="Sign in to your Revvin dashboard or create an account. Businesses build their referral page free and pay $97/month USD when they go live. Referrers join free."
+        description={`Sign in to your Revvin dashboard or create an account. Businesses build and publish their referral page free. Pro is optional at ${PRICE_TEXT.monthlyPerMonth} USD with a 14-day trial, no card required. Referrers join free.`}
         path="/auth"
         noindex
       />

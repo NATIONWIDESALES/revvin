@@ -4,9 +4,11 @@
 // the edge functions and the pages can never quote different figures. The parity
 // test in src/test/partners.test.ts fails if they drift.
 
-import { ANNUAL_PRICE, MONTHLY_PRICE } from "@/config/pricing";
+// Relative, not aliased: seoRoutes imports this module and is itself imported
+// by the build-time prerender plugin, bundled outside the app's alias resolution.
+import { ANNUAL_PRICE, MONTHLY_PRICE } from "./pricing";
 
-/** The optional one-time Launch Package. Mirrors _shared/pricing-copy.ts. */
+/** The optional one-time done-for-you launch. Mirrors _shared/pricing-copy.ts. */
 export const LAUNCH_PACKAGE_PRICE = 297;
 
 export const COMMISSION_RATE = 0.4;
@@ -29,7 +31,7 @@ export const PARTNER_EARNINGS = [
     earn: `${money(ANNUAL_PRICE * COMMISSION_RATE)} every year they pay`,
   },
   {
-    product: `Launch Package (${money(LAUNCH_PACKAGE_PRICE)})`,
+    product: `Done-for-you launch (${money(LAUNCH_PACKAGE_PRICE)})`,
     earn: money(LAUNCH_PACKAGE_PRICE * COMMISSION_RATE),
   },
 ] as const;
@@ -115,5 +117,5 @@ export const PARTNER_COPY = {
 export const PRODUCT_LABELS: Record<string, string> = {
   pro_monthly: "Revvin Pro, monthly",
   pro_yearly: "Revvin Pro, yearly",
-  launch_package: "Launch Package",
+  launch_package: "Done-for-you launch",
 };

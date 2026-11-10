@@ -33,5 +33,5 @@ export type CommissionStatus = "pending" | "payable" | "paid" | "reversed";
 export const PRODUCT_LABELS: Record<PartnerProduct, string> = {
   pro_monthly: "Revvin Pro, monthly",
   pro_yearly: "Revvin Pro, yearly",
-  launch_package: "Launch Package",
+  launch_package: "Done-for-you launch",
 };

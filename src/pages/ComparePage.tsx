@@ -98,7 +98,7 @@ const CtaCard = () => (
   <div className="mt-14 rounded-[18px] border border-line bg-card p-6 sm:p-8">
     <h2 className="text-3xl">Try Revvin free</h2>
     <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-      No setup fee, self-serve signup, cancel anytime.
+      No required setup fee, self-serve signup, cancel anytime.
     </p>
     <Button size="lg" className="mt-5 h-auto min-h-14 max-w-full whitespace-normal py-3 text-center" asChild>
       <Link to="/signup">{FREE_CTA_LABEL}</Link>

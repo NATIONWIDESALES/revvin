@@ -14,7 +14,7 @@ export const PARTNER_TERMS_DOC = {
     {
       heading: "2. Commission",
       body:
-        "You earn 40% of the cash we collect from each customer you refer, after discounts and excluding taxes, for as long as that customer keeps paying. This covers Revvin Pro (monthly and yearly) and the Launch Package. Payments of $0 earn nothing.",
+        "You earn 40% of the cash we collect from each customer you refer, after discounts and excluding taxes, for as long as that customer keeps paying. This covers Revvin Pro (monthly and yearly) and the done-for-you launch. Payments of $0 earn nothing.",
     },
     {
       heading: "3. Attribution",
