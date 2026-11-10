@@ -235,12 +235,17 @@ serve(async (req) => {
           // Partner commission for a one-off Launch Package purchase. Only
           // payment-mode sessions are considered here: subscription revenue is
           // recorded from invoice.paid, so nothing is counted twice.
+          // Fetch line items once: partner commission matching and the admin
+          // email item labels both come from the real Stripe prices, never
+          // fixed strings.
+          let lineItems: Stripe.LineItem[] = [];
           try {
-            let priceIds: string[] = [];
-            try {
-              const li = await stripe.checkout.sessions.listLineItems(s.id, { limit: 20 });
-              priceIds = li.data.map((row: Stripe.LineItem) => row.price?.id).filter(Boolean) as string[];
-            } catch (_) { /* fall through with no price ids */ }
+            const li = await stripe.checkout.sessions.listLineItems(s.id, { limit: 20 });
+            lineItems = li.data;
+          } catch (_) { /* fall through with no line items */ }
+          const priceIds = lineItems.map((row) => row.price?.id).filter(Boolean) as string[];
+
+          try {
             const outcome = await handlePartnerCheckoutCompleted(admin, s, priceIds);
             console.log("[stripe-business-webhook] partner checkout commission", outcome);
           } catch (e) {
@@ -263,8 +268,14 @@ serve(async (req) => {
             const businessName = biz?.name || "New Business";
             const total = (s.amount_total ?? 0) / 100;
             const currency = (s.currency || "usd").toUpperCase();
-            const items: string[] = ["$97/mo Pro subscription"];
-            if (launchPackagePurchased) items.push("$297 Launch Package");
+            // Label the subscription from the actual Stripe price (amount and
+            // interval) so yearly, legacy and promo subscribers read correctly.
+            const subItem = lineItems.find((row) => row.price?.recurring);
+            const subLabel = subItem?.price
+              ? `$${((subItem.price.unit_amount ?? 0) / 100).toFixed(0)}/${subItem.price.recurring?.interval === "year" ? "yr" : "mo"} Pro subscription`
+              : "Pro subscription";
+            const items: string[] = [subLabel];
+            if (launchPackagePurchased) items.push("$297 done-for-you launch");
 
             const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F9FAFB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#F9FAFB;"><tr><td align="center" style="padding:40px 16px;">
@@ -279,7 +290,7 @@ serve(async (req) => {
 <tr><td style="padding:6px 0;color:#6B7280;font-size:14px;">Email</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:500;">${escapeHtml(ownerEmail)}</td></tr>
 <tr><td style="padding:6px 0;color:#6B7280;font-size:14px;">Total Charged</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:600;">${currency} $${total.toFixed(2)}</td></tr>
 <tr><td style="padding:6px 0;color:#6B7280;font-size:14px;vertical-align:top;">Items</td><td style="padding:6px 0;color:#111827;font-size:14px;font-weight:500;">${items.map(escapeHtml).join("<br/>")}</td></tr>
-${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size:14px;font-weight:600;">⚡ Action</td><td style="padding:6px 0;color:#D97706;font-size:14px;font-weight:600;">Schedule Launch Package onboarding call within 1 business day</td></tr>` : ""}
+${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size:14px;font-weight:600;">⚡ Action</td><td style="padding:6px 0;color:#D97706;font-size:14px;font-weight:600;">Schedule the done-for-you launch onboarding call within 1 business day</td></tr>` : ""}
 </table></td></tr></table>
 <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 0 0;">
 <a href="${appUrl("/__sa")}" style="display:inline-block;background:#15803D;color:#FFF;font-size:15px;font-weight:500;text-decoration:none;padding:12px 28px;border-radius:8px;">Open Admin Dashboard</a>
@@ -287,7 +298,7 @@ ${launchPackagePurchased ? `<tr><td style="padding:6px 0;color:#D97706;font-size
 </td></tr></table></td></tr></table></body></html>`;
 
             const subject = launchPackagePurchased
-              ? `💰 New paying customer + Launch Package: ${businessName}`
+              ? `💰 New paying customer + done-for-you launch: ${businessName}`
               : `💰 New paying customer: ${businessName}`;
 
             const result = await sendEmailViaGateway({
