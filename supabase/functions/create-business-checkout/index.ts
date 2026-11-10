@@ -6,7 +6,7 @@ import {
   checkoutPricing,
   type BillingPlan,
 } from "../_shared/stripe-prices.ts";
-import { promoCouponFor, promoMetadataFor, PROMO_COUPON_MONTHLY, INVITE_PROMOTION_PAUSED } from "../_shared/promo.ts";
+import { promoCouponFor, promoMetadataFor, promoAllowedForPriceVersion, PROMO_COUPON_MONTHLY, INVITE_PROMOTION_PAUSED } from "../_shared/promo.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -91,7 +91,11 @@ serve(async (req) => {
     let invite: { id: string; code: string; trial_days: number } | null = null;
     let inviteApplied = false;
     let inviteRejected = false;
-    if (!INVITE_PROMOTION_PAUSED && rawInviteCode && plan === "monthly") {
+    // Fail closed on the 2026-11 price version: the invite coupon is a flat
+    // $32 off the LEGACY $49 price. Against $97 it would charge $65, not the
+    // promised $17, so invites are refused rather than mispriced. The
+    // promotion must be redefined for current prices before it can resume.
+    if (!INVITE_PROMOTION_PAUSED && promoAllowedForPriceVersion(priceVersion) && rawInviteCode && plan === "monthly") {
       // Atomic claim: a single conditional UPDATE ... RETURNING inside the
       // function. No row back means missing, inactive, expired, or exhausted.
       const { data: claimed, error: claimErr } = await admin.rpc("fn_claim_invite_code", {
@@ -118,13 +122,15 @@ serve(async (req) => {
       line_items.push({ price: PRICE_LAUNCH_PACKAGE_297, quantity: 1 });
     }
 
-    // Launch promotion: $17/month instead of $97/month, or $204/year instead of
-    // $970/year, locked forever while the subscription stays active. Applies to
-    // both plans, each with its own coupon, and the deadline is checked against
-    // the SERVER clock so a client cannot claim it late.
+    // Launch promotion (paused): $17/month instead of the LEGACY $49/month,
+    // or $204/year instead of the legacy $450/year, locked forever while the
+    // subscription stays active. Applies to both plans, each with its own
+    // coupon, and the deadline is checked against the SERVER clock so a
+    // client cannot claim it late. The flat coupons only match the legacy
+    // prices; promoCouponFor returns null for the 2026-11 price version.
     // Invite redemptions always get the launch coupon, even after the public
     // promo deadline: an invited business must never pay more than a stranger.
-    const promoCoupon = invite ? PROMO_COUPON_MONTHLY : promoCouponFor(plan);
+    const promoCoupon = invite ? PROMO_COUPON_MONTHLY : promoCouponFor(plan, new Date(), priceVersion);
     const promoApplies = promoCoupon !== null;
     const promoTag = invite ? "invite_17_monthly" : promoApplies ? promoMetadataFor(plan) : "none";
 
