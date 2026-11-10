@@ -16,7 +16,7 @@ const PlanPicker = ({
     {
       value: "annual",
       label: `${PRICE_TEXT.annualPerYear} USD`,
-      sub: `${PRICE_TEXT.effectiveMonthly}, save ${PRICE_TEXT.saving} (${PRICE_TEXT.discount} off)`,
+      sub: "Billed once. Two months free.",
     },
   ];
 

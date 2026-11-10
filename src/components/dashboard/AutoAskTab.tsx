@@ -56,11 +56,12 @@ const STATUS_META: Record<string, { label: string; className: string }> = {
 };
 
 interface Props {
+  isPro: boolean;
   biz: { id: string; name: string; offer_amount: string | null; google_review_url: string | null; business_email: string | null };
   publicUrl: string;
 }
 
-const AutoAskTab = ({ biz, publicUrl }: Props) => {
+const AutoAskTab = ({ biz, publicUrl, isPro }: Props) => {
   const { toast } = useToast();
   const [rows, setRows] = useState<TriggerRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,6 +101,7 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
     }));
 
   const submit = async () => {
+    if (!isPro) return;
     const first = form.first_name.trim();
     const email = form.email.trim().toLowerCase();
     const phone = form.phone.trim();
@@ -279,7 +281,8 @@ const AutoAskTab = ({ biz, publicUrl }: Props) => {
           )}
         </div>
 
-        <Button className="mt-5" onClick={submit} disabled={saving}>
+        {!isPro && <p className="mt-4 text-sm text-muted-foreground">Automatic job asks are paused on Free. Your settings and history are kept. Upgrade to Pro from Plan &amp; billing to resume.</p>}
+        <Button className="mt-5" onClick={submit} disabled={saving || !isPro}>
           {saving ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
           Schedule the ask
         </Button>

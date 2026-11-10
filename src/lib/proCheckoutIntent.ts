@@ -1,3 +1,4 @@
+import { CHECKOUT_PRICE_VERSION } from "@/config/pricing";
 import { supabase } from "@/integrations/supabase/client";
 import type { BillingPlan } from "@/config/pricing";
 import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
@@ -53,7 +54,7 @@ export const startHeldCheckout = async (userId: string, plan: BillingPlan): Prom
     if (!(await waitForBusiness(userId))) return false;
     const includeLaunchPackage = wantsLaunchPackage();
     const { data, error } = await supabase.functions.invoke("create-business-checkout", {
-      body: { plan, includeLaunchPackage },
+      body: { plan, includeLaunchPackage, price_version: CHECKOUT_PRICE_VERSION },
     });
     if (error || !data?.url) return false;
     try { window.sessionStorage.removeItem(LAUNCH_KEY); } catch { /* ignore */ }

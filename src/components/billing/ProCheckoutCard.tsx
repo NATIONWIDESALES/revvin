@@ -1,3 +1,4 @@
+import { CHECKOUT_PRICE_VERSION } from "@/config/pricing";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, Lock } from "lucide-react";
@@ -93,7 +94,7 @@ const ProCheckoutCard = ({
 
     setBusy(true);
     const { data, error } = await (await loadSupabase()).functions.invoke("create-business-checkout", {
-      body: { includeLaunchPackage: false, plan },
+      body: { includeLaunchPackage: false, plan, price_version: CHECKOUT_PRICE_VERSION },
     });
     setBusy(false);
 

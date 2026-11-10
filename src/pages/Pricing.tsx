@@ -1,3 +1,4 @@
+import { LAUNCH_GUARANTEE } from "@/config/pricing";
 import { PAGE_META } from "@/content/pageMeta";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -74,7 +75,7 @@ const Pricing = () => {
               priceCurrency: "USD",
               url: `${SITE_URL}/pricing`,
               description:
-                "Your referral page on your own link, QR code and print pack, unlimited referral leads, a lead inbox with status tracking, and reward tracking from owed to paid.",
+                "Free referral page, personal referrer links, QR code and print pack, lead inbox, referral email alerts, reward tracking, mobile use, optional marketplace listing, and importing and asking up to 25 customers from your own phone or email app.",
             },
             {
               "@type": "Offer",
@@ -83,7 +84,7 @@ const Pricing = () => {
               priceCurrency: "USD",
               url: `${SITE_URL}/pricing`,
               description:
-                "Customer list import, the bulk referral ask from your own email app, reactivation campaigns, ROI reporting and custom page branding. Billed monthly, cancel any time.",
+                "Unlimited customers, automatic Job done and job-software/API/Zapier review and referral asks, reactivation email campaigns, ROI reporting and monthly recap, and custom page branding. Billed monthly, cancel anytime.",
             },
             {
               "@type": "Offer",
@@ -119,7 +120,7 @@ const Pricing = () => {
             </div>
           </div>
           <p className="mt-5 text-sm text-muted-foreground">
-            Revvin Pro is {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, which saves {PRICE_TEXT.saving} ({PRICE_TEXT.discount} off). No contract, and no platform fees on your referral rewards.
+            Revvin Pro is {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, with two months free. No contract, and no platform fees on your referral rewards.
           </p>
         </div>
       </section>
@@ -173,7 +174,7 @@ const Pricing = () => {
                   onClick={() => setPlan("annual")}
                   className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors ${annual ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  {`Annual, save ${PRICE_TEXT.discount}`}
+                  Annual, two months free
                 </button>
               </div>
 
@@ -187,10 +188,10 @@ const Pricing = () => {
                 <div className="mt-2 space-y-1 text-sm">
                   <p className="text-muted-foreground">
                     <span className="line-through">{PRICE_TEXT.annualListPrice}</span>{" "}
-                    if paid monthly for twelve months. You save {PRICE_TEXT.saving}, {PRICE_TEXT.discount} off.
+                    if paid monthly for twelve months. Two months free.
                   </p>
                   <p className="text-muted-foreground">
-                    Works out to {PRICE_TEXT.effectiveMonthly} USD.
+                    Billed once. Two months free.
                   </p>
                   <p className="text-xs text-muted-foreground">{ANNUAL_TERMS_COPY}</p>
                 </div>
@@ -238,7 +239,7 @@ const Pricing = () => {
               <div className="flex items-center gap-2">
                 <Checkbox id="add-launch" checked={addLaunch} onCheckedChange={(v) => toggleLaunch(v === true)} />
                 <Label htmlFor="add-launch" className="cursor-pointer font-normal text-muted-foreground">
-                  Want us to set it up with you? Add the Launch Package, $297 one-time.
+                  Want us to load your customer list, set up your page and reward, and send the first asks with you? Add the optional launch, $297 one-time.
                 </Label>
               </div>
               {addLaunch && <p className="text-xs">Added. It is charged once at checkout when you start Pro.</p>}
@@ -275,7 +276,8 @@ const Pricing = () => {
 
       <section className="border-b border-border">
         <div className="container max-w-3xl py-16">
-          <h2 className="text-3xl md:text-4xl">What you get for the $97</h2>
+          <p className="mb-8 text-sm text-muted-foreground">{LAUNCH_GUARANTEE}</p>
+          <h2 className="text-3xl md:text-4xl">What you get with Pro</h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
             Free works on every job from here on. Pro works on every customer you have already served: import your past customers, have Revvin email a reactivation campaign to the group you choose from your business name, with replies going to your own inbox, or work through them in batches with each ask opening in your own phone or email app. You also get ROI reporting with a monthly recap and custom page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. The Pro features are the same on monthly and annual. There are no per-send charges.
           </p>

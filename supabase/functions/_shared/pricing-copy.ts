@@ -21,11 +21,13 @@ export const PRO_PRICE_LINE =
 
 /** How the pricing page describes the Launch Package today. */
 export const LAUNCH_PACKAGE_LINE =
-  `Optional. We set up your offer, page, and launch assets with you. ${LAUNCH_PACKAGE_TEXT}.`;
+  `Optional. We load your customer list, set up your page and reward with you, and send the first asks with you. ${LAUNCH_PACKAGE_TEXT}.`;
 
 /** Mirrors PRO_FEATURES in src/config/planFeatures.ts (labels only). */
 export const PRO_FEATURE_LABELS: string[] = [
   "Unlimited customers, imported and asked",
+  "Automatic ask after each job",
+  "API and Zapier connection",
   "Send your ask to the whole list",
   "Reactivation email campaigns",
   "ROI reporting and monthly recap",

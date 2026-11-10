@@ -55,7 +55,7 @@ const sha256Hex = async (s: string) => {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 };
 
-const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_at: string | null } }) => {
+const IntegrationsTab = ({ biz, isPro }: { isPro: boolean; biz: { id: string; contact_outreach_consent_at: string | null } }) => {
   const { toast } = useToast();
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
@@ -99,6 +99,7 @@ const IntegrationsTab = ({ biz }: { biz: { id: string; contact_outreach_consent_
   // The plaintext key never leaves this function except into the owner's
   // clipboard. Only its SHA-256 hash and a short prefix are stored.
   const createKey = async () => {
+    if (!isPro) { toast({ title: "Pro is required for automatic job asks", description: "Existing connections are kept but paused on Free." }); return; }
     if (!keyLabel.trim()) {
       toast({ title: "Name the key first", description: "A label like \"Zapier\" helps you know what to revoke later.", variant: "destructive" });
       return;
