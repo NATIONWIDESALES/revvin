@@ -156,7 +156,7 @@ describe("partner config parity", () => {
 
   it("publishes the exact earnings the program pays", () => {
     const earn = frontConfig.PARTNER_EARNINGS.map((row) => row.earn);
-    expect(earn[0]).toContain("$19.60");
+    expect(earn[0]).toContain("$38.80");
     expect(earn[1]).toContain("$180");
     expect(earn[2]).toContain("$118.80");
     expect(commissionCents(4900)).toBe(1960);

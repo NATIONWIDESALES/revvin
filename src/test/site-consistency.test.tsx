@@ -51,7 +51,7 @@ describe("auth panel", () => {
   it("lists the three benefits", () => {
     expect(AUTH_BENEFITS).toEqual([
       "Live in about a minute",
-      "Free for your first 100 customers",
+      "Free for your first 25 customers",
       "You pay rewards only when a job closes",
     ]);
   });
