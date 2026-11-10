@@ -96,6 +96,10 @@ const FORBIDDEN: ForbiddenPattern[] = [
   { label: "$197 price point", pattern: /\$197\b/ },
   { label: "$247 price point", pattern: /\$247\b/ },
   { label: "$99/mo price point", pattern: /\$99\s*\/?\s*(mo|month)\b/i },
+  // The $297 done-for-you launch exists, so Revvin's own offer is never
+  // "no setup fee" without qualification. Competitor facts in
+  // src/content/comparisons.ts are skipped via SKIP_EXACT_PATHS.
+  { label: "unqualified no setup fee", pattern: /no setup fees?\b/i },
   { label: "retired founding price", pattern: /\$29\b/ },
   { label: "retired founding offer", pattern: /founding (?:businesses|spot|offer)|locked for life/i },
   { label: "$19/mo price point", pattern: /\$19\s*\/?\s*(mo|month)\b/i },
