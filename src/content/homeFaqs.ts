@@ -6,7 +6,7 @@ import { PRICE_TEXT } from "../config/pricing";
 export const HOME_FAQS: { q: string; a: string }[] = [
   {
     q: "Is it really free?",
-    a: "Yes. Your referral page is free, every referral that comes through it is free with no limit, and you can import and ask up to 100 customers. No card, and it does not expire. Revvin Pro is " +
+    a: "Yes. Your referral page is free, every referral that comes through it is free with no limit, and you can import and ask up to 25 customers. No card, and it does not expire. Revvin Pro is " +
       `${PRICE_TEXT.monthlyPerMonth} or ${PRICE_TEXT.annualPerYear} if you want to ask your whole list.`,
   },
   {

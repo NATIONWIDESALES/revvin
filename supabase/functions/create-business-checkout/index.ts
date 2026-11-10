@@ -116,8 +116,8 @@ serve(async (req) => {
       line_items.push({ price: PRICE_LAUNCH_PACKAGE_297, quantity: 1 });
     }
 
-    // Launch promotion: $17/month instead of $49/month, or $204/year instead of
-    // $450/year, locked forever while the subscription stays active. Applies to
+    // Launch promotion: $17/month instead of $97/month, or $204/year instead of
+    // $970/year, locked forever while the subscription stays active. Applies to
     // both plans, each with its own coupon, and the deadline is checked against
     // the SERVER clock so a client cannot claim it late.
     // Invite redemptions always get the launch coupon, even after the public

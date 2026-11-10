@@ -43,9 +43,9 @@ export interface Comparison {
 const REVVIN_SOURCE: Source = { label: "Revvin pricing", url: "https://revvin.co/pricing" };
 
 const REVVIN_COL = {
-  price: "Free. Pro is $49/month or $450/year",
+  price: "Free. Pro is $97/month or $970/year",
   setup: "None",
-  free: "Yes: referral page and QR code, unlimited referrals, import and ask up to 100 customers",
+  free: "Yes: referral page and QR code, unlimited referrals, import and ask up to 25 customers",
   signup: "Self-serve signup, no demo",
   payouts: "The business pays referrers directly; Revvin does not process payouts yet",
   link: "Yes, a personal link for every referrer, on Free",
@@ -83,7 +83,7 @@ export const COMPARISONS: Comparison[] = [
     metaDescription:
       "Get The Referral runs $399 to $1,899 a month plus setup fees and starts with a demo. Revvin starts free with self-serve signup. An honest side-by-side.",
     answer:
-      "Get The Referral is built for larger sales teams: plans run from $399 to $1,899 a month plus setup fees of $500 to $2,500, and you sign up through a demo. Revvin starts free with self-serve signup and no setup fee, and Pro is $49 a month. Revvin suits 1 to 10 person crews.",
+      "Get The Referral is built for larger sales teams: plans run from $399 to $1,899 a month plus setup fees of $500 to $2,500, and you sign up through a demo. Revvin starts free with self-serve signup and no required setup fee, and Pro is $97 a month. Revvin suits 1 to 10 person crews.",
     table: table("Get The Referral", [
       "Starter $399/month (5 sales seats); Pro Lite $799/month; Pro $999/month (15 seats); Premium $1,899/month (50 seats); 10% off annual",
       "$500 on Starter, $1,000 on Pro Lite and Pro, $2,500 on Premium",
@@ -128,10 +128,10 @@ export const COMPARISONS: Comparison[] = [
     metaDescription:
       "ReferralWise and Revvin are close in price. ReferralWise automates partner payouts through Stripe; Revvin asks past customers with personal links.",
     answer:
-      "ReferralWise is the closest tool to Revvin at a similar price: it has a free plan, Pro at $19 a month and Business at $49 a month, and it pays partners through Stripe after a job is approved. Revvin's Free plan lets you import and ask up to 100 past customers with personal links, and you pay referrers yourself.",
+      "ReferralWise is the closest tool to Revvin at a similar price: it has a free plan, Pro at $19 a month and Business at $49 a month, and it pays partners through Stripe after a job is approved. Revvin's Free plan lets you import and ask up to 25 past customers with personal links, and you pay referrers yourself.",
     table: table("ReferralWise", [
       "Free; Pro $19/month; Business $49/month",
-      "No setup fees",
+      "No required setup fees",
       "Yes, with limited partners and 3 referrals a month",
       "See referralwise.app",
       "After a job is marked won and approved, it charges the contractor's saved card and pays the partner by Stripe direct deposit",
@@ -179,7 +179,7 @@ export const COMPARISONS: Comparison[] = [
     metaDescription:
       "Clicki starts at $549 a month with texting, instant payouts and field software integrations. Revvin starts free for smaller crews. A fair comparison.",
     answer:
-      "Clicki starts at $549 a month for Referrals + RewardsPass, includes 2,000 texts a month, pays promoters by Venmo, Zelle, PayPal or direct deposit and connects to ServiceTitan and FieldRoutes. Revvin starts free, Pro is $49 a month, and the business pays referrers directly. Revvin suits smaller crews that want to start free.",
+      "Clicki starts at $549 a month for Referrals + RewardsPass, includes 2,000 texts a month, pays promoters by Venmo, Zelle, PayPal or direct deposit and connects to ServiceTitan and FieldRoutes. Revvin starts free, Pro is $97 a month, and the business pays referrers directly. Revvin suits smaller crews that want to start free.",
     table: table("Clicki", [
       "Referrals + RewardsPass $549/month base; Bravo add-on +$200/month; quarterly and annual billing nonrefundable",
       "See joinclicki.com",
@@ -224,7 +224,7 @@ export const COMPARISONS: Comparison[] = [
     metaDescription:
       "Snoball sells a done-for-you word-of-mouth program with a Results Coach and unpublished pricing. Revvin is self-serve, published pricing, free to start.",
     answer:
-      "Snoball sells a done-for-you word-of-mouth program with referrals, reviews, reputation assets and video testimonials, run with a dedicated Results Coach. Its pricing is not published on its site; you book a demo. Revvin publishes its pricing, starts free with self-serve signup, and Pro is $49 a month. Revvin is for owners who run it themselves.",
+      "Snoball sells a done-for-you word-of-mouth program with referrals, reviews, reputation assets and video testimonials, run with a dedicated Results Coach. Its pricing is not published on its site; you book a demo. Revvin publishes its pricing, starts free with self-serve signup, and Pro is $97 a month. Revvin is for owners who run it themselves.",
     table: table("Snoball", [
       "Not published on its site",
       "Not published on its site",
@@ -256,7 +256,7 @@ export const COMPARISONS: Comparison[] = [
       },
       {
         q: "Can I run Revvin myself?",
-        a: "Yes. Revvin is self-serve: sign up, publish your referral page and start asking customers. There is no setup fee and you can cancel Pro anytime.",
+        a: "Yes. Revvin is self-serve: sign up, publish your referral page and start asking customers. There is no required setup fee and you can cancel Pro anytime.",
       },
     ],
     sources: [{ label: "Snoball", url: "https://snoball.com/" }, REVVIN_SOURCE],
@@ -336,16 +336,16 @@ export const ROUNDUP = {
     {
       name: "Revvin",
       bestFor: "Small home-service crews who want to ask their whole customer list.",
-      price: "Free. Pro is $49/month or $450/year, with no setup fee.",
+      price: "Free. Pro is $97/month or $970/year, with no required setup fee.",
       standsOut:
-        "The Free plan includes a referral page and QR code, unlimited referrals, import and ask up to 100 customers, a personal link for every referrer, the ask after every finished job with a Google review request, a lead inbox and rewards tracked from owed to paid. Self-serve signup, Zapier and API.",
+        "The Free plan includes a referral page and QR code, unlimited referrals, import and ask up to 25 customers, a personal link for every referrer, the ask after every finished job with a Google review request, a lead inbox and rewards tracked from owed to paid. Self-serve signup, Zapier and API.",
       watchOut: "You pay referrers yourself, and there is no rep app yet.",
     },
     {
       name: "ReferralWise",
       comparePath: "/compare/referralwise",
       bestFor: "Partner referrals with automated payouts.",
-      price: "Free plan; Pro $19/month; Business $49/month; no setup fees.",
+      price: "Free plan; Pro $19/month; Business $49/month; no required setup fees.",
       standsOut:
         "After a job is marked won and approved, it charges the contractor's saved card and pays the partner by Stripe direct deposit. Business adds unlimited partners, team members and API.",
       watchOut: "The free plan is limited to a few referrals a month.",
@@ -390,7 +390,7 @@ export const ROUNDUP = {
     caption: "Referral software for contractors at a glance",
     head: ["Tool", "Starting price", "Free plan", "Best for"],
     rows: [
-      ["Revvin", "Free; Pro $49/month", "Yes", "Small home-service crews"],
+      ["Revvin", "Free; Pro $97/month", "Yes", "Small home-service crews"],
       ["ReferralWise", "Free; Pro $19/month", "Yes, limited", "Partner referrals with automated payouts"],
       ["Jobber Referrals", "See Jobber pricing", "See Jobber pricing", "Jobber users"],
       ["Clicki", "$549/month", "See joinclicki.com", "Multi-tech companies on ServiceTitan or FieldRoutes"],

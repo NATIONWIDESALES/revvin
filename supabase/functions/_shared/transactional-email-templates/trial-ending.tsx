@@ -6,7 +6,7 @@ interface Props { today?: boolean; unsubscribeUrl?: string }
 const Email = ({ today = false, unsubscribeUrl }: Props) => (
   <RevvinShell previewText={today ? 'Your Pro trial ends today.' : 'Your Pro trial ends in 3 days.'} unsubscribeUrl={unsubscribeUrl}>
     <Text style={heading}>{today ? 'Your Pro trial ends today' : 'Your Pro trial ends in 3 days'}</Text>
-    <Text style={paragraph}>When the trial ends, your referral page stays live on Free. Free covers your first 100 customers and does not include reactivation campaigns. Your contacts stay visible and nothing is deleted. Asks to customers beyond the first 100 pause.</Text>
+    <Text style={paragraph}>When the trial ends, your referral page stays live on Free. Free covers your first 25 customers and does not include reactivation campaigns. Your contacts stay visible and nothing is deleted. Asks to customers beyond the first 25 pause.</Text>
     <Text style={paragraph}>No card was required for your trial and you will not be charged automatically.</Text>
     <Text style={{ margin: '0 0 20px' }}>{ctaButton('https://revvin.co/dashboard?tab=billing', 'Keep Pro')}</Text>
     <Text style={paragraph}>Questions? Reply to reach our team.</Text>

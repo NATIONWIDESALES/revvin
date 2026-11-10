@@ -9,7 +9,7 @@ import HeroYardSign, { SIGN_EXAMPLES, type SignExample } from "@/components/mark
 import InstantPreview from "@/components/marketing/InstantPreview";
 import StepTrack from "@/components/marketing/StepTrack";
 import FinalBand from "@/components/marketing/FinalBand";
-import { PRICE_TEXT, MONTHLY_PRICE, FOUNDING_OFFER_ACTIVE } from "@/config/pricing";
+import { PRICE_TEXT, MONTHLY_PRICE } from "@/config/pricing";
 import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT, FREE_CTA_LABEL } from "@/config/planFeatures";
 import { SETUP_CALL_URL } from "@/config/setupCall";
 import { CANONICAL_SENTENCE } from "@/config/brand";
@@ -202,17 +202,6 @@ const Index = () => {
             </Button>
           </div>
         </div>
-        {false && FOUNDING_OFFER_ACTIVE && SETUP_CALL_URL && (
-          <div className="mt-6 flex flex-col items-start justify-between gap-6 rounded-2xl bg-sign px-7 py-7 text-forest md:flex-row md:items-center md:px-9">
-            <div className="min-w-0">
-              <h3 className="font-display text-[30px] font-extrabold leading-none">Founding businesses: first 25 only</h3>
-              <p className="mt-2 max-w-[44em]">Pro free for 30 days, then $29 a month locked for life, plus a done-for-you setup call. In return, a short case study once you have results.</p>
-            </div>
-            <Button size="lg" className="h-auto min-h-14 w-full shrink-0 whitespace-normal bg-forest py-3 hover:bg-forest/90 md:w-auto" asChild>
-              <a href={SETUP_CALL_URL} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_clicked", { cta: "pricing_founding_call" })}>Claim a founding spot</a>
-            </Button>
-          </div>
-        )}
         <p className="mt-6">
           <Link to="/pricing" onClick={() => track("cta_clicked", { cta: "plans_pro" })} className="font-semibold text-forest underline underline-offset-4">See full pricing</Link>
         </p>

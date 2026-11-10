@@ -7,8 +7,8 @@
 //
 // No Deno globals live in this file on purpose so vitest can import it.
 
-export const MONTHLY_PRICE = 49;
-export const ANNUAL_PRICE = 450;
+export const MONTHLY_PRICE = 97;
+export const ANNUAL_PRICE = 970;
 export const LAUNCH_PACKAGE_PRICE = 297;
 
 export const PRICE_MONTHLY_TEXT = `$${MONTHLY_PRICE}/month USD`;

@@ -1,7 +1,7 @@
 // Question-shaped guide content for answer engines and search.
 //
 // Every claim here must be true of the product: publishing a referral page is
-// free, Revvin Pro is $49/month USD, businesses pay their referrers directly
+// free, Revvin Pro is $97/month USD, businesses pay their referrers directly
 // off-platform. Referral asks open the owner's own phone or email app with the
 // message filled in, so the owner's device sends them. Reactivation campaigns
 // (Pro) are the exception: Revvin sends those by email from the business name,
@@ -135,7 +135,7 @@ const BASE_GUIDES: Guide[] = [
       },
       {
         q: "Does Revvin take a cut of the referral reward?",
-        a: "No. Revvin never holds, moves or processes the reward, and takes no percentage of it. You pay your referrer directly off-platform. Publishing your referral page is free and Revvin Pro is $49/month USD if you want the tools that work your whole customer list.",
+        a: "No. Revvin never holds, moves or processes the reward, and takes no percentage of it. You pay your referrer directly off-platform. Publishing your referral page is free and Revvin Pro is $97/month USD if you want the tools that work your whole customer list.",
       },
       {
         q: "Can I change the reward later?",
@@ -171,7 +171,7 @@ const BASE_GUIDES: Guide[] = [
       },
       {
         heading: "How this works on Revvin",
-        body: "You publish a branded referral page on your own link, free, with a QR code and a print pack for signage and paperwork. Referrals land in one lead inbox with status tracking and one-tap call or text back. You set the reward, you confirm the close, and you pay your referrer directly when it happens. Revvin takes no cut of the reward and does not send your personal asks for you. Revvin Pro, at $49/month USD, adds importing your past-customer list, sending your ask in bulk from your own email app, reactivation campaigns that Revvin does send by email from your account, ROI reporting and custom page branding.",
+        body: "You publish a branded referral page on your own link, free, with a QR code and a print pack for signage and paperwork. Referrals land in one lead inbox with status tracking and one-tap call or text back. You set the reward, you confirm the close, and you pay your referrer directly when it happens. Revvin takes no cut of the reward and does not send your personal asks for you. Revvin Pro, at $97/month USD, adds importing your past-customer list, sending your ask in bulk from your own email app, reactivation campaigns that Revvin does send by email from your account, ROI reporting and custom page branding.",
       },
     ],
     faqs: [
@@ -193,7 +193,7 @@ const BASE_GUIDES: Guide[] = [
       },
       {
         q: "What does a referral program cost to run?",
-        a: "Publishing your referral page on Revvin is free, with no per-lead fee and no cut of the reward. Revvin Pro is $49/month USD for list import, bulk asking from your own email app, ROI reporting and custom branding. The referral rewards themselves are set by you and paid by you, directly to your referrer.",
+        a: "Publishing your referral page on Revvin is free, with no per-lead fee and no cut of the reward. Revvin Pro is $97/month USD for list import, bulk asking from your own email app, ROI reporting and custom branding. The referral rewards themselves are set by you and paid by you, directly to your referrer.",
       },
     ],
   },
@@ -247,7 +247,7 @@ const BASE_GUIDES: Guide[] = [
       },
       {
         q: "Do I need a customer list to start a referral program?",
-        a: "No. Your page works the day you publish it and can be shared with anyone. But the customers who have already paid you are where referrals come from fastest, so importing that list and asking it is usually the first thing worth doing. List import and bulk asking are Revvin Pro features at $49/month USD.",
+        a: "No. Your page works the day you publish it and can be shared with anyone. But the customers who have already paid you are where referrals come from fastest, so importing that list and asking it is usually the first thing worth doing. List import and bulk asking are Revvin Pro features at $97/month USD.",
       },
       {
         q: "Does Revvin send the referral asks for me?",
@@ -369,9 +369,9 @@ const BASE_GUIDES: Guide[] = [
     label: "Alternative to buying leads",
     metaTitle: "Alternative to Buying Leads from Thumbtack and Angi | Revvin",
     metaDescription:
-      "What a referral program replaces when you stop buying shared leads, what it cannot replace, and what Revvin costs: free to publish, $49/month for Pro.",
+      "What a referral program replaces when you stop buying shared leads, what it cannot replace, and what Revvin costs: free to publish, $97/month for Pro.",
     answer:
-      "The alternative most service businesses already own is the list of customers who have paid them before. Instead of buying an enquiry that several contractors receive at the same time, you publish a referral page on your own link, tell your past customers what you will pay for a closed referral, and pay that reward only when a job actually closes. That does not make lead marketplaces a mistake. They sell volume from strangers on demand, which a referral program cannot do. It means your cost moves from the top of the funnel, where you pay for contacts, to the bottom, where you pay for outcomes. Publishing a referral page on Revvin is free, Revvin Pro is $49/month USD, and Revvin takes no cut of the reward you pay.",
+      "The alternative most service businesses already own is the list of customers who have paid them before. Instead of buying an enquiry that several contractors receive at the same time, you publish a referral page on your own link, tell your past customers what you will pay for a closed referral, and pay that reward only when a job actually closes. That does not make lead marketplaces a mistake. They sell volume from strangers on demand, which a referral program cannot do. It means your cost moves from the top of the funnel, where you pay for contacts, to the bottom, where you pay for outcomes. Publishing a referral page on Revvin is free, Revvin Pro is $97/month USD, and Revvin takes no cut of the reward you pay.",
     sections: [
       {
         heading: "What you are actually buying in each model",
@@ -379,7 +379,7 @@ const BASE_GUIDES: Guide[] = [
       },
       {
         heading: "Check the current rates yourself",
-        body: "Lead prices, membership fees and lead-credit rules on the marketplaces change, differ by trade and differ by area, so no honest comparison quotes a single figure for them. Look at your own last few invoices from whichever platform you use, and at that platform's current published pricing, before you decide what a referral is worth to you. Revvin's side of the comparison is fixed and public: free to publish and take referrals, $49/month USD for Revvin Pro, $450 billed once for a year, no platform fee and no per-lead charge.",
+        body: "Lead prices, membership fees and lead-credit rules on the marketplaces change, differ by trade and differ by area, so no honest comparison quotes a single figure for them. Look at your own last few invoices from whichever platform you use, and at that platform's current published pricing, before you decide what a referral is worth to you. Revvin's side of the comparison is fixed and public: free to publish and take referrals, $97/month USD for Revvin Pro, $970 billed once for a year, no platform fee and no per-lead charge.",
       },
       {
         heading: "What a referral program will not do",
@@ -391,7 +391,7 @@ const BASE_GUIDES: Guide[] = [
       },
       {
         heading: "What the switch costs",
-        body: "Nothing to try. Building and publishing your referral page, your lead inbox, your offers, your QR code and print pack, and your marketplace listing are all free, with no card. The only money that moves is the reward you set, paid by you directly to your referrer after you confirm a close, and the optional $49/month USD for Revvin Pro. Revvin never holds the reward, never processes it and takes no percentage of it.",
+        body: "Nothing to try. Building and publishing your referral page, your lead inbox, your offers, your QR code and print pack, and your marketplace listing are all free, with no card. The only money that moves is the reward you set, paid by you directly to your referrer after you confirm a close, and the optional $97/month USD for Revvin Pro. Revvin never holds the reward, never processes it and takes no percentage of it.",
       },
     ],
     faqs: [
@@ -409,7 +409,7 @@ const BASE_GUIDES: Guide[] = [
       },
       {
         q: "What does Revvin cost compared with a lead platform?",
-        a: "Revvin is free to publish and take referrals on, with no per-lead charge and no cut of the reward. Revvin Pro is $49/month USD, or $450 billed once for a year. Lead platform pricing varies by trade and area and changes over time, so check their current published rates and your own recent invoices rather than a quoted average.",
+        a: "Revvin is free to publish and take referrals on, with no per-lead charge and no cut of the reward. Revvin Pro is $97/month USD, or $970 billed once for a year. Lead platform pricing varies by trade and area and changes over time, so check their current published rates and your own recent invoices rather than a quoted average.",
       },
       {
         q: "How long before a referral program produces work?",

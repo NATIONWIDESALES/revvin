@@ -12,7 +12,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-// The scoreboard that answers "is this worth $49?". Every number here comes from
+// The scoreboard that answers "is this worth $97?". Every number here comes from
 // real rows: fn_get_business_roi for lead/close/revenue counts and the rewards
 // table for payouts. Nothing is estimated or projected.
 //

@@ -803,7 +803,7 @@ const SuperAdminCRM = () => {
                 <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
                   <h2 className="text-base font-bold mb-2 flex items-center gap-2"><DollarSign className="h-4 w-4 text-earnings" /> Payments</h2>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Revvin doesn't process or hold referrer payouts. Businesses pay their referrers directly when a deal closes. The platform's revenue is the flat $49/month subscription tracked on each business record.
+                    Revvin doesn't process or hold referrer payouts. Businesses pay their referrers directly when a deal closes. The platform's revenue is the flat $97/month subscription tracked on each business record.
                   </p>
                   <div className="grid gap-3 sm:grid-cols-3">
                     <div className="rounded-xl border border-border bg-muted/30 p-3">

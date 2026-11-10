@@ -44,7 +44,7 @@ const templates: Record<
   business_invite: {
     subject: "You've been invited to Revvin - ${businessName}",
     body: (d) =>
-      `Hi ${d.name},\n\nSomeone thinks ${d.businessName} should be on Revvin, the referral program platform for service businesses. Flat $49/month USD, branded referral page, QR code, and a simple lead inbox.\n\nCreate your free account: ${d.signupUrl || appUrl("/auth?mode=signup&role=business")}\n\n- The Revvin Team`,
+      `Hi ${d.name},\n\nSomeone thinks ${d.businessName} should be on Revvin, the referral program platform for service businesses. Flat $97/month USD, branded referral page, QR code, and a simple lead inbox.\n\nCreate your free account: ${d.signupUrl || appUrl("/auth?mode=signup&role=business")}\n\n- The Revvin Team`,
   },
   referral_submitted: {
     subject: "New Referral Submitted - ${offerTitle}",

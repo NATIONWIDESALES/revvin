@@ -39,7 +39,7 @@ export const TERMS_DOC: LegalDoc = {
   h1: "Terms of Service",
   metaTitle: "Terms of service for businesses and referrers | Revvin",
   metaDescription:
-    "Revvin's terms of service: free referral pages, Revvin Pro at $49/month USD, and businesses pay referral rewards directly. Revvin never holds the money.",
+    "Revvin's terms of service: free referral pages, Revvin Pro at $97/month USD, and businesses pay referral rewards directly. Revvin never holds the money.",
   lastUpdated: "September 8, 2026",
   intro:
     'Welcome to Revvin. These Terms of Service ("Terms") are a plain-language agreement between you and Revvin ("Revvin", "we", "us") covering revvin.co, the branded referral pages we host for businesses, and related services (the "Service"). By creating an account or using the Service you agree to these Terms. If you do not agree, do not use the Service.',
@@ -64,8 +64,8 @@ export const TERMS_DOC: LegalDoc = {
       heading: "3. Subscription and billing",
       bullets: [
         "Creating an account, building your referral page, and previewing it are free. No payment details are required to build.",
-        "Business subscriptions are either a flat $49 per month in US dollars, billed monthly through Stripe, or $450 per year in US dollars, billed once up front through Stripe. Pricing, offer payouts and every amount shown in the Service are in USD for all customers, in every country, including Canada and the United Arab Emirates. Your bank may apply its own conversion rate and fees.",
-        "Publishing your referral page is free. There is no contract and no setup fee. Billing only starts if you choose to subscribe to Revvin Pro, and cancelling Pro never takes your page down. Until you publish, your page is a private draft that is not visible to the public.",
+        "Business subscriptions are either a flat $97 per month in US dollars, billed monthly through Stripe, or $970 per year in US dollars, billed once up front through Stripe. Pricing, offer payouts and every amount shown in the Service are in USD for all customers, in every country, including Canada and the United Arab Emirates. Your bank may apply its own conversion rate and fees.",
+        "Publishing your referral page is free. There is no contract and no required setup fee. Billing only starts if you choose to subscribe to Revvin Pro, and cancelling Pro never takes your page down. Until you publish, your page is a private draft that is not visible to the public.",
         "You can cancel anytime through the Stripe billing portal linked from your account. On cancellation your Pro access continues until the end of the current paid period and does not renew. On the annual plan the paid period is the full twelve months you were charged for. After Pro ends your referral page stays live and keeps taking referrals, because publishing is free.",
         "Fees already paid are non-refundable. We do not pro-rate or refund the unused part of a monthly or annual billing period, including when you cancel an annual subscription part way through the year.",
         "Invite codes: if you subscribe using an invite code we issued you, the first three months are free and your card is collected at checkout. From month four the subscription bills automatically at $17 per month USD, and that rate stays in place for as long as the subscription remains active. You can cancel anytime during the free months and you will not be charged. Invite codes apply to monthly billing only, are not transferable, and may be limited by number of uses or an expiry date.",

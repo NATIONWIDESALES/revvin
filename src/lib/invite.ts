@@ -64,4 +64,4 @@ export function captureInviteFromSearch(search?: string): string | null {
 
 /** Plain-English terms of the invite offer. Used verbatim in the UI. */
 export const INVITE_TERMS =
-  "No card needed to sign up. If you upgrade to Pro later, your invite applies: 3 months free, then $17/month instead of $49. Cancel anytime and your page stays live.";
+  "No card needed to sign up. If you upgrade to Pro later, your invite applies: 3 months free, then $17/month instead of $97. Cancel anytime and your page stays live.";
