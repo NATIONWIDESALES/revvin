@@ -218,7 +218,7 @@ const Onboarding = () => {
                 <div className="flex items-start gap-3">
                   <Check className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-semibold text-foreground">Payment received, Pro + Launch Package ✨</p>
+                    <p className="font-semibold text-foreground">Payment received, Pro + done-for-you launch ✨</p>
                     <p className="mt-1 text-muted-foreground">
                       Our team will reach out within 1 business day to schedule your 1:1 onboarding call.
                       In the meantime, get a head start by filling in the basics below.
@@ -238,7 +238,7 @@ const Onboarding = () => {
                   <p className="font-semibold text-foreground">Payment received, subscription active</p>
                   <p className="mt-1 text-muted-foreground">
                     Let's set up your referral page, takes about 3 minutes. Want hands-on help?{" "}
-                    <Link to="/pricing" className="underline text-foreground">Add the Launch Package</Link>.
+                    <Link to="/pricing" className="underline text-foreground">Add the done-for-you launch</Link>.
                   </p>
                 </div>
               </div>
