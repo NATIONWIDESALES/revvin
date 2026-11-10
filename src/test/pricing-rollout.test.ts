@@ -72,7 +72,7 @@ describe("retired Revvin offer guard, including generated route documents", () =
       if (exceptions.has(p)) continue;
       read(p).split("\n").forEach((line, i) => {
         // Exact competitor-only price rows, never a whole-file exemption.
-        if (p === "src/content/comparisons.ts" && /\$49/.test(line) && /Business (?:at )?\$49|Business \$49/.test(line) && !/Revvin.*\$49/.test(line)) return;
+        if (p === "src/content/comparisons.ts") line = line.replace(/Business (?:at )?\$49(?: a month|\/month)/g, "Business COMPETITOR_PRICE");
         if (forbidden.test(line)) violations.push(`${p}:${i + 1}: ${line.trim()}`);
       });
     }
@@ -80,8 +80,8 @@ describe("retired Revvin offer guard, including generated route documents", () =
   });
   it("prerendered public documents contain no retired own offer", () => {
     for (const route of PRERENDER_ROUTES) {
-      if (route.path.startsWith("/compare/") || route.path === "/guides/best-referral-software-for-contractors") continue;
-      expect(renderRoute(read("index.html"), route), route.path).not.toMatch(forbidden);
+      const html = renderRoute(read("index.html"), route).replace(/Business (?:at )?\$49(?: a month|\/month)/g, "Business COMPETITOR_PRICE");
+      expect(html, route.path).not.toMatch(forbidden);
     }
   });
 });
