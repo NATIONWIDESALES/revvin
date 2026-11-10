@@ -92,9 +92,10 @@ serve(async (req) => {
     let inviteApplied = false;
     let inviteRejected = false;
     // Fail closed on the 2026-11 price version: the invite coupon is a flat
-    // $32 off the LEGACY $49 price. Against $97 it would charge $65, not the
-    // promised $17, so invites are refused rather than mispriced. The
-    // promotion must be redefined for current prices before it can resume.
+    // amount off the LEGACY price. Against the current price it would charge
+    // more than the promised invite rate, so invites are refused rather than
+    // mispriced. The promotion must be redefined for current prices before
+    // it can resume.
     if (!INVITE_PROMOTION_PAUSED && promoAllowedForPriceVersion(priceVersion) && rawInviteCode && plan === "monthly") {
       // Atomic claim: a single conditional UPDATE ... RETURNING inside the
       // function. No row back means missing, inactive, expired, or exhausted.
@@ -122,12 +123,12 @@ serve(async (req) => {
       line_items.push({ price: PRICE_LAUNCH_PACKAGE_297, quantity: 1 });
     }
 
-    // Launch promotion (paused): $17/month instead of the LEGACY $49/month,
-    // or $204/year instead of the legacy $450/year, locked forever while the
-    // subscription stays active. Applies to both plans, each with its own
-    // coupon, and the deadline is checked against the SERVER clock so a
-    // client cannot claim it late. The flat coupons only match the legacy
-    // prices; promoCouponFor returns null for the 2026-11 price version.
+    // Launch promotion (paused): a fixed lower monthly or yearly rate off
+    // the LEGACY prices, locked forever while the subscription stays active.
+    // Applies to both plans, each with its own coupon, and the deadline is
+    // checked against the SERVER clock so a client cannot claim it late. The
+    // flat coupons only match the legacy prices; promoCouponFor returns null
+    // for the 2026-11 price version.
     // Invite redemptions always get the launch coupon, even after the public
     // promo deadline: an invited business must never pay more than a stranger.
     const promoCoupon = invite ? PROMO_COUPON_MONTHLY : promoCouponFor(plan, new Date(), priceVersion);
