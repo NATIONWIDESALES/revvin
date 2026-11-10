@@ -52,7 +52,7 @@ const IndustryLanding = () => {
             provider: { "@type": "Organization", name: "Revvin", url: BASE },
             offers: {
               "@type": "Offer",
-              price: "49",
+              price: "97",
               priceCurrency: "USD",
               description:
                 "Free to publish your referral page and take referrals on it. Revvin Pro is $97/month USD for the tools that ask your whole customer list for you. Cancel anytime. Businesses pay their referrers directly when deals close.",

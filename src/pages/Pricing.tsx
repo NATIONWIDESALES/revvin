@@ -279,7 +279,7 @@ const Pricing = () => {
           <p className="mb-8 text-sm text-muted-foreground">{LAUNCH_GUARANTEE}</p>
           <h2 className="text-3xl md:text-4xl">What you get with Pro</h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Free works on every job from here on. Pro works on every customer you have already served: import your past customers, have Revvin email a reactivation campaign to the group you choose from your business name, with replies going to your own inbox, or work through them in batches with each ask opening in your own phone or email app. You also get ROI reporting with a monthly recap and custom page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. The Pro features are the same on monthly and annual. There are no per-send charges.
+            Free gives you the referral page and up to 25 customers to ask from your own device. Pro adds unlimited customers and automatic job-completion review and referral asks through Job done, job software, API and Zapier. With Pro, import your past customers, have Revvin email a reactivation campaign to the group you choose from your business name, with replies going to your own inbox, or work through them in batches with each ask opening in your own phone or email app. You also get ROI reporting with a monthly recap and custom page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. The Pro features are the same on monthly and annual. There are no per-send charges.
           </p>
         </div>
       </section>
@@ -327,7 +327,7 @@ const Pricing = () => {
               <AccordionItem value="p2">
                 <AccordionTrigger>What's in the $297 Launch Package?</AccordionTrigger>
                 <AccordionContent>
-                  A 1:1 onboarding call where we build your offer with you, set up your referral page, generate your QR and print-ready flyer, and hand over launch email and SMS templates. Plus 30 days of priority support. It's optional; you can run Pro on your own without it.
+                  We load your customer list, set up your page and reward with you, and send the first asks with you. It is optional. {LAUNCH_GUARANTEE}
                 </AccordionContent>
               </AccordionItem>
             )}

@@ -1,3 +1,4 @@
+import { LAUNCH_GUARANTEE } from "../config/pricing";
 // Prerender content for crawlers that do not execute JavaScript (GPTBot,
 // ClaudeBot, PerplexityBot, CCBot, and Googlebot's first pass).
 //
@@ -385,6 +386,10 @@ const handwritten: PrerenderRoute[] = [
     h1: PLAN_SPLIT.line,
     sections: [
       {
+        heading: "Optional done-for-you launch",
+        body: `We load your customer list, set up your page and reward with you, and send the first asks with you. $297 one-time. ${LAUNCH_GUARANTEE}`,
+      },
+      {
         heading: "Free and Pro, plainly",
         body: `${PLAN_SPLIT.line} Free: ${PLAN_SPLIT.freeDetail} Pro: ${PLAN_SPLIT.proDetail}`,
       },
@@ -409,7 +414,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         q: `What do I get for the ${PRO}?`,
-        a: "Revvin Pro adds importing your past-customer list, sending your referral ask in bulk from your own email app, reactivation campaigns that Revvin sends by email from your account, ROI reporting with a monthly email recap, and custom page branding.",
+        a: PLAN_SPLIT.proDetail,
       },
 
       {

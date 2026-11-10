@@ -64,7 +64,7 @@ const ForBusinesses = () => (
           "provider": { "@type": "Organization", "name": "Revvin", "slogan": "Your customer list, working for you" },
           "offers": {
             "@type": "Offer",
-            "price": "49",
+            "price": "97",
             "priceCurrency": "USD",
             "description": "Publishing your referral page is free. $97/month for Revvin Pro: customer list import, the bulk referral ask, ROI reporting and custom branding. Cancel anytime. No contract."
           }

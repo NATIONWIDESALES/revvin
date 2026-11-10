@@ -128,7 +128,7 @@ export const COMPARISONS: Comparison[] = [
     metaDescription:
       "ReferralWise and Revvin are close in price. ReferralWise automates partner payouts through Stripe; Revvin asks past customers with personal links.",
     answer:
-      "ReferralWise is the closest tool to Revvin at a similar price: it has a free plan, Pro at $19 a month and Business at $49 a month, and it pays partners through Stripe after a job is approved. Revvin's Free plan lets you import and ask up to 25 past customers with personal links, and you pay referrers yourself.",
+      "ReferralWise is a tool with lower published subscription prices than Revvin: it has a free plan, Pro at $19 a month and Business at $49 a month, and it pays partners through Stripe after a job is approved. Revvin's Free plan lets you import and ask up to 25 past customers with personal links, and you pay referrers yourself.",
     table: table("ReferralWise", [
       "Free; Pro $19/month; Business $49/month",
       "No required setup fees",
@@ -152,7 +152,7 @@ export const COMPARISONS: Comparison[] = [
     notes: [
       {
         heading: "The honest summary",
-        body: "ReferralWise is the closest tool to Revvin at a similar price. If automated partner payouts matter most, it is a strong choice. If your referrals come mostly from past customers, Revvin is built around that list.",
+        body: "ReferralWise is a tool with lower published subscription prices than Revvin. If automated partner payouts matter most, it is a strong choice. If your referrals come mostly from past customers, Revvin is built around that list.",
       },
     ],
     faqs: [
@@ -166,7 +166,7 @@ export const COMPARISONS: Comparison[] = [
       },
       {
         q: "How is Revvin different?",
-        a: "Revvin is built around past customers: import and ask up to 100 on Free with a personal link for every referrer, plus the ask after every finished job with a Google review request. You pay referrers directly.",
+        a: "Revvin is built around past customers: import and ask up to 25 on Free with a personal link for every referrer; Pro adds the automatic job-completion review and referral ask. You pay referrers directly.",
       },
     ],
     sources: [{ label: "ReferralWise pricing", url: "https://referralwise.app/pricing" }, REVVIN_SOURCE],
@@ -338,14 +338,14 @@ export const ROUNDUP = {
       bestFor: "Small home-service crews who want to ask their whole customer list.",
       price: "Free. Pro is $97/month or $970/year, with no required setup fee.",
       standsOut:
-        "The Free plan includes a referral page and QR code, unlimited referrals, import and ask up to 25 customers, a personal link for every referrer, the ask after every finished job with a Google review request, a lead inbox and rewards tracked from owed to paid. Self-serve signup, Zapier and API.",
+        "The Free plan includes a referral page and QR code, unlimited referrals, import and ask up to 25 customers, a personal link for every referrer, a lead inbox and rewards tracked from owed to paid. Pro adds automatic job-completion review and referral asks through Job done, Zapier and API. Self-serve signup.",
       watchOut: "You pay referrers yourself, and there is no rep app yet.",
     },
     {
       name: "ReferralWise",
       comparePath: "/compare/referralwise",
       bestFor: "Partner referrals with automated payouts.",
-      price: "Free plan; Pro $19/month; Business $49/month; no required setup fees.",
+      price: "Free plan; Pro $19/month; Business $49/month; no setup fees.",
       standsOut:
         "After a job is marked won and approved, it charges the contractor's saved card and pays the partner by Stripe direct deposit. Business adds unlimited partners, team members and API.",
       watchOut: "The free plan is limited to a few referrals a month.",
