@@ -4,7 +4,9 @@
 // the edge functions and the pages can never quote different figures. The parity
 // test in src/test/partners.test.ts fails if they drift.
 
-import { ANNUAL_PRICE, MONTHLY_PRICE } from "@/config/pricing";
+// Relative, not aliased: seoRoutes imports this module and is itself imported
+// by the build-time prerender plugin, bundled outside the app's alias resolution.
+import { ANNUAL_PRICE, MONTHLY_PRICE } from "./pricing";
 
 /** The optional one-time done-for-you launch. Mirrors _shared/pricing-copy.ts. */
 export const LAUNCH_PACKAGE_PRICE = 297;
