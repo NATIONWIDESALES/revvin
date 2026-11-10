@@ -190,6 +190,13 @@
       "when": 1794275064076,
       "tag": "0026_pricing_25_contacts_pro_job_asks",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1794275625581,
+      "tag": "0027_pricing_pro_integration_creation_gate",
+      "breakpoints": true
     }
   ]
 }
