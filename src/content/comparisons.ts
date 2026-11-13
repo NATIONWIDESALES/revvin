@@ -7,6 +7,8 @@
  * the reader at the competitor's own site instead of guessing.
  */
 
+import { PRICE_TEXT } from "../config/pricing";
+
 export const COMPARISONS_CHECKED_ON = "2026-10-29";
 export const CHECKED_LINE =
   "Prices and features checked October 29, 2026. Check each company's site for current terms.";
@@ -43,7 +45,7 @@ export interface Comparison {
 const REVVIN_SOURCE: Source = { label: "Revvin pricing", url: "https://revvin.co/pricing" };
 
 const REVVIN_COL = {
-  price: "Free. Pro is $97/month or $970/year",
+  price: `Free. Pro is ${PRICE_TEXT.monthlyPerMonth} or ${PRICE_TEXT.annualPerYear}`,
   setup: "None",
   free: "Yes: referral page and QR code, unlimited referrals, import and ask up to 25 customers",
   signup: "Self-serve signup, no demo",
@@ -83,7 +85,7 @@ export const COMPARISONS: Comparison[] = [
     metaDescription:
       "Get The Referral runs $399 to $1,899 a month plus setup fees and starts with a demo. Revvin starts free with self-serve signup. An honest side-by-side.",
     answer:
-      "Get The Referral is built for larger sales teams: plans run from $399 to $1,899 a month plus setup fees of $500 to $2,500, and you sign up through a demo. Revvin starts free with self-serve signup and no required setup fee, and Pro is $97 a month. Revvin suits 1 to 10 person crews.",
+      `Get The Referral is built for larger sales teams: plans run from $399 to $1,899 a month plus setup fees of $500 to $2,500, and you sign up through a demo. Revvin starts free with self-serve signup and no required setup fee, and Pro is ${PRICE_TEXT.monthly} a month. Revvin suits 1 to 10 person crews.`,
     table: table("Get The Referral", [
       "Starter $399/month (5 sales seats); Pro Lite $799/month; Pro $999/month (15 seats); Premium $1,899/month (50 seats); 10% off annual",
       "$500 on Starter, $1,000 on Pro Lite and Pro, $2,500 on Premium",
@@ -179,7 +181,7 @@ export const COMPARISONS: Comparison[] = [
     metaDescription:
       "Clicki starts at $549 a month with texting, instant payouts and field software integrations. Revvin starts free for smaller crews. A fair comparison.",
     answer:
-      "Clicki starts at $549 a month for Referrals + RewardsPass, includes 2,000 texts a month, pays promoters by Venmo, Zelle, PayPal or direct deposit and connects to ServiceTitan and FieldRoutes. Revvin starts free, Pro is $97 a month, and the business pays referrers directly. Revvin suits smaller crews that want to start free.",
+      `Clicki starts at $549 a month for Referrals + RewardsPass, includes 2,000 texts a month, pays promoters by Venmo, Zelle, PayPal or direct deposit and connects to ServiceTitan and FieldRoutes. Revvin starts free, Pro is ${PRICE_TEXT.monthly} a month, and the business pays referrers directly. Revvin suits smaller crews that want to start free.`,
     table: table("Clicki", [
       "Referrals + RewardsPass $549/month base; Bravo add-on +$200/month; quarterly and annual billing nonrefundable",
       "See joinclicki.com",
@@ -224,7 +226,7 @@ export const COMPARISONS: Comparison[] = [
     metaDescription:
       "Snoball sells a done-for-you word-of-mouth program with a Results Coach and unpublished pricing. Revvin is self-serve, published pricing, free to start.",
     answer:
-      "Snoball sells a done-for-you word-of-mouth program with referrals, reviews, reputation assets and video testimonials, run with a dedicated Results Coach. Its pricing is not published on its site; you book a demo. Revvin publishes its pricing, starts free with self-serve signup, and Pro is $97 a month. Revvin is for owners who run it themselves.",
+      `Snoball sells a done-for-you word-of-mouth program with referrals, reviews, reputation assets and video testimonials, run with a dedicated Results Coach. Its pricing is not published on its site; you book a demo. Revvin publishes its pricing, starts free with self-serve signup, and Pro is ${PRICE_TEXT.monthly} a month. Revvin is for owners who run it themselves.`,
     table: table("Snoball", [
       "Not published on its site",
       "Not published on its site",
@@ -326,6 +328,7 @@ export interface RoundupTool {
 
 export const ROUNDUP = {
   slug: ROUNDUP_SLUG,
+  updatedAt: "2026-11-13",
   h1: "Best referral software for contractors in 2026",
   metaTitle: "Best referral software for contractors in 2026 | Revvin",
   metaDescription:
@@ -336,7 +339,7 @@ export const ROUNDUP = {
     {
       name: "Revvin",
       bestFor: "Small home-service crews who want to ask their whole customer list.",
-      price: "Free. Pro is $97/month or $970/year, with no required setup fee.",
+      price: `Free. Pro is ${PRICE_TEXT.monthlyPerMonth} or ${PRICE_TEXT.annualPerYear}, with no required setup fee.`,
       standsOut:
         "The Free plan includes a referral page and QR code, unlimited referrals, import and ask up to 25 customers, a personal link for every referrer, a lead inbox and rewards tracked from owed to paid. Pro adds automatic job-completion review and referral asks through Job done, Zapier and API. Self-serve signup.",
       watchOut: "You pay referrers yourself, and there is no rep app yet.",
@@ -390,7 +393,7 @@ export const ROUNDUP = {
     caption: "Referral software for contractors at a glance",
     head: ["Tool", "Starting price", "Free plan", "Best for"],
     rows: [
-      ["Revvin", "Free; Pro $97/month", "Yes", "Small home-service crews"],
+      ["Revvin", `Free; Pro ${PRICE_TEXT.monthlyPerMonth}`, "Yes", "Small home-service crews"],
       ["ReferralWise", "Free; Pro $19/month", "Yes, limited", "Partner referrals with automated payouts"],
       ["Jobber Referrals", "See Jobber pricing", "See Jobber pricing", "Jobber users"],
       ["Clicki", "$549/month", "See joinclicki.com", "Multi-tech companies on ServiceTitan or FieldRoutes"],
@@ -403,6 +406,28 @@ export const ROUNDUP = {
     { q: "What is your budget?", a: "Revvin and ReferralWise start free. Clicki and Get The Referral start at several hundred dollars a month." },
     { q: "Do you want payouts handled for you?", a: "ReferralWise, Clicki and Get The Referral handle payouts. With Revvin you pay referrers directly." },
     { q: "Which job software do you use?", a: "On Jobber, try its built-in referrals first. On ServiceTitan or FieldRoutes, Clicki integrates with both. Revvin connects through Zapier and API." },
+  ],
+  faqs: [
+    {
+      q: "What is the best referral software for a small contracting crew?",
+      a: "Revvin fits small home-service crews that want a free referral page, personal links and asks to past customers. ReferralWise fits partner referrals when automated payouts matter more. If you already use Jobber and prefer credits on the next service, its built-in referrals may be enough.",
+    },
+    {
+      q: "Is there free referral software for contractors?",
+      a: "Revvin has a free referral page, QR code, unlimited referrals and importing and asking up to 25 customers from your own phone or email app. ReferralWise also has a free plan, with limited partners and 3 referrals a month. Snoball offers a free business profile, but does not publish pricing for its done-for-you program.",
+    },
+    {
+      q: "How much does referral software for contractors cost?",
+      a: `Revvin starts free, with optional Pro at ${PRICE_TEXT.monthlyPerMonth} or ${PRICE_TEXT.annualPerYear} billed once, while ReferralWise lists Pro at $19/month and Business at $49/month. Clicki starts at $549/month, and Get The Referral lists $399 to $1,899/month plus $500 to $2,500 setup fees. Snoball does not publish pricing, and Jobber Referrals is part of Jobber's marketing tools, so check Jobber pricing.`,
+    },
+    {
+      q: "Which referral tools pay the referrer for you, and which leave payouts to the business?",
+      a: "ReferralWise pays partners by Stripe direct deposit after a job is marked won and approved, Clicki lists Venmo, Zelle, PayPal and direct deposit, and Get The Referral handles payouts through a wallet. With Revvin, the business pays referrers directly and tracks rewards from owed to paid. Jobber Referrals uses credits or discounts on the referrer's next service rather than cash payouts.",
+    },
+    {
+      q: "Does referral software work with Jobber or Housecall Pro?",
+      a: "Revvin works with Jobber or Housecall Pro on Pro through Zapier or the Revvin API, so a finished job can trigger the ask. If you already use Jobber, its built-in referrals are another option for customer links and credits or discounts on the next service. Clicki lists ServiceTitan and FieldRoutes integrations; the facts checked here do not establish a Jobber or Housecall Pro connection for Clicki.",
+    },
   ],
   sources: [
     { label: "Get The Referral pricing", url: "https://www.getthereferral.com/pricing" },

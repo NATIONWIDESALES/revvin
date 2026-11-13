@@ -1,5 +1,6 @@
 import { LAUNCH_GUARANTEE } from "@/config/pricing";
 import { PAGE_META } from "@/content/pageMeta";
+import { PRICING_FAQS, pricingFaqJsonLd } from "@/content/pricingFaqs";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ const setLaunchFlag = (on: boolean) => {
 
 const Pricing = () => {
   const [addLaunch, setAddLaunch] = useState(false);
+  const [openFaq, setOpenFaq] = useState("");
   // Monthly stays the default: annual is the saving for someone already
   // convinced, not the path we push a first-time visitor down.
   const [plan, setPlan] = useState<BillingPlan>("monthly");
@@ -58,7 +60,7 @@ const Pricing = () => {
         title={PAGE_META["/pricing"].title}
         description={PAGE_META["/pricing"].description}
         path="/pricing"
-        jsonLd={{
+        jsonLd={[{
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
           "@id": APP_ID,
@@ -96,7 +98,7 @@ const Pricing = () => {
                 "The same Revvin Pro tools billed once for a year. Cancel anytime; the free referral page stays live afterwards.",
             },
           ],
-        }}
+        }, pricingFaqJsonLd]}
       />
 
 
@@ -310,39 +312,13 @@ const Pricing = () => {
       <section className="border-t border-border">
         <div className="container max-w-3xl py-20">
           <h2 className="mb-8 text-3xl md:text-4xl">Common questions</h2>
-          <Accordion type="single" collapsible className="mk-accordion w-full">
-            <AccordionItem value="p1">
-              <AccordionTrigger>Is there really no contract?</AccordionTrigger>
-              <AccordionContent>
-                Correct. Your page costs nothing and has no contract at all. Revvin Pro is {PRICE_TEXT.monthlyPerMonth} billed monthly, or {PRICE_TEXT.annualPerYear} billed once, and you can cancel anytime from your billing portal. Your page and your referrals stay live either way, you just lose the Pro tools.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="p6">
-              <AccordionTrigger>How does annual billing work if I cancel?</AccordionTrigger>
-              <AccordionContent>
-                The annual plan is {PRICE_TEXT.annual} USD charged once, up front, for twelve months of Pro. You can cancel anytime and Pro stays on through the end of that paid year, then it does not renew. Your page stays live regardless. We do not pro-rate or refund the unused part of a year, so if you are not sure yet, start monthly at {PRICE_TEXT.monthlyPerMonth} and switch to annual later from your billing portal.
-              </AccordionContent>
-            </AccordionItem>
-            {LAUNCH_PACKAGE_ENABLED && (
-              <AccordionItem value="p2">
-                <AccordionTrigger>What's in the $297 done-for-you launch?</AccordionTrigger>
-                <AccordionContent>
-                  We load your customer list, set up your page and reward with you, and send the first asks with you. It is optional. {LAUNCH_GUARANTEE}
-                </AccordionContent>
+          <Accordion type="single" collapsible value={openFaq} onValueChange={setOpenFaq} className="mk-accordion w-full">
+            {PRICING_FAQS.map((f) => (
+              <AccordionItem key={f.id} value={f.id}>
+                <AccordionTrigger>{f.q}</AccordionTrigger>
+                <AccordionContent forceMount hidden={openFaq !== f.id}>{f.a}</AccordionContent>
               </AccordionItem>
-            )}
-            <AccordionItem value="p3">
-              <AccordionTrigger>What exactly is free?</AccordionTrigger>
-              <AccordionContent>
-                Your referral page. Create your account, set up your offer, publish the page, share the link and QR code, and take referrals through it without paying anything. You can also import and ask up to 25 customers. That is not a trial and it does not expire. Referrer accounts are free too: send leads to businesses on Revvin and get paid directly, no card required. Pro is what you pay for, and it is the tools that ask your whole customer list for you.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="p4">
-              <AccordionTrigger>Does Revvin take a cut of referral payouts?</AccordionTrigger>
-              <AccordionContent>
-                No. Revvin is the infrastructure, not a middleman on payouts. You pay referrers directly when deals close and keep 100% of that relationship.
-              </AccordionContent>
-            </AccordionItem>
+            ))}
           </Accordion>
         </div>
       </section>

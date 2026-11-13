@@ -1,5 +1,12 @@
 # Prebuilt pages for outbound sales
 
+# Targeted public-page fixes, November 13
+- [x] Require an explicit unlocked trade; preserve locked-trade signup.
+- [x] Share pricing FAQs across the page, static HTML and FAQPage schema.
+- [x] Clarify yearly calculator pricing and add sourced roundup FAQs/date.
+- [x] Document post-publish referral HTML/preview limitations and hosting options.
+- [x] Full Vitest: 933 passed, 3 skipped; typecheck clean; desktop/mobile public flows checked. Every changed file listed in docs/public-page-fixes-2026-11-13.md; not published. Rep work stays parked.
+
 - [x] Migration: prospect_pages table, sales role, RLS, grants, RPCs, expiry cron
 - [x] Edge function prospect-lookup (Google Places, sales/admin, 60/hour)
 - [x] CRM Prospects tab (admin + sales; sales sees only prospect tools)

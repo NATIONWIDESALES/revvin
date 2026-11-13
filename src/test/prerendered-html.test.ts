@@ -8,6 +8,13 @@ import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { PRERENDER_ROUTES } from "@/content/seoRoutes";
+import { PRICING_FAQS } from "@/content/pricingFaqs";
+import { ROUNDUP } from "@/content/comparisons";
+import { createElement } from "react";
+import { renderToString } from "react-dom/server";
+import { MemoryRouter } from "react-router-dom";
+import Pricing from "@/pages/Pricing";
+import { RoundupPage } from "@/pages/ComparePage";
 import {
   LEGACY_STORE_PREFIXES,
   PRIVATE_DOCS,
@@ -88,6 +95,33 @@ describe("prerendered public documents", () => {
       expect(new Set(ids).size, `${route.path} duplicate @id`).toBe(ids.length);
     }
   });
+});
+
+describe("pricing and roundup FAQ static HTML parity", () => {
+  for (const [routePath, Page, faqs] of [
+    ["/pricing", Pricing, PRICING_FAQS],
+    [`/guides/${ROUNDUP.slug}`, RoundupPage, ROUNDUP.faqs],
+  ] as const) {
+    it(`${routePath} includes every answer in full-page SSR and fallback HTML with matching FAQPage`, () => {
+      const route = PRERENDER_ROUTES.find((r) => r.path === routePath);
+      if (!route) throw new Error(`Missing route ${routePath}`);
+      expect(faqs).toHaveLength(5);
+      const ssr = renderToString(createElement(MemoryRouter, { initialEntries: [routePath] }, createElement(Page)));
+      for (const html of [renderRoute(template, route, ssr), renderRoute(template, route)]) {
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        for (const f of faqs) {
+          expect(doc.getElementById("root")?.textContent).toContain(f.q);
+          expect(doc.getElementById("root")?.textContent).toContain(f.a);
+        }
+        const schemaText = doc.querySelector('script[type="application/ld+json"]')?.textContent;
+        if (!schemaText) throw new Error("Missing static schema");
+        const graph = JSON.parse(schemaText)["@graph"];
+        const faq = graph.find((n: { "@type": string }) => n["@type"] === "FAQPage");
+        expect(faq.mainEntity.map((f: { name: string; acceptedAnswer: { text: string } }) => ({ q: f.name, a: f.acceptedAnswer.text })))
+          .toEqual(faqs.map(({ q, a }) => ({ q, a })));
+      }
+    });
+  }
 });
 
 describe("private and not-found documents", () => {

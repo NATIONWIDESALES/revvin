@@ -66,7 +66,7 @@ const Sources = ({ sources }: { sources: Source[] }) => (
   </section>
 );
 
-const Header = ({ h1, answer, crumb }: { h1: string; answer: string; crumb: { label: string; to?: string } }) => (
+const Header = ({ h1, answer, crumb, updatedAt = COMPARISONS_CHECKED_ON }: { h1: string; answer: string; crumb: { label: string; to?: string }; updatedAt?: string }) => (
   <section>
     <div className="mx-auto w-full max-w-[720px] px-5 pb-4 pt-14 md:pt-20">
       <nav aria-label="Breadcrumb" className="mb-6 text-xs text-muted-foreground">
@@ -86,7 +86,7 @@ const Header = ({ h1, answer, crumb }: { h1: string; answer: string; crumb: { la
       <p className="mt-5 border-b border-line pb-5 text-sm text-muted-foreground">
         <span className="font-semibold text-foreground">By the Revvin team</span>
         <br />
-        {`Last updated ${formatContentDate(COMPARISONS_CHECKED_ON)}`}
+        {`Last updated ${formatContentDate(updatedAt)}`}
       </p>
       <p className="article-body mt-6 text-[21px]">{answer}</p>
       <p className="mt-4 text-sm text-muted-foreground">{BIAS_DISCLOSURE}</p>
@@ -124,7 +124,7 @@ const MoreCompare = ({ current }: { current: string }) => (
   </nav>
 );
 
-const article = (path: string, headline: string, description: string, tables: ContentTable[]) => ({
+const article = (path: string, headline: string, description: string, tables: ContentTable[], updatedAt = COMPARISONS_CHECKED_ON) => ({
   "@context": "https://schema.org",
   "@type": "Article",
   headline,
@@ -133,7 +133,7 @@ const article = (path: string, headline: string, description: string, tables: Co
   author: TEAM_REF,
   publisher: { "@id": `${BASE}/#organization` },
   datePublished: COMPARISONS_CHECKED_ON,
-  dateModified: COMPARISONS_CHECKED_ON,
+  dateModified: updatedAt,
   hasPart: tables.map(tableLd),
 });
 
@@ -145,9 +145,20 @@ export const RoundupPage = () => {
         title={ROUNDUP.metaTitle}
         description={ROUNDUP.metaDescription}
         path={path}
-        jsonLd={[article(path, ROUNDUP.h1, ROUNDUP.metaDescription, [ROUNDUP.summary])]}
+        jsonLd={[
+          article(path, ROUNDUP.h1, ROUNDUP.metaDescription, [ROUNDUP.summary], ROUNDUP.updatedAt),
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: ROUNDUP.faqs.map((f) => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          },
+        ]}
       />
-      <Header h1={ROUNDUP.h1} answer={ROUNDUP.answer} crumb={{ label: "Guides", to: "/guides" }} />
+      <Header h1={ROUNDUP.h1} answer={ROUNDUP.answer} crumb={{ label: "Guides", to: "/guides" }} updatedAt={ROUNDUP.updatedAt} />
       <article>
         <div className="mx-auto w-full max-w-[720px] px-5 pb-16">
           <div className="article-body">
@@ -174,6 +185,17 @@ export const RoundupPage = () => {
               ))}
             </ol>
           </div>
+          <section className="mt-14">
+            <h2 className="text-3xl">Common questions</h2>
+            <dl className="mt-6 space-y-8">
+              {ROUNDUP.faqs.map((f) => (
+                <div key={f.q}>
+                  <dt className="font-display text-2xl font-bold text-forest">{f.q}</dt>
+                  <dd className="mt-2 text-[17px] leading-relaxed text-muted-foreground">{f.a}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
           <CtaCard />
           <MoreCompare current={path} />
           <Sources sources={ROUNDUP.sources} />

@@ -32,6 +32,7 @@ import { PRICE_TEXT } from "../config/pricing";
 import { PLAN_SPLIT } from "../config/planFeatures";
 import { SAMPLE_META } from "./samplePage";
 import { HOME_FAQS } from "./homeFaqs";
+import { PRICING_FAQS } from "./pricingFaqs";
 import { ABOUT_SECTIONS } from "./aboutPage";
 import { EARN_COPY } from "./earnPage";
 import { CANONICAL_SENTENCE } from "../config/brand";
@@ -408,25 +409,7 @@ const handwritten: PrerenderRoute[] = [
         body: "Cancel from the billing portal whenever you like. On the annual plan Pro keeps working to the end of the year you paid for. After Pro ends your page stays live and your referrals keep coming in, because publishing is free: you only lose the Pro tools. There are no platform fees on referral rewards: Revvin does not take a cut and does not move the money. You pay your referrer directly when a deal closes.",
       },
     ],
-    faqs: [
-      {
-        q: "What exactly is free?",
-        a: "Building and publishing your referral page, your link and QR code, unlimited referral leads, the lead inbox with status tracking, your offers, payout tracking, and your marketplace listing.",
-      },
-      {
-        q: `What do I get for the ${PRO}?`,
-        a: PLAN_SPLIT.proDetail,
-      },
-
-      {
-        q: "Does Revvin take a cut of referral payouts?",
-        a: "No. Referrers receive 100% of the advertised payout. The business pays the referrer directly, off-platform, when the deal closes. Revvin never holds or moves the money.",
-      },
-      {
-        q: "Is there really no contract?",
-        a: "Yes. Monthly Pro is month to month and you can cancel any time from the billing portal. Cancelling does not unpublish your referral page.",
-      },
-    ],
+    faqs: PRICING_FAQS,
   },
   {
     path: "/browse",
@@ -759,6 +742,8 @@ const roundupRoute: PrerenderRoute = {
   description: ROUNDUP.metaDescription,
   h1: ROUNDUP.h1,
   article: true,
+  dateModified: ROUNDUP.updatedAt,
+  faqs: ROUNDUP.faqs,
   sections: [
     { heading: "The short answer", body: ROUNDUP.answer },
     ...ROUNDUP.tools.map((t) => ({

@@ -46,7 +46,7 @@ describe("comparison pages and roundup", () => {
       expect(art?.author?.name).toBe("Revvin");
       expect(art?.publisher).toBeTruthy();
       const hasFaq = graph.some((n: { "@type": string }) => n["@type"] === "FAQPage");
-      expect(hasFaq).toBe(p !== ROUNDUP_PATH);
+      expect(hasFaq).toBe(true);
     });
   }
 
@@ -68,5 +68,14 @@ describe("comparison pages and roundup", () => {
     const entries = buildSitemapEntries({ buildDate: "2026-10-29", dateFor: () => null });
     const locs = entries.map((e: { loc: string }) => e.loc);
     for (const p of ALL) expect(locs).toContain(`https://revvin.co${p}`);
+  });
+
+  it("updates only the roundup article date while retaining the competitor fact-check date", () => {
+    const route = PRERENDER_ROUTES.find((r) => r.path === ROUNDUP_PATH);
+    if (!route) throw new Error("Missing roundup route");
+    expect(ROUNDUP.updatedAt).toBe("2026-11-13");
+    const article = graphOf(renderRoute(template, route)).find((n) => n["@type"] === "Article");
+    expect(article.dateModified).toBe("2026-11-13");
+    expect(article.datePublished).toBe("2026-10-29");
   });
 });

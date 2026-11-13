@@ -25,8 +25,8 @@ The retry created `public.__revvin_permission_probe_20261110`, granted it, and i
 ## Congruency review pass (2026-11-10, pre-publish)
 - Auth page meta description no longer claims businesses pay when they go live; it now says publishing is free and derives the optional Pro price from the pricing config.
 - The new-customer admin email in stripe-business-webhook builds the subscription line item from the actual Stripe price amount and interval, so yearly, legacy and promo subscribers read correctly; no fixed "$97/mo" string remains.
-- "No setup fee" is now "No required setup fee" on the pricing risk strip and compare-page CTA, and the unqualified phrase is a retired-phrases guard pattern (competitor facts stay exempt).
-- comparisons.ts review against the pre-rollout commit: one competitor fact was altered by the sweep (ReferralWise's own row "No setup fees" had become "No required setup fees"); it is reverted. Every other change in that file was Revvin's own column, price or plan copy, which is correct.
+- The setup-fee claim is now qualified on the pricing risk strip and compare-page CTA, and the unqualified phrase is a retired-phrases guard pattern (competitor facts stay exempt).
+- comparisons.ts review against the pre-rollout commit: one competitor fact was altered by the sweep (ReferralWise's own setup-fee row had incorrectly gained a qualification); its original wording is restored. Every other change in that file was Revvin's own column, price or plan copy, which is correct.
 - Removed "Phone support" from FREE_FEATURES. It came from the Free feature list in the approved pricing request, but it appeared in no other surface (llms.txt, Terms, PLAN_SPLIT, emails, pricing JSON-LD), so it was dropped for consistency.
 - Dashboard rail: "Job done asks" moved into the Pro group with a Pro marker. AutoAskTab and IntegrationsTab already showed the paused state and upgrade path to Free accounts; the Home next-step logic never points at Pro-only actions.
 - Billing history now says "Rewards tab", matching the rail label.

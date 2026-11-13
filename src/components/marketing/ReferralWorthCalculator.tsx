@@ -53,7 +53,7 @@ const ReferralWorthCalculator = ({ defaults, note }: Props = {}) => {
             <b data-testid="rw-cover" className="block font-display text-[64px] font-extrabold leading-[.9] text-forest">
               {n === null ? "Not at this reward" : `${n} ${n === 1 ? "job" : "jobs"}`}
             </b>
-            <span className="mt-2 block text-base text-muted-foreground">a year covers Revvin Pro at {PRICE_TEXT.annual}</span>
+            <span className="mt-2 block text-base text-muted-foreground">a year covers Revvin Pro on the yearly plan ({PRICE_TEXT.annualPerYear} billed once)</span>
           </p>
         </div>
       </div>
