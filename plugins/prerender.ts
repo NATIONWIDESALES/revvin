@@ -167,7 +167,7 @@ const SOFTWARE = {
       price: String(MONTHLY_PRICE),
       priceCurrency: "USD",
       url: `${SITE}/pricing`,
-      description: `Everything in Free, plus: ${PRO_FEATURES.map((f) => f.label.toLowerCase()).join(", ")}. Billed monthly, cancel any time.`,
+      description: `Everything in Free, plus: ${PRO_FEATURES.map((f) => f.label.toLowerCase()).join(", ")}. Billed monthly, cancel anytime.`,
     },
     {
       "@type": "Offer",
@@ -176,7 +176,7 @@ const SOFTWARE = {
       priceCurrency: "USD",
       url: `${SITE}/pricing`,
       description:
-        "The same Revvin Pro tools, billed once for a year. Cancel any time; Pro keeps working to the end of the paid year and the free referral page stays live afterwards.",
+        "The same Revvin Pro tools, billed once for a year. Cancel anytime; Pro keeps working to the end of the paid year and the free referral page stays live afterwards.",
     },
   ],
 };

@@ -53,3 +53,12 @@
 - [x] Stabilize auth identity and identity-dependent loaders/forms.
 - [x] Keep business dashboard mounted during background refreshes.
 - [x] Add four regressions; 953 tests passed, 3 skipped; typecheck clean; append changelog. Authenticated browser check blocked by no matching requester account; not published.
+
+# Product walkthrough fixes, November 13
+- [x] Fix Campaign readiness, retry UX and apply recorded array-append migration.
+- [x] Apply reversible two-hour default/backfill without changing scheduled asks.
+- [x] Correct owner SMS controls, upgrade mapping, signup routing, edit labels and won-job prompt.
+- [x] Apply the specified wording fixes and report owner-SMS/delay/worker findings.
+- [x] Deploy only lifecycle-emails, send-notification and preview-transactional-email.
+- [x] Run regressions, full Vitest and typecheck; document exact SQL and verification limits. No frontend publish.
+- Verification: 967 passed, 3 skipped; typecheck clean. Authenticated browser verification unavailable. Frontend not published.

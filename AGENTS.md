@@ -25,3 +25,6 @@
 - Lifecycle Pro email copy uses trialEmailData from stored plan and future trial end, independently of effective-plan selection. Why: free trials must not be described as purchases without changing delivery rules.
 
 - Same-user auth events preserve user object identity while updating sessions; account loaders depend on user IDs and loaded business refreshes stay mounted. Why: token refresh and tab focus must not clear unsaved forms or open dashboard controls.
+
+- Dashboard Pro upsell copy resolves features by label, never by list position. Why: feature reordering must not change the upgrade promise.
+- Job-delay backfills keep original values in a service-only, RLS-locked rollback table. Why: reversing the backfill must not reset preexisting custom delays.

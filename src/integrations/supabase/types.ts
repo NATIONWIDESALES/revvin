@@ -879,6 +879,21 @@ export type Database = {
           },
         ]
       }
+      job_ask_delay_rollback_20261113: {
+        Row: {
+          business_id: string
+          previous_delay_hours: number
+        }
+        Insert: {
+          business_id: string
+          previous_delay_hours: number
+        }
+        Update: {
+          business_id?: string
+          previous_delay_hours?: number
+        }
+        Relationships: []
+      }
       launch_tasks: {
         Row: {
           amount_paid: number

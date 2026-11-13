@@ -11,12 +11,13 @@ const h = vi.hoisted(() => ({
   taken: new Set<string>(),
   user: { id: "u1", email: "o@example.test" },
   load: vi.fn(),
+  published: false,
 }));
 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     from: () => ({
-      select: () => ({ eq: () => ({ limit: async () => { h.load(); return { data: [{ id: "biz-1", name: "Summit Roofing", category: "Roofing", service_area: "", offer_amount: "$100", slug: null, business_email: null, launch_package_status: null }] }; } }) }),
+      select: () => ({ eq: () => ({ limit: async () => { h.load(); return { data: [{ is_published: h.published, id: "biz-1", name: "Summit Roofing", category: "Roofing", service_area: "", offer_amount: "$100", slug: null, business_email: null, launch_package_status: null }] }; } }) }),
       update: (patch: unknown) => ({ eq: () => {
         h.update(patch);
         const result = h.save(patch);
@@ -41,12 +42,22 @@ import Onboarding from "@/pages/Onboarding";
 import { resolveAvailableSlug } from "@/lib/slugRules";
 
 beforeEach(() => {
+  h.published = false;
   h.load.mockClear();
   h.update.mockReset(); h.rpc.mockReset(); h.publish.mockReset(); h.track.mockReset(); h.taken.clear();
   h.save.mockReset(); h.save.mockImplementation(async (patch) => ({ data: [{ id: "biz-1", ...patch }], error: null }));
 });
 
 describe("one-screen onboarding", () => {
+  it("uses edit labels for a published business and preserves the save behavior", async () => {
+    h.published = true;
+    render(<MemoryRouter initialEntries={["/welcome"]}><Onboarding /></MemoryRouter>);
+    const save = await screen.findByRole("button", { name: "Save changes" });
+    expect(screen.getByRole("heading", { name: "Edit your page" })).toBeTruthy();
+    fireEvent.click(save);
+    await screen.findByRole("heading", { name: "Your page is live" });
+    expect(h.publish).toHaveBeenCalledTimes(1);
+  });
   it("preserves unsaved fields when auth emits a new object for the same user", async () => {
     const page = <MemoryRouter initialEntries={["/welcome"]}><Onboarding /></MemoryRouter>;
     const { rerender } = render(page);

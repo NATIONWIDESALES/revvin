@@ -259,7 +259,7 @@ const AutoAskTab = ({ biz, publicUrl, isPro }: Props) => {
               className={`mt-2 text-xs ${showReviewLinkHint ? "font-medium text-destructive" : "text-muted-foreground"}`}
               role={showReviewLinkHint ? "alert" : undefined}
             >
-              Add your Google review link under My Page first, then you can turn this on.
+              Add your Google review link under Edit page first, then you can turn this on.
             </p>
           )}
           {form.review_request && (

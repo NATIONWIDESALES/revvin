@@ -103,6 +103,9 @@ const CampaignsTab = ({ biz, publicUrl, isPro }: Props) => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [segments, setSegments] = useState<SegmentRow[]>([]);
   const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
+  const toastRef = useRef(toast);
+  toastRef.current = toast;
+  const [readinessFailed, setReadinessFailed] = useState(false);
   const [readiness, setReadiness] = useState<Readiness | null>(null);
   const [readinessForm, setReadinessForm] = useState(emptyReadinessForm);
   const [loading, setLoading] = useState(true);
@@ -126,32 +129,41 @@ const CampaignsTab = ({ biz, publicUrl, isPro }: Props) => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [{ data: readyRows, error: readyError }, { data: segmentRows }, { data: contactRows }, { data: campaignRows }] = await Promise.all([
-      supabase.rpc("fn_campaign_readiness"),
-      supabase.rpc("fn_contact_segments"),
-      supabase
-        .from("referral_contacts")
-        .select("id, name, email, last_job_at, created_at")
-        .eq("business_id", biz.id)
-        .limit(5000),
-      supabase
-        .from("campaigns")
-        .select("id, name, subject, body, status, segment_key, segment_label, scheduled_at, started_at, total_recipients, sent_count, failed_count, opted_out_count, created_at")
-        .eq("business_id", biz.id)
-        .order("created_at", { ascending: false })
-        .limit(25),
-    ]);
+    setReadinessFailed(false);
+    try {
+      const [{ data: readyRows, error: readyError }, { data: segmentRows }, { data: contactRows }, { data: campaignRows }] = await Promise.all([
+        supabase.rpc("fn_campaign_readiness"),
+        supabase.rpc("fn_contact_segments"),
+        supabase
+          .from("referral_contacts")
+          .select("id, name, email, last_job_at, created_at")
+          .eq("business_id", biz.id)
+          .limit(5000),
+        supabase
+          .from("campaigns")
+          .select("id, name, subject, body, status, segment_key, segment_label, scheduled_at, started_at, total_recipients, sent_count, failed_count, opted_out_count, created_at")
+          .eq("business_id", biz.id)
+          .order("created_at", { ascending: false })
+          .limit(25),
+      ]);
 
-    if (readyError) {
-      toast({ title: "Could not check campaign readiness", description: friendlyError(readyError), variant: "destructive" });
+      setReadinessFailed(!!readyError || !readyRows?.[0]);
+      if (readyError) {
+        toastRef.current({ title: "Could not check campaign readiness", description: friendlyError(readyError), variant: "destructive" });
+      }
+      const ready = (readyRows?.[0] as Readiness | undefined) ?? null;
+      setReadiness(ready);
+      setSegments(((segmentRows ?? []) as SegmentRow[]).sort((a, b) => SEGMENT_ORDER.indexOf(a.segment_key) - SEGMENT_ORDER.indexOf(b.segment_key)));
+      setContacts((contactRows ?? []) as Contact[]);
+      setCampaigns((campaignRows ?? []) as CampaignRow[]);
+    } catch (error) {
+      setReadinessFailed(true);
+      setReadiness(null);
+      toastRef.current({ title: "Could not check campaign readiness", description: friendlyError(error), variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
-    const ready = (readyRows?.[0] as Readiness | undefined) ?? null;
-    setReadiness(ready);
-    setSegments(((segmentRows ?? []) as SegmentRow[]).sort((a, b) => SEGMENT_ORDER.indexOf(a.segment_key) - SEGMENT_ORDER.indexOf(b.segment_key)));
-    setContacts((contactRows ?? []) as Contact[]);
-    setCampaigns((campaignRows ?? []) as CampaignRow[]);
-    setLoading(false);
-  }, [biz.id, toast]);
+  }, [biz.id]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -259,7 +271,12 @@ const CampaignsTab = ({ biz, publicUrl, isPro }: Props) => {
 
   return (
     <div className="space-y-6">
-      {!readiness?.ready ? (
+      {readinessFailed ? (
+        <div role="alert" className="border border-border bg-card p-6">
+          <p className="text-sm text-muted-foreground">Could not check campaign readiness</p>
+          <Button className="mt-4" variant="outline" onClick={() => void load()}>Try again</Button>
+        </div>
+      ) : !readiness?.ready ? (
         <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
           <div className="flex items-start gap-3">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-primary" />

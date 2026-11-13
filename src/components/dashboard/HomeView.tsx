@@ -114,7 +114,7 @@ const HomeView = ({ businessId, businessName, slug, publicUrl, isPro, isDemo, se
           </div>
           {toCall.length === 0 ? (
             <div className="py-4">
-              <p className="text-muted-foreground">No leads yet. Your first one usually comes after you ask your customers.</p>
+              <p className="text-muted-foreground">{leads.length ? "No leads waiting. New referrals show up here." : "No leads yet. Your first one usually comes after you ask your customers."}</p>
               <Button className="mt-4" onClick={runStep}>{step.button}</Button>
             </div>
           ) : (

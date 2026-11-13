@@ -85,12 +85,17 @@ describe("rail", () => {
 });
 
 describe("home upsell", () => {
-  const renderHome = (isPro: boolean, isDemo: boolean) => render(
+  const renderHome = (isPro: boolean, isDemo: boolean, leads: import("@/lib/dashboardHome").LeadLite[] = []) => render(
     <MemoryRouter>
       <HomeView businessId="b" businessName="Summit Roofing" slug="summit" publicUrl="https://revvin.co/r/summit"
-        isPro={isPro} isDemo={isDemo} setup={base} leads={[]} onGo={() => {}} onPublish={() => {}} onShared={() => {}} />
+        isPro={isPro} isDemo={isDemo} setup={base} leads={leads} onGo={() => {}} onPublish={() => {}} onShared={() => {}} />
     </MemoryRouter>,
   );
+  it("distinguishes all-closed leads from a never-used inbox", () => {
+    renderHome(true, false, [{ id: "closed", created_at: "2026-11-13", status: "closed_won", lead_name: "Test", lead_phone: "1", lead_need: "Plumbing", referrer_name: "Referrer" }]);
+    expect(screen.getByText("No leads waiting. New referrals show up here.")).toBeTruthy();
+    expect(screen.queryByText("No leads yet. Your first one usually comes after you ask your customers.")).toBeNull();
+  });
   it("demo account renders without upsell", () => {
     renderHome(false, true);
     expect(screen.getByTestId("next-step")).toBeTruthy();

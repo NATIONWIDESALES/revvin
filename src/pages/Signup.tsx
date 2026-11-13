@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { track } from "@/lib/track";
 import { PRICE_TEXT } from "@/config/pricing";
 import { captureInviteFromSearch, getInviteCode } from "@/lib/invite";
+import { loadSupabase } from "@/lib/supabaseLazy";
 import SignupForm, { SIGNUP_SUBHEAD } from "@/components/signup/SignupForm";
 
 const Signup = () => {
@@ -29,9 +30,14 @@ const Signup = () => {
   useEffect(() => {
     // While the form is submitting it owns navigation (held checkout first).
     if (authLoading || !user || confirmPending || submitting) return;
-    navigate("/welcome", { replace: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, authLoading, submitting]);
+    let active = true;
+    void (async () => {
+      const supabase = await loadSupabase();
+      const { data } = await supabase.from("businesses").select("is_published").eq("user_id", user.id).limit(1);
+      if (active) navigate(data?.[0]?.is_published ? "/dashboard" : "/welcome", { replace: true });
+    })();
+    return () => { active = false; };
+  }, [user?.id, authLoading, confirmPending, submitting, navigate]);
 
   // Keep the form mounted mid-submit so its post-signup navigation can run.
   if (authLoading && !submitting) {

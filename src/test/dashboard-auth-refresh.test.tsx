@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 const h = vi.hoisted(() => ({
   user: { id: "owner-1" },
   reads: vi.fn(),
+  updates: vi.fn(),
   hold: false,
   finish: undefined as (() => void) | undefined,
 }));
@@ -31,13 +32,13 @@ vi.mock("@/integrations/supabase/client", () => ({ supabase: {
       return { data: table === "businesses" ? [business] : table === "leads" ? [lead] : [], error: null };
     };
     const query = { select: () => query, eq: () => query, order: () => query, limit: result, then: (resolve: (value: unknown) => unknown) => result().then(resolve) };
-    return { ...query, update: () => ({ eq: async () => ({ error: null }) }) };
+    return { ...query, update: (patch: unknown) => ({ eq: async () => { h.updates(table, patch); return { error: null }; } }) };
   }, functions: { invoke: vi.fn(async () => ({ data: {}, error: null })) },
 } }));
 
 import BusinessDashboard from "@/pages/dashboard/BusinessDashboard";
 
-beforeEach(() => { HTMLElement.prototype.scrollIntoView = vi.fn(); h.reads.mockClear(); h.hold = false; h.finish = undefined; });
+beforeEach(() => { HTMLElement.prototype.scrollIntoView = vi.fn(); h.reads.mockClear(); h.updates.mockClear(); h.hold = false; h.finish = undefined; });
 const view = () => <MemoryRouter initialEntries={["/dashboard?tab=leads"]}><BusinessDashboard /></MemoryRouter>;
 
 describe("dashboard refresh stability", () => {
@@ -77,5 +78,31 @@ describe("dashboard refresh stability", () => {
     await act(async () => { h.finish?.(); });
     expect(screen.getByRole("textbox")).toBe(notes);
     expect(notes).toHaveValue("Unsaved note");
+  });
+});
+
+
+describe("won lead value prompt", () => {
+  const closeWon = async () => {
+    await screen.findByText("Test Customer");
+    fireEvent.keyDown(screen.getByRole("combobox"), { key: "ArrowDown" });
+    fireEvent.click(await screen.findByRole("option", { name: "Closed Won" }));
+    return screen.findByLabelText("What was this job worth? (optional)");
+  };
+  it("saves the status immediately, then saves the optional value to deal_value", async () => {
+    render(view());
+    const input = await closeWon();
+    expect(h.updates).toHaveBeenCalledWith("leads", { status: "closed_won" });
+    fireEvent.change(input, { target: { value: "1500" } });
+    fireEvent.click(screen.getByRole("button", { name: /^Save$/ }));
+    await waitFor(() => expect(h.updates).toHaveBeenCalledWith("leads", { deal_value: 1500 }));
+    await waitFor(() => expect(screen.queryByLabelText("What was this job worth? (optional)")).toBeNull());
+  });
+  it("Skip dismisses the prompt without writing a job value", async () => {
+    render(view());
+    await closeWon();
+    fireEvent.click(screen.getByRole("button", { name: "Skip" }));
+    expect(screen.queryByLabelText("What was this job worth? (optional)")).toBeNull();
+    expect(h.updates.mock.calls).toEqual([["leads", { status: "closed_won" }]]);
   });
 });

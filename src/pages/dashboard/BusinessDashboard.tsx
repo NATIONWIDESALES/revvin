@@ -598,6 +598,7 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
   const { toast } = useToast();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [editingNotes, setEditingNotes] = useState<Record<string, string>>({});
+  const [jobValuePrompts, setJobValuePrompts] = useState<Record<string, string>>({});
   // Status filter for the inbox. "all" preserves the original behavior; other
   // values map 1:1 to the STATUSES enum so existing rows keep working.
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -633,6 +634,9 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
     if (error) toast({ title: "Update failed", description: friendlyError(error), variant: "destructive" });
     else {
       if (status === "closed_won") {
+        if (leads.find((lead) => lead.id === id)?.deal_value == null) {
+          setJobValuePrompts((current) => ({ ...current, [id]: "" }));
+        }
         // A failed notification is not a failed status change, but the business
         // must not be left assuming the referrer was told when they were not.
         supabase.functions
@@ -665,7 +669,10 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
     }
     const { error } = await supabase.from("leads").update({ deal_value: v } as never).eq("id", id);
     if (error) toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
-    else { toast({ title: "Deal value saved" }); reload(); }
+    else {
+      setJobValuePrompts((current) => { const next = { ...current }; delete next[id]; return next; });
+      toast({ title: "Deal value saved" }); reload();
+    }
   };
 
   const exportCsv = () => {
@@ -810,6 +817,20 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                       </div>
                     </td>
                   </tr>
+                  {jobValuePrompts[l.id] !== undefined && (
+                    <tr className="border-t border-border bg-muted/20">
+                      <td colSpan={5} className="px-4 py-3">
+                        <form className="flex flex-wrap items-center gap-2" onSubmit={(event) => { event.preventDefault(); void saveDealValue(l.id, jobValuePrompts[l.id]); }}>
+                          <Label htmlFor={`job-value-${l.id}`}>What was this job worth? (optional)</Label>
+                          <span className="text-muted-foreground">$</span>
+                          <Input id={`job-value-${l.id}`} type="number" min="0" step="0.01" inputMode="decimal" className="h-9 w-36"
+                            value={jobValuePrompts[l.id]} onChange={(event) => setJobValuePrompts((current) => ({ ...current, [l.id]: event.target.value }))} />
+                          <Button size="sm" type="submit">Save</Button>
+                          <Button size="sm" variant="ghost" type="button" onClick={() => setJobValuePrompts((current) => { const next = { ...current }; delete next[l.id]; return next; })}>Skip</Button>
+                        </form>
+                      </td>
+                    </tr>
+                  )}
                   {expanded === l.id && (
                     <tr className="border-t border-border bg-muted/20">
                       <td colSpan={5} className="px-4 py-5">
@@ -1325,11 +1346,9 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     const { error } = await supabase.from("notification_settings").upsert({
       business_id: biz.id,
       email_notifications_enabled: notifs.email,
-      sms_notifications_enabled: notifs.sms,
       email_on_new_lead: notifs.email_on_new_lead,
       email_on_closed_deal: notifs.email_on_closed_deal,
       notification_email: notifs.notification_email,
-      notification_phone: notifs.notification_phone,
     } as never, { onConflict: "business_id" });
     setBusy(false);
     if (error) toast({ title: "Save failed", description: friendlyError(error), variant: "destructive" });
@@ -1523,8 +1542,6 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
             </div>
           </div>
           <div><Label className="text-xs">Notification email</Label><Input type="email" value={notifs.notification_email} onChange={(e) => setNotifs((p) => ({ ...p, notification_email: e.target.value }))} className="mt-1.5" /></div>
-          <div className="flex items-center justify-between"><Label className="text-sm">SMS notifications</Label><Switch checked={notifs.sms} onCheckedChange={(v) => setNotifs((p) => ({ ...p, sms: v }))} /></div>
-          <div><Label className="text-xs">Notification phone</Label><Input type="tel" value={notifs.notification_phone} onChange={(e) => setNotifs((p) => ({ ...p, notification_phone: e.target.value }))} className="mt-1.5" /></div>
           <Button onClick={saveNotifs} disabled={busy} className="w-full">Save</Button>
         </div>
       </div>

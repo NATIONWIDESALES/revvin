@@ -8,19 +8,20 @@ import { PRO_FEATURES } from "@/config/planFeatures";
 // ask a whole customer list for you, the reporting that shows what it produced,
 // and custom branding. This copy lives in one place so no surface describes Pro
 // differently.
+const feature = (label: typeof PRO_FEATURES[number]["label"]) => {
+  const match = PRO_FEATURES.find((item) => item.label === label);
+  if (!match) throw new Error(`Missing Pro feature: ${label}`);
+  return match;
+};
+const unlimited = feature("Unlimited customers, imported and asked");
+const automatic = feature("Automatic ask after each job");
+const reporting = feature("ROI reporting and monthly recap");
+const branding = feature("Custom page branding");
+
 export const PRO_COPY = {
-  customers: {
-    title: PRO_FEATURES[1].label,
-    body: `${PRO_FEATURES[0].description} ${PRO_FEATURES[1].description}`,
-  },
-  reporting: {
-    title: PRO_FEATURES[3].label,
-    body: PRO_FEATURES[3].description,
-  },
-  branding: {
-    title: PRO_FEATURES[4].label,
-    body: PRO_FEATURES[4].description,
-  },
+  customers: { title: automatic.label, body: `${unlimited.description} ${automatic.description}` },
+  reporting: { title: reporting.label, body: reporting.description },
+  branding: { title: branding.label, body: branding.description },
 } as const;
 
 /**

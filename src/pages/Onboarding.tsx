@@ -52,6 +52,7 @@ const Onboarding = () => {
     })();
   }, [user?.id, toast]);
 
+  const [alreadyPublished, setAlreadyPublished] = useState(false);
   const [bizId, setBizId] = useState<string | null>(null);
   const [launchPackageStatus, setLaunchPackageStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,13 +81,14 @@ const Onboarding = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id,name,category,service_area,offer_amount,slug,business_email,launch_package_status,phone")
+        .select("id,name,category,service_area,offer_amount,slug,business_email,launch_package_status,phone,is_published")
         .eq("user_id", user.id)
         .limit(1);
       const b = data?.[0];
       if (b) {
         const preview = readPreview(window.location.search);
         setBizId(b.id);
+        setAlreadyPublished(b.is_published);
         // Claimed through a prebuilt prospect page: mark it claimed server-side.
         // The RPC verifies ownership, the acquisition snapshot and validity.
         if (preview?.prospect_code) {
@@ -248,7 +250,7 @@ const Onboarding = () => {
           <div>
             {!liveUrl && (
               <form onSubmit={(e) => { e.preventDefault(); void publishNow(); }} noValidate>
-                <h1 className="text-4xl sm:text-5xl">Your referral page, live in a minute</h1>
+                <h1 className="text-4xl sm:text-5xl">{alreadyPublished ? "Edit your page" : "Your referral page, live in a minute"}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">Four answers and you are live. Publishing is free.</p>
                 <p className="mt-2 text-sm text-muted-foreground">Every new account gets Pro free for 14 days. No card.</p>
                 <div className="mt-6 space-y-4">
@@ -284,13 +286,13 @@ const Onboarding = () => {
                     {showReasons && missingReward && <p role="alert" className="mt-1.5 text-sm font-medium text-destructive">Enter the reward you pay, for example $100.</p>}
                   </div>
                   <div>
-                    <Label htmlFor="owner-mobile">Mobile number (we'll text you your page link)</Label>
+                    <Label htmlFor="owner-mobile">Mobile number (optional)</Label>
                     <Input id="owner-mobile" type="tel" autoComplete="tel" value={mobile} onChange={e => setMobile(e.target.value)} placeholder="Optional" className="mt-1.5" />
                   </div>
                 </div>
                 {publishError && <p role="alert" className="mt-4 text-sm font-medium text-destructive">{publishError}</p>}
                 <Button type="submit" disabled={saving} size="lg" className="mt-8 h-12 w-full">
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Publish my page"}
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : alreadyPublished ? "Save changes" : "Publish my page"}
                 </Button>
               </form>
             )}

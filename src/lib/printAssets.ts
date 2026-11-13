@@ -1,5 +1,5 @@
 // Print pack specs. Sizes are real-world inches, and the QR size is tuned to
-// the distance the thing is read from: a yard sign is scanned from the pavement,
+// the distance the thing is read from: a yard sign is scanned from the sidewalk,
 // a business card from arm's length. Rendering one QR size on everything is the
 // usual way these packs fail in the field.
 export interface PrintAsset {
@@ -28,9 +28,9 @@ export const PRINT_ASSETS: PrintAsset[] = [
     heightIn: 18,
     qrIn: 5,
     headlineIn: 2.4,
-    scanDistance: "6 to 10 feet, from the pavement",
+    scanDistance: "6 to 10 feet, from the sidewalk",
     where:
-      "In the front yard while you are on site, and for a week after if the customer is happy to leave it. Face it at the footpath, not the house.",
+      "In the front yard while you are on site, and for a week after if the customer is happy to leave it. Face it at the sidewalk, not the house.",
     say:
       "Ask before you put it in: \"Mind if I leave our sign out front for a week? If a neighbor scans it and books, you get the reward.\" Most people say yes when there is something in it for them.",
     printNote:
