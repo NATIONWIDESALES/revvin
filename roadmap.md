@@ -42,3 +42,9 @@
 - [x] Add launch guarantee: $297 refund if no referral within 60 days of first asks, at least 50 customers asked, email request within 90 days of purchase; manual refunds only.
 - [x] Update guards and isolated entitlement tests, run full suite and inspect build; report contradictions, exclusions, checkout verification limits and ordered publish steps. Do not publish frontend.
 - [x] Pre-publish congruency review: 10 owner findings fixed (auth copy, webhook line item, setup-fee qualification, competitor fact revert, phone-support removal, Pro rail grouping, Rewards tab label, invite fail-closed guard, done-for-you launch naming, partner earnings and admin text). 12 new guard tests; 927 passed, 3 skipped; build clean; 4 functions redeployed; not published. Rep commissions stay parked.
+
+# Congruency fixes, November 13
+- [x] Retire stale agreement and its links; preserve reserved slug.
+- [x] Distinguish trial email copy without changing selection or timing.
+- [x] Derive live price copy from config, add guards and verify static parity.
+- [x] Full suite, typecheck, public checks and file-by-file changelog; no frontend publish.

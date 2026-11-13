@@ -42,7 +42,6 @@ const AccountSettings = lazy(() => import("./pages/dashboard/AccountSettings"));
 const InviteCustomers = lazy(() => import("./pages/dashboard/InviteCustomers"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
-const ReferralAgreement = lazy(() => import("./pages/ReferralAgreement"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const PublicReferralPage = lazy(() => import("./pages/PublicReferralPage"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
@@ -158,7 +157,7 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
                   <Route path="/referrer/:userId" element={<ReferrerProfile />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/referral-agreement" element={<ReferralAgreement />} />
+                  <Route path="/referral-agreement" element={<Navigate to="/terms" replace />} />
                   <Route path="/dashboard" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
                   <Route path="/dashboard/create-offer" element={<ProtectedRoute requiredRole="business"><CreateOffer /></ProtectedRoute>} />
                   <Route path="/dashboard/edit-offer/:id" element={<ProtectedRoute requiredRole="business"><EditOffer /></ProtectedRoute>} />

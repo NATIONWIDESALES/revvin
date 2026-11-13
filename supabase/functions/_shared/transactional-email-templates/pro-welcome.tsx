@@ -5,6 +5,8 @@ import { RevvinShell, ctaButton, heading, paragraph } from './revvin-shell.tsx'
 import { INSTALL_EMAIL_TIP } from '../install-copy.ts'
 
 interface Props {
+  onTrial?: boolean
+  trialEndsOn?: string
   businessName?: string
   customersUrl?: string
   unsubscribeUrl?: string
@@ -12,12 +14,16 @@ interface Props {
 
 const step = { fontSize: '15px', lineHeight: '1.6', color: '#334155', margin: '0 0 10px' }
 
-const Email = ({ businessName, customersUrl, unsubscribeUrl }: Props) => (
+const welcomeSubject = (onTrial?: boolean) => onTrial
+  ? "Your 14-day Pro trial is on. Here is where to start"
+  : "Welcome to Revvin Pro. Here is where to start"
+
+const Email = ({ onTrial, trialEndsOn, businessName, customersUrl, unsubscribeUrl }: Props) => (
   <RevvinShell previewText="Three steps to get your list asking." unsubscribeUrl={unsubscribeUrl}>
-    <Text style={heading}>Welcome to Revvin Pro. Here is where to start</Text>
+    <Text style={heading}>{welcomeSubject(onTrial)}</Text>
     <Text style={paragraph}>
-      Hi, it's the Revvin team. Thanks for going Pro{businessName ? ` with ${businessName}` : ''}. Three steps and your past
-      customers are working for you.
+      {onTrial ? `Hi, it's the Revvin team. ${businessName || 'Your business'} has every Pro tool free until ${trialEndsOn}. No card is on file and nothing is charged automatically. Three steps and your past customers are working for you.` : <>Hi, it's the Revvin team. Thanks for going Pro{businessName ? ` with ${businessName}` : ''}. Three steps and your past
+      customers are working for you.</>}
     </Text>
     <Text style={step}>1. Import your past customers in the Customers tab. A CSV works, or paste them in.</Text>
     <Text style={step}>2. Send your ask in batches from your own email, so it comes from you.</Text>
@@ -33,7 +39,7 @@ const Email = ({ businessName, customersUrl, unsubscribeUrl }: Props) => (
 
 export const template = {
   component: Email,
-  subject: 'Welcome to Revvin Pro. Here is where to start',
+  subject: (data: Record<string, any>) => welcomeSubject(data.onTrial),
   displayName: 'Pro welcome',
   previewData: {
     businessName: 'Summit Roofing',

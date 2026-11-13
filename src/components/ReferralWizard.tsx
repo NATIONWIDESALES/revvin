@@ -557,8 +557,8 @@ const ReferralWizard = ({ offer }: ReferralWizardProps) => {
 
       {/* Legal link */}
       <div className="px-5 pb-4 text-center">
-        <Link to="/referral-agreement" className="text-[10px] text-muted-foreground underline hover:text-foreground">
-          View Referral Agreement & Terms
+        <Link to="/terms" className="text-[10px] text-muted-foreground underline hover:text-foreground">
+          Terms
         </Link>
       </div>
     </div>

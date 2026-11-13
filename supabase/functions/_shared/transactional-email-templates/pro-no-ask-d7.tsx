@@ -4,17 +4,19 @@ import type { TemplateEntry } from './registry.ts'
 import { RevvinShell, ctaButton, heading, paragraph, quoted } from './revvin-shell.tsx'
 
 interface Props {
+  onTrial?: boolean
+  trialEndsOn?: string
   businessName?: string
   askMessage?: string
   customersUrl?: string
   unsubscribeUrl?: string
 }
 
-const Email = ({ businessName, askMessage, customersUrl, unsubscribeUrl }: Props) => (
+const Email = ({ onTrial, businessName, askMessage, customersUrl, unsubscribeUrl }: Props) => (
   <RevvinShell previewText="Copy this, then use Open in Gmail." unsubscribeUrl={unsubscribeUrl}>
     <Text style={heading}>Your list is ready. Here is the first ask to send</Text>
     <Text style={paragraph}>
-      Hi, it's the Revvin team. {businessName || 'Your account'} has customers imported but no ask has gone out yet. This is the
+      Hi, it's the Revvin team. {businessName || 'Your account'}{onTrial ? ' is on your Pro trial and' : ''} has customers imported but no ask has gone out yet. This is the
       message we would send.
     </Text>
     {askMessage ? <Text style={quoted}>{askMessage}</Text> : null}

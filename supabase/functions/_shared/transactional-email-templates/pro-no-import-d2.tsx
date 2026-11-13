@@ -4,16 +4,18 @@ import type { TemplateEntry } from './registry.ts'
 import { RevvinShell, ctaButton, heading, paragraph } from './revvin-shell.tsx'
 
 interface Props {
+  onTrial?: boolean
+  trialEndsOn?: string
   businessName?: string
   customersUrl?: string
   unsubscribeUrl?: string
 }
 
-const Email = ({ businessName, customersUrl, unsubscribeUrl }: Props) => (
+const Email = ({ onTrial, businessName, customersUrl, unsubscribeUrl }: Props) => (
   <RevvinShell previewText="Any spreadsheet with a name and email works." unsubscribeUrl={unsubscribeUrl}>
     <Text style={heading}>Need a hand importing your customer list?</Text>
     <Text style={paragraph}>
-      Hi, it's the Revvin team. {businessName || 'Your account'} is on Pro but there are no customers in the list yet, and the list is
+      Hi, it's the Revvin team. {onTrial ? `${businessName || 'Your account'} is on your Pro trial` : `${businessName || 'Your account'} is on Pro`} but there are no customers in the list yet, and the list is
       where the referrals come from.
     </Text>
     <Text style={paragraph}>

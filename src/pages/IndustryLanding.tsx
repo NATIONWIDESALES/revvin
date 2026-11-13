@@ -6,7 +6,7 @@ import FinalBand from "@/components/marketing/FinalBand";
 import SEOHead from "@/components/SEOHead";
 import NotFound from "@/pages/NotFound";
 import { INDUSTRIES, getIndustry } from "@/content/industries";
-import { PRICE_TEXT } from "@/config/pricing";
+import { MONTHLY_PRICE, PRICE_TEXT } from "@/config/pricing";
 import { relatedForTrade } from "@/content/related";
 import ReferralWorthCalculator from "@/components/marketing/ReferralWorthCalculator";
 import { CopyBlock, RelatedLinks } from "@/components/content/ContentBlocks";
@@ -52,10 +52,10 @@ const IndustryLanding = () => {
             provider: { "@type": "Organization", name: "Revvin", url: BASE },
             offers: {
               "@type": "Offer",
-              price: "97",
+              price: String(MONTHLY_PRICE),
               priceCurrency: "USD",
               description:
-                "Free to publish your referral page and take referrals on it. Revvin Pro is $97/month USD for the tools that ask your whole customer list for you. Cancel anytime. Businesses pay their referrers directly when deals close.",
+                `Free to publish your referral page and take referrals on it. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD for the tools that ask your whole customer list for you. Cancel anytime. Businesses pay their referrers directly when deals close.`,
             },
           },
           {

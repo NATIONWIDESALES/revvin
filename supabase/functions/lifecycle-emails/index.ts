@@ -11,7 +11,7 @@ import { firstAskMessage } from "../_shared/lifecycle-copy.ts";
 import { ownerEmail, sendLifecycleEmail } from "../_shared/lifecycle-email.ts";
 import { hoursSince, pickCandidate, withinFrequencyCap, type Candidate } from "../_shared/lifecycle-rules.ts";
 import { effectivePlan } from "../_shared/effective-plan.ts";
-import { trialNotice } from "../_shared/trial-notices.ts";
+import { trialNotice, trialEmailData } from "../_shared/trial-notices.ts";
 
 // Hourly cron worker. For each business it works out the single most important
 // lifecycle email still owed, then sends that one. Guardrails:
@@ -81,6 +81,7 @@ Deno.serve(async (req) => {
       const inCohort = new Date(biz.created_at).getTime() >= new Date(LIFECYCLE_COHORT_START).getTime();
       const ageHours = hoursSince(biz.created_at, now);
       const plan = await effectivePlan(supabase, biz.id);
+      const proCopyData = trialEmailData(biz.pro_trial_ends_at, biz.plan, now);
       const status = String(biz.subscription_status ?? "").toLowerCase();
       const publicUrl = biz.slug ? appUrl(`/r/${biz.slug}`) : null;
       const askMessage = firstAskMessage(biz.name ?? "us", publicUrl ?? appUrl(), biz.offer_amount ?? null);
@@ -114,7 +115,7 @@ Deno.serve(async (req) => {
       if (plan === "pro" && contacts === 0 && campaigns === 0) {
         candidates.push({
           template: "pro_welcome",
-          data: { businessName: biz.name, customersUrl: appUrl("/dashboard?tab=customers") },
+          data: { ...proCopyData, businessName: biz.name, customersUrl: appUrl("/dashboard?tab=customers") },
         });
       }
 
@@ -122,13 +123,13 @@ Deno.serve(async (req) => {
       if (plan === "pro" && proWelcomeAge >= 48 && contacts === 0) {
         candidates.push({
           template: "pro_no_import_d2",
-          data: { businessName: biz.name, customersUrl: appUrl("/dashboard?tab=customers") },
+          data: { ...proCopyData, businessName: biz.name, customersUrl: appUrl("/dashboard?tab=customers") },
         });
       }
       if (plan === "pro" && proWelcomeAge >= 24 * 7 && contacts > 0 && contactSends === 0 && campaigns === 0) {
         candidates.push({
           template: "pro_no_ask_d7",
-          data: { businessName: biz.name, askMessage, customersUrl: appUrl("/dashboard?tab=customers") },
+          data: { ...proCopyData, businessName: biz.name, askMessage, customersUrl: appUrl("/dashboard?tab=customers") },
         });
       }
 

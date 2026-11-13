@@ -98,8 +98,8 @@ describe("payout claims", () => {
 
 describe("retired public claims", () => {
   const publicSources = [
-    "src/pages/AboutRevvinLLM.tsx",
-    "src/pages/TrustCenter.tsx",
+    "src/pages/About.tsx",
+    "src/content/aboutPage.ts",
     "src/pages/ForReferrers.tsx",
     "public/llms.txt",
   ];

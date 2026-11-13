@@ -42,8 +42,8 @@ const HowPayoutsWork = ({ className = "" }: { className?: string }) => (
         About Revvin page
       </Link>{" "}
       and the{" "}
-      <Link to="/referral-agreement" className="font-medium text-foreground underline-offset-4 hover:underline">
-        referral agreement
+      <Link to="/terms" className="font-medium text-foreground underline-offset-4 hover:underline">
+        Terms
       </Link>
       .
     </p>

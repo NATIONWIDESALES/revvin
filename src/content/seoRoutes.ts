@@ -4,7 +4,7 @@ import { PARTNER_EARNINGS, PARTNER_EARNINGS_NOTE } from "../config/partners";
 // ClaudeBot, PerplexityBot, CCBot, and Googlebot's first pass).
 //
 // Every claim below must be true of the product: publishing a referral page is
-// free, Revvin Pro is $97/month USD, and businesses pay their referrers
+// free, Revvin Pro is the configured monthly price, and businesses pay their referrers
 // directly off-platform. Personal referral asks are prepared by Revvin and sent
 // from the owner's own email or SMS app; Revvin itself sends
 // Pro reactivation campaign email, by email only, with the business postal
