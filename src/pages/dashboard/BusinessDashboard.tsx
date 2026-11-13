@@ -193,7 +193,7 @@ const BusinessDashboard = () => {
     }
   };
 
-  useEffect(() => { if (user) loadAll(); }, [user]);
+  useEffect(() => { if (user) loadAll(); }, [user?.id]);
 
   // One row per dashboard visit with a loaded business, so drop-off after
   // onboarding is visible in the funnel.
@@ -219,13 +219,13 @@ const BusinessDashboard = () => {
       if (!error && current) await loadAll();
     })();
     return () => { current = false; };
-  }, [user]);
+  }, [user?.id]);
 
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const loadAll = async () => {
     if (!user) return;
-    setLoading(true);
+    if (!biz) setLoading(true);
     const { data: bizData, error: bizError } = await supabase
       .from("businesses")
       .select("*")
@@ -235,7 +235,6 @@ const BusinessDashboard = () => {
     // so record the difference and tell the owner which one happened.
     setLoadError(bizError ? friendlyError(bizError, "We could not load your dashboard.") : null);
     const b = (bizData?.[0] as Business) ?? null;
-    setBiz(b);
     if (b) {
       const [leadRes, refRes, contactRes, offerRes] = await Promise.all([
         supabase.from("leads").select("*").eq("business_id", b.id).order("created_at", { ascending: false }),
@@ -259,6 +258,7 @@ const BusinessDashboard = () => {
         pending: (cdata ?? []).filter((c) => c.status === "pending").length,
       });
     }
+    if (!bizError) setBiz(b);
     setLoading(false);
   };
 

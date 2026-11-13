@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, act, fireEvent } from "@testing-library/react";
+import { render, screen, act, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 type Cb = (event: string, session: unknown) => void;
@@ -36,7 +36,7 @@ vi.mock("@/lib/supabaseLazy", () => ({
   mayHaveSession: () => false,
 }));
 
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const seen: string[] = [];
@@ -61,6 +61,31 @@ const LoginPage = () => {
 };
 
 describe("sign in once", () => {
+  it("keeps user identity and loading stable while refreshing same-user sessions", async () => {
+    let latest: ReturnType<typeof useAuth> | undefined;
+    const states: ReturnType<typeof useAuth>[] = [];
+    const Probe = () => {
+      latest = useAuth();
+      states.push(latest);
+      return null;
+    };
+    render(<MemoryRouter><AuthProvider><Probe /></AuthProvider></MemoryRouter>);
+    await waitFor(() => expect(latest?.loading).toBe(false));
+    await act(async () => { await fakeClient.auth.signInWithPassword(); });
+    await waitFor(() => expect(latest?.userRole).toBe("business"));
+    const originalUser = latest?.user;
+    expect(originalUser?.id).toBe("u1");
+    states.length = 0;
+    for (const event of ["TOKEN_REFRESHED", "SIGNED_IN", "SIGNED_IN"]) {
+      const refreshed = { ...fakeSession, access_token: event, user: { ...fakeSession.user } };
+      await act(async () => { listeners.forEach((cb) => cb(event, refreshed)); });
+      expect(latest?.user).toBe(originalUser);
+      expect(latest?.session).toBe(refreshed);
+    }
+    expect(states.length).toBeGreaterThan(0);
+    expect(states.every((state) => !state.loading)).toBe(true);
+  });
+
   it("shows the spinner then the protected page, never bouncing to /auth", async () => {
     const { container } = render(
       <MemoryRouter initialEntries={["/auth"]}>

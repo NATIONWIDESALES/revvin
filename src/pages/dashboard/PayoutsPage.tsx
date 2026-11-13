@@ -60,7 +60,7 @@ const PayoutsPage = ({ businessId }: Props) => {
   useEffect(() => {
     if (user && businessId) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, businessId]);
+  }, [user?.id, businessId]);
 
   const filtered = rows.filter((r) => r.status === tab);
   const totalPending = rows.filter((r) => r.status === "pending").reduce((s, r) => s + Number(r.amount || 0), 0);

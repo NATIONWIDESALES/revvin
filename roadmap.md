@@ -48,3 +48,8 @@
 - [x] Distinguish trial email copy without changing selection or timing.
 - [x] Derive live price copy from config, add guards and verify static parity.
 - [x] Full suite, typecheck, public checks and file-by-file changelog; no frontend publish.
+
+# Same-user auth refresh fix, November 13
+- [x] Stabilize auth identity and identity-dependent loaders/forms.
+- [x] Keep business dashboard mounted during background refreshes.
+- [x] Add four regressions; 953 tests passed, 3 skipped; typecheck clean; append changelog. Authenticated browser check blocked by no matching requester account; not published.

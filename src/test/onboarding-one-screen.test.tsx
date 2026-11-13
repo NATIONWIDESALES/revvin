@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 const h = vi.hoisted(() => ({
@@ -9,12 +9,14 @@ const h = vi.hoisted(() => ({
   track: vi.fn(),
   save: vi.fn(),
   taken: new Set<string>(),
+  user: { id: "u1", email: "o@example.test" },
+  load: vi.fn(),
 }));
 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     from: () => ({
-      select: () => ({ eq: () => ({ limit: async () => ({ data: [{ id: "biz-1", name: "Summit Roofing", category: "Roofing", service_area: "", offer_amount: "$100", slug: null, business_email: null, launch_package_status: null }] }) }) }),
+      select: () => ({ eq: () => ({ limit: async () => { h.load(); return { data: [{ id: "biz-1", name: "Summit Roofing", category: "Roofing", service_area: "", offer_amount: "$100", slug: null, business_email: null, launch_package_status: null }] }; } }) }),
       update: (patch: unknown) => ({ eq: () => {
         h.update(patch);
         const result = h.save(patch);
@@ -25,7 +27,7 @@ vi.mock("@/integrations/supabase/client", () => ({
     functions: { invoke: vi.fn(async () => ({})) },
   },
 }));
-vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => ({ user: { id: "u1", email: "o@example.test" } }) }));
+vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => ({ user: h.user }) }));
 vi.mock("@/lib/publishPage", async (importOriginal) => ({
   ...await importOriginal<typeof import("@/lib/publishPage")>(),
   publishPage: async (s: string) => { h.publish(s); return { ok: true }; },
@@ -39,11 +41,29 @@ import Onboarding from "@/pages/Onboarding";
 import { resolveAvailableSlug } from "@/lib/slugRules";
 
 beforeEach(() => {
+  h.load.mockClear();
   h.update.mockReset(); h.rpc.mockReset(); h.publish.mockReset(); h.track.mockReset(); h.taken.clear();
   h.save.mockReset(); h.save.mockImplementation(async (patch) => ({ data: [{ id: "biz-1", ...patch }], error: null }));
 });
 
 describe("one-screen onboarding", () => {
+  it("preserves unsaved fields when auth emits a new object for the same user", async () => {
+    const page = <MemoryRouter initialEntries={["/welcome"]}><Onboarding /></MemoryRouter>;
+    const { rerender } = render(page);
+    const name = await screen.findByDisplayValue("Summit Roofing");
+    fireEvent.change(name, { target: { value: "Unsaved flooring name" } });
+    const reward = screen.getByDisplayValue("$100");
+    fireEvent.change(reward, { target: { value: "$150" } });
+    for (const event of ["TOKEN_REFRESHED", "SIGNED_IN"]) {
+      h.user = { ...h.user };
+      await act(async () => { rerender(<MemoryRouter initialEntries={["/welcome"]}><Onboarding /></MemoryRouter>); });
+      expect(screen.getByDisplayValue("Unsaved flooring name")).toBe(name);
+      expect(screen.getByDisplayValue("$150")).toBe(reward);
+    }
+    expect(h.load).toHaveBeenCalledTimes(1);
+    expect(h.update).not.toHaveBeenCalled();
+  });
+
   it("waits for the saved required fields before publishing", async () => {
     let finish: ((value: unknown) => void) | undefined;
     h.save.mockImplementation((patch) => new Promise(resolve => { finish = () => resolve({ data: [{ id: "biz-1", ...patch }], error: null }); }));

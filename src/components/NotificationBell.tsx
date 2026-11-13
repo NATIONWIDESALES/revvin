@@ -42,7 +42,7 @@ const NotificationBell = () => {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+  }, [user?.id]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 

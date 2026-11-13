@@ -23,3 +23,5 @@
 - Automatic job asks use fn_effective_plan at creation and immediately before scheduled delivery; paused rows and connections remain stored. Why: trial expiry cannot silently send a Pro-only ask.
 - Pricing FAQ pairs live in shared content consumed by the page and prerender route; collapsed answers stay mounted but hidden. Why: static HTML and FAQPage schema must describe the same accessible answers.
 - Lifecycle Pro email copy uses trialEmailData from stored plan and future trial end, independently of effective-plan selection. Why: free trials must not be described as purchases without changing delivery rules.
+
+- Same-user auth events preserve user object identity while updating sessions; account loaders depend on user IDs and loaded business refreshes stay mounted. Why: token refresh and tab focus must not clear unsaved forms or open dashboard controls.

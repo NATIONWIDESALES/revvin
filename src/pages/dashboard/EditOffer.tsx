@@ -65,7 +65,7 @@ const EditOffer = () => {
       setLoading(false);
     };
     load();
-  }, [user, id]);
+  }, [user?.id, id]);
 
   const update = (key: string, value: any) => setForm((f) => ({ ...f, [key]: value }));
 

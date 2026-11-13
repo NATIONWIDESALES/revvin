@@ -79,7 +79,7 @@ const AdminDashboard = () => {
       setLoading(false);
     };
     fetchAll();
-  }, [user]);
+  }, [user?.id]);
 
   const totalBusinesses = roles.filter(r => r.role === "business").length;
   const totalReferrers = roles.filter(r => r.role === "referrer").length;

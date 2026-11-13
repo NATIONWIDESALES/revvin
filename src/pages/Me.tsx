@@ -33,7 +33,7 @@ const Me = () => {
   useEffect(() => {
     if (!user) { setRows(null); return; }
     void loadMyReferrals().then((r) => { setRows(r.data); setError(r.error); });
-  }, [user]);
+  }, [user?.id]);
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -101,7 +101,7 @@ const ProfileEdit = () => {
       setLoading(false);
     };
     load();
-  }, [user, isBusiness]);
+  }, [user?.id, isBusiness]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

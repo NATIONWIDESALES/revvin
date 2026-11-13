@@ -37,7 +37,7 @@ const InviteCustomers = () => {
       setBiz((data?.[0] as BizRow) ?? null);
       setLoading(false);
     })();
-  }, [user]);
+  }, [user?.id]);
 
   if (!user) return <Navigate to="/auth" replace />;
   if (userRole && userRole !== "business" && userRole !== "admin") {

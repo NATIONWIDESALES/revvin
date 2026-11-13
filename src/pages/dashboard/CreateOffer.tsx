@@ -107,7 +107,7 @@ const CreateOffer = () => {
     };
 
     ensureBusinessProfile();
-  }, [user, isSuperAdmin, navigate, toast]);
+  }, [user?.id, isSuperAdmin, navigate, toast]);
 
   const isRestricted = isRestrictedCategory(form.category);
 

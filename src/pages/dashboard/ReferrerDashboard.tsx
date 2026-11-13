@@ -66,7 +66,7 @@ const ReferrerDashboard = () => {
       setLoading(false);
     };
     fetchData();
-  }, [user]);
+  }, [user?.id]);
 
   const sym = currencySymbol(displayCurrency);
   const paidEarnings = referrals.filter(r => r.payout_status === "paid").reduce((sum, r) => sum + (r.payout_amount ?? 0), 0);

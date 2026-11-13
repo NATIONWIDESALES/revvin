@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const urgent = event !== "INITIAL_SESSION";
       const nextUserId = session?.user?.id ?? null;
 
-      if (!nextUserId) {
+      if (!nextUserId || !session) {
         loadedUserId = null;
         apply(urgent, () => {
           setSessionNow(null);
@@ -118,7 +118,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (nextUserId === loadedUserId) {
         apply(urgent, () => {
           setSessionNow(session);
-          setUserNow(session!.user);
+          setUserNow((prev) => prev?.id === session.user.id ? prev : session.user);
         });
         return;
       }
@@ -128,13 +128,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // protected route shows its spinner instead of redirecting to /auth.
       apply(urgent, () => {
         setSessionNow(session);
-        setUserNow(session!.user);
+        setUserNow(session.user);
         setLoadingNow(true);
       });
       // Defer to avoid deadlocks with the auth callback.
       setTimeout(() => {
         fetchRole(nextUserId, urgent).finally(() => setLoading(false, urgent));
-        ensureProfile(session!.user);
+        ensureProfile(session.user);
       }, 0);
     });
 
@@ -143,7 +143,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (loadedUserId && session?.user?.id !== loadedUserId) return;
       startTransition(() => {
         setSessionNow(session);
-        setUserNow(session?.user ?? null);
+        setUserNow((prev) => prev?.id === session?.user?.id ? prev : session?.user ?? null);
       });
       if (session?.user) {
         loadedUserId = session.user.id;

@@ -50,7 +50,7 @@ const Onboarding = () => {
       toast(CHECKOUT_FALLBACK_TOAST);
       setRedirectingToCheckout(false);
     })();
-  }, [user, toast]);
+  }, [user?.id, toast]);
 
   const [bizId, setBizId] = useState<string | null>(null);
   const [launchPackageStatus, setLaunchPackageStatus] = useState<string | null>(null);
@@ -103,7 +103,7 @@ const Onboarding = () => {
       }
       setLoading(false);
     })();
-  }, [user]);
+  }, [user?.id]);
 
   const missingName = !name.trim();
   const missingCategory = !category;
