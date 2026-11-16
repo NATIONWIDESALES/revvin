@@ -203,7 +203,7 @@ export const PRIVACY_DOC: LegalDoc = {
   metaTitle: "Privacy policy for businesses and referrers | Revvin",
   metaDescription:
     "How Revvin collects, uses and protects personal information for business accounts, referrer accounts, referral page leads and campaign email.",
-  lastUpdated: "September 8, 2026",
+  lastUpdated: "November 16, 2026",
   intro:
     'This Privacy Policy explains how Revvin ("Revvin", "we", "us") collects, uses, shares, and protects personal information when you use revvin.co, our branded business referral pages, and related services (the "Service"). It applies to businesses that subscribe to Revvin, referrers who submit leads, and the prospective customers ("Leads") whose information is submitted through a referral page. If you do not agree with this Policy, do not use the Service.',
   sections: [
@@ -316,6 +316,16 @@ export const PRIVACY_DOC: LegalDoc = {
         p(
           "Browser Meta (Facebook) and Plausible measurement is currently paused. We use first-party measurement of public marketing page views, selected actions and labeled demo activity. These events exclude signed-in visitors, account and authentication routes, private receipt links, and preview environments. Recorded page paths and referring addresses omit query strings, fragments and private identifiers. We do not currently measure signup or account milestones through browser analytics.",
           "Public marketing measurement.",
+        ),
+        p(
+          "Our marketing pages load a tool from Origami that matches a visitor's IP address to the company they work for, so we can see which businesses visit revvin.co. It does not identify you personally, and it does not run on referral pages, preview pages or inside your account. If your browser sends a Global Privacy Control or Do Not Track signal, we do not load it.",
+        ),
+        p(
+          "Origami runs in an isolated document that cannot access our pages, account information or site cookies. Its current script attempts to save a visitor cookie, but that storage is blocked by the isolation. Origami receives the network IP address and browser request information needed for company-level matching; we do not send it names, email addresses or form values.",
+        ),
+        p(
+          "Lovable's visitor analytics records page visits, where visitors came from, country, browser, operating system and device type, time on page, page loading speed, errors, clicks and the app's own analytics events. These are recorded for every visitor without a consent banner. It uses no cookies, stores nothing on your device, does not keep IP addresses and does not identify visitors. Detailed data is kept for 90 days and daily summaries for a year. Lovable collects this data for us. Lovable's privacy policy (https://lovable.dev/privacy) explains how it handles it.",
+          "Visitor analytics.",
         ),
         // Shown only while session recording is enabled in src/config/brand.ts.
         ...(CLARITY_PROJECT_ID

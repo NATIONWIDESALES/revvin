@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# Origami marketing snippet, November 16
+- [x] Add isolated client-only marketing loader with opt-out and bot gates.
+- [x] Update privacy disclosure; 1084 tests passed, 3 skipped, typecheck/build clean; browser gates and private-route shutdown verified. Not published; Origami receipt and company matching remain unverified.
+
 # Early Black Friday presentation, November 16
 - [x] Centralize the prominent, dismissible sale bar and lazy first-visit dialog on eligible pages.
 - [x] Preserve sale signup intent through setup and default the live upgrade picker to Yearly.

@@ -12,6 +12,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import FrameGuard from "@/components/FrameGuard";
 import Analytics from "@/components/Analytics";
 import MetaPixel from "@/components/MetaPixel";
+import OrigamiVisitors from "@/components/OrigamiVisitors";
 import PartnerCapture from "@/components/partners/PartnerCapture";
 
 // Eager: the homepage is the most requested route and the LCP target, and
@@ -98,6 +99,7 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
             <CountryProvider>
               <Analytics />
               <MetaPixel />
+              <OrigamiVisitors />
               <PartnerCapture />
               <Suspense fallback={null}><ClarityLoader /></Suspense>
               <UpdateToast />
