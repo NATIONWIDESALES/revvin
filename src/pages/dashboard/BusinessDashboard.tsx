@@ -1,3 +1,6 @@
+import SaleBanner from "@/components/billing/SaleBanner";
+import { useSale } from "@/lib/useSale";
+import { priceTextForSale } from "@/config/pricing";
 import { CHECKOUT_PRICE_VERSION } from "@/config/pricing";
 import { reportFailure } from "@/lib/reportFailure";
 import { isRestrictedCategory } from "@/lib/offerUtils";
@@ -1304,6 +1307,8 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
     } else { toast({ title: next ? "Shown on Earn" : "Hidden from Earn" }); onUpdate(); }
   };
   const [billingPlan, setBillingPlan] = useState<BillingPlan>("monthly");
+  const saleLive = useSale(true);
+  const prices = priceTextForSale(saleLive);
 
   // Someone who picked a plan on a public page (the free tools, for example)
   // arrives here with that choice already made. Preselect it, never charge it.
@@ -1456,7 +1461,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
             ? onAnnual
               ? `Pro · ${PRICE_TEXT.annualPerYear} USD, billed once a year · cancel anytime.`
               : `Pro · ${PRICE_TEXT.monthlyPerMonth} USD, billed monthly · cancel anytime.`
-            : `Pro · ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once · cancel anytime.`}
+            : `Pro · ${prices.monthlyPerMonth} USD, or ${prices.annualPerYear} billed once · cancel anytime.`}
         </p>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between"><span className="text-muted-foreground">Status</span><span className="text-foreground font-medium capitalize">{biz.subscription_status || "·"}</span></div>
@@ -1498,9 +1503,10 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
           </>
         ) : (
           <>
-            <PlanPicker plan={billingPlan} onChange={setBillingPlan} className="mt-4" />
+            <SaleBanner live={saleLive} onClick={startSubscription} disabled={busy} />
+            <PlanPicker plan={billingPlan} onChange={setBillingPlan} saleLive={saleLive} className="mt-4" />
             <Button className="mt-3 w-full" onClick={startSubscription} disabled={busy}>
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Start subscription · ${billingPlan === "annual" ? PRICE_TEXT.annualPerYear : PRICE_TEXT.monthlyPerMonth}`}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Start subscription · ${billingPlan === "annual" ? prices.annualPerYear : prices.monthlyPerMonth}`}
             </Button>
           </>
         )}

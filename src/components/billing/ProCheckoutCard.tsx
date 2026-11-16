@@ -1,3 +1,6 @@
+import SaleBanner from "@/components/billing/SaleBanner";
+import { useSale } from "@/lib/useSale";
+import { priceTextForSale } from "@/config/pricing";
 import { CHECKOUT_PRICE_VERSION } from "@/config/pricing";
 import { reportFailure } from "@/lib/reportFailure";
 import { useEffect, useState } from "react";
@@ -37,6 +40,8 @@ const ProCheckoutCard = ({
   const navigate = useNavigate();
   const [plan, setPlan] = useState<BillingPlan>("monthly");
   const [busy, setBusy] = useState(false);
+  const saleLive = useSale(!!user);
+  const prices = priceTextForSale(saleLive);
   // null = not checked yet / not applicable. Owners who already pay must never
   // be able to open a second subscription checkout from a public page.
   const [alreadyPro, setAlreadyPro] = useState<boolean | null>(null);
@@ -44,7 +49,7 @@ const ProCheckoutCard = ({
   const isBusinessOwner = !!user && userRole === "business";
 
   useEffect(() => {
-    if (!isBusinessOwner) {
+    if (!isBusinessOwner || !user) {
       setAlreadyPro(null);
       return;
     }
@@ -53,7 +58,7 @@ const ProCheckoutCard = ({
       const { data } = await (await loadSupabase())
         .from("businesses")
         .select("subscription_status")
-        .eq("user_id", user!.id)
+        .eq("user_id", user.id)
         .limit(1);
       const status = (data?.[0]?.subscription_status || "").toLowerCase();
       if (!cancelled) setAlreadyPro(!!status && !["none", "canceled"].includes(status));
@@ -148,15 +153,16 @@ const ProCheckoutCard = ({
       <h3 className="text-base font-bold text-foreground">{heading}</h3>
       <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{body}</p>
 
-      <PlanPicker plan={plan} onChange={setPlan} className="mt-4" />
+      <SaleBanner live={saleLive} onClick={start} disabled={busy || checking} />
+      <PlanPicker plan={plan} onChange={setPlan} saleLive={saleLive} className="mt-4" />
 
       <Button size="lg" className="mt-4 h-12 w-full" onClick={start} disabled={busy || checking}>
         {busy || checking ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
         ) : canCheckOutHere ? (
-          `Start Revvin Pro, ${plan === "annual" ? PRICE_TEXT.annualPerYear : PRICE_TEXT.monthlyPerMonth}`
+          `Start Revvin Pro, ${plan === "annual" ? prices.annualPerYear : prices.monthlyPerMonth}`
         ) : (
-          `Create my account and start Pro, ${plan === "annual" ? PRICE_TEXT.annualPerYear : PRICE_TEXT.monthlyPerMonth}`
+          `Create my account and start Pro, ${plan === "annual" ? prices.annualPerYear : prices.monthlyPerMonth}`
         )}
       </Button>
 

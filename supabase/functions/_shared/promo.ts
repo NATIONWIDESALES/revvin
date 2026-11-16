@@ -7,6 +7,36 @@
 // interchangeable: the monthly coupon is a flat $32 off ($49 -> $17) and the
 // annual coupon is a flat $246 off ($450 -> $204). Applying the monthly coupon
 // to the annual price would charge $418, which is not the promotion.
+import { CHECKOUT_PRICE_VERSION } from "./stripe-prices.ts";
+
+export const SALE_END_ISO = "2026-12-01T06:59:00.000Z";
+export const SALE_MONTHLY_PERCENT = 30;
+export const SALE_ANNUAL_PERCENT = 40;
+export const SALE_BANNER_COPY = "Early Black Friday: 30% off monthly, 40% off yearly. Locked in for as long as you stay subscribed. Ends November 30.";
+
+export function isSaleLive(now: Date = new Date()): boolean {
+  return now.getTime() < Date.parse(SALE_END_ISO);
+}
+
+export function saleCouponFor(plan: PromoPlan, now: Date = new Date(), priceVersion?: unknown): string | null {
+  if (priceVersion !== CHECKOUT_PRICE_VERSION || !isSaleLive(now)) return null;
+  return plan === "annual" ? "oe2UDUt4" : "xH7aouoN";
+}
+
+export function salePrices(monthly: number, annual: number) {
+  return { monthly: Math.round(monthly * (100 - SALE_MONTHLY_PERCENT)) / 100, annual: Math.round(annual * (100 - SALE_ANNUAL_PERCENT)) / 100 };
+}
+
+// One selection feeds both Checkout metadata locations and discounts. Invites
+// take precedence, and a single coupon can never stack with the launch promo.
+export function checkoutPromotion(plan: PromoPlan, now: Date, priceVersion: unknown, inviteApplied: boolean, previousSaleSubscription = false) {
+  if (inviteApplied) return { coupon: PROMO_COUPON_MONTHLY, tag: "invite_17_monthly" };
+  const sale = previousSaleSubscription ? null : saleCouponFor(plan, now, priceVersion);
+  if (sale) return { coupon: sale, tag: plan === "annual" ? "bf2026_annual_40" : "bf2026_monthly_30" };
+  const coupon = promoCouponFor(plan, now, priceVersion);
+  return { coupon, tag: coupon ? promoMetadataFor(plan, now) : "none" };
+}
+
 export const PROMO_COUPON_MONTHLY = "fnl3ojLm"; // $32.00 off USD
 export const PROMO_COUPON_ANNUAL = "IriZexoc"; // $246.00 off USD
 

@@ -3,6 +3,9 @@
 // numbers can never drift between the homepage, pricing page, dashboard and
 // checkout.
 
+import { salePrices } from "../../supabase/functions/_shared/promo";
+export { SALE_END_ISO, SALE_BANNER_COPY } from "../../supabase/functions/_shared/promo";
+
 export const MONTHLY_PRICE = 97;
 export const ANNUAL_PRICE = 970;
 export const MONTHS_PER_YEAR = 12;
@@ -27,6 +30,18 @@ export const PRICE_TEXT = {
   discount: `${ANNUAL_DISCOUNT_PCT}%`, // two months free
   effectiveMonthly: `${money(ANNUAL_EFFECTIVE_MONTHLY)}/month`,
 } as const;
+
+const sale = salePrices(MONTHLY_PRICE, ANNUAL_PRICE);
+export const SALE_PRICE_TEXT = {
+  monthly: money(sale.monthly),
+  annual: money(sale.annual),
+  monthlyPerMonth: `${money(sale.monthly)}/month`,
+  annualPerYear: `${money(sale.annual)}/year`,
+} as const;
+export const priceTextForSale = (live: boolean) => live ? SALE_PRICE_TEXT : PRICE_TEXT;
+export const annualTermsForSale = (live: boolean) => live
+  ? ANNUAL_TERMS_COPY.replace(PRICE_TEXT.annual, SALE_PRICE_TEXT.annual)
+  : ANNUAL_TERMS_COPY;
 
 // Reusable, factual cancellation copy for the annual plan. Two separate facts,
 // stated separately: Pro access runs to the end of the term you paid for, and

@@ -106,6 +106,8 @@ Deno.serve(async (req) => {
       // Candidates in priority order. Setup first, promotional last.
       const candidates: Candidate[] = [];
       const notice = trialNotice(biz.pro_trial_ends_at, biz.plan, now);
+      // The shared trial-ending template evaluates the sale against the
+      // server clock immediately before rendering, not this worker snapshot.
       if (notice) candidates.push({ template: notice, data: { today: notice === "trial_ends_today" } });
 
       if (status === "canceled") {

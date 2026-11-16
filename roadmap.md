@@ -1,5 +1,10 @@
 # Prebuilt pages for outbound sales
 
+# Early Black Friday, November 16
+- [x] Reuse server promo selection and shared pricing for the timed sale; preserve legacy paths.
+- [x] Add sale-only banners/prices and trial-ending email line.
+- [x] Run full tests and typecheck, deploy only checkout/lifecycle functions, verify and document. Do not publish.
+
 # Targeted public-page fixes, November 13
 - [x] Require an explicit unlocked trade; preserve locked-trade signup.
 - [x] Share pricing FAQs across the page, static HTML and FAQPage schema.

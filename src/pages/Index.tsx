@@ -9,6 +9,9 @@ import HeroYardSign, { SIGN_EXAMPLES, type SignExample } from "@/components/mark
 import InstantPreview from "@/components/marketing/InstantPreview";
 import StepTrack from "@/components/marketing/StepTrack";
 import FinalBand from "@/components/marketing/FinalBand";
+import SaleBanner from "@/components/billing/SaleBanner";
+import { useSale } from "@/lib/useSale";
+import { priceTextForSale } from "@/config/pricing";
 import { PRICE_TEXT, MONTHLY_PRICE } from "@/config/pricing";
 import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT, FREE_CTA_LABEL } from "@/config/planFeatures";
 import { SETUP_CALL_URL } from "@/config/setupCall";
@@ -46,6 +49,8 @@ const Index = () => {
   const [preview, setPreview] = useState<SignExample | null>(null);
   // The Earn network column stays hidden until at least one metro is live.
   const earnLive = useEarnLive();
+  const saleLive = useSale();
+  const prices = priceTextForSale(saleLive);
   return (
   <>
     <SEOHead
@@ -67,6 +72,8 @@ const Index = () => {
         homeFaqJsonLd,
       ]}
     />
+
+    <SaleBanner live={saleLive} />
 
     {/* Hero */}
     <section className="overflow-hidden pt-14">
@@ -189,8 +196,8 @@ const Index = () => {
           </div>
           <div className="mk-plan pro min-w-0 rounded-2xl bg-forest p-7 text-primary-foreground sm:p-10">
             <h3 className="font-display text-[32px] font-extrabold leading-none">Pro</h3>
-            <p className="mt-3.5 font-display text-[72px] font-extrabold leading-[.9]">{PRICE_TEXT.monthly}</p>
-            <p className="text-primary-foreground/80">a month, or {PRICE_TEXT.annual} a year</p>
+            <p className="mt-3.5 flex flex-wrap items-baseline gap-3 font-display text-[72px] font-extrabold leading-[.9]">{saleLive && <del className="text-2xl text-primary-foreground/70">{PRICE_TEXT.monthly}</del>}<span>{prices.monthly}</span></p>
+            <p className="text-primary-foreground/80">a month, or {saleLive && <del>{PRICE_TEXT.annual}</del>} {prices.annual} a year</p>
             <p className="mt-5 font-semibold">For owners with a real customer list to work.</p>
             <ul className="mt-4">
               <li>Everything in Free</li>

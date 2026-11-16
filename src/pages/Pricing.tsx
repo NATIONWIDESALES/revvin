@@ -1,3 +1,6 @@
+import SaleBanner from "@/components/billing/SaleBanner";
+import { useSale } from "@/lib/useSale";
+import { priceTextForSale, annualTermsForSale } from "@/config/pricing";
 import { LAUNCH_GUARANTEE } from "@/config/pricing";
 import { PAGE_META } from "@/content/pageMeta";
 import { PRICING_FAQS, pricingFaqJsonLd } from "@/content/pricingFaqs";
@@ -43,6 +46,8 @@ const Pricing = () => {
   // convinced, not the path we push a first-time visitor down.
   const [plan, setPlan] = useState<BillingPlan>("monthly");
   const annual = plan === "annual";
+  const saleLive = useSale();
+  const prices = priceTextForSale(saleLive);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -102,6 +107,7 @@ const Pricing = () => {
       />
 
 
+      <SaleBanner live={saleLive} />
       <section className="border-b border-border">
         <div className="container relative max-w-3xl py-20 text-center md:py-24">
           {/* Every figure reads from the pricing config so the numbers can
@@ -122,7 +128,7 @@ const Pricing = () => {
             </div>
           </div>
           <p className="mt-5 text-sm text-muted-foreground">
-            Revvin Pro is {PRICE_TEXT.monthlyPerMonth} USD, or {PRICE_TEXT.annualPerYear} billed once, with two months free. No contract, and no platform fees on your referral rewards.
+            Revvin Pro is {prices.monthlyPerMonth} USD, or {prices.annualPerYear} billed once, with two months free. No contract, and no platform fees on your referral rewards.
           </p>
         </div>
       </section>
@@ -180,9 +186,10 @@ const Pricing = () => {
                 </button>
               </div>
 
-              <div className="mt-6 flex items-baseline gap-2">
+              <div className="mt-6 flex flex-wrap items-baseline gap-2">
+                {saleLive && <del className="text-xl text-muted-foreground">{annual ? PRICE_TEXT.annual : PRICE_TEXT.monthly}</del>}
                 <span className="font-display text-6xl font-extrabold text-foreground">
-                  {annual ? PRICE_TEXT.annual : PRICE_TEXT.monthly}
+                  {annual ? prices.annual : prices.monthly}
                 </span>
                 <span className="text-sm text-muted-foreground">{annual ? "/year" : "/month"}</span>
               </div>
@@ -195,7 +202,7 @@ const Pricing = () => {
                   <p className="text-muted-foreground">
                     Billed once. Two months free.
                   </p>
-                  <p className="text-xs text-muted-foreground">{ANNUAL_TERMS_COPY}</p>
+                  <p className="text-xs text-muted-foreground">{annualTermsForSale(saleLive)}</p>
                 </div>
               ) : (
                 <p className="mt-2 text-sm text-muted-foreground">

@@ -6,7 +6,7 @@ import {
   checkoutPricing,
   type BillingPlan,
 } from "../_shared/stripe-prices.ts";
-import { promoCouponFor, promoMetadataFor, promoAllowedForPriceVersion, PROMO_COUPON_MONTHLY, INVITE_PROMOTION_PAUSED } from "../_shared/promo.ts";
+import { checkoutPromotion, isSaleLive, SALE_END_ISO, promoAllowedForPriceVersion, INVITE_PROMOTION_PAUSED } from "../_shared/promo.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,8 +14,49 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Read-only history, shared by sale display and checkout. A canceled sale
+// subscription cannot redeem the sale again, even before the window closes.
+async function customerHistory(stripe: Stripe, email: string) {
+  const customers = await stripe.customers.list({ email, limit: 1 });
+  const customerId = customers.data[0]?.id;
+  const subscriptions: Stripe.Subscription[] = [];
+  if (customerId) {
+    let cursor: string | undefined;
+    while (true) {
+      const page = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 100, ...(cursor ? { starting_after: cursor } : {}) });
+      subscriptions.push(...page.data);
+      if (!page.has_more) break;
+      cursor = page.data.at(-1)?.id;
+      if (!cursor) throw new Error("Could not read subscription history");
+    }
+  }
+  return { customerId, subscriptions, previousSaleSubscription: subscriptions.some(s => ["bf2026_monthly_30", "bf2026_annual_40"].includes(s.metadata?.promo)) };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  // Public, read-only pricing state. The UI never uses its own wall clock to
+  // claim a sale, and cached/prerendered pages cannot keep advertising it late.
+  if (req.method === "GET") {
+    const now = new Date();
+    let eligible = true;
+    const authorization = req.headers.get("Authorization");
+    if (authorization && isSaleLive(now)) {
+      try {
+        const client = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "");
+        const { data, error } = await client.auth.getUser(authorization.replace("Bearer ", ""));
+        if (error || !data.user?.email) eligible = false;
+        else {
+          const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
+          eligible = !(await customerHistory(stripe, data.user.email)).previousSaleSubscription;
+        }
+      } catch { eligible = false; }
+    }
+    return new Response(JSON.stringify({ sale_live: isSaleLive(now) && eligible, sale_end: SALE_END_ISO, server_now: now.toISOString() }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "Cache-Control": "no-store" },
+    });
+  }
 
   try {
     const supabaseClient = createClient(
@@ -29,6 +70,8 @@ serve(async (req) => {
     const { data: authData, error: authError } = await supabaseClient.auth.getUser(token);
     if (authError || !authData.user?.email) throw new Error("Unauthorized");
     const user = authData.user;
+    const email = user.email;
+    if (!email) throw new Error("Unauthorized");
 
     let includeLaunchPackage = false;
     // Unrecognized values fall back to monthly rather than erroring or charging
@@ -62,14 +105,12 @@ serve(async (req) => {
     });
 
     // Look up or rely on Stripe to create customer by email
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    const customerId = customers.data[0]?.id;
+    const { customerId, subscriptions, previousSaleSubscription } = await customerHistory(stripe, email);
 
     // Never open a second subscription for someone who already pays. Any UI
     // that offers checkout can be reached twice, so the guard lives here too.
     if (customerId) {
-      const existing = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 20 });
-      const live = existing.data.some((s) =>
+      const live = subscriptions.some((s) =>
         ["active", "trialing", "past_due", "unpaid", "incomplete"].includes(s.status)
       );
       if (live) {
@@ -131,9 +172,9 @@ serve(async (req) => {
     // for the 2026-11 price version.
     // Invite redemptions always get the launch coupon, even after the public
     // promo deadline: an invited business must never pay more than a stranger.
-    const promoCoupon = invite ? PROMO_COUPON_MONTHLY : promoCouponFor(plan, new Date(), priceVersion);
-    const promoApplies = promoCoupon !== null;
-    const promoTag = invite ? "invite_17_monthly" : promoApplies ? promoMetadataFor(plan) : "none";
+    const promotion = checkoutPromotion(plan, new Date(), priceVersion, !!invite, previousSaleSubscription);
+    const promoCoupon = promotion.coupon;
+    const promoTag = promotion.tag;
 
     const inviteMetadata = invite ? { invite_code: invite.code } : {};
 
