@@ -37,4 +37,4 @@
 - Real signed-in owner billing screen and full account creation/setup read-back could not be exercised: no matching requester account and temporary-user approval unavailable. Owner destination/paid-owner exclusion and offer continuity are covered by tests; no real signup or charge was performed.
 - Natural November 30 expiration remains future; expiry is covered with server-clock tests and intercepted server state.
 - No publish, function deployment, Stripe operation, coupon/promo logic change, RLS change or migration. Structured pricing and the homepage ROI worksheet are unchanged.
-- An unrelated pre-existing modification in `supabase/functions/mcp/index.ts` was left untouched and excluded from this commit.
+- The Vite-generated `supabase/functions/mcp/index.ts` artifact was saved in a separate follow-up commit to satisfy the clean-worktree check. Its only differences are generated MCP SDK references matching the installed 0.20.0 package; no source logic was edited and no function was deployed.
