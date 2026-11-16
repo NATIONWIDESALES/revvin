@@ -81,6 +81,8 @@ have been exposed:
 
 ## Failure alerts
 
+Spot a stalled email queue by checking `net._http_response` for repeated 401 responses from `process-email-queue`; verify dispatcher authorization before re-enqueuing messages.
+
 After the frontend is published, existing failure branches report image decoding/upload, logo save, non-validation signup, business creation/setup saves, page publication, public referral submission, lead status/Closed Won, reward mark-paid, customer import, job-done ask scheduling and checkout creation failures, plus caught render crashes. Customer screens and messages do not change. Demo businesses and ordinary test runs do not report.
 
 Open **/__sa**, then **Failures**, for the latest 100 events, newest first. Only admins can read this list, not sales users, business owners or visitors. Times are shown in Pacific time. The private records contain bounded, scrubbed error message/code, route without query/hash, known business/user IDs, build ID and user agent. No file or form payload is collected. Existing funnel analytics remains separate and unchanged.

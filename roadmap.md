@@ -68,4 +68,9 @@
 - [x] Add reporting at existing failure branches and the admin Failures tab without customer changes.
 - [x] Full Vitest: 988 passed, 3 skipped; typecheck clean; intercepted browser referral-failure check passed.
 - [ ] Remove inherited anon/authenticated table grants. Blocked by the one-migration-only constraint after live read-back revealed platform default grants; RLS with no policies still denies all direct client access.
-- [ ] Verify real admin list and actual queue-to-inbox delivery. Blocked by no matching requester account and unavailable temporary-user approval; no synthetic alert sent.
+- [ ] Verify real admin list and inbox receipt. Admin-session verification remains blocked; queue acceptance and the failure-alert sent log were verified live on November 16.
+
+# Email queue authorization, November 16
+- [x] Diagnose worker rejection using current managed credentials and live dispatcher responses.
+- [x] Restore existing worker behavior after supported credential refresh; add verified service authorization fallback and deploy only the queue worker.
+- [x] Verify live dispatch, failure-alert sent log, 14-day unsent counts and expiry handling; document and run regressions.

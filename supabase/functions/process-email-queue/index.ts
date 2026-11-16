@@ -1,4 +1,5 @@
-import { checkCronAuth } from "../_shared/cron-auth.ts";
+import { authorizeEmailQueue } from "./queue-auth.ts";
+import { emailHtml } from "./queue-body.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { globalSuppression } from "../_shared/global-suppression.ts";
 import { sendLovableEmail } from 'npm:@lovable.dev/email-js@0.1.0'
@@ -180,7 +181,7 @@ Deno.serve(async (req) => {
     )
   }
 
-  if (!checkCronAuth(req).ok) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+  if (!await authorizeEmailQueue(req, { cronSecret: Deno.env.get('CRON_SECRET') ?? '', serviceRoleKey: supabaseServiceKey }, supabaseUrl)) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
 
   const supabase: SupabaseClient<any, any, any> = createClient(supabaseUrl, supabaseServiceKey)
 
@@ -376,7 +377,7 @@ Deno.serve(async (req) => {
             sender_domain: typeof payload.sender_domain === "string" ? payload.sender_domain : undefined,
             reply_to: typeof payload.reply_to === "string" ? payload.reply_to : undefined,
             subject: typeof payload.subject === "string" ? payload.subject : undefined,
-            html: typeof payload.html === "string" ? payload.html : undefined,
+            html: emailHtml(payload),
             text: typeof payload.text === "string" ? payload.text : undefined,
             purpose: typeof payload.purpose === "string" ? payload.purpose : undefined,
             label: typeof payload.label === "string" ? payload.label : undefined,

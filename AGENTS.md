@@ -29,3 +29,4 @@
 - Dashboard Pro upsell copy resolves features by label, never by list position. Why: feature reordering must not change the upgrade promise.
 - Job-delay backfills keep original values in a service-only, RLS-locked rollback table. Why: reversing the backfill must not reset preexisting custom delays.
 - Operational failures use reportFailure and private rate-limited RPCs, the existing email queue, and the retention audit trigger; admin reads use an admin-checked RPC. Why: customer-linked errors must not enter visitor analytics or expose private records.
+- The email queue accepts alternate managed service credentials only after server-side Auth admin verification; never authorize decoded JWT roles alone. Why: dispatcher and runtime credentials can differ while forged claims must fail closed.
