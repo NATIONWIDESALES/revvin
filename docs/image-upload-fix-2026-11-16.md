@@ -2,9 +2,9 @@
 
 ## Status
 
-Client changes completed, frontend not published. Production uploads remain blocked because the storage configuration prerequisite could not be applied with the available tools. No database change was applied and no policies were removed.
+Migration `0030_image_upload_bucket_enforcement.sql` is applied to the live database. Both buckets were verified before and after application to allow exactly PNG, JPEG and WEBP with a 2097152-byte limit. The two broken restrictive policies are gone; all 11 other storage policies are unchanged. Frontend not published. Real authenticated upload/read-back remains unverified.
 
-The bucket update tool exposes only public/private and file size, not allowed MIME types. Both live buckets currently have `file_size_limit = 2097152` and `allowed_mime_types = NULL`. Platform instructions prohibit updating `storage.buckets` through SQL. Removing the policies without bucket MIME restrictions would weaken security, so the attempted migration includes a fail-closed prerequisite assertion. That assertion correctly rejected the migration and the migration tool rolled back its file and journal entry.
+The initial attempt failed safely because bucket MIME restrictions were absent. The prerequisite was subsequently configured externally and confirmed by a live read query. The documented fail-closed migration was rerun without changing its SQL and applied successfully.
 
 ## Files changed
 
@@ -19,9 +19,9 @@ The bucket update tool exposes only public/private and file size, not allowed MI
 
 ## Migration
 
-Intended next migration: `0030_image_upload_bucket_enforcement.sql`. **Not recorded or applied**, because its prerequisite failed. The migration tool removed the failed file/journal entry. Before retrying, configure both buckets through the Storage API with `allowedMimeTypes: ["image/png", "image/jpeg", "image/webp"]` and `fileSizeLimit: 2097152`, preserving all other bucket settings. The available tool cannot perform the MIME configuration.
+Applied migration: `drizzle/migrations/0030_image_upload_bucket_enforcement.sql`, with the rollback comment below. The migration tool also recorded its journal entry and snapshot. No bucket settings were changed by this migration.
 
-Attempted SQL below; no public-schema policies are touched:
+Applied SQL below; no public-schema policies are touched:
 
 ```sql
 /* Rollback SQL (restore the original checks before restoring bucket settings):
@@ -44,7 +44,7 @@ DROP POLICY "Raster image updates only" ON storage.objects;
 - Typecheck: clean (`tsgo -b --noEmit`).
 - Preview build telemetry: build OK.
 - Final full-suite results are recorded below after rerunning with the SQL assertion.
-- Live database read confirms the reported restrictive policies and missing bucket MIME limits. Migration attempt failed safely; the production fix is not applied.
+- Live database reads before and after the successful migration confirm exact bucket limits/types and removal of only the two named restrictive policies.
 - Real authenticated upload/read-back and native browser format decoding are not verified. Unit tests mock canvas and storage; the SQL test uses isolated PostgreSQL and does not establish production success.
 - No edge functions redeployed, no frontend published, no Stripe, routes, prices, emails or dashboard layout changes.
 ### Final results
@@ -52,4 +52,16 @@ DROP POLICY "Raster image updates only" ON storage.objects;
 - Full Vitest: 976 passed, 3 skipped (75 test files passed, 1 skipped).
 - Final typecheck: clean, exit 0.
 - Preview build telemetry: build OK.
-- Production migration remains blocked and unapplied.
+- Production migration 0030 is applied and verified by live policy/bucket reads.
+
+## Follow-up changelog, November 16, 2026
+
+- `drizzle/migrations/0030_image_upload_bucket_enforcement.sql`: recorded and applied the exact documented prerequisite assertion and two policy drops, retaining the rollback comment.
+- `drizzle/migrations/meta/_journal.json` and `drizzle/migrations/meta/0030_snapshot.json`: migration-tool-generated history and snapshot.
+- `docs/image-upload-fix-2026-11-16.md`: updated status, migration outcome and verification results.
+- No application code changed, no additional policy changes, no Stripe changes, no edge deployments and no frontend publication.
+- Compared all remaining storage policies before and after: names, roles, commands, permissiveness, USING expressions and WITH CHECK expressions are unchanged across all 11 policies, including owner-folder and referral-attachment policies.
+- Tests added: none in this follow-up. Existing image-upload and isolated PostgreSQL regression tests rerun; results below.
+- Real authenticated upload/read-back remains unverified; database verification confirms the reported policy blocker is removed.
+
+- Follow-up regression results: 9 tests passed across 2 files. Full suite/typecheck were not rerun for this migration-only follow-up; earlier results above remain historical.
