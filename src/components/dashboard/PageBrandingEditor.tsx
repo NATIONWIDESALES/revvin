@@ -303,7 +303,7 @@ const PageBrandingEditor = ({ businessId, slug, isPro = false, initial, onSaved 
                 <p className="text-sm text-muted-foreground">
                   {uploading ? "Uploading..." : "Click to upload a cover image"}
                 </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">PNG, JPG, WEBP or HEIC, up to 15 MB</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">PNG, JPG, WEBP, HEIC, GIF or SVG. Large images are resized for you.</p>
               </div>
             </div>
           )}
