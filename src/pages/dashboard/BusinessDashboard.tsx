@@ -1,4 +1,3 @@
-import SaleBanner from "@/components/billing/SaleBanner";
 import { useSale } from "@/lib/useSale";
 import { priceTextForSale } from "@/config/pricing";
 import { CHECKOUT_PRICE_VERSION } from "@/config/pricing";
@@ -1309,6 +1308,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
   const [billingPlan, setBillingPlan] = useState<BillingPlan>("monthly");
   const saleLive = useSale(true);
   const prices = priceTextForSale(saleLive);
+  useEffect(() => { if (saleLive) setBillingPlan("annual"); }, [saleLive]);
 
   // Someone who picked a plan on a public page (the free tools, for example)
   // arrives here with that choice already made. Preselect it, never charge it.
@@ -1503,10 +1503,9 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
           </>
         ) : (
           <>
-            <SaleBanner live={saleLive} onClick={startSubscription} disabled={busy} />
             <PlanPicker plan={billingPlan} onChange={setBillingPlan} saleLive={saleLive} className="mt-4" />
             <Button className="mt-3 w-full" onClick={startSubscription} disabled={busy}>
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Start subscription · ${billingPlan === "annual" ? prices.annualPerYear : prices.monthlyPerMonth}`}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : saleLive ? "Upgrade at the Black Friday price" : `Start subscription · ${billingPlan === "annual" ? prices.annualPerYear : prices.monthlyPerMonth}`}
             </Button>
           </>
         )}

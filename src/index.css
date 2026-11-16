@@ -15,6 +15,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Sale chrome shares the yard-sign palette, above the existing navigation. */
+/* Only while the sale bar is present: clip horizontal overflow without
+   creating a body scroll container that defeats the pinned sale chrome. */
+html:has(.bf-bar), body:has(.bf-bar) { overflow-x: clip; }
+.bf-bar-inner { max-width: 1440px; margin: auto; padding: 12px 24px; display: flex; align-items: center; gap: 20px; position: relative; }
+.bf-bar-copy { flex: 1; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; line-height: 1.4; }
+.bf-bar-copy strong { font-size: 20px; font-weight: 800; white-space: nowrap; }
+.bf-countdown { white-space: nowrap; font-size: 13px; font-weight: 700; }
+.bf-bar-cta { min-height: 44px; border-radius: 6px; padding: 8px 16px; font-size: 14px; }
+.bf-dismiss { flex-shrink: 0; }
+.bf-dialog { width: calc(100% - 32px); max-width: 540px; max-height: calc(100dvh - 32px); overflow-y: auto; }
+.bf-dialog-header { padding: 32px; }
+.bf-dialog > button { color: hsl(var(--primary-foreground)); }
+@media (max-width: 767px) {
+  .bf-bar-inner { padding: 10px 42px 10px 14px; gap: 5px 12px; display: grid; grid-template-columns: 1fr auto; }
+  .bf-bar-copy { grid-column: 1 / -1; display: block; font-size: 12px; }
+  .bf-bar-copy strong { font-size: 16px; margin-right: 8px; }
+  .bf-bar-lock { display: none; }
+  .bf-countdown { grid-column: 1; grid-row: 2; font-size: 11px; }
+  .bf-bar-cta { grid-column: 2; grid-row: 2; font-size: 12px; padding: 6px 10px; }
+  .bf-dismiss { position: absolute; top: 4px; right: 2px; width: 36px; }
+  .bf-dialog { top: auto; bottom: 12px; transform: translateX(-50%); }
+  .bf-dialog-header { padding: 28px 20px; }
+}
+@media print { .bf-bar, .bf-dialog { display: none; } }
+
 @layer base {
     :root {
     /* Revvin yard-sign palette */

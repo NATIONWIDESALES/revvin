@@ -1,4 +1,3 @@
-import SaleBanner from "@/components/billing/SaleBanner";
 import { useSale } from "@/lib/useSale";
 import { priceTextForSale, annualTermsForSale } from "@/config/pricing";
 import { LAUNCH_GUARANTEE } from "@/config/pricing";
@@ -107,7 +106,6 @@ const Pricing = () => {
       />
 
 
-      <SaleBanner live={saleLive} />
       <section className="border-b border-border">
         <div className="container relative max-w-3xl py-20 text-center md:py-24">
           {/* Every figure reads from the pricing config so the numbers can

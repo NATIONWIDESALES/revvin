@@ -7,6 +7,7 @@ import PageTransition from "@/components/PageTransition";
 import AppTopBar from "@/components/AppTopBar";
 import { Link } from "react-router-dom";
 import MobileStartBar, { hasMobileStartBar } from "@/components/marketing/MobileStartBar";
+import SalePromotion from "@/components/billing/SalePromotion";
 
 /** Signed-in app routes bring their own chrome (dashboard shell, /me bar). */
 export function isAppRoute(pathname: string): boolean {
@@ -39,7 +40,10 @@ const Layout = () => {
   return (
     <div className={`flex min-h-screen flex-col ${hasMobileStartBar(pathname) ? "pb-[calc(84px+env(safe-area-inset-bottom))] md:pb-0" : ""}`}>
       <ScrollToTop />
-      {app ? <AppTopBar /> : isReferralPageRoute(pathname) ? <ReferralHeader /> : <Navbar />}
+      <div className="sticky top-0 z-50">
+        <SalePromotion />
+        {app ? <AppTopBar /> : isReferralPageRoute(pathname) ? <ReferralHeader /> : <Navbar />}
+      </div>
       <main className={app ? "flex-1" : "site-main flex-1"}>
         <PageTransition />
       </main>

@@ -9,7 +9,6 @@ import HeroYardSign, { SIGN_EXAMPLES, type SignExample } from "@/components/mark
 import InstantPreview from "@/components/marketing/InstantPreview";
 import StepTrack from "@/components/marketing/StepTrack";
 import FinalBand from "@/components/marketing/FinalBand";
-import SaleBanner from "@/components/billing/SaleBanner";
 import { useSale } from "@/lib/useSale";
 import { priceTextForSale } from "@/config/pricing";
 import { PRICE_TEXT, MONTHLY_PRICE } from "@/config/pricing";
@@ -73,7 +72,6 @@ const Index = () => {
       ]}
     />
 
-    <SaleBanner live={saleLive} />
 
     {/* Hero */}
     <section className="overflow-hidden pt-14">

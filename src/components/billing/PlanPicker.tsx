@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { priceTextForSale, annualTermsForSale, PRICE_TEXT, type BillingPlan } from "@/config/pricing";
 
 // Shared monthly/annual chooser for the go-live conversion points.
-// Monthly is always the default.
+// Parent surfaces choose the initial plan; live sale upgrades favor Yearly.
 const PlanPicker = ({
   plan,
   onChange,
@@ -24,7 +24,7 @@ const PlanPicker = ({
       value: "annual",
       label: `${prices.annualPerYear} USD`,
       strike: live ? PRICE_TEXT.annual : undefined,
-      sub: "Billed once. Two months free.",
+      sub: live ? "Best value. Billed once a year." : "Billed once. Two months free.",
     },
   ];
 

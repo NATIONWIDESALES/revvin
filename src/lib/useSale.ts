@@ -3,10 +3,10 @@ import { SALE_END_ISO } from "@/config/pricing";
 
 // Start hidden on SSR and hydration. Only the server's public state enables
 // sale copy; a monotonic timer hides it at expiry even in a long-open tab.
-export function useSale(authenticated = false, enabled = true) {
-  const [live, setLive] = useState(false);
+export function useSaleState(authenticated = false, enabled = true) {
+  const [sale, setSale] = useState({ live: false, serverNow: 0, end: SALE_END_ISO });
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) { setSale((s) => ({ ...s, live: false })); return; }
     let disposed = false;
     let expiry: ReturnType<typeof setTimeout> | undefined;
     const refresh = async () => {
@@ -26,10 +26,10 @@ export function useSale(authenticated = false, enabled = true) {
         const enabled = state.sale_live === true && state.sale_end === SALE_END_ISO && remaining > 0;
         if (disposed) return;
         clearTimeout(expiry);
-        setLive(enabled);
-        if (enabled) expiry = setTimeout(() => setLive(false), Math.min(remaining, 2147483647));
+        setSale({ live: enabled, serverNow: Date.parse(state.server_now) + (performance.now() - started), end: state.sale_end });
+        if (enabled) expiry = setTimeout(() => setSale((s) => ({ ...s, live: false })), Math.min(remaining, 2147483647));
       } catch {
-        if (!disposed) setLive(false);
+        if (!disposed) setSale((s) => ({ ...s, live: false }));
       }
     };
     void refresh();
@@ -38,5 +38,9 @@ export function useSale(authenticated = false, enabled = true) {
     window.addEventListener("focus", focus);
     return () => { disposed = true; clearTimeout(expiry); clearInterval(interval); window.removeEventListener("focus", focus); };
   }, [authenticated, enabled]);
-  return live;
+  return enabled ? sale : { ...sale, live: false };
+}
+
+export function useSale(authenticated = false, enabled = true) {
+  return useSaleState(authenticated, enabled).live;
 }

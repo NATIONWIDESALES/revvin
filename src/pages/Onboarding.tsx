@@ -25,6 +25,7 @@ import { copyText } from "@/lib/clipboard";
 import { CHECKOUT_FALLBACK_TOAST, parsePlan, peekCheckoutIntent, startHeldCheckout } from "@/lib/proCheckoutIntent";
 import { readPreview, previewCategory } from "@/lib/instantPreview";
 import { claimProspectPage } from "@/lib/prospects";
+import { withSaleOffer } from "@/lib/salePresentation";
 
 const Onboarding = () => {
   const { user, loading: authLoading } = useAuth();
@@ -318,7 +319,7 @@ const Onboarding = () => {
                     <a href={liveUrl} target="_blank" rel="noopener noreferrer">Open page</a>
                   </Button>
                 </div>
-                <Button className="mt-8 h-11 w-full" onClick={() => navigate("/dashboard?welcome=1")}>
+                <Button className="mt-8 h-11 w-full" onClick={() => navigate(withSaleOffer(params.get("offer") === "bf2026" ? "/dashboard?welcome=1&tab=billing" : "/dashboard?welcome=1", params.toString()))}>
                   Go to my dashboard
                 </Button>
               </>

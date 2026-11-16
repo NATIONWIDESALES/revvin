@@ -1,5 +1,10 @@
 # Prebuilt pages for outbound sales
 
+# Early Black Friday presentation, November 16
+- [x] Centralize the prominent, dismissible sale bar and lazy first-visit dialog on eligible pages.
+- [x] Preserve sale signup intent through setup and default the live upgrade picker to Yearly.
+- [x] Full tests: 1049 passed, 3 skipped; typecheck clean; desktop/mobile, dismissal, focus, pinning and expiry checked. No publish. Real owner/setup browser verification blocked by unavailable session.
+
 # Early Black Friday, November 16
 - [x] Reuse server promo selection and shared pricing for the timed sale; preserve legacy paths.
 - [x] Add sale-only banners/prices and trial-ending email line.

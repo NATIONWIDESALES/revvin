@@ -17,6 +17,7 @@ import { getPartnerClick } from "@/lib/partnerLink";
 import { CHECKOUT_FALLBACK_TOAST, holdCheckoutIntent, parsePlan, startHeldCheckout, clearCheckoutIntent } from "@/lib/proCheckoutIntent";
 import type { BillingPlan } from "@/config/pricing";
 import { readPreview, storePreview, previewSignupUrl, previewCategory, acquisitionOf } from "@/lib/instantPreview";
+import { withSaleOffer } from "@/lib/salePresentation";
 
 /**
  * The one signup form. Rendered on /signup and embedded in the invite landing
@@ -106,6 +107,7 @@ const SignupForm = ({
   const preview = readPreview(typeof window === "undefined" ? "" : window.location.search);
   const welcomeParams = new URLSearchParams(preview ? previewSignupUrl(preview).split("?")[1] : "");
   if (plan) welcomeParams.set("plan", plan);
+  if (new URLSearchParams(window.location.search).get("offer") === "bf2026") welcomeParams.set("offer", "bf2026");
   const welcomeUrl = `${window.location.origin}/welcome${welcomeParams.size ? `?${welcomeParams}` : ""}`;
   const submitLabel = plan ? "Create account & continue to Pro" : "Create free account";
 
@@ -182,7 +184,7 @@ const SignupForm = ({
       if (redirected) return;
       toast(CHECKOUT_FALLBACK_TOAST);
     }
-    setPendingNav("/welcome");
+    setPendingNav(withSaleOffer("/welcome", window.location.search));
   };
 
   if (confirmPending) {

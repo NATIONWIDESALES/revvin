@@ -10,6 +10,7 @@ import { PRICE_TEXT } from "@/config/pricing";
 import { captureInviteFromSearch, getInviteCode } from "@/lib/invite";
 import { loadSupabase } from "@/lib/supabaseLazy";
 import SignupForm, { SIGNUP_SUBHEAD } from "@/components/signup/SignupForm";
+import { withSaleOffer, saleDestination } from "@/lib/salePresentation";
 
 const Signup = () => {
   const { user, loading: authLoading } = useAuth();
@@ -34,7 +35,7 @@ const Signup = () => {
     void (async () => {
       const supabase = await loadSupabase();
       const { data } = await supabase.from("businesses").select("is_published").eq("user_id", user.id).limit(1);
-      if (active) navigate(data?.[0]?.is_published ? "/dashboard" : "/welcome", { replace: true });
+      if (active) navigate(data?.[0]?.is_published ? (new URLSearchParams(window.location.search).get("offer") === "bf2026" ? saleDestination(true) : "/dashboard") : withSaleOffer("/welcome", window.location.search), { replace: true });
     })();
     return () => { active = false; };
   }, [user?.id, authLoading, confirmPending, submitting, navigate]);
