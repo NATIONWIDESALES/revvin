@@ -33,4 +33,26 @@ describe("image bucket enforcement safety", () => {
       ]);
     } finally { await db.close(); }
   }, 30000);
+
+  it("adds owner SELECT policies for upsert without touching other policies", async () => {
+    const db = new PGlite();
+    try {
+      await db.exec(`CREATE ROLE authenticated; CREATE SCHEMA storage; CREATE SCHEMA auth;
+        CREATE TABLE storage.objects(bucket_id text, metadata jsonb, name text);
+        CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT NULL::uuid $$;
+        CREATE FUNCTION storage.foldername(text) RETURNS text[] LANGUAGE sql AS $$ SELECT string_to_array($1, '/') $$;
+        CREATE POLICY "Users can upload their own logo" ON storage.objects FOR INSERT WITH CHECK (true);
+        CREATE POLICY "Users upload own avatar" ON storage.objects FOR INSERT WITH CHECK (true);`);
+      await db.exec(readFileSync("drizzle/migrations/0031_image_upload_owner_select.sql", "utf8"));
+      expect((await db.query("SELECT policyname, cmd, permissive FROM pg_policies WHERE tablename = 'objects' ORDER BY policyname")).rows).toEqual([
+        { policyname: "Owners read own avatar objects", cmd: "SELECT", permissive: "PERMISSIVE" },
+        { policyname: "Owners read own logo objects", cmd: "SELECT", permissive: "PERMISSIVE" },
+        { policyname: "Users can upload their own logo", cmd: "INSERT", permissive: "PERMISSIVE" },
+        { policyname: "Users upload own avatar", cmd: "INSERT", permissive: "PERMISSIVE" },
+      ]);
+      // Re-runnable: DROP POLICY IF EXISTS before CREATE.
+      await db.exec(readFileSync("drizzle/migrations/0031_image_upload_owner_select.sql", "utf8"));
+      expect((await db.query("SELECT count(*)::int AS n FROM pg_policies WHERE tablename = 'objects'")).rows[0]).toEqual({ n: 4 });
+    } finally { await db.close(); }
+  }, 30000);
 });

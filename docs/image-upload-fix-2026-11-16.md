@@ -65,3 +65,24 @@ DROP POLICY "Raster image updates only" ON storage.objects;
 - Real authenticated upload/read-back remains unverified; database verification confirms the reported policy blocker is removed.
 
 - Follow-up regression results: 9 tests passed across 2 files. Full suite/typecheck were not rerun for this migration-only follow-up; earlier results above remain historical.
+
+## Second cause: upsert needs owner SELECT
+
+After 0030, uploads still failed with "new row violates row-level security policy". Verified live with a signed-in owner session: `src/lib/imageUpload.ts` uploads with `upsert: true`, and the Storage API implements upsert as `INSERT ... ON CONFLICT DO UPDATE ... RETURNING`, which also needs a SELECT policy on the row. Neither bucket had any SELECT policy for owners. Proof: the same request to the same owner-folder path returned 200 without `x-upsert` and 403 RLS with `x-upsert: true`.
+
+### Migration 0031
+
+Applied migration: `drizzle/migrations/0031_image_upload_owner_select.sql`, with rollback SQL in a comment. It adds two PERMISSIVE SELECT policies on `storage.objects`, TO authenticated:
+
+- "Owners read own logo objects": `USING (bucket_id = 'business-logos' AND (storage.foldername(name))[1] = (auth.uid())::text)`
+- "Owners read own avatar objects": `USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = (auth.uid())::text)`
+
+Both buckets are already public for file reads, so nothing new is exposed. `DROP POLICY IF EXISTS` before `CREATE` makes it re-runnable.
+
+### Verification of 0031
+
+- Live `pg_policies` read after applying: both new SELECT policies exist with the exact expressions above; all 11 pre-existing storage policies are unchanged (names, roles, commands, USING and WITH CHECK expressions compared before and after).
+- `src/test/image-upload-storage.test.ts`: new isolated PostgreSQL test asserts both SELECT policies exist as PERMISSIVE after 0031, sibling policies are preserved, and the migration is re-runnable.
+- Regression results: 10 tests passed across 2 files. Full suite/typecheck not rerun for this migration-only follow-up; earlier results above remain historical.
+- No client code changed, no other policy changed, no Stripe changes, no edge deployments, no frontend publication.
+- Real authenticated upload/read-back with `upsert: true` remains unverified end to end; the live proof above confirms the SELECT-policy cause, and the fix matches it exactly.
