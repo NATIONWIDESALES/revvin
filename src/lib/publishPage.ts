@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { reportFailure } from "@/lib/reportFailure";
 import { track } from "@/lib/track";
 import { publishFailure } from "@/lib/publishFailure";
 
@@ -26,6 +27,7 @@ export async function publishPage(surface: PublishSurface): Promise<{ ok: boolea
   try {
     const { error } = await supabase.rpc("fn_set_business_published", { p_published: true });
     if (error) {
+      reportFailure("publish", { error });
       const failure = publishFailure(error);
       track("publish_failed", { surface, reason: failure.reason });
       const missing = missingFieldFromError(error.message || "");
@@ -36,6 +38,7 @@ export async function publishPage(surface: PublishSurface): Promise<{ ok: boolea
     void supabase.functions.invoke("notify-business-signup", { body: { event: "published" } });
     return { ok: true };
   } catch (e) {
+    reportFailure("publish", { error: e });
     track("publish_failed", { surface, reason: publishFailure(e).reason });
     return { ok: false, message: PUBLISH_FAILED_MESSAGE, missing: null };
   }

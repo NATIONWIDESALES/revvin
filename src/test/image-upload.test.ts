@@ -1,7 +1,8 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { normaliseImage, uploadUserImage } from "@/lib/imageUpload";
 
-const mocks = vi.hoisted(() => ({ upload: vi.fn(), session: vi.fn() }));
+const mocks = vi.hoisted(() => ({ upload: vi.fn(), session: vi.fn(), report: vi.fn() }));
+vi.mock("@/lib/reportFailure", () => ({ reportFailure: mocks.report }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: {
   auth: { getSession: mocks.session },
   storage: { from: () => ({ upload: mocks.upload, getPublicUrl: () => ({ data: { publicUrl: "https://example.test/image" } }) }) },
@@ -18,6 +19,7 @@ function canvasExports(exportBlob: (type: string, width: number) => Blob | null)
 const blob = (size: number, type: string) => new Blob([new Uint8Array(size)], { type });
 
 beforeEach(() => {
+  mocks.report.mockReset();
   mocks.upload.mockReset().mockResolvedValue({ error: null });
   mocks.session.mockResolvedValue({ data: { session: { user: { id: "owner" } } } });
   vi.stubGlobal("URL", { createObjectURL: vi.fn(() => "blob:test"), revokeObjectURL: vi.fn() });
@@ -66,6 +68,15 @@ describe("bounded image uploads", () => {
     expect(await uploadUserImage("avatars", "avatar", new File(["bad"], "bad.heic", { type: "image/heic" })))
       .toEqual({ error: "We couldn't read that image. Please try a PNG or JPG." });
     expect(mocks.upload).not.toHaveBeenCalled();
+    expect(mocks.report).toHaveBeenCalledWith("image_upload", { error: { message: "Could not read that image", code: "image_decode" } });
+  });
+  it("reports the storage failure without changing the existing upload result", async () => {
+    canvasExports(type => blob(100, type));
+    const error = { message: "row violates RLS", code: "403" };
+    mocks.upload.mockResolvedValue({ error });
+    expect(await uploadUserImage("business-logos", "logo", new File(["input"], "photo.png", { type: "image/png" })))
+      .toEqual({ error: "That didn't upload. You can skip this and add it later from your dashboard." });
+    expect(mocks.report).toHaveBeenCalledWith("image_upload", { error });
   });
   it.each([["image/png", "png"], ["image/jpeg", "jpg"], ["image/webp", "webp"]])("matches fallback extension for %s", async (type, ext) => {
     canvasExports(() => null);

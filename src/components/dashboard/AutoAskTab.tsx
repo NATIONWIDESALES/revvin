@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { reportFailure } from "@/lib/reportFailure";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -135,6 +136,7 @@ const AutoAskTab = ({ biz, publicUrl, isPro }: Props) => {
     } });
     setSaving(false);
     if (error) {
+      reportFailure("job_done_ask", { error, business_id: biz.id });
       toast({ title: "Could not save", description: friendlyError(error), variant: "destructive" });
       return;
     }

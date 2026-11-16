@@ -78,3 +78,17 @@ have been exposed:
 ## Out-of-band database change, Nov 5 2026
 
 `public.email_queue_dispatch()` and `public.email_queue_wake()` were updated directly in the database, outside migrations, to add the header `x-cron-secret`, read from the vault secret `cron_secret`. The agent migration tool blocks vault references, so this change is not in `drizzle/migrations`. The `process-email-queue` edge function needs that header to pass `checkCronAuth`. Any future migration or email scaffold that redefines either function must keep the header, or every queued email (including password reset and magic links) stops sending with 401 errors.
+
+## Failure alerts
+
+After the frontend is published, existing failure branches report image decoding/upload, logo save, non-validation signup, business creation/setup saves, page publication, public referral submission, lead status/Closed Won, reward mark-paid, customer import, job-done ask scheduling and checkout creation failures, plus caught render crashes. Customer screens and messages do not change. Demo businesses and ordinary test runs do not report.
+
+Open **/__sa**, then **Failures**, for the latest 100 events, newest first. Only admins can read this list, not sales users, business owners or visitors. Times are shown in Pacific time. The private records contain bounded, scrubbed error message/code, route without query/hash, known business/user IDs, build ID and user agent. No file or form payload is collected. Existing funnel analytics remains separate and unchanged.
+
+Each accepted report queues a direct email to info@revvin.co through the existing app-email queue, subject **Revvin failure: [step] for [business or signed-out visitor]**. The body includes the owner email when known and the same-step/business count over the last 24 hours. There is one reservation per step/business in a sliding hour. A Pacific calendar day allows at most 20 emails total: email 20 also says **Alerts paused until midnight Pacific, check the failures list**. Records continue while emails are throttled. Signed-out failures share a single visitor group. Rate limits are 60 records per caller/hour and 3,000 globally/hour.
+
+An email reservation means queued, not delivered. The existing worker normally runs within seconds; pause switches, recipient suppression, network/provider failures and dead-lettering can delay or prevent delivery. Inspect **More > Emails**, `email_send_log` label `failure_alert`, and the existing queue worker if an alert does not arrive. Do not delete suppression entries or resend dead letters blindly. A total network outage can also prevent the browser from recording an event; this is not an out-of-band uptime monitor.
+
+The existing daily retention job inserts a `data_retention` audit entry. A new trigger on that entry removes failure events and alert reservations older than 90 days without changing the job or its existing retention rules.
+
+Rollback: revert the reporting calls, helper and admin list in the frontend and publish that rollback when approved. Archive private records if needed, then run the rollback SQL comment in migration `0032_failure_alerts.sql`: remove the retention trigger, the four new functions and the two private tables. No existing policy, email worker or retention function is changed. Already queued alerts remain subject to the existing email pause/suppression controls; schema rollback does not cancel them.

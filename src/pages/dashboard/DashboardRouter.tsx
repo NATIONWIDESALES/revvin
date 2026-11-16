@@ -1,4 +1,5 @@
 import { Navigate } from "react-router-dom";
+import { reportFailure } from "@/lib/reportFailure";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,7 +32,7 @@ const RoleSelector = () => {
           name: name + "'s Business",
           account_status: "pending_approval",
         });
-        if (bizErr) throw bizErr;
+        if (bizErr) { reportFailure("business_create", { error: bizErr }); throw bizErr; }
       }
 
       // Reload to pick up the new role (only on success)

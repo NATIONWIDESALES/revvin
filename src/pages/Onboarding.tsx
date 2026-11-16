@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { reportFailure } from "@/lib/reportFailure";
 import AuthSplit from "@/components/AuthSplit";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -123,6 +124,7 @@ const Onboarding = () => {
       return;
     }
     if (!bizId) {
+      reportFailure("business_create", { error: { code: "no_business", message: "No business found after signup" } });
       track("publish_failed", { surface: "onboarding", reason: "no_business" });
       setPublishError("We lost track of your business. Refresh the page and try again.");
       return;
@@ -160,6 +162,7 @@ const Onboarding = () => {
       const { data: saved, error } = await supabase.from("businesses").update(patch).eq("id", bizId)
         .select("id,slug,name,offer_amount").limit(1);
       if (error) {
+        reportFailure("setup_save", { error, business_id: bizId });
         track("publish_failed", { surface: "onboarding", reason: publishFailure(error).reason });
         const match = /invalid_slug:(\w+)/.exec(error.message);
         setPublishError(match ? slugRejectionMessage(match[1] as SlugRejection) : friendlyError(error));
@@ -167,6 +170,7 @@ const Onboarding = () => {
       }
       const row = saved?.[0];
       if (!row || !row.slug?.trim() || !row.name?.trim() || !row.offer_amount?.trim()) {
+        reportFailure("setup_save", { error: { code: "incomplete_save", message: "Owner save returned no complete business" }, business_id: bizId });
         const reason = !row ? "no_business" : !row.slug?.trim() ? "missing_slug" : !row.name?.trim() ? "missing_name" : "missing_reward";
         track("publish_failed", { surface: "onboarding", reason });
         setPublishError(PUBLISH_FAILED_MESSAGE);
@@ -185,6 +189,7 @@ const Onboarding = () => {
       track("onboarding_completed");
       setLiveUrl(`${window.location.origin}/r/${slug}`);
     } catch (error) {
+      reportFailure("setup_save", { error, business_id: bizId });
       const failure = publishFailure(error);
       track("publish_failed", { surface: "onboarding", reason: failure.reason });
       setPublishError(failure.safeMessage ?? PUBLISH_FAILED_MESSAGE);

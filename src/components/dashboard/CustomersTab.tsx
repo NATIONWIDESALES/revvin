@@ -1,4 +1,5 @@
 import { copyText } from "@/lib/clipboard";
+import { reportFailure } from "@/lib/reportFailure";
 import { friendlyError } from "@/lib/errors";
 import { FREE_CONTACT_LIMIT, FREE_LIMIT_COPY, isFreeContactLimitError } from "@/config/planFeatures";
 import { track } from "@/lib/track";
@@ -302,6 +303,7 @@ const CustomersTab = ({
     const { error } = await (supabase as any).from("referral_contacts").insert(rows);
     setImporting(false);
     if (error) {
+      reportFailure("customer_import", { error, business_id: biz.id });
       toast({
         title: "Import failed",
         description: isFreeContactLimitError(error) ? FREE_LIMIT_COPY.error : friendlyError(error),

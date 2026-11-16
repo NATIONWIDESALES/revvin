@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { reportFailure } from "@/lib/reportFailure";
 
 export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
 export const FRIENDLY_UPLOAD_ERROR =
@@ -96,6 +97,7 @@ export async function uploadUserImage(
   const normalised = (await normaliseImage(file)) ??
     (RASTER_TYPES.has(file.type) && file.size < MAX_RESULT_BYTES ? file : null);
   if (!normalised) {
+    reportFailure("image_upload", { error: { message: "Could not read that image", code: "image_decode" } });
     return { error: "We couldn't read that image. Please try a PNG or JPG." };
   }
   const path = `${uid}/${basename}.${extFor(normalised)}`;
@@ -107,6 +109,7 @@ export async function uploadUserImage(
   });
 
   if (error) {
+    reportFailure("image_upload", { error });
     console.error("[imageUpload] storage upload failed", { bucket, path, error });
     return { error: FRIENDLY_UPLOAD_ERROR };
   }

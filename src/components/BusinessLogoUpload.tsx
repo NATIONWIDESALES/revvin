@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { reportFailure } from "@/lib/reportFailure";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -43,6 +44,7 @@ const BusinessLogoUpload = ({ currentLogoUrl, businessId, onUploaded }: Business
       .eq("id", businessId);
 
     if (updateError) {
+      reportFailure("logo_save", { error: updateError, business_id: businessId });
       console.error("[BusinessLogoUpload] saving logo_url failed", updateError);
       toast({ title: "Couldn't save that", description: "Your logo uploaded but didn't save. You can try again later from your dashboard." });
     } else {

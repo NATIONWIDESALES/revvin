@@ -1,4 +1,5 @@
 import { CHECKOUT_PRICE_VERSION } from "@/config/pricing";
+import { reportFailure } from "@/lib/reportFailure";
 import { isRestrictedCategory } from "@/lib/offerUtils";
 import { copyText } from "@/lib/clipboard";
 import { takePendingPlan } from "@/lib/pendingPlan";
@@ -631,6 +632,7 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("leads").update({ status }).eq("id", id);
+    if (error) reportFailure(status === "closed_won" ? "closed_won" : "lead_status", { error });
     if (error) toast({ title: "Update failed", description: friendlyError(error), variant: "destructive" });
     else {
       if (status === "closed_won") {
@@ -896,6 +898,7 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("referrals").update({ status }).eq("id", id);
+    if (error) reportFailure(status === "won" ? "closed_won" : "lead_status", { error });
     if (error) toast({ title: "Update failed", description: friendlyError(error), variant: "destructive" });
     else {
       if (status === "won") {
@@ -920,6 +923,7 @@ const MarketplaceReferralsTab = ({ referrals, reload }: { referrals: Marketplace
       .from("referrals")
       .update({ payment_status: "paid", payment_marked_at: new Date().toISOString() } as never)
       .eq("id", id);
+    if (error) reportFailure("reward_paid", { error });
     if (error) toast({ title: "Update failed", description: friendlyError(error), variant: "destructive" });
     else { toast({ title: "Marked as paid" }); reload(); }
   };
@@ -1390,6 +1394,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
         return;
       }
       toast({ title: "Could not start checkout", description: parsed.message, variant: "destructive" });
+      reportFailure("checkout", { error: error ?? { code: "missing_checkout_url", message: "No checkout URL returned" }, business_id: biz.id });
       return;
     }
     track("checkout_redirected");

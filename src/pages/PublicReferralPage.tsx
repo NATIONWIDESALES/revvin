@@ -1,4 +1,5 @@
 import { isRestrictedCategory, isBareAmount } from "@/lib/offerUtils";
+import { reportFailure } from "@/lib/reportFailure";
 import { PUBLIC_REFERRAL_PAGE_COLS } from "@/lib/publicReferralCols";
 import { showVerifiedBadge } from "@/lib/verifiedBadge";
 import { copyText } from "@/lib/clipboard";
@@ -195,6 +196,7 @@ const PublicReferralPage = () => {
     const { receipt, error } = await submitPublicReferral({ slug, ...form, ref_token: refToken });
     setSubmitting(false);
     if (error || !receipt) {
+      reportFailure("referral_submit", { error: error ?? { code: "missing_receipt", message: "No referral receipt returned" }, business_id: biz.id });
       toast({
         title: "Could not submit",
         description: referralSubmitMessage(error) ?? friendlyError(error),

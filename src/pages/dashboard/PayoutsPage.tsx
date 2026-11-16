@@ -1,4 +1,5 @@
 import { friendlyError } from "@/lib/errors";
+import { reportFailure } from "@/lib/reportFailure";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -83,6 +84,7 @@ const PayoutsPage = ({ businessId }: Props) => {
       .from("rewards")
       .update({ status: "paid", marked_paid_at: new Date().toISOString() })
       .eq("id", id);
+    if (error) reportFailure("reward_paid", { error, business_id: businessId });
     if (error) toast({ title: "Update failed", description: friendlyError(error), variant: "destructive" });
     else {
       // Let the referrer know. Fire and forget, at-most-once server side.

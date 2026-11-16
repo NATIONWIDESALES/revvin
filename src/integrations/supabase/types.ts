@@ -62,6 +62,45 @@ export type Database = {
           },
         ]
       }
+      app_failures: {
+        Row: {
+          build_id: string | null
+          business_id: string | null
+          code: string | null
+          created_at: string
+          id: string
+          message: string
+          route: string | null
+          step: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          build_id?: string | null
+          business_id?: string | null
+          code?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          route?: string | null
+          step: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          build_id?: string | null
+          business_id?: string | null
+          code?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          route?: string | null
+          step?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           actor_id: string
@@ -766,6 +805,30 @@ export type Database = {
           id?: string
           token?: string
           used_at?: string | null
+        }
+        Relationships: []
+      }
+      failure_alerts: {
+        Row: {
+          business_id: string | null
+          id: string
+          message_id: string
+          sent_at: string
+          step: string
+        }
+        Insert: {
+          business_id?: string | null
+          id?: string
+          message_id: string
+          sent_at?: string
+          step: string
+        }
+        Update: {
+          business_id?: string | null
+          id?: string
+          message_id?: string
+          sent_at?: string
+          step?: string
         }
         Relationships: []
       }
@@ -3242,6 +3305,7 @@ export type Database = {
         Returns: number
       }
       fn_admin_core_numbers: { Args: never; Returns: Json }
+      fn_admin_failures: { Args: never; Returns: Json }
       fn_admin_metros: {
         Args: never
         Returns: {
@@ -3439,6 +3503,7 @@ export type Database = {
         Args: { p_claim_token: string; p_job_id: string }
         Returns: boolean
       }
+      fn_failure_scrub: { Args: { p_text: string }; Returns: string }
       fn_finish_notification_job: {
         Args: {
           p_claim_token: string
@@ -3547,6 +3612,18 @@ export type Database = {
       }
       fn_release_invite_code: {
         Args: { p_session_id: string }
+        Returns: boolean
+      }
+      fn_report_failure: {
+        Args: {
+          p_build_id: string
+          p_business_id: string
+          p_code: string
+          p_message: string
+          p_route: string
+          p_step: string
+          p_user_agent: string
+        }
         Returns: boolean
       }
       fn_request_bucket: { Args: never; Returns: string }

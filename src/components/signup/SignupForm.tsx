@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { reportFailure } from "@/lib/reportFailure";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -152,6 +153,7 @@ const SignupForm = ({
     });
     if (error) {
       toast({ title: "Signup failed", description: friendlyError(error), variant: "destructive" });
+      if (!/already.*registered|already.*exists|invalid.*credentials|wrong.*password|weak.*password|invalid.*email|validation/i.test(`${error.code ?? ""} ${error.message}`)) reportFailure("signup", { error });
       track("signup_failed");
       setBusy(false);
       return;

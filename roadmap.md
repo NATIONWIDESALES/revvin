@@ -62,3 +62,10 @@
 - [x] Deploy only lifecycle-emails, send-notification and preview-transactional-email.
 - [x] Run regressions, full Vitest and typecheck; document exact SQL and verification limits. No frontend publish.
 - Verification: 967 passed, 3 skipped; typecheck clean. Authenticated browser verification unavailable. Frontend not published.
+
+# Failure alerts, November 16
+- [x] Apply migration 0032 with private RLS tables, guarded recording/admin RPCs, queue throttles and retention trigger.
+- [x] Add reporting at existing failure branches and the admin Failures tab without customer changes.
+- [x] Full Vitest: 988 passed, 3 skipped; typecheck clean; intercepted browser referral-failure check passed.
+- [ ] Remove inherited anon/authenticated table grants. Blocked by the one-migration-only constraint after live read-back revealed platform default grants; RLS with no policies still denies all direct client access.
+- [ ] Verify real admin list and actual queue-to-inbox delivery. Blocked by no matching requester account and unavailable temporary-user approval; no synthetic alert sent.

@@ -1,4 +1,5 @@
 import { CHECKOUT_PRICE_VERSION } from "@/config/pricing";
+import { reportFailure } from "@/lib/reportFailure";
 import { supabase } from "@/integrations/supabase/client";
 import type { BillingPlan } from "@/config/pricing";
 import { LAUNCH_PACKAGE_ENABLED } from "@/config/featureFlags";
@@ -56,12 +57,13 @@ export const startHeldCheckout = async (userId: string, plan: BillingPlan): Prom
     const { data, error } = await supabase.functions.invoke("create-business-checkout", {
       body: { plan, includeLaunchPackage, price_version: CHECKOUT_PRICE_VERSION },
     });
-    if (error || !data?.url) return false;
+    if (error || !data?.url) { reportFailure("checkout", { error: error ?? { code: "missing_checkout_url", message: "No checkout URL returned" } }); return false; }
     try { window.sessionStorage.removeItem(LAUNCH_KEY); } catch { /* ignore */ }
     track("checkout_redirected");
     window.location.href = data.url;
     return true;
-  } catch {
+  } catch (error) {
+    reportFailure("checkout", { error });
     return false;
   }
 };

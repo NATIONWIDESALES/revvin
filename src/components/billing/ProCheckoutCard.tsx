@@ -1,4 +1,5 @@
 import { CHECKOUT_PRICE_VERSION } from "@/config/pricing";
+import { reportFailure } from "@/lib/reportFailure";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, Lock } from "lucide-react";
@@ -111,6 +112,7 @@ const ProCheckoutCard = ({
         description: parsed.message,
         variant: "destructive",
       });
+      reportFailure("checkout", { error: error ?? { code: "missing_checkout_url", message: "No checkout URL returned" } });
       return;
     }
     track("checkout_redirected");

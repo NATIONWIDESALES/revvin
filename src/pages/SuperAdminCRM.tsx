@@ -19,6 +19,7 @@ import PartnersPanel from "@/components/admin/PartnersPanel";
 import ProspectsPanel from "@/components/admin/ProspectsPanel";
 import MetrosPanel from "@/components/admin/MetrosPanel";
 import SecurityPanel from "@/components/admin/SecurityPanel";
+import FailuresPanel from "@/components/admin/FailuresPanel";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -132,7 +133,7 @@ const SuperAdminCRM = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState("all");
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(() => new URLSearchParams(window.location.search).get("tab") === "failures" ? "failures" : "overview");
   const [expandedBiz, setExpandedBiz] = useState<Record<string, boolean>>({});
   const [bizReferrals, setBizReferrals] = useState<Record<string, Referral[]>>({});
   const [bizAudit, setBizAudit] = useState<Record<string, AuditEntry[]>>({});
@@ -523,6 +524,7 @@ const SuperAdminCRM = () => {
                 <TabsTrigger value="metros" className="gap-1">Metros</TabsTrigger>
                 <TabsTrigger value="audit" className="gap-1"><History className="h-3.5 w-3.5" /> Audit Log</TabsTrigger>
                 <TabsTrigger value="security" className="gap-1"><Shield className="h-3.5 w-3.5" /> Security</TabsTrigger>
+                <TabsTrigger value="failures" className="gap-1"><AlertTriangle className="h-3.5 w-3.5" /> Failures</TabsTrigger>
               </TabsList>
               </div>
 
@@ -976,6 +978,7 @@ const SuperAdminCRM = () => {
               <TabsContent value="security">
                 <SecurityPanel />
               </TabsContent>
+              <TabsContent value="failures"><FailuresPanel /></TabsContent>
             </Tabs>
           </>
         )}

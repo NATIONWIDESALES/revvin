@@ -1,4 +1,5 @@
 import { Component, ReactNode } from "react";
+import { reportFailure } from "@/lib/reportFailure";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 
@@ -22,6 +23,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
+    reportFailure("render_crash", { error });
     console.error("ErrorBoundary caught:", error, info.componentStack);
   }
 

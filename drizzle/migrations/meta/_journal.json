@@ -225,6 +225,13 @@
       "when": 1794845222530,
       "tag": "0031_image_upload_owner_select",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794846027813,
+      "tag": "0032_failure_alerts",
+      "breakpoints": true
     }
   ]
 }

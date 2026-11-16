@@ -8,6 +8,7 @@ import pwaPlugin from "./plugins/pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  define: { "import.meta.env.VITE_APP_BUILD_ID": JSON.stringify(process.env.COMMIT_REF ?? new Date().toISOString()) },
   server: {
     host: "::",
     port: 8080,
