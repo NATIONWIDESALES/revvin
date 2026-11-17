@@ -232,6 +232,13 @@
       "when": 1794846027813,
       "tag": "0032_failure_alerts",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794937207182,
+      "tag": "0033_pin_email_queue_search_path",
+      "breakpoints": true
     }
   ]
 }
