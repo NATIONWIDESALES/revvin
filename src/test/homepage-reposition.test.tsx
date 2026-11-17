@@ -22,7 +22,7 @@ describe("homepage", () => {
   it("renders the H1 and both hero CTAs", () => {
     render(<MemoryRouter><Index /></MemoryRouter>);
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
-      "Your happy customers are your best salespeople. Put them to work.",
+      "Free referral program software for home-service businesses Your happy customers are your best salespeople. Put them to work.",
     );
     const start = screen.getAllByRole("link", { name: /Start free/ });
     expect(start[0].getAttribute("href")).toBe("/signup");

@@ -33,6 +33,12 @@ describe("public team identity", () => {
     for (const r of PRERENDER_ROUTES.filter((r) => !r.redirectTo)) {
       const body = await render(r.path);
       const html = renderRoute(template, r, body);
+      const graph = JSON.parse(jsonLd(r))["@graph"];
+      const org = graph.find((n: Record<string, unknown>) => n["@id"] === ORG_ID);
+      expect(org.sameAs, r.path).toEqual(["https://www.instagram.com/revvin.co/"]);
+      if (body.includes("<footer")) {
+        expect(html, r.path).toMatch(/<footer[\s\S]*href="https:\/\/www\.instagram\.com\/revvin\.co\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer me"[^>]*aria-label="Revvin on Instagram"/);
+      }
       expect(() => assertPublicBrand(html, r.path)).not.toThrow();
       expect(html, r.path).not.toMatch(regional);
       expect(html, r.path).not.toContain("\u2014");

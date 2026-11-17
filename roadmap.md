@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# Marketing SEO and trust, November 17
+- [x] Add footer Instagram link, Organization sameAs and the three requested homepage heading updates.
+- [x] Verified server-rendered documents and unchanged metadata; 1086 tests passed, 3 skipped; typecheck clean; desktop/mobile checked. Changelog: docs/marketing-seo-trust-2026-11-17.md. Not published.
+
 # Origami marketing snippet, November 16
 - [x] Add isolated client-only marketing loader with opt-out and bot gates.
 - [x] Update privacy disclosure; 1084 tests passed, 3 skipped, typecheck/build clean; browser gates and private-route shutdown verified. Not published; Origami receipt and company matching remain unverified.

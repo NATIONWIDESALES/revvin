@@ -31,12 +31,12 @@ describe("prerendered public routes", () => {
     });
   }
 
-  it("Organization has no founder or empty sameAs; WebSite has alternateName", () => {
+  it("Organization has Instagram sameAs and no founder; WebSite has alternateName", () => {
     const html = renderRoute(template, PRERENDER_ROUTES.find((r) => r.path === "/")!);
     const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)![1])["@graph"];
     const org = graph.find((n: { "@type": string }) => n["@type"] === "Organization");
     expect(org).not.toHaveProperty("founder");
-    expect("sameAs" in org).toBe(false);
+    expect(org.sameAs).toEqual(["https://www.instagram.com/revvin.co/"]);
     const site = graph.find((n: { "@type": string }) => n["@type"] === "WebSite");
     expect(site).toMatchObject({ name: "Revvin", alternateName: "Revvin.co" });
   });

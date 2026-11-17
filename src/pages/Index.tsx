@@ -78,6 +78,7 @@ const Index = () => {
       <div className="mk-wrap grid items-end gap-10 lg:grid-cols-[1.1fr_.9fr]">
         <div className="min-w-0 pb-0 lg:pb-[72px]">
           <h1 className="max-w-[13.5ch] font-display text-[clamp(38px,6.2vw,88px)] max-sm:text-[38px] max-sm:leading-[.95] leading-[.92] text-forest">
+            <span className="mb-4 block font-sans text-sm font-semibold leading-normal text-muted-foreground">Free referral program software for home-service businesses</span>{" "}
             Your happy customers are your best salespeople.{" "}
             <span className="block text-foreground">Put them to work.</span>
           </h1>
@@ -114,7 +115,7 @@ const Index = () => {
     {/* Journey */}
     <section className="mk-section border-y border-line bg-card" aria-labelledby="journey-heading">
       <div className="mk-wrap">
-        <h2 id="journey-heading" className="mk-h2">How one text turns into a booked job</h2>
+        <h2 id="journey-heading" className="mk-h2">How one referral text turns into a booked job</h2>
         <p className="mk-intro">No app for your customers to download and no software to learn. Revvin writes the ask, you send it from your own phone, and every referral comes back to one inbox.</p>
         <StepTrack />
       </div>
@@ -216,7 +217,7 @@ const Index = () => {
     {/* FAQ */}
     <section className="mk-section" aria-labelledby="faq-heading">
       <div className="mk-wrap grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:gap-14">
-        <h2 id="faq-heading" className="mk-h2">Questions owners ask first</h2>
+        <h2 id="faq-heading" className="mk-h2">Referral program questions owners ask first</h2>
         <div className="mk-faq min-w-0">
           {HOME_FAQS.map((f) => (
             <details key={f.q}>

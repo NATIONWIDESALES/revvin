@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it } from "vitest";
 import { render } from "@/entry-server";
+import fs from "node:fs";
+import { JSDOM } from "jsdom";
+import { PRERENDER_ROUTES } from "@/content/seoRoutes";
+import { renderRoute } from "../../plugins/prerender";
 
 // The build renders public pages to HTML with this same function. These
 // checks pin what the raw HTML holds before any JavaScript runs.
@@ -9,6 +13,25 @@ afterEach(() => {
 });
 
 describe("server render", () => {
+  it("homepage raw document contains the requested headings without changing head metadata", async () => {
+    const route = PRERENDER_ROUTES.find((r) => r.path === "/");
+    if (!route) throw new Error("Missing homepage route");
+    const template = fs.readFileSync("index.html", "utf8");
+    const html = renderRoute(template, route, await render("/"));
+    const doc = new JSDOM(html).window.document;
+    expect(doc.getElementById("root")?.getAttribute("data-ssr")).toBe("1");
+    expect(doc.querySelectorAll("h1")).toHaveLength(1);
+    const h1 = doc.querySelector("h1");
+    expect(h1?.firstElementChild?.textContent).toBe("Free referral program software for home-service businesses");
+    expect(h1?.textContent?.replace(/\s+/g, " ").trim()).toBe("Free referral program software for home-service businesses Your happy customers are your best salespeople. Put them to work.");
+    expect(doc.getElementById("journey-heading")?.textContent).toBe("How one referral text turns into a booked job");
+    expect(doc.getElementById("faq-heading")?.textContent).toBe("Referral program questions owners ask first");
+    const headTags = (text: string) => text.match(/<title>[\s\S]*?<\/title>|<meta[^>]+(?:name="description"|property="og:[^"]+"|name="twitter:[^"]+")[^>]*>/g);
+    expect(headTags(html)).toEqual(headTags(renderRoute(template, route)));
+    expect(doc.title).toBe("Revvin | Free referral program for home-service businesses");
+    expect(doc.querySelector('meta[name="description"]')?.getAttribute("content")).toBe("Turn happy customers into salespeople. A free referral page, personal links and an ask after every job. You pay a reward only when a job closes.");
+  }, 30000);
+
   it("referral page renders the offer, form labels, consent and the Earn link", async () => {
     globalThis.__REVVIN_SSR__ = {
       business: {
