@@ -30,4 +30,9 @@ Implemented and verified locally. Not published. No Stripe, RLS, migration, edge
 | `roadmap.md` | Recorded completion and validation of this request only. |
 | `docs/marketing-seo-trust-2026-11-17.md` | Added this verification record and file-by-file changelog. |
 
-Pre-existing sandbox changes to `package.json` and `bun.lock` were not part of this request and were left untouched.
+## Automatic sandbox follow-up
+
+Pre-existing sandbox changes were saved separately after the clean-worktree check required them. They were present during all verification above and were not introduced by the SEO edits:
+
+- `package.json`: automatic development-only HMR gate version update from `^1.8.0` to `^1.8.3`.
+- `bun.lock`: matching automatic HMR gate dependency resolution update.
