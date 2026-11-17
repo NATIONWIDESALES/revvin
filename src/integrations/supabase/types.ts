@@ -3495,6 +3495,7 @@ export type Database = {
       fn_earn_waiting_count: { Args: { p_metro_slug: string }; Returns: number }
       fn_effective_plan: { Args: { p_business_id: string }; Returns: string }
       fn_email_owned: { Args: never; Returns: boolean }
+      fn_email_unsubscribe_token: { Args: { p_email: string }; Returns: string }
       fn_enqueue_webhook: {
         Args: { p_business_id: string; p_event: string; p_payload: Json }
         Returns: undefined

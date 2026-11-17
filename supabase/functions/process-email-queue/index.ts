@@ -1,5 +1,7 @@
 import { authorizeEmailQueue } from "./queue-auth.ts";
 import { emailHtml } from "./queue-body.ts";
+import { classifySendFailure, rekeyPayload, withUnsubscribeToken } from "./queue-retry.ts";
+import { emailUnsubscribeToken } from "../_shared/email-unsubscribe.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { globalSuppression } from "../_shared/global-suppression.ts";
 import { sendLovableEmail } from 'npm:@lovable.dev/email-js@0.1.0'
@@ -280,7 +282,7 @@ Deno.serve(async (req) => {
 
     for (let i = 0; i < messages.length; i++) {
       const msg = messages[i]
-      const payload = msg.message as Record<string, unknown>
+      let payload = msg.message as Record<string, unknown>
       const failedAttempts =
         payload?.message_id && typeof payload.message_id === 'string'
           ? (failedAttemptsByMessageId.get(payload.message_id) ?? 0)
@@ -369,6 +371,9 @@ Deno.serve(async (req) => {
           });
           if (!result.success) throw new Error(result.error ?? 'send_failed');
         } else {
+        // A transactional payload without a token is repaired here rather than
+        // sent to be rejected with missing_unsubscribe.
+        payload = await withUnsubscribeToken(payload, (email) => emailUnsubscribeToken(supabase, email))
         await sendLovableEmail(
           {
             run_id: typeof payload.run_id === "string" ? payload.run_id : undefined,
@@ -474,6 +479,28 @@ Deno.serve(async (req) => {
         if (permanent) {
           await moveToDlq(supabase, queue, msg, failureReason)
           await reconcileCampaignForPayload(supabase, payload)
+          continue
+        }
+        if (queue !== CAMPAIGN_QUEUE) {
+          const kind = classifySendFailure(error)
+          if (kind === 'permanent') {
+            // A bad request fails the same way every time; do not burn retries.
+            await moveToDlq(supabase, queue, msg, `permanent_bad_request: ${errorMsg}`.slice(0, 1000))
+            continue
+          }
+          if (kind === 'rekey' && failedAttempts + 1 < MAX_RETRIES) {
+            // The old key is dead at the API; requeue the same message_id under a new key.
+            const { error: requeueError } = await supabase.rpc('enqueue_email', {
+              queue_name: queue,
+              payload: rekeyPayload(payload, failedAttempts + 1),
+            } as any)
+            if (!requeueError) {
+              await supabase.rpc('delete_email', { queue_name: queue, message_id: msg.msg_id })
+            } else {
+              console.error('Failed to requeue with a new idempotency key', { queue, msg_id: msg.msg_id, error: requeueError })
+            }
+            continue
+          }
         }
         if (isForbidden(error)) {
           const reason = 'Emails disabled for this project'

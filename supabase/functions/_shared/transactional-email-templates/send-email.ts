@@ -3,6 +3,8 @@ import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { EmailAPIError, sendLovableEmail } from 'npm:@lovable.dev/email-js@0.1.0'
 import { TEMPLATES } from './registry.ts'
 import { globalSuppression } from '../global-suppression.ts'
+import { emailUnsubscribeToken } from '../email-unsubscribe.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.97.0'
 
 // Server-only: reads LOVABLE_API_KEY. Import from edge functions only — never
 // expose sending to the browser.
@@ -68,6 +70,10 @@ export async function sendTemplateEmail(
       ? template.subject(templateData)
       : template.subject
 
+  const serviceClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '')
+  const unsubscribeToken = await emailUnsubscribeToken(serviceClient, recipient)
+  if (!unsubscribeToken) throw new Error('unsubscribe_token_unavailable')
+
   try {
     await sendLovableEmail(
       {
@@ -81,6 +87,7 @@ export async function sendTemplateEmail(
         label: templateName,
         idempotency_key: options.idempotencyKey || crypto.randomUUID(),
         reply_to: options.replyTo,
+        unsubscribe_token: unsubscribeToken,
       },
       { apiKey, sendUrl: Deno.env.get('LOVABLE_SEND_URL') }
     )

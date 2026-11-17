@@ -33,6 +33,7 @@ const LINK_ERRORS: Record<string, string> = {
   invalid_name: "Enter your name.",
   rate_limited: "That is a lot of links in a short time. Try again in a little while.",
   not_on_earn: "This business is not taking Earn referrals right now.",
+  email_unavailable: "We could not email your link to this address. Email info@revvin.co and we will send it to you.",
 };
 export async function getEarnLink(businessSlug: string, name: string, email: string): Promise<{ token: string | null; error: string | null }> {
   const { data, error } = await rpc("fn_earn_get_link", { p_business_slug: businessSlug, p_name: name.trim(), p_email: email.trim() });

@@ -239,6 +239,13 @@
       "when": 1794937207182,
       "tag": "0033_pin_email_queue_search_path",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794937430744,
+      "tag": "0034_transactional_unsubscribe_tokens",
+      "breakpoints": true
     }
   ]
 }
