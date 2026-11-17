@@ -1,3 +1,4 @@
+import { isPlatformAdmin } from "../_shared/admin-auth.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -45,13 +46,8 @@ Deno.serve(async (req) => {
     if (!b) return json({ error: "business not found" }, 404);
 
     if (b.user_id !== user.id) {
-      const { data: roleRow } = await admin
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .limit(1);
-      if (!roleRow?.length) return json({ error: "forbidden" }, 403);
+      const isAdmin = await isPlatformAdmin(admin, user, createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", { global: { headers: { Authorization: `Bearer ${token}` } } }));
+      if (!isAdmin) return json({ error: "forbidden" }, 403);
     }
 
     const parts = [b.street_address, b.city, b.state, b.postal_code, b.country]

@@ -1,3 +1,4 @@
+import { isPlatformAdmin } from "../_shared/admin-auth.ts";
 // Referrer-side notifications for the payout loop.
 //
 // Two events, both emailed to the REFERRER (never the lead, never the owner):
@@ -90,13 +91,8 @@ Deno.serve(async (req) => {
 
     // ---- Authorize: caller owns the business, or is a platform admin.
     if (biz.user_id !== user.id) {
-      const { data: roleRow } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .limit(1);
-      if (!roleRow?.length) return json({ error: "forbidden" }, 403);
+      const isAdmin = await isPlatformAdmin(supabase, user, createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", { global: { headers: { Authorization: `Bearer ${token}` } } }));
+      if (!isAdmin) return json({ error: "forbidden" }, 403);
     }
 
     // Demo accounts are excluded from every triggered send.

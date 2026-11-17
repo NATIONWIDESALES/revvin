@@ -1,3 +1,4 @@
+import { isPlatformAdmin } from "../_shared/admin-auth.ts";
 import { PRICE_MONTHLY_TEXT } from "../_shared/pricing-copy.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
@@ -147,14 +148,9 @@ serve(async (req) => {
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const adminCheck = createClient(supabaseUrl, serviceKey);
-      const { data: roleRow } = await adminCheck
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .maybeSingle();
+      const allowedAdmin = await isPlatformAdmin(adminCheck, user, anonClient);
 
-      if (!roleRow) {
+      if (!allowedAdmin) {
         return new Response(JSON.stringify({ error: "Forbidden: admin role required" }), {
           status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -211,13 +207,7 @@ serve(async (req) => {
 
     let isAdmin = false;
     if (!isServiceRole) {
-      const { data: adminRow } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .maybeSingle();
-      isAdmin = !!adminRow;
+      isAdmin = await isPlatformAdmin(supabase, user, anonClient);
     }
 
     const SELF_SERVICE_TYPES = new Set(["business_invite", "dispute_submitted"]);

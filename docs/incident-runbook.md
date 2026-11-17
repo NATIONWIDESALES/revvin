@@ -79,6 +79,10 @@ have been exposed:
 
 `public.email_queue_dispatch()` and `public.email_queue_wake()` were updated directly in the database, outside migrations, to add the header `x-cron-secret`, read from the vault secret `cron_secret`. The agent migration tool blocks vault references, so this change is not in `drizzle/migrations`. The `process-email-queue` edge function needs that header to pass `checkCronAuth`. Any future migration or email scaffold that redefines either function must keep the header, or every queued email (including password reset and magic links) stops sending with 401 errors.
 
+## Admin two-factor recovery
+
+Open /__sa or Account Settings and choose Enroll authenticator. Verify a code before enforcement activates. Once a TOTP factor is verified, every admin session and admin action requires two-factor assurance. Keep an encrypted authenticator backup or a spare device. Password reset does not remove MFA; no recovery codes are generated. A lost authenticator requires a verified project owner to arrange removal of the lost factor; a self-service reset in the Users screen has not been verified. Do not enable MFA until a backup exists. Never remove a factor solely because an email requests it. Never paste enrollment QR codes, codes or secrets into logs or chat.
+
 ## Failure alerts
 
 Spot a stalled email queue by checking `net._http_response` for repeated 401 responses from `process-email-queue`; verify dispatcher authorization before re-enqueuing messages.

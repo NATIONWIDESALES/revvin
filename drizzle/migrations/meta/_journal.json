@@ -246,6 +246,20 @@
       "when": 1794937430744,
       "tag": "0034_transactional_unsubscribe_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1794946026977,
+      "tag": "0035_security_admin_mfa_and_internal_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794946403833,
+      "tag": "0036_security_public_business_view_read_only",
+      "breakpoints": true
     }
   ]
 }

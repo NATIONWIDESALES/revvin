@@ -1,5 +1,13 @@
 # Prebuilt pages for outbound sales
 
+# Security hardening, November 17
+- [x] Audit database, functions, client and dependencies; auth setting updates accepted, unavailable hosted read-back documented.
+- [x] Revoke trigger/internal access with reviewed rollback migrations; preserve public RPCs and make public business view read-only.
+- [x] Add private-route frame guard and conditional admin TOTP gate across UI and server checks; affected admin functions deployed.
+- [x] Full suite: 1114 passed, 3 skipped; typecheck/build clean; live permissions, public validation and frame guard checked. Changelog: docs/security-hardening-2026-11-17.md. Not published.
+- [ ] Verify real admin enrollment and successful live customer write/read-back flows. Blocked: requester has no matching account and account-specific session approval is unavailable.
+- [ ] Read hosted minimum password length, email confirmation, OTP expiry and independent HIBP/current-password read-back. Blocked: available auth tools expose writes, not these hosted setting reads; owner can inspect More > Users > Auth settings > Email.
+
 # Marketing SEO and trust, November 17
 - [x] Add footer Instagram link, Organization sameAs and the three requested homepage heading updates.
 - [x] Verified server-rendered documents and unchanged metadata; 1086 tests passed, 3 skipped; typecheck clean; desktop/mobile checked. Changelog: docs/marketing-seo-trust-2026-11-17.md. Not published.
@@ -85,7 +93,7 @@
 - [x] Apply migration 0032 with private RLS tables, guarded recording/admin RPCs, queue throttles and retention trigger.
 - [x] Add reporting at existing failure branches and the admin Failures tab without customer changes.
 - [x] Full Vitest: 988 passed, 3 skipped; typecheck clean; intercepted browser referral-failure check passed.
-- [ ] Remove inherited anon/authenticated table grants. Blocked by the one-migration-only constraint after live read-back revealed platform default grants; RLS with no policies still denies all direct client access.
+- [x] Remove inherited anon/authenticated failure-table grants. Resolved by reviewed security migration 0035; direct clients remain denied.
 - [ ] Verify real admin list and inbox receipt. Admin-session verification remains blocked; queue acceptance and the failure-alert sent log were verified live on November 16.
 
 # Email queue authorization, November 16

@@ -1,3 +1,4 @@
+import { isPlatformAdmin } from "../_shared/admin-auth.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import {
   ADMIN_NOTIFICATION_EMAIL,
@@ -43,13 +44,8 @@ Deno.serve(async (req) => {
     const service = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false },
     });
-    const { data: roleRows } = await service
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userData.user.id)
-      .eq("role", "admin")
-      .limit(1);
-    if (!roleRows || roleRows.length === 0) {
+    const isAdmin = await isPlatformAdmin(service, userData.user, createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: `Bearer ${token}` } } }));
+    if (!isAdmin) {
       return json(403, { ok: false, error: "admin only" });
     }
 

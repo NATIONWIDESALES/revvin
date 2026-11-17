@@ -1,3 +1,4 @@
+import { isPlatformAdmin } from "../_shared/admin-auth.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { RESEND_FROM_ADDRESS } from "../_shared/app-config.ts";
 
@@ -33,13 +34,8 @@ Deno.serve(async (req) => {
     if (userErr || !userData?.user) return json(401, { ok: false, error: "invalid session" });
 
     const service = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
-    const { data: roleRows } = await service
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userData.user.id)
-      .eq("role", "admin")
-      .limit(1);
-    if (!roleRows || roleRows.length === 0) return json(403, { ok: false, error: "admin only" });
+    const isAdmin = await isPlatformAdmin(service, userData.user, createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: `Bearer ${token}` } } }));
+    if (!isAdmin) return json(403, { ok: false, error: "admin only" });
 
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
     const resendApiKey = Deno.env.get("RESEND_API_KEY");

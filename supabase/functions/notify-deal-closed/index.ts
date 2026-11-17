@@ -1,3 +1,4 @@
+import { isPlatformAdmin } from "../_shared/admin-auth.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { appUrl } from "../_shared/app-config.ts";
 import { notify } from "../_shared/notify.ts";
@@ -151,13 +152,8 @@ Deno.serve(async (req) => {
 
     // Authorize: caller must own the business, or be a platform admin.
     if (bizRow.user_id !== user.id) {
-      const { data: roleRow } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .limit(1);
-      if (!roleRow?.length) {
+      const isAdmin = await isPlatformAdmin(supabase, user, createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", { global: { headers: { Authorization: `Bearer ${token}` } } }));
+      if (!isAdmin) {
         return new Response(JSON.stringify({ error: "forbidden" }), {
           status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },

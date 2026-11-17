@@ -60,6 +60,7 @@ const GuidesHub = lazy(() => import("./pages/GuidesHub"));
 const CompareHub = lazy(() => import("./pages/CompareHub"));
 const IndustryLanding = lazy(() => import("./pages/IndustryLanding"));
 const SuperAdminCRM = lazy(() => import("./pages/SuperAdminCRM"));
+const AdminMfaGate = lazy(() => import("./components/admin/AdminMfaGate"));
 const ConnectionHealth = lazy(() => import("./pages/ConnectionHealth"));
 const ToolkitHub = lazy(() => import("./pages/tools/ToolkitHub"));
 const ProgramGrader = lazy(() => import("./pages/tools/ProgramGrader"));
@@ -114,7 +115,7 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/i/:code" element={<InviteLanding />} />
                 <Route path="/preview/:code" element={<ProspectPreview />} />
-                <Route path="/__sa" element={<SuperAdminCRM />} />
+                <Route path="/__sa" element={<AdminMfaGate><SuperAdminCRM /></AdminMfaGate>} />
                 <Route path="/__health" element={<ConnectionHealth />} />
                 <Route element={<Layout />}>
                   <Route path="/" element={<Index />} />

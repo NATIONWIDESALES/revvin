@@ -47,7 +47,8 @@ describe("security hardening item regressions", () => {
   it("5: an email alone never grants admin; persisted role does", async () => {
     const db = (rows: unknown[]) => ({ from: () => { const q = { select: () => q, eq: () => q, limit: async () => ({ data: rows, error: null }) }; return q; } });
     expect(await isPlatformAdmin(db([]), { id: "owner", email: "admin@example.test" })).toBe(false);
-    expect(await isPlatformAdmin(db([{ role: "admin" }]), { id: "owner" })).toBe(true);
+    expect(await isPlatformAdmin(db([{ role: "admin" }]), { id: "owner" })).toBe(false);
+    expect(await isPlatformAdmin(db([{ role: "admin" }]), { id: "owner" }, { rpc: async () => ({ data: true, error: null }) })).toBe(true);
   });
   it("6: signup rejects owner mismatch; attribution requires a recent business and stored click", () => {
     expect(fn("notify-business-signup/index.ts")).toContain("payload.user_id !== user.id");

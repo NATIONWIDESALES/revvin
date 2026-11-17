@@ -1,3 +1,4 @@
+import { isPlatformAdmin } from "../_shared/admin-auth.ts";
 // Prospect lookup for the outbound sales team. Given a Google Maps link or a
 // "business name + city" query, fetches the public Google Places listing and
 // returns a prefilled prospect draft the caller can edit before saving.
@@ -96,7 +97,7 @@ Deno.serve(async (req) => {
       .select("role")
       .eq("user_id", user.id)
       .in("role", ["admin", "sales"]);
-    if (!roles?.length) return json({ error: "forbidden" }, 403);
+    if (!roles?.some(r => r.role === "sales") && !(await isPlatformAdmin(admin, user, createClient(SUPABASE_URL, ANON, { global: { headers: { Authorization: authHeader } } })))) return json({ error: "forbidden" }, 403);
 
     // 60 lookups per user per hour, via the shared rate bucket table.
     const { data: allowed, error: rateErr } = await admin.rpc("fn_rate_bucket_hit", {

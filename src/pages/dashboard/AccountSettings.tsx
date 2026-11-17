@@ -10,12 +10,14 @@ import { Link } from "react-router-dom";
 import PushSettings from "@/components/pwa/PushSettings";
 import { motion } from "framer-motion";
 import { friendlyError } from "@/lib/errors";
+import AdminMfaGate from "@/components/admin/AdminMfaGate";
 
 const AccountSettings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
   const [newPassword, setNewPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
 
@@ -31,7 +33,7 @@ const AccountSettings = () => {
     }
 
     setSavingPassword(true);
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    const { error } = await supabase.auth.updateUser({ password: newPassword, current_password: currentPassword });
     setSavingPassword(false);
 
     if (error) {
@@ -40,6 +42,7 @@ const AccountSettings = () => {
       toast({ title: "Password updated", description: "Your new password has been saved." });
       setNewPassword("");
       setConfirmPassword("");
+      setCurrentPassword("");
     }
   };
 
@@ -78,10 +81,15 @@ const AccountSettings = () => {
           </div>
 
           {/* Password change */}
+          <AdminMfaGate settingsOnly />
           <form onSubmit={handlePasswordChange} className="rounded-xl border border-border bg-card p-6 space-y-4">
             <div className="flex items-center gap-2 mb-2">
               <Lock className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-bold">Change Password</h2>
+            </div>
+            <div>
+              <Label htmlFor="current-password">Current Password</Label>
+              <Input id="current-password" type="password" autoComplete="current-password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required />
             </div>
             <div>
               <Label>New Password</Label>
