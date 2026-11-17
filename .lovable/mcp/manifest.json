@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sdk_version": "0.20.0",
+  "sdk_version": "0.28.0",
   "path": "/functions/v1/mcp",
   "auth": {
     "type": "oauth",
@@ -27,33 +27,32 @@
           "openWorldHint": false
         },
         "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "query": {
-              "type": "string",
-              "description": "Keyword to match in offer title/description or business name."
+              "description": "Keyword to match in offer title/description or business name.",
+              "type": "string"
             },
             "category": {
-              "type": "string",
-              "description": "Industry/category filter (e.g. 'Home Services', 'Legal')."
+              "description": "Industry/category filter (e.g. 'Home Services', 'Legal').",
+              "type": "string"
             },
             "city": {
-              "type": "string",
-              "description": "City name to filter businesses by."
+              "description": "City name to filter businesses by.",
+              "type": "string"
             },
             "min_payout": {
-              "type": "number",
-              "description": "Minimum referral payout amount in the offer's currency."
+              "description": "Minimum referral payout amount in the offer's currency.",
+              "type": "number"
             },
             "limit": {
+              "description": "Max results (default 20).",
               "type": "integer",
               "minimum": 1,
-              "maximum": 50,
-              "description": "Max results (default 20)."
+              "maximum": 50
             }
-          },
-          "additionalProperties": false,
-          "$schema": "http://json-schema.org/draft-07/schema#"
+          }
         },
         "outputSchema": null
       },
@@ -67,19 +66,19 @@
           "openWorldHint": false
         },
         "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
           "properties": {
             "offer_id": {
               "type": "string",
               "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
               "description": "The offer's UUID."
             }
           },
           "required": [
             "offer_id"
-          ],
-          "additionalProperties": false,
-          "$schema": "http://json-schema.org/draft-07/schema#"
+          ]
         },
         "outputSchema": null
       },
