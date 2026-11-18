@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# Stale chunk recovery, November 18
+- [x] Add shared bounded recovery for Vite preload events and every React lazy import without changing crash UI or reporting.
+- [x] Ten recovery regressions; full suite: 1124 passed, 3 skipped; typecheck and preview build clean. Browser verified single recovery and persistent-failure UI. Changelog: docs/chunk-recovery-2026-11-18.md. Not published.
+
 # Security hardening, November 17
 - [x] Audit database, functions, client and dependencies; auth setting updates accepted, unavailable hosted read-back documented.
 - [x] Revoke trigger/internal access with reviewed rollback migrations; preserve public RPCs and make public business view read-only.

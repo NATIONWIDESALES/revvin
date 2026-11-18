@@ -36,3 +36,4 @@
 - Admin access uses caller-scoped has_role with live verified TOTP factors and JWT AAL2; the UI gates before mounting admin data and allows enrollment before the first verified factor. Why: service-role lookups bypass user assurance and must not authorize admin actions.
 - Private and referral routes block framing before initial React render and on SPA navigation. Why: client guards compensate for missing host frame headers, and no referral embedding feature exists.
 - Security dependency overrides pin patched transitive packages; deployment-specific remote imports must be reviewed separately. Why: a browser lockfile does not update remote edge dependencies.
+- React lazy imports use lazyWithChunkRecovery and bootstrap installs the Vite preload listener; recovery persists a five-minute session guard before cache-busted navigation. Why: stale deployment chunks get one recovery without a reload loop or changes to final crash reporting.

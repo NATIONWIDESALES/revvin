@@ -1,4 +1,5 @@
-import { lazy, Suspense, type ComponentType, type ReactNode } from "react";
+import { Suspense, type ComponentType, type ReactNode } from "react";
+import { lazyWithChunkRecovery as lazy } from "@/lib/chunkRecovery";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";

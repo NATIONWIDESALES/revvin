@@ -1,5 +1,6 @@
 import { PAGE_META } from "@/content/pageMeta";
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
+import { lazyWithChunkRecovery as lazy } from "@/lib/chunkRecovery";
 
 // Leaflet is ~150KB: only fetched when the user actually switches to map view.
 const MapView = lazy(() => import("@/components/MapView"));

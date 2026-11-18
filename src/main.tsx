@@ -2,6 +2,9 @@ import { createRoot, hydrateRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { blockFramedPage } from "./lib/frameProtection";
+import { installChunkRecovery } from "./lib/chunkRecovery";
+
+installChunkRecovery();
 
 const root = document.getElementById("root");
 
