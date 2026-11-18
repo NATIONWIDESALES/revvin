@@ -1,8 +1,11 @@
+import { validFbclid } from "@/lib/metaClick";
+
 /** The SDK lives in a separate, no-referrer document and cannot inspect signup forms or SPA URLs. */
-export function loadPixel(id: string) {
+export function loadPixel(id: string, fbclid: string | null = null) {
   if (!/^\d+$/.test(id)) return null;
   const frame = document.createElement("iframe");
-  frame.src = "/ad-events.html"; frame.referrerPolicy = "no-referrer"; frame.hidden = true; frame.title = "Advertising measurement";
+  frame.src = validFbclid(fbclid) ? `/ad-events.html?${new URLSearchParams({ fbclid })}` : "/ad-events.html";
+  frame.referrerPolicy = "no-referrer"; frame.hidden = true; frame.title = "Advertising measurement";
   let ready = false;
   const pending: string[] = [];
   const send = (event: string) => {

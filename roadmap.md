@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# Meta attribution handoff, November 18
+- [x] Add permission-gated validated session fbclid forwarding and storage-confirmed preview URL cleanup.
+- [x] Full suite: 1182 passed, 3 skipped; typecheck and preview build clean; browser handoff, synthetic conversion and failed-storage blocking verified. Changelog appended; not published. Real signup completion, Meta receipt and attribution remain unverified.
+
 # Stale chunk recovery, November 18
 - [x] Add shared bounded recovery for Vite preload events and every React lazy import without changing crash UI or reporting.
 - [x] Ten recovery regressions; full suite: 1124 passed, 3 skipped; typecheck and preview build clean. Browser verified single recovery and persistent-failure UI. Changelog: docs/chunk-recovery-2026-11-18.md. Not published.

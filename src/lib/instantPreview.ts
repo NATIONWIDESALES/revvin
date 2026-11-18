@@ -57,7 +57,11 @@ export function previewSignupUrl(data: PreviewData) {
   return `/signup?${params}`;
 }
 export function storePreview(data: PreviewData) {
-  try { sessionStorage.setItem(PREVIEW_KEY, JSON.stringify(data)); } catch { /* query handoff remains available */ }
+  try {
+    const serialized = JSON.stringify(data);
+    sessionStorage.setItem(PREVIEW_KEY, serialized);
+    return sessionStorage.getItem(PREVIEW_KEY) === serialized;
+  } catch { return false; /* query handoff remains available */ }
 }
 export function readPreview(search = ""): PreviewData | null {
   try {
@@ -89,3 +93,19 @@ export const acquisitionOf = (data: PreviewData | null, href?: string) => {
     return typeof value === "string" ? [[key, value]] : [];
   }));
 };
+
+/** Preserve the validated handoff before removing personal keys on owner entry pages. */
+export function cleanPreviewAddress() {
+  if (!["/signup", "/welcome"].includes(window.location.pathname)) return false;
+  const url = new URL(window.location.href);
+  const keys = ["name", "trade", "reward", "landing_path", ...PROSPECT_KEYS];
+  if (!keys.some(key => url.searchParams.has(key))) return false;
+  if (keys.some(key => url.searchParams.getAll(key).length > 1)) return false;
+  const data = readPreview(url.search);
+  if (!data || !storePreview(data)) return false;
+  for (const key of keys) url.searchParams.delete(key);
+  try {
+    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+    return true;
+  } catch { return false; }
+}
