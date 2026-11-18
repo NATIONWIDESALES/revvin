@@ -11,6 +11,7 @@ import { captureInviteFromSearch, getInviteCode } from "@/lib/invite";
 import { loadSupabase } from "@/lib/supabaseLazy";
 import SignupForm, { SIGNUP_SUBHEAD } from "@/components/signup/SignupForm";
 import { withSaleOffer, saleDestination } from "@/lib/salePresentation";
+import SignupOfferNote from "@/components/signup/SignupOfferNote";
 
 const Signup = () => {
   const { user, loading: authLoading } = useAuth();
@@ -62,6 +63,7 @@ const Signup = () => {
           <div>
             {!confirmPending && (
               <div className="mb-4">
+                <SignupOfferNote />
                 <h1 className="text-4xl sm:text-5xl">
                   Create your free account
                 </h1>
