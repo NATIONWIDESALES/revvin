@@ -9,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { PRERENDER_ROUTES } from "@/content/seoRoutes";
 import { PRICING_FAQS } from "@/content/pricingFaqs";
+import { PARTNER_FAQS } from "@/config/partners";
 import { ROUNDUP } from "@/content/comparisons";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
@@ -124,8 +125,30 @@ describe("pricing and roundup FAQ static HTML parity", () => {
   }
 });
 
-describe("private and not-found documents", () => {
-  it("every private surface is noindex with no canonical", () => {
+describe("partner FAQ static HTML", () => {
+  it("/partners serves all eight questions in the document and in FAQPage", () => {
+    const route = PRERENDER_ROUTES.find((r) => r.path === "/partners");
+    if (!route) throw new Error("Missing route /partners");
+    const doc = new DOMParser().parseFromString(renderRoute(template, route), "text/html");
+    const root = doc.getElementById("root")?.textContent ?? "";
+    for (const f of PARTNER_FAQS) {
+      expect(root, f.q).toContain(f.q);
+      expect(root, f.a).toContain(f.a);
+    }
+    const schemaText = doc.querySelector('script[type="application/ld+json"]')?.textContent;
+    if (!schemaText) throw new Error("Missing static schema");
+    const graph = JSON.parse(schemaText)["@graph"];
+    const faq = graph.find((n: { "@type": string }) => n["@type"] === "FAQPage");
+    expect(
+      faq.mainEntity.map((f: { name: string; acceptedAnswer: { text: string } }) => ({
+        q: f.name,
+        a: f.acceptedAnswer.text,
+      })),
+    ).toEqual(PARTNER_FAQS.map(({ q, a }) => ({ q, a })));
+  });
+});
+
+describe("private and not-found documents", () => {  it("every private surface is noindex with no canonical", () => {
     for (const doc of PRIVATE_DOCS) {
       const html = renderPrivateDoc(template, doc);
       expect(html, doc.path).toMatch(NOINDEX);

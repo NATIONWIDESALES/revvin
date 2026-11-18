@@ -18,6 +18,7 @@ import {
 } from "../../supabase/functions/_shared/partner-commissions";
 import { attributeBusinessToPartner } from "../../supabase/functions/_shared/partner-attribution";
 import * as frontConfig from "@/config/partners";
+import { PRERENDER_ROUTES } from "@/content/seoRoutes";
 import {
   PRICE_ANNUAL_450,
   PRICE_LAUNCH_PACKAGE_297,
@@ -390,5 +391,29 @@ describe("partner page copy", () => {
 
   it("says plainly that there is no guaranteed income", () => {
     expect(frontConfig.PARTNER_EARNINGS_NOTE).toContain("no guaranteed income");
+  });
+});
+
+describe("partner FAQ copy", () => {
+  const answerFor = (q: string) => frontConfig.PARTNER_FAQS.find((f) => f.q === q)?.a;
+
+  it("has eight questions with the posting question last", () => {
+    expect(frontConfig.PARTNER_FAQS).toHaveLength(8);
+    expect(frontConfig.PARTNER_FAQS[7]).toEqual({
+      q: "Do I have to post a certain amount?",
+      a: "No. There's no quota. Partners who earn the most mention Revvin regularly and show it in action, like a quick walkthrough of a referral page.",
+    });
+  });
+
+  it("states the join cost and the tax forms in the approved wording", () => {
+    expect(answerFor("Is there a cost to join?")).toBe("No. It's free.");
+    expect(answerFor("How do I get paid?")).toBe(
+      "PayPal or bank transfer, in US dollars. Before your first payout, US partners fill in a one-page W-9 tax form and partners outside the US fill in a W-8BEN. It's standard for any affiliate program.",
+    );
+  });
+
+  it("feeds all eight to the prerendered partner document", () => {
+    const route = PRERENDER_ROUTES.find((r) => r.path === "/partners");
+    expect(route?.faqs).toEqual(frontConfig.PARTNER_FAQS.map(({ q, a }) => ({ q, a })));
   });
 });

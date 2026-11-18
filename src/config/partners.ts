@@ -79,7 +79,7 @@ export const PARTNER_FAQS = [
   },
   {
     q: "How do I get paid?",
-    a: "PayPal or bank transfer, in US dollars. US partners provide a W-9 before their first payout. Partners outside the US provide the matching tax form.",
+    a: "PayPal or bank transfer, in US dollars. Before your first payout, US partners fill in a one-page W-9 tax form and partners outside the US fill in a W-8BEN. It's standard for any affiliate program.",
   },
   {
     q: "Can I run ads?",
@@ -91,7 +91,11 @@ export const PARTNER_FAQS = [
   },
   {
     q: "Is there a cost to join?",
-    a: "No. It's free, with no minimum sales.",
+    a: "No. It's free.",
+  },
+  {
+    q: "Do I have to post a certain amount?",
+    a: "No. There's no quota. Partners who earn the most mention Revvin regularly and show it in action, like a quick walkthrough of a referral page.",
   },
 ] as const;
 

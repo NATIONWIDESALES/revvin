@@ -1,5 +1,5 @@
 import { LAUNCH_GUARANTEE } from "../config/pricing";
-import { PARTNER_EARNINGS, PARTNER_EARNINGS_NOTE } from "../config/partners";
+import { PARTNER_EARNINGS, PARTNER_EARNINGS_NOTE, PARTNER_FAQS } from "../config/partners";
 // Prerender content for crawlers that do not execute JavaScript (GPTBot,
 // ClaudeBot, PerplexityBot, CCBot, and Googlebot's first pass).
 //
@@ -671,28 +671,7 @@ const partnerRoutes: PrerenderRoute[] = [
         body: `Revvin gives home-service businesses a free referral page, QR code and print pack. Revvin Pro at ${PRO} asks their whole customer list for them.`,
       },
     ],
-    faqs: [
-      {
-        q: "Do I need to be a Revvin customer?",
-        a: "No, but you should understand the product before you talk about it. Build a free page yourself so you can show it honestly.",
-      },
-      {
-        q: "When do I get paid?",
-        a: "Each commission becomes payable 30 days after the customer's payment clears. We pay on the 15th of each month once your approved balance is $50 or more.",
-      },
-      {
-        q: "What happens if a customer gets a refund?",
-        a: "No commission is paid on refunded or disputed payments. If a refund happens after we have paid you, it is taken off your next payout.",
-      },
-      {
-        q: "How do I get paid?",
-        a: "PayPal or bank transfer, in US dollars. US partners provide a W-9 before their first payout. Partners outside the US provide the matching tax form.",
-      },
-      {
-        q: "Is there a cost to join?",
-        a: "No. It is free, with no minimum sales.",
-      },
-    ],
+    faqs: [...PARTNER_FAQS],
   },
   {
     path: "/partners/terms",
