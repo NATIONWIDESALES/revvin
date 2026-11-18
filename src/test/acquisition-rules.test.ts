@@ -69,7 +69,7 @@ describe("5. sticky CTA eligibility", () => {
 });
 describe("6. pixel slot and permission", () => {
   it("defaults empty and blocks consent-required/unknown regions and opt-outs", () => {
-    expect(META_PIXEL_ID).toBe("");
+    expect(META_PIXEL_ID).toBe("1491133636221099");
     expect(advertisingAllowed("US")).toBe(true);
     for (const country of ["GB", "DE", "XX", "T1", null]) expect(advertisingAllowed(country)).toBe(false);
     expect(advertisingAllowed("US", true)).toBe(false);

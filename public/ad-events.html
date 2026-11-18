@@ -14,6 +14,7 @@
       pixel.queue = []; pixel.push = pixel; pixel.loaded = true; pixel.version = "2.0";
       window.fbq = pixel; window._fbq = pixel;
       const script = document.createElement("script"); script.async = true; script.src = "https://connect.facebook.net/en_US/fbevents.js"; document.head.appendChild(script);
+      pixel("set", "autoConfig", false, id);
       pixel("init", id, {}, { agent: "lovable" });
     }
     if (id !== data.id) return;

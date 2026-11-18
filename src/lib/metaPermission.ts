@@ -4,7 +4,15 @@ export function advertisingAllowed(country: string | null, refusal = false, opte
 }
 export function pixelSafePath(path: string, search: string, hash: string) {
   if (hash || [...new URLSearchParams(search).keys()].some(k => !/^utm_(source|medium|campaign|content|term)$/.test(k))) return false;
-  return ["/", "/pricing", "/about", "/how-it-works", "/earn", "/compare", "/guides", "/tools", "/privacy", "/start"].includes(path) || /^\/(compare|guides|referral-program|start)\/[a-z0-9-]+$/.test(path);
+  return ["/", "/pricing", "/about", "/how-it-works", "/compare", "/guides", "/tools", "/privacy", "/start"].includes(path) || /^\/(compare|guides|referral-program|start)\/[a-z0-9-]+$/.test(path);
+}
+/** Owner conversion pages: only the bare path, or campaign/offer keys with no hash. */
+const CONVERSION_PATHS = ["/signup", "/welcome", "/dashboard", "/auth"];
+export function conversionSafePath(path: string, search: string, hash: string) {
+  return CONVERSION_PATHS.includes(path) && !hash && [...new URLSearchParams(search).keys()].every(k => /^(utm_(source|medium|campaign|content|term)|offer)$/.test(k));
+}
+export function pixelAllowedHere(path: string, search: string, hash: string) {
+  return pixelSafePath(path, search, hash) || conversionSafePath(path, search, hash);
 }
 export async function resolveAdvertisingRegion(): Promise<string | null> {
   try {

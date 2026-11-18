@@ -1,7 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { META_PIXEL_ID } from "@/config/brand";
-import { advertisingAllowed, pixelSafePath, resolveAdvertisingRegion } from "@/lib/metaPermission";
+import { advertisingAllowed, pixelAllowedHere, pixelSafePath, resolveAdvertisingRegion } from "@/lib/metaPermission";
 const MetaPixel = () => {
+  const route = useLocation();
+  const leave = useRef<() => void>(() => {});
+  // SPA navigation to any non-allowed route removes the frame immediately.
+  useEffect(() => { if (!pixelAllowedHere(route.pathname, route.search, route.hash)) leave.current(); }, [route.pathname, route.search, route.hash]);
   useEffect(() => {
     if (!META_PIXEL_ID) return;
     let stopped = false;
@@ -13,7 +18,7 @@ const MetaPixel = () => {
       try { refusal = localStorage.getItem("revvin_advertising_choice") === "denied"; } catch { return false; }
       return advertisingAllowed(country, refusal, Boolean((navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl || navigator.doNotTrack === "1"));
     };
-    const safe = () => pixelSafePath(location.pathname, location.search, location.hash) || (["/signup", "/welcome", "/dashboard", "/auth"].includes(location.pathname) && !location.hash);
+    const safe = () => pixelAllowedHere(location.pathname, location.search, location.hash);
     const start = async () => {
       if (active || stopped || !safe()) return;
       country = await resolveAdvertisingRegion();
@@ -31,6 +36,7 @@ const MetaPixel = () => {
       if (name === "page_published") bridge?.send("PagePublished");
     };
     const revoke = () => { if (!permission()) { bridge?.dispose(); bridge = null; active = false; } };
+    leave.current = () => { bridge?.dispose(); bridge = null; active = false; };
     const timer = window.setTimeout(() => { void start(); }, 3000);
     const interact = () => { void start(); };
     window.addEventListener("pointerdown", interact, { once: true }); window.addEventListener("keydown", interact, { once: true });

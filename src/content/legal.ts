@@ -203,7 +203,7 @@ export const PRIVACY_DOC: LegalDoc = {
   metaTitle: "Privacy policy for businesses and referrers | Revvin",
   metaDescription:
     "How Revvin collects, uses and protects personal information for business accounts, referrer accounts, referral page leads and campaign email.",
-  lastUpdated: "November 16, 2026",
+  lastUpdated: "November 18, 2026",
   intro:
     'This Privacy Policy explains how Revvin ("Revvin", "we", "us") collects, uses, shares, and protects personal information when you use revvin.co, our branded business referral pages, and related services (the "Service"). It applies to businesses that subscribe to Revvin, referrers who submit leads, and the prospective customers ("Leads") whose information is submitted through a referral page. If you do not agree with this Policy, do not use the Service.',
   sections: [
@@ -314,8 +314,12 @@ export const PRIVACY_DOC: LegalDoc = {
           "We use cookies and similar technologies for authentication, session management, security, and basic product analytics. You can control cookies through your browser settings; disabling essential cookies will prevent you from signing in.",
         ),
         p(
-          "Browser Meta (Facebook) and Plausible measurement is currently paused. We use first-party measurement of public marketing page views, selected actions and labeled demo activity. These events exclude signed-in visitors, account and authentication routes, private receipt links, and preview environments. Recorded page paths and referring addresses omit query strings, fragments and private identifiers. We do not currently measure signup or account milestones through browser analytics.",
+          "Browser Plausible measurement is currently paused. We use first-party measurement of public marketing page views, selected actions and labeled demo activity. These events exclude signed-in visitors, account and authentication routes, private receipt links, and preview environments. Recorded page paths and referring addresses omit query strings, fragments and private identifiers. We do not currently measure signup or account milestones through browser analytics.",
           "Public marketing measurement.",
+        ),
+        p(
+          "We use the Meta (Facebook) Pixel to measure our advertising. On public marketing pages and our own signup and account pages, it tells Meta about page views, preview requests, account creation and page publication. Meta receives browser, device and cookie information; we do not send names, email addresses, phone numbers or other matching data. It never runs on referral, preview, partner or referrer pages, stays off in the EU, UK, EEA and Switzerland, and does not load if your browser sends a Global Privacy Control or Do Not Track signal. You can also turn it off with the button at the end of this page.",
+          "Advertising measurement.",
         ),
         p(
           "Our marketing pages load a tool from Origami that matches a visitor's IP address to the company they work for, so we can see which businesses visit revvin.co. It does not identify you personally, and it does not run on referral pages, preview pages or inside your account. If your browser sends a Global Privacy Control or Do Not Track signal, we do not load it.",
