@@ -6,3 +6,4 @@
 - public/ad-events.html: autoConfig disabled before init (no automatic form scanning or advanced matching).
 - src/content/legal.ts: Meta no longer described as paused; advertising measurement paragraph added; last updated November 18, 2026.
 - src/test/meta-pixel.test.tsx (new), src/test/acquisition-rules.test.ts (ID expectation).
+- 17:51 UTC: META_PIXEL_ID switched to "1941132123224407" (dataset "REVVIN.CO PIXEL", owned by the revvin.co Meta business portfolio and connected to the new ad account). The earlier ID "1491133636221099" belonged to a personal ad account, so it is retired rather than reused. Gating, events, autoConfig and Privacy Policy wording are unchanged.
