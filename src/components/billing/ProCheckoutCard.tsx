@@ -1,4 +1,5 @@
 import { useSale } from "@/lib/useSale";
+import { useBillingPlan } from "@/lib/useBillingPlan";
 import { priceTextForSale } from "@/config/pricing";
 import { CHECKOUT_PRICE_VERSION } from "@/config/pricing";
 import { reportFailure } from "@/lib/reportFailure";
@@ -37,11 +38,10 @@ const ProCheckoutCard = ({
 }) => {
   const { user, userRole } = useAuth();
   const navigate = useNavigate();
-  const [plan, setPlan] = useState<BillingPlan>("monthly");
   const [busy, setBusy] = useState(false);
   const saleLive = useSale(!!user);
+  const [plan, setPlan] = useBillingPlan(saleLive);
   const prices = priceTextForSale(saleLive);
-  useEffect(() => { if (saleLive) setPlan("annual"); }, [saleLive]);
   // null = not checked yet / not applicable. Owners who already pay must never
   // be able to open a second subscription checkout from a public page.
   const [alreadyPro, setAlreadyPro] = useState<boolean | null>(null);
@@ -158,8 +158,6 @@ const ProCheckoutCard = ({
       <Button size="lg" className="mt-4 h-12 w-full" onClick={start} disabled={busy || checking}>
         {busy || checking ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-        ) : saleLive ? (
-          "Upgrade at the Black Friday price"
         ) : canCheckOutHere ? (
           `Start Revvin Pro, ${plan === "annual" ? prices.annualPerYear : prices.monthlyPerMonth}`
         ) : (

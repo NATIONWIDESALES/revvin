@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# Monitoring review, November 18
+- [x] Email token finding is stale: live enqueue_email adds tokens and current worker repairs missing ones. Anonymous sale hypothesis is false: headerless GET returns 200 and preview Pricing shows sale.
+- [x] Preserve explicit billing choices across delayed sale responses; 1186 tests passed, preview build clean, public Monthly-to-signup browser flow verified. No publishing. Authenticated dashboard flow covered by shared-hook regressions, not a live owner checkout.
+
 # Meta attribution handoff, November 18
 - [x] Add permission-gated validated session fbclid forwarding and storage-confirmed preview URL cleanup.
 - [x] Full suite: 1182 passed, 3 skipped; typecheck and preview build clean; browser handoff, synthetic conversion and failed-storage blocking verified. Changelog appended; not published. Real signup completion, Meta receipt and attribution remain unverified.

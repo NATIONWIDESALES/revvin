@@ -1,10 +1,10 @@
 import { useSale } from "@/lib/useSale";
+import { useBillingPlan } from "@/lib/useBillingPlan";
 import { priceTextForSale } from "@/config/pricing";
 import { CHECKOUT_PRICE_VERSION } from "@/config/pricing";
 import { reportFailure } from "@/lib/reportFailure";
 import { isRestrictedCategory } from "@/lib/offerUtils";
 import { copyText } from "@/lib/clipboard";
-import { takePendingPlan } from "@/lib/pendingPlan";
 import { useEffect, useState } from "react";
 import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -1305,17 +1305,9 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
       toast({ title: "Could not update", description: friendlyError(error), variant: "destructive" });
     } else { toast({ title: next ? "Shown on Earn" : "Hidden from Earn" }); onUpdate(); }
   };
-  const [billingPlan, setBillingPlan] = useState<BillingPlan>("monthly");
   const saleLive = useSale(true);
+  const [billingPlan, setBillingPlan] = useBillingPlan(saleLive, true);
   const prices = priceTextForSale(saleLive);
-  useEffect(() => { if (saleLive) setBillingPlan("annual"); }, [saleLive]);
-
-  // Someone who picked a plan on a public page (the free tools, for example)
-  // arrives here with that choice already made. Preselect it, never charge it.
-  useEffect(() => {
-    const pending = takePendingPlan();
-    if (pending) setBillingPlan(pending);
-  }, []);
 
 
   const toggleMarketplace = async (next: boolean) => {
@@ -1505,7 +1497,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
           <>
             <PlanPicker plan={billingPlan} onChange={setBillingPlan} saleLive={saleLive} className="mt-4" />
             <Button className="mt-3 w-full" onClick={startSubscription} disabled={busy}>
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : saleLive ? "Upgrade at the Black Friday price" : `Start subscription · ${billingPlan === "annual" ? prices.annualPerYear : prices.monthlyPerMonth}`}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Start subscription · ${billingPlan === "annual" ? prices.annualPerYear : prices.monthlyPerMonth}`}
             </Button>
           </>
         )}

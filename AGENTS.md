@@ -22,6 +22,7 @@
 
 - Checkout price selection is explicit-versioned; absent version uses legacy IDs and unknown versions fail closed. Why: live functions and unpublished price copy deploy separately.
 - Temporary sale UI starts hidden and reads server-clock state from checkout GET; promo.ts selects one version-gated coupon. Why: cached pages and client clocks cannot extend sale pricing or stack discounts.
+- Billing pickers share useBillingPlan; pending and explicit choices override asynchronous sale defaults. Why: sale refreshes must not change a customer's selected billing period.
 - Sale chrome lives above navigation in Layout with an explicit marketing/owner route gate; the first-visit dialog is lazy and browser-only. Why: referrer routes and prerendered documents must never show SaaS sale interruptions.
 - Automatic job asks use fn_effective_plan at creation and immediately before scheduled delivery; paused rows and connections remain stored. Why: trial expiry cannot silently send a Pro-only ask.
 - Pricing FAQ pairs live in shared content consumed by the page and prerender route; collapsed answers stay mounted but hidden. Why: static HTML and FAQPage schema must describe the same accessible answers.
