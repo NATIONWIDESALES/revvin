@@ -1,6 +1,7 @@
 # Prebuilt pages for outbound sales
 
 # Meta server registration, November 18
+- [x] Check confirmation and business-row timing; allow authenticated business signup intent with no row yet, retaining known-demo exclusions and the ten-minute window. Full suite: 1244 passed, 3 skipped; application and endpoint typechecks passed. Confirmation signups have no replay; direct transport remains prohibited by integration instructions.
 - [x] Add runtime-disabled signup endpoint, shared browser/server event ID, consent-gated session identifiers, disabled hashing helper and privacy disclosure.
 - [x] Full suite 1242 passed, 3 skipped; application and endpoint typechecks passed, preview build OK. Simulated browser signup reaches welcome despite server event failure, with matching browser/server event IDs. Live signup and Meta receipt unverified.
 - [ ] Enable and verify Meta sending. Blocked: supported Meta service connection and runtime access token are not configured; no direct-token transport is permitted by the integration guidance.

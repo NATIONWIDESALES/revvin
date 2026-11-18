@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { webcrypto } from "node:crypto";
-import { SEND_HASHED_EMAIL, hashEmail, registrationPayload, registrationEventId, sendRegistration } from "../../supabase/functions/_shared/meta-registration";
+import { SEND_HASHED_EMAIL, eligibleBusinessRegistration, hashEmail, registrationPayload, registrationEventId, sendRegistration } from "../../supabase/functions/_shared/meta-registration";
 import { registrationConsent, reportRegistration } from "@/lib/metaRegistration";
 import { loadPixel } from "@/lib/metaPixelLoader";
 
@@ -10,6 +10,20 @@ beforeEach(() => { if (!AbortSignal.timeout) Object.defineProperty(AbortSignal, 
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); vi.useRealTimers(); document.body.innerHTML = ""; });
 
 describe("Meta server registration", () => {
+  it("accepts a new authenticated business signup before its business row is available", () => {
+    const now = Date.parse(input.createdAt);
+    expect(eligibleBusinessRegistration({ created_at: input.createdAt, user_metadata: { role: "business" } }, undefined, now)).toBe(true);
+    expect(eligibleBusinessRegistration({ created_at: input.createdAt, user_metadata: { role: "business" } }, { is_demo: false }, now)).toBe(true);
+  });
+  it("excludes known demos, other signup intents and accounts outside the signup window", () => {
+    const now = Date.parse(input.createdAt);
+    const user = { created_at: input.createdAt, user_metadata: { role: "business" } };
+    expect(eligibleBusinessRegistration(user, { is_demo: true }, now)).toBe(false);
+    expect(eligibleBusinessRegistration({ ...user, user_metadata: { role: "business", is_demo: true } }, undefined, now)).toBe(false);
+    expect(eligibleBusinessRegistration({ ...user, user_metadata: { role: "referrer" } }, undefined, now)).toBe(false);
+    expect(eligibleBusinessRegistration(user, undefined, now + 600001)).toBe(false);
+    expect(eligibleBusinessRegistration(user, undefined, now - 1)).toBe(false);
+  });
   it("normalizes trimmed lowercase email before SHA-256, while matching remains disabled", async () => {
     vi.stubGlobal("crypto", webcrypto);
     expect(await hashEmail(" Test@Example.COM ")).toBe("973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b");

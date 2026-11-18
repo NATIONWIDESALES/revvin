@@ -2,6 +2,14 @@ export const SEND_HASHED_EMAIL = false;
 export const META_DATASET_ID = "1941132123224407";
 export const registrationEventId = (userId: string) => `reg_${userId}`;
 
+/** Signup intent only, never an authorization or role grant. */
+export function eligibleBusinessRegistration(user: { created_at: string; user_metadata?: Record<string, unknown> }, business?: { is_demo?: boolean } | null, now = Date.now()) {
+  const created = Date.parse(user.created_at);
+  const metadata = user.user_metadata;
+  return metadata?.role === "business" && metadata?.is_demo !== true && business?.is_demo !== true
+    && Number.isFinite(created) && created <= now && now - created <= 10 * 60 * 1000;
+}
+
 export async function hashEmail(email: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(email.trim().toLowerCase()));
   return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
