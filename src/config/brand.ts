@@ -21,7 +21,9 @@ export const FOUNDING_DATE = "";
  * X, Crunchbase, GitHub, YouTube. Filled in by the team; every entry is emitted
  * in Organization.sameAs exactly as written.
  */
-export const ORG_SAME_AS: string[] = ["https://www.instagram.com/revvin.co/"];
+export const INSTAGRAM_URL = "https://www.instagram.com/revvin.co/";
+export const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61596547626844";
+export const ORG_SAME_AS: string[] = [INSTAGRAM_URL, FACEBOOK_URL];
 
 /**
  * Name collision disambiguation. Another product called Revvin operates in

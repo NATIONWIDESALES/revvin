@@ -1,7 +1,8 @@
 import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { Link } from "react-router-dom";
-import { Instagram } from "lucide-react";
+import { Facebook, Instagram } from "lucide-react";
 import Wordmark from "@/components/brand/Wordmark";
+import { FACEBOOK_URL, INSTAGRAM_URL } from "@/config/brand";
 import { PRICE_TEXT } from "@/config/pricing";
 import { INDUSTRIES } from "@/content/industries";
 import { COMPARISONS, ROUNDUP } from "@/content/comparisons";
@@ -53,8 +54,11 @@ const Footer = () => {
               <Link to="/terms" className={link}>Terms</Link>
               <Link to="/privacy" className={link}>Privacy</Link>
               <a href="mailto:info@revvin.co" className={link}>Contact: info@revvin.co</a>
-              <a href="https://www.instagram.com/revvin.co/" target="_blank" rel="noopener noreferrer me" aria-label="Revvin on Instagram" className={link}>
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer me" aria-label="Revvin on Instagram" className={link}>
                 <Instagram size={16} aria-hidden="true" className="mr-2 inline-block align-middle" />Instagram
+              </a>
+              <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer me" aria-label="Revvin on Facebook" className={link}>
+                <Facebook size={16} aria-hidden="true" className="mr-2 inline-block align-middle" />Facebook
               </a>
             </div>
           </div>
