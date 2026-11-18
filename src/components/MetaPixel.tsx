@@ -13,7 +13,7 @@ const MetaPixel = () => {
     let stopped = false;
     let country: string | null = null;
     let active = false;
-    let bridge: { send: (event: string) => void; dispose: (immediate?: boolean) => void } | null = null;
+    let bridge: { send: (event: string, eventID?: string) => void; dispose: (immediate?: boolean) => void } | null = null;
     const permission = () => {
       let refusal = false;
       try { refusal = localStorage.getItem("revvin_advertising_choice") === "denied"; } catch { return false; }
@@ -35,9 +35,10 @@ const MetaPixel = () => {
     };
     const conversion = (event: Event) => {
       if (!active || !permission() || !safe()) return;
-      const name = (event as CustomEvent<string>).detail;
+      const detail = (event as CustomEvent<string | { name: string; eventID: string }>).detail;
+      const name = typeof detail === "string" ? detail : detail.name;
       if (name === "preview_submitted") bridge?.send("Lead");
-      if (name === "signup_completed") bridge?.send("CompleteRegistration");
+      if (name === "signup_completed") bridge?.send("CompleteRegistration", typeof detail === "string" ? undefined : detail.eventID);
       if (name === "page_published") bridge?.send("PagePublished");
     };
     const revoke = () => { if (!permission()) { bridge?.dispose(true); bridge = null; active = false; clearMetaClick(); } };

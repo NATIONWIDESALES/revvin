@@ -100,5 +100,7 @@ describe("isolated Meta document acknowledgment", () => {
     expect(calls).toHaveBeenCalledWith("track", "CompleteRegistration");
     expect(post).toHaveBeenCalledWith({ type: "revvin-pixel-ack", id, sequence: 1 }, location.origin);
     expect(calls.mock.invocationCallOrder[0]).toBeLessThan(post.mock.invocationCallOrder[0]);
+    receive({ ...message, data: { ...message.data, sequence: 2, eventID: "reg_11111111-1111-4111-8111-111111111111", email: "must not pass" } });
+    expect(calls).toHaveBeenLastCalledWith("track", "CompleteRegistration", {}, { eventID: "reg_11111111-1111-4111-8111-111111111111" });
   });
 });

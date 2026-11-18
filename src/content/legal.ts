@@ -318,7 +318,7 @@ export const PRIVACY_DOC: LegalDoc = {
           "Public marketing measurement.",
         ),
         p(
-          "We use the Meta (Facebook) Pixel to measure our advertising. On public marketing pages and our own signup and account pages, it tells Meta about page views, preview requests, account creation and page publication. Meta receives browser, device and cookie information; we do not send names, email addresses, phone numbers or other matching data. It never runs on referral, preview, partner or referrer pages, stays off in the EU, UK, EEA and Switzerland, and does not load if your browser sends a Global Privacy Control or Do Not Track signal. You can also turn it off with the button at the end of this page.",
+          "We use the Meta (Facebook) Pixel and server-side advertising measurement to measure whether our ads led to sign-ups. On public marketing pages and our own signup and account pages, the Pixel tells Meta about page views, preview requests, account creation and page publication. When server-side measurement is enabled, at account creation, unless you opted out of advertising, we send Meta your IP address, browser type and, when available, the ad click identifier and Meta browser cookie identifier. This helps measure permitted sign-ups the browser Pixel missed. Meta uses this information under its own terms. We do not send your name, email address, phone number, business details or referral data. Advertising measurement never runs on referral, preview, partner or referrer pages, stays off in the EU, UK, EEA and Switzerland, and is blocked by Global Privacy Control or Do Not Track. You can opt out using the advertising choice button at the end of this page.",
           "Advertising measurement.",
         ),
         p(

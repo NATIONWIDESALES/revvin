@@ -90,10 +90,10 @@ function getSessionId(): string | null {
 /**
  * Fire-and-forget. Never throws, never blocks a user flow.
  */
-export function track(event: FunnelEvent, meta?: Record<string, unknown>): void {
+export function track(event: FunnelEvent, meta?: Record<string, unknown>, registrationID?: string): void {
   try {
     if (typeof window !== "undefined" && ["preview_submitted", "signup_completed", "page_published"].includes(event)) {
-      window.dispatchEvent(new CustomEvent("revvin:conversion", { detail: event }));
+      window.dispatchEvent(new CustomEvent("revvin:conversion", { detail: event === "signup_completed" && registrationID ? { name: event, eventID: registrationID } : event }));
     }
     if (ACQUISITION_EVENTS.has(event)) {
       const path = typeof location !== "undefined" ? acquisitionEventPath(event, location.pathname) : null;

@@ -18,6 +18,7 @@ import { CHECKOUT_FALLBACK_TOAST, holdCheckoutIntent, parsePlan, startHeldChecko
 import type { BillingPlan } from "@/config/pricing";
 import { readPreview, storePreview, previewSignupUrl, previewCategory, acquisitionOf } from "@/lib/instantPreview";
 import { withSaleOffer } from "@/lib/salePresentation";
+import { registrationConsent, registrationEventId, reportRegistration } from "@/lib/metaRegistration";
 
 /**
  * The one signup form. Rendered on /signup and embedded in the invite landing
@@ -138,6 +139,7 @@ const SignupForm = ({
     }
     setBusy(true);
     track("signup_submitted");
+    const metaConsent = registrationConsent().catch(() => ({ advertising_allowed: false, country: null }));
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -161,7 +163,12 @@ const SignupForm = ({
       return;
     }
     track("signup_succeeded");
-    track("signup_completed");
+    track("signup_completed", undefined, data.user?.id ? registrationEventId(data.user.id) : undefined);
+    if (data.user?.id && data.session?.access_token) {
+      const registeredId = data.user.id;
+      const accessToken = data.session.access_token;
+      void metaConsent.then(consent => reportRegistration(registeredId, accessToken, consent));
+    }
     // Fire admin notification (info@revvin.co). Non-blocking.
     if (data.user?.id) {
       supabase.functions

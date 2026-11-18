@@ -11,7 +11,7 @@ export function loadPixel(id: string, fbclid: string | null = null, permitted: (
   let closing = false;
   let sequence = 0;
   let timeout: ReturnType<typeof setTimeout> | undefined;
-  const pending: { event: string; sequence: number }[] = [];
+  const pending: { event: string; sequence: number; eventID?: string }[] = [];
   const outstanding = new Set<number>();
   const remove = () => {
     if (disposed) return;
@@ -32,10 +32,10 @@ export function loadPixel(id: string, fbclid: string | null = null, permitted: (
     if (!ready || disposed) return;
     for (const item of pending.splice(0)) frame.contentWindow?.postMessage({ type: "revvin-pixel", id, ...item }, location.origin);
   };
-  const send = (event: string) => {
+  const send = (event: string, eventID?: string) => {
     if (disposed || closing || !["PageView", "Lead", "CompleteRegistration", "PagePublished"].includes(event)) return;
     outstanding.add(++sequence);
-    pending.push({ event, sequence }); flush();
+    pending.push({ event, sequence, ...(event === "CompleteRegistration" && /^reg_[0-9a-f-]{36}$/i.test(eventID ?? "") ? { eventID } : {}) }); flush();
   };
   frame.addEventListener("load", () => { ready = true; flush(); });
   window.addEventListener("message", ack);

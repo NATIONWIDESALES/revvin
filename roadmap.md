@@ -1,5 +1,10 @@
 # Prebuilt pages for outbound sales
 
+# Meta server registration, November 18
+- [x] Add runtime-disabled signup endpoint, shared browser/server event ID, consent-gated session identifiers, disabled hashing helper and privacy disclosure.
+- [x] Full suite 1242 passed, 3 skipped; application and endpoint typechecks passed, preview build OK. Simulated browser signup reaches welcome despite server event failure, with matching browser/server event IDs. Live signup and Meta receipt unverified.
+- [ ] Enable and verify Meta sending. Blocked: supported Meta service connection and runtime access token are not configured; no direct-token transport is permitted by the integration guidance.
+
 # First-touch signup attribution, November 18
 - [x] Capture bounded session-first public landing UTMs and pathname; use them for non-preview signup without changing database validation.
 - [x] Full suite: 1225 passed, 3 skipped; typecheck/build clean. Browser verified original UTMs in signup request and confirmation UI with simulated auth response, direct signup capture and later-landing preservation. No publishing.
