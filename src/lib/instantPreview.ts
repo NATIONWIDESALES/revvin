@@ -1,7 +1,8 @@
 import { PREVIEW_TRADES as INDUSTRIES } from "../content/previewTrades";
+import { readFirstTouch, UTM_KEYS } from "./firstTouch";
+export { UTM_KEYS } from "./firstTouch";
 
 export const PREVIEW_KEY = "revvin_instant_preview";
-export const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
 export interface PreviewData {
   name: string;
   trade: string;
@@ -86,10 +87,10 @@ export function readPreview(search = ""): PreviewData | null {
 }
 export const previewCategory = (trade: string) => INDUSTRIES.find(i => i.slug === trade)?.label ?? "Other";
 export const acquisitionOf = (data: PreviewData | null, href?: string) => {
-  const source = data ?? (href ? capturePreview("", "other", 100, href) : null);
+  const source = data ?? readFirstTouch() ?? (href ? capturePreview("", "other", 100, href) : null);
   if (!source) return {};
   return Object.fromEntries([...["landing_path"], ...UTM_KEYS, ...PROSPECT_KEYS].flatMap(key => {
-    const value = source[key as keyof PreviewData];
+    const value = (source as Partial<PreviewData>)[key as keyof PreviewData];
     return typeof value === "string" ? [[key, value]] : [];
   }));
 };

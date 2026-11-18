@@ -3,8 +3,10 @@ import App from "./App.tsx";
 import "./index.css";
 import { blockFramedPage } from "./lib/frameProtection";
 import { installChunkRecovery } from "./lib/chunkRecovery";
+import { captureFirstTouch } from "./lib/firstTouch";
 
 installChunkRecovery();
+captureFirstTouch(window.location.href);
 
 const root = document.getElementById("root");
 

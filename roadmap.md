@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# First-touch signup attribution, November 18
+- [x] Capture bounded session-first public landing UTMs and pathname; use them for non-preview signup without changing database validation.
+- [x] Full suite: 1225 passed, 3 skipped; typecheck/build clean. Browser verified original UTMs in signup request and confirmation UI with simulated auth response, direct signup capture and later-landing preservation. No publishing.
+
 # Meta registration delivery, November 18
 - [x] Reproduce missing CompleteRegistration request before fix using full signup UI with simulated auth success and delayed Meta stub.
 - [x] Preserve eligible SPA bridge, bound pending-event disposal and acknowledge SDK dispatch; retain immediate withdrawal.
