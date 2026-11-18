@@ -46,3 +46,24 @@
 - The iframe now sees fbclid in its own URL. This supersedes the proposal-only limitation above. Actual SDK _fbc creation, real successful signup transmission, Meta receipt and counted/attributed conversions remain unverified; the changes are installed and tested in preview, not published.
 - Meta ads measurement guidance used: retain advertising permission evidence, check Events Manager dataset restrictions and Business Tools Terms, and preserve the existing advertising opt-out/contact withdrawal route. No matching or server uploads were added.
 - No Stripe, RLS, migrations, marketing copy, cookies set by our code, edge function changes or publishing.
+
+## Registration dispatch survival, November 18
+
+### Confirmed before fixing
+- Source confirms that `/signup` initializes the frame without PageView, so the first conversion starts SDK loading. The old route-dependent effect removed that frame immediately on `/welcome` navigation and cleared parent pending messages.
+- Playwright against the dev server submitted the complete signup form at `/signup?offer=bf2026&fbclid=test` and reached `/welcome?offer=bf2026`. With `fbevents.js` delayed two seconds, the assertion requiring `/tr/?ev=CompleteRegistration` failed: zero requests. No page errors. The signup success/session and backend reads were simulated browser responses, not a hosted signup. Creating a managed temporary user required unavailable approval. No live customer records or Meta events were created.
+
+### Files changed
+- `src/components/MetaPixel.tsx`: keep the initialized bridge and event listeners across eligible SPA navigation; disallowed routes retire the bridge without accepting new conversions. Advertising withdrawal still disposes immediately and clears stored attribution. Duplicate async initialization is guarded.
+- `src/lib/metaPixelLoader.ts`: sequence-only message acknowledgments, origin and frame-source checks, drain pending events when the document loads, and bound retiring frames to five seconds after disposal. Acknowledgments end disposal early once all events have dispatched. Independent permission listeners revoke retiring frames immediately; delayed frame-load dispatch rechecks permission. No new events accepted during retirement and repeated disposal cannot extend the deadline.
+- `public/ad-events.html`: hold events until `fbq.callMethod` exists; execute track and then acknowledge the sequence to the same-origin parent. Keep source checks, fixed allowlisted events, no-referrer, disabled autoConfig, empty matching data and existing initialization. SDK dispatch acknowledgment does not claim provider receipt or completed network delivery.
+- `src/test/meta-pixel-delivery.test.ts`: twelve tests cover conversion grace deadlines, pending flush, acknowledgment source/origin validation, all-event drain, idle/acknowledged disposal, non-extensible deadlines, immediate explicit and choice/storage revocation, delayed permission checks, and SDK-ready track-before-ack order.
+- `src/test/meta-pixel.test.tsx`: same-bridge signup-to-welcome regression and acknowledgment-aware fixture cleanup; existing permission, URL, preview and attribution regressions retained.
+- `AGENTS.md`, `roadmap.md`, `docs/meta-pixel-on-2026-11-18.md`: structural rule, validation and changelog.
+
+### Validation and limits
+- Exact same Playwright signup assertion passes after: one intercepted `https://www.facebook.com/tr/?ev=CompleteRegistration` request, welcome reached, no page errors. Both before and after welcome screenshots inspected. Meta SDK and request transport were fully stubbed, never sent to Meta.
+- Full suite: `bunx vitest run --testTimeout=15000 --maxWorkers=4`, 1216 passed, 3 skipped, zero failed. An initial higher-parallelism run passed all tracking tests but hit an unrelated existing sale-popup timing failure; reduced parallelism passed without changing that file.
+- Typecheck: `bunx --package @typescript/native-preview tsgo -b --noEmit`, passed. Preview build log: build OK.
+- Ad-tracking and Meta measurement guidance applied: installed and tested in preview, not verified provider receipt or attribution. Real hosted signup, official SDK transmission, Events Manager receipt, dataset restrictions and campaign optimization eligibility remain unverified. Retain permission evidence, check dataset restrictions and Business Tools Terms, and preserve the existing advertising opt-out/contact withdrawal route.
+- No payments, prices, coupons, RLS/security policies, database migrations, copy changes or publishing.

@@ -1,5 +1,10 @@
 # Prebuilt pages for outbound sales
 
+# Meta registration delivery, November 18
+- [x] Reproduce missing CompleteRegistration request before fix using full signup UI with simulated auth success and delayed Meta stub.
+- [x] Preserve eligible SPA bridge, bound pending-event disposal and acknowledge SDK dispatch; retain immediate withdrawal.
+- [x] Browser assertion fails before and passes after; 1216 tests passed, 3 skipped; typecheck/build clean. Simulated auth and Meta transport only, live signup and Meta receipt remain unverified. Documented; not published.
+
 # Paid-ad sale popup, November 18
 - [x] Suppress automatic sale popup for paid-ad browser sessions without changing banner or signup.
 - [x] Full suite: 1203 passed, 3 skipped; typecheck clean; mobile paid landing and Pricing retain banner without popup, organic popup opens. Documented; not published.

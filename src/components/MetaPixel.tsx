@@ -7,17 +7,13 @@ import { cleanPreviewAddress } from "@/lib/instantPreview";
 const MetaPixel = () => {
   const route = useLocation();
   const leave = useRef<() => void>(() => {});
-  // SPA navigation to any non-allowed route removes the frame immediately.
-  useEffect(() => {
-    cleanPreviewAddress();
-    if (!pixelAllowedHere(route.pathname, route.pathname === location.pathname ? location.search : route.search, route.hash)) leave.current();
-  }, [route.pathname, route.search, route.hash]);
+  const visit = useRef<() => void>(() => {});
   useEffect(() => {
     if (!META_PIXEL_ID) return;
     let stopped = false;
     let country: string | null = null;
     let active = false;
-    let bridge: { send: (event: string) => void; dispose: () => void } | null = null;
+    let bridge: { send: (event: string) => void; dispose: (immediate?: boolean) => void } | null = null;
     const permission = () => {
       let refusal = false;
       try { refusal = localStorage.getItem("revvin_advertising_choice") === "denied"; } catch { return false; }
@@ -33,7 +29,8 @@ const MetaPixel = () => {
       if (stopped || !permission() || !safe()) return;
       const { loadPixel } = await import("@/lib/metaPixelLoader");
       if (stopped || !permission() || !safe()) return;
-      bridge = loadPixel(META_PIXEL_ID, permittedFbclid(location.search)); active = Boolean(bridge);
+      if (active) return;
+      bridge = loadPixel(META_PIXEL_ID, permittedFbclid(location.search), permission); active = Boolean(bridge);
       if (pixelSafePath(location.pathname, location.search, location.hash)) bridge?.send("PageView");
     };
     const conversion = (event: Event) => {
@@ -43,13 +40,23 @@ const MetaPixel = () => {
       if (name === "signup_completed") bridge?.send("CompleteRegistration");
       if (name === "page_published") bridge?.send("PagePublished");
     };
-    const revoke = () => { if (!permission()) { bridge?.dispose(); bridge = null; active = false; clearMetaClick(); } };
+    const revoke = () => { if (!permission()) { bridge?.dispose(true); bridge = null; active = false; clearMetaClick(); } };
     leave.current = () => { bridge?.dispose(); bridge = null; active = false; };
-    const timer = window.setTimeout(() => { void start(); }, 3000);
+    visit.current = () => {
+      if (active && permission() && safe()) {
+        if (pixelSafePath(location.pathname, location.search, location.hash)) bridge?.send("PageView");
+      } else { void start(); }
+    };
     const interact = () => { void start(); };
     window.addEventListener("pointerdown", interact, { once: true }); window.addEventListener("keydown", interact, { once: true });
     window.addEventListener("revvin:conversion", conversion); window.addEventListener("storage", revoke); window.addEventListener("revvin:advertising-choice", revoke);
-    return () => { stopped = true; bridge?.dispose(); clearTimeout(timer); window.removeEventListener("pointerdown", interact); window.removeEventListener("keydown", interact); window.removeEventListener("revvin:conversion", conversion); window.removeEventListener("storage", revoke); window.removeEventListener("revvin:advertising-choice", revoke); };
+    return () => { stopped = true; bridge?.dispose(); window.removeEventListener("pointerdown", interact); window.removeEventListener("keydown", interact); window.removeEventListener("revvin:conversion", conversion); window.removeEventListener("storage", revoke); window.removeEventListener("revvin:advertising-choice", revoke); };
+  }, []);
+  useEffect(() => {
+    cleanPreviewAddress();
+    if (!pixelAllowedHere(route.pathname, route.pathname === location.pathname ? location.search : route.search, route.hash)) { leave.current(); return; }
+    const timer = window.setTimeout(() => visit.current(), 3000);
+    return () => clearTimeout(timer);
   }, [route.pathname, route.search, route.hash]);
   return null;
 };

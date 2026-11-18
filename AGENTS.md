@@ -13,6 +13,7 @@
 - Pro entitlements come from fn_effective_plan; server-created trial dates are immutable to owners and existing businesses are not backfilled. Why: paid plan derivation remains untouched while trial gates agree on one authority.
 - Meta provider code runs only in the no-referrer ad-events document after permission and delayed activation, exchanging fixed event names only. Why: provider code must never observe signup fields, personal query strings or private SPA routes.
 - Meta click handoff forwards only a validated session fbclid after permission; signup/welcome preview URLs are cleaned only after verified session storage. Why: attribution must not expose personal preview data or lose the fallback handoff.
+- Meta bridges survive eligible SPA navigation; departing bridges drain only already-authorized events until SDK dispatch acknowledgments or a five-second deadline, with independent immediate withdrawal listeners. Why: navigation must not discard queued conversions or let grace periods bypass refusal; acknowledgments do not prove Meta receipt.
 
 - Security-sensitive submissions and referrer actions use bounded, ownership-checking RPCs; unrestricted writer functions remain service-only. Why: public and authenticated clients cannot forge audit, notification, lead identity or job-ask records.
 - Referrer email trust requires an OTP session or a completed email challenge, not auto-confirmed password signup. Why: preserve instant business signup without exposing another person's referrals.

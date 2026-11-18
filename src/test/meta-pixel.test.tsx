@@ -30,7 +30,7 @@ function capture() {
 }
 
 beforeEach(() => { if (!AbortSignal.timeout) (AbortSignal as unknown as { timeout: () => AbortSignal }).timeout = () => new AbortController().signal; vi.useFakeTimers(); localStorage.clear(); sessionStorage.clear(); sent.length = 0; trace("US"); Object.defineProperty(navigator, "doNotTrack", { value: null, configurable: true }); Object.defineProperty(navigator, "globalPrivacyControl", { value: false, configurable: true }); });
-afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); document.body.innerHTML = ""; });
+afterEach(() => { cleanup(); localStorage.setItem("revvin_advertising_choice", "denied"); window.dispatchEvent(new Event("revvin:advertising-choice")); vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks(); document.body.innerHTML = ""; });
 
 describe("Meta pixel gating", () => {
   it("loads for an allowed US marketing visit and sends PageView", async () => {
@@ -59,6 +59,9 @@ describe("Meta pixel gating", () => {
   it("persists the landing click through a later signup page without forwarding personal data", async () => {
     await mount("/?utm_source=meta&fbclid=abc_1.X-2");
     const timestamp = sessionStorage.getItem(FBCLID_FIRST_SEEN_KEY);
+    capture();
+    const landing = frame();
+    act(() => { window.dispatchEvent(new MessageEvent("message", { origin: location.origin, source: landing?.contentWindow, data: { type: "revvin-pixel-ack", id: "1941132123224407", sequence: 1 } })); });
     cleanup(); vi.useFakeTimers();
     const data = capturePreview("Acme Roofing", "roofing", 250, "https://revvin.co/?utm_source=meta");
     await mount(`${previewSignupUrl(data)}&offer=bf2026&gclid=google&fbclid=abc_1.X-2`);
@@ -70,6 +73,8 @@ describe("Meta pixel gating", () => {
     capture(); sent.length = 0;
     act(() => { track("signup_completed"); });
     expect(sent).toEqual(["CompleteRegistration"]);
+    const signup = frame();
+    act(() => { window.dispatchEvent(new MessageEvent("message", { origin: location.origin, source: signup?.contentWindow, data: { type: "revvin-pixel-ack", id: "1941132123224407", sequence: 1 } })); });
     cleanup(); vi.useFakeTimers();
     await mount("/signup");
     expect(frame()?.getAttribute("src")).toBe("/ad-events.html?fbclid=abc_1.X-2");
@@ -161,8 +166,18 @@ describe("Meta pixel gating", () => {
   it("removes the frame when navigating to a private route", async () => {
     await mount("/");
     expect(frame()).not.toBeNull();
+    capture();
+    const current = frame();
+    act(() => { window.dispatchEvent(new MessageEvent("message", { origin: location.origin, source: current?.contentWindow, data: { type: "revvin-pixel-ack", id: "1941132123224407", sequence: 1 } })); });
     await act(async () => { nav("/r/acme"); });
     expect(frame()).toBeNull();
+  });
+  it("keeps the same bridge across eligible signup-to-welcome navigation", async () => {
+    await mount("/signup?fbclid=test"); capture();
+    const original = frame();
+    act(() => { track("signup_completed"); window.history.replaceState({}, "", "/welcome"); nav("/welcome"); });
+    expect(frame()).toBe(original);
+    expect(sent).toEqual(["CompleteRegistration"]);
   });
   it("maps conversion events to Meta events", async () => {
     await mount("/");
