@@ -13,16 +13,51 @@ beforeEach(() => {
   vi.resetModules(); localStorage.clear(); sessionStorage.clear();
   vi.spyOn(navigator, "userAgent", "get").mockReturnValue("Mozilla/5.0 Chrome/131 Safari/537.36");
   auth.user = null; auth.userRole = null;
-  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ sale_live: true, sale_end: SALE_END_ISO, server_now: "2026-11-16T21:56:00Z" }))));
+  vi.stubGlobal("fetch", vi.fn().mockImplementation(async () => new Response(JSON.stringify({ sale_live: true, sale_end: SALE_END_ISO, server_now: "2026-11-16T21:56:00Z" }))));
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 async function surface(path = "/") {
   const { default: Promotion } = await import("@/components/billing/SalePromotion");
-  return render(<MemoryRouter initialEntries={[path]}><Promotion /><Link to="/guides">Browse guides</Link></MemoryRouter>);
+  return render(<MemoryRouter initialEntries={[path]}><Promotion /><Link to="/guides">Browse guides</Link><Link to="/pricing">View pricing</Link><Link to="/?utm_source=meta">Paid landing</Link></MemoryRouter>);
 }
 async function popupWait() { await act(async () => { await new Promise((resolve) => setTimeout(resolve, 2150)); }); await flush(); }
 
 describe("sale presentation eligibility and continuity", () => {
+  it.each(["utm_medium=paid_social", "utm_source=meta", "utm_source=facebook", "utm_source=instagram", "fbclid=abc", "gclid=abc", "msclkid=abc", "fbclid="])("suppresses the popup but retains the banner for %s", async (query) => {
+    await surface(`/?${query}`); await flush(); await popupWait();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.getByRole("complementary")).toBeTruthy();
+    expect(sessionStorage.getItem("revvin_bf2026_paid_ad")).toBe("1");
+    expect(localStorage.getItem("revvin_bf2026_popup_seen")).toBeNull();
+  });
+  it("keeps paid-ad suppression through client navigation and a fresh mount in the same session", async () => {
+    const view = await surface("/?utm_source=meta"); await flush();
+    fireEvent.click(screen.getByRole("link", { name: "View pricing" })); await popupWait();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.getByRole("complementary")).toBeTruthy();
+    view.unmount(); vi.resetModules(); await surface("/pricing"); await popupWait();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.getByRole("complementary")).toBeTruthy();
+  }, 10000);
+  it("cancels a pending organic popup when navigation identifies a paid-ad visit", async () => {
+    await surface(); await flush();
+    fireEvent.click(screen.getByRole("link", { name: "Paid landing" })); await popupWait();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(sessionStorage.getItem("revvin_bf2026_paid_ad")).toBe("1");
+  });
+  it("retains paid suppression on navigation when session storage is unavailable", async () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => { throw new Error("unavailable"); });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("unavailable"); });
+    await surface("/?utm_medium=paid_social"); await flush();
+    fireEvent.click(screen.getByRole("link", { name: "View pricing" })); await popupWait();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.getByRole("complementary")).toBeTruthy();
+  });
+  it("still opens for an organic campaign visit", async () => {
+    await surface("/?utm_source=google&utm_medium=organic"); await flush(); await popupWait();
+    await waitFor(() => expect(screen.getByRole("dialog", { name: "Early Black Friday" })).toBeTruthy());
+    expect(sessionStorage.getItem("revvin_bf2026_paid_ad")).toBeNull();
+  });
   it.each(["/r/acme", "/r/status/token", "/print/qr", "/earn", "/earn/dallas", "/me", "/referrer/123", "/auth/callback", "/feedback/token", "/offer/acme/1", "/partners/dashboard"])("excludes %s", (path) => { expect(isSaleSurface(path)).toBe(false); });
   it.each(["/", "/pricing", "/how-it-works", "/guides/guide", "/referral-program/roofing", "/dashboard"])("includes %s", (path) => { expect(isSaleSurface(path)).toBe(true); });
   it("routes visitors to the sale signup and owners to the existing billing picker", () => {

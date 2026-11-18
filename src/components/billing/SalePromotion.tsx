@@ -3,7 +3,7 @@ import { lazyWithChunkRecovery as lazy } from "@/lib/chunkRecovery";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSaleState } from "@/lib/useSale";
-import { isSaleMarketingPath, isSaleSurface, saleCountdown, SALE_BANNER_SESSION_KEY, SALE_POPUP_KEY } from "@/lib/salePresentation";
+import { isPaidAdSession, isSaleMarketingPath, isSaleSurface, saleCountdown, SALE_BANNER_SESSION_KEY, SALE_POPUP_KEY } from "@/lib/salePresentation";
 import SaleBanner from "./SaleBanner";
 
 const SalePopup = lazy(() => import("./SalePopup"));
@@ -12,7 +12,7 @@ let bannerDismissedThisSession = false;
 const firstLoad = typeof performance === "undefined" ? 0 : performance.now();
 
 export default function SalePromotion() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const { user, userRole, loading } = useAuth();
   const owner = !!user && userRole === "business";
   const eligible = isSaleSurface(pathname) && !loading && (!user || owner);
@@ -22,7 +22,7 @@ export default function SalePromotion() {
   });
   const [popup, setPopup] = useState(false);
   const [unpaidOwner, setUnpaidOwner] = useState(false);
-  useEffect(() => { setPopup(false); }, [pathname]);
+  useEffect(() => { setPopup(false); }, [pathname, search]);
 
   useEffect(() => {
     setUnpaidOwner(false);
@@ -36,6 +36,7 @@ export default function SalePromotion() {
   }, [owner, user?.id, pathname]);
 
   useEffect(() => {
+    if (isPaidAdSession(search)) return;
     if (!eligible || !sale.live || !isSaleMarketingPath(pathname) || (owner && !unpaidOwner)) return;
     if (/bot|crawler|spider|headless|lighthouse|prerender/i.test(navigator.userAgent)) return;
     try { if (localStorage.getItem(SALE_POPUP_KEY) === "1") return; } catch { /* In-memory fallback below. */ }
@@ -47,7 +48,7 @@ export default function SalePromotion() {
       setPopup(true);
     }, Math.max(0, 2000 - (performance.now() - firstLoad)));
     return () => clearTimeout(timer);
-  }, [eligible, sale.live, pathname, owner, unpaidOwner]);
+  }, [eligible, sale.live, pathname, search, owner, unpaidOwner]);
 
   const dismiss = () => {
     bannerDismissedThisSession = true;
