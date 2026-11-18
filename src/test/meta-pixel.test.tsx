@@ -37,6 +37,24 @@ describe("Meta pixel gating", () => {
     capture();
     expect(sent).toEqual(["PageView"]);
   });
+  it("loads on a Meta landing click without forwarding its query to the iframe", async () => {
+    await mount("/?utm_source=meta&fbclid=abc");
+    expect(frame()).not.toBeNull();
+    expect(frame()?.getAttribute("src")).toBe("/ad-events.html");
+    capture();
+    expect(sent).toEqual(["PageView"]);
+  });
+  it("loads on signup with fbclid", async () => {
+    await mount("/signup?fbclid=abc");
+    expect(frame()).not.toBeNull();
+    capture();
+    act(() => { track("signup_completed"); });
+    expect(sent).toEqual(["CompleteRegistration"]);
+  });
+  it.each(["/?name=x", "/r/x?fbclid=abc"])("still blocks %s", async (path) => {
+    await mount(path);
+    expect(frame()).toBeNull();
+  });
   it("does not load with GPC", async () => {
     Object.defineProperty(navigator, "globalPrivacyControl", { value: true, configurable: true });
     await mount("/"); expect(frame()).toBeNull();
@@ -70,6 +88,19 @@ describe("Meta pixel gating", () => {
 });
 
 describe("pixel path rules", () => {
+  it.each(["fbclid", "gclid", "msclkid", "ttclid", "li_fat_id", "utm_id"])("allows only the requested additional key %s on eligible pages", (key) => {
+    for (const path of ["/", "/pricing", "/signup", "/welcome", "/dashboard", "/auth"]) {
+      expect(pixelAllowedHere(path, `?${key}=abc`, "")).toBe(true);
+      expect(pixelAllowedHere(path, `?${key}=abc&name=x`, "")).toBe(false);
+      expect(pixelAllowedHere(path, `?${key}=abc`, "#private")).toBe(false);
+    }
+    expect(pixelAllowedHere("/r/x", `?${key}=abc`, "")).toBe(false);
+  });
+  it.each(["utm_extra", "fbclid_extra", "GCLID", "tab", "email"])("rejects the unlisted key %s", (key) => {
+    for (const path of ["/", "/signup", "/welcome", "/dashboard", "/auth"]) {
+      expect(pixelAllowedHere(path, `?${key}=x`, "")).toBe(false);
+    }
+  });
   it("allows US and Canada, blocks consent regions and unknown", () => {
     expect(advertisingAllowed("US")).toBe(true);
     expect(advertisingAllowed("CA")).toBe(true);

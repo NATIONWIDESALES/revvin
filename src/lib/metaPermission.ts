@@ -3,13 +3,13 @@ export function advertisingAllowed(country: string | null, refusal = false, opte
   return Boolean(country && /^[A-Z]{2}$/.test(country) && !["XX","T1"].includes(country) && !CONSENT_COUNTRIES.has(country) && !refusal && !optedOut);
 }
 export function pixelSafePath(path: string, search: string, hash: string) {
-  if (hash || [...new URLSearchParams(search).keys()].some(k => !/^utm_(source|medium|campaign|content|term)$/.test(k))) return false;
+  if (hash || [...new URLSearchParams(search).keys()].some(k => !/^(utm_(source|medium|campaign|content|term|id)|fbclid|gclid|msclkid|ttclid|li_fat_id)$/.test(k))) return false;
   return ["/", "/pricing", "/about", "/how-it-works", "/compare", "/guides", "/tools", "/privacy", "/start"].includes(path) || /^\/(compare|guides|referral-program|start)\/[a-z0-9-]+$/.test(path);
 }
 /** Owner conversion pages: only the bare path, or campaign/offer keys with no hash. */
 const CONVERSION_PATHS = ["/signup", "/welcome", "/dashboard", "/auth"];
 export function conversionSafePath(path: string, search: string, hash: string) {
-  return CONVERSION_PATHS.includes(path) && !hash && [...new URLSearchParams(search).keys()].every(k => /^(utm_(source|medium|campaign|content|term)|offer)$/.test(k));
+  return CONVERSION_PATHS.includes(path) && !hash && [...new URLSearchParams(search).keys()].every(k => /^(utm_(source|medium|campaign|content|term|id)|fbclid|gclid|msclkid|ttclid|li_fat_id|offer)$/.test(k));
 }
 export function pixelAllowedHere(path: string, search: string, hash: string) {
   return pixelSafePath(path, search, hash) || conversionSafePath(path, search, hash);
