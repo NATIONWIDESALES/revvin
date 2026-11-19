@@ -45,3 +45,4 @@
 - Private and referral routes block framing before initial React render and on SPA navigation. Why: client guards compensate for missing host frame headers, and no referral embedding feature exists.
 - Security dependency overrides pin patched transitive packages; deployment-specific remote imports must be reviewed separately. Why: a browser lockfile does not update remote edge dependencies.
 - React lazy imports use lazyWithChunkRecovery and bootstrap installs the Vite preload listener; recovery persists a five-minute session guard before cache-busted navigation. Why: stale deployment chunks get one recovery without a reload loop or changes to final crash reporting.
+- Non-essential navbar widgets (notification bell) render inside SilentBoundary and use a unique realtime channel name per mount. Why: two bells share a user id, and a widget failure must never replace the page.

@@ -88,8 +88,12 @@ const ServiceAreaAutocomplete = ({
         setSuggestions(results ?? []);
         setOpen(true);
       } catch (err) {
-        console.error("[ServiceAreaAutocomplete] suggestion lookup failed", err);
+        // One warning, then stop asking: a denied key fails every keystroke.
+        // The field keeps working as plain text.
+        console.warn("[ServiceAreaAutocomplete] suggestions unavailable", err);
         setSuggestions([]);
+        setOpen(false);
+        setUnavailable(true);
       } finally {
         setBusy(false);
       }

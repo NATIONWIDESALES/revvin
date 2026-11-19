@@ -21,11 +21,14 @@ import {
 } from "@/components/ui/alert-dialog";
 
 // Signed-in only, and it needs the backend client, so it loads on demand.
+import SilentBoundary from "@/components/SilentBoundary";
 const NotificationBellLazy = lazy(() => import("@/components/NotificationBell"));
 const NotificationBell = () => (
-  <Suspense fallback={null}>
-    <NotificationBellLazy />
-  </Suspense>
+  <SilentBoundary>
+    <Suspense fallback={null}>
+      <NotificationBellLazy />
+    </Suspense>
+  </SilentBoundary>
 );
 
 const Navbar = () => {
