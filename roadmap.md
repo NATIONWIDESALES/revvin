@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# Onboarding slug and city, November 19
+- [x] Investigate live signup metadata, active trigger, historical onboarding and slug lookup; leave affected rows unchanged.
+- [x] Fix draft-name slugs and typed-city persistence; full suite 1250 passed, 3 skipped; typecheck clean. Simulated authenticated browser signup/publish/read-back passed. Live write verification unavailable: temporary-user approval unavailable and requester has no matching auth account.
+
 # Meta server registration, November 18
 - [x] Check confirmation and business-row timing; allow authenticated business signup intent with no row yet, retaining known-demo exclusions and the ten-minute window. Full suite: 1244 passed, 3 skipped; application and endpoint typechecks passed. Confirmation signups have no replay; direct transport remains prohibited by integration instructions.
 - [x] Add runtime-disabled signup endpoint, shared browser/server event ID, consent-gated session identifiers, disabled hashing helper and privacy disclosure.

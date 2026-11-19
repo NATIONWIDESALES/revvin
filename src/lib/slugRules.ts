@@ -512,6 +512,12 @@ export const suggestSlug = (businessName: string, fallback = ""): string => {
     const candidate = `${base.slice(0, 40 - suffix.length)}${suffix}`.replace(/^-+|-+$/g, "");
     if (candidate.length >= 3 && checkSlug(candidate).ok) return candidate;
   }
+  // Retain safe business-name words when a reserved brand or profanity blocks the full name.
+  const safeBase = base.split("-").filter((word) => checkSlug(`${word}-business`).ok).join("-");
+  for (const suffix of suffixes) {
+    const candidate = `${safeBase.slice(0, 40 - suffix.length)}${suffix}`.replace(/^-+|-+$/g, "");
+    if (safeBase && checkSlug(candidate).ok) return candidate;
+  }
   return `partner-${Math.random().toString(36).slice(2, 8)}`;
 };
 

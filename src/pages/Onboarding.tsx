@@ -65,6 +65,7 @@ const Onboarding = () => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [serviceArea, setServiceArea] = useState("");
+  const loadedAreaRef = useRef("");
   const [mobile, setMobile] = useState("");
   const [placeGeo, setPlaceGeo] = useState<PlaceSelection | null>(null);
   const [offerAmount, setOfferAmount] = useState("");
@@ -100,6 +101,7 @@ const Onboarding = () => {
         setName(b.name || preview?.name || "");
         setCategory(b.category || (preview ? previewCategory(preview.trade) : ""));
         setServiceArea(b.service_area || "");
+        loadedAreaRef.current = b.service_area || "";
         setOfferAmount(b.offer_amount || (preview ? `$${preview.reward}` : ""));
         setMobile(b.phone || "");
         setExistingSlug(b.slug || null);
@@ -133,7 +135,8 @@ const Onboarding = () => {
     setSaving(true);
     savingRef.current = true;
     try {
-      let slug = existingSlug;
+      // Draft links follow the final business name. Published links must remain stable.
+      let slug = alreadyPublished ? existingSlug : null;
       if (!slug) {
         slug = await resolveAvailableSlug(suggestSlug(name), async (candidate) => {
           const { data, error } = await supabase.rpc("fn_slug_status", { p_slug: candidate });
@@ -148,6 +151,7 @@ const Onboarding = () => {
         name: name.trim(),
         category,
         service_area: trimmedArea,
+        city: trimmedArea.split(",")[0].trim() || null,
         offer_amount: normalizeRewardAmount(offerAmount),
         slug,
         phone: mobile.trim() || null,
@@ -156,8 +160,14 @@ const Onboarding = () => {
       if (matchedPlace) {
         Object.assign(patch, {
           latitude: matchedPlace.latitude, longitude: matchedPlace.longitude,
-          city: matchedPlace.city, state: matchedPlace.state, country: matchedPlace.country,
+          city: matchedPlace.city || patch.city, state: matchedPlace.state, country: matchedPlace.country,
           geocoded_at: new Date().toISOString(), geocode_status: "ok",
+        });
+      } else if (trimmedArea !== loadedAreaRef.current.trim()) {
+        const region = trimmedArea.split(",")[1]?.trim();
+        Object.assign(patch, {
+          state: region && /^[A-Za-z]{2}$/.test(region) ? region.toUpperCase() : null,
+          latitude: null, longitude: null, geocoded_at: null, geocode_status: null,
         });
       }
       const { data: saved, error } = await supabase.from("businesses").update(patch).eq("id", bizId)
@@ -179,6 +189,7 @@ const Onboarding = () => {
       }
       slug = row.slug;
       setExistingSlug(slug);
+      loadedAreaRef.current = trimmedArea;
       // Never blocks: coordinates stay empty if this fails.
       if (!matchedPlace && trimmedArea) {
         supabase.functions.invoke("geocode-business", { body: { business_id: bizId } })
@@ -186,6 +197,7 @@ const Onboarding = () => {
       }
       const result = await publishPage("onboarding");
       if (!result.ok) { setPublishError(result.message ?? "Could not publish your page."); return; }
+      setAlreadyPublished(true);
       track("onboarding_step_completed", { step: "publish" });
       track("onboarding_completed");
       setLiveUrl(`${window.location.origin}/r/${slug}`);

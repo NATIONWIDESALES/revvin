@@ -12,12 +12,14 @@ const h = vi.hoisted(() => ({
   user: { id: "u1", email: "o@example.test" },
   load: vi.fn(),
   published: false,
+  slug: null as string | null,
+  name: "Summit Roofing",
 }));
 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     from: () => ({
-      select: () => ({ eq: () => ({ limit: async () => { h.load(); return { data: [{ is_published: h.published, id: "biz-1", name: "Summit Roofing", category: "Roofing", service_area: "", offer_amount: "$100", slug: null, business_email: null, launch_package_status: null }] }; } }) }),
+      select: () => ({ eq: () => ({ limit: async () => { h.load(); return { data: [{ is_published: h.published, id: "biz-1", name: h.name, category: "Roofing", service_area: "", offer_amount: "$100", slug: h.slug, business_email: null, launch_package_status: null }] }; } }) }),
       update: (patch: unknown) => ({ eq: () => {
         h.update(patch);
         const result = h.save(patch);
@@ -43,12 +45,49 @@ import { resolveAvailableSlug } from "@/lib/slugRules";
 
 beforeEach(() => {
   h.published = false;
+  h.slug = null;
+  h.name = "Summit Roofing";
   h.load.mockClear();
   h.update.mockReset(); h.rpc.mockReset(); h.publish.mockReset(); h.track.mockReset(); h.taken.clear();
   h.save.mockReset(); h.save.mockImplementation(async (patch) => ({ data: [{ id: "biz-1", ...patch }], error: null }));
 });
 
 describe("one-screen onboarding", () => {
+  it("uses the final business name rather than an earlier draft owner-name link", async () => {
+    h.name = "Scott Anderson";
+    h.slug = "scott-anderson";
+    render(<MemoryRouter initialEntries={["/welcome"]}><Onboarding /></MemoryRouter>);
+    fireEvent.change(await screen.findByLabelText("Business name"), { target: { value: "BOAT PRO-Yacht deliveries" } });
+    fireEvent.click(screen.getByRole("button", { name: "Publish my page" }));
+    await screen.findByRole("heading", { name: "Your page is live" });
+    expect(h.update.mock.calls[0][0].slug).toBe("boat-pro-yacht-deliveries");
+  });
+  it("keeps the safe business-name words for the reserved internal test name", async () => {
+    h.name = "Revvin Internal Test Roofing";
+    h.taken.add("internal-test-roofing");
+    render(<MemoryRouter initialEntries={["/welcome"]}><Onboarding /></MemoryRouter>);
+    fireEvent.click(await screen.findByRole("button", { name: "Publish my page" }));
+    await screen.findByRole("heading", { name: "Your page is live" });
+    expect(h.update.mock.calls[0][0].slug).toBe("internal-test-roofing-2");
+  });
+  it("never renames an already published BOAT PRO link", async () => {
+    h.published = true;
+    h.name = "BOAT PRO-Yacht deliveries";
+    h.slug = "scott-anderson";
+    render(<MemoryRouter initialEntries={["/welcome"]}><Onboarding /></MemoryRouter>);
+    fireEvent.click(await screen.findByRole("button", { name: "Save changes" }));
+    await screen.findByRole("heading", { name: "Your page is live" });
+    expect(h.update.mock.calls[0][0].slug).toBe("scott-anderson");
+    expect(h.rpc).not.toHaveBeenCalled();
+  });
+  it.each([["Dallas, TX", "Dallas", "TX"], ["Annapolis", "Annapolis", null]])("persists typed city %s without a Places selection", async (area, city, state) => {
+    render(<MemoryRouter initialEntries={["/welcome"]}><Onboarding /></MemoryRouter>);
+    const input = await screen.findByLabelText("City");
+    fireEvent.change(input, { target: { value: area } });
+    fireEvent.click(screen.getByRole("button", { name: "Publish my page" }));
+    await screen.findByRole("heading", { name: "Your page is live" });
+    expect(h.update.mock.calls[0][0]).toMatchObject({ service_area: area, city, state, latitude: null, longitude: null });
+  });
   it("uses edit labels for a published business and preserves the save behavior", async () => {
     h.published = true;
     render(<MemoryRouter initialEntries={["/welcome"]}><Onboarding /></MemoryRouter>);
