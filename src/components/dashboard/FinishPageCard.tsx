@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import BusinessLogoUpload from "@/components/BusinessLogoUpload";
 import { friendlyError } from "@/lib/errors";
+import { displayedMiles, storedRadiusKm } from "@/lib/distanceUnits";
 
 export interface FinishPageBusiness {
   id: string;
@@ -44,13 +45,13 @@ const FinishPageCard = ({
   const [phone, setPhone] = useState(biz.phone ?? "");
   const [businessEmail, setBusinessEmail] = useState(biz.business_email ?? "");
   const [website, setWebsite] = useState(biz.website ?? "");
-  const [radius, setRadius] = useState(String(biz.service_radius_km ?? 50));
+  const [radius, setRadius] = useState(String(displayedMiles(biz.service_radius_km ?? 50)));
   const [trigger, setTrigger] = useState(biz.offer_trigger ?? "");
   const [finePrint, setFinePrint] = useState(biz.offer_fine_print ?? "");
   const [saving, setSaving] = useState(false);
 
   const save = async () => {
-    const km = Number.parseInt(radius, 10);
+    const miles = Number.parseInt(radius, 10);
     setSaving(true);
     const { error } = await supabase
       .from("businesses")
@@ -59,7 +60,9 @@ const FinishPageCard = ({
         phone: phone.trim() || null,
         business_email: businessEmail.trim() || null,
         website: website.trim() || null,
-        service_radius_km: Number.isFinite(km) && km > 0 ? Math.min(km, 500) : null,
+        service_radius_km: radius === String(displayedMiles(biz.service_radius_km ?? 50))
+          ? biz.service_radius_km ?? 50
+          : Number.isFinite(miles) && miles > 0 ? storedRadiusKm(miles, 500) : null,
         offer_trigger: trigger.trim() || null,
         offer_fine_print: finePrint.trim() || null,
       })
@@ -93,7 +96,7 @@ const FinishPageCard = ({
         <div><Label htmlFor="fp-phone">Business phone</Label><Input id="fp-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1.5" /></div>
         <div><Label htmlFor="fp-email">Business email</Label><Input id="fp-email" type="email" value={businessEmail} onChange={(e) => setBusinessEmail(e.target.value)} className="mt-1.5" /></div>
         <div><Label htmlFor="fp-web">Website</Label><Input id="fp-web" value={website} onChange={(e) => setWebsite(e.target.value)} className="mt-1.5" placeholder="https://" /></div>
-        <div><Label htmlFor="fp-radius">Service radius (km)</Label><Input id="fp-radius" inputMode="numeric" value={radius} onChange={(e) => setRadius(e.target.value.replace(/\D/g, ""))} className="mt-1.5" /></div>
+        <div><Label htmlFor="fp-radius">Service radius (mi)</Label><Input id="fp-radius" inputMode="numeric" value={radius} onChange={(e) => setRadius(e.target.value.replace(/\D/g, ""))} className="mt-1.5" /></div>
         <div className="sm:col-span-2"><Label htmlFor="fp-trigger">When do you pay? (optional)</Label><Input id="fp-trigger" value={trigger} onChange={(e) => setTrigger(e.target.value)} className="mt-1.5" placeholder="When the job is finished and paid" /></div>
         <div className="sm:col-span-2"><Label htmlFor="fp-fine">Fine print</Label><Textarea id="fp-fine" rows={2} value={finePrint} onChange={(e) => setFinePrint(e.target.value)} className="mt-1.5" /></div>
       </div>

@@ -29,7 +29,7 @@ import CustomersTab from "@/components/dashboard/CustomersTab";
 import ReferrersTab from "@/components/dashboard/ReferrersTab";
 import AutoAskTab from "@/components/dashboard/AutoAskTab";
 import CampaignsTab from "@/components/dashboard/CampaignsTab";
-import IntegrationsTab from "@/components/dashboard/IntegrationsTab";
+import AdvancedSettings from "@/components/dashboard/AdvancedSettings";
 import PrintPack from "@/components/dashboard/PrintPack";
 import AttestationGate from "@/components/dashboard/AttestationGate";
 import DashboardShell from "@/components/dashboard/DashboardShell";
@@ -468,8 +468,8 @@ const BusinessDashboard = () => {
       {tab === "share" && <ShareTab biz={biz} publicUrl={publicUrl} isLive={isLive} onPublished={loadAll} onQrDownloaded={markQrDownloaded} onShared={markFirstShare} />}
       {(tab === "account" || tab === "billing" || tab === "integrations") && (
         <div className="space-y-8">
-          <AccountTab biz={biz} onUpdate={loadAll} />
-          <IntegrationsTab isPro={isPro} biz={{ id: biz.id, contact_outreach_consent_at: biz.contact_outreach_consent_at ?? null }} />
+          <AccountTab biz={biz} onUpdate={loadAll} billingOnly={tab === "billing"} />
+          {tab !== "billing" && <AdvancedSettings key={tab} initiallyOpen={tab === "integrations" || window.location.hash === "#advanced"} isPro={isPro} biz={{ id: biz.id, contact_outreach_consent_at: biz.contact_outreach_consent_at ?? null }} />}
         </div>
       )}
       </div>
@@ -1280,7 +1280,7 @@ const ShareTab = ({ biz, publicUrl, isLive, onPublished, onQrDownloaded, onShare
 };
 
 // ============= ACCOUNT TAB =============
-const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) => {
+const AccountTab = ({ biz, onUpdate, billingOnly = false }: { biz: Business; onUpdate: () => void; billingOnly?: boolean }) => {
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
   const [notifs, setNotifs] = useState({
@@ -1412,7 +1412,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      <div className="rounded-2xl border border-border bg-card p-6 md:col-span-2">
+      {!billingOnly && <><div className="rounded-2xl border border-border bg-card p-6 md:col-span-2">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
@@ -1446,6 +1446,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
         </div>
       </div>
 
+      </>}
       <div id="billing" className="scroll-mt-20 rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-1">Subscription</h3>
         <p className="text-xs text-muted-foreground mb-4">
@@ -1515,7 +1516,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
 
 
 
-      <div className="rounded-2xl border border-border bg-card p-6">
+      {!billingOnly && <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="text-sm font-semibold text-foreground mb-4">Lead notifications</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between"><Label className="text-sm">Email notifications</Label><Switch checked={notifs.email} onCheckedChange={(v) => setNotifs((p) => ({ ...p, email: v }))} /></div>
@@ -1546,7 +1547,7 @@ const AccountTab = ({ biz, onUpdate }: { biz: Business; onUpdate: () => void }) 
           <div><Label className="text-xs">Notification email</Label><Input type="email" value={notifs.notification_email} onChange={(e) => setNotifs((p) => ({ ...p, notification_email: e.target.value }))} className="mt-1.5" /></div>
           <Button onClick={saveNotifs} disabled={busy} className="w-full">Save</Button>
         </div>
-      </div>
+      </div>}
     </div>
   );
 };

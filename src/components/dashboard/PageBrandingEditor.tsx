@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { MAX_UPLOAD_BYTES, uploadUserImage } from "@/lib/imageUpload";
 import { friendlyError } from "@/lib/errors";
+import { displayedMiles, storedRadiusKm } from "@/lib/distanceUnits";
 
 interface Testimonial {
   quote: string;
@@ -71,7 +72,7 @@ const PageBrandingEditor = ({ businessId, slug, isPro = false, initial, onSaved 
   const [ctaLabel, setCtaLabel] = useState(initial.referral_cta_label || "");
   const [testimonials, setTestimonials] = useState<Testimonial[]>(initial.testimonials || []);
   const [serviceArea, setServiceArea] = useState(initial.service_area || "");
-  const [serviceRadiusKm, setServiceRadiusKm] = useState<number>(initial.service_radius_km ?? 50);
+  const [serviceRadiusMiles, setServiceRadiusMiles] = useState<number>(displayedMiles(initial.service_radius_km ?? 50));
   const [placeGeo, setPlaceGeo] = useState<PlaceSelection | null>(null);
 
   const [uploading, setUploading] = useState(false);
@@ -126,7 +127,8 @@ const PageBrandingEditor = ({ businessId, slug, isPro = false, initial, onSaved 
       referral_cta_label: ctaLabel.trim() || null,
       testimonials: cleanTestimonials.length > 0 ? cleanTestimonials : null,
       service_area: serviceArea.trim() || null,
-      service_radius_km: serviceRadiusKm,
+      service_radius_km: serviceRadiusMiles === displayedMiles(initial.service_radius_km ?? 50)
+        ? initial.service_radius_km ?? 50 : storedRadiusKm(serviceRadiusMiles, 200),
     };
 
     const trimmedArea = serviceArea.trim();
@@ -339,14 +341,15 @@ const PageBrandingEditor = ({ businessId, slug, isPro = false, initial, onSaved 
         <div className="mt-4">
           <div className="flex items-center justify-between">
             <Label>How far do you travel?</Label>
-            <span className="text-sm font-medium text-foreground">{serviceRadiusKm} km</span>
+            <span className="text-sm font-medium text-foreground">{serviceRadiusMiles} mi</span>
           </div>
           <Slider
-            value={[serviceRadiusKm]}
-            onValueChange={(v) => setServiceRadiusKm(v[0])}
-            min={5}
-            max={200}
-            step={5}
+            value={[serviceRadiusMiles]}
+            onValueChange={(v) => setServiceRadiusMiles(v[0])}
+            min={displayedMiles(5)}
+            max={displayedMiles(200)}
+            step={1}
+            aria-label="How far do you travel?"
             className="mt-3"
           />
         </div>

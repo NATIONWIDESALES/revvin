@@ -37,6 +37,55 @@ vi.mock("@/integrations/supabase/client", () => ({ supabase: {
 } }));
 
 import BusinessDashboard from "@/pages/dashboard/BusinessDashboard";
+import FinishPageCard from "@/components/dashboard/FinishPageCard";
+
+vi.mock("@/lib/useSale", () => ({ useSale: () => false }));
+vi.mock("@/components/billing/BillingHistoryCard", () => ({ default: () => <div>Invoices</div> }));
+
+describe("radius UI boundary", () => {
+  const radiusBusiness = { ...business, description: null, business_email: null, website: null,
+    service_radius_km: 49, offer_trigger: null, offer_fine_print: null };
+  it("shows whole miles and saves edited miles as whole kilometres", async () => {
+    render(<FinishPageCard biz={radiusBusiness} onSaved={vi.fn()} />);
+    const radius = screen.getByLabelText("Service radius (mi)");
+    expect(radius).toHaveValue("30");
+    fireEvent.change(radius, { target: { value: "25" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save details" }));
+    await waitFor(() => expect(h.updates).toHaveBeenCalledWith("businesses", expect.objectContaining({ service_radius_km: 40 })));
+  });
+  it("does not change stored radius when saving other details", async () => {
+    render(<FinishPageCard biz={radiusBusiness} onSaved={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Save details" }));
+    await waitFor(() => expect(h.updates).toHaveBeenCalledWith("businesses", expect.objectContaining({ service_radius_km: 49 })));
+  });
+});
+
+describe("dashboard integration placement", () => {
+  it("billing contains subscription and invoices but no API keys or webhooks", async () => {
+    render(<MemoryRouter initialEntries={["/dashboard?tab=billing"]}><BusinessDashboard /></MemoryRouter>);
+    await screen.findByText("Subscription");
+    expect(screen.getByText("Invoices")).toBeVisible();
+    expect(screen.queryByText("API keys")).toBeNull();
+    expect(screen.queryByText("Outbound webhooks")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Advanced" })).toBeNull();
+    expect(screen.queryByText("Lead notifications")).toBeNull();
+    expect(screen.queryByText("Marketplace Listing")).toBeNull();
+  });
+  it("Settings starts collapsed and Advanced reveals both integration controls", async () => {
+    render(<MemoryRouter initialEntries={["/dashboard?tab=account"]}><BusinessDashboard /></MemoryRouter>);
+    const advanced = await screen.findByRole("button", { name: "Advanced" });
+    expect(advanced).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("API keys")).toBeNull();
+    fireEvent.click(advanced);
+    expect(await screen.findByText("API keys")).toBeVisible();
+    expect(screen.getByText("Outbound webhooks")).toBeVisible();
+  });
+  it("existing integrations deep links open Advanced", async () => {
+    render(<MemoryRouter initialEntries={["/dashboard?tab=integrations"]}><BusinessDashboard /></MemoryRouter>);
+    expect(await screen.findByText("API keys")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Advanced" })).toHaveAttribute("aria-expanded", "true");
+  });
+});
 
 beforeEach(() => { HTMLElement.prototype.scrollIntoView = vi.fn(); h.reads.mockClear(); h.updates.mockClear(); h.hold = false; h.finish = undefined; });
 const view = () => <MemoryRouter initialEntries={["/dashboard?tab=leads"]}><BusinessDashboard /></MemoryRouter>;

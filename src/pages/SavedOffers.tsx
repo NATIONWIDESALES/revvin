@@ -15,6 +15,7 @@ import SEOHead from "@/components/SEOHead";
 import { useDbOffers } from "@/hooks/useDbOffers";
 import { useSavedOffers } from "@/hooks/useSavedOffers";
 import type { Offer } from "@/types/offer";
+import { distanceMilesLabel } from "@/lib/distanceUnits";
 
 type SortKey = "recent" | "payout" | "nearest";
 
@@ -162,16 +163,12 @@ const SavedOffers = () => {
     }
     if (sort === "nearest" && coords) {
       const withDist = list.map(({ offer }) => {
-        const hasCoords =
-          typeof offer.latitude === "number" && typeof offer.longitude === "number";
-        const d = hasCoords
-          ? distanceKm(coords, { lat: offer.latitude!, lng: offer.longitude! })
+        const d = typeof offer.latitude === "number" && typeof offer.longitude === "number"
+          ? distanceKm(coords, { lat: offer.latitude, lng: offer.longitude })
           : Number.POSITIVE_INFINITY;
         let label: string | undefined;
         if (Number.isFinite(d)) {
-          if (d < 1) label = `${Math.max(1, Math.round(d * 1000))} m away`;
-          else if (d < 10) label = `${d.toFixed(1)} km away`;
-          else label = `${Math.round(d)} km away`;
+          label = distanceMilesLabel(d);
         }
         return { offer, distanceLabel: label, d };
       });

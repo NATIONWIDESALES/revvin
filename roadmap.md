@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# Dashboard miles and Advanced, November 19
+- [x] Keep kilometre storage/search unchanged; convert radius inputs and distance displays to miles.
+- [x] Move integrations into collapsed Settings Advanced and retain integrations deep link. Full suite 1259 passed, 3 skipped; typecheck/build clean. Simulated owner browser save/read-back and mobile overflow check passed; live owner verification unavailable because requester has no app account and temporary-user approval is unavailable.
+
 # Onboarding slug and city, November 19
 - [x] Investigate live signup metadata, active trigger, historical onboarding and slug lookup; leave affected rows unchanged.
 - [x] Fix draft-name slugs and typed-city persistence; full suite 1250 passed, 3 skipped; typecheck clean. Simulated authenticated browser signup/publish/read-back passed. Live write verification unavailable: temporary-user approval unavailable and requester has no matching auth account.
