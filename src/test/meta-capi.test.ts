@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { webcrypto } from "node:crypto";
-import { SEND_HASHED_EMAIL, eligibleBusinessRegistration, hashEmail, registrationPayload, registrationEventId, sendRegistration } from "../../supabase/functions/_shared/meta-registration";
+import { SEND_HASHED_EMAIL, eligibleBusinessRegistration, hashEmail, registrationPayload, registrationEventId, sendRegistration, gatewayTransport } from "../../supabase/functions/_shared/meta-registration";
 import { registrationConsent, reportRegistration } from "@/lib/metaRegistration";
 import { loadPixel } from "@/lib/metaPixelLoader";
 
@@ -44,6 +44,18 @@ describe("Meta server registration", () => {
     const transport = vi.fn(); const log = vi.fn();
     expect(await sendRegistration(input, { transport, log })).toBe("disabled");
     expect(transport).not.toHaveBeenCalled(); expect(log).toHaveBeenCalledExactlyOnceWith("capi disabled: no token");
+  });
+  it("sends through the linked connection gateway with the dataset events path and no Meta token", async () => {
+    const fetcher = vi.fn(async () => new Response("{}"));
+    expect(await sendRegistration(input, { token: "conn-key", transport: gatewayTransport("lov-key", "conn-key", fetcher as unknown as typeof fetch) })).toBe("sent");
+    const [url, init] = fetcher.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("https://connector-gateway.lovable.dev/meta_ads/v26.0/1941132123224407/events");
+    expect(init.method).toBe("POST");
+    expect(init.headers).toEqual({ "Content-Type": "application/json", Authorization: "Bearer lov-key", "X-Connection-Api-Key": "conn-key" });
+    const body = JSON.parse(init.body as string);
+    expect(Object.keys(body).sort()).toEqual(["data", "partner_agent"]);
+    expect(body.data[0].user_data.em).toBeUndefined();
+    expect(JSON.stringify(body)).not.toMatch(/access_token|conn-key|lov-key/);
   });
   it("fails closed without a verified transport even when a token is configured", async () => {
     expect(await sendRegistration(input, { token: "dummy" })).toBe("connection_required");

@@ -1,7 +1,7 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2.119.0/cors";
 import { createClient } from "npm:@supabase/supabase-js@2.119.0";
 import { z } from "npm:zod@3.25.76";
-import { eligibleBusinessRegistration, sendRegistration, validMetaCookie } from "../_shared/meta-registration.ts";
+import { eligibleBusinessRegistration, gatewayTransport, sendRegistration, validMetaCookie } from "../_shared/meta-registration.ts";
 
 const bodySchema = z.object({ advertising_allowed: z.boolean(), country: z.string().regex(/^[A-Z]{2}$/).nullable(), fbc: z.string().max(540).optional(), fbp: z.string().max(100).optional() }).strict();
 const blocked = new Set(["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IS","IE","IT","LI","LV","LT","LU","MT","NL","NO","PL","PT","RO","SK","SI","ES","SE","GB","CH","XX","T1"]);
@@ -30,8 +30,12 @@ Deno.serve(async req => {
     const permitted = body.advertising_allowed === true && Boolean(body.country && !blocked.has(body.country)) && req.headers.get("sec-gpc") !== "1" && req.headers.get("dnt") !== "1";
     const result = await sendRegistration({ userId: user.id, createdAt: user.created_at, advertisingAllowed: permitted,
       fbc: body.fbc, fbp: body.fbp, ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim(), userAgent: req.headers.get("user-agent")?.slice(0, 512) ?? "" },
-      { token: Deno.env.get("META_CAPI_ACCESS_TOKEN"), testCode: Deno.env.get("META_CAPI_TEST_EVENT_CODE"), log: message => console.log(message) });
-    // Live transport remains blocked until a supported Meta connection is linked.
+      (() => {
+        const lovableKey = Deno.env.get("LOVABLE_API_KEY"); const connectionKey = Deno.env.get("META_ADS_API_KEY");
+        const ready = Boolean(lovableKey && connectionKey);
+        return { token: ready ? connectionKey : undefined, testCode: Deno.env.get("META_CAPI_TEST_EVENT_CODE"), log: (message: string) => console.log(message),
+          transport: ready ? gatewayTransport(lovableKey!, connectionKey!) : undefined };
+      })());
     return json({ ok: true, skipped: result !== "sent" });
   } catch { return json({ ok: true, skipped: true }); }
 });

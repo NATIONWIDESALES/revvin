@@ -39,7 +39,19 @@ export function registrationPayload(input: RegistrationInput, testCode?: string)
   };
 }
 
-/** The transport is supplied only from a verified, linked Meta connection. No retries. */
+export const META_GRAPH_VERSION = "v26.0";
+export const META_GATEWAY_URL = "https://connector-gateway.lovable.dev/meta_ads";
+
+/** Linked Meta connection transport. The gateway supplies Meta authentication; no Meta token exists in app code. */
+export function gatewayTransport(lovableApiKey: string, connectionKey: string, fetcher: typeof fetch = fetch) {
+  return (payload: ReturnType<typeof registrationPayload>, signal: AbortSignal) =>
+    fetcher(`${META_GATEWAY_URL}/${META_GRAPH_VERSION}/${META_DATASET_ID}/events`, {
+      method: "POST", signal, body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${lovableApiKey}`, "X-Connection-Api-Key": connectionKey },
+    });
+}
+
+/** No retries. */
 export async function sendRegistration(input: RegistrationInput, options: {
   token?: string; testCode?: string;
   transport?: (payload: ReturnType<typeof registrationPayload>, signal: AbortSignal) => Promise<Response>;
