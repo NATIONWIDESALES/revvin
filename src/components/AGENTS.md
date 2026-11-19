@@ -1,0 +1,1 @@
+- Navbar widgets use SilentBoundary and per-mount realtime channel names. Why: a widget failure must never replace the page.
