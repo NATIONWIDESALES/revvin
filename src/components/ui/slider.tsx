@@ -2,6 +2,12 @@ import * as React from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 
 import { cn } from "@/lib/utils";
+import { ResizeObserver as CompatibleResizeObserver } from "@juggle/resize-observer";
+
+// Radix measures its thumb with ResizeObserver, including on the public demo.
+if (typeof window !== "undefined" && typeof window.ResizeObserver !== "function") {
+  window.ResizeObserver = CompatibleResizeObserver;
+}
 
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,

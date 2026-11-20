@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { reportFailure } from "@/lib/reportFailure";
+import { reportFailure, stackLocations } from "@/lib/reportFailure";
 const h = vi.hoisted(() => ({ load: vi.fn(), rpc: vi.fn(), demo: false }));
 vi.mock("@/lib/supabaseLazy", () => ({ loadSupabase: h.load }));
 beforeEach(() => {
@@ -32,5 +32,25 @@ describe("reportFailure safety", () => {
     const data = h.rpc.mock.calls[0][1];
     expect(data.p_message.length).toBe(300); expect(data.p_message).not.toMatch(/secret|owner@example|"form"|never/);
     expect(data.p_route).toBe("/dashboard"); expect(data.p_code).toBe("403");
+  });
+
+  it("captures scrubbed first source locations and component locations within existing field limits", async () => {
+    vi.stubEnv("MODE", "production");
+    const error = new Error("Cannot read properties of undefined owner@example.test token=private");
+    error.stack = `TypeError: owner@example.test token=private\n at handler (https://revvin.co/assets/Sample-abc.js?token=secret:24:9)\n at https://revvin.co/assets/react.js:30:12\n at https://revvin.co/assets/other.js:2:3`;
+    reportFailure("render_crash", { error, componentStack: "\n at Sample (https://revvin.co/assets/Sample-abc.js:12:4)\n at Layout (https://revvin.co/assets/Layout.js:20:3)" });
+    await flush();
+    const data = h.rpc.mock.calls[0][1];
+    expect(data.p_message).toContain("Sample-abc.js:24:9");
+    expect(data.p_message).toContain("react.js:30:12");
+    expect(data.p_code).toBe("components:\nSample-abc.js:12:4\nLayout.js:20:3");
+    expect(JSON.stringify(data)).not.toMatch(/owner@example|token=private|token=secret|https:\/\/revvin/);
+    expect(data.p_message.length).toBeLessThanOrEqual(300);
+    expect(data.p_code.length).toBeLessThanOrEqual(300);
+  });
+
+  it("drops arbitrary stack contents and bounds source frames", () => {
+    expect(stackLocations("Bearer private\nowner@example.test\nsecret=value\n at private (https://revvin.co/preview/private:1:2)")).toBe("");
+    expect(stackLocations(Array.from({ length: 20 }, () => " at https://revvin.co/assets/app.js:1:2").join("\n")).split("\n")).toHaveLength(3);
   });
 });

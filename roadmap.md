@@ -1,5 +1,10 @@
 # Prebuilt pages for outbound sales
 
+# Reliability, November 20
+- [x] Harden path-specific 30-second chunk recovery; deferred reports use chunk_reload in existing code/message fields. Live homepage and index.html both return no-cache, must-revalidate, max-age=0.
+- [x] Capture bounded scrubbed error/component source locations in existing fields; fix reproduced missing ResizeObserver crash and skip unsupported optional intersection features. Exact reported undefined-property failure remains unproven.
+- [x] Full suite 1270 passed, 3 skipped; typecheck/server checks/build clean. Reduced-feature sample submission and failed lazy import with exactly one reload then normal error UI verified. Changelog: docs/reliability-2026-11-20.md. Not published.
+
 # Dashboard miles and Advanced, November 19
 - [x] Keep kilometre storage/search unchanged; convert radius inputs and distance displays to miles.
 - [x] Move integrations into collapsed Settings Advanced and retain integrations deep link. Full suite 1259 passed, 3 skipped; typecheck/build clean. Simulated owner browser save/read-back and mobile overflow check passed; live owner verification unavailable because requester has no app account and temporary-user approval is unavailable.

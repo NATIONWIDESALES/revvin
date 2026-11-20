@@ -7,8 +7,10 @@ export default function MobileStartBar({ pathname }: { pathname: string }) {
   const [focused, setFocused] = useState(false);
   useEffect(() => {
     const target = document.querySelector("[data-hero-cta]") ?? document.querySelector("main h1");
-    if (!target) return;
-    const observer = new IntersectionObserver(([entry]) => setPastHero(!entry.isIntersecting && entry.boundingClientRect.bottom < 0));
+    if (!target || typeof IntersectionObserver !== "function") return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry) setPastHero(!entry.isIntersecting && entry.boundingClientRect.bottom < 0);
+    });
     observer.observe(target);
     const focus = () => setFocused(Boolean(document.activeElement?.matches("input,select,textarea,[contenteditable=true]")));
     const blur = () => { window.setTimeout(focus, 0); };

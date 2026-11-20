@@ -1,6 +1,17 @@
 import { loadSupabase } from "@/lib/supabaseLazy";
 
-type FailureDetail = { error?: unknown; business_id?: string; is_demo?: boolean };
+type FailureDetail = { error?: unknown; business_id?: string; is_demo?: boolean; componentStack?: string | null };
+
+/** Keep only source basenames and line/column, never URLs, arguments or arbitrary stack text. */
+export function stackLocations(stack: unknown): string {
+  if (typeof stack !== "string") return "";
+  return stack.split("\n").slice(0, 8).flatMap(line => {
+    const match = line.match(/(?:^|[\s/(])([a-zA-Z0-9_.-]+\.(?:[cm]?js|[jt]sx?))(?::(\d+):(\d+)|\?[^\s)]*?:(\d+):(\d+))/);
+    if (!match) return [];
+    const file = match[1].replace(/eyJ[\w.-]+|[a-f0-9]{24,}|[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}/gi, "redacted");
+    return [`${file}:${match[2] ?? match[4]}:${match[3] ?? match[5]}`];
+  }).slice(0, 3).join("\n").slice(0, 170);
+}
 
 // Only error message/code are read. Never serialize caller objects or form data.
 function safeError(error: unknown) {
@@ -17,6 +28,14 @@ export function reportFailure(step: string, detail: FailureDetail = {}): void {
   try {
     if (import.meta.env.MODE === "test" || typeof window === "undefined" || detail.is_demo) return;
     const error = safeError(detail.error);
+    if (step === "render_crash" && detail.componentStack != null) {
+      const value = detail.error && typeof detail.error === "object" ? detail.error as { stack?: unknown } : {};
+      const stack = stackLocations(value.stack);
+      const components = stackLocations(detail.componentStack);
+      // Existing server fields each allow 300 chars. Bare locations survive its scrubber.
+      error.message = `${error.message.slice(0, 120)}${stack ? `\nstack:\n${stack}` : ""}`.slice(0, 300);
+      if (components) error.code = `components:\n${components}`;
+    }
     void (async () => {
       try {
         const client = await loadSupabase();

@@ -29,20 +29,20 @@ describe("stale chunk recovery", () => {
   it.each([failure, new Error("Importing a module script failed"), Object.assign(new Error("Loading chunk 2 failed"), { name: "ChunkLoadError" })])("reloads matching chunk failures once with a cache-busted URL", error => {
     const browser = host();
     expect(recovery.recoverChunkLoad(error, browser, 1_000_000)).toBe(true);
-    expect(browser.sessionStorage.getItem(recovery.CHUNK_RELOAD_KEY)).toBe("1000000");
+    expect(browser.sessionStorage.getItem(recovery.chunkReloadKey(browser.location.href))).toBe("1000000");
     expect(browser.location.replace).toHaveBeenCalledExactlyOnceWith("https://revvin.co/pricing?offer=bf2026&_revvin_reload=1000000#plans");
     recovery.recoverChunkLoad(error, browser, 1_000_001);
     expect(browser.location.replace).toHaveBeenCalledTimes(1);
   });
 
-  it("blocks a second reload in a fresh document for five minutes", async () => {
+  it("blocks a second reload in a fresh document for thirty seconds", async () => {
     const browser = host();
     recovery.recoverChunkLoad(failure, browser, 1_000_000);
     vi.resetModules();
     recovery = await import("@/lib/chunkRecovery");
-    expect(recovery.recoverChunkLoad(failure, browser, 1_299_999)).toBe(false);
+    expect(recovery.recoverChunkLoad(failure, browser, 1_029_999)).toBe(false);
     expect(browser.location.replace).toHaveBeenCalledTimes(1);
-    expect(recovery.recoverChunkLoad(failure, browser, 1_300_000)).toBe(true);
+    expect(recovery.recoverChunkLoad(failure, browser, 1_030_000)).toBe(true);
     expect(browser.location.replace).toHaveBeenCalledTimes(2);
   });
 
@@ -85,7 +85,7 @@ describe("stale chunk recovery", () => {
     const Broken = recovery.lazyWithChunkRecovery(() => Promise.reject(error));
     render(<ErrorBoundary><Suspense fallback={null}><Broken /></Suspense></ErrorBoundary>);
     await screen.findByRole("button", { name: "Refresh Page" });
-    expect(report).toHaveBeenCalledWith("render_crash", { error });
+    expect(report).toHaveBeenCalledWith("render_crash", expect.objectContaining({ error, componentStack: expect.any(String) }));
   });
 
   it("reports a persistent lazy chunk failure through the existing boundary", async () => {
@@ -93,7 +93,7 @@ describe("stale chunk recovery", () => {
     const Broken = recovery.lazyWithChunkRecovery(() => Promise.reject(failure));
     render(<ErrorBoundary><Suspense fallback={null}><Broken /></Suspense></ErrorBoundary>);
     await screen.findByRole("button", { name: "Refresh Page" });
-    expect(report).toHaveBeenCalledWith("render_crash", { error: failure });
+    expect(report).toHaveBeenCalledWith("render_crash", expect.objectContaining({ error: failure, componentStack: expect.any(String) }));
   });
 
   it("a recovering lazy import stays pending instead of reporting a crash", async () => {
@@ -107,5 +107,37 @@ describe("stale chunk recovery", () => {
     await vi.waitFor(() => expect(browser.location.replace).toHaveBeenCalledTimes(1));
     expect(report).not.toHaveBeenCalled();
     expect(screen.queryByRole("button", { name: "Refresh Page" })).toBeNull();
+  });
+
+  it("reports recovery once on fresh startup using the existing RPC step", async () => {
+    const browser = host();
+    recovery.recoverChunkLoad(failure, browser);
+    expect(report).not.toHaveBeenCalled();
+    vi.resetModules();
+    recovery = await import("@/lib/chunkRecovery");
+    recovery.installChunkRecovery(browser);
+    recovery.installChunkRecovery(browser);
+    expect(report).toHaveBeenCalledExactlyOnceWith("render_crash", { error: {
+      code: "chunk_reload", message: "chunk_reload: stale deployment module; automatic recovery attempted",
+    } });
+  });
+
+  it("guards each pathname independently", async () => {
+    const browser = host();
+    recovery.recoverChunkLoad(failure, browser, 1_000_000);
+    vi.resetModules();
+    recovery = await import("@/lib/chunkRecovery");
+    browser.location.href = "https://revvin.co/sample";
+    expect(recovery.recoverChunkLoad(failure, browser, 1_000_001)).toBe(true);
+    expect(browser.location.replace).toHaveBeenCalledTimes(2);
+  });
+
+  it("handles Vite preload failures even without a recognized payload", () => {
+    const browser = host();
+    recovery.installChunkRecovery(browser);
+    const event = new Event("vite:preloadError", { cancelable: true });
+    browser.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(browser.location.replace).toHaveBeenCalledTimes(1);
   });
 });
