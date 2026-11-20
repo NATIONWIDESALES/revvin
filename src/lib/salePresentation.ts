@@ -25,7 +25,7 @@ export function isSaleMarketingPath(path: string) {
 }
 
 export function isSaleSurface(path: string) {
-  return isSaleMarketingPath(path) || path === "/dashboard" || path.startsWith("/dashboard/");
+  return isSaleMarketingPath(path) || /^\/i\/[^/]+\/?$/.test(path) || path === "/dashboard" || path.startsWith("/dashboard/");
 }
 
 export function saleDestination(owner: boolean) {

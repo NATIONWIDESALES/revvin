@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# Invite landing sale, November 20
+- [x] Reuse the site-wide banner on /i/:code and live-sale signup destination on its main CTA; preserve invite capture and expired-sale behavior. Invite pages remain popup-free.
+- [x] Full suite: 1276 passed, 3 skipped; typecheck/server checks/build clean. Browser invite-to-signup note, unchanged invite storage and expiry verified at 320px, 390px and 1280px. Not published.
+
 # Reliability, November 20
 - [x] Harden path-specific 30-second chunk recovery; deferred reports use chunk_reload in existing code/message fields. Live homepage and index.html both return no-cache, must-revalidate, max-age=0.
 - [x] Capture bounded scrubbed error/component source locations in existing fields; fix reproduced missing ResizeObserver crash and skip unsupported optional intersection features. Exact reported undefined-property failure remains unproven.

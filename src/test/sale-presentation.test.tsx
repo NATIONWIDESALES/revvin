@@ -59,7 +59,18 @@ describe("sale presentation eligibility and continuity", () => {
     expect(sessionStorage.getItem("revvin_bf2026_paid_ad")).toBeNull();
   });
   it.each(["/r/acme", "/r/status/token", "/print/qr", "/earn", "/earn/dallas", "/me", "/referrer/123", "/auth/callback", "/feedback/token", "/offer/acme/1", "/partners/dashboard"])("excludes %s", (path) => { expect(isSaleSurface(path)).toBe(false); });
-  it.each(["/", "/pricing", "/how-it-works", "/guides/guide", "/referral-program/roofing", "/dashboard"])("includes %s", (path) => { expect(isSaleSurface(path)).toBe(true); });
+  it.each(["/", "/pricing", "/how-it-works", "/guides/guide", "/referral-program/roofing", "/dashboard", "/i/LAUNCH", "/i/OTHER/"])("includes %s", (path) => { expect(isSaleSurface(path)).toBe(true); });
+  it("shows only the existing banner on invite pages during the sale", async () => {
+    await surface("/i/LAUNCH"); await flush(); await popupWait();
+    expect(screen.getByRole("complementary", { name: "Early Black Friday sale" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: /Get the Black Friday price/ }).getAttribute("href")).toBe("/signup?offer=bf2026");
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+  it("hides the invite banner after the sale end", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ sale_live: true, sale_end: SALE_END_ISO, server_now: SALE_END_ISO }))));
+    await surface("/i/LAUNCH"); await flush();
+    expect(screen.queryByRole("complementary")).toBeNull();
+  });
   it("routes visitors to the sale signup and owners to the existing billing picker", () => {
     expect(saleDestination(false)).toBe("/signup?offer=bf2026");
     expect(saleDestination(true)).toBe("/dashboard?tab=billing&offer=bf2026");

@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { setInviteCode, getInviteCode } from "@/lib/invite";
 import { track } from "@/lib/track";
+import { useSale } from "@/lib/useSale";
+import { saleDestination } from "@/lib/salePresentation";
+import SalePromotion from "@/components/billing/SalePromotion";
 import SEOHead from "@/components/SEOHead";
 import Wordmark from "@/components/brand/Wordmark";
 import { Button } from "@/components/ui/button";
@@ -23,6 +26,7 @@ const InviteLanding = () => {
   const { code } = useParams();
   const [stored, setStored] = useState<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
+  const saleLive = useSale();
 
   useEffect(() => {
     const held = (code ? setInviteCode(code) : null) ?? getInviteCode();
@@ -50,6 +54,7 @@ const InviteLanding = () => {
   return (
     <>
       <SEOHead title="Revvin invite | Your free referral page" description="Turn the customers you already have into your next job. Publish a free referral page with a link and QR code, and reply to referrals in one tap." path="/signup" noindex />
+      <div className="sticky top-0 z-50"><SalePromotion /></div>
 
       <div className="px-4 pb-24 pt-6 sm:pb-16">
         <div className="mx-auto max-w-5xl">
@@ -67,9 +72,15 @@ const InviteLanding = () => {
               inbox you can reply to in one tap.
             </p>
             <div className="mt-6 flex justify-center">
-              <Button size="lg" className="h-auto min-h-11 max-w-full whitespace-normal py-3 text-center" onClick={goToForm}>
-                {FREE_CTA_LABEL}
-              </Button>
+              {saleLive ? (
+                <Button asChild size="lg" className="h-auto min-h-11 max-w-full whitespace-normal py-3 text-center">
+                  <Link to={saleDestination(false)} onClick={() => track("invite_cta_clicked")}>{FREE_CTA_LABEL}</Link>
+                </Button>
+              ) : (
+                <Button size="lg" className="h-auto min-h-11 max-w-full whitespace-normal py-3 text-center" onClick={goToForm}>
+                  {FREE_CTA_LABEL}
+                </Button>
+              )}
             </div>
             {stored && <InviteBanner code={stored} compact className="mt-5 justify-center text-left" />}
           </header>
