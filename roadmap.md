@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# Social videos, November 20
+- [x] Saved the four supplied render scripts unchanged and rendered seven static public MP4 files using temporary fonts; no app imports or app changes.
+- [x] Verified all seven at 1080x1920 with H.264/AAC, exact requested durations and HTTP 200 video/mp4 locally. Inspected the 6-second Black Friday frame: green background, yellow heading, $67.90 and $582. Sizes reported in chat; not published.
+
 # Invite landing sale, November 20
 - [x] Reuse the site-wide banner on /i/:code and live-sale signup destination on its main CTA; preserve invite capture and expired-sale behavior. Invite pages remain popup-free.
 - [x] Full suite: 1276 passed, 3 skipped; typecheck/server checks/build clean. Browser invite-to-signup note, unchanged invite storage and expiry verified at 320px, 390px and 1280px. Not published.
