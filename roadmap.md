@@ -1,5 +1,11 @@
 # Prebuilt pages for outbound sales
 
+# Reliability, November 21
+- [x] Install the missing size observer before React renders any page and test native preservation.
+- [x] Filter routine signup role-alert emails only, retaining audit logging and split weekly totals. Function deployment remains unapplied for review.
+- [ ] Fix smoke slug generation. Blocked: the live journey is a SQL function, not an edge function; no migrations authorized. Supply an unapplied proposal.
+- [x] Full suite: 1287 passed, 3 skipped; security-monitor Deno check and preview build clean. Browser signup and sample load with native ResizeObserver removed and no page errors. Smoke proposal: 1000 read-only generated candidates passed the live validator. Commit without publishing.
+
 # Social videos, November 20
 - [x] Saved the four supplied render scripts unchanged and rendered seven static public MP4 files using temporary fonts; no app imports or app changes.
 - [x] Verified all seven at 1080x1920 with H.264/AAC, exact requested durations and HTTP 200 video/mp4 locally. Inspected the 6-second Black Friday frame: green background, yellow heading, $67.90 and $582. Sizes reported in chat; not published.

@@ -9,6 +9,7 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2.97.0/cors";
 import { checkCronAuth } from "../_shared/cron-auth.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
+import { isNewBusinessAccount, roleChangeCounts } from "./role-changes.ts";
 
 const ALERT_EMAIL = "info@revvin.co";
 const THROTTLE_HOURS = 6;
@@ -105,18 +106,19 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Any change to user_roles (includes new admins) in the last 15 minutes.
+  // Alert on role changes except routine actorless business signups.
   const { data: roleChanges } = await db
     .from("security_events")
     .select("id, details, created_at")
     .eq("event_type", "user_roles_change")
     .gte("created_at", iso(15 * 60_000))
     .limit(20);
-  if (roleChanges?.length) {
+  const alertRoleChanges = (roleChanges ?? []).filter((change) => !isNewBusinessAccount(change));
+  if (alertRoleChanges.length) {
     alerts.push({
       type: "user_roles_change",
-      summary: `${roleChanges.length} user role change(s) in the last 15 minutes.`,
-      details: { changes: roleChanges },
+      summary: `${alertRoleChanges.length} user role change(s) in the last 15 minutes.`,
+      details: { changes: alertRoleChanges },
     });
   }
 
@@ -287,7 +289,7 @@ Deno.serve(async (req) => {
         db.from("businesses").select("id", { count: "exact", head: true }).eq("is_published", true).gte("updated_at", week),
         db.from("email_send_log").select("id", { count: "exact", head: true }).gte("created_at", week),
         db.from("security_events").select("id", { count: "exact", head: true }).eq("event_type", "rate_limited").gte("created_at", week),
-        db.from("security_events").select("id").eq("event_type", "user_roles_change").gte("created_at", week).limit(100),
+        db.from("security_events").select("id, details").eq("event_type", "user_roles_change").gte("created_at", week).limit(100),
         db.from("audit_log").select("payload").eq("event_type", "data_retention").gte("created_at", week).limit(100),
       ]);
       const retentionTotals: Record<string, number> = {};
@@ -296,12 +298,15 @@ Deno.serve(async (req) => {
           if (typeof v === "number") retentionTotals[k] = (retentionTotals[k] ?? 0) + v;
         }
       }
+      const roleCounts = roleChangeCounts(weekRoleChanges ?? []);
       const summary = [
         `Signups this week: ${weekSignups ?? 0}`,
         `Published pages this week: ${weekPublishes ?? 0}`,
         `Outbound emails this week: ${weekEmails ?? 0}`,
         `Rate-limit rejections this week: ${weekRateLimited ?? 0}`,
-        `Role changes this week: ${weekRoleChanges?.length ?? 0}`,
+        `Role changes this week: ${roleCounts.total}`,
+        `New business accounts this week: ${roleCounts.newBusinessAccounts}`,
+        `Other role changes this week: ${roleCounts.otherRoleChanges}`,
         `Retention job totals this week: ${JSON.stringify(retentionTotals)}`,
       ].join("\n");
       const result = await sendEmailViaGateway({

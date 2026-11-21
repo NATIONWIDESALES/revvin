@@ -1,0 +1,1 @@
+- Classify role audit records in role-changes.ts for both alert filtering and weekly totals. Why: suppress only exact routine business inserts without changing security event logging.

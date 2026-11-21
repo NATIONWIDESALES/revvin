@@ -4,6 +4,12 @@ import "./index.css";
 import { blockFramedPage } from "./lib/frameProtection";
 import { installChunkRecovery } from "./lib/chunkRecovery";
 import { captureFirstTouch } from "./lib/firstTouch";
+import { ResizeObserver as CompatibleResizeObserver } from "@juggle/resize-observer";
+
+// Radix size measurement is used on pages that never load the slider.
+if (typeof window !== "undefined" && typeof window.ResizeObserver !== "function") {
+  window.ResizeObserver = CompatibleResizeObserver;
+}
 
 installChunkRecovery();
 captureFirstTouch(window.location.href);
