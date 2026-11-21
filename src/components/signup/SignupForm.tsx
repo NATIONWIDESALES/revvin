@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, MailCheck } from "lucide-react";
@@ -16,7 +17,8 @@ import { friendlyError } from "@/lib/errors";
 import { getPartnerClick } from "@/lib/partnerLink";
 import { CHECKOUT_FALLBACK_TOAST, holdCheckoutIntent, parsePlan, startHeldCheckout, clearCheckoutIntent } from "@/lib/proCheckoutIntent";
 import type { BillingPlan } from "@/config/pricing";
-import { readPreview, storePreview, previewSignupUrl, previewCategory, acquisitionOf } from "@/lib/instantPreview";
+import { readPreview, storePreview, previewSignupUrl, acquisitionOf } from "@/lib/instantPreview";
+import { SIGNUP_TRADES, isSignupTrade, isHomeServiceTrade, signupCategory, signupTradeFromPreview } from "@/lib/signupTrade";
 import { withSaleOffer } from "@/lib/salePresentation";
 import { registrationConsent, registrationEventId, reportRegistration } from "@/lib/metaRegistration";
 
@@ -43,6 +45,7 @@ const SignupForm = ({
   const { toast } = useToast();
 
   const [businessName, setBusinessName] = useState("");
+  const [signupTrade, setSignupTrade] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -58,7 +61,7 @@ const SignupForm = ({
 
   useEffect(() => {
     const preview = readPreview(window.location.search);
-    if (preview) { setBusinessName(preview.name); storePreview(preview); }
+    if (preview) { setBusinessName(preview.name); setSignupTrade(signupTradeFromPreview(preview.trade)); storePreview(preview); }
     // Purchase intent from /pricing. Anything other than monthly|annual is ignored.
     const fromUrl = parsePlan(new URLSearchParams(window.location.search).get("plan"));
     if (fromUrl) {
@@ -133,13 +136,18 @@ const SignupForm = ({
       toast({ title: "Missing info", description: "Email, password, and business name are required.", variant: "destructive" });
       return;
     }
+    if (!isSignupTrade(signupTrade)) {
+      toast({ title: "Missing info", description: "Your trade is required.", variant: "destructive" });
+      return;
+    }
     if (password.length < 8) {
       toast({ title: "Password too short", description: "Use at least 8 characters.", variant: "destructive" });
       return;
     }
     setBusy(true);
     track("signup_submitted");
-    const metaConsent = registrationConsent().catch(() => ({ advertising_allowed: false, country: null }));
+    const homeService = isHomeServiceTrade(signupTrade);
+    const metaConsent = homeService ? registrationConsent().catch(() => ({ advertising_allowed: false, country: null })) : null;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -149,7 +157,9 @@ const SignupForm = ({
           role: "business",
           full_name: fullName.trim() || email.split("@")[0],
           business_name: businessName.trim(),
-          preview_trade: preview ? previewCategory(preview.trade) : null,
+          signup_trade: signupTrade,
+          // Existing insert trigger seeds category from this handoff; no later category overwrite.
+          preview_trade: signupCategory(signupTrade),
           preview_reward: preview ? String(preview.reward) : null,
           acquisition: acquisitionOf(preview, window.location.href),
         },
@@ -163,8 +173,8 @@ const SignupForm = ({
       return;
     }
     track("signup_succeeded");
-    track("signup_completed", undefined, data.user?.id ? registrationEventId(data.user.id) : undefined);
-    if (data.user?.id && data.session?.access_token) {
+    if (homeService) track("signup_completed", undefined, data.user?.id ? registrationEventId(data.user.id) : undefined);
+    if (homeService && metaConsent && data.user?.id && data.session?.access_token) {
       const registeredId = data.user.id;
       const accessToken = data.session.access_token;
       void metaConsent.then(consent => reportRegistration(registeredId, accessToken, consent));
@@ -234,6 +244,18 @@ const SignupForm = ({
         <div>
           <Label htmlFor={`${formId}-biz`}>Business name</Label>
           <Input id={`${formId}-biz`} autoComplete="organization" value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Your business name" className="mt-1.5" required />
+        </div>
+        <div>
+          <Label htmlFor={`${formId}-trade`}>Your trade</Label>
+          <Select value={signupTrade} onValueChange={setSignupTrade}>
+            <SelectTrigger id={`${formId}-trade`} aria-required="true" aria-describedby={`${formId}-trade-note`} className="mt-1.5 h-auto min-h-10 [&>span]:line-clamp-none [&>span]:text-left [&>span]:whitespace-normal">
+              <SelectValue placeholder="Select your trade" />
+            </SelectTrigger>
+            <SelectContent className="max-w-[calc(100vw-2rem)]">
+              {SIGNUP_TRADES.map(trade => <SelectItem key={trade} value={trade}>{trade}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <p id={`${formId}-trade-note`} className="mt-1.5 text-xs text-muted-foreground">Revvin is built for home-service businesses.</p>
         </div>
         <div>
           <Label htmlFor={`${formId}-name`}>Your name</Label>

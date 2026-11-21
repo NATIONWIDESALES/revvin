@@ -1,5 +1,10 @@
 # Prebuilt pages for outbound sales
 
+# Signup trade qualification, November 21
+- [x] Require a preview-prefilled trade, persist signup metadata and category through the existing category handoff, and gate browser/server Meta registration.
+- [x] Full suite: 1340 passed, 3 skipped; function checks and preview typecheck/build clean. Simulated signup at 320/390/1280 verifies validation, metadata, qualified-only pixel requests and preview preselection. No migrations or publishing.
+- [ ] Deploy the meta-capi qualification change with the reviewed frontend release. Held for the owner's review; no live account creation or Meta receipt verification performed.
+
 # Reliability, November 21
 - [x] Install the missing size observer before React renders any page and test native preservation.
 - [x] Filter routine signup role-alert emails only, retaining audit logging and split weekly totals. Function deployment remains unapplied for review.

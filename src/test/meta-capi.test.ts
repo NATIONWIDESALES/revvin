@@ -12,17 +12,20 @@ afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); vi.useRealTimers(
 describe("Meta server registration", () => {
   it("accepts a new authenticated business signup before its business row is available", () => {
     const now = Date.parse(input.createdAt);
-    expect(eligibleBusinessRegistration({ created_at: input.createdAt, user_metadata: { role: "business" } }, undefined, now)).toBe(true);
-    expect(eligibleBusinessRegistration({ created_at: input.createdAt, user_metadata: { role: "business" } }, { is_demo: false }, now)).toBe(true);
+    expect(eligibleBusinessRegistration({ created_at: input.createdAt, user_metadata: { role: "business", signup_trade: "Roofing" } }, undefined, now)).toBe(true);
+    expect(eligibleBusinessRegistration({ created_at: input.createdAt, user_metadata: { role: "business", signup_trade: "Roofing" } }, { is_demo: false }, now)).toBe(true);
   });
   it("excludes known demos, other signup intents and accounts outside the signup window", () => {
     const now = Date.parse(input.createdAt);
-    const user = { created_at: input.createdAt, user_metadata: { role: "business" } };
+    const user = { created_at: input.createdAt, user_metadata: { role: "business", signup_trade: "Roofing" } };
     expect(eligibleBusinessRegistration(user, { is_demo: true }, now)).toBe(false);
     expect(eligibleBusinessRegistration({ ...user, user_metadata: { role: "business", is_demo: true } }, undefined, now)).toBe(false);
     expect(eligibleBusinessRegistration({ ...user, user_metadata: { role: "referrer" } }, undefined, now)).toBe(false);
     expect(eligibleBusinessRegistration(user, undefined, now + 600001)).toBe(false);
     expect(eligibleBusinessRegistration(user, undefined, now - 1)).toBe(false);
+  });
+  it.each(["Not a home-service business", "", undefined, "Yacht delivery"])("blocks server registration for unqualified trade %s", signup_trade => {
+    expect(eligibleBusinessRegistration({ created_at: input.createdAt, user_metadata: { role: "business", signup_trade } }, undefined, Date.parse(input.createdAt))).toBe(false);
   });
   it("normalizes trimmed lowercase email before SHA-256, while matching remains disabled", async () => {
     vi.stubGlobal("crypto", webcrypto);

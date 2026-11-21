@@ -1,0 +1,1 @@
+- Signup trade qualification shares an allowlist with the server; mapped categories use the existing preview_trade insert handoff. Why: Meta qualification must agree across paths without a migration or client category race.
