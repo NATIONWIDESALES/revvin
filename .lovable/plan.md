@@ -1,61 +1,34 @@
-# Earn: metros, local business lists and one-tap personal links
+# Super admin audit (read-only findings + proposed minimal fixes)
 
-## Facts found that change the build
+Nothing has been changed. Approving this plan would apply only the fixes listed under "Proposed fixes".
 
-1. **The /earn waitlist and "Know a business" forms do not save today.** The database only accepts leads from `landing`, `playbook`, `sample` and `marketplace_notify`, so `earn_waitlist` and `business_invite` are refused. The table also has no city column, so a "people waiting in this city" count is impossible today. Fix: a narrow server function `fn_submit_earn_lead` that accepts only those two sources, stores the city/metro, and is rate-limited. The existing open insert rule stays exactly as it is.
-2. **Partner links and personal links clash.** The partner capture listens for `?via=` and `?ref=` on every page, so a personal link `/r/{slug}?ref={token}` is currently being stored as a partner code. Fix: on `/r/*` pages, `?ref=` is treated as a referrer token only; `?via=` keeps working everywhere.
-3. **Inviting a business does not attribute it automatically.** In the existing partner program a partner is approved by hand, and a business is credited only when it signs up through that partner's `?via=` link within the existing attribution window. So "earn_invite" will create a pending partner application, and once approved, the referrer gets their partner link to send the business. The copy line you supplied stays honest because it says "can earn" and links the terms. No new commission logic.
-4. **"Super admin" means the existing `admin` role** in user roles. There is no separate super admin role; the CRM and the `is_verified` guard already use `admin`.
-5. **Live metro pages are written at build time.** Flipping a metro live shows it in the app immediately, but its search-engine copy and sitemap entry appear on the next publish.
+## Works
+- Route and gate: `/__sa` is wrapped in AdminMfaGate (src/App.tsx:119). The only admin is info@revvin.co (checked in user_roles). AdminMfaGate (src/components/admin/AdminMfaGate.tsx:17-24, 51-56) requires a verified authenticator code at AAL2 before it shows children, and offers setup when no authenticator exists yet.
+- Server check matches the client: sa-data and partner-admin both call isPlatformAdmin (supabase/functions/_shared/admin-auth.ts:1-9). It runs has_role as the caller, so the server applies the same "verified authenticator means AAL2 required" rule as the gate. fn_admin_core_numbers and fn_admin_update_business use the same has_role.
+- Deployed: sa-data and partner-admin both answer (an empty 404 when the caller is not an admin, which is intended). A missing function returns NOT_FOUND JSON instead.
+- Schema: plan, pro_trial_ends_at, show_on_earn, acquisition, subscription_status, is_demo, partner_id, account_status, index_approved, latitude and street_address all exist on businesses. All partners columns used by partner-admin exist.
+- Verification tab actions go through fn_admin_update_business (SuperAdminCRM.tsx:402-415). Emails, Push, Audit, Failures and Security tabs read existing tables.
+- Partners > Approve (partner-admin/index.ts:140-184): checks the code, rejects duplicate codes, sets status=approved, code, dashboard_token and approved_at, then sends partner_approved. That template exists in the registry, and the same sender has delivered the partner application emails (sent 2026-11-18 and 2026-11-20). Sonny Miller is pending with no code, so the button will work. The approval email itself has never been sent before, so it is untested in production.
+- Logs: no sa-data or partner-admin errors or invocations in the retained log window. Only boot and shutdown lines exist for other functions, so the 7-day check is limited.
 
-## What gets built
+## Broken
+1. sa-data reads a `payouts` table that no longer exists (sa-data/index.ts:245-248, 271). The query fails quietly and returns an empty list, so per-business "payouts ready" is always 0 (SuperAdminCRM.tsx:365). Fix: remove both `payouts` queries and return `payouts: []`.
+2. The Admin Notes "Save Notes" button (SuperAdminCRM.tsx:374-400) never checks the response, and nothing in the page opens the referral drawer (`setSelectedReferral` is never called with a referral). The notes feature cannot be reached. Fix: remove the drawer, or wire a row click and check `response.ok`.
+3. The offer Reject button (SuperAdminCRM.tsx:759) ignores errors, so it shows "Offer rejected" even when the save fails. Fix: check `error` the same way approveOffer does.
+4. Sales role: the page lets the `sales` role in (SuperAdminCRM.tsx:233), but sales-only users are shown ProspectsPanel only. That part is consistent and not broken, noted here only for completeness.
 
-**Database (one migration)**
-- `metros` table (id, name, slug, center_lat, center_lng, radius_km, is_live default false, launched_at). Seed "Fraser Valley, BC" / `fraser-valley` / 49.104, -122.66 / 45 km / not live. Public can read only live metros, through the views and functions below; admins can read and toggle all. A guard stamps `launched_at` and rejects `is_live` changes from anyone who is not an admin.
-- `businesses.show_on_earn` boolean default true (owner-editable, like other page fields).
-- `email_leads`: nullable `city` and `metro_slug` columns.
-- One shared eligibility rule, `fn_earn_eligible(business)`: published and live page, not demo, not a restricted trade (Finance, Insurance, Legal, Mortgage, Real Estate, kept in sync with `RESTRICTED_CATEGORIES` by a test), `show_on_earn` true, has a reward, and inside the metro radius by coordinates, or a city-name match when coordinates are missing.
-- Functions:
-  - `fn_earn_metros()`: live metros only (name, slug).
-  - `fn_earn_businesses(p_metro_slug)`: for a live metro only, returns slug, name, trade, city, reward. Never email, phone, owner or id.
-  - `fn_earn_get_link(p_business_slug, p_name, p_email)`: checks the business is eligible in a live metro, then creates or reuses the `referrers` row by email (existing `fn_upsert_referrer`) and returns only the token. When signed in, it uses the account's confirmed email. Rate-limited.
-  - `fn_earn_waiting_count(p_metro_slug)`: count of waitlist signups for that metro, returned only when it is 1 or more.
-  - `fn_submit_earn_lead(email, source, city, metro_slug)`: described above.
-  - `fn_admin_metros()`: admin only; each metro with its eligible-business count.
-  - `fn_business_metro(p_slug)`: the live metro slug for a business page, or nothing.
+## Misleading
+5. "Businesses" (16 rows, 15 non-demo) counts internal test accounts as customers: Karm Sandhu Real Estate, Karm Personal Test, QA Test Plumbing and Revvin Internal Test Roofing. fn_admin_core_numbers only excludes is_demo. Fix (no migration): flag these four as is_demo through the existing admin path. Alternatively, a later approved migration could exclude acquisition utm_source = internal.
+6. Payments tab "Subscribing businesses" (SuperAdminCRM.tsx:814) counts `trialing`. The header card (fn_admin_core_numbers) counts only `active`. Today both show 1 (Next property, Pro, active), but they will drift apart. App-level Pro trials (pro_trial_ends_at, 11 businesses) are correctly not counted as paying. Fix: count only `active` (or use n.active_subscriptions).
+7. Partners list "payingCustomers" (partner-admin/index.ts:102) counts `trialing` and `past_due` as paying. Fix: use `active` only.
+8. There is no revenue figure anywhere in the CRM, so $0 invoices cannot inflate a number. Note that "Next property" (the only active Pro) may be an internal account. Please confirm.
+9. Approve says "Partner approved and emailed" (PartnersPanel.tsx:225) even when sendPartnerEmail fails or the address is suppressed, because the result is ignored at partner-admin/index.ts:165. Fix: return `emailSent` and show a warning toast when it is false.
+10. The Overview "Businesses" list and the Verification queue read every business, including demo ones (SuperAdminCRM.tsx:263). Fix: filter `is_demo` in the list, or label demo rows.
+11. signup_trade is not shown anywhere in the CRM (it lives only in auth metadata and businesses.category). This is not broken, just missing if you want to see the trade gate there.
 
-**Pages**
-- `/earn`: hero and rules unchanged. "Live cities" list from `fn_earn_metros`; when none are live, the current Fraser Valley waitlist copy stays word for word. The waitlist now actually saves, with city.
-- `/earn/{metro}`:
-  - **Live:** business list with trade filter chips and "Get my link". That button asks for name and email, or skips the question when signed in at /me, then shows the personal link, Copy, Share and the same share text as the referral page. "Get links for more businesses" returns to the list.
-  - **Not live:** noindex, waitlist with the metro prefilled, and "{n} people waiting" only when n is 1 or more.
-- "Know a business that should be here?" on both pages, using the existing business invite form, plus the one partner-terms line linking to `/partners/terms`. Business name and contact are saved. If an email is given, or the person is signed in, a pending partner application with source `earn_invite` is created through the existing `partner-apply` function. Its required fields are filled with fixed values ("Earn invite"), marked agreed only when the person ticks a terms box.
-- `/r/{slug}`: footer link "Find more local businesses that pay for referrals" when the business is in a live metro and shown on Earn.
-- `/me`: "Discover more businesses near you" to the live metro of any business they refer for.
-- Dashboard (My Page): "Show my offer on Earn" switch with your helper text; restricted trades see "Not available for your industry" instead.
-- Super Admin CRM: Metros panel listing each metro, its eligible count, "Target: 15", and the is_live switch.
-
-**Search engines**
-- Build-time pages for `/earn` and every live `/earn/{metro}`, titled "Get paid for referrals in {metro} | Revvin", with description, canonical, and an ItemList of LocalBusiness items each with an Offer for the reward.
-- Live metro pages are added to the sitemap at build. Non-live ones are noindex and left out.
-- `earn` and `me` are added to reserved page names.
-
-## Technical details
-
-- Files:
-  - New: `src/pages/EarnMetro.tsx`, `src/lib/earn.ts`, `src/components/admin/MetrosPanel.tsx`, `src/components/earn/GetMyLink.tsx`, `src/components/earn/InviteBusinessForm.tsx`.
-  - Edited: `src/pages/Earn.tsx`, `src/pages/PublicReferralPage.tsx`, `src/pages/Me.tsx`, `src/components/partners/PartnerCapture.tsx`, the My Page settings component, `src/pages/SuperAdminCRM.tsx`, `src/App.tsx`, `plugins/prerender.ts`, `src/lib/emailLeads.ts`, `src/lib/analyticsPrivacy.ts` (/earn/{metro} as a public path with no query values), and `supabase/functions/partner-apply` (accepts an optional fixed `source: "earn_invite"`, stored in `partners.notes` because there is no source column).
-- No Stripe, billing, promo, payout or commission changes. No earnings figures on any Earn page.
-- Tests (vitest, plus live database checks inside transactions that are undone):
-  - Restricted and demo businesses never come back from `fn_earn_businesses` or the admin count.
-  - Public functions never return email or phone. Checked against the function definitions and a live call.
-  - A non-live metro returns no businesses, its page is noindex, and it is absent from the sitemap and build output.
-  - "Get my link" twice with the same email returns the same token.
-  - A non-admin changing `is_live` is refused; an admin succeeds.
-  - Personal-link `?ref=` on `/r/*` is no longer stored as a partner code.
-  - The eligibility trade list matches `RESTRICTED_CATEGORIES`.
-- The changelog will list tables, policies, functions, routes, the admin panel, tests and the run result.
-
-## Open question (defaults used unless you say otherwise)
-
-- Businesses with no reward amount set are left off Earn lists, since the list promises a reward.
+## Proposed fixes (if approved)
+- sa-data: remove the payouts queries (item 1). This needs a function redeploy.
+- SuperAdminCRM.tsx: error handling on offer Reject (3), a single subscription definition (6), demo filter or label (10), and remove the unreachable notes drawer (2).
+- partner-admin: count only active as paying (7) and return emailSent (9). PartnersPanel shows the warning. Needs a redeploy.
+- Data: mark the four internal test businesses is_demo (5). This is a data update, so it needs your explicit OK.
+- No Stripe, RLS or migration changes, and no publishing.
