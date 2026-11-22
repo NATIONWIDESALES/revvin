@@ -58,6 +58,18 @@ describe("prerendered public documents", () => {
     }
   });
 
+  it("retains the static Meta domain verification tag on the homepage and every prerendered page", () => {
+    const tag = '<meta name="facebook-domain-verification" content="dzc0pqlka372ynrcrut83cyljfv2dn" />';
+    const home = PRERENDER_ROUTES.find((r) => r.path === "/");
+    if (!home) throw new Error("Missing homepage route");
+    for (const route of [home, ...PRERENDER_ROUTES.filter((r) => r.path !== "/")]) {
+      const html = renderRoute(template, route);
+      const head = html.match(/<head[\s>][\s\S]*?<\/head>/)?.[0];
+      expect(head, route.path).toContain(tag);
+      expect(count(html, /name="facebook-domain-verification"/g), route.path).toBe(1);
+    }
+  });
+
   it("each indexable page has exactly one title, description, canonical and H1", () => {
     for (const route of indexable) {
       const html = renderRoute(template, route);
