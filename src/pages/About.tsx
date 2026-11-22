@@ -2,7 +2,7 @@ import { PAGE_META } from "@/content/pageMeta";
 import SEOHead from "@/components/SEOHead";
 import TeamSection from "@/components/marketing/TeamSection";
 import { ABOUT_SECTIONS, ABOUT_UPDATED_AT } from "@/content/aboutPage";
-import { CANONICAL_SENTENCE, ORG_ID, SITE_URL, formatContentDate } from "@/config/brand";
+import { CANONICAL_SENTENCE, ORG_ID, SITE_URL, TEAM_REF, formatContentDate } from "@/config/brand";
 
 const About = () => (
   <>
@@ -17,7 +17,7 @@ const About = () => (
         url: `${SITE_URL}/about`,
         name: "About Revvin",
         about: { "@id": ORG_ID },
-        mainEntity: { "@type": "Organization", "@id": ORG_ID, name: "Revvin", url: SITE_URL },
+        mainEntity: TEAM_REF,
       }}
     />
     <h1 className="text-5xl leading-[0.98] md:text-7xl">About Revvin</h1>

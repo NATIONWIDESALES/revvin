@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# Legal operator identity, November 22
+- [x] Identify the approved legal operator in the shared footer, legal introductions, Organization data and llms.txt without changing other copy or contact details.
+- [x] 173 relevant tests passed; static Organization data verified on /, /about, /terms and /privacy. Live preview verified shared footer and legal identification, unchanged contact, no page errors and no 320px overflow. Preview build OK; no publication performed.
+
 # Search verification and brand entity, November 22
 - [x] Add the exact static Google verification file and LinkedIn company identity without changing visible copy.
 - [x] Verified exact HTTP 200 local static serving, sitemap exclusion and prerendered home/about identity; 156 relevant tests passed and preview build OK.

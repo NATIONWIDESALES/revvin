@@ -4,6 +4,7 @@
 // answer engines read one entity instead of several similar mentions.
 
 export const SITE_URL = "https://revvin.co";
+export const LEGAL_NAME = "Nationwide Sales Group Inc.";
 
 /** Stable JSON-LD node identifiers. Never change these once published. */
 export const ORG_ID = `${SITE_URL}/#organization`;
@@ -38,6 +39,7 @@ export const TEAM_REF = {
   "@type": "Organization",
   "@id": ORG_ID,
   name: "Revvin",
+  legalName: LEGAL_NAME,
   url: SITE_URL,
 } as const;
 

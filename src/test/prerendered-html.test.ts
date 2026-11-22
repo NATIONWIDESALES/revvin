@@ -96,6 +96,17 @@ describe("prerendered public documents", () => {
       expect(new Set(ids).size, `${route.path} duplicate @id`).toBe(ids.length);
     }
   });
+
+  it.each(["/", "/about", "/terms", "/privacy"])("%s identifies the legal operator in static Organization data", (routePath) => {
+    const route = PRERENDER_ROUTES.find((r) => r.path === routePath);
+    if (!route) throw new Error(`Missing route ${routePath}`);
+    const doc = new DOMParser().parseFromString(renderRoute(template, route), "text/html");
+    const schema = doc.querySelector('script[type="application/ld+json"]')?.textContent;
+    if (!schema) throw new Error("Missing static schema");
+    const org = JSON.parse(schema)["@graph"].find((n: { "@type": string }) => n["@type"] === "Organization");
+    expect(org).toMatchObject({ name: "Revvin", legalName: "Nationwide Sales Group Inc.", url: "https://revvin.co" });
+    expect(org.sameAs).toEqual(["https://www.instagram.com/revvin.co/", "https://www.facebook.com/profile.php?id=61596547626844", "https://www.linkedin.com/company/revvinco"]);
+  });
 });
 
 describe("pricing and roundup FAQ static HTML parity", () => {

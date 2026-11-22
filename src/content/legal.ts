@@ -9,7 +9,7 @@ import { PRICE_TEXT } from "../config/pricing";
  * there is now exactly one copy of the text.
  */
 
-import { CLARITY_PROJECT_ID } from "../config/brand";
+import { CLARITY_PROJECT_ID, LEGAL_NAME } from "../config/brand";
 
 export interface LegalParagraph {
   /** Bolded lead-in, e.g. "Account information." */
@@ -43,7 +43,7 @@ export const TERMS_DOC: LegalDoc = {
     `Revvin's terms of service: free referral pages, Revvin Pro at ${PRICE_TEXT.monthly}/month USD, and businesses pay referral rewards directly. Revvin never holds the money.`,
   lastUpdated: "November 10, 2026",
   intro:
-    'Welcome to Revvin. These Terms of Service ("Terms") are a plain-language agreement between you and Revvin ("Revvin", "we", "us") covering revvin.co, the branded referral pages we host for businesses, and related services (the "Service"). By creating an account or using the Service you agree to these Terms. If you do not agree, do not use the Service.',
+    `REVVIN.CO ("Revvin", "we", "us") is a brand operated by ${LEGAL_NAME} Welcome to Revvin. These Terms of Service ("Terms") are a plain-language agreement between you and Revvin ("Revvin", "we", "us") covering revvin.co, the branded referral pages we host for businesses, and related services (the "Service"). By creating an account or using the Service you agree to these Terms. If you do not agree, do not use the Service.`,
   sections: [
     {
       heading: "1. What Revvin is",
@@ -205,7 +205,7 @@ export const PRIVACY_DOC: LegalDoc = {
     "How Revvin collects, uses and protects personal information for business accounts, referrer accounts, referral page leads and campaign email.",
   lastUpdated: "November 18, 2026",
   intro:
-    'This Privacy Policy explains how Revvin ("Revvin", "we", "us") collects, uses, shares, and protects personal information when you use revvin.co, our branded business referral pages, and related services (the "Service"). It applies to businesses that subscribe to Revvin, referrers who submit leads, and the prospective customers ("Leads") whose information is submitted through a referral page. If you do not agree with this Policy, do not use the Service.',
+    `REVVIN.CO ("Revvin", "we", "us") is a brand operated by ${LEGAL_NAME} ${LEGAL_NAME} is the data controller responsible for personal information processed by the Service. This Privacy Policy explains how Revvin ("Revvin", "we", "us") collects, uses, shares, and protects personal information when you use revvin.co, our branded business referral pages, and related services (the "Service"). It applies to businesses that subscribe to Revvin, referrers who submit leads, and the prospective customers ("Leads") whose information is submitted through a referral page. If you do not agree with this Policy, do not use the Service.`,
   sections: [
     {
       heading: "1. Information We Collect",

@@ -2,7 +2,7 @@ import { FREE_CTA_LABEL } from "@/config/planFeatures";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram } from "lucide-react";
 import Wordmark from "@/components/brand/Wordmark";
-import { FACEBOOK_URL, INSTAGRAM_URL } from "@/config/brand";
+import { FACEBOOK_URL, INSTAGRAM_URL, LEGAL_NAME } from "@/config/brand";
 import { PRICE_TEXT } from "@/config/pricing";
 import { INDUSTRIES } from "@/content/industries";
 import { COMPARISONS, ROUNDUP } from "@/content/comparisons";
@@ -93,7 +93,7 @@ const Footer = () => {
         </nav>
 
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-primary-foreground/10 pt-6 sm:flex-row sm:items-center">
-          <p className="text-sm text-primary-foreground/60">&copy; {new Date().getFullYear()} Revvin. All rights reserved.</p>
+          <p className="text-sm text-primary-foreground/60">&copy; {new Date().getFullYear()} REVVIN.CO. Operated by {LEGAL_NAME}</p>
           <p className="text-sm text-primary-foreground/60">Free to publish, {PRICE_TEXT.monthlyPerMonth} for Pro, referrers join free</p>
         </div>
       </div>

@@ -19,6 +19,7 @@ import {
   GUIDES_UPDATED_AT,
   INDEXNOW_KEY,
   ORG_DISAMBIGUATION,
+  LEGAL_NAME,
   TEAM_REF,
   ORG_ID,
   ORG_SAME_AS,
@@ -84,6 +85,7 @@ const ORGANIZATION = {
   "@type": "Organization",
   "@id": ORG_ID,
   name: "Revvin",
+  legalName: LEGAL_NAME,
   url: SITE,
   logo: {
     "@type": "ImageObject",

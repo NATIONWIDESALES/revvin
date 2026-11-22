@@ -3,13 +3,17 @@ import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 import { assertPublicBrand, validatePublicBrandSources } from "@/content/publicBrandGuard";
 import { PRERENDER_ROUTES } from "@/content/seoRoutes";
-import { TEAM_BIO, TEAM_REF, ORG_ID } from "@/config/brand";
+import { TEAM_BIO, TEAM_REF, ORG_ID, LEGAL_NAME } from "@/config/brand";
 import { EARN_COPY } from "@/content/earnPage";
 import { render } from "@/entry-server";
 import { renderRoute, renderLlmsFull, renderRss, jsonLd } from "../../plugins/prerender";
 import { FOUNDER_STORY_APPROVED, LIFECYCLE_FROM } from "../../supabase/functions/_shared/lifecycle-config";
 
 describe("public team identity", () => {
+  it("identifies the legal operator without changing the public brand", () => {
+    expect(LEGAL_NAME).toBe("Nationwide Sales Group Inc.");
+    expect(TEAM_REF).toMatchObject({ name: "Revvin", legalName: "Nationwide Sales Group Inc.", url: "https://revvin.co" });
+  });
   it.each(["Karm", "Sandhu", "https://www.linkedin.com/in/karm"])("rejects retired identity %s", (value) => {
     expect(() => assertPublicBrand(value, "fixture")).toThrow(/Retired personal identity/);
   });
@@ -35,6 +39,7 @@ describe("public team identity", () => {
       const html = renderRoute(template, r, body);
       const graph = JSON.parse(jsonLd(r))["@graph"];
       const org = graph.find((n: Record<string, unknown>) => n["@id"] === ORG_ID);
+      expect(org.legalName, r.path).toBe("Nationwide Sales Group Inc.");
       expect(org.sameAs, r.path).toEqual(["https://www.instagram.com/revvin.co/", "https://www.facebook.com/profile.php?id=61596547626844", "https://www.linkedin.com/company/revvinco"]);
       if (body.includes("<footer")) {
         expect(html, r.path).toMatch(/<footer[\s\S]*href="https:\/\/www\.instagram\.com\/revvin\.co\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer me"[^>]*aria-label="Revvin on Instagram"/);
