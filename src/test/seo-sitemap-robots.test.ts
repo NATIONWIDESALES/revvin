@@ -31,12 +31,16 @@ describe("prerendered public routes", () => {
     });
   }
 
-  it("Organization has Instagram and Facebook sameAs and no founder; WebSite has alternateName", () => {
-    const html = renderRoute(template, PRERENDER_ROUTES.find((r) => r.path === "/")!);
-    const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)![1])["@graph"];
+  it.each(["/", "/about"])("%s: Organization has Instagram, Facebook and LinkedIn sameAs and no founder; WebSite has alternateName", (path) => {
+    const route = PRERENDER_ROUTES.find((r) => r.path === path);
+    if (!route) throw new Error(`Missing prerender route: ${path}`);
+    const html = renderRoute(template, route);
+    const ld = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1];
+    if (!ld) throw new Error(`Missing structured data: ${path}`);
+    const graph = JSON.parse(ld)["@graph"];
     const org = graph.find((n: { "@type": string }) => n["@type"] === "Organization");
     expect(org).not.toHaveProperty("founder");
-    expect(org.sameAs).toEqual(["https://www.instagram.com/revvin.co/", "https://www.facebook.com/profile.php?id=61596547626844"]);
+    expect(org.sameAs).toEqual(["https://www.instagram.com/revvin.co/", "https://www.facebook.com/profile.php?id=61596547626844", "https://www.linkedin.com/company/revvinco"]);
     const site = graph.find((n: { "@type": string }) => n["@type"] === "WebSite");
     expect(site).toMatchObject({ name: "Revvin", alternateName: "Revvin.co" });
   });
@@ -83,6 +87,12 @@ describe("generated sitemap", () => {
   });
   it("public/sitemap.xml is no longer hand-written", () => {
     expect(fs.existsSync("public/sitemap.xml")).toBe(false);
+  });
+  it("keeps the exact Google verification file outside the sitemap and prerender routes", () => {
+    const filename = "googleeeaf57b906c75368.html";
+    expect(fs.readFileSync(`public/${filename}`, "utf8")).toBe(`google-site-verification: ${filename}`);
+    expect(PRERENDER_ROUTES.some((r) => r.path === `/${filename}`)).toBe(false);
+    expect(xml).not.toContain(filename);
   });
 });
 

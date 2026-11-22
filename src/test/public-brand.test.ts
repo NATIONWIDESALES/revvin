@@ -35,7 +35,7 @@ describe("public team identity", () => {
       const html = renderRoute(template, r, body);
       const graph = JSON.parse(jsonLd(r))["@graph"];
       const org = graph.find((n: Record<string, unknown>) => n["@id"] === ORG_ID);
-      expect(org.sameAs, r.path).toEqual(["https://www.instagram.com/revvin.co/", "https://www.facebook.com/profile.php?id=61596547626844"]);
+      expect(org.sameAs, r.path).toEqual(["https://www.instagram.com/revvin.co/", "https://www.facebook.com/profile.php?id=61596547626844", "https://www.linkedin.com/company/revvinco"]);
       if (body.includes("<footer")) {
         expect(html, r.path).toMatch(/<footer[\s\S]*href="https:\/\/www\.instagram\.com\/revvin\.co\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer me"[^>]*aria-label="Revvin on Instagram"/);
         expect(html, r.path).toMatch(/<footer[\s\S]*href="https:\/\/www\.facebook\.com\/profile\.php\?id=61596547626844"[^>]*target="_blank"[^>]*rel="noopener noreferrer me"[^>]*aria-label="Revvin on Facebook"/);

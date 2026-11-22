@@ -1,5 +1,10 @@
 # Prebuilt pages for outbound sales
 
+# Search verification and brand entity, November 22
+- [x] Add the exact static Google verification file and LinkedIn company identity without changing visible copy.
+- [x] Verified exact HTTP 200 local static serving, sitemap exclusion and prerendered home/about identity; 156 relevant tests passed and preview build OK.
+- [ ] Confirm the production verification URL after owner publication. Current production response is 404; no publication authorized.
+
 # Signup trade qualification, November 21
 - [x] Require a preview-prefilled trade, persist signup metadata and category through the existing category handoff, and gate browser/server Meta registration.
 - [x] Full suite: 1340 passed, 3 skipped; function checks and preview typecheck/build clean. Simulated signup at 320/390/1280 verifies validation, metadata, qualified-only pixel requests and preview preselection. No migrations or publishing.

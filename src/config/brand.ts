@@ -23,7 +23,8 @@ export const FOUNDING_DATE = "";
  */
 export const INSTAGRAM_URL = "https://www.instagram.com/revvin.co/";
 export const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61596547626844";
-export const ORG_SAME_AS: string[] = [INSTAGRAM_URL, FACEBOOK_URL];
+export const LINKEDIN_URL = "https://www.linkedin.com/company/revvinco";
+export const ORG_SAME_AS: string[] = [INSTAGRAM_URL, FACEBOOK_URL, LINKEDIN_URL];
 
 /**
  * Name collision disambiguation. Another product called Revvin operates in
