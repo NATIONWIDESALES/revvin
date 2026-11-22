@@ -139,9 +139,6 @@ const SuperAdminCRM = () => {
   const [bizAudit, setBizAudit] = useState<Record<string, AuditEntry[]>>({});
   const [bizPayouts, setBizPayouts] = useState<Record<string, PayoutRecord[]>>({});
   const [bizLoading, setBizLoading] = useState<Record<string, boolean>>({});
-  const [selectedReferral, setSelectedReferral] = useState<Referral | null>(null);
-  const [editingNotes, setEditingNotes] = useState("");
-  const [savingNotes, setSavingNotes] = useState(false);
   const [approvingBiz, setApprovingBiz] = useState<string | null>(null);
   const [backfillingGeo, setBackfillingGeo] = useState(false);
   const [geoProgress, setGeoProgress] = useState<{ done: number; total: number; ok: number; failed: number } | null>(null);
@@ -260,7 +257,7 @@ const SuperAdminCRM = () => {
           supabase.from("referrals").select("*, offers(title, payout, payout_type), businesses(name)").order("created_at", { ascending: false }),
           supabase.from("offers").select("*, businesses(name)").order("created_at", { ascending: false }),
           supabase.from("user_roles").select("*"),
-          supabase.from("businesses").select("*").order("created_at", { ascending: false }),
+          supabase.from("businesses").select("*").not("is_demo", "is", true).order("created_at", { ascending: false }),
           supabase.from("profiles").select("*").order("created_at", { ascending: false }),
           supabase.from("audit_log").select("*").order("created_at", { ascending: false }).limit(50),
           supabase.rpc("fn_admin_core_numbers"),
@@ -370,34 +367,6 @@ const SuperAdminCRM = () => {
       payouts_ready: payoutsReady,
     };
   }, [overview]);
-
-  const saveNotes = async () => {
-    if (!selectedReferral) return;
-    setSavingNotes(true);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sa-data?action=update_notes`;
-    await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ referral_id: selectedReferral.id, notes: editingNotes }),
-    });
-    // Update local state
-    setSelectedReferral({ ...selectedReferral, notes: editingNotes });
-    setBizReferrals((prev) => {
-      const bizId = selectedReferral.business_id;
-      if (!prev[bizId]) return prev;
-      return {
-        ...prev,
-        [bizId]: prev[bizId].map((r) => r.id === selectedReferral.id ? { ...r, notes: editingNotes } : r),
-      };
-    });
-    setSavingNotes(false);
-  };
 
   const adminUpdateBusiness = async (bizId: string, patch: AdminBusinessPatch, successTitle: string) => {
     setApprovingBiz(bizId);
@@ -756,7 +725,8 @@ const SuperAdminCRM = () => {
                           <div className="flex gap-2">
                             <Button size="sm" onClick={() => approveOffer(offer.id)} className="gap-1"><CheckCircle2 className="h-3 w-3" /> Approve</Button>
                             <Button size="sm" variant="destructive" className="gap-1" onClick={async () => {
-                              await supabase.from("offers").update({ approval_status: "rejected" }).eq("id", offer.id);
+                              const { error } = await supabase.from("offers").update({ approval_status: "rejected" }).eq("id", offer.id);
+                              if (error) { toast({ title: "Error", description: friendlyError(error), variant: "destructive" }); return; }
                               setOffers(prev => prev.map(o => o.id === offer.id ? { ...o, approval_status: "rejected" } : o));
                               toast({ title: "Offer rejected" });
                             }}><XCircle className="h-3 w-3" /> Reject</Button>
@@ -811,7 +781,7 @@ const SuperAdminCRM = () => {
                     <div className="rounded-xl border border-border bg-muted/30 p-3">
                       <p className="text-xs text-muted-foreground">Subscribing businesses</p>
                       <p className="text-xl font-bold text-foreground">
-                        {businesses.filter((b: any) => ["active","trialing","paid"].includes(b.subscription_status)).length}
+                        {fmt(n?.active_subscriptions)}
                       </p>
                     </div>
                     <div className="rounded-xl border border-border bg-muted/30 p-3">
@@ -984,65 +954,8 @@ const SuperAdminCRM = () => {
         )}
       </main>
 
-      {/* Detail drawer */}
-      <Sheet open={!!selectedReferral} onOpenChange={(open) => { if (!open) setSelectedReferral(null); }}>
-        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Referral Detail</SheetTitle>
-            <SheetDescription>
-              {selectedReferral?.customer_name}
-            </SheetDescription>
-          </SheetHeader>
-          {selectedReferral && (
-            <div className="mt-6 space-y-6">
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <Field label="Customer" value={selectedReferral.customer_name} />
-                <Field label="Email" value={selectedReferral.customer_email} />
-                <Field label="Phone" value={selectedReferral.customer_phone} />
-                <Field label="Status" value={<Badge className={stageConfig[selectedReferral.status]?.color}>{stageConfig[selectedReferral.status]?.label || selectedReferral.status}</Badge>} />
-                <Field label="Offer" value={selectedReferral.offers?.title} />
-                <Field label="Payout" value={selectedReferral.offers ? `$${selectedReferral.offers.payout} (${selectedReferral.offers.payout_type})` : "·"} />
-                <Field label="Payout Status" value={selectedReferral.payout_status} />
-                <Field label="Referrer" value={profileMap[selectedReferral.referrer_id] || selectedReferral.referrer_id.slice(0, 8)} />
-                <Field label="Submitted" value={format(new Date(selectedReferral.created_at), "MMM d, yyyy")} />
-                <Field label="Updated" value={format(new Date(selectedReferral.updated_at), "MMM d, yyyy")} />
-                {selectedReferral.void_reason && <Field label="Void Reason" value={selectedReferral.void_reason} />}
-              </div>
-
-              {/* Notes */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Admin Notes</label>
-                <Textarea value={editingNotes} onChange={(e) => setEditingNotes(e.target.value)} rows={3} />
-                <Button size="sm" onClick={saveNotes} disabled={savingNotes}>
-                  {savingNotes ? "Saving..." : "Save Notes"}
-                </Button>
-              </div>
-
-              {/* Audit log */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-foreground">Audit Timeline</h4>
-                {(bizAudit[selectedReferral.business_id] || [])
-                  .filter((a) => a.referral_id === selectedReferral.id)
-                  .map((entry) => (
-                    <div key={entry.id} className="text-xs border-l-2 border-muted pl-3 py-1">
-                      <span className="font-medium">{entry.event_type}</span>
-                      <span className="text-muted-foreground ml-2">{format(new Date(entry.created_at), "MMM d, yyyy h:mm a")}</span>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
     </div>
   );
 };
-
-const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div>
-    <div className="text-xs text-muted-foreground">{label}</div>
-    <div className="text-sm font-medium text-foreground">{value || "·"}</div>
-  </div>
-);
 
 export default SuperAdminCRM;

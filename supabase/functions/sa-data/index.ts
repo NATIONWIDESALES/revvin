@@ -242,13 +242,8 @@ ${isApproved ? `
         .order("created_at", { ascending: false })
         .limit(200);
 
-      const { data: payouts } = await admin
-        .from("payouts")
-        .select("*")
-        .eq("business_id", bizId);
-
       return new Response(
-        JSON.stringify({ referrals: referrals || [], audit_log: auditLog || [], payouts: payouts || [] }),
+        JSON.stringify({ referrals: referrals || [], audit_log: auditLog || [], payouts: [] }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -259,7 +254,6 @@ ${isApproved ? `
       { data: businesses },
       { data: profiles },
       { data: referralCounts },
-      { data: payouts },
       { data: offers },
       { data: lifecycleEmails },
       { data: pushSubs },
@@ -268,7 +262,6 @@ ${isApproved ? `
       admin.from("businesses").select("*").order("created_at", { ascending: false }),
       admin.from("profiles").select("*"),
       admin.from("referrals").select("id, business_id, status, payout_status"),
-      admin.from("payouts").select("id, business_id, status, amount"),
       admin.from("offers").select("id, business_id, status, title"),
       admin
         .from("business_lifecycle_emails")
@@ -293,7 +286,7 @@ ${isApproved ? `
         businesses: businesses || [],
         profiles: profiles || [],
         referral_summary: referralCounts || [],
-        payouts: payouts || [],
+        payouts: [],
         offers: offers || [],
         lifecycle_emails: (lifecycleEmails || []).map((row: any) => ({
           id: row.id,

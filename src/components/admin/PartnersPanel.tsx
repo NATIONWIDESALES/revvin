@@ -126,8 +126,12 @@ const PartnersPanel = () => {
   const run = async (id: string, body: Record<string, unknown>, success: string) => {
     setBusyId(id);
     try {
-      await call(body);
-      toast({ title: success });
+      const result = await call(body);
+      if (body.action === "approve" && result?.emailSent === false) {
+        toast({ title: "Partner approved, but the email was not sent", variant: "destructive" });
+      } else {
+        toast({ title: success });
+      }
       await load();
     } catch (e) {
       toast({ title: "That did not work", description: (e as Error).message, variant: "destructive" });

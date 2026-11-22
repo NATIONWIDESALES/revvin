@@ -99,7 +99,7 @@ Deno.serve(async (req) => {
       const adjustments = adjustmentsRes.data ?? [];
       const clicks = clicksRes.data ?? [];
       const businesses = bizRes.data ?? [];
-      const paying = new Set(["active", "trialing", "past_due"]);
+      const paying = new Set(["active"]);
 
       const partners = (partnersRes.data ?? []).map((p: any) => {
         const own = commissions.filter((c) => c.partner_id === p.id);
@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
       const partner = updated?.[0];
       if (!partner) return json({ error: "Partner not found." }, 404);
 
-      await sendPartnerEmail({
+      const email = await sendPartnerEmail({
         supabase: admin,
         templateName: "partner_approved",
         to: partner.email,
@@ -180,7 +180,7 @@ Deno.serve(async (req) => {
         },
       });
 
-      return json({ ok: true, code, dashboardToken: token });
+      return json({ ok: true, code, dashboardToken: token, emailSent: email.sent });
     }
 
     /* -------------------------------------------------------------- reject */
