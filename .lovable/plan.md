@@ -18,7 +18,7 @@ Nothing has been changed. Approving this plan would apply only the fixes listed 
 4. Sales role: the page lets the `sales` role in (SuperAdminCRM.tsx:233), but sales-only users are shown ProspectsPanel only. That part is consistent and not broken, noted here only for completeness.
 
 ## Misleading
-5. "Businesses" (16 rows, 15 non-demo) counts internal test accounts as customers: Karm Sandhu Real Estate, Karm Personal Test, QA Test Plumbing and Revvin Internal Test Roofing. fn_admin_core_numbers only excludes is_demo. Fix (no migration): flag these four as is_demo through the existing admin path. Alternatively, a later approved migration could exclude acquisition utm_source = internal.
+5. Test accounts counted as customers: handled separately (the test accounts will be deleted). Not part of this plan.
 6. Payments tab "Subscribing businesses" (SuperAdminCRM.tsx:814) counts `trialing`. The header card (fn_admin_core_numbers) counts only `active`. Today both show 1 (Next property, Pro, active), but they will drift apart. App-level Pro trials (pro_trial_ends_at, 11 businesses) are correctly not counted as paying. Fix: count only `active` (or use n.active_subscriptions).
 7. Partners list "payingCustomers" (partner-admin/index.ts:102) counts `trialing` and `past_due` as paying. Fix: use `active` only.
 8. There is no revenue figure anywhere in the CRM, so $0 invoices cannot inflate a number. Note that "Next property" (the only active Pro) may be an internal account. Please confirm.
@@ -30,5 +30,4 @@ Nothing has been changed. Approving this plan would apply only the fixes listed 
 - sa-data: remove the payouts queries (item 1). This needs a function redeploy.
 - SuperAdminCRM.tsx: error handling on offer Reject (3), a single subscription definition (6), demo filter or label (10), and remove the unreachable notes drawer (2).
 - partner-admin: count only active as paying (7) and return emailSent (9). PartnersPanel shows the warning. Needs a redeploy.
-- Data: mark the four internal test businesses is_demo (5). This is a data update, so it needs your explicit OK.
 - No Stripe, RLS or migration changes, and no publishing.
