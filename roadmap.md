@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# Mobile dashboard actions, November 23
+- [ ] Stack Leads, Referrers and Rewards records below md, preserving desktop tables and handlers; check Customers actions.
+- [ ] Run related tests and verify populated dashboard at 320, 375 and 1280px without publishing.
+
 # Trustworthy alerts and slug rules, November 23
 - [x] Align client/server segment rules and validate random fallback suggestions.
 - [x] Replace only the three authorized SQL functions. Preserve permissions and all journey steps; add one bounded retry in the existing privileged scheduled runner.
