@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { reportFailure, stackLocations } from "@/lib/reportFailure";
+import { failureBuildContext, reportFailure, stackLocations } from "@/lib/reportFailure";
 const h = vi.hoisted(() => ({ load: vi.fn(), rpc: vi.fn(), demo: false }));
 vi.mock("@/lib/supabaseLazy", () => ({ loadSupabase: h.load }));
 beforeEach(() => {
@@ -9,6 +9,15 @@ beforeEach(() => {
 });
 const flush = async () => { for (let i=0;i<8;i++) await Promise.resolve(); };
 describe("reportFailure safety", () => {
+  it("keeps a bounded session marker across deployments without sending the referrer URL", () => {
+    sessionStorage.removeItem("revvin:failure-session");
+    const first = failureBuildContext("a".repeat(120));
+    const second = failureBuildContext("next-build");
+    expect(first.length).toBeLessThanOrEqual(100);
+    expect(first.match(/\|s:([a-f0-9]{32})\|/)?.[1]).toBe(second.match(/\|s:([a-f0-9]{32})\|/)?.[1]);
+    expect(first).toMatch(/\|r:[01]$/);
+    expect(first).not.toContain("http");
+  });
   it("does nothing in tests by default", () => {
     reportFailure("image_upload", { error: new Error("failed") }); expect(h.load).not.toHaveBeenCalled();
   });

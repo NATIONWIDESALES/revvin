@@ -2,6 +2,22 @@ import { loadSupabase } from "@/lib/supabaseLazy";
 
 type FailureDetail = { error?: unknown; business_id?: string; is_demo?: boolean; componentStack?: string | null };
 
+// Reuse the bounded build field for anonymous session correlation, without
+// changing the RPC signature or collecting referrer URLs or personal data.
+export function failureBuildContext(build: string): string {
+  try {
+    const key = "revvin:failure-session";
+    let session = window.sessionStorage.getItem(key);
+    if (!session || !/^[a-f0-9]{32}$/.test(session)) {
+      session = crypto.randomUUID().replace(/-/g, "");
+      window.sessionStorage.setItem(key, session);
+    }
+    return `${build.replace(/\|/g, "").slice(0, 45)}|s:${session}|r:${document.referrer ? "1" : "0"}`;
+  } catch {
+    return build.replace(/\|/g, "").slice(0, 100);
+  }
+}
+
 /** Keep only source basenames and line/column, never URLs, arguments or arbitrary stack text. */
 export function stackLocations(stack: unknown): string {
   if (typeof stack !== "string") return "";
@@ -49,7 +65,7 @@ export function reportFailure(step: string, detail: FailureDetail = {}): void {
           p_step: step, p_message: error.message, p_code: error.code,
           p_route: window.location.pathname.replace(/\/(preview|claim)\/[^/]+/g, "/$1/[redacted]").replace(/\/r\/status\/[^/]+/g, "/r/status/[redacted]"),
           p_business_id: detail.business_id ?? null,
-          p_build_id: import.meta.env.VITE_APP_BUILD_ID ?? "development",
+          p_build_id: failureBuildContext(import.meta.env.VITE_APP_BUILD_ID ?? "development"),
           p_user_agent: navigator.userAgent.slice(0, 300),
         });
       } catch { /* Reporting must never affect the customer's operation. */ }

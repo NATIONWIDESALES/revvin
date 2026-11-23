@@ -45,3 +45,4 @@
 - Private and referral routes block framing before initial React render and on SPA navigation. Why: client guards compensate for missing host frame headers, and no referral embedding feature exists.
 - Security dependency overrides pin patched transitive packages; deployment-specific remote imports must be reviewed separately. Why: a browser lockfile does not update remote edge dependencies.
 - Lazy/Vite recovery uses a 30-second path guard and deferred chunk_reload reports; crash stacks keep bounded file:line; main supplies missing ResizeObserver before rendering and Slider retains a fallback. Why: recover safely on every page in reduced-feature browsers.
+- Correlate failure sessions in build_id. Why: preserve the RPC and schema.

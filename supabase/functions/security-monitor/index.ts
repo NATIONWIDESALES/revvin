@@ -10,6 +10,7 @@ import { checkCronAuth } from "../_shared/cron-auth.ts";
 import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
 import { isNewBusinessAccount, roleChangeCounts } from "./role-changes.ts";
+import { smokeFailureConfirmed, type SmokeRun } from "./smoke-confirmation.ts";
 
 const ALERT_EMAIL = "info@revvin.co";
 const THROTTLE_HOURS = 6;
@@ -164,12 +165,18 @@ Deno.serve(async (req) => {
   if (healthError) {
     checks.push({ type: "health_monitor", failing: true, subject: "Revvin alert: the health check could not run", text: healthError.message, recovered: "Revvin recovered: the health check runs again" });
   } else {
-    const smoke = h.latest_smoke as { ran_at: string; ok: boolean; failed_step: string | null; steps: { step: string; ok: boolean; error?: string }[] } | null;
+    // The hourly SQL runner performs the immediate retry with its existing
+    // privileged session. The HTTP service role cannot switch journey roles.
+    const { data: smokeRuns } = await db.from("smoke_test_runs")
+      .select("ran_at, ok, failed_step, steps")
+      .order("ran_at", { ascending: false }).limit(2);
+    const runs = (smokeRuns ?? []) as SmokeRun[];
+    const smoke = runs[0] ?? h.latest_smoke as SmokeRun | null;
     const stale = !smoke || now - new Date(smoke.ran_at).getTime() > 2 * HOUR_MS;
     const smokeErr = smoke?.steps?.find((s) => !s.ok)?.error ?? "";
     checks.push({
       type: "health_smoke",
-      failing: stale || !smoke?.ok,
+      failing: stale || smokeFailureConfirmed(runs),
       subject: stale ? "Revvin alert: the hourly customer journey check has not run" : `Revvin alert: customer journey broke at ${smoke?.failed_step}`,
       text: stale ? `No customer journey run in the last 2 hours. Last run: ${smoke?.ran_at ?? "never"}.` : `Failed step: ${smoke?.failed_step}\nError: ${smokeErr}\nRan at: ${smoke?.ran_at}\n\n${JSON.stringify(smoke?.steps, null, 2)}`,
       recovered: "Revvin recovered: the customer journey check passes again",
@@ -217,12 +224,19 @@ Deno.serve(async (req) => {
     const wasFailing = prev?.alert_type === c.type;
     let subject: string | null = null;
     let text = "";
-    if (c.failing && !(wasFailing && now - new Date(prev!.sent_at).getTime() < 3 * HOUR_MS)) {
+    if (c.failing && !(wasFailing && prev && now - new Date(prev.sent_at).getTime() < 3 * HOUR_MS)) {
       subject = c.subject; text = c.text;
     } else if (!c.failing && wasFailing) {
       subject = c.recovered; text = "This check passes again.";
     }
     if (!subject) continue;
+    if (["health_smoke", "health_http", "health_monitor"].includes(c.type)) {
+      subject = `[Automated test] ${subject}`;
+      text = `Automated hourly test, no customer involved\n${text}`;
+    } else {
+      subject = `[Customer] ${subject}`;
+      text = `Real visitor\n${text}`;
+    }
     const type = c.failing ? c.type : `${c.type}_recovered`;
     if (dryRun) { healthWould.push({ type, subject, text }); continue; }
     const result = await sendEmailViaGateway({

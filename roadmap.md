@@ -1,5 +1,11 @@
 # Prebuilt pages for outbound sales
 
+# Trustworthy alerts and slug rules, November 23
+- [x] Align client/server segment rules and validate random fallback suggestions.
+- [x] Replace only the three authorized SQL functions. Preserve permissions and all journey steps; add one bounded retry in the existing privileged scheduled runner.
+- [x] Suppress first recovery and bot emails, label visitor/automated alerts, and confirm smoke failures from the two immediate runs. Missing-run warnings remain automated-test alerts.
+- [x] Full suite: 1477 passed, 3 skipped, one existing SQL test timed out; isolated rerun passed both permission tests. Deno check and preview build OK. Live validator accepts all eleven contractor examples; 15:17 scheduled journey passed all ten steps after the suffix change. security-monitor deployed. No publishing or manual customer-data writes; live inbox and next scheduled retry remain unverified. Anonymous session correlation and client suggestions require frontend publication.
+
 # Legal operator identity, November 22
 - [x] Identify the approved legal operator in the shared footer, legal introductions, Organization data and llms.txt without changing other copy or contact details.
 - [x] 173 relevant tests passed; static Organization data verified on /, /about, /terms and /privacy. Live preview verified shared footer and legal identification, unchanged contact, no page errors and no 320px overflow. Preview build OK; no publication performed.

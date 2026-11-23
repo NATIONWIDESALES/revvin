@@ -260,6 +260,20 @@
       "when": 1794946403833,
       "tag": "0036_security_public_business_view_read_only",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1795447033198,
+      "tag": "0037_slug_rules_and_trustworthy_failure_alerts",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1795447273082,
+      "tag": "0038_confirm_hourly_smoke_failure",
+      "breakpoints": true
     }
   ]
 }

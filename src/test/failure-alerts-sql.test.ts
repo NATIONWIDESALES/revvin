@@ -2,6 +2,7 @@
 import { PGlite } from "@electric-sql/pglite";
 import { readFileSync } from "node:fs";
 import { describe, it, expect } from "vitest";
+import { migrationFunctions } from "./helpers/migrationFunctions";
 
 async function fixture() {
   const db = new PGlite();
@@ -22,11 +23,76 @@ async function fixture() {
     INSERT INTO auth.users VALUES('00000000-0000-0000-0000-000000000002','owner@example.test');
     SELECT set_config('test.uid','00000000-0000-0000-0000-000000000002',false);`);
   await db.exec(readFileSync("drizzle/migrations/0032_failure_alerts.sql", "utf8"));
+  await db.exec(`CREATE FUNCTION fn_bot_reason(ua text, referrer text) RETURNS text LANGUAGE sql AS $$
+    SELECT CASE WHEN ua ~* '(bot|crawl|spider|headless|playwright)' THEN 'declared'
+      WHEN substring(ua FROM 'Chrome/(\\d{1,4})')::int < 130 AND referrer = '' THEN 'stale_no_referrer'
+      ELSE NULL END $$;`);
+  const current = migrationFunctions().get("fn_report_failure");
+  if (!current) throw new Error("Missing current failure reporter");
+  await db.exec(current);
   return db;
 }
 const report = (db: PGlite, step = "image_upload") => db.query("SELECT fn_report_failure($1,'Storage denied','403','/dashboard?token=private',NULL,'fixture','test browser') AS ok", [step]);
+const session = "a".repeat(32);
+const recovery = (db: PGlite, sessionKey = session, ua = "Chrome/143.0", code = "chunk_reload", message = "chunk_reload: stale deployment module; automatic recovery attempted") =>
+  db.query("SELECT fn_report_failure('render_crash',$1,$2,'/',NULL,$3,$4)", [message, code, `fixture|s:${sessionKey}|r:0`, ua]);
 
 describe("private failure alerts", () => {
+  it("logs a first automatic recovery without emailing", async () => {
+    const db = await fixture();
+    try {
+      await recovery(db);
+      expect((await db.query("SELECT count(*)::int n FROM app_failures")).rows).toEqual([{ n: 1 }]);
+      expect((await db.query("SELECT count(*)::int n FROM captured_emails")).rows).toEqual([{ n: 0 }]);
+    } finally { await db.close(); }
+  }, 30000);
+  it("emails the second same-session failure within 60 seconds", async () => {
+    const db = await fixture();
+    try {
+      await recovery(db); await recovery(db);
+      expect((await db.query("SELECT count(*)::int n FROM app_failures")).rows).toEqual([{ n: 2 }]);
+      expect((await db.query("SELECT count(*)::int n FROM captured_emails")).rows).toEqual([{ n: 1 }]);
+    } finally { await db.close(); }
+  }, 30000);
+  it("emails a normal crash after attempted recovery rather than hiding the failed recovery", async () => {
+    const db = await fixture();
+    try {
+      await recovery(db); await recovery(db, session, "Chrome/143.0", "TypeError", "Render failed");
+      expect((await db.query("SELECT count(*)::int n FROM captured_emails")).rows).toEqual([{ n: 1 }]);
+    } finally { await db.close(); }
+  }, 30000);
+  it("does not combine failures from different anonymous sessions", async () => {
+    const db = await fixture();
+    try {
+      await db.exec("SELECT set_config('test.uid','',false)");
+      await recovery(db); await recovery(db, "b".repeat(32));
+      expect((await db.query("SELECT count(*)::int n FROM captured_emails")).rows).toEqual([{ n: 0 }]);
+    } finally { await db.close(); }
+  }, 30000);
+  it("does not treat a failure older than 60 seconds as failed recovery", async () => {
+    const db = await fixture();
+    try {
+      await recovery(db);
+      await db.exec("UPDATE app_failures SET created_at=now()-interval '61 seconds'");
+      await recovery(db);
+      expect((await db.query("SELECT count(*)::int n FROM captured_emails")).rows).toEqual([{ n: 0 }]);
+    } finally { await db.close(); }
+  }, 30000);
+  it.each(["HeadlessChrome/143.0", "Googlebot", "Mozilla/5.0 (X11; Linux x86_64) Chrome/124.0"])("logs %s without emailing even repeated failures", async (ua) => {
+    const db = await fixture();
+    try {
+      await recovery(db, session, ua); await recovery(db, session, ua);
+      expect((await db.query("SELECT count(*)::int n FROM app_failures")).rows).toEqual([{ n: 2 }]);
+      expect((await db.query("SELECT count(*)::int n FROM captured_emails")).rows).toEqual([{ n: 0 }]);
+    } finally { await db.close(); }
+  }, 30000);
+  it("keeps old-browser visitors with a referrer eligible for genuine failure alerts", async () => {
+    const db = await fixture();
+    try {
+      await db.query("SELECT fn_report_failure('publish','Save failed','403','/',NULL,$1,'Chrome/124.0')", [`fixture|s:${session}|r:1`]);
+      expect((await db.query("SELECT count(*)::int n FROM captured_emails")).rows).toEqual([{ n: 1 }]);
+    } finally { await db.close(); }
+  }, 30000);
   it("records failures but reserves at most one email per step/business in a sliding hour", async () => {
     const db = await fixture();
     try {
@@ -39,7 +105,7 @@ describe("private failure alerts", () => {
       expect(payloads.rows).toHaveLength(2);
       const payload = payloads.rows[1].payload;
       expect(payload.to).toBe("info@revvin.co");
-      expect(payload.subject).toBe("Revvin failure: image_upload for Fixture Business");
+      expect(payload.subject).toBe("[Customer] Revvin failure: image_upload for Fixture Business");
       expect(payload.text).toContain("Same failure in last 24 hours: 3");
       expect(payload.text).toContain("owner@example.test");
       expect(payload.text).toContain("Time (Pacific):");

@@ -20,8 +20,8 @@ export const RESERVED_SLUGS = [
   "earn", "me", "about", "partners", "tools",
 ];
 
-// Brand impersonation and security/phishing vocabulary. Matched as substrings
-// of the normalised slug, so "secure-billing" and "s3cur3" both fail.
+// Brand impersonation and phishing vocabulary. Brand variants match flattened
+// substrings; short variants and phishing vocabulary use normalized segments.
 export const BLOCKED_TERMS = [
   "revvin", "revin", "rewin", "rewvin", "revvn", "revvinn",
   "official", "verify", "verification", "verified", "secure", "security",
@@ -468,7 +468,14 @@ export const checkSlug = (raw: string): SlugCheck => {
   if (RESERVED_SLUGS.includes(slug) || RESERVED_SLUGS.some((r) => normalizeSlug(r) === flat)) {
     return { ok: false, reason: "reserved" };
   }
-  if (BLOCKED_TERMS.some((t) => flat.includes(normalizeSlug(t)))) {
+  const segments = normalizeSegments(slug);
+  const brandSubstrings = ["revvin", "rewvin", "revvn", "revvinn"];
+  const brandSegments = ["revin", "rewin"];
+  const phishing = BLOCKED_TERMS.filter((term) => ![...brandSubstrings, ...brandSegments].includes(term)).map(normalizeSlug);
+  const phishingHits = segments.filter((segment) => phishing.includes(segment));
+  if (brandSubstrings.some((term) => flat.includes(term)) ||
+      brandSegments.some((term) => segments.includes(term)) ||
+      (segments.length === 1 && phishingHits.length === 1) || phishingHits.length >= 2) {
     return { ok: false, reason: "reserved" };
   }
   if (hitsProfanity(slug)) return { ok: false, reason: "profanity" };
@@ -518,7 +525,10 @@ export const suggestSlug = (businessName: string, fallback = ""): string => {
     const candidate = `${safeBase.slice(0, 40 - suffix.length)}${suffix}`.replace(/^-+|-+$/g, "");
     if (safeBase && checkSlug(candidate).ok) return candidate;
   }
-  return `partner-${Math.random().toString(36).slice(2, 8)}`;
+  for (;;) {
+    const candidate = `partner-${Math.random().toString(36).slice(2, 8)}`;
+    if (checkSlug(candidate).ok) return candidate;
+  }
 };
 
 /**
