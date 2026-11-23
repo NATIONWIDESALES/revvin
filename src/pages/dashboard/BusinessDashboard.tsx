@@ -719,22 +719,23 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
             { id: "closed_won", label: `Closed won (${statusCount("closed_won")})` },
             { id: "closed_lost", label: `Closed lost (${statusCount("closed_lost")})` },
           ].map((f) => (
-            <button
+            <Button
+              variant="ghost" size="sm"
               key={f.id}
               type="button"
               onClick={() => setStatusFilter(f.id)}
-              className={`px-2.5 py-1 rounded-md transition ${statusFilter === f.id ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+              className={`h-11 px-2.5 py-1 rounded-md transition md:h-auto ${statusFilter === f.id ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
             >
               {f.label}
-            </button>
+            </Button>
           ))}
         </div>
-        <Button variant="outline" size="sm" onClick={exportCsv}><Download className="mr-2 h-3.5 w-3.5" /> Export CSV</Button>
+        <Button variant="outline" size="sm" className="h-11 md:h-9" onClick={exportCsv}><Download className="mr-2 h-3.5 w-3.5" /> Export CSV</Button>
       </div>
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px] text-sm">
-            <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+      <div className="md:rounded-xl md:border md:border-border md:bg-card md:overflow-hidden">
+        <div className="md:overflow-x-auto">
+          <table className="block w-full text-sm md:table md:min-w-[600px]">
+            <thead className="hidden bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground md:table-header-group">
               <tr>
                 <th className="text-left px-4 py-3 font-medium">Date</th>
                 <th className="text-left px-4 py-3 font-medium">Lead</th>
@@ -743,7 +744,7 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="block space-y-3 md:table-row-group md:space-y-0">
               {filteredLeads.length === 0 && (
                 <tr><td colSpan={5} className="px-4 py-8 text-center text-sm text-muted-foreground">No leads match this filter.</td></tr>
               )}
@@ -752,8 +753,8 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                 const isStaleNew = l.status === "new" && age > STALE_MS;
                 return (
                 <React.Fragment key={l.id}>
-                  <tr className="border-t border-border hover:bg-muted/30">
-                    <td className="px-4 py-3 whitespace-nowrap">
+                  <tr className="grid min-w-0 grid-cols-1 rounded-lg border border-border bg-card p-4 md:table-row md:rounded-none md:border-0 md:border-t md:p-0 md:hover:bg-muted/30">
+                    <td className="order-3 block min-w-0 break-words py-2 text-xs md:table-cell md:px-4 md:py-3 md:text-sm md:whitespace-nowrap">
                       <div className="text-muted-foreground">{new Date(l.created_at).toLocaleDateString()}</div>
                       {l.status === "new" && (
                         <TooltipProvider delayDuration={100}>
@@ -774,17 +775,18 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                           </Tooltip>
                         </TooltipProvider>
                       )}
+                      <div className="mt-3 text-sm md:hidden"><span className="text-muted-foreground">What they need:</span> {l.lead_need}</div>
                     </td>
-                    <td className="px-4 py-3"><div className="font-medium text-foreground">{l.lead_name}</div><div className="text-xs text-muted-foreground">{l.lead_phone}</div></td>
-                    <td className="px-4 py-3"><div className="text-foreground">{l.referrer_name}</div><div className="text-xs text-muted-foreground">{l.referrer_email}</div></td>
-                    <td className="px-4 py-3">
+                    <td className="order-1 block min-w-0 break-words py-2 md:table-cell md:px-4 md:py-3"><div className="font-medium text-foreground">{l.lead_name}</div><div className="text-xs text-muted-foreground">{l.lead_phone}</div></td>
+                    <td className="order-2 block min-w-0 break-words py-2 md:table-cell md:px-4 md:py-3"><span className="text-xs text-muted-foreground md:hidden">Referrer</span><div className="text-foreground">{l.referrer_name}</div><div className="text-xs text-muted-foreground">{l.referrer_email}</div></td>
+                    <td className="order-4 block py-2 md:table-cell md:px-4 md:py-3">
                       <Select value={l.status} onValueChange={(v) => updateStatus(l.id, v)}>
-                        <SelectTrigger className="h-8 w-36 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectTrigger aria-label={`Status for ${l.lead_name}`} className="h-11 w-full text-xs md:h-8 md:w-36"><SelectValue /></SelectTrigger>
                         <SelectContent>{STATUSES.map((s) => <SelectItem key={s} value={s}>{STATUS_LABEL[s]}</SelectItem>)}</SelectContent>
                       </Select>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center gap-1 justify-end">
+                    <td className="order-5 block py-2 md:table-cell md:px-4 md:py-3 md:text-right">
+                      <div className="grid grid-cols-1 gap-2 [&_a]:h-11 [&_a]:w-full [&_button]:min-h-11 md:flex md:items-center md:justify-end md:gap-1 md:[&_a]:h-9 md:[&_a]:w-auto md:[&_button]:min-h-0">
                         {l.status === "new" && l.lead_phone && (
                           <>
                             <Button size="sm" asChild>
@@ -822,9 +824,9 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                     </td>
                   </tr>
                   {jobValuePrompts[l.id] !== undefined && (
-                    <tr className="border-t border-border bg-muted/20">
-                      <td colSpan={5} className="px-4 py-3">
-                        <form className="flex flex-wrap items-center gap-2" onSubmit={(event) => { event.preventDefault(); void saveDealValue(l.id, jobValuePrompts[l.id]); }}>
+                    <tr className="block rounded-lg border border-border bg-muted/20 md:table-row md:rounded-none md:border-0 md:border-t">
+                      <td colSpan={5} className="block min-w-0 break-words px-4 py-3 md:table-cell">
+                        <form className="flex flex-wrap items-center gap-2 [&_button]:min-h-11 [&_input]:h-11 md:[&_button]:min-h-0 md:[&_input]:h-9" onSubmit={(event) => { event.preventDefault(); void saveDealValue(l.id, jobValuePrompts[l.id]); }}>
                           <Label htmlFor={`job-value-${l.id}`}>What was this job worth? (optional)</Label>
                           <span className="text-muted-foreground">$</span>
                           <Input id={`job-value-${l.id}`} type="number" min="0" step="0.01" inputMode="decimal" className="h-9 w-36"
@@ -836,8 +838,8 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                     </tr>
                   )}
                   {expanded === l.id && (
-                    <tr className="border-t border-border bg-muted/20">
-                      <td colSpan={5} className="px-4 py-5">
+                    <tr className="block rounded-lg border border-border bg-muted/20 md:table-row md:rounded-none md:border-0 md:border-t">
+                      <td colSpan={5} className="block min-w-0 break-words px-4 py-5 md:table-cell">
                         <div className="grid gap-4 md:grid-cols-2">
                           <div className="space-y-2 text-sm">
                             <div><span className="text-muted-foreground">Lead email:</span> {l.lead_email || "·"}</div>
@@ -856,7 +858,7 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                                     inputMode="decimal"
                                     defaultValue={l.deal_value ?? ""}
                                     placeholder="0"
-                                    className="h-9 max-w-[160px]"
+                                    className="h-11 max-w-[160px] md:h-9"
                                     onBlur={(e) => {
                                       const v = e.target.value;
                                       const current = l.deal_value == null ? "" : String(l.deal_value);
@@ -876,7 +878,7 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
                               onChange={(e) => setEditingNotes((p) => ({ ...p, [l.id]: e.target.value }))}
                               rows={3}
                             />
-                            <Button size="sm" className="mt-2" onClick={() => saveNotes(l.id)}>Save notes</Button>
+                            <Button size="sm" className="mt-2 h-11 md:h-9" onClick={() => saveNotes(l.id)}>Save notes</Button>
                           </div>
                         </div>
                       </td>

@@ -1015,7 +1015,7 @@ const CustomersTab = ({
 
       {/* Template */}
       <div className="rounded-2xl border border-border bg-card p-6">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 className="text-sm font-semibold text-foreground">Your invite message</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -1077,7 +1077,7 @@ const CustomersTab = ({
               {optedOut.length > 0 ? ` · ${optedOut.length} opted out` : ""}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 [&_button]:min-h-11 md:[&_button]:min-h-0">
             {askable.length > 0 && (
               <Button size="sm" variant="outline" onClick={openTapThrough} className="gap-1.5">
                 <PlayCircle className="h-3.5 w-3.5" /> Send one by one
@@ -1110,7 +1110,7 @@ const CustomersTab = ({
               const isSending = sendingId === c.id;
               const e = eligibilityFor(c);
               return (
-                <li key={c.id} className="flex flex-wrap items-center gap-3 p-4">
+                <li key={c.id} className="flex flex-col items-stretch gap-3 p-4 md:flex-row md:flex-wrap md:items-center">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-sm text-foreground truncate">{c.name}</span>
@@ -1147,18 +1147,18 @@ const CustomersTab = ({
                         defaultValue={c.last_job_at?.slice(0, 10) ?? ""}
                         onBlur={(e2) => { if (e2.target.value !== (c.last_job_at?.slice(0, 10) ?? "")) void saveLastJobDate(c, e2.target.value); }}
                         disabled={savingDateId === c.id}
-                        className="h-8 w-[150px] text-xs"
+                        className="h-11 w-[150px] text-xs md:h-8"
                       />
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     {channelAllowed(e, "sms") && (
-                      <Button size="sm" variant={c.status === "pending" ? "default" : "outline"} onClick={() => void sendSms(c)} disabled={isSending} className="h-8 text-xs gap-1.5">
+                      <Button size="sm" variant={c.status === "pending" ? "default" : "outline"} onClick={() => void sendSms(c)} disabled={isSending} className="h-11 text-xs gap-1.5 md:h-8">
                         <MessageSquare className="h-3.5 w-3.5" /> Text
                       </Button>
                     )}
                     {channelAllowed(e, "email") && (
-                      <Button size="sm" variant="outline" onClick={() => void sendEmail(c)} disabled={isSending} className="h-8 text-xs gap-1.5">
+                      <Button size="sm" variant="outline" onClick={() => void sendEmail(c)} disabled={isSending} className="h-11 text-xs gap-1.5 md:h-8">
                         <Mail className="h-3.5 w-3.5" /> Email
                       </Button>
                     )}

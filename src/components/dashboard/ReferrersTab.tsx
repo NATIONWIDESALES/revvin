@@ -26,23 +26,23 @@ const ReferrersTab = ({ publicUrl }: { publicUrl: string }) => {
   if (error) return <p className="text-sm text-destructive">Could not load referrers. Refresh to try again.</p>;
   if (rows.length === 0) return <p className="text-sm text-muted-foreground">No referrers yet. Everyone who sends you a referral, and every customer you add, gets a personal link here.</p>;
   return (
-    <div className="overflow-x-auto rounded-2xl border border-border bg-card">
-      <table className="w-full text-sm">
-        <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
+    <div className="md:overflow-x-auto md:rounded-2xl md:border md:border-border md:bg-card">
+      <table className="block w-full text-sm md:table">
+        <thead className="hidden text-left text-xs uppercase tracking-wider text-muted-foreground md:table-header-group">
           <tr><th className="p-3">Name</th><th className="p-3">Sent</th><th className="p-3">Closed</th><th className="p-3">Owed</th><th className="p-3">Paid</th><th className="p-3">Link</th></tr>
         </thead>
-        <tbody className="divide-y divide-border">
+        <tbody className="grid gap-3 md:table-row-group md:divide-y md:divide-border">
           {rows.map((r) => {
             const link = `${publicUrl}?ref=${encodeURIComponent(r.token)}`;
             return (
-              <tr key={r.id}>
-                <td className="p-3 text-foreground">{r.name}</td>
-                <td className="p-3">{r.referrals_sent}</td>
-                <td className="p-3">{r.referrals_closed}</td>
-                <td className="p-3">{usd(r.rewards_owed)}</td>
-                <td className="p-3">{usd(r.rewards_paid)}</td>
-                <td className="p-3">
-                  <Button size="sm" variant="outline" aria-label={`Copy ${r.name}'s link`} onClick={() => void copyText(link).then((ok) => toast(ok ? { title: "Link copied" } : { title: "Could not copy", variant: "destructive" as const }))}>
+              <tr key={r.id} className="grid min-w-0 grid-cols-2 rounded-lg border border-border bg-card p-3 md:table-row md:rounded-none md:border-0 md:p-0">
+                <td className="col-span-2 block min-w-0 break-words p-3 text-foreground md:table-cell">{r.name}</td>
+                <td className="block p-3 md:table-cell"><span className="mb-1 block text-xs text-muted-foreground md:hidden">Sent</span>{r.referrals_sent}</td>
+                <td className="block p-3 md:table-cell"><span className="mb-1 block text-xs text-muted-foreground md:hidden">Closed</span>{r.referrals_closed}</td>
+                <td className="block p-3 md:table-cell"><span className="mb-1 block text-xs text-muted-foreground md:hidden">Owed</span>{usd(r.rewards_owed)}</td>
+                <td className="block p-3 md:table-cell"><span className="mb-1 block text-xs text-muted-foreground md:hidden">Paid</span>{usd(r.rewards_paid)}</td>
+                <td className="col-span-2 block p-3 md:table-cell">
+                  <Button size="sm" variant="outline" className="h-11 w-full md:h-9 md:w-auto" aria-label={`Copy ${r.name}'s link`} onClick={() => void copyText(link).then((ok) => toast(ok ? { title: "Link copied" } : { title: "Could not copy", variant: "destructive" as const }))}>
                     <Copy className="mr-1.5 h-3.5 w-3.5" /> Copy link
                   </Button>
                 </td>

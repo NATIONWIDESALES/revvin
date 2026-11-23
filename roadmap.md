@@ -1,8 +1,8 @@
 # Prebuilt pages for outbound sales
 
 # Mobile dashboard actions, November 23
-- [ ] Stack Leads, Referrers and Rewards records below md, preserving desktop tables and handlers; check Customers actions.
-- [ ] Run related tests and verify populated dashboard at 320, 375 and 1280px without publishing.
+- [x] Stack Leads, Referrers and Rewards records below md using the same controls and handlers; wrap Customers controls and enlarge mobile actions.
+- [x] 45 related tests passed; preview build OK. Signed-in Playwright with intercepted populated test responses passed all four tabs at 320, 375 and 1280px, including 44px mobile actions, no page overflow, notes and won-job value save/read-back, and reward confirmation. Real customer-data writes and native phone-app delivery were not tested. No publishing.
 
 # Trustworthy alerts and slug rules, November 23
 - [x] Align client/server segment rules and validate random fallback suggestions.

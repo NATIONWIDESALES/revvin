@@ -113,14 +113,15 @@ const PayoutsPage = ({ businessId }: Props) => {
 
       <div className="inline-flex gap-1 rounded-lg border border-border p-1 text-xs">
         {(["pending", "paid"] as const).map((t) => (
-          <button
+          <Button
+            variant="ghost" size="sm"
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            className={`px-3 py-1.5 rounded-md transition ${tab === t ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+            className={`h-11 px-3 py-1.5 md:h-auto rounded-md transition ${tab === t ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
           >
             {t === "pending" ? `Pending (${rows.filter((r) => r.status === "pending").length})` : `Paid (${rows.filter((r) => r.status === "paid").length})`}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -132,26 +133,26 @@ const PayoutsPage = ({ businessId }: Props) => {
           </p>
         </div>
       ) : (
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[600px] text-sm">
-              <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+        <div className="md:rounded-xl md:border md:border-border md:bg-card md:overflow-hidden">
+          <div className="md:overflow-x-auto">
+            <table className="block w-full text-sm md:table md:min-w-[600px]">
+              <thead className="hidden bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground md:table-header-group">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">Referrer</th>
                   <th className="text-left px-4 py-3 font-medium">Amount</th>
                   <th className="text-left px-4 py-3 font-medium">Created</th>
                   {tab === "paid" && <th className="text-left px-4 py-3 font-medium">Paid on</th>}
-                  {tab === "pending" && <th className="px-4 py-3"></th>}
+                  {tab === "pending" && <th className="block min-w-0 break-words px-4 py-3 md:table-cell"></th>}
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="grid gap-3 md:table-row-group">
                 {filtered.map((r) => (
-                  <tr key={r.id} className="border-t border-border">
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-foreground">{r.referrer_name || "—"}</div>
+                  <tr key={r.id} className="grid min-w-0 rounded-lg border border-border bg-card p-3 md:table-row md:rounded-none md:border-0 md:border-t md:p-0">
+                    <td className="block min-w-0 break-words px-4 py-3 md:table-cell">
+                      <div className="font-medium text-foreground">{r.referrer_name || "·"}</div>
                       <div className="text-xs text-muted-foreground">{r.referrer_contact || ""}</div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="block min-w-0 break-words px-4 py-3 md:table-cell">
                       {tab === "pending" ? (
                         <div className="flex items-center gap-1">
                           <span className="text-sm text-muted-foreground">$</span>
@@ -161,7 +162,7 @@ const PayoutsPage = ({ businessId }: Props) => {
                             step="0.01"
                             inputMode="decimal"
                             defaultValue={r.amount ?? 0}
-                            className="h-8 w-28"
+                            aria-label={`Reward amount for ${r.referrer_name || "referrer"}`} className="h-11 w-full md:h-8 md:w-28"
                             onChange={(e) => setEditAmount((p) => ({ ...p, [r.id]: e.target.value }))}
                             onBlur={(e) => saveAmount(r.id, e.target.value, Number(r.amount || 0))}
                           />
@@ -170,19 +171,19 @@ const PayoutsPage = ({ businessId }: Props) => {
                         <span className="font-medium text-foreground">{money(Number(r.amount || 0))}</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                    <td className="block min-w-0 break-words px-4 py-3 md:table-cell text-muted-foreground whitespace-nowrap">
                       {new Date(r.created_at).toLocaleDateString()}
                     </td>
                     {tab === "paid" && (
-                      <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                      <td className="block min-w-0 break-words px-4 py-3 md:table-cell text-muted-foreground whitespace-nowrap">
                         {r.marked_paid_at ? new Date(r.marked_paid_at).toLocaleDateString() : ""}
                       </td>
                     )}
                     {tab === "pending" && (
-                      <td className="px-4 py-3 text-right">
+                      <td className="block min-w-0 break-words px-4 py-3 md:table-cell text-right">
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" className="h-11 w-full md:h-9 md:w-auto">
                               <Check className="mr-1.5 h-3.5 w-3.5" /> Mark as paid
                             </Button>
                           </AlertDialogTrigger>
