@@ -337,6 +337,13 @@
       "when": 1795564141955,
       "tag": "0047_fix_print_kit_upload_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1795564707165,
+      "tag": "0048_fix_referral_attachments_owner_read",
+      "breakpoints": true
     }
   ]
 }

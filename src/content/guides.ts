@@ -1,4 +1,5 @@
 import { PRICE_TEXT } from "../config/pricing";
+import { PLAN_SPLIT } from "../config/planFeatures";
 // Question-shaped guide content for answer engines and search.
 //
 // Every claim here must be true of the product: publishing a referral page is
@@ -172,7 +173,7 @@ const BASE_GUIDES: Guide[] = [
       },
       {
         heading: "How this works on Revvin",
-        body: `You publish a branded referral page on your own link, free, with a QR code and a print pack for signage and paperwork. Referrals land in one lead inbox with status tracking and one-tap call or text back. You set the reward, you confirm the close, and you pay your referrer directly when it happens. Revvin takes no cut of the reward and does not send your personal asks for you. Revvin Pro, at ${PRICE_TEXT.monthly}/month USD, adds importing your past-customer list, sending your ask in bulk from your own email app, reactivation campaigns that Revvin does send by email from your account, ROI reporting and custom page branding.`,
+        body: `You publish a branded referral page on your own link, free, with a QR code and a print pack for signage and paperwork. Referrals land in one lead inbox with status tracking and one-tap call or text back. You set the reward, you confirm the close, and you pay your referrer directly when it happens. Revvin takes no cut of the reward and does not send your personal asks for you. Free includes ${PLAN_SPLIT.freeDetail.charAt(0).toLowerCase()}${PLAN_SPLIT.freeDetail.slice(1)} Revvin Pro, at ${PRICE_TEXT.monthly}/month USD, adds ${PLAN_SPLIT.proDetail.charAt(0).toLowerCase()}${PLAN_SPLIT.proDetail.slice(1)}`,
       },
     ],
     faqs: [

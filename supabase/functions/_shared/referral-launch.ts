@@ -44,13 +44,16 @@ export function renderLaunchText(template: string, tokens: LaunchTokens): string
       .replace(/[ \t]+\n/g, "\n")
       .replace(/\n{3,}/g, "\n\n");
   }
-  return text.replace(/\{\{?\s*(first_name|business_name|reward|link)\s*\}\}?/gi, (_m, key: string) => {
+  return text.replace(/\{\{?\s*(first_name|business_name|reward|link)\s*\}\}?/gi, (m, key: string, offset: number, src: string) => {
+    let value: string;
     switch (key.toLowerCase()) {
-      case "first_name": return tokens.first_name;
-      case "business_name": return tokens.business_name;
-      case "reward": return reward;
-      default: return tokens.link ?? "";
+      case "first_name": value = tokens.first_name; break;
+      case "business_name": value = tokens.business_name; break;
+      case "reward": value = reward; break;
+      default: value = tokens.link ?? "";
     }
+    // "Northside Co." before a template period must not read "Co.."
+    return src[offset + m.length] === "." ? String(value ?? "").replace(/\.+$/, "") : value;
   }).trim();
 }
 

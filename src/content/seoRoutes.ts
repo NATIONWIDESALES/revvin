@@ -528,7 +528,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "Scope and limits",
-        body: "Personal referral asks are never sent by Revvin: they are prepared and then sent from the owner's own device and accounts. Reactivation campaigns are sent by Revvin, by email only, from the owner's Pro account, with the business postal address and an unsubscribe link in every message and a cap of 500 recipients per send. Revvin also emails a customer a review and referral ask after the owner taps Job done or the owner's job software reports the job finished through Webhooks by Zapier and the account API key. There is no Zapier directory app and no SMS sending by Revvin. Pricing is USD only in every supported country: the United States, Canada and the United Arab Emirates.",
+        body: "Personal referral asks are never sent by Revvin: they are prepared and then sent from the owner's own device and accounts. Referral launch campaigns, where Revvin emails every customer their own referral link from the business name with two follow-ups, are sent by Revvin by email only. Reactivation campaigns are sent by Revvin, by email only, from the owner's Pro account, with the business postal address and an unsubscribe link in every message and a cap of 500 recipients per send. Revvin also emails a customer a review and referral ask after the owner taps Job done or the owner's job software reports the job finished through Webhooks by Zapier and the account API key. There is no Zapier directory app and no SMS sending by Revvin. Pricing is USD only in every supported country: the United States, Canada and the United Arab Emirates.",
       },
     ],
   },
