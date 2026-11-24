@@ -357,7 +357,7 @@ const CampaignsTab = ({ biz, publicUrl, isPro, onGo, onLaunchSent }: Props) => {
 
           <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
             <h3 className="text-base font-semibold text-foreground">New reactivation campaign</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Email only. Referral asks still open your own email or messaging app. Reactivation campaigns are sent by Revvin from your business name, with replies going to your reply-to email.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Email only. Reactivation campaigns are sent by Revvin from your business name, with replies going to your reply-to email.</p>
             <SenderLine businessName={biz.name} replyTo={biz.business_email || readinessForm.business_email} className="mt-2" />
 
             <div className="mt-5 flex flex-wrap gap-2">

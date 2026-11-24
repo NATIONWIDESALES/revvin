@@ -396,6 +396,7 @@ const BusinessDashboard = () => {
             onPublish={scrollToPublish}
             onShared={markFirstShare}
             kit={{
+              preview: searchParams.get("kit") === "1",
               biz: { name: biz.name, logo_url: biz.logo_url, brand_color: biz.brand_color, headline: biz.headline, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger, offer_fine_print: biz.offer_fine_print, phone: biz.phone },
               onPublished: loadAll,
               trialNote: launchTrialNote,

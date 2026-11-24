@@ -17,7 +17,7 @@ describe("next step mapping", () => {
   it.each([
     [{ isLive: false }, "publish", "Publish your page"],
     [{ customersTotal: 0, customersSent: 0, customersPending: 0 }, "import", "Add your customers"],
-    [{ customersSent: 0 }, "ask", "Ask your last 10 customers"],
+    [{ customersSent: 0 }, "ask", "Ask all 12 customers"],
     [{ qrDownloaded: false }, "qr", "Put your QR on every invoice"],
     [{ hasReviewLink: false }, "review", "Add your Google review link"],
     [{}, "ask_more", "Ask 10 more customers"],
@@ -37,7 +37,7 @@ describe("next step mapping", () => {
     expect(nextStep({ ...base, customersTotal: 0, hasLaunchCampaign: false }).key).toBe("import");
   });
   it("after a launch the next step moves on", () => {
-    expect(nextStep({ ...base, customersSent: 0, hasLaunchCampaign: true }).key).toBe("ask");
+    expect(nextStep({ ...base, customersSent: 0, hasLaunchCampaign: true }).key).not.toBe("ask");
   });
   it("ask step uses the real imported count", () => {
     expect(nextStep({ ...base, customersSent: 0 }).body).toContain("12 customers");

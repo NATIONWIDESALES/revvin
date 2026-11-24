@@ -638,7 +638,7 @@ const BASE_INDUSTRIES: Industry[] = [
       },
       {
         q: "Can I ask clients for referrals without it feeling pushy?",
-        a: "The ask is yours to word and yours to send, from your own device, so it can be as low-key as a card on the counter or a line at the end of an invoice. Revvin never messages your clients for you.",
+        a: "The ask is yours to word and yours to send, from your own device, so it can be as low-key as a card on the counter or a line at the end of an invoice. Personal asks leave your own phone or email app; Revvin only emails your clients when you press send on a campaign, from your business name.",
       },
     ],
   },

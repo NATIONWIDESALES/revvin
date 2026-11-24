@@ -42,7 +42,7 @@ export interface NextStep {
 }
 
 export function setupDone(s: SetupState): boolean[] {
-  return [s.isLive, s.customersTotal > 0, s.customersSent > 0, s.qrDownloaded, s.hasReviewLink];
+  return [s.isLive, s.customersTotal > 0, s.customersSent > 0 || s.hasLaunchCampaign === true, s.qrDownloaded, s.hasReviewLink];
 }
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -63,10 +63,10 @@ export function nextStep(s: SetupState): NextStep {
     body: "Revvin emails every customer their own referral link, from your business name. Replies come to you.",
     button: `Ask all ${plural(s.customersTotal, "customer", "customers")}`, tab: "campaigns",
   };
-  if (s.customersSent === 0) return {
-    key: "ask", title: "Ask your last 10 customers",
+  if (s.customersSent === 0 && s.hasLaunchCampaign !== true) return {
+    key: "ask", title: `Ask all ${plural(s.customersTotal, "customer", "customers")}`,
     body: `You've added ${plural(s.customersTotal, "customer", "customers")}. Send each one a personal ask from your own phone or email.`,
-    button: "Ask your last 10 customers", tab: "customers",
+    button: `Ask all ${plural(s.customersTotal, "customer", "customers")}`, tab: "customers",
   };
   if (!s.qrDownloaded) return {
     key: "qr", title: "Put your QR on every invoice",
@@ -153,8 +153,10 @@ export type HomeLayout = "kit" | "standard";
  * The referral kit replaces a page of zeros for a real business that has not
  * sent a launch and has no leads. Unknown launch state keeps the standard view.
  */
-export function homeLayout(s: { isDemo: boolean; hasLaunchCampaign?: boolean; leadsCount: number }): HomeLayout {
+export function homeLayout(s: { isDemo: boolean; hasLaunchCampaign?: boolean; leadsCount: number; preview?: boolean }): HomeLayout {
   if (s.isDemo) return "standard";
+  // Owner preview (?kit=1): read-only look at the kit after launching.
+  if (s.preview) return "kit";
   return s.hasLaunchCampaign === false && s.leadsCount === 0 ? "kit" : "standard";
 }
 

@@ -29,7 +29,7 @@ interface Props {
   onShared: () => void;
   welcome?: React.ReactNode;
   /** Data for the first-run referral kit. Without it Home always uses the standard layout. */
-  kit?: { biz: SheetBusiness; onPublished: () => Promise<void> | void; renderIntake: () => React.ReactNode; trialNote?: boolean };
+  kit?: { biz: SheetBusiness; onPublished: () => Promise<void> | void; renderIntake: () => React.ReactNode; trialNote?: boolean; preview?: boolean };
 }
 
 interface LaunchSummary { sent: number; clicked: number; referrals: number }
@@ -113,7 +113,7 @@ const HomeView = ({ businessId, businessName, slug, publicUrl, isPro, isDemo, se
     } else { await copy(); }
   };
 
-  const layout = kit ? homeLayout({ isDemo, hasLaunchCampaign: setup.hasLaunchCampaign, leadsCount: leads.length }) : "standard";
+  const layout = kit ? homeLayout({ isDemo, hasLaunchCampaign: setup.hasLaunchCampaign, leadsCount: leads.length, preview: kit.preview }) : "standard";
   if (layout === "kit" && kit) {
     return (
       <ReferralKitHome biz={kit.biz} publicUrl={publicUrl} displayUrl={displayUrl} isLive={setup.isLive}

@@ -9,7 +9,7 @@ import AttestationGate from "@/components/dashboard/AttestationGate";
 
 // Standalone Invite Customers area. Wraps the existing CustomersTab (which already
 // owns the import + template + device-native send UX) with a one-time consent gate.
-// Revvin never sends on behalf of the business. All sends leave the business's own
+// Personal invites are never sent by Revvin (campaign emails are, on send). All sends leave the business's own
 // device through sms:, mailto:, or the Web Share API.
 
 interface BizRow {

@@ -84,9 +84,10 @@ const AttestationGate = ({ businessId, consentedAt, onConsented, children }: Pro
         <div className="flex-1">
           <h2 className="text-base font-semibold text-foreground">One quick confirmation</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Before importing or inviting, please confirm that these are people you already have
-            a relationship with. Every message you send leaves your own device through your own
-            Messages or Mail app. Revvin does not transmit anything on your behalf.
+            Before adding customers, please confirm these are people you already have a
+            relationship with. Personal asks leave your own phone or email app. Campaign emails
+            on the Ask your customers tab are sent by Revvin from your business name, only when
+            you press send.
           </p>
           <label
             ref={checkboxRef as unknown as React.Ref<HTMLLabelElement>}

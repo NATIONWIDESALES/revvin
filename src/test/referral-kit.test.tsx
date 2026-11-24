@@ -110,3 +110,21 @@ describe("kit screen", () => {
   it("unpublished button label", () => { view({ isLive: false }); expect(screen.getByTestId("kit-send").textContent).toBe("Publish and send to my customers"); });
   it("demo keeps the standard home", () => { view({}, true); expect(screen.queryByTestId("kit-ready")).toBeNull(); expect(screen.getByTestId("next-step")).toBeTruthy(); });
 });
+
+describe("owner kit preview (?kit=1)", () => {
+  it("shows the kit after a launch with leads", () => expect(homeLayout({ isDemo: false, hasLaunchCampaign: true, leadsCount: 5, preview: true })).toBe("kit"));
+  it("never shows the kit for demo", () => expect(homeLayout({ isDemo: true, hasLaunchCampaign: false, leadsCount: 0, preview: true })).toBe("standard"));
+});
+
+describe("next step after a launch", () => {
+  const s: SetupState = { isLive: true, customersTotal: 40, customersSent: 0, customersPending: 40, qrDownloaded: false, hasReviewLink: true, hasLaunchCampaign: true };
+  it("a sent launch counts as asked", () => expect(nextStep(s).key).toBe("qr"));
+  it("before any ask the step names every customer", () => expect(nextStep({ ...s, hasLaunchCampaign: undefined }).title).toBe("Ask all 40 customers"));
+});
+
+describe("setup progress after a launch", () => {
+  it("marks the asked step done", async () => {
+    const { setupDone } = await import("@/lib/dashboardHome");
+    expect(setupDone({ isLive: true, customersTotal: 4, customersSent: 0, customersPending: 4, qrDownloaded: false, hasReviewLink: false, hasLaunchCampaign: true })[2]).toBe(true);
+  });
+});

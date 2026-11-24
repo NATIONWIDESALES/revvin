@@ -12,6 +12,7 @@ export const NAV_GROUPS: NavGroup[] = [
     { tab: "home", label: "Home" },
     { tab: "leads", label: "Leads" },
     { tab: "customers", label: "Customers" },
+    { tab: "campaigns", label: "Ask your customers" },
     { tab: "referrers", label: "Referrers" },
     { tab: "payouts", label: "Rewards" },
   ] },
@@ -21,7 +22,6 @@ export const NAV_GROUPS: NavGroup[] = [
   ] },
   { title: "Pro", items: [
     { tab: "jobdone", label: "Job done asks", pro: true },
-    { tab: "campaigns", label: "Ask your customers" },
     { tab: "reports", label: "Reports", pro: true },
   ] },
   { title: "Account", items: [

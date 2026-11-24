@@ -330,6 +330,13 @@
       "when": 1795562430676,
       "tag": "0046_launch_trial_available",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1795564141955,
+      "tag": "0047_fix_print_kit_upload_policy",
+      "breakpoints": true
     }
   ]
 }
