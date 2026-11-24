@@ -281,6 +281,20 @@
       "when": 1795536844906,
       "tag": "0039_scheduled_http_timeout_and_health",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1795558522842,
+      "tag": "0040_referral_launch_campaigns",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1795558750609,
+      "tag": "0041_funnel_events_referral_launch",
+      "breakpoints": true
     }
   ]
 }

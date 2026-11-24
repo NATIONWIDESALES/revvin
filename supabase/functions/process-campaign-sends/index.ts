@@ -16,10 +16,16 @@
 // older than the queue's own 24 hour TTL are failed, and no row is ever moved
 // into 'sending' or 'sent' here.
 //
+// Referral launch follow-ups also run here (day 4 and day 10), through the same
+// campaign_emails queue, so no second sender or schedule exists.
+//
 // Cron only.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.97.0";
 import { checkCronAuth } from "../_shared/cron-auth.ts";
+import { isSuppressed } from "../_shared/outreach.ts";
+import { queueLaunchEmail } from "../_shared/launch-send.ts";
+import { followupDue, followupEligible, LAUNCH_FOLLOWUPS } from "../_shared/referral-launch.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -64,7 +70,9 @@ Deno.serve(async (req) => {
       summary.push({ campaign_id: campaign.id, ...(await reconcile(supabase, campaign)) });
     }
 
-    return new Response(JSON.stringify({ ok: true, reconciled: summary }), {
+    const followups = await runLaunchFollowups(supabase);
+
+    return new Response(JSON.stringify({ ok: true, reconciled: summary, followups }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
@@ -119,4 +127,102 @@ async function reconcile(supabase: any, campaign: any) {
   if (error) console.error("[process-campaign-sends] counter update failed", { id: campaign.id, error });
 
   return { in_flight: inFlight, failed_stuck: failedStuck, counts, closed: inFlight === 0 };
+}
+
+/** Launch campaigns checked for due follow-ups per run. */
+const MAX_FOLLOWUP_CAMPAIGNS = 10;
+
+// deno-lint-ignore no-explicit-any
+async function runLaunchFollowups(supabase: any) {
+  const out: Array<Record<string, unknown>> = [];
+  const { data: campaigns, error } = await supabase
+    .from("campaigns")
+    .select("id, business_id, started_at, created_at, followups_enabled, followups_done")
+    .eq("kind", "referral_launch")
+    .eq("followups_enabled", true)
+    .lt("followups_done", 2)
+    .lt("started_at", new Date(Date.now() - 4 * 86_400_000).toISOString())
+    .gt("started_at", new Date(Date.now() - 60 * 86_400_000).toISOString())
+    .order("started_at", { ascending: true })
+    .limit(MAX_FOLLOWUP_CAMPAIGNS);
+  if (error) { console.error("[process-campaign-sends] follow-up scan failed", error); return out; }
+
+  for (const campaign of campaigns ?? []) {
+    const step = followupDue({ started_at: campaign.started_at ?? campaign.created_at, followups_enabled: campaign.followups_enabled, followups_done: campaign.followups_done });
+    if (!step) continue;
+    out.push({ campaign_id: campaign.id, step, ...(await sendFollowupStep(supabase, campaign, step)) });
+  }
+  return out;
+}
+
+// deno-lint-ignore no-explicit-any
+async function sendFollowupStep(supabase: any, campaign: any, step: 1 | 2) {
+  const { data: businesses } = await supabase
+    .from("businesses")
+    .select("id, name, slug, is_disabled, is_published, is_demo, street_address, city, postal_code, country, business_email, offer_amount")
+    .eq("id", campaign.business_id)
+    .limit(1);
+  const business = businesses?.[0];
+  const ready = business && !business.is_disabled && business.is_published && business.is_demo !== true && business.slug &&
+    ["street_address", "city", "postal_code", "country", "business_email"].every((f) => String(business[f] || "").trim());
+  if (!ready) return { skipped: "business_not_ready" };
+
+  const { data: rows, error } = await supabase
+    .from("campaign_sends")
+    .select("contact_id, recipient_email, step, status, clicked_at, referrer_id, referrers(token)")
+    .eq("campaign_id", campaign.id)
+    .limit(5000);
+  if (error) return { error: "send_rows_failed" };
+
+  const people = new Map<string, any>();
+  for (const row of rows ?? []) {
+    if (!row.contact_id) continue;
+    const p = people.get(row.contact_id) ?? { rows: [] as any[] };
+    p.rows.push(row);
+    people.set(row.contact_id, p);
+  }
+
+  const contactIds = [...people.keys()];
+  const contactInfo = new Map<string, any>();
+  for (let i = 0; i < contactIds.length; i += 200) {
+    const { data: cs } = await supabase.from("referral_contacts").select("id, name, status").in("id", contactIds.slice(i, i + 200));
+    for (const c of cs ?? []) contactInfo.set(c.id, c);
+  }
+
+  const referrerIds = [...new Set((rows ?? []).map((r: any) => r.referrer_id).filter(Boolean))];
+  const referred = new Set<string>();
+  if (referrerIds.length) {
+    const { data: leads } = await supabase.from("leads").select("referrer_id").eq("business_id", business.id)
+      .gte("created_at", campaign.created_at).in("referrer_id", referrerIds).limit(5000);
+    for (const l of leads ?? []) referred.add(l.referrer_id);
+  }
+
+  const template = LAUNCH_FOLLOWUPS[step - 1];
+  let queued = 0, skipped = 0;
+  for (const [contactId, p] of people) {
+    const first = p.rows.find((r: any) => r.step === 0);
+    if (!first?.referrers?.token || !first.recipient_email) { skipped++; continue; }
+    let suppressed = false;
+    try { suppressed = await isSuppressed(supabase, business.id, first.recipient_email); } catch { skipped++; continue; }
+    const eligible = followupEligible(step, {
+      firstSendSent: first.status === "sent",
+      clicked: p.rows.some((r: any) => r.clicked_at),
+      referred: referred.has(first.referrer_id),
+      optedOut: (contactInfo.has(contactId) ? String(contactInfo.get(contactId).status || "") : "opted_out").toLowerCase() === "opted_out",
+      suppressed,
+      stepsAlreadySent: p.rows.map((r: any) => r.step),
+    });
+    if (!eligible) { skipped++; continue; }
+    const result = await queueLaunchEmail(supabase, {
+      campaignId: campaign.id, step, business,
+      recipient: { contact_id: contactId, name: String(contactInfo.get(contactId)?.name || ""), email: first.recipient_email, referrer_id: first.referrer_id, referrer_token: first.referrers.token },
+      subjectTemplate: template.subject, bodyTemplate: template.body,
+    });
+    if (result.ok) queued++; else skipped++;
+  }
+
+  // Marked done even when nobody was eligible; the unique step index keeps a
+  // rerun from ever sending the same step twice.
+  await supabase.from("campaigns").update({ followups_done: step }).eq("id", campaign.id).eq("followups_done", step - 1);
+  return { queued, skipped };
 }

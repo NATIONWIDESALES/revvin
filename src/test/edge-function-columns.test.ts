@@ -23,6 +23,7 @@ const SCHEMA: Record<string, string[]> = {
     "created_at",
     "updated_at",
     "last_job_at",
+    "referrer_id",
   ],
   campaigns: [
     "id",
@@ -48,6 +49,9 @@ const SCHEMA: Record<string, string[]> = {
     "segment_key",
     "segment_label",
     "last_batch_at",
+    "kind",
+    "followups_enabled",
+    "followups_done",
   ],
   campaign_sends: [
     "id",
@@ -63,6 +67,9 @@ const SCHEMA: Record<string, string[]> = {
     "clicked_at",
     "failure_reason",
     "created_at",
+    "step",
+    "referrer_id",
+    "click_token",
   ],
 };
 

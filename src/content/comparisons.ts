@@ -47,7 +47,7 @@ const REVVIN_SOURCE: Source = { label: "Revvin pricing", url: "https://revvin.co
 const REVVIN_COL = {
   price: `Free. Pro is ${PRICE_TEXT.monthlyPerMonth} or ${PRICE_TEXT.annualPerYear}`,
   setup: "None",
-  free: "Yes: referral page and QR code, unlimited referrals, import and ask up to 25 customers",
+  free: "Yes: referral page and QR code, unlimited referrals, import and ask up to 500 customers",
   signup: "Self-serve signup, no demo",
   payouts: "The business pays referrers directly; Revvin does not process payouts yet",
   link: "Yes, a personal link for every referrer, on Free",
@@ -130,7 +130,7 @@ export const COMPARISONS: Comparison[] = [
     metaDescription:
       "ReferralWise and Revvin are close in price. ReferralWise automates partner payouts through Stripe; Revvin asks past customers with personal links.",
     answer:
-      "ReferralWise is a tool with lower published subscription prices than Revvin: it has a free plan, Pro at $19 a month and Business at $49 a month, and it pays partners through Stripe after a job is approved. Revvin's Free plan lets you import and ask up to 25 past customers with personal links, and you pay referrers yourself.",
+      "ReferralWise is a tool with lower published subscription prices than Revvin: it has a free plan, Pro at $19 a month and Business at $49 a month, and it pays partners through Stripe after a job is approved. Revvin's Free plan lets you import and ask up to 500 past customers with personal links, and you pay referrers yourself.",
     table: table("ReferralWise", [
       "Free; Pro $19/month; Business $49/month",
       "No setup fees",
@@ -168,7 +168,7 @@ export const COMPARISONS: Comparison[] = [
       },
       {
         q: "How is Revvin different?",
-        a: "Revvin is built around past customers: import and ask up to 25 on Free with a personal link for every referrer; Pro adds the automatic job-completion review and referral ask. You pay referrers directly.",
+        a: "Revvin is built around past customers: import and ask up to 500 on Free with a personal link for every referrer; Pro adds the automatic job-completion review and referral ask. You pay referrers directly.",
       },
     ],
     sources: [{ label: "ReferralWise pricing", url: "https://referralwise.app/pricing" }, REVVIN_SOURCE],
@@ -341,7 +341,7 @@ export const ROUNDUP = {
       bestFor: "Small home-service crews who want to ask their whole customer list.",
       price: `Free. Pro is ${PRICE_TEXT.monthlyPerMonth} or ${PRICE_TEXT.annualPerYear}, with no required setup fee.`,
       standsOut:
-        "The Free plan includes a referral page and QR code, unlimited referrals, import and ask up to 25 customers, a personal link for every referrer, a lead inbox and rewards tracked from owed to paid. Pro adds automatic job-completion review and referral asks through Job done, Zapier and API. Self-serve signup.",
+        "The Free plan includes a referral page and QR code, unlimited referrals, import and ask up to 500 customers, a personal link for every referrer, a lead inbox and rewards tracked from owed to paid. Pro adds automatic job-completion review and referral asks through Job done, Zapier and API. Self-serve signup.",
       watchOut: "You pay referrers yourself, and there is no rep app yet.",
     },
     {
@@ -414,7 +414,7 @@ export const ROUNDUP = {
     },
     {
       q: "Is there free referral software for contractors?",
-      a: "Revvin has a free referral page, QR code, unlimited referrals and importing and asking up to 25 customers from your own phone or email app. ReferralWise also has a free plan, with limited partners and 3 referrals a month. Snoball offers a free business profile, but does not publish pricing for its done-for-you program.",
+      a: "Revvin has a free referral page, QR code, unlimited referrals and importing and asking up to 500 customers from your own phone or email app. ReferralWise also has a free plan, with limited partners and 3 referrals a month. Snoball offers a free business profile, but does not publish pricing for its done-for-you program.",
     },
     {
       q: "How much does referral software for contractors cost?",

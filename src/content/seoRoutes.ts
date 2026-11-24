@@ -742,6 +742,6 @@ const startRoutes: PrerenderRoute[] = START_PATHS.map(path => ({
   path, title: `Free ${INDUSTRIES.find(i => path === `/start/${i.slug}`)?.label ?? "home service"} referral page | Revvin`,
   description: "Set your reward, create your free account and publish your referral page. Every new account gets Pro free for 14 days. No card required.",
   h1: startHeadline(path.split("/")[2]), noindex: true,
-  sections: [{ heading: "Make it live, free", body: "Business name. Trade. Reward per closed job. Free for your first 25 customers. No card." }], faqs: START_FAQS,
+  sections: [{ heading: "Make it live, free", body: "Business name. Trade. Reward per closed job. Free for your first 500 customers. No card." }], faqs: START_FAQS,
 }));
 export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...toolkitRoutes, ...partnerRoutes, guideIndexRoute, ...industryRoutes, ...guideRoutes, roundupRoute, compareHubRoute, ...compareRoutes, ...startRoutes];

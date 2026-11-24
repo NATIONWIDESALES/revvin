@@ -43,7 +43,7 @@ describe("approved checkout contract", () => {
   it("email pricing and feature lists match the app", () => {
     expect(emailMonthly).toBe(97); expect(emailAnnual).toBe(970);
     expect(PRO_FEATURE_LABELS).toEqual(PRO_FEATURES.map(f => f.label));
-    expect(FREE_CONTACT_LIMIT).toBe(25);
+    expect(FREE_CONTACT_LIMIT).toBe(500);
     expect(FREE_FEATURES.some(f => /automatic|API|Zapier/.test(f.label))).toBe(false);
     expect(PRO_FEATURES.some(f => f.label === "Automatic ask after each job")).toBe(true);
   });
@@ -172,17 +172,23 @@ describe("real pricing migration in isolated PostgreSQL", () => {
     await db.exec("CREATE ROLE anon; CREATE ROLE authenticated;");
     await db.exec(read("drizzle/migrations/0026_pricing_25_contacts_pro_job_asks.sql"));
     await db.exec(read("drizzle/migrations/0027_pricing_pro_integration_creation_gate.sql"));
+    // Latest definitions: the referral launch migration raised the Free cap to 500.
+    for (const name of ["fn_enforce_free_contact_limit", "fn_contact_ask_allowed"]) {
+      const latest = migrationFunctions().get(name);
+      if (!latest) throw new Error(`Missing ${name}`);
+      await db.exec(latest);
+    }
     const guard = migrationFunctions().get("fn_guard_contact_ask_limit");
     if (!guard) throw new Error("Missing contact ask guard");
     await db.exec(guard);
     await db.exec(`CREATE TRIGGER cap BEFORE INSERT ON referral_contacts FOR EACH ROW EXECUTE FUNCTION fn_enforce_free_contact_limit();
       CREATE TRIGGER job_cap BEFORE INSERT ON referral_triggers FOR EACH ROW EXECUTE FUNCTION fn_job_daily_cap();
-      INSERT INTO referral_contacts SELECT ('10000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'${biz}',now()+n*interval '1 second' FROM generate_series(1,25)n;`);
+      INSERT INTO referral_contacts SELECT ('10000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'${biz}',now()+n*interval '1 second' FROM generate_series(1,500)n;`);
   }, 30000);
   afterAll(async () => { await db.close(); });
-  it("Free accepts exactly 25 and refuses the 26th import", async () => {
-    await expect(db.exec(`INSERT INTO referral_contacts VALUES('${contact(26)}','${biz}',now())`)).rejects.toThrow("free_contact_limit");
-    expect((await db.query<{n:number}>("SELECT count(*)::int n FROM referral_contacts")).rows[0].n).toBe(25);
+  it("Free accepts exactly 500 and refuses the 501st import", async () => {
+    await expect(db.exec(`INSERT INTO referral_contacts VALUES('${contact(501)}','${biz}',now())`)).rejects.toThrow("free_contact_limit");
+    expect((await db.query<{n:number}>("SELECT count(*)::int n FROM referral_contacts")).rows[0].n).toBe(500);
   });
   it("Free refuses API keys and webhook creation without changing existing records", async () => {
     await expect(db.exec(`INSERT INTO api_keys VALUES('${biz}')`)).rejects.toThrow("pro_required_automatic_ask");
@@ -193,14 +199,14 @@ describe("real pricing migration in isolated PostgreSQL", () => {
     await expect(db.exec(`INSERT INTO referral_triggers(business_id) VALUES('${biz}')`)).rejects.toThrow("pro_required_automatic_ask");
   });
   it("trial gets unlimited contacts and the first automatic ask", async () => {
-    await db.exec(`UPDATE businesses SET pro_trial_ends_at=now()+interval '14 days'; INSERT INTO referral_contacts VALUES('${contact(26)}','${biz}',now()+interval '26 seconds'); SELECT fn_create_job_ask('${biz}','{"customer_first_name":"Fixture"}');`);
+    await db.exec(`UPDATE businesses SET pro_trial_ends_at=now()+interval '14 days'; INSERT INTO referral_contacts VALUES('${contact(501)}','${biz}',now()+interval '501 seconds'); SELECT fn_create_job_ask('${biz}','{"customer_first_name":"Fixture"}');`);
     expect((await db.query<{n:number}>("SELECT count(*)::int n FROM referral_triggers")).rows[0].n).toBe(1);
   });
-  it("expiry retains every contact but pauses rank 26 and automatic asks", async () => {
+  it("expiry retains every contact but pauses rank 501 and automatic asks", async () => {
     await db.exec("UPDATE businesses SET pro_trial_ends_at=now()-interval '1 second'");
-    expect((await db.query<{n:number}>("SELECT count(*)::int n FROM referral_contacts")).rows[0].n).toBe(26);
-    expect((await db.query<{ok:boolean}>(`SELECT fn_contact_ask_allowed('${biz}','${contact(25)}') ok`)).rows[0].ok).toBe(true);
-    expect((await db.query<{ok:boolean}>(`SELECT fn_contact_ask_allowed('${biz}','${contact(26)}') ok`)).rows[0].ok).toBe(false);
+    expect((await db.query<{n:number}>("SELECT count(*)::int n FROM referral_contacts")).rows[0].n).toBe(501);
+    expect((await db.query<{ok:boolean}>(`SELECT fn_contact_ask_allowed('${biz}','${contact(500)}') ok`)).rows[0].ok).toBe(true);
+    expect((await db.query<{ok:boolean}>(`SELECT fn_contact_ask_allowed('${biz}','${contact(501)}') ok`)).rows[0].ok).toBe(false);
     await expect(db.exec(`SELECT fn_create_job_ask('${biz}','{"customer_first_name":"Fixture"}')`)).rejects.toThrow("pro_required_automatic_ask");
   });
   it("ownership authorization is still enforced", async () => {

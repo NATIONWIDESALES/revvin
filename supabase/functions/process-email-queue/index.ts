@@ -342,7 +342,9 @@ Deno.serve(async (req) => {
         let plan: string;
         try { plan = businessId ? await effectivePlan(supabase, businessId) : 'free'; }
         catch { continue; }
-        if (plan !== 'pro') {
+        // A referral launch is allowed on Free (one per business, enforced by
+        // send-campaign), so only reactivation mail needs Pro here.
+        if (plan !== 'pro' && payload.label !== 'referral-launch') {
           const reason = 'Reactivation campaigns paused: Pro trial or paid access ended';
           await moveToDlq(supabase, queue, msg, reason);
           await recordCampaignOutcome(supabase, payload, { ok: false, reason });

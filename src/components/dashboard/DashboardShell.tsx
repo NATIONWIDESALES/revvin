@@ -21,7 +21,7 @@ export const NAV_GROUPS: NavGroup[] = [
   ] },
   { title: "Pro", items: [
     { tab: "jobdone", label: "Job done asks", pro: true },
-    { tab: "campaigns", label: "Campaigns", pro: true },
+    { tab: "campaigns", label: "Ask your customers" },
     { tab: "reports", label: "Reports", pro: true },
   ] },
   { title: "Account", items: [

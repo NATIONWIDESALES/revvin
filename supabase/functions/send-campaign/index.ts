@@ -10,6 +10,8 @@ import {
   renderTokens,
   unsubscribeUrlFor,
 } from "../_shared/outreach.ts";
+import { ensureReferrer, queueLaunchEmail } from "../_shared/launch-send.ts";
+import { launchAudience, launchPlanDecision, LAUNCH_MAX_RECIPIENTS } from "../_shared/referral-launch.ts";
 
 
 const corsHeaders = {
@@ -81,12 +83,15 @@ Deno.serve(async (req) => {
   if (userError || !user) return json({ error: "Unauthorized" }, 401);
 
   const supabase = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
-  let input: { name?: string; segment_key?: string; subject?: string; body?: string; consent_confirmed?: boolean };
+  let input: { kind?: string; name?: string; segment_key?: string; subject?: string; body?: string; consent_confirmed?: boolean; followups_enabled?: boolean };
   try {
     input = await req.json();
   } catch {
     return json({ error: "Invalid JSON body" }, 400);
   }
+
+  if (input.kind === "referral_launch") return await sendReferralLaunch(supabase, user.id, input);
+  if (input.kind !== undefined && input.kind !== "reactivation") return json({ error: "Unknown campaign kind" }, 400);
 
   const subjectTemplate = String(input.subject || "").trim().slice(0, 200);
   const bodyTemplate = String(input.body || "").trim().slice(0, 20000);
@@ -250,3 +255,116 @@ Deno.serve(async (req) => {
     reasons: { ...reasons, ...(truncated ? { truncated_to: MAX_RECIPIENTS } : {}) },
   });
 });
+
+// Referral launch: every contact with a deliverable email gets their own
+// personal link. Same readiness, consent, demo, disabled, published,
+// suppression and opt-out rules as reactivation; only the plan rule differs.
+// deno-lint-ignore no-explicit-any
+async function sendReferralLaunch(supabase: any, userId: string, input: { subject?: string; body?: string; consent_confirmed?: boolean; followups_enabled?: boolean }) {
+  const subjectTemplate = String(input.subject || "").trim().slice(0, 200);
+  const bodyTemplate = String(input.body || "").trim().slice(0, 20000);
+  if (!subjectTemplate || !bodyTemplate) return json({ error: "Subject and message are required" }, 400);
+  if (input.consent_confirmed !== true) return json({ error: "Customer relationship confirmation is required" }, 400);
+
+  const { data: businesses, error: businessError } = await supabase
+    .from("businesses")
+    .select("id, user_id, name, slug, is_disabled, is_published, is_demo, street_address, city, postal_code, country, business_email, offer_amount")
+    .eq("user_id", userId)
+    .limit(1);
+  const business = businesses?.[0];
+  if (businessError || !business) return json({ error: "Business not found" }, 404);
+  if (business.is_disabled) return json({ error: "This business is disabled" }, 403);
+  if (business.is_demo === true) return json({ error: "Campaign sending is disabled for demo accounts" }, 403);
+  let plan: string;
+  try { plan = await effectivePlan(supabase, business.id); }
+  catch { return json({ error: "Could not verify your plan. Try again." }, 503); }
+  const required = ["street_address", "city", "postal_code", "country", "business_email"] as const;
+  const missing = required.filter((field) => !String(business[field] || "").trim());
+  if (missing.length) return json({ error: "Campaign readiness is incomplete", missing }, 422);
+  if (!business.is_published || !business.slug) return json({ error: "Publish your referral page before sending a campaign" }, 422);
+
+  const { data: claims, error: claimReadError } = await supabase.from("referral_launch_claims").select("business_id").eq("business_id", business.id).limit(1);
+  if (claimReadError) return json({ error: "Could not verify your plan. Try again." }, 503);
+  const decision = launchPlanDecision(plan, Boolean(claims?.length));
+  if (!decision.ok) return json({ error: "Your free referral launch has been used. Pro keeps asking your customers.", code: decision.code }, 403);
+
+  const { data: contacts, error: contactError } = await supabase
+    .from("referral_contacts")
+    .select("id, name, email, phone, status, is_mock, referrer_id")
+    .eq("business_id", business.id)
+    .order("created_at", { ascending: true })
+    .limit(10000);
+  if (contactError) return json({ error: "Could not load customers" }, 500);
+
+  let audience: Awaited<ReturnType<typeof launchAudience<{ id: string; name: string | null; email: string | null; phone: string | null; status: string | null; is_mock: boolean | null; referrer_id: string | null }>>>;
+  try {
+    audience = await launchAudience((contacts ?? []) as Array<{ id: string; name: string | null; email: string | null; phone: string | null; status: string | null; is_mock: boolean | null; referrer_id: string | null }>, (email) => isSuppressed(supabase, business.id, email), LAUNCH_MAX_RECIPIENTS);
+  } catch {
+    return json({ error: "Could not check opt-outs. Try again." }, 503);
+  }
+  const reasons: Record<string, number> = { ...audience.reasons } as Record<string, number>;
+  const skipped = (reason: string) => { reasons[reason] = (reasons[reason] || 0) + 1; };
+  const total = () => Object.values(reasons).reduce((a, b) => a + b, 0);
+  if (!audience.recipients.length) return json({ campaign_id: null, queued: 0, skipped: total(), reasons });
+
+  // Claim before creating the campaign. On Free the primary key makes a second
+  // concurrent launch fail here.
+  const { error: claimError } = plan === "pro"
+    ? await supabase.from("referral_launch_claims").upsert({ business_id: business.id, plan }, { onConflict: "business_id", ignoreDuplicates: true })
+    : await supabase.from("referral_launch_claims").insert({ business_id: business.id, plan });
+  if (claimError) {
+    if (claimError.code === "23505") return json({ error: "Your free referral launch has been used. Pro keeps asking your customers.", code: "free_launch_used" }, 403);
+    return json({ error: "Could not start the launch. Try again." }, 500);
+  }
+
+  const startedAt = new Date().toISOString();
+  const { data: campaign, error: campaignError } = await supabase
+    .from("campaigns")
+    .insert({
+      business_id: business.id,
+      kind: "referral_launch",
+      name: "Referral launch",
+      channel: "email",
+      subject: subjectTemplate,
+      body: bodyTemplate,
+      status: "sending",
+      consent_confirmed: true,
+      created_by: userId,
+      started_at: startedAt,
+      total_recipients: audience.recipients.length,
+      followups_enabled: input.followups_enabled !== false,
+    })
+    .select("id")
+    .single();
+  if (campaignError || !campaign) {
+    if (plan !== "pro") await supabase.from("referral_launch_claims").delete().eq("business_id", business.id).is("campaign_id", null);
+    return json({ error: "Could not create campaign" }, 500);
+  }
+  await supabase.from("referral_launch_claims").update({ campaign_id: campaign.id }).eq("business_id", business.id).is("campaign_id", null);
+
+  const launchBusiness = {
+    id: business.id, name: String(business.name), slug: String(business.slug), offer_amount: business.offer_amount ?? null,
+    business_email: business.business_email, street_address: String(business.street_address), city: String(business.city),
+    postal_code: String(business.postal_code), country: String(business.country),
+  };
+  let queued = 0;
+  for (const contact of audience.recipients) {
+    // Re-check immediately before queueing each recipient.
+    try {
+      if (await isSuppressed(supabase, business.id, contact.email)) { skipped("suppressed"); continue; }
+    } catch { skipped("suppression_check_failed"); continue; }
+    const referrer = await ensureReferrer(supabase, business.id, { id: contact.id, name: String(contact.name || ""), email: contact.email, phone: contact.phone, referrer_id: contact.referrer_id });
+    if (!referrer) { skipped("referrer_link_failed"); continue; }
+    const result = await queueLaunchEmail(supabase, {
+      campaignId: campaign.id, step: 0, business: launchBusiness,
+      recipient: { contact_id: contact.id, name: String(contact.name || ""), email: contact.email, referrer_id: referrer.id, referrer_token: referrer.token },
+      subjectTemplate, bodyTemplate,
+    });
+    if (result.ok) queued++; else skipped(result.reason);
+  }
+
+  await supabase.from("campaigns").update(queued ? { total_recipients: queued } : { status: "failed", total_recipients: 0 }).eq("id", campaign.id);
+  // Nothing went out, so a Free business keeps its one launch.
+  if (!queued && plan !== "pro") await supabase.from("referral_launch_claims").delete().eq("business_id", business.id).eq("campaign_id", campaign.id);
+  return json({ campaign_id: campaign.id, queued, skipped: total(), reasons });
+}

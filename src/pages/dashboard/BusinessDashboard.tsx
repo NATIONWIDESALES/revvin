@@ -159,6 +159,7 @@ const BusinessDashboard = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
   const [offers, setOffers] = useState<OfferRow[]>([]);
+  const [hasLaunchCampaign, setHasLaunchCampaign] = useState<boolean | undefined>(undefined);
   const [contactStats, setContactStats] = useState<{ total: number; sent: number; pending: number }>({ total: 0, sent: 0, pending: 0 });
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<DashTab>(resolveTab(searchParams.get("tab")));
@@ -260,6 +261,8 @@ const BusinessDashboard = () => {
         sent: (cdata ?? []).filter((c) => c.status === "sent").length,
         pending: (cdata ?? []).filter((c) => c.status === "pending").length,
       });
+      const { data: launchRows, error: launchError } = await supabase.from("campaigns").select("id").eq("business_id", b.id).eq("kind", "referral_launch").limit(1);
+      setHasLaunchCampaign(launchError ? undefined : (launchRows?.length ?? 0) > 0);
     }
     if (!bizError) setBiz(b);
     setLoading(false);
@@ -355,6 +358,7 @@ const BusinessDashboard = () => {
     customersPending: contactStats.pending,
     qrDownloaded: !!biz.qr_downloaded_at,
     hasReviewLink: !!biz.google_review_url,
+    hasLaunchCampaign,
   };
   const scrollToPublish = () => document.getElementById("publish-prompt")?.scrollIntoView({ behavior: "smooth", block: "center" });
   const tab = activeTab;
@@ -438,7 +442,7 @@ const BusinessDashboard = () => {
       {tab === "campaigns" && (!isLive ? (
         <LockedTab title="Publish your page to run a campaign" body="Reactivation campaigns point people back at your referral page, so it has to be live first. Your customer list is saved either way." />
       ) : attest(
-        <CampaignsTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, business_email: biz.business_email ?? null }} publicUrl={publicUrl} isPro={isPro} />
+        <CampaignsTab biz={{ id: biz.id, name: biz.name, slug: biz.slug, offer_amount: biz.offer_amount, business_email: biz.business_email ?? null }} publicUrl={publicUrl} isPro={isPro} onGo={changeTab} onLaunchSent={() => setHasLaunchCampaign(true)} />
       ))}
 
       {tab === "reports" && (isPro ? <RoiSummaryCard businessId={biz.id} /> : <ProUpsell title={PRO_COPY.reporting.title} body={PRO_COPY.reporting.body} />)}
@@ -479,7 +483,7 @@ const BusinessDashboard = () => {
 
 const TAB_TITLE: Record<DashTab, string> = {
   home: "Home", leads: "Leads", customers: "Customers", referrers: "Referrers", payouts: "Rewards",
-  page: "Edit page", share: "Print pack and QR", jobdone: "Job done asks", campaigns: "Campaigns",
+  page: "Edit page", share: "Print pack and QR", jobdone: "Job done asks", campaigns: "Ask your customers",
   reports: "Reports", account: "Settings", billing: "Billing", offers: "Offers",
   referrals: "Marketplace referrals", integrations: "Settings",
 };

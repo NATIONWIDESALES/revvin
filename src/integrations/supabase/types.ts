@@ -527,6 +527,7 @@ export type Database = {
         Row: {
           business_id: string
           campaign_id: string
+          click_token: string | null
           clicked_at: string | null
           contact_id: string | null
           created_at: string
@@ -536,12 +537,15 @@ export type Database = {
           opened_at: string | null
           recipient_email: string | null
           recipient_phone: string | null
+          referrer_id: string | null
           sent_at: string | null
           status: string
+          step: number
         }
         Insert: {
           business_id: string
           campaign_id: string
+          click_token?: string | null
           clicked_at?: string | null
           contact_id?: string | null
           created_at?: string
@@ -551,12 +555,15 @@ export type Database = {
           opened_at?: string | null
           recipient_email?: string | null
           recipient_phone?: string | null
+          referrer_id?: string | null
           sent_at?: string | null
           status?: string
+          step?: number
         }
         Update: {
           business_id?: string
           campaign_id?: string
+          click_token?: string | null
           clicked_at?: string | null
           contact_id?: string | null
           created_at?: string
@@ -566,10 +573,20 @@ export type Database = {
           opened_at?: string | null
           recipient_email?: string | null
           recipient_phone?: string | null
+          referrer_id?: string | null
           sent_at?: string | null
           status?: string
+          step?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "campaign_sends_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "referrers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       campaign_templates: {
         Row: {
@@ -615,7 +632,10 @@ export type Database = {
           created_at: string
           created_by: string
           failed_count: number
+          followups_done: number
+          followups_enabled: boolean
           id: string
+          kind: string
           last_batch_at: string | null
           name: string
           opened_count: number
@@ -640,7 +660,10 @@ export type Database = {
           created_at?: string
           created_by: string
           failed_count?: number
+          followups_done?: number
+          followups_enabled?: boolean
           id?: string
+          kind?: string
           last_batch_at?: string | null
           name: string
           opened_count?: number
@@ -665,7 +688,10 @@ export type Database = {
           created_at?: string
           created_by?: string
           failed_count?: number
+          followups_done?: number
+          followups_enabled?: boolean
           id?: string
+          kind?: string
           last_batch_at?: string | null
           name?: string
           opened_count?: number
@@ -2252,6 +2278,42 @@ export type Database = {
           },
         ]
       }
+      referral_launch_claims: {
+        Row: {
+          business_id: string
+          campaign_id: string | null
+          claimed_at: string
+          plan: string
+        }
+        Insert: {
+          business_id: string
+          campaign_id?: string | null
+          claimed_at?: string
+          plan: string
+        }
+        Update: {
+          business_id?: string
+          campaign_id?: string | null
+          claimed_at?: string
+          plan?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_launch_claims_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_launch_claims_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referral_rate_buckets: {
         Row: {
           bucket_key: string
@@ -3396,6 +3458,10 @@ export type Database = {
           token: string
         }[]
       }
+      fn_campaign_click: {
+        Args: { p_token: string; p_ua: string }
+        Returns: boolean
+      }
       fn_campaign_readiness: {
         Args: never
         Returns: {
@@ -3566,6 +3632,10 @@ export type Database = {
           p_contact_value: string
         }
         Returns: boolean
+      }
+      fn_launch_campaign_results: {
+        Args: { p_campaign_id: string }
+        Returns: Json
       }
       fn_me_email_eligible: { Args: { p_email: string }; Returns: boolean }
       fn_monitor_health: { Args: never; Returns: Json }

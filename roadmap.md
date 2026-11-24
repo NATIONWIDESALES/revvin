@@ -209,3 +209,9 @@
 - [x] Verify live dispatch, failure-alert sent log, 14-day unsent counts and expiry handling; document and run regressions.
 
 - [x] 2026-11-24: Allow OpenAI pixel with owner-approved automatic advanced matching; debug off; privacy disclosure updated (docs/openai-matching-allowed-2026-11-24.md)
+
+# Referral launch campaign (run 1 of 4), November 24
+- [x] Migrations 0040 (launch columns, claims, click capture, results, Free cap 500) and 0041 (launch events). send-campaign, process-campaign-sends, process-email-queue deployed.
+- [x] Launch composer and results under "Ask your customers"; Home next step; 25 to 500 in plan copy.
+- [ ] Signed-in preview walkthrough as QA Test Plumbing. Blocked: signing in as that account needs owner approval, not available this turn. Covered by a component test with its data instead.
+- [ ] trial-ending email number update needs lifecycle-emails deploy (not deployed this run).

@@ -263,7 +263,7 @@ const CustomersTab = ({
   const remaining = capped ? Math.max(0, FREE_CONTACT_LIMIT - contacts.length) : Infinity;
   const freeAllowedIds = useMemo(() => new Set([...contacts].sort((a,b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id)).slice(0, FREE_CONTACT_LIMIT).map(c => c.id)), [contacts]);
   const applyPlan = (c: ReferralContact, eligible: Eligibility): Eligibility => capped && !freeAllowedIds.has(c.id)
-    ? { ...eligible, blocked: new Set<Channel>(["sms", "email", "share"]), canPrepare: false, reason: "Asks beyond your first 25 customers are paused on Free.", unknown: false }
+    ? { ...eligible, blocked: new Set<Channel>(["sms", "email", "share"]), canPrepare: false, reason: "Asks beyond your first 500 customers are paused on Free.", unknown: false }
     : eligible;
   const authoritativeAskAllowed = async (c: ReferralContact) => {
     try {
@@ -373,7 +373,7 @@ const CustomersTab = ({
    * while the composer was open is honored, and fails closed on a lookup error.
    */
   const guardChannel = async (c: ReferralContact, channel: Channel): Promise<boolean> => {
-    if (!isDemo && !await authoritativeAskAllowed(c)) { toast({ title: "Ask paused", description: "Free covers your first 25 customers. Keep Pro to ask your whole list.", variant: "destructive" }); return false; }
+    if (!isDemo && !await authoritativeAskAllowed(c)) { toast({ title: "Ask paused", description: "Free covers your first 500 customers. Keep Pro to ask your whole list.", variant: "destructive" }); return false; }
     const snapshot = await refreshSuppression();
     const fresh = contactEligibility(c, snapshot);
     if (!channelAllowed(fresh, channel)) {
@@ -1186,7 +1186,7 @@ const CustomersTab = ({
       <p className="text-[11px] text-muted-foreground">
         Note: these personal asks open in your own Messages or Mail app, or copy the message so you can paste it.
         Revvin does not send them for you and cannot confirm delivery, so status shows "Invite opened", not "Sent".
-        Reactivation campaigns on the Campaigns tab are different: those are sent by Revvin from your account.
+        Emails on the Ask your customers tab are different: those are sent by Revvin from your account.
       </p>
 
       {/* Guided one-by-one composer. */}

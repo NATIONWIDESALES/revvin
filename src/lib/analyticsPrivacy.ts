@@ -72,6 +72,8 @@ const MILESTONE_EVENTS = new Set([
   // Campaigns tab on /dashboard. Meta is at most a fixed segment key.
   "campaigns_tab_viewed", "campaign_segment_selected", "campaign_preview_viewed",
   "campaign_send_clicked", "campaign_sent", "campaign_send_failed",
+  // Referral launch on /dashboard. Meta is at most a fixed recipient-count bucket.
+  "launch_composer_viewed", "launch_send_clicked", "launch_sent", "launch_send_failed", "launch_results_viewed",
 ]);
 const MILESTONE_PATHS = new Set(["/signup", "/auth", "/welcome", "/dashboard"]);
 
@@ -146,6 +148,9 @@ const SURFACE_LABELS = new Set([...INSTALL_SURFACES]);
 export const ONBOARDING_STEP_LABELS = ["basics", "logo", "reward", "link", "publish"] as const;
 const STEP_LABELS = new Set<string>(ONBOARDING_STEP_LABELS);
 const CAMPAIGN_SEGMENTS = new Set(["m24_plus", "m12_24", "m6_12", "recent", "unknown"]);
+export const LAUNCH_RECIPIENT_BUCKETS = ["1-10", "11-50", "51-200", "201-500"] as const;
+const RECIPIENT_BUCKETS = new Set<string>(LAUNCH_RECIPIENT_BUCKETS);
+export const recipientBucket = (n: number) => (n <= 10 ? "1-10" : n <= 50 ? "11-50" : n <= 200 ? "51-200" : "201-500");
 const PUBLISH_SURFACES = new Set(["onboarding", "dashboard_banner", "share_tools", "checklist"]);
 const PUBLISH_REASONS = new Set<string>(PUBLISH_FAILURE_REASONS);
 export function safeAnalyticsMeta(event: string, context: AnalyticsContext, input?: Record<string, unknown>) {
@@ -157,6 +162,7 @@ export function safeAnalyticsMeta(event: string, context: AnalyticsContext, inpu
   if (typeof input?.source === "string" && SOURCE_LABELS.has(input.source)) result.source = input.source;
   if (typeof input?.surface === "string" && (SURFACE_LABELS.has(input.surface as never) || PUBLISH_SURFACES.has(input.surface))) result.surface = input.surface;
   if (typeof input?.segment === "string" && CAMPAIGN_SEGMENTS.has(input.segment)) result.segment = input.segment;
+  if (event === "launch_sent" && typeof input?.recipients === "string" && RECIPIENT_BUCKETS.has(input.recipients)) result.recipients = input.recipients;
   if (typeof input?.step === "string" && STEP_LABELS.has(input.step)) result.step = input.step;
   if (event === "publish_failed" && context.traffic === "product" && typeof input?.reason === "string" && PUBLISH_REASONS.has(input.reason)) result.reason = input.reason;
   return result;

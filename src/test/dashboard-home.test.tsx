@@ -27,6 +27,18 @@ describe("next step mapping", () => {
     expect(s.key).toBe(key);
     expect(s.button).toBe(button);
   });
+  it("contacts and no launch yet -> ask all customers, opening the launch composer", () => {
+    const s = nextStep({ ...base, hasLaunchCampaign: false });
+    expect(s.key).toBe("launch");
+    expect(s.button).toBe("Ask all 12 customers");
+    expect(s.tab).toBe("campaigns");
+  });
+  it("no contacts still means import first, even without a launch", () => {
+    expect(nextStep({ ...base, customersTotal: 0, hasLaunchCampaign: false }).key).toBe("import");
+  });
+  it("after a launch the next step moves on", () => {
+    expect(nextStep({ ...base, customersSent: 0, hasLaunchCampaign: true }).key).toBe("ask");
+  });
   it("ask step uses the real imported count", () => {
     expect(nextStep({ ...base, customersSent: 0 }).body).toContain("12 customers");
   });
@@ -75,8 +87,10 @@ describe("rail", () => {
     render(<DashboardShell active="home" onSelect={() => {}} isPro={isPro} newLeads={2}>x</DashboardShell>);
   it("shows Pro tags only on Free", () => {
     renderShell(false);
-    // Job done asks, Campaigns and Reports are the Pro-entitled tabs.
-    expect(screen.getAllByTestId("pro-tag")).toHaveLength(3);
+    // Job done asks and Reports are Pro-entitled. "Ask your customers" is open
+    // on Free for the one referral launch.
+    expect(screen.getAllByTestId("pro-tag")).toHaveLength(2);
+    expect(screen.getByText("Ask your customers").closest("a,button")?.querySelector('[data-testid="pro-tag"]')).toBeNull();
   });
   it("hides Pro tags on Pro", () => {
     renderShell(true);

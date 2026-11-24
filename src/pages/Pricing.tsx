@@ -81,7 +81,7 @@ const Pricing = () => {
               priceCurrency: "USD",
               url: `${SITE_URL}/pricing`,
               description:
-                "Free referral page, personal referrer links, QR code and print pack, lead inbox, referral email alerts, reward tracking, mobile use, optional marketplace listing, and importing and asking up to 25 customers from your own phone or email app.",
+                "Free referral page, personal referrer links, QR code and print pack, lead inbox, referral email alerts, reward tracking, mobile use, optional marketplace listing, and importing and asking up to 500 customers from your own phone or email app.",
             },
             {
               "@type": "Offer",
@@ -286,7 +286,7 @@ const Pricing = () => {
           <p className="mb-8 text-sm text-muted-foreground">{LAUNCH_GUARANTEE}</p>
           <h2 className="text-3xl md:text-4xl">What you get with Pro</h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Free gives you the referral page and up to 25 customers to ask from your own device. Pro adds unlimited customers and automatic job-completion review and referral asks through Job done, job software, API and Zapier. With Pro, import your past customers, have Revvin email a reactivation campaign to the group you choose from your business name, with replies going to your own inbox, or work through them in batches with each ask opening in your own phone or email app. You also get ROI reporting with a monthly recap and custom page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. The Pro features are the same on monthly and annual. There are no per-send charges.
+            Free gives you the referral page and up to 500 customers to ask from your own device. Pro adds unlimited customers and automatic job-completion review and referral asks through Job done, job software, API and Zapier. With Pro, import your past customers, have Revvin email a reactivation campaign to the group you choose from your business name, with replies going to your own inbox, or work through them in batches with each ask opening in your own phone or email app. You also get ROI reporting with a monthly recap and custom page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. The Pro features are the same on monthly and annual. There are no per-send charges.
           </p>
         </div>
       </section>

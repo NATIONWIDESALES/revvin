@@ -27,9 +27,11 @@ export interface SetupState {
   customersPending: number;
   qrDownloaded: boolean;
   hasReviewLink: boolean;
+  /** False when the business has never sent a referral launch. Undefined while unknown. */
+  hasLaunchCampaign?: boolean;
 }
 
-export type NextStepKey = "publish" | "import" | "ask" | "qr" | "review" | "ask_more" | "share_again";
+export type NextStepKey = "publish" | "import" | "launch" | "ask" | "qr" | "review" | "ask_more" | "share_again";
 
 export interface NextStep {
   key: NextStepKey;
@@ -55,6 +57,11 @@ export function nextStep(s: SetupState): NextStep {
     key: "import", title: "Add your last 10 customers",
     body: "Happy past customers are where most referrals start. Add them once and ask from here.",
     button: "Add your last 10 customers", tab: "customers",
+  };
+  if (s.hasLaunchCampaign === false) return {
+    key: "launch", title: `Ask all ${plural(s.customersTotal, "customer", "customers")}`,
+    body: "Revvin emails every customer their own referral link, from your business name. Replies come to you.",
+    button: `Ask all ${plural(s.customersTotal, "customer", "customers")}`, tab: "campaigns",
   };
   if (s.customersSent === 0) return {
     key: "ask", title: "Ask your last 10 customers",

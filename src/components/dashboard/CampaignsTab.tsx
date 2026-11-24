@@ -12,6 +12,8 @@ import { friendlyError } from "@/lib/errors";
 import SenderLine from "@/components/dashboard/SenderLine";
 import ProUpsell from "@/components/dashboard/ProUpsell";
 import { track } from "@/lib/track";
+import ReferralLaunchSection from "@/components/dashboard/ReferralLaunchSection";
+import type { DashTab } from "@/lib/dashboardHome";
 
 const SEGMENT_ORDER = ["m12_24", "m6_12", "recent"];
 const MAX_CAMPAIGN_RECIPIENTS = 500;
@@ -52,8 +54,10 @@ interface CampaignRow {
 }
 
 interface Props {
-  biz: { id: string; name: string; offer_amount: string | null; business_email: string | null };
+  biz: { id: string; name: string; slug?: string | null; offer_amount: string | null; business_email: string | null };
   publicUrl: string;
+  onGo?: (tab: DashTab) => void;
+  onLaunchSent?: () => void;
   /** send-campaign refuses anyone not on Pro, so free users see an upsell instead of the composer. */
   isPro: boolean;
 }
@@ -98,7 +102,7 @@ const emptyReadinessForm = {
   business_email: "",
 };
 
-const CampaignsTab = ({ biz, publicUrl, isPro }: Props) => {
+const CampaignsTab = ({ biz, publicUrl, isPro, onGo, onLaunchSent }: Props) => {
   const { toast } = useToast();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [segments, setSegments] = useState<SegmentRow[]>([]);
@@ -143,6 +147,7 @@ const CampaignsTab = ({ biz, publicUrl, isPro }: Props) => {
           .from("campaigns")
           .select("id, name, subject, body, status, segment_key, segment_label, scheduled_at, started_at, total_recipients, sent_count, failed_count, opted_out_count, created_at")
           .eq("business_id", biz.id)
+          .eq("kind", "reactivation")
           .order("created_at", { ascending: false })
           .limit(25),
       ]);
@@ -304,12 +309,24 @@ const CampaignsTab = ({ biz, publicUrl, isPro }: Props) => {
             {savingReadiness ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Save details
           </Button>
         </div>
-      ) : (
+      ) : null}
+
+      <ReferralLaunchSection
+        biz={{ id: biz.id, name: biz.name, slug: biz.slug ?? null, offer_amount: biz.offer_amount, business_email: biz.business_email }}
+        publicUrl={publicUrl}
+        isPro={isPro}
+        ready={!readinessFailed && !!readiness?.ready}
+        onGo={onGo}
+        onLaunchSent={onLaunchSent}
+      />
+
+      <h2 className="pt-4 text-lg font-semibold text-foreground">Win back past customers</h2>
+      {!readinessFailed && readiness?.ready && (
         <>
           <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-base font-semibold text-foreground">Who could use a return visit</h2>
+                <h3 className="text-base font-semibold text-foreground">Who could use a return visit</h3>
                 <p className="mt-1 text-sm text-muted-foreground">Choose customers whose last job was within 24 months. Add missing job dates in Customers before sending.</p>
               </div>
               <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
@@ -339,7 +356,7 @@ const CampaignsTab = ({ biz, publicUrl, isPro }: Props) => {
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-            <h2 className="text-base font-semibold text-foreground">New reactivation campaign</h2>
+            <h3 className="text-base font-semibold text-foreground">New reactivation campaign</h3>
             <p className="mt-1 text-sm text-muted-foreground">Email only. Referral asks still open your own email or messaging app. Reactivation campaigns are sent by Revvin from your business name, with replies going to your reply-to email.</p>
             <SenderLine businessName={biz.name} replyTo={biz.business_email || readinessForm.business_email} className="mt-2" />
 

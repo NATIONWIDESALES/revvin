@@ -46,3 +46,5 @@
 - Security dependency overrides pin patched transitive packages; deployment-specific remote imports must be reviewed separately. Why: a browser lockfile does not update remote edge dependencies.
 - Lazy/Vite recovery uses a 30-second path guard and deferred chunk_reload reports; crash stacks keep bounded file:line; main supplies missing ResizeObserver before rendering and Slider retains a fallback. Why: recover safely on every page in reduced-feature browsers.
 - Correlate failure sessions in build_id. Why: preserve the RPC and schema.
+- Referral launch emails reuse send-campaign, the campaign_emails queue and process-campaign-sends (follow-ups); pure rules live in supabase/functions/_shared/referral-launch.ts and are imported by the dashboard. Why: one sending stack and one rendering of the email text.
+- The Free referral-launch allowance is recorded in the service-only referral_launch_claims table, never derived from owner-editable campaigns rows. Why: deleting a campaign must not grant another free launch.

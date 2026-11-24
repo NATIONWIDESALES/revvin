@@ -19,6 +19,7 @@ import { friendlyError } from "@/lib/errors";
 import { submitPublicReferral, referralSubmitMessage } from "@/lib/referralSubmit";
 import AddToHomeScreen from "@/components/pwa/AddToHomeScreen";
 import { referrerInstallLine } from "@/config/installCopy";
+import { isClickToken } from "../../supabase/functions/_shared/referral-launch";
 import { buildBusinessManifest, businessManifestPath } from "@/lib/webManifest";
 import { applyPageManifest } from "@/lib/pageManifest";
 
@@ -97,6 +98,22 @@ const PublicReferralPage = () => {
       else forgetRef(slug); // Unknown or another business's token: ignored.
     })();
   }, [slug, location.search]);
+
+  // Launch email click: record first touch server-side (bots ignored there),
+  // then drop the opaque code from the address bar. ?ref stays as before.
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const click = params.get("c");
+    if (!click) return;
+    params.delete("c");
+    const rest = params.toString();
+    window.history.replaceState(window.history.state, "", `${location.pathname}${rest ? `?${rest}` : ""}${location.hash}`);
+    if (!isClickToken(click)) return;
+    void (async () => {
+      const supabase = await loadSupabase();
+      await supabase.rpc("fn_campaign_click" as never, { p_token: click, p_ua: navigator.userAgent.slice(0, 512) } as never);
+    })();
+  }, [location.search, location.pathname, location.hash]);
 
   const clearRef = () => {
     if (slug) forgetRef(slug);
