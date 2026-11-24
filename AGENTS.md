@@ -46,4 +46,3 @@
 - Security dependency overrides pin patched transitive packages; deployment-specific remote imports must be reviewed separately. Why: a browser lockfile does not update remote edge dependencies.
 - Lazy/Vite recovery uses a 30-second path guard and deferred chunk_reload reports; crash stacks keep bounded file:line; main supplies missing ResizeObserver before rendering and Slider retains a fallback. Why: recover safely on every page in reduced-feature browsers.
 - Correlate failure sessions in build_id. Why: preserve the RPC and schema.
-- Dashboard Home picks the first-run referral kit or the standard view through homeLayout/kitSendAction in src/lib/dashboardHome.ts; list intake is one CustomerIntake component whose Excel path converts the first sheet to CSV via on-demand xlsx and reuses parseCsv. Why: one tested decision and one validation path for every list source.

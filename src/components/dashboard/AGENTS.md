@@ -1,0 +1,1 @@
+- Home layout (kit vs standard) comes from homeLayout/kitSendAction in src/lib/dashboardHome.ts; CustomerIntake converts Excel to CSV via on-demand xlsx and reuses parseCsv. Why: one tested decision and one validation path.
