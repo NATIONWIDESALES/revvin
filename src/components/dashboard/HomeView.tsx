@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { copyText } from "@/lib/clipboard";
 import { useToast } from "@/hooks/use-toast";
 import { FREE_CONTACT_LIMIT } from "@/config/planFeatures";
+import ReferralKitHome from "@/components/dashboard/ReferralKitHome";
+import type { SheetBusiness } from "@/components/print/AssetSheet";
 import {
-  computeStats, leadsToCall, money, nextStep, relativeTime, setupDone,
+  computeStats, homeLayout, leadsToCall, money, nextStep, relativeTime, setupDone,
   type DashTab, type LeadLite, type RewardLite, type SetupState,
 } from "@/lib/dashboardHome";
 
@@ -26,7 +28,47 @@ interface Props {
   onPublish: () => void;
   onShared: () => void;
   welcome?: React.ReactNode;
+  /** Data for the first-run referral kit. Without it Home always uses the standard layout. */
+  kit?: { biz: SheetBusiness; onPublished: () => Promise<void> | void; renderIntake: () => React.ReactNode };
 }
+
+interface LaunchSummary { sent: number; clicked: number; referrals: number }
+
+/** Sent, Clicked and Referrals for the newest launch, linking to the full results. */
+const LaunchSummaryCard = ({ businessId, onGo }: { businessId: string; onGo: (t: DashTab) => void }) => {
+  const [summary, setSummary] = useState<LaunchSummary | null>(null);
+  useEffect(() => {
+    let live = true;
+    void (async () => {
+      try {
+        const { data: rows } = await supabase.from("campaigns").select("id").eq("business_id", businessId).eq("kind", "referral_launch").order("created_at", { ascending: false }).limit(1);
+        const id = (rows as Array<{ id: string }> | null)?.[0]?.id;
+        if (!id) return;
+        const { data } = await supabase.rpc("fn_launch_campaign_results", { p_campaign_id: id });
+        const r = data as unknown as Partial<LaunchSummary> | null;
+        if (live && r && typeof r === "object") setSummary({ sent: Number(r.sent ?? 0), clicked: Number(r.clicked ?? 0), referrals: Number(r.referrals ?? 0) });
+      } catch { /* the full results stay available in the campaigns tab */ }
+    })();
+    return () => { live = false; };
+  }, [businessId]);
+  if (!summary) return null;
+  return (
+    <section data-testid="launch-summary" className="rounded-[14px] border border-line bg-card p-5">
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h2 className="font-display text-2xl font-bold text-forest dark:text-foreground">Your referral launch</h2>
+        <button type="button" onClick={() => onGo("campaigns")} className="whitespace-nowrap text-sm font-semibold text-primary">See full results</button>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        {([["Sent", summary.sent], ["Clicked", summary.clicked], ["Referrals", summary.referrals]] as const).map(([label, value]) => (
+          <div key={label} className="rounded-xl border border-line p-3">
+            <p className="font-display text-[28px] font-bold leading-none text-forest dark:text-foreground">{value}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{label}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
 
 const Tile = ({ label, value, sub, warm, children }: { label: string; value: string; sub?: string; warm?: boolean; children?: React.ReactNode }) => (
   <div data-testid="stat-tile" className={`rounded-[14px] border border-line p-4 sm:p-5 ${warm ? "bg-sign/15" : "bg-card"}`}>
@@ -37,7 +79,7 @@ const Tile = ({ label, value, sub, warm, children }: { label: string; value: str
   </div>
 );
 
-const HomeView = ({ businessId, businessName, slug, publicUrl, isPro, isDemo, setup, leads, onGo, onPublish, onShared, welcome }: Props) => {
+const HomeView = ({ businessId, businessName, slug, publicUrl, isPro, isDemo, setup, leads, onGo, onPublish, onShared, welcome, kit }: Props) => {
   const { toast } = useToast();
   const [rewards, setRewards] = useState<RewardLite[]>([]);
   const [referrers, setReferrers] = useState<ReferrerRow[] | null>(null);
@@ -71,6 +113,14 @@ const HomeView = ({ businessId, businessName, slug, publicUrl, isPro, isDemo, se
     } else { await copy(); }
   };
 
+  const layout = kit ? homeLayout({ isDemo, hasLaunchCampaign: setup.hasLaunchCampaign, leadsCount: leads.length }) : "standard";
+  if (layout === "kit" && kit) {
+    return (
+      <ReferralKitHome biz={kit.biz} publicUrl={publicUrl} displayUrl={displayUrl} isLive={setup.isLive}
+        customersTotal={setup.customersTotal} onCopy={() => void copy()} onGo={onGo} onPublished={kit.onPublished} renderIntake={kit.renderIntake} />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {welcome}
@@ -82,6 +132,8 @@ const HomeView = ({ businessId, businessName, slug, publicUrl, isPro, isDemo, se
           <Button size="sm" className="rounded-full" onClick={share}>Share</Button>
         </div>
       </header>
+
+      {setup.hasLaunchCampaign === true && <LaunchSummaryCard businessId={businessId} onGo={onGo} />}
 
       <section data-testid="next-step" data-step={step.key} className="rounded-[14px] bg-forest p-6 text-white sm:p-8">
         <p className="text-sm font-semibold text-white/70">Your next step</p>

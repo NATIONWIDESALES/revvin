@@ -34,6 +34,7 @@ import PrintPack from "@/components/dashboard/PrintPack";
 import AttestationGate from "@/components/dashboard/AttestationGate";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import HomeView from "@/components/dashboard/HomeView";
+import CustomerIntake from "@/components/dashboard/CustomerIntake";
 import { resolveTab, type DashTab } from "@/lib/dashboardHome";
 import WelcomeLiveCard from "@/components/dashboard/WelcomeLiveCard";
 import PublishPrompt, { PUBLISH_COPY, missingForPublish } from "@/components/dashboard/PublishPrompt";
@@ -159,6 +160,7 @@ const BusinessDashboard = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [marketplaceReferrals, setMarketplaceReferrals] = useState<MarketplaceReferral[]>([]);
   const [offers, setOffers] = useState<OfferRow[]>([]);
+  const [customersKey, setCustomersKey] = useState(0);
   const [hasLaunchCampaign, setHasLaunchCampaign] = useState<boolean | undefined>(undefined);
   const [contactStats, setContactStats] = useState<{ total: number; sent: number; pending: number }>({ total: 0, sent: 0, pending: 0 });
   const [searchParams, setSearchParams] = useSearchParams();
@@ -391,6 +393,14 @@ const BusinessDashboard = () => {
             onGo={changeTab}
             onPublish={scrollToPublish}
             onShared={markFirstShare}
+            kit={{
+              biz: { name: biz.name, logo_url: biz.logo_url, brand_color: biz.brand_color, headline: biz.headline, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger, offer_fine_print: biz.offer_fine_print, phone: biz.phone },
+              onPublished: loadAll,
+              renderIntake: () => attest(
+                <CustomerIntake businessId={biz.id} businessName={biz.name} isPro={isPro} isDemo={!!biz.is_demo}
+                  onImported={(n) => setContactStats((s) => ({ ...s, total: n }))} onAskAll={() => changeTab("campaigns")} />,
+              ),
+            }}
             welcome={showWelcome && isLive ? (
               <WelcomeLiveCard
                 businessName={biz.name}
@@ -428,7 +438,11 @@ const BusinessDashboard = () => {
       {tab === "customers" && (!isLive ? (
         <LockedTab title="Publish your page to invite your customers" body="Your referral page has to be live before you send customers to it. Everything you build here is saved." />
       ) : attest(
-        <CustomersTab biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger }} publicUrl={publicUrl} isPro={isPro} isDemo={!!biz.is_demo} onCountChange={(n) => setContactStats((s) => ({ ...s, total: n }))} />
+        <>
+        <div className="mb-6"><CustomerIntake businessId={biz.id} businessName={biz.name} isPro={isPro} isDemo={!!biz.is_demo}
+          onImported={(n) => { setContactStats((s) => ({ ...s, total: n })); setCustomersKey((k) => k + 1); }} onAskAll={() => changeTab("campaigns")} /></div>
+        <CustomersTab key={customersKey} biz={{ id: biz.id, name: biz.name, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger }} publicUrl={publicUrl} isPro={isPro} isDemo={!!biz.is_demo} onCountChange={(n) => setContactStats((s) => ({ ...s, total: n }))} />
+        </>
       ))}
 
       {tab === "referrers" && <ReferrersTab publicUrl={publicUrl} />}

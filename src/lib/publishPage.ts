@@ -3,7 +3,7 @@ import { reportFailure } from "@/lib/reportFailure";
 import { track } from "@/lib/track";
 import { publishFailure } from "@/lib/publishFailure";
 
-export type PublishSurface = "onboarding" | "dashboard_banner" | "share_tools" | "checklist";
+export type PublishSurface = "onboarding" | "dashboard_banner" | "share_tools" | "checklist" | "home_kit";
 
 /** Which required field the server refused on, so the UI can ask for exactly that. */
 export type MissingField = "slug" | "name" | "offer_amount" | null;

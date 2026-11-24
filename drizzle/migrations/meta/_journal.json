@@ -295,6 +295,13 @@
       "when": 1795558750609,
       "tag": "0041_funnel_events_referral_launch",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1795560426786,
+      "tag": "0042_funnel_events_referral_kit",
+      "breakpoints": true
     }
   ]
 }

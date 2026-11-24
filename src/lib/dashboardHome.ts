@@ -54,9 +54,9 @@ export function nextStep(s: SetupState): NextStep {
     button: "Publish your page", tab: null,
   };
   if (s.customersTotal === 0) return {
-    key: "import", title: "Add your last 10 customers",
-    body: "Happy past customers are where most referrals start. Add them once and ask from here.",
-    button: "Add your last 10 customers", tab: "customers",
+    key: "import", title: "Add your customers",
+    body: "Bring your customer list once. Each customer gets their own referral link.",
+    button: "Add your customers", tab: "customers",
   };
   if (s.hasLaunchCampaign === false) return {
     key: "launch", title: `Ask all ${plural(s.customersTotal, "customer", "customers")}`,
@@ -146,3 +146,24 @@ export function relativeTime(iso: string, now = new Date()): string {
 }
 
 export const money = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
+
+export type HomeLayout = "kit" | "standard";
+
+/**
+ * The referral kit replaces a page of zeros for a real business that has not
+ * sent a launch and has no leads. Unknown launch state keeps the standard view.
+ */
+export function homeLayout(s: { isDemo: boolean; hasLaunchCampaign?: boolean; leadsCount: number }): HomeLayout {
+  if (s.isDemo) return "standard";
+  return s.hasLaunchCampaign === false && s.leadsCount === 0 ? "kit" : "standard";
+}
+
+export interface KitSendAction { label: string; publishFirst: boolean; target: "intake" | "composer" }
+
+/** The one primary button on the kit screen. Publishing stays free. */
+export function kitSendAction(s: { isLive: boolean; customersTotal: number }): KitSendAction {
+  const target = s.customersTotal > 0 ? "composer" : "intake";
+  if (!s.isLive) return { label: "Publish and send to my customers", publishFirst: true, target };
+  if (target === "composer") return { label: `Ask all ${plural(s.customersTotal, "customer", "customers")}`, publishFirst: false, target };
+  return { label: "Send to my customers", publishFirst: false, target };
+}

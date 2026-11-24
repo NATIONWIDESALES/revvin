@@ -16,7 +16,7 @@ const base: SetupState = { isLive: true, customersTotal: 12, customersSent: 3, c
 describe("next step mapping", () => {
   it.each([
     [{ isLive: false }, "publish", "Publish your page"],
-    [{ customersTotal: 0, customersSent: 0, customersPending: 0 }, "import", "Add your last 10 customers"],
+    [{ customersTotal: 0, customersSent: 0, customersPending: 0 }, "import", "Add your customers"],
     [{ customersSent: 0 }, "ask", "Ask your last 10 customers"],
     [{ qrDownloaded: false }, "qr", "Put your QR on every invoice"],
     [{ hasReviewLink: false }, "review", "Add your Google review link"],
