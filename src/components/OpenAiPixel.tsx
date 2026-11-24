@@ -21,16 +21,18 @@ const OpenAiPixel = () => {
         (location.pathname === "/signup" && conversionSafePath(location.pathname, location.search, location.hash)));
   };
   const permission = (allowPendingAccount = false) => {
+    return safe(allowPendingAccount) && consentAllowed();
+  };
+  const consentAllowed = () => {
     try {
-      return safe(allowPendingAccount) && advertisingAllowed(country.current, localStorage.getItem("revvin_advertising_choice") === "denied",
+      return !audience.current.demo && !isLikelyBot() && advertisingAllowed(country.current, localStorage.getItem("revvin_advertising_choice") === "denied",
         Boolean((navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl || navigator.doNotTrack === "1"));
     } catch { return false; }
   };
   useLayoutEffect(() => {
-    setOpenAiAdPermission(() => permission());
-    // A lazy anonymous session check pauses our sends, not the visitor's advertising choice.
-    // Explicit opt-outs, signed-in accounts and excluded routes still revoke immediately.
-    if (!permission(true)) withdrawOpenAiAds();
+    setOpenAiAdPermission(() => permission(), consentAllowed);
+    // Account checks, sign-in and private navigation pause sends without deleting click attribution.
+    if (!consentAllowed()) withdrawOpenAiAds();
   }, [route.pathname, route.search, route.hash, user, loading]);
 
   useEffect(() => {
@@ -42,14 +44,15 @@ const OpenAiPixel = () => {
       await initializeOpenAiAds();
     };
     start.current = () => { void activate(); };
-    const revoke = () => { if (!permission()) withdrawOpenAiAds(); };
+    const revoke = () => { if (!consentAllowed()) withdrawOpenAiAds(); };
     const interact = () => { void activate(); };
     window.addEventListener("pointerdown", interact, { once: true });
     window.addEventListener("keydown", interact, { once: true });
     window.addEventListener("storage", revoke);
     window.addEventListener("revvin:advertising-choice", revoke);
     return () => {
-      stopped = true; setOpenAiAdPermission(() => false); withdrawOpenAiAds();
+      stopped = true; setOpenAiAdPermission(() => false, consentAllowed);
+      if (!consentAllowed()) withdrawOpenAiAds();
       window.removeEventListener("pointerdown", interact);
       window.removeEventListener("keydown", interact);
       window.removeEventListener("storage", revoke);

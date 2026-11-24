@@ -5,7 +5,7 @@ const auth = vi.hoisted(() => ({ user: null as null | { id: string }, loading: f
 vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => auth }));
 import OpenAiPixel from "@/components/OpenAiPixel";
 import { OPENAI_PIXEL_ID, OPENAI_PIXEL_DEBUG } from "@/config/brand";
-import { initializeOpenAiAds, setOpenAiAdPermission, trackOpenAiAdEvent, withdrawOpenAiAds } from "@/lib/openAiAds";
+import { captureOpenAiSignupEligibility, initializeOpenAiAds, setOpenAiAdPermission, trackOpenAiAdEvent, withdrawOpenAiAds } from "@/lib/openAiAds";
 import { acquisitionOf, cleanPreviewAddress } from "@/lib/instantPreview";
 import { captureFirstTouch, FIRST_TOUCH_KEY } from "@/lib/firstTouch";
 import { captureAttribution } from "@/lib/attribution";
@@ -84,7 +84,8 @@ describe("OpenAI top-level advertising permission", () => {
     expect(vendor).not.toHaveBeenCalled();
     auth.user = { id: "existing-account" };
     view.rerender(<MemoryRouter><Navigation /><OpenAiPixel /></MemoryRouter>);
-    expect(vendor).toHaveBeenCalledExactlyOnceWith("consent", false);
+    expect(vendor).not.toHaveBeenCalled();
+    expect(trackOpenAiAdEvent("registration_completed", { type: "customer_action" }, { event_id: id })).toBe(false);
   });
   it.each(["DE", "GB", "CH", "XX", "T1", ""])("skips consent or unresolved region %s", async country => { fakeFetch(country); await mount(); expect(script()).toBeNull(); });
   it.each(["globalPrivacyControl", "doNotTrack", "webdriver"])("blocks %s", async name => {
@@ -103,9 +104,10 @@ describe("OpenAI top-level advertising permission", () => {
     expect(trackOpenAiAdEvent("registration_completed", { type: "customer_action" }, { event_id: id })).toBe(false);
     expect(vendor).toHaveBeenCalledTimes(1);
   });
-  it("denies vendor consent on private navigation without reinitializing", async () => {
+  it("pauses sends on private navigation without withdrawing consent or reinitializing", async () => {
     await mount(); const vendor = vi.fn(); window.oaiq = vendor;
-    await go("/dashboard"); expect(vendor).toHaveBeenCalledExactlyOnceWith("consent", false);
+    await go("/dashboard"); expect(vendor).not.toHaveBeenCalled();
+    expect(trackOpenAiAdEvent("registration_completed", { type: "customer_action" }, { event_id: id })).toBe(false);
     await go("/pricing"); window.dispatchEvent(new Event("pointerdown"));
     expect(vendor.mock.calls.some(call => call[0] === "init")).toBe(false);
   });
@@ -126,6 +128,39 @@ describe("OpenAI top-level advertising permission", () => {
 });
 
 describe("OpenAI registration transport", () => {
+  it("queues the captured signup once when auth flips before the helper, without consent(false)", async () => {
+    const view = await mount("/signup");
+    const snapshot = captureOpenAiSignupEligibility();
+    expect(snapshot).toBeDefined();
+    auth.user = { id: "11111111-1111-4111-8111-111111111111" };
+    view.rerender(<MemoryRouter><Navigation /><OpenAiPixel /></MemoryRouter>);
+    await go("/dashboard");
+    expect(trackOpenAiAdEvent("registration_completed", { type: "customer_action" }, { event_id: id }, snapshot)).toBe(true);
+    expect(trackOpenAiAdEvent("registration_completed", { type: "customer_action" }, { event_id: id }, snapshot)).toBe(false);
+    expect(trackOpenAiAdEvent("registration_completed", { type: "customer_action" }, { event_id: "reg_22222222-2222-4222-8222-222222222222" }, snapshot)).toBe(false);
+    expect(trackOpenAiAdEvent("registration_completed", { type: "customer_action" }, { event_id: "reg_33333333-3333-4333-8333-333333333333" })).toBe(false);
+    expect(calls().filter(call => call[0] === "measure")).toEqual([["measure", "registration_completed", { type: "customer_action" }, { event_id: id }]]);
+    expect(calls().filter(call => call[0] === "consent")).toEqual([["consent", true]]);
+  });
+  it("cannot capture signup eligibility after a real opt-out before submit", async () => {
+    await mount("/signup");
+    localStorage.setItem("revvin_advertising_choice", "denied");
+    act(() => window.dispatchEvent(new Event("revvin:advertising-choice")));
+    expect(captureOpenAiSignupEligibility()).toBeUndefined();
+    expect(trackOpenAiAdEvent("registration_completed", { type: "customer_action" }, { event_id: id })).toBe(false);
+    expect(calls().some(call => call[0] === "measure")).toBe(false);
+  });
+  it.each(["refusal", "globalPrivacyControl", "doNotTrack"])("a live %s overrides a pre-submit snapshot even after sign-in", async reason => {
+    const view = await mount("/signup"); const snapshot = captureOpenAiSignupEligibility();
+    expect(snapshot).toBeDefined();
+    auth.user = { id: "new-account" };
+    view.rerender(<MemoryRouter><Navigation /><OpenAiPixel /></MemoryRouter>);
+    if (reason === "refusal") localStorage.setItem("revvin_advertising_choice", "denied");
+    else Object.defineProperty(navigator, reason, { value: reason === "doNotTrack" ? "1" : true, configurable: true });
+    expect(trackOpenAiAdEvent("registration_completed", { type: "customer_action" }, { event_id: id }, snapshot)).toBe(false);
+    expect(calls().some(call => call[0] === "measure")).toBe(false);
+    expect(calls()[0]).toEqual(["consent", false]);
+  });
   it("sends the exact authorized event once with Meta's deterministic ID and no customer fields", async () => {
     setOpenAiAdPermission(() => true); await initializeOpenAiAds();
     const vendor = vi.fn(); window.oaiq = vendor;

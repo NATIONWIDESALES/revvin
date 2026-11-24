@@ -10,9 +10,9 @@ import { capturePreview, storePreview } from "@/lib/instantPreview";
 import { PREVIEW_TRADES } from "@/content/previewTrades";
 import { registrationPayload } from "../../supabase/functions/_shared/meta-registration";
 
-const mocks = vi.hoisted(() => ({ signup: vi.fn(), invoke: vi.fn(), toast: vi.fn() }));
+const mocks = vi.hoisted(() => ({ signup: vi.fn(), invoke: vi.fn(), toast: vi.fn(), auth: { user: null as null | { id: string }, loading: false } }));
 const userId = "11111111-1111-4111-8111-111111111111";
-vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
+vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => mocks.auth }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { auth: { signUp: mocks.signup }, functions: { invoke: mocks.invoke } } }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: mocks.toast }) }));
 vi.mock("@/lib/supabaseLazy", () => ({ loadSupabase: async () => ({ rpc: vi.fn() }), insertAsVisitor: async () => ({ error: null }) }));
@@ -24,6 +24,7 @@ vi.mock("@/lib/track", async importOriginal => {
 beforeEach(() => {
   if (!AbortSignal.timeout) Object.defineProperty(AbortSignal, "timeout", { configurable: true, value: () => new AbortController().signal });
   vi.clearAllMocks(); localStorage.clear(); sessionStorage.clear(); delete window.oaiq; document.getElementById("openai-ad-pixel")?.remove();
+  mocks.auth.user = null; mocks.auth.loading = false;
   Object.defineProperty(navigator, "webdriver", { value: false, configurable: true });
   Object.defineProperty(navigator, "userAgent", { value: "Mozilla/5.0 Chrome/150.0.0.0 Safari/537.36", configurable: true });
   window.history.replaceState({}, "", "/signup");
@@ -39,7 +40,8 @@ afterEach(() => {
   window.dispatchEvent(new Event("revvin:advertising-choice"));
   vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks();
 });
-function show() { render(<MemoryRouter initialEntries={["/signup"]}><MetaPixel /><OpenAiPixel /><SignupForm showStickyMobileBar={false} /></MemoryRouter>); }
+function SignupFlow() { return <MemoryRouter initialEntries={["/signup"]}><MetaPixel /><OpenAiPixel /><SignupForm showStickyMobileBar={false} /></MemoryRouter>; }
+function show() { return render(<SignupFlow />); }
 async function choose(trade: string) {
   fireEvent.keyDown(screen.getByRole("combobox", { name: "Your trade" }), { key: "Enter" });
   fireEvent.click(await screen.findByRole("option", { name: trade }));
@@ -56,6 +58,22 @@ async function submit() {
 }
 
 describe("signup trade qualification", () => {
+  it("retains submit-time eligibility when signUp publishes auth before resolving", async () => {
+    const view = show(); fireEvent.keyDown(window, { key: "Tab" });
+    await waitFor(() => expect(window.oaiq?.q?.some(call => call[0] === "init")).toBe(true));
+    let succeed: (value: unknown) => void = () => {};
+    mocks.signup.mockImplementation(() => new Promise(resolve => { succeed = resolve; }));
+    fill(); await choose("Roofing");
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement);
+    expect(mocks.signup).toHaveBeenCalledTimes(1);
+    mocks.auth.user = { id: userId };
+    view.rerender(<SignupFlow />);
+    expect(window.oaiq?.q?.filter(call => call[0] === "consent")).toEqual([["consent", true]]);
+    await act(async () => { succeed({ data: { user: { id: userId }, session: { access_token: "test-session" } }, error: null }); });
+    await waitFor(() => expect(track).toHaveBeenCalledWith("signup_succeeded"));
+    expect(window.oaiq?.q?.filter(call => call[0] === "measure")).toEqual([["measure", "registration_completed", { type: "customer_action" }, { event_id: `reg_${userId}` }]]);
+    expect(window.oaiq?.q?.filter(call => call[0] === "consent")).toEqual([["consent", true]]);
+  });
   it("sends a home-service registration through the pixel bridge and CAPI with the same event ID", async () => {
     show();
     fireEvent.keyDown(window, { key: "Tab" });

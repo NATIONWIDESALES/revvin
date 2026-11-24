@@ -1,7 +1,11 @@
 # Prebuilt pages for outbound sales
 
+# OpenAI signup auth race, November 24
+- [x] Pause signed-in/private-route sends without withdrawing consent; capture one-use signup eligibility before the account request and retain live opt-out checks.
+- [x] 222 related tests passed; preview build OK. Actual-SDK Playwright with intercepted backend/provider transport verified auth-first form success to /welcome, one registration request, retained cookies, no consent(false), no later signed-in sends, and pre-submit refusal blocking. No accounts created or publication; real provider receipt remains unverified.
+
 # OpenAI top-level attribution and registration, November 24
-- [x] Replace the OpenAI frame with once-per-document top-level loading, existing permission gates and vendor consent withdrawal. A transient anonymous session recheck pauses application events without deleting attribution cookies; signed-in/private/demo/opt-out transitions still revoke.
+- [x] Replace the OpenAI frame with once-per-document top-level loading, existing permission gates and vendor consent withdrawal. Anonymous session checks and signed-in/private transitions pause application events without deleting attribution cookies; demo/bot exclusions and real opt-outs still revoke.
 - [x] Preserve oppref without application storage; wire qualified signup registration with the shared event ID and update OpenAI-only privacy wording.
 - [x] 351 related tests passed and preview build OK. Signed-out actual-SDK checks with disabled-matching configuration and intercepted event transport verified top-level load, 30/365-day cookies, retained SPA attribution, exact deduplicated registration event, no user payload, opt-out cookie deletion and excluded-route blocking. No accounts or publication; provider receipt and real signup attribution remain unverified.
 - [ ] Disable OpenAI automatic advanced matching before real loading. Blocked: the vendor's public configuration currently enables customer-field collection; no matching data is authorized.

@@ -11,7 +11,7 @@ Because customer data is not authorized, the top-level loader first requires thi
 ## Changelog
 
 - `src/lib/openAiAds.ts`: top-level vendor bootstrap, explicit consent grant after eligibility, one init per document, immediate `consent(false)` on withdrawal, late-queue denial, and exact typed `registration_completed` transport. Payloads are rebuilt from the fixed customer-action type and validated deterministic event ID; no `user` object or other customer fields are passed. Duplicate IDs are suppressed. Matching-configuration preflight enforces the no-customer-data requirement.
-- `src/components/OpenAiPixel.tsx`: existing regional/refusal/GPC/DNT/bot/demo/signed-in/private-route boundary, delayed activation and eligible marketing/signup routes. The latest account and route state is rechecked for events. New loads and events remain blocked while account state is unresolved; a transient anonymous session check does not treat that as withdrawal and delete a previously captured click cookie. Actual signed-in/private/demo/opt-out transitions revoke immediately. No SPA re-init or blocked-event replay.
+- `src/components/OpenAiPixel.tsx`: existing regional/refusal/GPC/DNT/bot/demo/signed-in/private-route boundary, delayed activation and eligible marketing/signup routes. The latest account and route state is rechecked for events. New loads and ordinary sends remain blocked while account state is unresolved or signed in, and on excluded routes. These transitions pause sends without deleting click attribution. Demo/bot exclusions and real opt-outs still revoke immediately. No SPA re-init or blocked-event replay.
 - `src/lib/metaPixelLoader.ts`, `public/ad-events.html`: remove the OpenAI frame/receiver; retain Meta's fixed-event bridge, source/origin guards and delivery behavior.
 - `src/lib/metaPermission.ts`: admit `oppref` as a campaign key without capturing or forwarding its value to Meta. Unknown/private query fields remain blocked.
 - `src/components/signup/SignupForm.tsx`: at the existing home-service-qualified Meta registration point, call the reserved helper with `registration_completed`, `{ type: "customer_action" }`, and the same `reg_<uuid>` event ID. Non-home-service signups do not call it.
@@ -39,3 +39,31 @@ The existing static CSP has no script, connection or image source restrictions, 
 ## Remaining limits
 
 Real loading remains deliberately blocked by the vendor's currently enabled automatic-matching setting. Disable it before publication and keep it disabled. Tests do not establish OpenAI provider receipt, attributed conversion counting, or a live successful signup. Publication remains with Claude after review.
+
+## Signup auth race follow-up to 27ce055e
+
+Rule: signing in must not erase an allowed signup's ad attribution; a real opt-out must still stop that signup event and all later sends.
+
+### Changelog
+
+- `src/lib/openAiAds.ts`: separate current send eligibility from live advertising permission. Capture initialized/granted signup eligibility in a one-use, in-memory snapshot, bound to the current document state and consent version. Consume it for the single registration event even after auth/private navigation pauses ordinary sends. Recheck live refusal, GPC/DNT, region and audience exclusions; withdrawal invalidates existing snapshots. Preserve deterministic-ID deduplication and the exact no-user-data payload.
+- `src/components/OpenAiPixel.tsx`: sign-in, pending auth and excluded navigation pause sends without vendor denial. Stored refusal, the Privacy opt-out, GPC/DNT and disallowed region still withdraw. Existing bot/demo behavior is retained. Cleanup pauses instead of treating unmount as opt-out.
+- `src/components/signup/SignupForm.tsx`: capture eligibility immediately before the account request while still on eligible signed-out signup, then use it at the existing home-service-qualified Meta registration point. No snapshot means no OpenAI event; no new events or signup paths added.
+- `src/test/openai-pixel.test.tsx`: reproduce init on signup, then auth flip and private navigation before the helper; assert one queued measure, no consent(false), no later signed-in measures and no snapshot reuse. Cover real refusal before submission and live refusal/GPC/DNT overriding an earlier snapshot.
+- `src/test/signup-trade.test.tsx`: render the real pixel boundary with SignupForm and explicitly publish signed-in auth before the deferred account response resolves; assert one successful registration and no withdrawal. Retain non-home-service and pre-submit opt-out regressions.
+- `roadmap.md`: record this scoped fix and verification.
+
+### Checked paths
+
+- Global `App` pixel mounting and `AuthContext` urgent SIGNED_IN update: read. One mounted boundary serves marketing, signup and private navigation; auth behavior is unchanged.
+- `/signup` (`Signup`) and embedded invite signup (`InviteLanding`): read. Both reuse SignupForm. Only the already-eligible `/signup` can capture OpenAI permission; invite pages remain excluded.
+- Marketing/signup loading, signed-in/private/referral navigation, bot/demo sessions, regional permission, GPC/DNT and storage/custom withdrawal listeners (`OpenAiPixel`, `metaPermission`, `openAiAds`): read and covered by related tests. No SDK re-init or new route coverage.
+- Privacy opt-out (`Privacy`): read. It persists refusal and dispatches the existing advertising-choice event; vendor cookie deletion still occurs.
+- OpenAI vendor calls and conversion entry points: repository-wide search found only `openAiAds` and the single SignupForm caller, with no OpenAI background job, edge function, database function or advertising-frame sender to change. Meta implementation is unchanged and its regression suites passed.
+
+### Verification
+
+- 222 tests passed across nine related OpenAI, signup and Meta suites; preview diagnostics reported build OK.
+- Playwright exercised the actual downloaded OpenAI SDK with disabled-matching configuration and intercepted all provider/backend transport. A simulated session triggered the real AuthContext update before the delayed signup response resolved. Before success, ordinary sends were already paused. After success, exactly one registration request was observed, both attribution cookies remained, no consent(false) was called, and later signed-in sends returned false. Final path was `/welcome`, with no page errors.
+- A fresh browser repeated the form with a real stored refusal before submission: consent(false), zero measure calls, no later signed-in sends, final `/welcome`, no page errors. Screenshots confirmed the real form remained submitting during the auth-first interval.
+- No test users, live account requests, customer records, provider telemetry, Stripe operations, RLS changes, migrations, backend deployments or publishing. The browser used a synthetic local session and intercepted responses, so real signup receipt and attributed conversion counting remain unverified. The existing automatic-matching safety preflight remains unchanged; vendor account settings were not inspected or changed in this follow-up.

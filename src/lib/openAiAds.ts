@@ -10,6 +10,8 @@ interface PixelState {
   initialized: boolean;
   granted: boolean;
   permitted: () => boolean;
+  consentAllowed: () => boolean;
+  consentVersion: number;
   starting?: Promise<boolean>;
   sent: Set<string>;
 }
@@ -17,21 +19,23 @@ const states = new WeakMap<Document, PixelState>();
 function state(): PixelState {
   const previous = states.get(document);
   if (previous && (!previous.initialized || window.oaiq)) return previous;
-  const next: PixelState = { initialized: false, granted: false, permitted: () => false, sent: new Set() };
+  const next: PixelState = { initialized: false, granted: false, permitted: () => false, consentAllowed: () => false, consentVersion: 0, sent: new Set() };
   states.set(document, next);
   return next;
 }
 
 /** Route/account eligibility is supplied by the same mounted permission boundary as loading. */
-export function setOpenAiAdPermission(permitted: () => boolean) {
+export function setOpenAiAdPermission(permitted: () => boolean, consentAllowed: () => boolean = permitted) {
   state().permitted = permitted;
+  state().consentAllowed = consentAllowed;
 }
 
-/** The SDK stays installed on SPA navigation; its own denial stops measurement and removes cookies. */
+/** Real withdrawal stops vendor measurement and removes cookies; account/route changes only pause our sends. */
 export function withdrawOpenAiAds() {
   const current = state();
   if (!current.initialized || !current.granted) return;
   current.granted = false;
+  current.consentVersion += 1;
   // If the SDK has not executed yet, do not transiently grant consent while it drains its queue.
   window.oaiq?.("consent", false);
   if (window.oaiq?.q) window.oaiq.q = [["consent", false], ["init", { pixelId: OPENAI_PIXEL_ID, debug: OPENAI_PIXEL_DEBUG }]];
@@ -74,10 +78,27 @@ export async function initializeOpenAiAds(): Promise<boolean> {
 }
 
 export type OpenAiAdEventParams = Readonly<{ type: "customer_action" }>;
-export function trackOpenAiAdEvent(name: "registration_completed", params: OpenAiAdEventParams, options: Readonly<{ event_id: string }>): boolean {
+export type OpenAiSignupEligibility = Readonly<{ eligible: true }>;
+const signupSnapshots = new WeakMap<OpenAiSignupEligibility, { pixel: PixelState; consentVersion: number }>();
+
+/** One-use permission captured immediately before the signed-out signup request, never persisted. */
+export function captureOpenAiSignupEligibility(): OpenAiSignupEligibility | undefined {
   const current = state();
-  if (!current.initialized || !current.granted || !current.permitted() || !window.oaiq) {
-    if (current.initialized && !current.permitted()) withdrawOpenAiAds();
+  if (location.pathname !== "/signup" || !current.initialized || !current.granted || !current.permitted() || !current.consentAllowed() || !window.oaiq) return;
+  const snapshot = { eligible: true as const };
+  signupSnapshots.set(snapshot, { pixel: current, consentVersion: current.consentVersion });
+  return snapshot;
+}
+
+export function trackOpenAiAdEvent(name: "registration_completed", params: OpenAiAdEventParams, options: Readonly<{ event_id: string }>, signupEligibility?: OpenAiSignupEligibility): boolean {
+  const current = state();
+  const snapshot = signupEligibility ? signupSnapshots.get(signupEligibility) : undefined;
+  if (signupEligibility) signupSnapshots.delete(signupEligibility);
+  const eligible = signupEligibility
+    ? snapshot?.pixel === current && snapshot.consentVersion === current.consentVersion
+    : current.permitted();
+  if (!current.initialized || !current.granted || !current.consentAllowed() || !eligible || !window.oaiq) {
+    if (current.initialized && !current.consentAllowed()) withdrawOpenAiAds();
     return false;
   }
   if (name !== "registration_completed" || params.type !== "customer_action" || !/^reg_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(options.event_id) || current.sent.has(options.event_id)) return false;
