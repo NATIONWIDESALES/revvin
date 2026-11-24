@@ -735,10 +735,10 @@ const fetchPublishedBusinesses = async (
   }
 };
 
-/** Plain text of /about, /pricing, /how-it-works and every guide, for AI readers. */
+/** Plain text of /about, /pricing, /how-it-works, /privacy and every guide, for AI readers. */
 export const renderLlmsFull = () => {
   const picked = PRERENDER_ROUTES.filter(
-    (r) => !r.redirectTo && !r.noindex && (["/about", "/pricing", "/how-it-works"].includes(r.path) || r.path.startsWith("/guides/")),
+    (r) => !r.redirectTo && !r.noindex && (["/about", "/pricing", "/how-it-works", "/privacy"].includes(r.path) || r.path.startsWith("/guides/")),
   );
   const parts = [`# Revvin, full text`, "", CANONICAL_SENTENCE, ""];
   for (const r of picked) {

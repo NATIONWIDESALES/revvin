@@ -35,6 +35,8 @@ export interface LegalDoc {
 
 const p = (text: string, lead?: string): LegalParagraph => ({ text, lead });
 
+export const ADVERTISING_MEASUREMENT_NOTICE = "We use Meta (Facebook) and OpenAI (ChatGPT Ads) for advertising measurement. The Meta Pixel and server-side measurement help measure whether our ads led to sign-ups. On public marketing pages and our own signup and account pages, the Meta Pixel reports page views, preview requests, account creation and page publication. When server-side measurement is enabled, at account creation, unless you opted out of advertising, we send Meta your IP address, browser type and, when available, the ad click identifier and Meta browser cookie identifier. This helps measure permitted sign-ups the browser Pixel missed. The OpenAI base pixel is currently initialized only on eligible public marketing and signup pages. OpenAI receives the network IP address, browser request information and the isolated advertising document address. Its SDK may attempt to use cookies and browser storage, but these are blocked by its isolated document. We do not currently send OpenAI account-creation or other conversion events, or Meta click and cookie identifiers. Meta and OpenAI handle information under their own terms and privacy policies (https://www.facebook.com/privacy/policy/ and https://openai.com/policies/privacy-policy/). We do not send either partner your name, email address, phone number, business details or referral data. OpenAI never runs on private account pages. Advertising measurement never runs on referral, preview, partner or referrer pages or demo sessions, stays off in the EU, UK, EEA and Switzerland and in unknown regions, and is blocked by Global Privacy Control or Do Not Track. You can opt out of both partners using the advertising choice button at the end of this page.";
+
 export const TERMS_DOC: LegalDoc = {
   path: "/terms",
   h1: "Terms of Service",
@@ -318,7 +320,7 @@ export const PRIVACY_DOC: LegalDoc = {
           "Public marketing measurement.",
         ),
         p(
-          "We use the Meta (Facebook) Pixel and server-side advertising measurement to measure whether our ads led to sign-ups. On public marketing pages and our own signup and account pages, the Pixel tells Meta about page views, preview requests, account creation and page publication. When server-side measurement is enabled, at account creation, unless you opted out of advertising, we send Meta your IP address, browser type and, when available, the ad click identifier and Meta browser cookie identifier. This helps measure permitted sign-ups the browser Pixel missed. Meta uses this information under its own terms. We do not send your name, email address, phone number, business details or referral data. Advertising measurement never runs on referral, preview, partner or referrer pages, stays off in the EU, UK, EEA and Switzerland, and is blocked by Global Privacy Control or Do Not Track. You can opt out using the advertising choice button at the end of this page.",
+          ADVERTISING_MEASUREMENT_NOTICE,
           "Advertising measurement.",
         ),
         p(

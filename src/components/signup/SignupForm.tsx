@@ -173,6 +173,7 @@ const SignupForm = ({
       return;
     }
     track("signup_succeeded");
+    // TODO: Wire the vendor-approved OpenAI signup event here, under this same homeService qualification and advertising permission. Init only for now.
     if (homeService) track("signup_completed", undefined, data.user?.id ? registrationEventId(data.user.id) : undefined);
     if (homeService && metaConsent && data.user?.id && data.session?.access_token) {
       const registeredId = data.user.id;

@@ -1,5 +1,10 @@
 # Prebuilt pages for outbound sales
 
+# OpenAI advertising pixel, November 24
+- [x] Install init-only isolated bridge with existing advertising permission and explicit marketing/signup, bot and demo exclusions. Keep debug enabled in one config flag; leave the typed event helper unwired.
+- [x] Update shared privacy disclosures, llms privacy text and legal/prerender assertions.
+- [x] 335 related tests passed; preview build OK. Signed-out browser checks passed permitted marketing/signup init, all opt-outs, bot/referral/private/demo exclusions, retained init across signup navigation, opaque isolation and privacy-button withdrawal. Actual SDK initialized with intercepted telemetry; OpenAI receipt and attribution are unverified. No accounts, publication, migrations or payment changes.
+
 # Mobile dashboard actions, November 23
 - [x] Stack Leads, Referrers and Rewards records below md using the same controls and handlers; wrap Customers controls and enlarge mobile actions.
 - [x] 45 related tests passed; preview build OK. Signed-in Playwright with intercepted populated test responses passed all four tabs at 320, 375 and 1280px, including 44px mobile actions, no page overflow, notes and won-job value save/read-back, and reward confirmation. Real customer-data writes and native phone-app delivery were not tested. No publishing.

@@ -13,6 +13,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import FrameGuard from "@/components/FrameGuard";
 import Analytics from "@/components/Analytics";
 import MetaPixel from "@/components/MetaPixel";
+import OpenAiPixel from "@/components/OpenAiPixel";
 import OrigamiVisitors from "@/components/OrigamiVisitors";
 import PartnerCapture from "@/components/partners/PartnerCapture";
 
@@ -101,6 +102,7 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
             <CountryProvider>
               <Analytics />
               <MetaPixel />
+              <OpenAiPixel />
               <OrigamiVisitors />
               <PartnerCapture />
               <Suspense fallback={null}><ClarityLoader /></Suspense>

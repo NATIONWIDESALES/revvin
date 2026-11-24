@@ -3,6 +3,7 @@
 <script>
 (() => {
   let id = "";
+  let openAiInitialized = false;
   const allowed = new Set(["PageView", "Lead", "CompleteRegistration", "PagePublished"]);
   const pending = [];
   const flush = () => {
@@ -15,7 +16,24 @@
     }
   };
   addEventListener("message", event => {
+    if (event.origin !== location.origin || event.source !== parent) return;
+    if (event.data?.type === "revvin-openai-init") {
+      const data = event.data;
+      if (openAiInitialized || id || !/^[A-Za-z0-9]{1,80}$/.test(data.id) || typeof data.debug !== "boolean") return;
+      openAiInitialized = true;
+      // Vendor base setup only. No automatic event names or account fields are supplied.
+      if (!window.oaiq) {
+        const queue = function() { queue.q.push(arguments); };
+        queue.q = []; window.oaiq = queue;
+        const script = document.createElement("script"); script.async = true;
+        script.src = "https://bzrcdn.openai.com/sdk/oaiq.min.js";
+        document.head.appendChild(script);
+      }
+      window.oaiq("init", { pixelId: data.id, debug: data.debug });
+      return;
+    }
     if (event.origin !== location.origin || event.source !== parent || event.data?.type !== "revvin-pixel") return;
+    if (openAiInitialized) return;
     const data = event.data;
     if (!/^\d+$/.test(data.id) || !allowed.has(data.event) || !Number.isSafeInteger(data.sequence) || data.sequence < 1) return;
     if (!id) {
