@@ -46,4 +46,3 @@
 - Security dependency overrides pin patched transitive packages; deployment-specific remote imports must be reviewed separately. Why: a browser lockfile does not update remote edge dependencies.
 - Lazy/Vite recovery uses a 30-second path guard and deferred chunk_reload reports; crash stacks keep bounded file:line; main supplies missing ResizeObserver before rendering and Slider retains a fallback. Why: recover safely on every page in reduced-feature browsers.
 - Correlate failure sessions in build_id. Why: preserve the RPC and schema.
-- Referral launch reuses send-campaign, campaign_emails and process-campaign-sends; Free use is tracked in service-only referral_launch_claims. Why: one sending stack, and deleting a campaign cannot reset the free launch.

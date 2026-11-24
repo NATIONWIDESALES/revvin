@@ -1,0 +1,1 @@
+- Referral launch reuses send-campaign, campaign_emails and process-campaign-sends; Free use is tracked in service-only referral_launch_claims. Why: one sending stack, and deleting a campaign cannot reset the free launch.
