@@ -32,7 +32,7 @@ beforeEach(() => {
   Object.defineProperty(navigator, "globalPrivacyControl", { value: false, configurable: true });
   mocks.signup.mockResolvedValue({ data: { user: { id: userId }, session: { access_token: "test-session" } }, error: null });
   mocks.invoke.mockResolvedValue({ data: {}, error: null });
-  vi.stubGlobal("fetch", vi.fn(async (url: string) => new Response(String(url).includes("/cdn-cgi/trace") ? `h=${location.hostname}\nloc=US\n` : String(url).includes("pixel-config") ? '{"automatic_advanced_matching_enabled":false}' : "{}")));
+  vi.stubGlobal("fetch", vi.fn(async (url: string) => new Response(String(url).includes("/cdn-cgi/trace") ? `h=${location.hostname}\nloc=US\n` : "{}")));
   Element.prototype.scrollIntoView = vi.fn();
 });
 afterEach(() => {

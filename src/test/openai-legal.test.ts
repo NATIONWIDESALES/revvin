@@ -12,11 +12,18 @@ describe("OpenAI advertising disclosure parity", () => {
     expect(text).toContain("signup-completed event for recognized home-service signups");
     expect(text).toContain("__oppref lasts 30 days after capture");
     expect(text).toContain("__obref lasts 365 days after creation");
+    expect(text).toContain("convert it to a SHA-256 hash in the browser");
+    expect(text).toContain("Raw values are not sent by this feature.");
+    expect(text).toContain("including this automatic matching");
+    expect(text).not.toContain("must be disabled before we load");
+    expect(text).not.toContain("\u2014");
     const route = PRERENDER_ROUTES.find(route => route.path === "/privacy");
     if (!route) throw Error("Missing privacy route");
     expect(renderRoute(readFileSync("index.html", "utf8"), route)).toContain("OpenAI (ChatGPT Ads)");
     expect(renderLlmsFull()).toContain(ADVERTISING_MEASUREMENT_NOTICE);
-    expect(readFileSync("public/llms.txt", "utf8")).toContain("[Privacy](/privacy)");
+    const llms = readFileSync("public/llms.txt", "utf8");
+    expect(llms).toContain("[Privacy](/privacy)");
+    expect(llms).toContain("hash them with SHA-256 in the browser");
   });
   it("does not require a CSP change: the existing policy restricts neither scripts nor connections", () => {
     const csp = readFileSync("index.html", "utf8").match(/http-equiv="Content-Security-Policy" content="([^"]*)"/)?.[1];

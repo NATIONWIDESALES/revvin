@@ -41,25 +41,13 @@ export function withdrawOpenAiAds() {
   if (window.oaiq?.q) window.oaiq.q = [["consent", false], ["init", { pixelId: OPENAI_PIXEL_ID, debug: OPENAI_PIXEL_DEBUG }]];
 }
 
-/** Do not load a top-level SDK that is configured to collect customer fields automatically. */
-async function matchingDisabled() {
-  try {
-    const response = await fetch(`https://bzrcdn.openai.com/pixel-config/v1/${OPENAI_PIXEL_ID}.json`, {
-      signal: AbortSignal.timeout(2000), credentials: "omit", referrerPolicy: "no-referrer", cache: "no-store",
-    });
-    if (!response.ok) return false;
-    const config = await response.json();
-    return config?.automatic_advanced_matching_enabled === false;
-  } catch { return false; }
-}
-
 export async function initializeOpenAiAds(): Promise<boolean> {
   const current = state();
   if (!OPENAI_PIXEL_ID || !current.permitted()) return false;
   if (current.initialized) return current.granted;
   if (current.starting) return current.starting;
   current.starting = (async () => {
-    if (!await matchingDisabled() || !current.permitted()) return false;
+    if (!current.permitted()) return false;
     if (!window.oaiq) {
       const queue: OpenAiQueue = (...args) => { queue.q?.push(args); };
       queue.q = []; window.oaiq = queue;
@@ -68,7 +56,7 @@ export async function initializeOpenAiAds(): Promise<boolean> {
       script.src = "https://bzrcdn.openai.com/sdk/oaiq.min.js";
       document.head.appendChild(script);
     }
-    // No user object: customer matching is neither configured nor authorized by this integration.
+    // No user object: we pass no customer fields. OpenAI automatic advanced matching (in-browser SHA-256 hashes) is owner-approved and disclosed in the privacy notice.
     window.oaiq("consent", true);
     window.oaiq("init", { pixelId: OPENAI_PIXEL_ID, debug: OPENAI_PIXEL_DEBUG });
     current.initialized = true; current.granted = true;

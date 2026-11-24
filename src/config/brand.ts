@@ -74,7 +74,8 @@ export const INDEXNOW_KEY = "b7f4a1c93e5d42f8ab6c05719d3e8a42";
 export const META_PIXEL_ID = "1941132123224407";
 /** ChatGPT Ads pixel. Advertising permission gates loading and qualified signup events. */
 export const OPENAI_PIXEL_ID = "PsQihxvTbEPvdwqHWKuL2n";
-export const OPENAI_PIXEL_DEBUG = true;
+/** Vendor debug logging; off for production. */
+export const OPENAI_PIXEL_DEBUG = false;
 
 /**
  * Microsoft Clarity project id. Empty means session recording is off

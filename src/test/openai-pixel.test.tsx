@@ -40,13 +40,13 @@ afterEach(() => { cleanup(); delete window.oaiq; script()?.remove(); vi.useRealT
 
 describe("OpenAI top-level advertising permission", () => {
   it("initializes once in the top-level head with no user object, across SPA navigation", async () => {
-    expect(OPENAI_PIXEL_ID).toBe("PsQihxvTbEPvdwqHWKuL2n"); expect(OPENAI_PIXEL_DEBUG).toBe(true);
+    expect(OPENAI_PIXEL_ID).toBe("PsQihxvTbEPvdwqHWKuL2n"); expect(OPENAI_PIXEL_DEBUG).toBe(false);
     await mount("/?oppref=landing-token"); const original = script();
     expect(original?.parentElement).toBe(document.head); expect(document.querySelector("iframe")).toBeNull();
     expect(location.search).toBe("?oppref=landing-token");
     window.dispatchEvent(new Event("pointerdown")); await go("/pricing"); await go("/signup");
     expect(script()).toBe(original);
-    expect(calls().filter(call => call[0] === "init")).toEqual([["init", { pixelId: "PsQihxvTbEPvdwqHWKuL2n", debug: true }]]);
+    expect(calls().filter(call => call[0] === "init")).toEqual([["init", { pixelId: "PsQihxvTbEPvdwqHWKuL2n", debug: false }]]);
     expect(calls()[0]).toEqual(["consent", true]);
   });
   it("consent off makes no vendor request", async () => {
@@ -60,17 +60,16 @@ describe("OpenAI top-level advertising permission", () => {
     await act(async () => { resolve(new Response(`h=${location.hostname}\nloc=US\n`)); });
     expect(script()).toBeNull();
   });
-  it("rechecks withdrawal after a pending matching configuration lookup", async () => {
-    let resolve: (response: Response) => void = () => {};
-    vi.stubGlobal("fetch", vi.fn(async (url: string) => String(url).includes("/cdn-cgi/trace") ? new Response(`h=${location.hostname}\nloc=US\n`) : new Promise<Response>(done => { resolve = done; })));
-    await mount(); localStorage.setItem("revvin_advertising_choice", "denied");
-    await act(async () => { resolve(new Response('{"automatic_advanced_matching_enabled":false}')); });
-    expect(script()).toBeNull();
+  it.each([true, false, null])("loads regardless of the matching setting (%s) and never fetches pixel config", async matching => {
+    fakeFetch("US", matching); await mount(); expect(script()).not.toBeNull();
+    expect(vi.mocked(fetch).mock.calls.some(([url]) => String(url).includes("pixel-config"))).toBe(false);
+    expect(calls().filter(call => call[0] === "init")).toHaveLength(1);
   });
-  it.each([true, null, "false"])("fails closed if automatic matching is enabled or unresolved: %s", async matching => {
-    fakeFetch("US", matching); await mount(); expect(script()).toBeNull();
+  it("loads when the vendor config endpoint is unreachable", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => { if (String(url).includes("/cdn-cgi/trace")) return new Response(`h=${location.hostname}\nloc=US\n`); throw Error("unavailable"); }));
+    await mount(); expect(script()).not.toBeNull();
   });
-  it("fails closed when discovery fails", async () => {
+  it("fails closed when region discovery fails", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => { throw Error("unavailable"); })); await mount(); expect(script()).toBeNull();
   });
   it("waits for unresolved account state", async () => { auth.loading = true; await mount(); expect(script()).toBeNull(); });
@@ -114,7 +113,7 @@ describe("OpenAI top-level advertising permission", () => {
   it("revokes queued consent before a late SDK can drain or replay events", async () => {
     await mount("/signup"); expect(trackOpenAiAdEvent("registration_completed", { type: "customer_action" }, { event_id: id })).toBe(true);
     localStorage.setItem("revvin_advertising_choice", "denied"); act(() => window.dispatchEvent(new Event("revvin:advertising-choice")));
-    expect(calls()).toEqual([["consent", false], ["init", { pixelId: OPENAI_PIXEL_ID, debug: true }]]);
+    expect(calls()).toEqual([["consent", false], ["init", { pixelId: OPENAI_PIXEL_ID, debug: false }]]);
   });
   it("preserves oppref through preview cleanup and excludes it from our acquisition storage", async () => {
     await mount("/signup?name=Fixture&trade=roofing&reward=250&oppref=landing-token&fbclid=meta-token&utm_source=openai");

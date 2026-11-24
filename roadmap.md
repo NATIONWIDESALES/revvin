@@ -207,3 +207,5 @@
 - [x] Diagnose worker rejection using current managed credentials and live dispatcher responses.
 - [x] Restore existing worker behavior after supported credential refresh; add verified service authorization fallback and deploy only the queue worker.
 - [x] Verify live dispatch, failure-alert sent log, 14-day unsent counts and expiry handling; document and run regressions.
+
+- [x] 2026-11-24: Allow OpenAI pixel with owner-approved automatic advanced matching; debug off; privacy disclosure updated (docs/openai-matching-allowed-2026-11-24.md)
