@@ -5,11 +5,13 @@ import { PRERENDER_ROUTES } from "@/content/seoRoutes";
 import { renderLlmsFull, renderRoute } from "../../plugins/prerender";
 
 describe("OpenAI advertising disclosure parity", () => {
-  it("shares the current init-only disclosure across policy, prerender and llms", () => {
+  it("shares the current signup and cookie disclosure across policy, prerender and llms", () => {
     const text = legalPrerenderSections(PRIVACY_DOC).map(section => section.body).join("\n");
     expect(text).toContain(ADVERTISING_MEASUREMENT_NOTICE);
     expect(text).toContain("OpenAI (ChatGPT Ads)");
-    expect(text).toContain("We do not currently send OpenAI account-creation or other conversion events");
+    expect(text).toContain("signup-completed event for recognized home-service signups");
+    expect(text).toContain("__oppref lasts 30 days after capture");
+    expect(text).toContain("__obref lasts 365 days after creation");
     const route = PRERENDER_ROUTES.find(route => route.path === "/privacy");
     if (!route) throw Error("Missing privacy route");
     expect(renderRoute(readFileSync("index.html", "utf8"), route)).toContain("OpenAI (ChatGPT Ads)");

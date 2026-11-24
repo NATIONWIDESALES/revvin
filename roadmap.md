@@ -1,5 +1,11 @@
 # Prebuilt pages for outbound sales
 
+# OpenAI top-level attribution and registration, November 24
+- [x] Replace the OpenAI frame with once-per-document top-level loading, existing permission gates and vendor consent withdrawal. A transient anonymous session recheck pauses application events without deleting attribution cookies; signed-in/private/demo/opt-out transitions still revoke.
+- [x] Preserve oppref without application storage; wire qualified signup registration with the shared event ID and update OpenAI-only privacy wording.
+- [x] 351 related tests passed and preview build OK. Signed-out actual-SDK checks with disabled-matching configuration and intercepted event transport verified top-level load, 30/365-day cookies, retained SPA attribution, exact deduplicated registration event, no user payload, opt-out cookie deletion and excluded-route blocking. No accounts or publication; provider receipt and real signup attribution remain unverified.
+- [ ] Disable OpenAI automatic advanced matching before real loading. Blocked: the vendor's public configuration currently enables customer-field collection; no matching data is authorized.
+
 # OpenAI advertising pixel, November 24
 - [x] Install init-only isolated bridge with existing advertising permission and explicit marketing/signup, bot and demo exclusions. Keep debug enabled in one config flag; leave the typed event helper unwired.
 - [x] Update shared privacy disclosures, llms privacy text and legal/prerender assertions.

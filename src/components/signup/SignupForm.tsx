@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, MailCheck } from "lucide-react";
 import { track } from "@/lib/track";
+import { trackOpenAiAdEvent } from "@/lib/openAiAds";
 import { PRICE_TEXT } from "@/config/pricing";
 import InviteBanner, { InviteTerms } from "@/components/invite/InviteBanner";
 import { captureInviteFromSearch, getInviteCode } from "@/lib/invite";
@@ -173,8 +174,11 @@ const SignupForm = ({
       return;
     }
     track("signup_succeeded");
-    // TODO: Wire the vendor-approved OpenAI signup event here, under this same homeService qualification and advertising permission. Init only for now.
-    if (homeService) track("signup_completed", undefined, data.user?.id ? registrationEventId(data.user.id) : undefined);
+    if (homeService) {
+      const eventID = data.user?.id ? registrationEventId(data.user.id) : undefined;
+      track("signup_completed", undefined, eventID);
+      if (eventID) trackOpenAiAdEvent("registration_completed", { type: "customer_action" }, { event_id: eventID });
+    }
     if (homeService && metaConsent && data.user?.id && data.session?.access_token) {
       const registeredId = data.user.id;
       const accessToken = data.session.access_token;

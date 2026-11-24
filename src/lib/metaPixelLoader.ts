@@ -7,32 +7,6 @@ function createAdFrame(fbclid: string | null = null) {
   return frame;
 }
 
-/** Init-only, separate document: OpenAI never receives Meta's click or event messages. */
-export function loadOpenAiPixel(id: string, debug: boolean, permitted: () => boolean) {
-  if (!/^[A-Za-z0-9]{1,80}$/.test(id) || !permitted()) return null;
-  const frame = createAdFrame();
-  frame.id = "openai-ad-pixel";
-  frame.setAttribute("sandbox", "allow-scripts");
-  let disposed = false;
-  const dispose = () => {
-    if (disposed) return;
-    disposed = true;
-    window.removeEventListener("storage", revoke);
-    window.removeEventListener("revvin:advertising-choice", revoke);
-    frame.remove();
-  };
-  const revoke = () => { if (!permitted()) dispose(); };
-  frame.addEventListener("load", () => {
-    if (!permitted()) { dispose(); return; }
-    // The opaque sandbox needs a wildcard target; only public configuration is sent to this exact frame.
-    if (!disposed) frame.contentWindow?.postMessage({ type: "revvin-openai-init", id, debug }, "*");
-  }, { once: true });
-  window.addEventListener("storage", revoke);
-  window.addEventListener("revvin:advertising-choice", revoke);
-  document.body.appendChild(frame);
-  return { dispose };
-}
-
 /** The SDK lives in a separate, no-referrer document and cannot inspect signup forms or SPA URLs. */
 export function loadPixel(id: string, fbclid: string | null = null, permitted: () => boolean = () => true) {
   if (!/^\d+$/.test(id)) return null;

@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { MemoryRouter } from "react-router-dom";
 import SignupForm from "@/components/signup/SignupForm";
 import MetaPixel from "@/components/MetaPixel";
+import OpenAiPixel from "@/components/OpenAiPixel";
 import { track } from "@/lib/track";
 import { SIGNUP_TRADES, signupCategory, signupTradeFromPreview } from "@/lib/signupTrade";
 import { capturePreview, storePreview } from "@/lib/instantPreview";
@@ -22,13 +23,15 @@ vi.mock("@/lib/track", async importOriginal => {
 
 beforeEach(() => {
   if (!AbortSignal.timeout) Object.defineProperty(AbortSignal, "timeout", { configurable: true, value: () => new AbortController().signal });
-  vi.clearAllMocks(); localStorage.clear(); sessionStorage.clear();
+  vi.clearAllMocks(); localStorage.clear(); sessionStorage.clear(); delete window.oaiq; document.getElementById("openai-ad-pixel")?.remove();
+  Object.defineProperty(navigator, "webdriver", { value: false, configurable: true });
+  Object.defineProperty(navigator, "userAgent", { value: "Mozilla/5.0 Chrome/150.0.0.0 Safari/537.36", configurable: true });
   window.history.replaceState({}, "", "/signup");
   Object.defineProperty(navigator, "doNotTrack", { value: null, configurable: true });
   Object.defineProperty(navigator, "globalPrivacyControl", { value: false, configurable: true });
   mocks.signup.mockResolvedValue({ data: { user: { id: userId }, session: { access_token: "test-session" } }, error: null });
   mocks.invoke.mockResolvedValue({ data: {}, error: null });
-  vi.stubGlobal("fetch", vi.fn(async (url: string) => new Response(String(url).includes("/cdn-cgi/trace") ? `h=${location.hostname}\nloc=US\n` : "{}")));
+  vi.stubGlobal("fetch", vi.fn(async (url: string) => new Response(String(url).includes("/cdn-cgi/trace") ? `h=${location.hostname}\nloc=US\n` : String(url).includes("pixel-config") ? '{"automatic_advanced_matching_enabled":false}' : "{}")));
   Element.prototype.scrollIntoView = vi.fn();
 });
 afterEach(() => {
@@ -36,7 +39,7 @@ afterEach(() => {
   window.dispatchEvent(new Event("revvin:advertising-choice"));
   vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks();
 });
-function show() { render(<MemoryRouter initialEntries={["/signup"]}><MetaPixel /><SignupForm showStickyMobileBar={false} /></MemoryRouter>); }
+function show() { render(<MemoryRouter initialEntries={["/signup"]}><MetaPixel /><OpenAiPixel /><SignupForm showStickyMobileBar={false} /></MemoryRouter>); }
 async function choose(trade: string) {
   fireEvent.keyDown(screen.getByRole("combobox", { name: "Your trade" }), { key: "Enter" });
   fireEvent.click(await screen.findByRole("option", { name: trade }));
@@ -64,6 +67,7 @@ describe("signup trade qualification", () => {
     if (!frame.contentWindow) throw Error("missing bridge window");
     const post = vi.spyOn(frame.contentWindow, "postMessage");
     fireEvent.load(frame);
+    await waitFor(() => expect(window.oaiq?.q?.some(call => call[0] === "init")).toBe(true));
     fill(); await choose("Roofing"); await submit();
     expect(mocks.signup.mock.calls[0][0].options.data).toMatchObject({ signup_trade: "Roofing", preview_trade: "Roofing" });
     await waitFor(() => expect(post).toHaveBeenCalledWith(expect.objectContaining({ event: "CompleteRegistration", eventID: `reg_${userId}` }), location.origin));
@@ -73,19 +77,33 @@ describe("signup trade qualification", () => {
     const serverEvent = registrationPayload({ userId, createdAt: new Date().toISOString(), advertisingAllowed: true, userAgent: "Fixture" }).data[0];
     expect(post).toHaveBeenCalledWith(expect.objectContaining({ event: serverEvent.event_name, eventID: serverEvent.event_id }), location.origin);
     expect(track).toHaveBeenCalledWith("signup_completed", undefined, `reg_${userId}`);
+    expect(window.oaiq?.q?.filter(call => call[0] === "measure")).toEqual([["measure", "registration_completed", { type: "customer_action" }, { event_id: `reg_${userId}` }]]);
     expect(JSON.parse(String(capi?.[1]?.body))).toMatchObject({ advertising_allowed: true, country: "US" });
   });
   it("records internal success but sends neither registration event nor CAPI for a non-home-service business", async () => {
     const conversion = vi.fn(); window.addEventListener("revvin:conversion", conversion);
     try {
-      show(); fill(); await choose("Not a home-service business"); await submit();
+      show(); fireEvent.keyDown(window, { key: "Tab" });
+      await waitFor(() => expect(window.oaiq?.q?.some(call => call[0] === "init")).toBe(true));
+      fill(); await choose("Not a home-service business"); await submit();
       expect(mocks.signup.mock.calls[0][0].options.data).toMatchObject({ signup_trade: "Not a home-service business", preview_trade: "Other" });
       expect(track).toHaveBeenCalledWith("signup_submitted");
       expect(track).not.toHaveBeenCalledWith("signup_completed", expect.anything(), expect.anything());
       expect(vi.mocked(track).mock.calls.some(([event]) => event === "signup_completed")).toBe(false);
       expect(conversion).not.toHaveBeenCalled();
+      expect(window.oaiq?.q?.some(call => call[0] === "measure") ?? false).toBe(false);
       expect(vi.mocked(fetch).mock.calls.some(([url]) => String(url).includes("/meta-capi"))).toBe(false);
     } finally { window.removeEventListener("revvin:conversion", conversion); }
+  });
+  it("never measures a qualified signup after advertising permission is withdrawn", async () => {
+    show(); fireEvent.keyDown(window, { key: "Tab" });
+    await waitFor(() => expect(window.oaiq?.q?.some(call => call[0] === "init")).toBe(true));
+    localStorage.setItem("revvin_advertising_choice", "denied");
+    act(() => window.dispatchEvent(new Event("revvin:advertising-choice")));
+    fill(); await choose("Roofing"); await submit();
+    expect(track).toHaveBeenCalledWith("signup_completed", undefined, `reg_${userId}`);
+    expect(window.oaiq?.q?.some(call => call[0] === "measure") ?? false).toBe(false);
+    expect(window.oaiq?.q?.[0]).toEqual(["consent", false]);
   });
   it("blocks submit without a trade using the missing-info toast", () => {
     show(); fill(); fireEvent.submit(document.querySelector("form") as HTMLFormElement);

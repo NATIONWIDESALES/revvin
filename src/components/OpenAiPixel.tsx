@@ -1,63 +1,65 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { OPENAI_PIXEL_ID, OPENAI_PIXEL_DEBUG } from "@/config/brand";
 import { advertisingAllowed, conversionSafePath, pixelSafePath, resolveAdvertisingRegion } from "@/lib/metaPermission";
 import { cleanPreviewAddress } from "@/lib/instantPreview";
 import { isLikelyBot } from "@/lib/botCheck";
+import { initializeOpenAiAds, setOpenAiAdPermission, withdrawOpenAiAds } from "@/lib/openAiAds";
 
-/** Same permission/activation boundary as Meta, with no private account routes or events. */
+/** Top-level attribution, with the existing public/signup permission boundary and no matching data. */
 const OpenAiPixel = () => {
   const route = useLocation();
   const { user, loading } = useAuth();
-  const initialized = useRef(false);
-  const demo = useRef(false);
-  const bridge = useRef<{ dispose: () => void } | null>(null);
-  if (route.pathname === "/sample") demo.current = true;
+  const audience = useRef({ user, loading, demo: false });
+  audience.current = { user, loading, demo: audience.current.demo || route.pathname === "/sample" };
+  const country = useRef<string | null>(null);
+  const start = useRef<() => void>(() => {});
+  const safe = (allowPendingAccount = false) => {
+    cleanPreviewAddress();
+    return (!audience.current.loading || allowPendingAccount) && !audience.current.user && !audience.current.demo && !isLikelyBot() &&
+      (pixelSafePath(location.pathname, location.search, location.hash) ||
+        (location.pathname === "/signup" && conversionSafePath(location.pathname, location.search, location.hash)));
+  };
+  const permission = (allowPendingAccount = false) => {
+    try {
+      return safe(allowPendingAccount) && advertisingAllowed(country.current, localStorage.getItem("revvin_advertising_choice") === "denied",
+        Boolean((navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl || navigator.doNotTrack === "1"));
+    } catch { return false; }
+  };
+  useLayoutEffect(() => {
+    setOpenAiAdPermission(() => permission());
+    // A lazy anonymous session check pauses our sends, not the visitor's advertising choice.
+    // Explicit opt-outs, signed-in accounts and excluded routes still revoke immediately.
+    if (!permission(true)) withdrawOpenAiAds();
+  }, [route.pathname, route.search, route.hash, user, loading]);
 
   useEffect(() => {
     let stopped = false;
-    let country: string | null = null;
-    const safe = () => {
-      cleanPreviewAddress();
-      return !loading && !user && !demo.current && !isLikelyBot() &&
-        (pixelSafePath(location.pathname, location.search, location.hash) ||
-          (location.pathname === "/signup" && conversionSafePath(location.pathname, location.search, location.hash)));
+    const activate = async () => {
+      if (stopped || !safe()) return;
+      if (!country.current) country.current = await resolveAdvertisingRegion();
+      if (stopped || !permission()) return;
+      await initializeOpenAiAds();
     };
-    const permission = () => {
-      try {
-        return safe() && advertisingAllowed(country, localStorage.getItem("revvin_advertising_choice") === "denied",
-          Boolean((navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl || navigator.doNotTrack === "1"));
-      } catch { return false; }
-    };
-    const stop = () => { bridge.current?.dispose(); bridge.current = null; };
-    const revoke = () => { if (!permission()) stop(); };
-    const start = async () => {
-      if (stopped || initialized.current || !OPENAI_PIXEL_ID || !safe()) return;
-      country = await resolveAdvertisingRegion();
-      if (stopped || initialized.current || !permission()) return;
-      const { loadOpenAiPixel } = await import("@/lib/metaPixelLoader");
-      if (stopped || initialized.current || !permission()) return;
-      bridge.current = loadOpenAiPixel(OPENAI_PIXEL_ID, OPENAI_PIXEL_DEBUG, permission);
-      initialized.current = Boolean(bridge.current);
-    };
-    // Eligible SPA navigation retains the existing isolated document and its one init.
-    if (!safe()) stop();
-    const timer = window.setTimeout(() => { void start(); }, 3000);
-    const interact = () => { void start(); };
+    start.current = () => { void activate(); };
+    const revoke = () => { if (!permission()) withdrawOpenAiAds(); };
+    const interact = () => { void activate(); };
     window.addEventListener("pointerdown", interact, { once: true });
     window.addEventListener("keydown", interact, { once: true });
     window.addEventListener("storage", revoke);
     window.addEventListener("revvin:advertising-choice", revoke);
     return () => {
-      stopped = true; clearTimeout(timer);
+      stopped = true; setOpenAiAdPermission(() => false); withdrawOpenAiAds();
       window.removeEventListener("pointerdown", interact);
       window.removeEventListener("keydown", interact);
       window.removeEventListener("storage", revoke);
       window.removeEventListener("revvin:advertising-choice", revoke);
     };
+  }, []);
+  useEffect(() => {
+    const timer = window.setTimeout(() => start.current(), 3000);
+    return () => clearTimeout(timer);
   }, [route.pathname, route.search, route.hash, user, loading]);
-  useEffect(() => () => { bridge.current?.dispose(); bridge.current = null; }, []);
   return null;
 };
 export default OpenAiPixel;

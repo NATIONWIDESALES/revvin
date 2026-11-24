@@ -49,7 +49,7 @@ $297 one-time: we load your customer list, set up your page and reward with you,
 - [Home](/): What Revvin is and how it works.
 - [Pricing](/pricing): Free and Revvin Pro.
 - [About](/about): The company, what it does not do and the team.
-- [Privacy](/privacy): Data handling and advertising measurement by Meta and OpenAI (ChatGPT Ads). OpenAI is init-only, with no account-creation conversion events enabled.
+- [Privacy](/privacy): Data handling and advertising measurement by Meta and OpenAI (ChatGPT Ads). When permitted, OpenAI measures qualified home-service signup completion and uses its own __oppref (30 days) and __obref (365 days) first-party cookies; opting out stops measurement and removes them.
 - [Earn](/earn): Get paid for referrals, city by city.
 - [How it works](/how-it-works): The referral flow end to end.
 - [Guides](/guides): Referral program guides for service businesses.

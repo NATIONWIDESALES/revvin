@@ -1,5 +1,7 @@
 # OpenAI (ChatGPT Ads) pixel, November 24, 2026
 
+Historical initial implementation from `91b4e9bf`. The opaque OpenAI frame is superseded by the top-level correction in `openai-top-level-2026-11-24.md`; Meta retains its original bridge.
+
 ## Scope and status
 
 Installed and tested in the preview, not published. The previously committed mobile dashboard work was not resumed. No accounts were created, and no billing, database, permission, migration or edge-function changes were made.
