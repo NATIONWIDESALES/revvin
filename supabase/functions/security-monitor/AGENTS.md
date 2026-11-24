@@ -1,2 +1,3 @@
 - Classify role audit records in role-changes.ts for both alert filtering and weekly totals. Why: suppress only exact routine business inserts without changing security event logging.
 - Confirm smoke failures from the two timestamped runs produced by the SQL journey's bounded retry. Why: the HTTP service role cannot switch into the customer roles.
+- Scheduled HTTP alerts use http-health.ts with total-call rates, actual HTTP errors and request-ID-correlated streaks; HTTP recovery reads only email_sent=true history. Why: transient DNS failures and failed email delivery must not create failure/recovery noise.

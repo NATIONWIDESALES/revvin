@@ -1,5 +1,11 @@
 # Prebuilt pages for outbound sales
 
+# Scheduled HTTP timeouts and alert thresholds, November 24
+- [x] Read all live application SQL HTTP callers; migration 0039 raises missing timeouts in email_queue_dispatch and email_queue_wake to 15 seconds with private reversible backups. Existing request arguments, grants and schedules preserved.
+- [x] Deploy security-monitor with 20 percent / HTTP 4xx/5xx / explicitly correlated three-failure thresholds and sent-only HTTP recovery. Existing response logs and smoke/security rules unchanged.
+- [x] 53 related tests passed; preview build OK. Live health RPC: 0/115 failures (0% rolling hour), but no updated SQL caller issued a natural request yet, so improvement is not established. Live monitor dry run rejected the available alternate service credential with 401; isolated actual-handler paths passed without emails or users. Details: docs/scheduled-http-health-2026-11-24.md.
+- [ ] Update direct cron HTTP timeouts and correlate their job-specific streaks. Blocked: Cloud rejects cron command inspection and command rewrites, including the first migration attempt (nothing applied). No cron jobs changed; schedule metadata inventory recorded in the changelog. Requires supported existing-command access, not new schedules or auth changes.
+
 # Software schema, example link and internal signup email, November 24
 - [x] Correct homepage software schema and example link; describe publication and search approval separately in internal notifications.
 - [x] 243 related tests passed; preview build OK. Browser verified homepage software offers, example link to /sample, pricing and roofing schemas with no Product nodes or page errors. All prerender route graphs checked. notify-business-signup deployed successfully; live invalid-auth check returned 401. Email handler state cases tested with isolated delivery and persistence, no real email sent. No publication or test users.

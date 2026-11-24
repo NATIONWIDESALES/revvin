@@ -2665,6 +2665,45 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduled_http_requests: {
+        Row: {
+          job_key: string
+          request_id: number
+          requested_at: string
+        }
+        Insert: {
+          job_key: string
+          request_id: number
+          requested_at?: string
+        }
+        Update: {
+          job_key?: string
+          request_id?: number
+          requested_at?: string
+        }
+        Relationships: []
+      }
+      scheduled_http_rollback_20261124: {
+        Row: {
+          applied_definition: string
+          object_key: string
+          original_definition: string
+          timeout_changed: boolean
+        }
+        Insert: {
+          applied_definition: string
+          object_key: string
+          original_definition: string
+          timeout_changed: boolean
+        }
+        Update: {
+          applied_definition?: string
+          object_key?: string
+          original_definition?: string
+          timeout_changed?: boolean
+        }
+        Relationships: []
+      }
       seasonal_campaigns: {
         Row: {
           created_at: string
@@ -3530,6 +3569,7 @@ export type Database = {
       }
       fn_me_email_eligible: { Args: { p_email: string }; Returns: boolean }
       fn_monitor_health: { Args: never; Returns: Json }
+      fn_monitor_scheduled_http: { Args: never; Returns: Json }
       fn_my_referrals: { Args: never; Returns: Json }
       fn_new_referrer_token: { Args: never; Returns: string }
       fn_normalize_slug: { Args: { p_slug: string }; Returns: string }
@@ -3631,6 +3671,32 @@ export type Database = {
       fn_resolve_referrer: {
         Args: { p_slug: string; p_token: string }
         Returns: Json
+      }
+      fn_rewrite_scheduled_http: {
+        Args: { job_key: string; source: string }
+        Returns: string
+      }
+      fn_rollback_scheduled_http_20261124: { Args: never; Returns: undefined }
+      fn_scheduled_http_get: {
+        Args: {
+          _job_key?: string
+          headers?: Json
+          params?: Json
+          timeout_milliseconds?: number
+          url: string
+        }
+        Returns: number
+      }
+      fn_scheduled_http_post: {
+        Args: {
+          _job_key?: string
+          body?: Json
+          headers?: Json
+          params?: Json
+          timeout_milliseconds?: number
+          url: string
+        }
+        Returns: number
       }
       fn_set_business_published: {
         Args: { p_published: boolean }

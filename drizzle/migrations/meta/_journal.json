@@ -274,6 +274,13 @@
       "when": 1795447273082,
       "tag": "0038_confirm_hourly_smoke_failure",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1795536844906,
+      "tag": "0039_scheduled_http_timeout_and_health",
+      "breakpoints": true
     }
   ]
 }

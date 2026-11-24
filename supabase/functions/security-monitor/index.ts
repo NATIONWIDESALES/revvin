@@ -11,6 +11,7 @@ import { sendEmailViaGateway } from "../_shared/resend-gateway.ts";
 import { RESEND_FROM_ADDRESS, RESEND_REPLY_TO } from "../_shared/app-config.ts";
 import { isNewBusinessAccount, roleChangeCounts } from "./role-changes.ts";
 import { smokeFailureConfirmed, type SmokeRun } from "./smoke-confirmation.ts";
+import { scheduledHttpFailing, scheduledHttpWasFailing, type ScheduledHttpHealth } from "./http-health.ts";
 
 const ALERT_EMAIL = "info@revvin.co";
 const THROTTLE_HOURS = 6;
@@ -181,15 +182,21 @@ Deno.serve(async (req) => {
       text: stale ? `No customer journey run in the last 2 hours. Last run: ${smoke?.ran_at ?? "never"}.` : `Failed step: ${smoke?.failed_step}\nError: ${smokeErr}\nRan at: ${smoke?.ran_at}\n\n${JSON.stringify(smoke?.steps, null, 2)}`,
       recovered: "Revvin recovered: the customer journey check passes again",
     });
-    const http = (h.http_non_200 ?? {}) as Record<string, number>;
-    const httpTotal = Object.values(http).reduce((a, b) => a + Number(b), 0);
-    checks.push({
-      type: "health_http",
-      failing: httpTotal > 3,
-      subject: `Revvin alert: ${httpTotal} scheduled calls failed in the last hour`,
-      text: `Non-200 responses from scheduled jobs in the last hour, by status: ${JSON.stringify(http)}`,
-      recovered: "Revvin recovered: scheduled calls succeed again",
-    });
+    const { data: httpData, error: httpError } = await db.rpc("fn_monitor_scheduled_http" as never);
+    if (httpError || !httpData) {
+      // Incomplete evidence must not close an already-sent HTTP alert.
+      console.error("[security-monitor] scheduled HTTP health unavailable", httpError?.message);
+    } else {
+      const http = httpData as ScheduledHttpHealth;
+      const rate = http.total > 0 ? 100 * http.failures / http.total : 0;
+      checks.push({
+        type: "health_http",
+        failing: scheduledHttpFailing(http),
+        subject: `Revvin alert: ${http.failures} scheduled calls failed in the last hour`,
+        text: `${http.failures} failures / ${http.total} calls (${rate.toFixed(2)}%). HTTP 4xx/5xx: ${http.real_errors}. Callers with three consecutive failures: ${JSON.stringify(http.consecutive_jobs)}.\nBy status: ${JSON.stringify(http.by_status)}\nEmail threshold: at least 20% failures, three consecutive failures for a correlated caller, or any HTTP 4xx/5xx. Isolated timeouts remain in the response logs.`,
+        recovered: "Revvin recovered: scheduled call failures are below the alert threshold",
+      });
+    }
     const oldest = Math.max(Number(h.oldest_auth_email_min ?? 0), Number(h.oldest_transactional_email_min ?? 0));
     checks.push({
       type: "health_email_queue",
@@ -214,14 +221,18 @@ Deno.serve(async (req) => {
     });
   }
   for (const c of checks) {
-    const { data: last } = await db
+    let previousQuery = db
       .from("security_alerts")
-      .select("alert_type, sent_at")
-      .in("alert_type", [c.type, `${c.type}_recovered`])
+      .select("alert_type, sent_at, details")
+      .in("alert_type", [c.type, `${c.type}_recovered`]);
+    // HTTP recovery and throttling follow sent mail, not failed send attempts.
+    // Leave the customer journey and other security/health checks unchanged.
+    if (c.type === "health_http") previousQuery = previousQuery.contains("details", { email_sent: true });
+    const { data: last } = await previousQuery
       .order("sent_at", { ascending: false })
       .limit(1);
     const prev = last?.[0];
-    const wasFailing = prev?.alert_type === c.type;
+    const wasFailing = c.type === "health_http" ? scheduledHttpWasFailing(prev) : prev?.alert_type === c.type;
     let subject: string | null = null;
     let text = "";
     if (c.failing && !(wasFailing && prev && now - new Date(prev.sent_at).getTime() < 3 * HOUR_MS)) {
