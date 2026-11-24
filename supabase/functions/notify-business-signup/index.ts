@@ -149,8 +149,8 @@ Deno.serve(async (req) => {
 <p style="margin:0 0 24px 0;font-size:14px;font-weight:700;color:#15803D;text-transform:lowercase;">revvin</p>
 
 <!-- Greeting -->
-<p style="margin:0 0 8px 0;font-size:16px;color:#111827;">New Business Signup</p>
-<p style="margin:0 0 24px 0;font-size:15px;color:#374151;line-height:1.6;">A new business has registered on Revvin and is awaiting approval.</p>
+<p style="margin:0 0 8px 0;font-size:16px;color:#111827;">${published ? "Business Published" : "New Business Signup"}</p>
+<p style="margin:0 0 24px 0;font-size:15px;color:#374151;line-height:1.6;">${published ? "The business page is now live." : `A new business has registered on Revvin. ${record.is_published === true ? "Its page is live." : "Its page is not yet published."}`}</p>
 
 <!-- Detail card -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E5E7EB;border-radius:8px;">
@@ -179,7 +179,7 @@ ${phone !== "Not provided" ? `<p><a href="tel:${escapeHtml(phone.replace(/[^+0-9
 </table>
 
 <!-- Footer -->
-<p style="margin:32px 0 0 0;font-size:13px;color:#9CA3AF;line-height:1.5;text-align:center;">This business is pending approval. Log in to the Super Admin dashboard to review and approve.</p>
+${record.index_approved !== true ? '<p style="margin:32px 0 0 0;font-size:13px;color:#9CA3AF;line-height:1.5;text-align:center;">Search listing approval pending in super admin</p>' : ""}
 
 </td></tr>
 </table>

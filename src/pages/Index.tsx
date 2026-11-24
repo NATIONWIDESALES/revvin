@@ -14,7 +14,7 @@ import { priceTextForSale } from "@/config/pricing";
 import { PRICE_TEXT, MONTHLY_PRICE } from "@/config/pricing";
 import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT, FREE_CTA_LABEL } from "@/config/planFeatures";
 import { SETUP_CALL_URL } from "@/config/setupCall";
-import { CANONICAL_SENTENCE } from "@/config/brand";
+import { CANONICAL_SENTENCE, SITE_URL } from "@/config/brand";
 import { useEarnLive } from "@/lib/earnLive";
 import { HOME_FAQS } from "@/content/homeFaqs";
 import { HOME_SEO } from "@/content/homeSeo";
@@ -59,10 +59,12 @@ const Index = () => {
       jsonLd={[
         {
           "@context": "https://schema.org",
-          "@type": "Product",
+          "@type": "SoftwareApplication",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
           name: "Revvin",
+          url: SITE_URL,
           description: `${CANONICAL_SENTENCE} Free includes ${FREE_FEATURES.map((f) => f.label).join(", ")}. Revvin Pro adds ${PRO_FEATURES.map((f) => f.label).join(", ")}. Businesses pay their referrers directly.`,
-          brand: { "@type": "Brand", name: "Revvin" },
           offers: [
             { "@type": "Offer", name: "Referral page", price: "0.00", priceCurrency: "USD", url: "https://revvin.co/pricing" },
             { "@type": "Offer", name: "Revvin Pro", price: MONTHLY_PRICE.toFixed(2), priceCurrency: "USD", url: "https://revvin.co/pricing" },
@@ -90,7 +92,7 @@ const Index = () => {
           <InstantPreview onPreview={setPreview} />
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button size="lg" variant="line" className="h-auto min-h-14 w-full whitespace-normal py-3 sm:w-auto" asChild>
-              <Link to="/sample" onClick={() => track("cta_clicked", { cta: "hero_sample" })}>See a real referral page</Link>
+              <Link to="/sample" onClick={() => track("cta_clicked", { cta: "hero_sample" })}>See an example referral page</Link>
             </Button>
           </div>
           <p className="mt-[18px] text-base text-muted-foreground">

@@ -1,5 +1,9 @@
 # Prebuilt pages for outbound sales
 
+# Software schema, example link and internal signup email, November 24
+- [x] Correct homepage software schema and example link; describe publication and search approval separately in internal notifications.
+- [x] 243 related tests passed; preview build OK. Browser verified homepage software offers, example link to /sample, pricing and roofing schemas with no Product nodes or page errors. All prerender route graphs checked. notify-business-signup deployed successfully; live invalid-auth check returned 401. Email handler state cases tested with isolated delivery and persistence, no real email sent. No publication or test users.
+
 # OpenAI signup auth race, November 24
 - [x] Pause signed-in/private-route sends without withdrawing consent; capture one-use signup eligibility before the account request and retain live opt-out checks.
 - [x] 222 related tests passed; preview build OK. Actual-SDK Playwright with intercepted backend/provider transport verified auth-first form success to /welcome, one registration request, retained cookies, no consent(false), no later signed-in sends, and pre-submit refusal blocking. No accounts created or publication; real provider receipt remains unverified.

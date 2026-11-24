@@ -150,7 +150,7 @@ const SOFTWARE = {
   "@id": APP_ID,
   name: "Revvin",
   applicationCategory: "BusinessApplication",
-  operatingSystem: "Web browser",
+  operatingSystem: "Web",
   url: SITE,
   publisher: { "@id": ORG_ID },
   description: SOFTWARE_DESCRIPTION,

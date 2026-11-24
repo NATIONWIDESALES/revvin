@@ -10,7 +10,7 @@ describe("homepage", () => {
     expect(home).toContain("Your happy customers are your best salespeople.");
     expect(home).toContain("Put them to work.");
     expect(home).toContain("FREE_CTA_LABEL");
-    expect(home).toContain("See a real referral page");
+    expect(home).toContain("See an example referral page");
   });
 
   it("stays concise", () => {
