@@ -42,6 +42,8 @@ vi.mock("@/integrations/supabase/client", () => {
         api._id = val;
         return api;
       },
+      limit: async () =>
+        table === "referral_contacts" ? { data: contactRows, error: null } : { data: [], error: null },
       order: async () =>
         table === "referral_contacts" ? { data: contactRows, error: null } : { data: [], error: null },
       insert: async (rows: any) => {
@@ -87,6 +89,7 @@ vi.mock("@/lib/clipboard", () => ({ copyText: async () => true }));
 vi.mock("@/lib/track", () => ({ track: () => {} }));
 
 import CustomersTab from "@/components/dashboard/CustomersTab";
+import CustomerIntake from "@/components/dashboard/CustomerIntake";
 
 // jsdom's Blob has no text(); the component reads the uploaded file with it.
 if (typeof Blob !== "undefined" && !Blob.prototype.text) {
@@ -114,11 +117,10 @@ beforeEach(() => {
   contactRows = [];
 });
 
-describe("upload -> preview -> insert payload", () => {
+describe("upload -> insert payload (Bring your customers)", () => {
   it("carries a quoted comma, an escaped quote and a last job date through unchanged", async () => {
     const user = userEvent.setup();
-    render(<CustomersTab biz={biz} publicUrl="https://revvin.co/r/summit" />);
-    await waitFor(() => expect(screen.getByLabelText("CSV upload")).toBeTruthy());
+    render(<CustomerIntake businessId="biz-1" businessName="Summit Roofing" isPro={false} isDemo={false} onAskAll={() => {}} />);
 
     const csv = [
       "Name,Email,Phone,Last Job Date",
@@ -127,26 +129,23 @@ describe("upload -> preview -> insert payload", () => {
       ",broken@example.com,,",
     ].join("\n");
     const file = new File([csv], "customers.csv", { type: "text/csv" });
-    await user.upload(screen.getByLabelText("CSV upload") as HTMLInputElement, file);
-
-    // Preview shows the good rows verbatim and reports the bad one by line.
-    await waitFor(() => expect(screen.getByText("Smith, John")).toBeTruthy());
-    expect(screen.getByText('Bob "Bobby" Jones')).toBeTruthy();
-    expect(screen.getByText(/line 4/i)).toBeTruthy();
-
-    await user.click(screen.getByRole("button", { name: /^Add 2 contacts$/ }));
+    await user.upload(screen.getByLabelText("Upload a customer file") as HTMLInputElement, file);
 
     await waitFor(() => expect(inserted).toHaveLength(1));
     const rows = inserted[0];
     expect(rows).toHaveLength(2);
-    expect(rows[0]).toMatchObject({
-      business_id: "biz-1",
-      name: "Smith, John",
-      email: "john@example.com",
-      phone: "555-123-4567",
-    });
+    expect(rows[0]).toMatchObject({ business_id: "biz-1", name: "Smith, John", email: "john@example.com", phone: "555-123-4567" });
     expect(rows[0].last_job_at).toMatch(/^2020-01-15T/);
     expect(rows[1].name).toBe('Bob "Bobby" Jones');
+    // The bad row is reported by line, never silently dropped.
+    await waitFor(() => expect(screen.getByTestId("intake-done").textContent).toMatch(/Line 4/));
+    expect(screen.getByTestId("intake-done").textContent).toContain("Added 2 customers.");
+  });
+
+  it("the Customers tab has no second paste box or CSV upload", async () => {
+    render(<CustomersTab biz={biz} publicUrl="https://revvin.co/r/summit" />);
+    await waitFor(() => expect(screen.queryByLabelText("Paste customers")).toBeNull());
+    expect(screen.queryByLabelText("CSV upload")).toBeNull();
   });
 });
 

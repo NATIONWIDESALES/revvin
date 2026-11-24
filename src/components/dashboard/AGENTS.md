@@ -1,1 +1,2 @@
 - Home layout (kit vs standard) comes from homeLayout/kitSendAction in src/lib/dashboardHome.ts; CustomerIntake converts Excel to CSV via on-demand xlsx and reuses parseCsv. Why: one tested decision and one validation path.
+- Print PDFs are drawn from data with pdf-lib (vector text and QR, page = trim size) in src/lib/printPdf.ts, loaded only on click; send-print-kit shares limits and email text with _shared/print-kit.ts. Why: print quality without screenshots, and one tested rule set.

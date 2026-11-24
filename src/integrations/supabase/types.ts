@@ -1922,6 +1922,45 @@ export type Database = {
         }
         Relationships: []
       }
+      print_kit_sends: {
+        Row: {
+          business_id: string
+          copy_to_owner: boolean
+          created_at: string
+          id: string
+          recipient_email: string
+        }
+        Insert: {
+          business_id: string
+          copy_to_owner?: boolean
+          created_at?: string
+          id?: string
+          recipient_email: string
+        }
+        Update: {
+          business_id?: string
+          copy_to_owner?: boolean
+          created_at?: string
+          id?: string
+          recipient_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "print_kit_sends_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "print_kit_sends_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

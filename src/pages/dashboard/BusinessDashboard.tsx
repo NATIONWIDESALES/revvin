@@ -1292,6 +1292,8 @@ const ShareTab = ({ biz, publicUrl, isLive, onPublished, onQrDownloaded, onShare
             phone: biz.phone,
           }}
           publicUrl={publicUrl}
+          businessId={biz.id}
+          onDownloaded={onQrDownloaded}
         />
       </div>
     </div>

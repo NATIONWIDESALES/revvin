@@ -3,7 +3,7 @@ import { reportFailure } from "@/lib/reportFailure";
 import { friendlyError } from "@/lib/errors";
 import { FREE_CONTACT_LIMIT, FREE_LIMIT_COPY, isFreeContactLimitError } from "@/config/planFeatures";
 import { track } from "@/lib/track";
-import { parseCsv, parseJobDate, parsePastedLines, type ParsedContact } from "@/lib/contactImport";
+import { parseJobDate } from "@/lib/contactImport";
 import {
   channelAllowed,
   contactEligibility,
@@ -135,14 +135,6 @@ const CustomersTab = ({
   const { toast } = useToast();
   const [contacts, setContacts] = useState<ReferralContact[]>([]);
   const [loading, setLoading] = useState(true);
-  const [paste, setPaste] = useState("");
-  // Rows parsed from an uploaded file. Kept as structured contacts so the
-  // preview, the error list and the insert payload all see the same values.
-  const [fileRows, setFileRows] = useState<ParsedContact[]>([]);
-  const [source, setSource] = useState<"paste" | "file">("paste");
-  const [pasteRows, setPasteRows] = useState<ParsedContact[]>([]);
-  const [parseErrors, setParseErrors] = useState<{ line: number; reason: string }[]>([]);
-  const [importing, setImporting] = useState(false);
   const [savingDateId, setSavingDateId] = useState<string | null>(null);
   const hasReward = !!biz.offer_amount?.trim();
   const defaultTemplate = hasReward ? DEFAULT_TEMPLATE_WITH_REWARD : DEFAULT_TEMPLATE_NO_REWARD;
@@ -213,17 +205,6 @@ const CustomersTab = ({
 
   useEffect(() => { load(); void refreshSuppression(); /* eslint-disable-next-line */ }, [biz.id]);
 
-  // Re-parse pasted text as the owner types. File rows are held separately so a
-  // keystroke never rewrites what was parsed out of an uploaded file.
-  useEffect(() => {
-    if (source !== "paste") return;
-    const result = parsePastedLines(paste);
-    setPasteRows(result.contacts);
-    setParseErrors(result.errors);
-  }, [paste, source]);
-
-  const preview = source === "file" ? fileRows : pasteRows;
-
   const existingKey = useMemo(() => {
     const s = new Set<string>();
     for (const c of contacts) {
@@ -233,34 +214,10 @@ const CustomersTab = ({
     return s;
   }, [contacts]);
 
-  const dedupedPreview = useMemo(() => {
-    const seen = new Set<string>();
-    const out: ParsedContact[] = [];
-    for (const p of preview) {
-      const k = (p.email ? "e:" + p.email.toLowerCase() : "") + "|" + (p.phone ? "p:" + p.phone.replace(/\D/g, "") : "");
-      if (seen.has(k)) continue;
-      const dup =
-        (p.email && existingKey.has("e:" + p.email.toLowerCase())) ||
-        (p.phone && existingKey.has("p:" + p.phone.replace(/\D/g, "")));
-      if (dup) continue;
-      seen.add(k);
-      out.push(p);
-    }
-    return out;
-  }, [preview, existingKey]);
-
-  const clearImport = () => {
-    setPaste("");
-    setPasteRows([]);
-    setFileRows([]);
-    setParseErrors([]);
-    setSource("paste");
-  };
 
   // Free allowance left. The database trigger is the real limit; this only
   // keeps the import from sending rows the server would refuse.
   const capped = !isPro && !isDemo;
-  const remaining = capped ? Math.max(0, FREE_CONTACT_LIMIT - contacts.length) : Infinity;
   const freeAllowedIds = useMemo(() => new Set([...contacts].sort((a,b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id)).slice(0, FREE_CONTACT_LIMIT).map(c => c.id)), [contacts]);
   const applyPlan = (c: ReferralContact, eligible: Eligibility): Eligibility => capped && !freeAllowedIds.has(c.id)
     ? { ...eligible, blocked: new Set<Channel>(["sms", "email", "share"]), canPrepare: false, reason: "Asks beyond your first 500 customers are paused on Free.", unknown: false }
@@ -272,81 +229,6 @@ const CustomersTab = ({
     } catch { return false; }
   };
 
-  const handleImport = async () => {
-    // Explain the no-op instead of returning quietly: pasted rows can all be
-    // duplicates or unparsable, which looks identical to a broken button.
-    if (dedupedPreview.length === 0) {
-      const hasInput = source === "file" ? fileRows.length > 0 || parseErrors.length > 0 : !!paste.trim();
-      toast({
-        title: hasInput ? "Nothing new to add" : "Paste your customers first",
-        description: hasInput
-          ? "Every row is already on your list or is missing a name with an email or phone number."
-          : "One customer per line, for example: Jane Smith, 555-123-4567",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (remaining <= 0) {
-      toast({ title: "Customer limit reached", description: FREE_LIMIT_COPY.error, variant: "destructive" });
-      return;
-    }
-    setImporting(true);
-    const allowed = Number.isFinite(remaining) ? dedupedPreview.slice(0, remaining) : dedupedPreview;
-    const skippedForCap = dedupedPreview.length - allowed.length;
-    const rows = allowed.map((p) => ({
-      business_id: biz.id,
-      name: p.name,
-      email: p.email || null,
-      phone: p.phone || null,
-      last_job_at: p.last_job_at || null,
-    }));
-    const { error } = await (supabase as any).from("referral_contacts").insert(rows);
-    setImporting(false);
-    if (error) {
-      reportFailure("customer_import", { error, business_id: biz.id });
-      toast({
-        title: "Import failed",
-        description: isFreeContactLimitError(error) ? FREE_LIMIT_COPY.error : friendlyError(error),
-        variant: "destructive",
-      });
-      return;
-    }
-    toast({
-      title: `Imported ${rows.length} contact${rows.length === 1 ? "" : "s"}`,
-      description: skippedForCap > 0
-        ? `${skippedForCap} skipped. ${FREE_LIMIT_COPY.error}`
-        : undefined,
-    });
-    clearImport();
-    load();
-    // A reimport must never resurrect someone who unsubscribed, so re-read the
-    // suppression list before any of the new rows can be prepared.
-    void refreshSuppression();
-  };
-
-  const handleCsv = async (file: File) => {
-    const text = await file.text();
-    const parsed = parseCsv(text);
-    setSource("file");
-    setPaste("");
-    setFileRows(parsed.contacts);
-    setParseErrors(parsed.errors);
-    if (parsed.contacts.length === 0) {
-      toast({
-        title: "No usable rows in that file",
-        description: parsed.errors.length
-          ? `First problem: line ${parsed.errors[0].line}, ${parsed.errors[0].reason.toLowerCase()}.`
-          : "Each row needs a name plus an email or phone number.",
-        variant: "destructive",
-      });
-      return;
-    }
-    const skipped = parsed.errors.length + parsed.duplicates;
-    toast({
-      title: `Loaded ${parsed.contacts.length} row${parsed.contacts.length === 1 ? "" : "s"} into preview`,
-      description: skipped ? `${skipped} row${skipped === 1 ? "" : "s"} skipped: see the list below.` : undefined,
-    });
-  };
 
   const messageFor = (c: ReferralContact) =>
     renderTemplate(template, {
@@ -916,103 +798,6 @@ const CustomersTab = ({
         </div>
       </div>
 
-      {/* Import */}
-      <div className="rounded-2xl border border-border bg-card p-6">
-        <h3 className="text-sm font-semibold text-foreground">Import customers</h3>
-        <p className="text-xs text-muted-foreground mt-1">
-          Paste your customer list. One per line, like <span className="font-mono">Name, email, phone, 2025-06-15</span>. The optional fourth column is the last job date, written as YYYY-MM-DD. We will dedupe against contacts you already have.
-        </p>
-        {capped && (
-          <p className="text-xs text-muted-foreground mt-1" data-testid="free-allowance">
-            Free plan: {contacts.length} of {FREE_CONTACT_LIMIT} customers used, {remaining} left.
-          </p>
-        )}
-        <Textarea
-          value={paste}
-          onChange={(e) => { setSource("paste"); setPaste(e.target.value); }}
-          placeholder={"Jane Smith, 555-123-4567\nMike Lee, mike@example.com\nSara Patel, 555-987-6543, sara@example.com"}
-          rows={6}
-          className="mt-4 font-mono text-xs"
-          aria-label="Paste customers"
-        />
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <Button
-            size="sm"
-            onClick={handleImport}
-            disabled={importing}
-            className="h-11 sm:h-9"
-          >
-            {importing ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
-            Add {dedupedPreview.length || ""} contact{dedupedPreview.length === 1 ? "" : "s"}
-          </Button>
-          <label className="inline-flex">
-            <input
-              type="file"
-              accept=".csv,text/csv"
-              className="hidden"
-              aria-label="CSV upload"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) handleCsv(f);
-                e.currentTarget.value = "";
-              }}
-            />
-            <span className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-border px-3 text-xs font-medium hover:bg-muted">
-              <Upload className="h-3.5 w-3.5" /> CSV upload
-            </span>
-          </label>
-          <span className="text-xs text-muted-foreground">
-            {preview.length > 0
-              ? `${preview.length} parsed, ${preview.length - dedupedPreview.length} duplicate${preview.length - dedupedPreview.length === 1 ? "" : "s"}`
-              : ""}
-          </span>
-        </div>
-
-        {parseErrors.length > 0 && (
-          <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
-            <p className="font-semibold">
-              {parseErrors.length} row{parseErrors.length === 1 ? "" : "s"} could not be used
-            </p>
-            <ul className="mt-1 space-y-0.5">
-              {parseErrors.slice(0, 6).map((e, i) => (
-                <li key={`${e.line}-${i}`}>Line {e.line}: {e.reason}</li>
-              ))}
-              {parseErrors.length > 6 && <li>and {parseErrors.length - 6} more</li>}
-            </ul>
-          </div>
-        )}
-
-        {dedupedPreview.length > 0 && (
-          <div className="mt-4 overflow-x-auto rounded-xl border border-border bg-muted/30">
-            <table className="w-full min-w-[420px] text-xs">
-              <thead className="bg-muted/50 text-muted-foreground uppercase tracking-wider">
-                <tr>
-                  <th className="text-left px-3 py-2 font-medium">Name</th>
-                  <th className="text-left px-3 py-2 font-medium">Phone</th>
-                  <th className="text-left px-3 py-2 font-medium">Email</th>
-                  <th className="text-left px-3 py-2 font-medium">Last job</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dedupedPreview.slice(0, 50).map((p, i) => (
-                  <tr key={`${p.sourceLine}-${i}`} className="border-t border-border">
-                    <td className="px-3 py-2 text-foreground">{p.name}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{p.phone || "·"}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{p.email || "·"}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{p.last_job_at?.slice(0, 10) || "·"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {dedupedPreview.length > 50 && (
-              <div className="px-3 py-2 text-xs text-muted-foreground border-t border-border">
-                Showing first 50 of {dedupedPreview.length}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
       {/* Template */}
       <div className="rounded-2xl border border-border bg-card p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1102,7 +887,7 @@ const CustomersTab = ({
           <div className="p-12 text-center">
             <Inbox className="h-11 w-11 sm:h-8 sm:w-8 mx-auto text-muted-foreground mb-3" />
             <p className="text-sm text-foreground font-medium">No contacts yet</p>
-            <p className="text-xs text-muted-foreground mt-1">Paste a list above to get started.</p>
+            <p className="text-xs text-muted-foreground mt-1">Bring your customers above to get started.</p>
           </div>
         ) : (
           <ul className="divide-y divide-border">

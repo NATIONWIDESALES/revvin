@@ -302,6 +302,20 @@
       "when": 1795560426786,
       "tag": "0042_funnel_events_referral_kit",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1795561218941,
+      "tag": "0043_print_kit_sends_and_storage",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1795561257122,
+      "tag": "0044_funnel_events_print_kit",
+      "breakpoints": true
     }
   ]
 }

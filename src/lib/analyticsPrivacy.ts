@@ -77,6 +77,8 @@ const MILESTONE_EVENTS = new Set([
   // First-run kit and list intake on /dashboard. Meta is at most a fixed
   // intake method or a fixed count bucket.
   "kit_ready_viewed", "kit_send_clicked", "intake_opened", "intake_send_us_clicked", "intake_import_succeeded",
+  // Print pack on /dashboard. Meta is at most one fixed print piece id.
+  "print_pdf_downloaded", "print_kit_downloaded", "print_kit_emailed", "print_pdf_failed",
 ]);
 const MILESTONE_PATHS = new Set(["/signup", "/auth", "/welcome", "/dashboard"]);
 
@@ -154,6 +156,7 @@ const CAMPAIGN_SEGMENTS = new Set(["m24_plus", "m12_24", "m6_12", "recent", "unk
 export const LAUNCH_RECIPIENT_BUCKETS = ["1-10", "11-50", "51-200", "201-500"] as const;
 const RECIPIENT_BUCKETS = new Set<string>(LAUNCH_RECIPIENT_BUCKETS);
 export const recipientBucket = (n: number) => (n <= 10 ? "1-10" : n <= 50 ? "11-50" : n <= 200 ? "51-200" : "201-500");
+const PRINT_ASSET_SET = new Set(["yard-sign", "door-hanger", "invoice-insert", "card-back", "truck-magnet"]);
 const INTAKE_METHOD_SET = new Set(["upload", "paste", "export_help", "send_us"]);
 const PUBLISH_SURFACES = new Set(["onboarding", "dashboard_banner", "share_tools", "checklist", "home_kit"]);
 const PUBLISH_REASONS = new Set<string>(PUBLISH_FAILURE_REASONS);
@@ -167,6 +170,7 @@ export function safeAnalyticsMeta(event: string, context: AnalyticsContext, inpu
   if (typeof input?.surface === "string" && (SURFACE_LABELS.has(input.surface as never) || PUBLISH_SURFACES.has(input.surface))) result.surface = input.surface;
   if (typeof input?.segment === "string" && CAMPAIGN_SEGMENTS.has(input.segment)) result.segment = input.segment;
   if (event === "intake_opened" && typeof input?.method === "string" && INTAKE_METHOD_SET.has(input.method)) result.method = input.method;
+  if ((event === "print_pdf_downloaded" || event === "print_pdf_failed") && typeof input?.asset === "string" && PRINT_ASSET_SET.has(input.asset)) result.asset = input.asset;
   if ((event === "launch_sent" || event === "intake_import_succeeded") && typeof input?.recipients === "string" && RECIPIENT_BUCKETS.has(input.recipients)) result.recipients = input.recipients;
   if (typeof input?.step === "string" && STEP_LABELS.has(input.step)) result.step = input.step;
   if (event === "publish_failed" && context.traffic === "product" && typeof input?.reason === "string" && PUBLISH_REASONS.has(input.reason)) result.reason = input.reason;
