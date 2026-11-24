@@ -366,5 +366,13 @@ async function sendReferralLaunch(supabase: any, userId: string, input: { subjec
   await supabase.from("campaigns").update(queued ? { total_recipients: queued } : { status: "failed", total_recipients: 0 }).eq("id", campaign.id);
   // Nothing went out, so a Free business keeps its one launch.
   if (!queued && plan !== "pro") await supabase.from("referral_launch_claims").delete().eq("business_id", business.id).eq("campaign_id", campaign.id);
-  return json({ campaign_id: campaign.id, queued, skipped: total(), reasons });
+  // The first launch with at least one queued email starts the 14-day Pro trial.
+  // Once per user, enforced in the database; a failure never blocks the send.
+  let trial: string | null = null;
+  if (queued) {
+    const { data: trialResult, error: trialError } = await supabase.rpc("fn_start_launch_trial", { p_business_id: business.id });
+    trial = trialError ? "error" : String(trialResult ?? "");
+    if (trialError) console.error("launch trial start failed", trialError.message);
+  }
+  return json({ campaign_id: campaign.id, queued, skipped: total(), reasons, trial });
 }

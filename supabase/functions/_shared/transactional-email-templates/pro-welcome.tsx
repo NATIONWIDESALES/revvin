@@ -25,9 +25,9 @@ const Email = ({ onTrial, trialEndsOn, businessName, customersUrl, unsubscribeUr
       {onTrial ? `Hi, it's the Revvin team. ${businessName || 'Your business'} has every Pro tool free until ${trialEndsOn}. No card is on file and nothing is charged automatically. Three steps and your past customers are working for you.` : <>Hi, it's the Revvin team. Thanks for going Pro{businessName ? ` with ${businessName}` : ''}. Three steps and your past
       customers are working for you.</>}
     </Text>
-    <Text style={step}>1. Import your past customers in the Customers tab. A CSV works, or paste them in.</Text>
-    <Text style={step}>2. Send your ask in batches from your own email, so it comes from you.</Text>
-    <Text style={step}>3. Add your business address in Campaigns before sending a reactivation email.</Text>
+    <Text style={step}>1. Bring your past customers in the Customers tab. Upload a CSV or Excel file, paste them in, or send us your list.</Text>
+    <Text style={step}>2. Add your business address and reply-to email in Ask your customers.</Text>
+    <Text style={step}>3. Send a launch campaign: Revvin emails every customer their own referral link from your business name, with two follow-ups.</Text>
     {customersUrl ? <Text style={{ margin: '16px 0 20px' }}>{ctaButton(customersUrl, 'Open the Customers tab')}</Text> : null}
     <Text style={paragraph}>
       {INSTALL_EMAIL_TIP} <a href="https://revvin.co/dashboard">revvin.co/dashboard</a>

@@ -71,7 +71,7 @@ const FAQS = [
   },
   {
     q: "What does Revvin Pro add?",
-    a: `Your referral page, lead inbox, QR code and print pack are free. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once, and adds importing your past-customer list, preparing the ask for that whole list, reactivation email campaigns, ROI reporting and custom page branding.`,
+    a: `Your referral page, lead inbox, QR code, print-ready kit, up to 500 customers and one launch campaign are free. Revvin Pro is ${PRICE_TEXT.monthlyPerMonth} USD, or ${PRICE_TEXT.annualPerYear} billed once, and adds unlimited customers, unlimited launch campaigns, automatic asks after every job through Job done or job software, win-back email campaigns, ROI reporting and custom page branding.`,
   },
 ];
 

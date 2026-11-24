@@ -2,7 +2,7 @@ import * as React from 'npm:react@18.3.1'
 import { Text } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 import { RevvinShell, ctaButton, heading, paragraph } from './revvin-shell.tsx'
-import { PRO_FEATURE_LABELS, PRO_PRICE_LINE } from '../pricing-copy.ts'
+import { PRO_FEATURE_LABELS, PRO_PRICE_LINE, TRIAL_LINE } from '../pricing-copy.ts'
 
 interface Props {
   businessName?: string
@@ -21,15 +21,15 @@ const Email = ({ businessName, pricingUrl, unsubscribeUrl, postalAddress }: Prop
   >
     <Text style={heading}>Ask your whole customer list in about 10 minutes</Text>
     <Text style={paragraph}>
-      Hi, it's the Revvin team. Asking one customer at a time works{businessName ? `, and ${businessName} can keep doing that for free` : ' and it is free'}.
-      Revvin Pro is for asking everyone.
+      Hi, it's the Revvin team. Asking one customer at a time works{businessName ? `, and ${businessName} can keep doing that for free` : ' and it is free'},
+      and Free includes one launch campaign to up to 500 customers. Revvin Pro keeps asking: unlimited campaigns to your whole list, and an automatic ask after every job.
     </Text>
     {PRO_FEATURE_LABELS.map((label) => (
       <Text key={label} style={item}>
         {label}
       </Text>
     ))}
-    <Text style={paragraph}>{PRO_PRICE_LINE}</Text>
+    <Text style={paragraph}>{PRO_PRICE_LINE} {TRIAL_LINE}</Text>
     {pricingUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(pricingUrl, 'See Revvin Pro')}</Text> : null}
     <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>

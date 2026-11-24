@@ -21,7 +21,7 @@ export const PRICING_FAQS = [
   {
     id: "p3",
     q: "What exactly is free?",
-    a: "Your referral page. Create your account, set up your offer, publish the page, share the link and QR code, and take referrals through it without paying anything. You can also import and ask up to 500 customers. That is not a trial and it does not expire. Referrer accounts are free too: send leads to businesses on Revvin and get paid directly, no card required. Pro is what you pay for, and it is the tools that ask your whole customer list for you.",
+    a: "Your referral page. Create your account, set up your offer, publish the page, share the link and QR code, and take referrals through it without paying anything. You can also bring up to 500 customers and send one launch campaign in which Revvin emails every customer their own referral link from your business name, with two follow-ups. That is not a trial and it does not expire. Referrer accounts are free too: send leads to businesses on Revvin and get paid directly, no card required. Pro is what you pay for: unlimited customers and campaigns and an automatic ask after every job. Pro is free for 14 days, starting when you send your first campaign. No card.",
   },
   {
     id: "p4",

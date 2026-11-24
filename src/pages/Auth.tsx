@@ -72,7 +72,7 @@ const Auth = () => {
     <AuthSplit>
       <SEOHead
         title="Revvin | Sign in or create your account"
-        description={`Sign in to your Revvin dashboard or create an account. Businesses build and publish their referral page free. Pro is optional at ${PRICE_TEXT.monthlyPerMonth} USD with a 14-day trial, no card required. Referrers join free.`}
+        description={`Sign in to your Revvin dashboard or create an account. Businesses build and publish their referral page free. Pro is optional at ${PRICE_TEXT.monthlyPerMonth} USD, free for 14 days from your first campaign, no card required. Referrers join free.`}
         path="/auth"
         noindex
       />

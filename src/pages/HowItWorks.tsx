@@ -10,20 +10,26 @@ import FinalBand from "@/components/marketing/FinalBand";
 const steps = [
   {
     n: "01",
-    t: "Set up your page and load your customer list",
-    d: "Add your business name, logo, service area, and referral offer, then pick your custom Revvin URL. Import the customers who have already paid you. That one list is what the whole engine runs on. Building and publishing your page is free.",
+    t: "Build your referral page",
+    d: "Add your business name, logo, service area, and referral reward, then pick your custom Revvin URL. Your QR code and print-ready kit come with it. Building and publishing your page is free.",
     visual: <MockPageBuilder />,
   },
   {
     n: "02",
-    t: "Mark jobs done and let the asks fire",
-    d: "When a job is finished, send the review ask with a pre-written message, then follow up with the customers who said they were happy and ask them to refer someone. The referral ask is personalized with the customer name and the service, and opens in your own texting or email app, so it comes from you. Customers who have not booked in a while get a pre-written rebooking message the same way.",
+    t: "Bring your customer list",
+    d: "Upload a CSV or Excel file, paste a list, or send it to us and we load it. Free covers up to 500 customers. Every customer gets their own personal referral link.",
     visual: <MockQRCard />,
   },
   {
     n: "03",
-    t: "Work the leads and pay your referrers",
-    d: "Every referral lands in your inbox with the lead's name, contact, and what they need, and you can text or call back in one tap. Move it through your statuses to closed. Revvin tracks the reward from pending to paid and notifies your referrer at both moments, but you pay them directly. Revvin never touches the money. The ROI scoreboard on your dashboard shows what the loops returned.",
+    t: "Revvin asks every customer for you and follows up",
+    d: "Revvin emails every customer their own referral link from your business name, then follows up twice. You can also ask any customer one at a time from your own phone or email app.",
+    visual: null,
+  },
+  {
+    n: "04",
+    t: "Referrals land in your inbox and you pay when the job closes",
+    d: "Every referral lands in your inbox with the lead's name, contact, and what they need, and you can text or call back in one tap. Revvin tracks the reward from pending to paid and notifies your referrer at both moments, but you pay them directly. Revvin never touches the money.",
     visual: <MockLeadsTable />,
   },
 ];
@@ -43,14 +49,14 @@ const HowItWorks = () => {
             How Revvin turns finished jobs into referrals.
           </h1>
           <p className="mt-5 text-lg text-muted-foreground">
-            Set up your page once, then send the asks yourself with pre-written messages after each finished job. Referrals, repeat work, and reviews from the customer list you already have. You handle the relationship.
+            Set up your page once, bring your customer list, and Revvin emails every customer their own referral link and follows up. Referrals, repeat work, and reviews from the customer list you already have. You handle the relationship.
           </p>
         </div>
       </section>
 
       <section className="mk-section border-b border-line bg-card" aria-labelledby="track-heading">
         <div className="mk-wrap">
-          <h2 id="track-heading" className="mk-h2">How one text turns into a booked job</h2>
+          <h2 id="track-heading" className="mk-h2">How your customer list turns into booked jobs</h2>
           <StepTrack />
         </div>
       </section>
@@ -64,9 +70,11 @@ const HowItWorks = () => {
                 <h2 className="text-3xl md:text-4xl">{s.t}</h2>
                 <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">{s.d}</p>
               </div>
-              <div className={`md:col-span-6 ${i % 2 === 1 ? "md:order-1" : ""}`}>
-                <div className="mx-auto max-w-md">{s.visual}</div>
-              </div>
+              {s.visual && (
+                <div className={`md:col-span-6 ${i % 2 === 1 ? "md:order-1" : ""}`}>
+                  <div className="mx-auto max-w-md">{s.visual}</div>
+                </div>
+              )}
             </div>
           ))}
         </div>

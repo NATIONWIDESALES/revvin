@@ -68,7 +68,7 @@ it("real 0020 migration publishes a fresh signup on the first attempt with owner
     SELECT set_config('request.jwt.claim.sub','${fresh}',false); SET ROLE authenticated;
     UPDATE businesses SET name='Fresh Roofing',slug='fresh-roofing',offer_amount='500',category='Roofing',service_area='Dallas, TX' WHERE user_id='${fresh}';`);
   expect((await db.query<{ published: boolean; slug: string }>("SELECT * FROM fn_set_business_published(true)")).rows).toEqual([{ published: true, slug: "fresh-roofing" }]);
-  expect((await db.query<{ reward: string; trial: boolean; verified: boolean }>(`SELECT offer_amount reward,pro_trial_ends_at>now() trial,is_verified verified FROM businesses WHERE user_id='${fresh}'`)).rows[0]).toEqual({ reward: "$500", trial: true, verified: false });
+  expect((await db.query<{ reward: string; trial: boolean; verified: boolean }>(`SELECT offer_amount reward,pro_trial_ends_at>now() trial,is_verified verified FROM businesses WHERE user_id='${fresh}'`)).rows[0]).toEqual({ reward: "$500", trial: null, verified: false });
   for (const patch of ["is_published=false", "account_status='disabled'", "is_verified=true", "pro_trial_ends_at=now()+interval '30 days'", "subscription_status='active'"]) {
     await expect(db.exec(`UPDATE businesses SET ${patch} WHERE user_id='${fresh}'`)).rejects.toThrow();
   }

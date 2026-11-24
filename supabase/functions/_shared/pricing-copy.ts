@@ -27,11 +27,17 @@ export const LAUNCH_PACKAGE_LINE =
 
 /** Mirrors PRO_FEATURES in src/config/planFeatures.ts (labels only). */
 export const PRO_FEATURE_LABELS: string[] = [
-  "Unlimited customers, imported and asked",
+  "Unlimited customers",
+  "Unlimited launch campaigns",
   "Automatic ask after each job",
-  "API and Zapier connection",
-  "Send your ask to the whole list",
-  "Reactivation email campaigns",
+  "Win-back email campaigns",
   "ROI reporting and monthly recap",
   "Custom page branding",
 ];
+
+/** Mirrors TRIAL_LINE in src/config/planFeatures.ts. */
+export const TRIAL_LINE = "Pro is free for 14 days, starting when you send your first campaign. No card.";
+
+/** One sentence for the Free launch campaign, used in lifecycle email. */
+export const FREE_LAUNCH_LINE =
+  "Free includes one launch campaign: Revvin emails every customer their own referral link from your business name, with two follow-ups.";

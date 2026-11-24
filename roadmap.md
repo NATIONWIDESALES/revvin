@@ -215,3 +215,10 @@
 - [x] Launch composer and results under "Ask your customers"; Home next step; 25 to 500 in plan copy.
 - [ ] Signed-in preview walkthrough as QA Test Plumbing. Blocked: signing in as that account needs owner approval, not available this turn. Covered by a component test with its data instead.
 - [ ] trial-ending email number update needs lifecycle-emails deploy (not deployed this run).
+
+# Trial at first launch and one plan story (run 4 of 4), November 24
+- [x] Migrations 0045 (trial starts at first launch, once per user) and 0046 (owner read of trial availability); send-campaign starts the trial.
+- [x] Free/Pro/trial facts in planFeatures.ts reused across pages, emails, legal, llms.txt, FAQ and structured data; stale statements removed.
+- [x] Homepage eyebrow, hero paragraph and four how-it-works steps; hero marketplace promise removed.
+- [x] Deployed changed functions; lazy chunk check; full suite 1,628 passed, 3 skipped.
+- [ ] Signed-in check of the trial note and a real first-launch trial start. Blocked: no approved test sign-in; covered by database and component tests.

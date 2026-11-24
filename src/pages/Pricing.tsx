@@ -23,7 +23,7 @@ import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricin
 import LeadCaptureForm from "@/components/marketing/LeadCaptureForm";
 import HowPayoutsWork from "@/components/marketing/HowPayoutsWork";
 import WorksWithJobSoftware from "@/components/marketing/WorksWithJobSoftware";
-import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT, FREE_CTA_LABEL } from "@/config/planFeatures";
+import { FREE_FEATURES, PRO_FEATURES, PLAN_SPLIT, FREE_CTA_LABEL, TRIAL_LINE } from "@/config/planFeatures";
 import { SETUP_CALL_URL } from "@/config/setupCall";
 import { APP_ID, ORG_ID, SITE_URL } from "@/config/brand";
 import { MONTHLY_PRICE, ANNUAL_PRICE } from "@/config/pricing";
@@ -80,8 +80,7 @@ const Pricing = () => {
               price: "0",
               priceCurrency: "USD",
               url: `${SITE_URL}/pricing`,
-              description:
-                "Free referral page, personal referrer links, QR code and print pack, lead inbox, referral email alerts, reward tracking, mobile use, optional marketplace listing, and importing and asking up to 500 customers from your own phone or email app.",
+              description: PLAN_SPLIT.freeDetail,
             },
             {
               "@type": "Offer",
@@ -114,7 +113,7 @@ const Pricing = () => {
             {PLAN_SPLIT.line}
           </h1>
           <p className="mt-5 text-lg text-foreground">{PLAN_SPLIT.subline}</p>
-          <p className="mt-4 text-muted-foreground">Every new account gets Pro free for 14 days. No card.</p>
+          <p className="mt-4 text-muted-foreground">{TRIAL_LINE}</p>
           <div className="mx-auto mt-6 grid max-w-2xl gap-3 text-left sm:grid-cols-2">
             <div className="rounded-xl border border-border bg-card p-4">
               <p className="text-sm font-semibold text-foreground">Free: {PLAN_SPLIT.freeSubtitle.toLowerCase()}</p>
@@ -286,7 +285,7 @@ const Pricing = () => {
           <p className="mb-8 text-sm text-muted-foreground">{LAUNCH_GUARANTEE}</p>
           <h2 className="text-3xl md:text-4xl">What you get with Pro</h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Free gives you the referral page and up to 500 customers to ask from your own device. Pro adds unlimited customers and automatic job-completion review and referral asks through Job done, job software, API and Zapier. With Pro, import your past customers, have Revvin email a reactivation campaign to the group you choose from your business name, with replies going to your own inbox, or work through them in batches with each ask opening in your own phone or email app. You also get ROI reporting with a monthly recap and custom page branding. The print pack of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. The Pro features are the same on monthly and annual. There are no per-send charges.
+            Free gives you the referral page, the print-ready kit, up to 500 customers and one launch campaign in which Revvin emails every customer their own referral link from your business name, with two follow-ups. Pro adds unlimited customers, unlimited launch campaigns to your whole list, and an automatic review and referral ask after every job through Job done, job software, API or Zapier. Pro also includes win-back email campaigns to the group you choose, sent from your business name with replies going to your own inbox, ROI reporting with a monthly recap and custom page branding. The print kit of yard signs, door hangers, invoice inserts, business cards and truck magnets is in Free, not Pro. {TRIAL_LINE} The Pro features are the same on monthly and annual. There are no per-send charges.
           </p>
         </div>
       </section>

@@ -58,6 +58,6 @@ describe("stable upgrade feature lookup", () => {
   });
   it("customers combines unlimited customers and automatic asks", () => {
     expect(PRO_COPY.customers.title).toBe("Automatic ask after each job");
-    expect(PRO_COPY.customers.body).toBe(`${PRO_FEATURES.find(f=>f.label === "Unlimited customers, imported and asked")?.description} ${PRO_FEATURES.find(f=>f.label === "Automatic ask after each job")?.description}`);
+    expect(PRO_COPY.customers.body).toBe(`${PRO_FEATURES.find(f=>f.label === "Unlimited customers")?.description} ${PRO_FEATURES.find(f=>f.label === "Automatic ask after each job")?.description}`);
   });
 });

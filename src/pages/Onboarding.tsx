@@ -1,3 +1,4 @@
+import { TRIAL_LINE } from "@/config/planFeatures";
 import { useEffect, useRef, useState } from "react";
 import { reportFailure } from "@/lib/reportFailure";
 import AuthSplit from "@/components/AuthSplit";
@@ -270,7 +271,7 @@ const Onboarding = () => {
               <form onSubmit={(e) => { e.preventDefault(); void publishNow(); }} noValidate>
                 <h1 className="text-4xl sm:text-5xl">{alreadyPublished ? "Edit your page" : "Your referral page, live in a minute"}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">Four answers and you are live. Publishing is free.</p>
-                <p className="mt-2 text-sm text-muted-foreground">Every new account gets Pro free for 14 days. No card.</p>
+                <p className="mt-2 text-sm text-muted-foreground">{TRIAL_LINE}</p>
                 <div className="mt-6 space-y-4">
                   <div>
                     <Label htmlFor="biz-name">Business name</Label>

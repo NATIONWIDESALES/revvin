@@ -1,3 +1,4 @@
+import { TRIAL_LINE } from "@/config/planFeatures";
 import { useState, useEffect, useRef } from "react";
 import { reportFailure } from "@/lib/reportFailure";
 import { Link, useNavigate } from "react-router-dom";
@@ -333,6 +334,6 @@ const SignupForm = ({
 export const SIGNUP_SUBHEAD = (inviteCode: string | null) =>
   inviteCode
     ? "Publishing your page is free. Your invite also gets you Revvin Pro at a discount when you want it."
-    : "Build your referral page, offer and QR code, and publish it free. Every new account gets Pro free for 14 days. No card.";
+    : `Build your referral page, offer and QR code, and publish it free. ${TRIAL_LINE}`;
 
 export default SignupForm;

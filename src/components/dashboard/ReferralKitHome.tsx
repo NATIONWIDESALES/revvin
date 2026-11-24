@@ -1,3 +1,4 @@
+import { TRIAL_SEND_NOTE } from "@/config/planFeatures";
 import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,8 @@ interface Props {
   onPublished: () => Promise<void> | void;
   /** The list intake, already wrapped in the customer permission gate. */
   renderIntake: () => React.ReactNode;
+  /** Server says the first send would still start the free Pro trial. */
+  trialNote?: boolean;
 }
 
 const Card = ({ title, children, testId }: { title: string; children: React.ReactNode; testId: string }) => (
@@ -36,7 +39,7 @@ const Card = ({ title, children, testId }: { title: string; children: React.Reac
   </section>
 );
 
-const ReferralKitHome = ({ biz, publicUrl, displayUrl, isLive, customersTotal, onCopy, onGo, onPublished, renderIntake }: Props) => {
+const ReferralKitHome = ({ biz, publicUrl, displayUrl, isLive, customersTotal, onCopy, onGo, onPublished, renderIntake, trialNote = false }: Props) => {
   const { toast } = useToast();
   const [intakeOpen, setIntakeOpen] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -103,6 +106,7 @@ const ReferralKitHome = ({ biz, publicUrl, displayUrl, isLive, customersTotal, o
         <Button variant="sign" size="lg" data-testid="kit-send" className="h-14 w-full text-lg sm:w-auto" onClick={() => void send()} disabled={publishing}>
           {publishing && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}{action.label}
         </Button>
+        {trialNote && <p className="mt-3 text-sm font-semibold" data-testid="kit-trial-note">{TRIAL_SEND_NOTE}</p>}
         <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
           <a href="?tab=customers" onClick={(e) => { e.preventDefault(); onGo("customers"); }} className="font-semibold text-white underline underline-offset-2">Text it yourself instead</a>
           <a href="?tab=share" onClick={(e) => { e.preventDefault(); onGo("share"); }} className="font-semibold text-white underline underline-offset-2">Print it instead</a>

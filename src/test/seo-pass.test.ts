@@ -100,10 +100,10 @@ describe("structured data", () => {
     }
   });
 
-  it("SoftwareApplication matches the plans: Free imports and asks up to 500 and gives every referrer a link", () => {
-    expect(SOFTWARE_DESCRIPTION).toMatch(/Free includes: [^.]*import and ask up to 500 customers/);
-    expect(SOFTWARE_DESCRIPTION).toMatch(/Free includes: [^.]*a personal link for every referrer/);
-    expect(SOFTWARE_DESCRIPTION).toMatch(/adds unlimited customers, imported and asked, [^.]*reactivation email campaigns, roi reporting and monthly recap, custom page branding/);
+  it("SoftwareApplication matches the plans: Free brings up to 500 customers, one launch campaign and a link for every customer", () => {
+    expect(SOFTWARE_DESCRIPTION).toMatch(/Free includes: [^.]*bring up to 500 customers, one launch campaign/);
+    expect(SOFTWARE_DESCRIPTION).toMatch(/Free includes: [^.]*a personal link for every customer/);
+    expect(SOFTWARE_DESCRIPTION).toMatch(/adds unlimited customers, unlimited launch campaigns, automatic ask after each job, win-back email campaigns, roi reporting and monthly recap, custom page branding/);
     for (const p of ["/", "/pricing"]) {
       const sw = graphOf(renderRoute(template, live.find((r) => r.path === p)!)).find((n) => n["@type"] === "SoftwareApplication")!;
       expect(sw.description).toBe(SOFTWARE_DESCRIPTION);

@@ -21,8 +21,8 @@ const Email = ({ businessName, pricingUrl, unsubscribeUrl, postalAddress }: Prop
       Hi, it's the Revvin team. {businessName || 'Your page'} got its first referral. That is the hard one.
     </Text>
     <Text style={paragraph}>
-      The next ones come faster when every past customer has seen your link. Revvin Pro imports your whole list and helps
-      you ask everyone in a few batches, sent from your own email.
+      The next ones come faster when every past customer has seen your link. Revvin Pro removes the customer limit, runs
+      unlimited launch campaigns to your whole list and sends an automatic ask after every job.
     </Text>
     {pricingUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(pricingUrl, 'See Revvin Pro')}</Text> : null}
     <Text style={paragraph}>The Revvin team</Text>

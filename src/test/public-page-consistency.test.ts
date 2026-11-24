@@ -37,8 +37,8 @@ describe("print pack entitlement", () => {
   });
 
   it("is listed under Free, and not under Pro", () => {
-    expect(FREE_FEATURES.some((feature) => /print pack/i.test(feature.label))).toBe(true);
-    expect(PRO_FEATURES.some((feature) => /print pack/i.test(`${feature.label} ${feature.description}`))).toBe(false);
+    expect(FREE_FEATURES.some((feature) => /print-ready kit/i.test(feature.label))).toBe(true);
+    expect(PRO_FEATURES.some((feature) => /print/i.test(`${feature.label} ${feature.description}`))).toBe(false);
   });
 
   it("renders the full shared lists on pricing, and the shared split line on the homepage", () => {

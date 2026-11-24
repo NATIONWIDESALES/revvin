@@ -96,7 +96,7 @@ describe("price source congruency", () => {
     const llms = read("public/llms.txt");
     const prices = llms.match(/Revvin Pro is (\$[\d.]+)\/month USD, or (\$[\d.]+)\/year USD billed once/);
     expect(prices?.slice(1)).toEqual([PRICE_TEXT.monthly, PRICE_TEXT.annual]);
-    expect(Number(llms.match(/Import and ask up to (\d+) customers/)?.[1])).toBe(FREE_CONTACT_LIMIT);
+    expect(Number(llms.match(/Bring up to (\d+) customers/)?.[1])).toBe(FREE_CONTACT_LIMIT);
   });
   it("the static entry document's own Pro prices match the config", () => {
     const html = read("index.html");

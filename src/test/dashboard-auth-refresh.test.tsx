@@ -33,7 +33,7 @@ vi.mock("@/integrations/supabase/client", () => ({ supabase: {
     };
     const query = { select: () => query, eq: () => query, order: () => query, limit: result, then: (resolve: (value: unknown) => unknown) => result().then(resolve) };
     return { ...query, update: (patch: unknown) => ({ eq: async () => { h.updates(table, patch); return { error: null }; } }) };
-  }, functions: { invoke: vi.fn(async () => ({ data: {}, error: null })) },
+  }, rpc: async () => ({ data: false, error: null }), functions: { invoke: vi.fn(async () => ({ data: {}, error: null })) },
 } }));
 
 import BusinessDashboard from "@/pages/dashboard/BusinessDashboard";

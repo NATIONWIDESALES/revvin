@@ -80,14 +80,12 @@ const Index = () => {
       <div className="mk-wrap grid items-end gap-10 lg:grid-cols-[1.1fr_.9fr]">
         <div className="min-w-0 pb-0 lg:pb-[72px]">
           <h1 className="max-w-[13.5ch] font-display text-[clamp(38px,6.2vw,88px)] max-sm:text-[38px] max-sm:leading-[.95] leading-[.92] text-forest">
-            <span className="mb-4 block font-sans text-sm font-semibold leading-normal text-muted-foreground">Free referral program software for home-service businesses</span>{" "}
+            <span className="mb-4 block font-sans text-sm font-semibold leading-normal text-muted-foreground">{HOME_SEO.eyebrow}</span>{" "}
             Your happy customers are your best salespeople.{" "}
             <span className="block text-foreground">Put them to work.</span>
           </h1>
           <p className="mt-7 max-w-[34em] text-[21px] leading-normal text-muted-foreground">
-            Revvin sets up your referral program in 5 minutes.{" "}
-            <strong className="font-semibold text-foreground">Every customer gets a personal link, every finished job sends an ask,</strong>{" "}
-            and as Revvin opens city by city, locals who earn rewards for referrals will be able to find you. You pay a reward only when a job closes.
+            {HOME_SEO.sub}
           </p>
           <InstantPreview onPreview={setPreview} />
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -96,7 +94,7 @@ const Index = () => {
             </Button>
           </div>
           <p className="mt-[18px] text-base text-muted-foreground">
-            <span>Every new account gets Pro free for 14 days. No card.</span>
+            <span>{HOME_SEO.underCta}</span>
             {SETUP_CALL_URL && (
               <>
                 {" "}Or{" "}
@@ -117,8 +115,8 @@ const Index = () => {
     {/* Journey */}
     <section className="mk-section border-y border-line bg-card" aria-labelledby="journey-heading">
       <div className="mk-wrap">
-        <h2 id="journey-heading" className="mk-h2">How one referral text turns into a booked job</h2>
-        <p className="mk-intro">No app for your customers to download and no software to learn. Revvin writes the ask, you send it from your own phone, and every referral comes back to one inbox.</p>
+        <h2 id="journey-heading" className="mk-h2">How your customer list turns into booked jobs</h2>
+        <p className="mk-intro">No app for your customers to download and no software to learn. Revvin emails every customer their own link, follows up twice, and every referral comes back to one inbox.</p>
         <StepTrack />
       </div>
     </section>

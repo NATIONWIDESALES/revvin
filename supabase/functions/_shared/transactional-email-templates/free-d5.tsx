@@ -25,7 +25,7 @@ const Email = ({ businessName, askMessage, dashboardUrl, unsubscribeUrl, postalA
     <Text style={paragraph}>Pick 10 customers from the last 6 months and send them your link. This is the message.</Text>
     {askMessage ? <Text style={quoted}>{askMessage}</Text> : null}
     {dashboardUrl ? <Text style={{ margin: '0 0 20px' }}>{ctaButton(dashboardUrl, 'Open my dashboard')}</Text> : null}
-    <Text style={paragraph}>When you want to ask your whole list at once, that is what Revvin Pro is for.</Text>
+    <Text style={paragraph}>Or bring your list and send your free launch campaign: Revvin emails every customer their own referral link from your business name and follows up twice.</Text>
     <Text style={paragraph}>The Revvin team</Text>
   </RevvinShell>
 )

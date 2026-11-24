@@ -9,6 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Send } from "lucide-react";
 import ProUpsell from "@/components/dashboard/ProUpsell";
+import { PRO_UPSELL_KEEP_ASKING, TRIAL_SEND_NOTE } from "@/config/planFeatures";
+import { useLaunchTrialAvailable } from "@/lib/launchTrial";
 import SenderLine from "@/components/dashboard/SenderLine";
 import { friendlyError } from "@/lib/errors";
 import { track } from "@/lib/track";
@@ -88,6 +90,7 @@ const ReferralLaunchSection = ({ biz, publicUrl, isPro, ready, onGo, onLaunchSen
   const [followups, setFollowups] = useState(true);
   const [sending, setSending] = useState(false);
   const [freeUsedByServer, setFreeUsedByServer] = useState(false);
+  const trialNote = useLaunchTrialAvailable(biz.id);
 
   const load = useCallback(async () => {
     const [{ data: contactRows }, { data: launchRows }] = await Promise.all([
@@ -207,7 +210,7 @@ const ReferralLaunchSection = ({ biz, publicUrl, isPro, ready, onGo, onLaunchSen
           </div>
         ) : freeUsed ? (
           <div className="mt-5">
-            <ProUpsell title="Ask your customers again" body="Pro keeps asking: every new customer, after every job, and your whole list each quarter." />
+            <ProUpsell title="Ask your customers again" body={PRO_UPSELL_KEEP_ASKING} />
           </div>
         ) : !ready ? (
           <p className="mt-4 text-sm text-muted-foreground">Finish your sending details above, then come back here to send.</p>
@@ -258,6 +261,7 @@ const ReferralLaunchSection = ({ biz, publicUrl, isPro, ready, onGo, onLaunchSen
               {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
               Ask all {n} customers
             </Button>
+            {trialNote && <p className="mt-2 text-sm font-semibold text-foreground" data-testid="launch-trial-note">{TRIAL_SEND_NOTE}</p>}
             <p className="mt-3 text-xs text-muted-foreground">This sends real email. Revvin checks opt-outs again right before each email goes out.{!isPro ? " Free includes one launch, with its two follow-ups." : ""}</p>
           </>
         )}

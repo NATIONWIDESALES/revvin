@@ -1,3 +1,4 @@
+import { FREE_LAUNCH_LINE, TRIAL_LINE } from '../pricing-copy.ts'
 import * as React from 'npm:react@18.3.1'
 import { Text } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
@@ -40,6 +41,7 @@ const Email = ({ businessName, publicUrl, isPublished, unsubscribeUrl }: Props) 
           <Text style={{ margin: '0 0 20px' }}>{ctaButton(FINISH_URL, 'Finish my page')}</Text>
         </>
       )}
+      <Text style={paragraph}>{FREE_LAUNCH_LINE} {TRIAL_LINE}</Text>
       <Text style={paragraph}>
         {INSTALL_EMAIL_TIP} <a href="https://revvin.co/dashboard">revvin.co/dashboard</a>
       </Text>

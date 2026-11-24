@@ -6,8 +6,8 @@ import { PRICE_TEXT } from "../config/pricing";
 export const HOME_FAQS: { q: string; a: string }[] = [
   {
     q: "Is it really free?",
-    a: "Yes. Your referral page is free, every referral that comes through it is free with no limit, and you can import and ask up to 500 customers. No card, and it does not expire. Revvin Pro is " +
-      `${PRICE_TEXT.monthlyPerMonth} or ${PRICE_TEXT.annualPerYear} if you want to ask your whole list.`,
+    a: "Yes. Your referral page is free, every referral that comes through it is free with no limit, and you can bring up to 500 customers and send one launch campaign to all of them, with two follow-ups. No card, and it does not expire. Revvin Pro is " +
+      `${PRICE_TEXT.monthlyPerMonth} or ${PRICE_TEXT.annualPerYear} for unlimited customers and campaigns. Pro is free for 14 days, starting when you send your first campaign. No card.`,
   },
   {
     q: "How do I pay my referrers?",
@@ -15,7 +15,7 @@ export const HOME_FAQS: { q: string; a: string }[] = [
   },
   {
     q: "What if nobody refers?",
-    a: "Most referrals come from asking. Revvin Pro sends the ask after every job you mark done, gives you a print pack for invoices and yard signs, and you can book a free 30-minute setup call. We cannot guarantee referrals, but we make asking easy.",
+    a: "Most referrals come from asking. On Free, Revvin emails every customer their own link and follows up twice, and you get a print-ready kit for invoices and yard signs. Revvin Pro also sends the ask after every job you mark done, and you can book a free 30-minute setup call. We cannot guarantee referrals, but we make asking easy.",
   },
   {
     q: "Can my techs and reps have their own links?",

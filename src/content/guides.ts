@@ -334,7 +334,7 @@ const BASE_GUIDES: Guide[] = [
       },
       {
         heading: "Asking your past customers, in batches",
-        body: "The people who have already paid you are the fastest source of referrals and the one most owners never touch. On Revvin Pro you can paste in that list and send your ask in batches: Revvin prepares the message and opens your own email app with the recipients filled in, so it goes out from your address, not from a platform. That is why the ask always looks like you. If you would rather Revvin sent it, the Campaigns tab does that by email instead, with an unsubscribe link in every message.",
+        body: "The people who have already paid you are the fastest source of referrals and the one most owners never touch. On Revvin, even on Free, you can bring up to 500 of them and send one launch campaign: Revvin emails every customer their own referral link from your business name, follows up twice, and puts an unsubscribe link in every message. You can also ask any customer one at a time from your own phone or email app, so the ask comes from your address. Pro adds unlimited customers and campaigns.",
       },
       {
         heading: "The scripts",

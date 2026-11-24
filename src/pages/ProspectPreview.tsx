@@ -1,3 +1,4 @@
+import { TRIAL_LINE } from "@/config/planFeatures";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -212,8 +213,8 @@ const ProspectPreviewPage = () => {
               <ol className="mt-6 grid gap-4 sm:grid-cols-3">
                 {[
                   { t: "Create your free account", b: "Everything on this page is carried over: name, trade, reward and city." },
-                  { t: "Publish in one tap", b: "Your page goes live on your own Revvin link, free for your first 500 customers." },
-                  { t: "Send your first ask", b: "Every new account gets Pro free for 14 days, no card. Ask a past customer today." },
+                  { t: "Publish in one tap", b: "Your page goes live on your own Revvin link, free for up to 500 customers." },
+                  { t: "Send your first ask", b: `Revvin emails every customer their own referral link. ${TRIAL_LINE}` },
                 ].map((s, i) => (
                   <li key={s.t} className="rounded-2xl border-[1.5px] border-line bg-card p-6">
                     <p className="font-display text-3xl font-extrabold text-green">{i + 1}</p>

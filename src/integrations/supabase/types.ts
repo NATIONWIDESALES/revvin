@@ -194,14 +194,17 @@ export type Database = {
       business_trial_history: {
         Row: {
           granted_at: string
+          launch_granted_at: string | null
           user_id: string
         }
         Insert: {
           granted_at?: string
+          launch_granted_at?: string | null
           user_id: string
         }
         Update: {
           granted_at?: string
+          launch_granted_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -3676,6 +3679,10 @@ export type Database = {
         Args: { p_campaign_id: string }
         Returns: Json
       }
+      fn_launch_trial_available: {
+        Args: { p_business_id: string }
+        Returns: boolean
+      }
       fn_me_email_eligible: { Args: { p_email: string }; Returns: boolean }
       fn_monitor_health: { Args: never; Returns: Json }
       fn_monitor_scheduled_http: { Args: never; Returns: Json }
@@ -3821,6 +3828,10 @@ export type Database = {
       fn_slug_reserved_words: { Args: never; Returns: string[] }
       fn_slug_status: { Args: { p_slug: string }; Returns: string }
       fn_smoke_customer_journey: { Args: never; Returns: Json }
+      fn_start_launch_trial: {
+        Args: { p_business_id: string }
+        Returns: string
+      }
       fn_submit_earn_lead: {
         Args: {
           p_business_contact?: string

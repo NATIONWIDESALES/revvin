@@ -29,7 +29,7 @@ import { PRICE_TEXT } from "../config/pricing";
 // PLAN_SPLIT is the single source for the Free/Pro split line used on the
 // homepage, pricing page and invite landing; importing it here keeps the
 // prerendered HTML from drifting from the rendered pages.
-import { PLAN_SPLIT } from "../config/planFeatures";
+import { PLAN_SPLIT, TRIAL_LINE } from "../config/planFeatures";
 import { SAMPLE_META } from "./samplePage";
 import { HOME_FAQS } from "./homeFaqs";
 import { PRICING_FAQS } from "./pricingFaqs";
@@ -171,7 +171,7 @@ const toolkitRoutes: PrerenderRoute[] = [
       },
       {
         heading: "From free tool to working system",
-        body: `The tools prepare the decisions; Revvin runs the loop. Choose the offer, create the page, share the link and QR code, track the referral, close the job, record the reward. Publishing your referral page is free with no card, and you pay your referrer directly when a job closes and your stated condition is met. Revvin adds no platform fee; your payment method may charge its own fees. Revvin Pro is ${PRO} and adds importing your past-customer list, preparing the ask for that whole list, reactivation email campaigns, ROI reporting and custom page branding.`,
+        body: `The tools prepare the decisions; Revvin runs the loop. Choose the offer, create the page, share the link and QR code, track the referral, close the job, record the reward. Publishing your referral page is free with no card, and you pay your referrer directly when a job closes and your stated condition is met. Revvin adds no platform fee; your payment method may charge its own fees. Revvin Pro is ${PRO} and adds unlimited customers, unlimited launch campaigns, automatic asks after every job through Job done or job software, win-back email campaigns, ROI reporting and custom page branding.`,
       },
     ],
     faqs: [
@@ -189,7 +189,7 @@ const toolkitRoutes: PrerenderRoute[] = [
       },
       {
         q: "What does Revvin Pro add?",
-        a: `Your referral page, lead inbox, QR code and print pack are free. Revvin Pro is ${PRO}, or ${PRICE_TEXT.annualPerYear} billed once, and adds importing your past-customer list, preparing the ask for that whole list, reactivation email campaigns, ROI reporting and custom page branding.`,
+        a: `Your referral page, lead inbox, QR code, print-ready kit, up to 500 customers and one launch campaign are free. Revvin Pro is ${PRO}, or ${PRICE_TEXT.annualPerYear} billed once, and adds unlimited customers, unlimited launch campaigns, automatic asks after every job through Job done or job software, win-back email campaigns, ROI reporting and custom page branding.`,
       },
     ],
   },
@@ -268,9 +268,10 @@ const handwritten: PrerenderRoute[] = [
     sections: [
       { heading: "What Revvin is", body: CANONICAL_SENTENCE },
       { heading: "Your customers sell for you", body: HOME_SEO.sub },
-      { heading: "Set your reward", body: "Pick what a closed job is worth to you, like $100 or $250." },
-      { heading: "Ask your customers", body: "Import your list. Revvin writes the text, you send it from your own phone." },
-      { heading: "Get the job, pay the reward", body: "Referrals land in your inbox. Close the job, pay your referrer, mark it paid." },
+      { heading: "Build your referral page", body: "Set your reward and publish your page on your own link. It is free, and your QR code and print-ready kit come with it." },
+      { heading: "Bring your customer list", body: "Upload a file, paste a list, or send it to us and we load it. Every customer gets their own referral link." },
+      { heading: "Revvin asks for you", body: "Revvin emails every customer their own link from your business name, then follows up twice." },
+      { heading: "Referrals land, you pay", body: "Each referral lands in your inbox with who sent it. When the job closes you pay the reward yourself. Revvin never takes a cut." },
       { heading: "Free and Pro", body: `${PLAN_SPLIT.line} Free: ${PLAN_SPLIT.freeDetail} Pro, ${PRO}: ${PLAN_SPLIT.proDetail}` },
     ],
     faqs: HOME_FAQS,
@@ -299,15 +300,19 @@ const handwritten: PrerenderRoute[] = [
     h1: "How Revvin turns finished jobs into referrals.",
     sections: [
       {
-        heading: "Step one: build your page",
-        body: "Create a business account, set your offer and the reward you are willing to pay, and publish. Your page sits on your own Revvin link and comes with a shareable link and a QR code you can print. Publishing is free and takes minutes.",
+        heading: "Step one: build your referral page",
+        body: "Create a business account, set your offer and the reward you are willing to pay, and publish. Your page sits on your own Revvin link and comes with a QR code and a print-ready kit. Publishing is free and takes minutes.",
       },
       {
-        heading: "Step two: ask the customers you already served",
-        body: "Send the ask yourself, using pre-written messages, after a finished job. On Pro you can paste in your past-customer list and send the ask in batches straight from your own email app. Revvin prepares the message; your device sends it.",
+        heading: "Step two: bring your customer list",
+        body: "Upload a CSV or Excel file, paste a list, or send it to us and we load it. Free covers up to 500 customers. Every customer gets their own personal referral link.",
       },
       {
-        heading: "Step three: work the leads and pay the reward",
+        heading: "Step three: Revvin asks every customer for you and follows up",
+        body: "Revvin emails every customer their own referral link from your business name, then follows up twice. You can also ask any customer one at a time from your own phone or email app.",
+      },
+      {
+        heading: "Step four: referrals land in your inbox and you pay when the job closes",
         body: "Referrals arrive in a lead inbox with status tracking and one-tap call or text back. Move a lead through to closed, mark the reward paid, and your referrer is notified at each step. You pay them directly when the deal closes.",
       },
     ],
@@ -397,11 +402,11 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: `Free, $0: ${PLAN_SPLIT.freeSubtitle.toLowerCase()}`,
-        body: "Your referral page on your own link, a QR code and share tools, unlimited referral leads, a lead inbox with status tracking, offers, payout tracking from owed to paid, and a listing in the marketplace. Build it, publish it and take referrals on it without paying anything.",
+        body: `${PLAN_SPLIT.freeDetail} Build it, publish it and take referrals on it without paying anything.`,
       },
       {
         heading: `Revvin Pro, ${PRO}: ${PLAN_SPLIT.proSubtitle.toLowerCase()}`,
-        body: `${PLAN_SPLIT.proLead} Everything in Free, plus importing your past-customer list and sending your referral ask in bulk from your own email app, reactivation campaigns that Revvin sends by email from your account with an unsubscribe link in every message and a cap of 500 recipients per send, ROI reporting with a monthly email recap, and custom page branding. Annual billing is ${ANNUAL}. No contract and no required setup fee.`,
+        body: `${PLAN_SPLIT.proLead} Everything in Free, plus ${PLAN_SPLIT.proDetail.charAt(0).toLowerCase()}${PLAN_SPLIT.proDetail.slice(1, -1)}. Campaign emails carry an unsubscribe link and send to up to 500 recipients at a time. ${TRIAL_LINE} Annual billing is ${ANNUAL}. No contract and no required setup fee.`,
       },
 
       {
@@ -740,8 +745,8 @@ export { CHECKED_LINE };
 
 const startRoutes: PrerenderRoute[] = START_PATHS.map(path => ({
   path, title: `Free ${INDUSTRIES.find(i => path === `/start/${i.slug}`)?.label ?? "home service"} referral page | Revvin`,
-  description: "Set your reward, create your free account and publish your referral page. Every new account gets Pro free for 14 days. No card required.",
+  description: `Set your reward, create your free account and publish your referral page. ${TRIAL_LINE}`,
   h1: startHeadline(path.split("/")[2]), noindex: true,
-  sections: [{ heading: "Make it live, free", body: "Business name. Trade. Reward per closed job. Free for your first 500 customers. No card." }], faqs: START_FAQS,
+  sections: [{ heading: "Make it live, free", body: "Business name. Trade. Reward per closed job. Free for up to 500 customers. No card." }], faqs: START_FAQS,
 }));
 export const PRERENDER_ROUTES: PrerenderRoute[] = [...handwritten, ...toolkitRoutes, ...partnerRoutes, guideIndexRoute, ...industryRoutes, ...guideRoutes, roundupRoute, compareHubRoute, ...compareRoutes, ...startRoutes];

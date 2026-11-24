@@ -22,9 +22,9 @@ describe("server render", () => {
     expect(doc.getElementById("root")?.getAttribute("data-ssr")).toBe("1");
     expect(doc.querySelectorAll("h1")).toHaveLength(1);
     const h1 = doc.querySelector("h1");
-    expect(h1?.firstElementChild?.textContent).toBe("Free referral program software for home-service businesses");
-    expect(h1?.textContent?.replace(/\s+/g, " ").trim()).toBe("Free referral program software for home-service businesses Your happy customers are your best salespeople. Put them to work.");
-    expect(doc.getElementById("journey-heading")?.textContent).toBe("How one referral text turns into a booked job");
+    expect(h1?.firstElementChild?.textContent).toBe("Free referral program software for contractors, home services and any business that grows by word of mouth");
+    expect(h1?.textContent?.replace(/\s+/g, " ").trim()).toBe("Free referral program software for contractors, home services and any business that grows by word of mouth Your happy customers are your best salespeople. Put them to work.");
+    expect(doc.getElementById("journey-heading")?.textContent).toBe("How your customer list turns into booked jobs");
     expect(doc.getElementById("faq-heading")?.textContent).toBe("Referral program questions owners ask first");
     const headTags = (text: string) => text.match(/<title>[\s\S]*?<\/title>|<meta[^>]+(?:name="description"|property="og:[^"]+"|name="twitter:[^"]+")[^>]*>/g);
     expect(headTags(html)).toEqual(headTags(renderRoute(template, route)));

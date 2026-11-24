@@ -4,24 +4,28 @@
 
 Revvin is operated by Nationwide Sales Group Inc.
 
-Last updated: 2026-11-10
+Last updated: 2026-11-24
 
 Revvin gives a home-service business a referral page on its own link, a personal link for every person who refers, and an ask after every job. The business pays a reward only when a referral turns into a job, and pays it directly. Revvin is not affiliated with the Revvin digital mortgage platform.
 
 ## Free
 
-- A published referral page on your own link, free.
-- Unlimited referrals on that page.
-- A personal link for every referrer, so each referral is credited automatically.
-- Import and ask up to 500 customers, sent from your own phone or email app.
-- QR code and print pack, lead inbox, referral email alerts, reward tracking and mobile use.
+Free, forever, no card:
+
+- A published referral page on your own link, with unlimited referrals.
+- A personal link for every customer, so each referral is credited automatically.
+- QR code and print-ready kit with PDF downloads and "email my kit to a print shop".
+- Lead inbox and referral alerts, and reward tracking.
+- Bring up to 500 customers: upload, paste, or send us your list.
+- One launch campaign: Revvin emails every customer their own referral link from your business name, with two follow-ups.
+- Ask customers one at a time from your own phone or email any time.
 - An Earn listing where Earn is live, so locals can find you and get their own link.
 
 ## Pro
 
 - Revvin Pro is $97/month USD, or $970/year USD billed once.
-- Adds unlimited customers, automatic Job done and job-software/API/Zapier review and referral asks, reactivation email campaigns, ROI reporting and monthly recap, and custom page branding.
-- New accounts get a 14-day Pro trial, no card. Yearly billing gives two months free.
+- Adds unlimited customers, unlimited launch campaigns to your whole list, an automatic review and referral ask after every job (Job done, or through job software, API or Zapier), win-back email campaigns, ROI reporting and monthly recap, and custom page branding.
+- Pro is free for 14 days, starting when you send your first campaign. No card. Yearly billing gives two months free.
 - Cancel anytime; the referral page stays live.
 
 ## Optional done-for-you launch
@@ -31,7 +35,7 @@ $297 one-time: we load your customer list, set up your page and reward with you,
 ## What Revvin does not do
 
 - Revvin does not pay referrers, hold funds or take a cut of rewards. Businesses pay their referrers directly, off-platform.
-- Revvin never sends SMS to a business's customers. Personal asks open on the owner's own device.
+- Revvin never sends SMS to a business's customers. Personal asks open on the owner's own device; launch and win-back campaigns are emails Revvin sends from the business name, with an unsubscribe link.
 - Revvin takes nothing from referral rewards.
 
 ## Earn, for referrers

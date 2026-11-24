@@ -53,6 +53,7 @@ import BillingHistoryCard from "@/components/billing/BillingHistoryCard";
 import { PRICE_TEXT, ANNUAL_TERMS_COPY, type BillingPlan } from "@/config/pricing";
 import { friendlyError, friendlyInvokeError } from "@/lib/errors";
 import { loadEffectivePlan, trialDaysLeft } from "@/lib/effectivePlan";
+import { useLaunchTrialAvailable } from "@/lib/launchTrial";
 
 interface Business {
   brand_color?: string | null;
@@ -147,6 +148,7 @@ const BusinessDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [biz, setBiz] = useState<Business | null>(null);
+  const launchTrialNote = useLaunchTrialAvailable(biz?.id);
   const [effectivePlan, setEffectivePlan] = useState("free");
   useEffect(() => {
     if (!biz?.id) return;
@@ -396,6 +398,7 @@ const BusinessDashboard = () => {
             kit={{
               biz: { name: biz.name, logo_url: biz.logo_url, brand_color: biz.brand_color, headline: biz.headline, offer_amount: biz.offer_amount, offer_trigger: biz.offer_trigger, offer_fine_print: biz.offer_fine_print, phone: biz.phone },
               onPublished: loadAll,
+              trialNote: launchTrialNote,
               renderIntake: () => attest(
                 <CustomerIntake businessId={biz.id} businessName={biz.name} isPro={isPro} isDemo={!!biz.is_demo}
                   onImported={(n) => setContactStats((s) => ({ ...s, total: n }))} onAskAll={() => changeTab("campaigns")} />,
@@ -454,7 +457,7 @@ const BusinessDashboard = () => {
       ))}
 
       {tab === "campaigns" && (!isLive ? (
-        <LockedTab title="Publish your page to run a campaign" body="Reactivation campaigns point people back at your referral page, so it has to be live first. Your customer list is saved either way." />
+        <LockedTab title="Publish your page to run a campaign" body="Launch and win-back campaigns point people back at your referral page, so it has to be live first. Your customer list is saved either way." />
       ) : attest(
         <CampaignsTab biz={{ id: biz.id, name: biz.name, slug: biz.slug, offer_amount: biz.offer_amount, business_email: biz.business_email ?? null }} publicUrl={publicUrl} isPro={isPro} onGo={changeTab} onLaunchSent={() => setHasLaunchCampaign(true)} />
       ))}

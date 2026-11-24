@@ -316,6 +316,20 @@
       "when": 1795561257122,
       "tag": "0044_funnel_events_print_kit",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1795562128346,
+      "tag": "0045_trial_starts_at_first_launch",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1795562430676,
+      "tag": "0046_launch_trial_available",
+      "breakpoints": true
     }
   ]
 }

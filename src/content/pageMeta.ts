@@ -53,7 +53,7 @@ export const PAGE_META = {
   "/docs/zapier": {
     title: "Zapier and job software integrations | Revvin",
     description:
-      "Connect job software through Zapier or the API to schedule review and referral asks after each job. Included with Pro and the 14-day trial.",
+      "Connect job software through Zapier or the API to schedule review and referral asks after each job. Included with Pro and the 14-day Pro trial.",
   },
   "/tools": {
     title: "Free referral tools for contractors | Revvin",

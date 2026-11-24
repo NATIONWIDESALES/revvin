@@ -13,7 +13,7 @@ const feature = (label: typeof PRO_FEATURES[number]["label"]) => {
   if (!match) throw new Error(`Missing Pro feature: ${label}`);
   return match;
 };
-const unlimited = feature("Unlimited customers, imported and asked");
+const unlimited = feature("Unlimited customers");
 const automatic = feature("Automatic ask after each job");
 const reporting = feature("ROI reporting and monthly recap");
 const branding = feature("Custom page branding");
