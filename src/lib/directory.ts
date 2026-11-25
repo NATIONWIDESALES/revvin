@@ -104,6 +104,9 @@ export function listingClaimPreview(l: DirectoryListing): PreviewData {
 
 /* ---------- Full-screen map search (marketplace layout) ---------- */
 
+/** Results grid columns for a panel width: 1 under 560px, 2 from 560px, 3 from 980px. */
+export const panelColumns = (width: number) => (width >= 980 ? 3 : width >= 560 ? 2 : 1);
+
 export type MapSort = "featured" | "name";
 export const PAGE_SIZE = 40;
 

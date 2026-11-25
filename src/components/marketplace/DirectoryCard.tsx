@@ -37,6 +37,33 @@ const DirectoryCard = forwardRef<HTMLAnchorElement, Props>(({ entry, selected, c
   const Icon = tradeIcon(entry.category);
   const media = cardMedia(entry, entry.extra);
   const rated = entry.is_pro && entry.extra && entry.extra.review_count > 0 && entry.extra.rating_avg !== null;
+  if (unclaimed) return (
+    <Link
+      ref={ref}
+      to={entryHref(entry)}
+      onClick={() => track("marketplace_card_clicked", { kind: entry.kind })}
+      onMouseEnter={() => onHover?.(entry.slug)}
+      onMouseLeave={() => onHover?.(null)}
+      onFocus={() => onHover?.(entry.slug)}
+      onBlur={() => onHover?.(null)}
+      data-slug={entry.slug}
+      data-compact="1"
+      aria-current={selected ? "true" : undefined}
+      className={`flex min-h-[84px] min-w-0 items-center gap-3 rounded-xl border border-line bg-card p-3 transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${selected ? "ring-2 ring-sign" : ""}`}
+    >
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted">
+        <Icon className="h-6 w-6 text-muted-foreground/70" aria-hidden strokeWidth={1.5} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex min-w-0 items-center gap-2">
+          <span className="truncate font-semibold text-foreground/85">{entry.name}</span>
+          <span className="shrink-0 rounded border border-line px-1.5 py-0.5 text-[11px] text-muted-foreground">Unclaimed</span>
+        </span>
+        <span className="block truncate text-sm text-muted-foreground">{[entry.category, place].filter(Boolean).join(" · ")}</span>
+        <span className="block text-sm text-primary underline underline-offset-4">Is this yours? Claim it</span>
+      </span>
+    </Link>
+  );
   return (
     <Link
       ref={ref}
@@ -91,13 +118,15 @@ const DirectoryCard = forwardRef<HTMLAnchorElement, Props>(({ entry, selected, c
 DirectoryCard.displayName = "DirectoryCard";
 export default DirectoryCard;
 
-export function OwnerCard() {
+export function OwnerCard({ wide = false }: { wide?: boolean }) {
   return (
-    <div className="flex h-full min-h-[220px] flex-col justify-center rounded-xl bg-forest p-5 text-primary-foreground">
+    <div className={`flex h-full ${wide ? "min-h-[84px] sm:flex-row sm:items-center sm:justify-between sm:gap-6" : "min-h-[220px]"} flex-col justify-center rounded-xl bg-forest p-5 text-primary-foreground`}>
+      <div>
       <p className="text-lg font-bold leading-snug">Own a business? Claim your free profile</p>
       <p className="mt-2 text-sm opacity-90">Add your logo, photos and a referral reward. Free.</p>
+      </div>
       <Link to="/signup" onClick={() => track("cta_clicked", { cta: "marketplace_owner_card" })}
-        className="mt-4 inline-flex h-11 items-center justify-center rounded-md bg-sign px-4 font-semibold text-forest hover:bg-sign/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        className="mt-4 inline-flex h-11 shrink-0 items-center justify-center rounded-md bg-sign px-4 font-semibold text-forest hover:bg-sign/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         List your business free
       </Link>
     </div>

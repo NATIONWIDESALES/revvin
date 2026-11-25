@@ -22,6 +22,7 @@ import {
 export const FUNNEL_EVENTS = [
   "preview_started", "preview_submitted", "signup_completed",
   "page_viewed",
+  "home_find_business_search", "home_find_business_claim_click", "home_find_business_add_click",
   "signup_viewed",
   "signup_submitted",
   "signup_succeeded",

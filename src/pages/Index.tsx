@@ -8,7 +8,7 @@ import ReferralWorthCalculator from "@/components/marketing/ReferralWorthCalcula
 import HeroYardSign, { SIGN_EXAMPLES, type SignExample } from "@/components/marketing/HeroYardSign";
 import InstantPreview from "@/components/marketing/InstantPreview";
 import StepTrack from "@/components/marketing/StepTrack";
-import OwnerStrip from "@/components/marketplace/OwnerStrip";
+import FindBusinessBand from "@/components/marketing/FindBusinessBand";
 import FinalBand from "@/components/marketing/FinalBand";
 import { useSale } from "@/lib/useSale";
 import { priceTextForSale } from "@/config/pricing";
@@ -114,9 +114,7 @@ const Index = () => {
     </section>
 
     {/* Owners: list free in the marketplace */}
-    <section className="mk-wrap pt-10 pb-2" aria-label="List your business">
-      <OwnerStrip />
-    </section>
+    <FindBusinessBand />
 
     {/* Journey */}
     <section className="mk-section border-y border-line bg-card" aria-labelledby="journey-heading">

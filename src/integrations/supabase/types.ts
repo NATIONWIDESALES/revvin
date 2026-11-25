@@ -4003,6 +4003,18 @@ export type Database = {
         }[]
       }
       fn_directory_country: { Args: { p_raw: string }; Returns: string }
+      fn_directory_find: {
+        Args: { p_city?: string; p_limit?: number; p_name: string }
+        Returns: {
+          category: string
+          city: string
+          claimed: boolean
+          id: string
+          name: string
+          region: string
+          slug: string
+        }[]
+      }
       fn_directory_html: { Args: { p: string }; Returns: string }
       fn_directory_import: { Args: { p_rows: Json }; Returns: Json }
       fn_directory_listing: {
@@ -4080,6 +4092,7 @@ export type Database = {
           slug: string
         }[]
       }
+      fn_directory_public_count: { Args: never; Returns: number }
       fn_directory_regulated: { Args: { p_category: string }; Returns: boolean }
       fn_directory_request_removal: {
         Args: {
@@ -4251,6 +4264,10 @@ export type Database = {
           p_is_disabled: boolean
           p_is_published: boolean
         }
+        Returns: boolean
+      }
+      fn_plan_is_pro: {
+        Args: { p_plan: string; p_trial_ends_at: string }
         Returns: boolean
       }
       fn_platform_counts: { Args: never; Returns: Json }

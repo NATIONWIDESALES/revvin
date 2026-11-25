@@ -141,6 +141,7 @@ export const HOME_CTA_LABELS = [
   "marketplace_owner_card",
   "marketplace_list_free",
   "profile_refer",
+  "nav_list_business",
 ] as const;
 // Toolkit steps ride on cta_clicked with a fixed label, so measuring the free
 // tools needs no new event name. A label names the tool and the step and nothing
@@ -189,7 +190,7 @@ export function safeAnalyticsMeta(event: string, context: AnalyticsContext, inpu
   return result;
 }
 
-const PUBLIC_EVENTS = new Set(["marketplace_viewed", "marketplace_map_moved", "marketplace_card_clicked", "listing_viewed", "listing_claim_clicked", "listing_removal_requested", "page_viewed", "cta_clicked", "demo_started", "demo_completed", "sample_page_viewed", "email_lead_submitted", "referral_submitted", "referral_page_load_failed", "promo_popup_shown", "promo_cta_clicked", "pwa_install_cta_shown", "pwa_install_cta_clicked"]);
+const PUBLIC_EVENTS = new Set(["home_find_business_search", "home_find_business_claim_click", "home_find_business_add_click", "marketplace_viewed", "marketplace_map_moved", "marketplace_card_clicked", "listing_viewed", "listing_claim_clicked", "listing_removal_requested", "page_viewed", "cta_clicked", "demo_started", "demo_completed", "sample_page_viewed", "email_lead_submitted", "referral_submitted", "referral_page_load_failed", "promo_popup_shown", "promo_cta_clicked", "pwa_install_cta_shown", "pwa_install_cta_clicked"]);
 export function analyticsEventAllowed(event: string, context: AnalyticsContext): boolean {
   if (context.traffic === "product") {
     if (SIGNUP_STEP_EVENTS.has(event)) return context.path === SIGNUP_PATH;

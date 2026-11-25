@@ -1,1 +1,2 @@
 - Directory data is read only via fn_directory_* safe-column functions; writes are service-only. Why: no direct table access.
+- Public Pro labels and limits in SQL use fn_plan_is_pro. Why: one server rule matching fn_effective_plan.

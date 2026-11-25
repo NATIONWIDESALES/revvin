@@ -1,3 +1,4 @@
+import { panelColumns } from "@/lib/directory";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { List, Map as MapIcon, Search, SlidersHorizontal } from "lucide-react";
@@ -60,7 +61,7 @@ export default function Marketplace() {
   const [retry, setRetry] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [twoCols, setTwoCols] = useState(false);
+  const [panelCols, setPanelCols] = useState(1);
   const mapRef = useRef<DirectoryMapHandle>(null);
   const panel = useRef<HTMLDivElement>(null);
   const sentinel = useRef<HTMLDivElement>(null);
@@ -88,7 +89,7 @@ export default function Marketplace() {
   useEffect(() => {
     const el = panel.current;
     if (!el || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(([e]) => setTwoCols(e.contentRect.width >= 640));
+    const ro = new ResizeObserver(([e]) => setPanelCols(panelColumns(e.contentRect.width)));
     ro.observe(el);
     return () => ro.disconnect();
   }, [desktop]);
@@ -193,7 +194,7 @@ export default function Marketplace() {
   const pins = useMemo(() => (clustered ? [] : shown), [clustered, shown]);
   const showSkeleton = loading || !ready;
   const header = showSkeleton ? "Loading businesses" : failed ? "" : countLine(total);
-  const cols = desktop && twoCols ? "grid-cols-2" : "grid-cols-1";
+  const cols = !desktop || panelCols === 1 ? "grid-cols-1" : panelCols === 2 ? "grid-cols-2" : "grid-cols-3";
   const compact = !desktop;
 
   const listFree = (
@@ -240,7 +241,7 @@ export default function Marketplace() {
         ref={(node) => { if (node) cards.current.set(e.slug, node); else cards.current.delete(e.slug); }} />
     </li>
   ));
-  if (!rewards && entries.length > 0) items.splice(Math.min(2, items.length), 0, <li key="owner-card"><OwnerCard /></li>);
+  if (!rewards && entries.length > 0) items.splice(Math.min(2, items.length), 0, <li key="owner-card" className={desktop && panelCols > 1 ? "col-span-full" : ""}><OwnerCard wide={desktop && panelCols > 1} /></li>);
 
   const list = (
     <div className="p-4">

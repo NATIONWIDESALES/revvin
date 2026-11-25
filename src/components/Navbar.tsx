@@ -168,6 +168,9 @@ const Navbar = () => {
               </>
             ) : (
               <>
+                <a href="/#find-your-business" onClick={() => track("cta_clicked", { cta: "nav_list_business" })} className="text-base font-semibold text-forest transition-colors hover:text-green">
+                  List your business
+                </a>
                 <Link
                   to="/auth"
                   className="text-base font-semibold text-forest transition-colors hover:text-green"
@@ -220,7 +223,7 @@ const Navbar = () => {
                   </Link>
                 </div>
               )}
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 {user ? (
                   <>
                     <Button variant="outline" size="sm" className="flex-1" asChild>
@@ -230,6 +233,7 @@ const Navbar = () => {
                   </>
                 ) : (
                   <>
+                    <a href="/#find-your-business" onClick={() => { setOpen(false); track("cta_clicked", { cta: "nav_list_business" }); }} className="basis-full py-2 text-base font-semibold text-forest">List your business</a>
                     <Button variant="line" className="flex-1" asChild>
                       <Link to="/auth" onClick={() => setOpen(false)}>Log in</Link>
                     </Button>
