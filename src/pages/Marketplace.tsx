@@ -14,6 +14,8 @@ import type { DirectoryMapHandle } from "@/components/marketplace/DirectoryMap";
 import { track } from "@/lib/track";
 import GetQuotes, { type QuoteStart } from "@/components/marketplace/GetQuotes";
 import { isQuoteTrade, needLine } from "@/lib/quotes";
+import { nearestCity } from "@/lib/quotes";
+import { boundsDiffer, startingMapView, type MarketplaceView } from "@/lib/marketplaceView";
 import { EARN_SUBLINE, EarnCard, EarnEmpty, EarnExplainer, ModeSwitch } from "@/components/marketplace/EarnParts";
 import { loadCardExtras } from "@/lib/profile";
 import { zoomBucket } from "@/lib/analyticsPrivacy";
@@ -37,7 +39,7 @@ const useDebounced = <T,>(value: T, ms: number) => {
   return v;
 };
 
-type View = { bounds: Bounds; zoom: number; center: { lat: number; lng: number } };
+type View = MarketplaceView;
 
 export default function Marketplace() {
   const navigate = useNavigate();
@@ -54,8 +56,12 @@ export default function Marketplace() {
   const [sort, setSort] = useState<MapSort>("featured");
   const [desktop, setDesktop] = useState(true);
   const [mapFailed, setMapFailed] = useState(false);
+  const [mapAttempt, setMapAttempt] = useState(0);
+  const [nearCity, setNearCity] = useState<string | null>(null);
+  const [startingView, setStartingView] = useState<View | null>(null);
   const [rawView, setRawView] = useState<View | null>(null);
-  const view = useDebounced(rawView, 300);
+  const debouncedView = useDebounced(rawView, 300);
+  const view = debouncedView ?? startingView;
   const [entries, setEntries] = useState<DirectoryEntry[]>([]);
   const [total, setTotal] = useState(0);
   const [clusters, setClusters] = useState<DirectoryCluster[]>([]);
@@ -70,6 +76,8 @@ export default function Marketplace() {
   const [quote, setQuote] = useState<QuoteStart | null>(null);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const mapRef = useRef<DirectoryMapHandle>(null);
+  const mapArea = useRef<HTMLElement | null>(null);
+  const mapSize = useRef({ width: 900, height: 700 });
   const panel = useRef<HTMLDivElement>(null);
   const sentinel = useRef<HTMLDivElement>(null);
   const cards = useRef(new Map<string, HTMLAnchorElement>());
@@ -84,8 +92,18 @@ export default function Marketplace() {
     setTrade(state.trade || ALL);
     setRewards(state.rewards);
     if (state.rewards) setSheetOpen(true);
-    setInit({ state, view: openingView(state, tz) });
+    const start = openingView(state, tz);
+    // Measure after the phone/desktop layout has settled, without waiting for MapLibre.
+    const frame = requestAnimationFrame(() => {
+      const rect = mapArea.current?.getBoundingClientRect();
+      mapSize.current = { width: rect?.width || window.innerWidth, height: rect?.height || window.innerHeight };
+      const seed = startingMapView(start, mapSize.current.width, mapSize.current.height);
+      setStartingView(seed);
+      setRawView(seed);
+      setInit({ state, view: { lat: seed.center.lat, lng: seed.center.lng, z: seed.zoom } });
+    });
     track("marketplace_viewed");
+    return () => cancelAnimationFrame(frame);
   }, []);
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
@@ -121,36 +139,49 @@ export default function Marketplace() {
     let live = true;
     cityLocation(q).then((loc) => {
       if (!live) return;
-      if (loc) { setPlaceQ(q); mapRef.current?.flyTo(loc.lat, loc.lng, 10); } else setPlaceQ(null);
+      if (loc) {
+        setPlaceQ(q);
+        const next = startingMapView({ lat: loc.lat, lng: loc.lng, z: 10 }, mapSize.current.width, mapSize.current.height);
+        setRawView(next);
+        mapRef.current?.flyTo(loc.lat, loc.lng, 10);
+      } else setPlaceQ(null);
     }).catch(() => { if (live) setPlaceQ(null); });
     return () => { live = false; };
   }, [q, init]);
   const textQ = placeQ !== null && placeQ === q ? "" : q;
   const cityPending = q.trim().length >= 3 && placeQ === null;
 
-  const bounds = mapFailed ? null : view?.bounds ?? null;
-  const ready = Boolean(init) && (mapFailed || Boolean(view));
+  const bounds = view?.bounds ?? null;
+  const center = view?.center ?? null;
+  const ready = Boolean(init && bounds);
+  useEffect(() => {
+    if (!center) return;
+    let live = true;
+    setNearCity(null);
+    nearestCity(center.lat, center.lng).then((city) => { if (live) setNearCity(city); }).catch(() => {});
+    return () => { live = false; };
+  }, [center]);
   useEffect(() => {
     if (!ready || cityPending) return;
     const id = ++reqId.current;
     setLoading(true);
     setFailed(false);
-    (rewards ? earnSearch({ bounds, category: cat, offset: 0 }) : searchMap({ bounds, category: cat, q: textQ, sort, offset: 0 }))
+    (rewards ? earnSearch({ bounds, center, category: cat, offset: 0 }) : searchMap({ bounds, category: cat, q: textQ, sort, offset: 0 }))
       .then(({ rows, total: t }) => { if (id === reqId.current) { setEntries(rows); setTotal(t); panel.current?.scrollTo({ top: 0 }); } })
       .catch(() => { if (id === reqId.current) { setEntries([]); setTotal(0); setFailed(true); } })
       .finally(() => { if (id === reqId.current) setLoading(false); });
-  }, [ready, bounds, cat, textQ, rewards, sort, retry, cityPending]);
+  }, [ready, bounds, center, cat, textQ, rewards, sort, retry, cityPending]);
 
   const hasMore = !loading && entries.length < total;
   const loadMore = useCallback(() => {
     if (loadingMore || !hasMore) return;
     const id = reqId.current;
     setLoadingMore(true);
-    (rewards ? earnSearch({ bounds, category: cat, offset: entries.length }) : searchMap({ bounds, category: cat, q: textQ, sort, offset: entries.length }))
+    (rewards ? earnSearch({ bounds, center, category: cat, offset: entries.length }) : searchMap({ bounds, category: cat, q: textQ, sort, offset: entries.length }))
       .then(({ rows }) => { if (id === reqId.current) setEntries((prev) => [...prev, ...rows]); })
       .catch(() => {})
       .finally(() => setLoadingMore(false));
-  }, [loadingMore, hasMore, bounds, cat, textQ, rewards, sort, entries.length]);
+  }, [loadingMore, hasMore, bounds, center, cat, textQ, rewards, sort, entries.length]);
   useEffect(() => {
     const el = sentinel.current, root = panel.current;
     if (!el || !root || typeof IntersectionObserver === "undefined") return;
@@ -176,7 +207,7 @@ export default function Marketplace() {
   }, [view, clustered, cat]);
 
   const onMove = useCallback((b: Bounds, zoom: number, initial: boolean, center?: { lat: number; lng: number }) => {
-    setRawView({ bounds: b, zoom, center: center ?? { lat: (b.minLat + b.maxLat) / 2, lng: (b.minLng + b.maxLng) / 2 } });
+    setRawView((prev) => prev && !boundsDiffer(prev.bounds, b) ? prev : { bounds: b, zoom, center: center ?? { lat: (b.minLat + b.maxLat) / 2, lng: (b.minLng + b.maxLng) / 2 } });
     if (initial) return;
     const bucket = zoomBucket(zoom);
     if (bucket !== lastBucket.current) { lastBucket.current = bucket; track("marketplace_map_moved", { zoom: bucket }); }
@@ -243,7 +274,8 @@ export default function Marketplace() {
     </Select>
   );
   const openQuotes = () => {
-    const c = view?.center ?? (init?.view ? { lat: init.view.lat, lng: init.view.lng } : { lat: 45, lng: -96 });
+    const c = center;
+    if (!c) return;
     setQuote({ trade: isQuoteTrade(cat) ? cat : undefined, lat: c.lat, lng: c.lng });
     setQuoteOpen(true);
     track("cta_clicked", { cta: "marketplace_get_quotes" });
@@ -274,6 +306,10 @@ export default function Marketplace() {
 
   const list = (
     <div className="p-4">
+      {mapFailed && <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+        <p>Map could not load. Showing businesses near {nearCity || "this area"}.</p>
+        <Button type="button" variant="outline" size="sm" onClick={() => { setMapAttempt((n) => n + 1); setMapFailed(false); }}>Try the map again</Button>
+      </div>}
       {failed ? (
         <div className="rounded-xl border border-line bg-card p-6 text-center">
           <p className="font-semibold">The list could not load.</p>
@@ -282,7 +318,7 @@ export default function Marketplace() {
       ) : showSkeleton ? (
         <ul className={`grid gap-3 ${cols}`} aria-hidden>{Array.from({ length: 6 }, (_, i) => <li key={i}><CardSkeleton compact={compact} /></li>)}</ul>
       ) : entries.length === 0 && rewards ? (
-        <EarnEmpty center={view?.center ?? init?.view ?? null} trade={cat} />
+        <EarnEmpty center={center} trade={cat} />
       ) : entries.length === 0 ? (
         <div className="space-y-3">
           <div className="rounded-xl border border-line bg-card p-6 text-center">
@@ -310,8 +346,8 @@ export default function Marketplace() {
 
   const map = init && !mapFailed && (
     <Suspense fallback={<div className="h-full w-full bg-secondary" />}>
-      <DirectoryMap ref={mapRef} clusters={clusters} pins={pins} selected={selected} onMove={onMove} onSelect={onSelect}
-        onFail={onFail} onOpen={onOpen} hrefFor={entryHref} initialView={init.view} className="h-full w-full" />
+      <DirectoryMap key={mapAttempt} ref={mapRef} clusters={clusters} pins={pins} selected={selected} onMove={onMove} onSelect={onSelect}
+        onFail={onFail} onOpen={onOpen} hrefFor={entryHref} initialView={rawView ? { lat: rawView.center.lat, lng: rawView.center.lng, z: rawView.zoom } : init.view} className="h-full w-full" />
     </Suspense>
   );
 
@@ -342,7 +378,7 @@ export default function Marketplace() {
 
       {desktop ? (
         <div className="flex min-h-0 flex-1">
-          {!mapFailed && <section aria-label="Map" className="relative h-full w-[58%] shrink-0">{map}</section>}
+          {!mapFailed && <section ref={mapArea} aria-label="Map" className="relative h-full w-[58%] shrink-0">{map}</section>}
           <section aria-label="Businesses" className="flex min-h-0 min-w-0 flex-1 flex-col border-l border-line">
             <div className="shrink-0 border-b border-line px-4 py-2.5">
               <p className="text-sm font-semibold text-foreground" aria-live="polite">{header}</p>
@@ -353,10 +389,10 @@ export default function Marketplace() {
         </div>
       ) : (
         <div className="relative min-h-0 flex-1 overflow-hidden">
-          <div className="absolute inset-0">{map}</div>
+          <div ref={(node) => { mapArea.current = node; }} className="absolute inset-0">{map}</div>
           {/* Bottom sheet: only its own area takes touches when collapsed. */}
           <section aria-label="Businesses"
-            className={`absolute inset-x-0 bottom-0 z-10 flex flex-col rounded-t-2xl border-t border-line bg-paper shadow-[0_-6px_20px_hsl(var(--forest)/0.15)] transition-[height] duration-300 motion-reduce:transition-none ${sheetOpen || mapFailed ? "h-[88%]" : "h-[84px]"}`}>
+            className={`absolute inset-x-0 bottom-0 z-10 flex flex-col rounded-t-2xl border-t border-line bg-paper shadow-[0_-6px_20px_hsl(var(--forest)/0.15)] transition-[height] duration-300 motion-reduce:transition-none ${mapFailed ? "h-full" : sheetOpen ? "h-[88%]" : "h-[84px]"}`}>
             <button type="button" onClick={() => setSheetOpen((o) => !o)} aria-expanded={sheetOpen}
               onPointerDown={(e) => { (e.currentTarget as HTMLElement).dataset.y = String(e.clientY); }}
               onPointerUp={(e) => { const y0 = Number((e.currentTarget as HTMLElement).dataset.y); if (Number.isFinite(y0) && Math.abs(e.clientY - y0) > 30) { e.preventDefault(); setSheetOpen(e.clientY < y0); } }}

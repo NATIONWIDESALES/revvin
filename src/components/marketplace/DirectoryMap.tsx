@@ -168,9 +168,11 @@ const DirectoryMap = forwardRef<DirectoryMapHandle, Props>(function DirectoryMap
           ro = new ResizeObserver(() => m.resize());
           ro.observe(el.current);
         }
-        timer = setTimeout(() => { if (!ready.current) cb.current.onFail(); }, 15000);
-        m.on("error", (e) => { if (!ready.current) { console.warn("map failed", e?.error?.message); cb.current.onFail(); } });
-        m.on("load", () => {
+        timer = setTimeout(() => { if (!ready.current && !cancelled) cb.current.onFail(); }, 10000);
+        // Tile/glyph errors may be transient. The bounded list is already usable.
+        m.on("error", (e) => { if (!ready.current) console.warn("map resource failed", e?.error?.message); });
+        const activate = () => {
+          if (cancelled || ready.current) return;
           ready.current = true;
           clearTimeout(timer);
           const forest = token("--forest");
@@ -210,7 +212,10 @@ const DirectoryMap = forwardRef<DirectoryMapHandle, Props>(function DirectoryMap
           m.on("moveend", () => emit());
           emit(true);
           sync();
-        });
+        };
+        m.once("style.load", activate);
+        m.once("idle", activate);
+        m.once("load", activate);
       } catch (e) {
         console.warn("map failed", e);
         if (!cancelled) cb.current.onFail();

@@ -1,4 +1,5 @@
 # Marketplace full-screen map layout, November 25
+- [x] Decouple results from map readiness, preserve local bounds on failure, retry map and verify blocked tiles on desktop/phone. 45 related tests passed; changelog: docs/marketplace-map-loading-2026-11-25.md. No publication.
 - [x] Full-screen map and results panel, filter bar, true area count, 40-per-page loading, owner card, new cards and pins, URL-shared views, time zone opening view, rewards toggle with empty state, phone bottom sheet.
 - [x] Name cleanup (migrations 0052/0053) and the same cleaning in directory-import (deployed).
 - [x] Browser checks at 1440x900, 2400x1200 and 390x844; /b/ and /r/ pages render. Not published.
