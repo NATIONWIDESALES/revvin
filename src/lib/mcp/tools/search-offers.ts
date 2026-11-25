@@ -37,7 +37,9 @@ export default defineTool({
 
     if (category) q = q.ilike("category", `%${category}%`);
     if (min_payout != null) q = q.gte("payout", min_payout);
-    if (query) q = q.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
+    // Strip filter-syntax characters so the keyword cannot alter the query.
+    const kw = (query ?? "").replace(/[^\p{L}\p{N}\s'&-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 100);
+    if (kw) q = q.or(`title.ilike.%${kw}%,description.ilike.%${kw}%`);
     if (city) q = q.ilike("businesses.city", `%${city}%`);
 
     const { data, error } = await q;

@@ -233,6 +233,22 @@ serve(async (req) => {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
+        // Only verified account holders who own a business may invite, and
+        // never to suppressed or their own addresses.
+        if (!user.email_confirmed_at) {
+          return new Response(JSON.stringify({ error: "Verify your email before sending invitations" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        const { data: ownBiz } = await supabase.from("businesses").select("id").eq("user_id", user.id).limit(1);
+        if (!ownBiz?.length) {
+          return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        if (email === String(user.email ?? "").toLowerCase()) {
+          return new Response(JSON.stringify({ error: "Valid recipient email required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        const { data: supp } = await supabase.from("suppressed_emails").select("id").eq("email", email).limit(1);
+        if (supp?.length) {
+          return new Response(JSON.stringify({ success: false, status: "suppressed" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
         recipientEmail = email;
         recipientUserId = undefined;
         recipientBusinessId = undefined;
@@ -334,9 +350,9 @@ serve(async (req) => {
 
     const emailStatus = result.success ? "sent" : "failed";
     if (result.success) {
-      console.log(`📧 Email SENT [${type}] to ${recipientEmail} (Resend ID: ${result.id})`);
+      console.log(`📧 Email SENT [${type}] (Resend ID: ${result.id})`);
     } else {
-      console.error(`📧 Email FAILED [${type}] to ${recipientEmail}: ${result.error}`);
+      console.error(`📧 Email FAILED [${type}]: ${result.error}`);
     }
 
     // Store notification record for audit

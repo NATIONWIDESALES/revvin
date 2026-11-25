@@ -139,7 +139,7 @@ ${isApproved ? `
                 status: emailStatus,
               });
 
-              console.log(`📧 Business ${account_status} email [${emailStatus}] to ${ownerEmail}`);
+              console.log(`📧 Business ${account_status} email [${emailStatus}]`);
             }
           }
         } catch (emailErr) {

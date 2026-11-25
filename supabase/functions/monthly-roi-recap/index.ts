@@ -50,7 +50,7 @@ function buildHtml(opts: {
       <tr><td style="padding:14px 16px;border:1px solid #E2E8F0;border-radius:12px"><div style="font-size:12px;color:#64748B;text-transform:uppercase;letter-spacing:.04em">New referral leads</div><div style="font-size:24px;font-weight:600;margin-top:4px">${leadsTotal}</div></td></tr>
       <tr><td style="padding:14px 16px;border:1px solid #E2E8F0;border-radius:12px"><div style="font-size:12px;color:#64748B;text-transform:uppercase;letter-spacing:.04em">Closed deals</div><div style="font-size:24px;font-weight:600;margin-top:4px">${closedCount}</div></td></tr>
       <tr><td style="padding:14px 16px;border:1px solid #E2E8F0;border-radius:12px"><div style="font-size:12px;color:#64748B;text-transform:uppercase;letter-spacing:.04em">Attributed revenue</div><div style="font-size:24px;font-weight:600;margin-top:4px;color:#15803D">${fmtMoney(revenue)}</div></td></tr>
-      ${topReferrer ? `<tr><td style="padding:14px 16px;border:1px solid #E2E8F0;border-radius:12px"><div style="font-size:12px;color:#64748B;text-transform:uppercase;letter-spacing:.04em">Top referrer</div><div style="font-size:16px;font-weight:600;margin-top:4px">${topReferrer}</div></td></tr>` : ``}
+      ${topReferrer ? `<tr><td style="padding:14px 16px;border:1px solid #E2E8F0;border-radius:12px"><div style="font-size:12px;color:#64748B;text-transform:uppercase;letter-spacing:.04em">Top referrer</div><div style="font-size:16px;font-weight:600;margin-top:4px">${escHtml(topReferrer)}</div></td></tr>` : ``}
     </table>` : `
     <div style="padding:20px;border:1px dashed #CBD5E1;border-radius:12px;color:#475569;font-size:14px;margin-bottom:24px">
       No referrals came in last month yet. Share your QR code and link with a few recent customers to get the first ones rolling.
@@ -59,6 +59,8 @@ function buildHtml(opts: {
     <p style="font-size:12px;color:#94A3B8;margin-top:32px">You're getting this because you run a Revvin referral program. One short recap, once a month.</p>
   </div></body></html>`;
 }
+
+const escHtml = (v: unknown) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
 async function sendEmail(to: string, subject: string, html: string) {
   const result = await sendEmailViaGateway({
@@ -234,7 +236,7 @@ serve(async (req) => {
       });
       if (logErr) console.error("monthly_recap_log insert failed", logErr);
 
-      console.log(`monthly-roi-recap: business=${biz.id} status=${sendResult.status} recipient=${recipient}`);
+      console.log(`monthly-roi-recap: business=${biz.id} status=${sendResult.status}`);
       results.push({ business_id: biz.id, status: sendResult.status });
     }
 

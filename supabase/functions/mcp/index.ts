@@ -35,7 +35,8 @@ var search_offers_default = defineTool({
     ).eq("status", "active").eq("approval_status", "approved").eq("businesses.marketplace_listed", true).limit(limit ?? 20);
     if (category) q = q.ilike("category", `%${category}%`);
     if (min_payout != null) q = q.gte("payout", min_payout);
-    if (query) q = q.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
+    const kw = (query ?? "").replace(/[^\p{L}\p{N}\s'&-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 100);
+    if (kw) q = q.or(`title.ilike.%${kw}%,description.ilike.%${kw}%`);
     if (city) q = q.ilike("businesses.city", `%${city}%`);
     const { data, error } = await q;
     if (error) return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };

@@ -34,11 +34,14 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found. You need an active subscription first.");
+    // Resolve the customer from the caller's own business row (written only by
+    // the Stripe webhook), never from a self-asserted email address.
+    const { data: bizRows } = await supabaseClient.from("businesses")
+      .select("stripe_customer_id").eq("user_id", user.id).not("stripe_customer_id", "is", null).limit(1);
+    const customerId = bizRows?.[0]?.stripe_customer_id as string | undefined;
+    if (!customerId) {
+      throw new Error("No billing account found. You need an active subscription first.");
     }
-    const customerId = customers.data[0].id;
 
     const origin = checkoutOrigin(req);
     const portalSession = await stripe.billingPortal.sessions.create({

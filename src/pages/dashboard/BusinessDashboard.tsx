@@ -713,7 +713,13 @@ const LeadsTab = ({ leads, reload }: { leads: Lead[]; reload: () => void }) => {
         l.status, (l.notes || "").replace(/\n/g, " "),
       ]),
     ];
-    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const cell = (c: unknown) => {
+      let v = String(c ?? "");
+      // Neutralize spreadsheet formulas planted in public form fields.
+      if (/^[=+\-@\t\r]/.test(v)) v = `'${v}`;
+      return `"${v.replace(/"/g, '""')}"`;
+    };
+    const csv = rows.map(r => r.map(cell).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -1229,7 +1235,11 @@ const ShareTab = ({ biz, publicUrl, isLive, onPublished, onQrDownloaded, onShare
     const dataUrl = canvas.toDataURL("image/png");
     const w = window.open("", "_blank");
     if (!w) return;
-    w.document.write(`<html><head><title>${biz.name}, Referral QR</title><style>body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;text-align:center}img{width:400px;height:400px}h1{font-size:24px;margin:24px 0 8px}p{color:#64748b;font-size:14px}@media print{body{padding:0}}</style></head><body><h1>${biz.name}</h1><p>Refer a customer, earn ${biz.offer_amount || ""}</p><img src="${dataUrl}" /><p style="margin-top:16px;font-size:12px;word-break:break-all">${publicUrl}</p><script>window.onload=()=>window.print()</script></body></html>`);
+    const esc = (v: unknown) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    const safeName = esc(biz.name);
+    const safeReward = esc(biz.offer_amount || "");
+    const safeUrl = esc(publicUrl);
+    w.document.write(`<html><head><title>${safeName}, Referral QR</title><style>body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;text-align:center}img{width:400px;height:400px}h1{font-size:24px;margin:24px 0 8px}p{color:#64748b;font-size:14px}@media print{body{padding:0}}</style></head><body><h1>${safeName}</h1><p>Refer a customer, earn ${safeReward}</p><img src="${dataUrl}" /><p style="margin-top:16px;font-size:12px;word-break:break-all">${safeUrl}</p><script>window.onload=()=>window.print()</script></body></html>`);
     w.document.close();
     void onQrDownloaded();
   };

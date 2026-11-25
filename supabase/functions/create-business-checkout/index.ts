@@ -7,6 +7,7 @@ import {
   type BillingPlan,
 } from "../_shared/stripe-prices.ts";
 import { checkoutPromotion, isSaleLive, SALE_END_ISO, promoAllowedForPriceVersion, INVITE_PROMOTION_PAUSED } from "../_shared/promo.ts";
+import { checkoutOrigin } from "../_shared/app-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -155,7 +156,7 @@ serve(async (req) => {
       inviteRejected = true; // invites are monthly only
     }
 
-    const origin = req.headers.get("origin") || "https://revvin.co";
+    const origin = checkoutOrigin(req);
 
     const line_items: Array<{ price: string; quantity: number }> = [
       { price: pricing.price, quantity: 1 },

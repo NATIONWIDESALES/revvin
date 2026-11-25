@@ -11,6 +11,12 @@ export function appUrl(path = "") {
   return `${APP_URL}${normalizedPath}`;
 }
 
+const ALLOWED_ORIGIN = /^https:\/\/((www\.)?revvin\.co|[a-z0-9-]+\.lovable\.app)$/;
+
+/** Return destination for Stripe flows: only trusted app origins, never a caller-chosen site. */
 export function checkoutOrigin(req: Request) {
-  return (Deno.env.get("APP_URL") || req.headers.get("origin") || APP_URL).replace(/\/+$/, "");
+  const env = Deno.env.get("APP_URL");
+  if (env) return env.replace(/\/+$/, "");
+  const o = (req.headers.get("origin") || "").replace(/\/+$/, "");
+  return ALLOWED_ORIGIN.test(o) ? o : APP_URL;
 }

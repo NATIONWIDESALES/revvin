@@ -58,6 +58,7 @@ async function checkout(plan: string, now: Date, extra: Record<string, unknown> 
     if (id.includes("supabase-js")) return { createClient: () => client };
     if (id.endsWith("stripe-prices.ts")) return prices;
     if (id.endsWith("promo.ts")) return promo;
+    if (id.endsWith("app-config.ts")) return { checkoutOrigin: () => "https://revvin.co" };
     throw new Error(`Unexpected dependency ${id}`);
   };
   new Function("require", "exports", "Deno", js)(require, {}, { env: { get: () => "fixture-only" } });
