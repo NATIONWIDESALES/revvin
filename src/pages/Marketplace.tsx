@@ -12,11 +12,12 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import DirectoryCard, { CardSkeleton, OwnerCard } from "@/components/marketplace/DirectoryCard";
 import type { DirectoryMapHandle } from "@/components/marketplace/DirectoryMap";
 import { track } from "@/lib/track";
+import { EARN_SUBLINE, EarnCard, EarnEmpty, EarnExplainer, ModeSwitch } from "@/components/marketplace/EarnParts";
 import { loadCardExtras } from "@/lib/profile";
 import { zoomBucket } from "@/lib/analyticsPrivacy";
 import {
-  PAGE_SIZE, PIN_ZOOM, cityLocation, countLine, directoryClusters, entryHref,
-  marketplaceSearch, openingView, parseMarketplaceParams, rewardBounds, searchMap,
+  PAGE_SIZE, PIN_ZOOM, cityLocation, clusterCell, countLine, directoryClusters, earnCountLine, earnSearch, entryHref,
+  marketplaceSearch, openingView, parseMarketplaceParams, searchMap,
   type Bounds, type DirectoryCluster, type DirectoryEntry, type MapSort, type MarketplaceState,
 } from "@/lib/directory";
 
@@ -78,6 +79,7 @@ export default function Marketplace() {
     setQuery(state.q);
     setTrade(state.trade || ALL);
     setRewards(state.rewards);
+    if (state.rewards) setSheetOpen(true);
     setInit({ state, view: openingView(state, tz) });
     track("marketplace_viewed");
   }, []);
@@ -129,7 +131,7 @@ export default function Marketplace() {
     const id = ++reqId.current;
     setLoading(true);
     setFailed(false);
-    searchMap({ bounds, category: cat, q: textQ, rewardsOnly: rewards, sort, offset: 0 })
+    (rewards ? earnSearch({ bounds, category: cat, offset: 0 }) : searchMap({ bounds, category: cat, q: textQ, sort, offset: 0 }))
       .then(({ rows, total: t }) => { if (id === reqId.current) { setEntries(rows); setTotal(t); panel.current?.scrollTo({ top: 0 }); } })
       .catch(() => { if (id === reqId.current) { setEntries([]); setTotal(0); setFailed(true); } })
       .finally(() => { if (id === reqId.current) setLoading(false); });
@@ -140,7 +142,7 @@ export default function Marketplace() {
     if (loadingMore || !hasMore) return;
     const id = reqId.current;
     setLoadingMore(true);
-    searchMap({ bounds, category: cat, q: textQ, rewardsOnly: rewards, sort, offset: entries.length })
+    (rewards ? earnSearch({ bounds, category: cat, offset: entries.length }) : searchMap({ bounds, category: cat, q: textQ, sort, offset: entries.length }))
       .then(({ rows }) => { if (id === reqId.current) setEntries((prev) => [...prev, ...rows]); })
       .catch(() => {})
       .finally(() => setLoadingMore(false));
@@ -157,7 +159,15 @@ export default function Marketplace() {
   useEffect(() => {
     if (!view || !clustered) { setClusters([]); return; }
     let live = true;
-    directoryClusters(view.bounds, view.zoom, cat).then((c) => { if (live) setClusters(c ?? []); }).catch(() => { if (live) setClusters([]); });
+    Promise.all([
+      directoryClusters(view.bounds, view.zoom, cat),
+      earnSearch({ bounds: view.bounds, category: cat, limit: 100 }).then((x) => x.rows).catch(() => []),
+    ]).then(([c, paying]) => {
+      if (!live) return;
+      // A yellow dot marks clusters that hold at least one reward-paying business.
+      const cells = new Set(paying.filter((p) => p.lat != null && p.lng != null).map((p) => clusterCell(p.lat!, p.lng!, view.zoom)));
+      setClusters((c ?? []).map((k) => ({ ...k, reward: cells.has(clusterCell(Number(k.lat), Number(k.lng), view.zoom)) })));
+    }).catch(() => { if (live) setClusters([]); });
     return () => { live = false; };
   }, [view, clustered, cat]);
 
@@ -173,11 +183,6 @@ export default function Marketplace() {
   }, []);
   const onFail = useCallback(() => { setMapFailed(true); setSheetOpen(true); }, []);
   const onOpen = useCallback((e: DirectoryEntry) => navigate(entryHref(e)), [navigate]);
-  const showAllRewards = async () => {
-    const b = await rewardBounds().catch(() => null);
-    if (b) mapRef.current?.fitBounds(b);
-    else if (!mapFailed) mapRef.current?.flyTo(45, -96, 3);
-  };
 
   // Photos and stars for claimed businesses, one batched call per page of results.
   const [extras, setExtras] = useState<Record<string, NonNullable<DirectoryEntry["extra"]>>>({});
@@ -195,7 +200,7 @@ export default function Marketplace() {
   const shown = useMemo(() => entries.map((e) => (e.kind === "business" && extras[e.slug] ? { ...e, extra: extras[e.slug] } : e)), [entries, extras]);
   const pins = useMemo(() => (clustered ? [] : shown), [clustered, shown]);
   const showSkeleton = loading || !ready;
-  const header = showSkeleton ? "Loading businesses" : failed ? "" : countLine(total);
+  const header = showSkeleton ? "Loading businesses" : failed ? "" : rewards ? earnCountLine(total) : countLine(total);
   const cols = !desktop || panelCols === 1 ? "grid-cols-1" : panelCols === 2 ? "grid-cols-2" : "grid-cols-3";
   const compact = !desktop;
 
@@ -233,12 +238,7 @@ export default function Marketplace() {
       </SelectContent>
     </Select>
   );
-  const rewardsChip = (
-    <button type="button" aria-pressed={rewards} onClick={() => setRewards((r) => !r)}
-      className={`h-10 shrink-0 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${rewards ? "border-forest bg-forest text-primary-foreground" : "border-line bg-card text-foreground hover:border-forest"}`}>
-      Pays referral rewards
-    </button>
-  );
+  const setMode = (earn: boolean) => { setRewards(earn); if (earn) setSheetOpen(true); track("cta_clicked", { cta: earn ? "marketplace_mode_earn" : "marketplace_mode_find" }); };
   const searchBox = (
     <label className="relative min-w-0 flex-1 lg:max-w-sm">
       <span className="sr-only">Search by business name or city</span>
@@ -249,9 +249,9 @@ export default function Marketplace() {
 
   const items: React.ReactNode[] = shown.map((e) => (
     <li key={`${e.kind}:${e.slug}`}>
-      <DirectoryCard entry={e} compact={compact} selected={selected === e.slug}
+      {rewards ? <EarnCard entry={e} selected={selected === e.slug} onHover={(s) => setSelected(s)} /> : <DirectoryCard entry={e} compact={compact} selected={selected === e.slug}
         onHover={(s) => setSelected(s)}
-        ref={(node) => { if (node) cards.current.set(e.slug, node); else cards.current.delete(e.slug); }} />
+        ref={(node) => { if (node) cards.current.set(e.slug, node); else cards.current.delete(e.slug); }} />}
     </li>
   ));
   if (!rewards && entries.length > 0) items.unshift(<li key="owner-card" className="col-span-full"><OwnerCard wide={!desktop || panelCols > 1} /></li>);
@@ -266,13 +266,7 @@ export default function Marketplace() {
       ) : showSkeleton ? (
         <ul className={`grid gap-3 ${cols}`} aria-hidden>{Array.from({ length: 6 }, (_, i) => <li key={i}><CardSkeleton compact={compact} /></li>)}</ul>
       ) : entries.length === 0 && rewards ? (
-        <div className="rounded-xl border border-line bg-card p-6 text-center">
-          <p className="font-semibold">{REWARDS_EMPTY}</p>
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <Button variant="outline" className="h-11" onClick={showAllRewards}>Show all rewards</Button>
-            <Button asChild className="h-11"><Link to="/signup" onClick={() => track("cta_clicked", { cta: "marketplace_list_free" })}>List your business free</Link></Button>
-          </div>
-        </div>
+        <EarnEmpty center={view?.center ?? init?.view ?? null} trade={cat} />
       ) : entries.length === 0 ? (
         <div className="space-y-3">
           <div className="rounded-xl border border-line bg-card p-6 text-center">
@@ -282,6 +276,7 @@ export default function Marketplace() {
         </div>
       ) : (
         <>
+          {rewards && <EarnExplainer />}
           <ul className={`grid gap-3 ${cols}`}>{items}</ul>
           <div ref={sentinel} />
           {hasMore && (
@@ -310,27 +305,31 @@ export default function Marketplace() {
       <h1 className="sr-only">{MARKETPLACE_H1}</h1>
       {/* Filter bar */}
       <form role="search" onSubmit={(e) => e.preventDefault()} className="flex h-14 shrink-0 items-center gap-2 border-b border-line bg-paper px-3 lg:px-4">
+        {desktop && <ModeSwitch earn={rewards} onChange={setMode} />}
         {searchBox}
         {desktop ? (
           <>
             {tradeSelect("h-10 w-48")}
-            {rewardsChip}
-            {sortSelect("h-10 w-40")}
+            {!rewards && sortSelect("h-10 w-40")}
             <span className="ml-auto" />
             {listFree}
           </>
         ) : (
           <Button type="button" variant="outline" className="h-10 shrink-0 gap-2" onClick={() => setFiltersOpen(true)}>
-            <SlidersHorizontal className="h-4 w-4" aria-hidden />Filters{(cat || rewards) ? " (on)" : ""}
+            <SlidersHorizontal className="h-4 w-4" aria-hidden />Filters{cat ? " (on)" : ""}
           </Button>
         )}
       </form>
+      {!desktop && <div className="shrink-0 border-b border-line bg-paper px-3 py-2"><ModeSwitch earn={rewards} onChange={setMode} className="w-full" /></div>}
 
       {desktop ? (
         <div className="flex min-h-0 flex-1">
           {!mapFailed && <section aria-label="Map" className="relative h-full w-[58%] shrink-0">{map}</section>}
           <section aria-label="Businesses" className="flex min-h-0 min-w-0 flex-1 flex-col border-l border-line">
-            <p className="shrink-0 border-b border-line px-4 py-2.5 text-sm font-semibold text-foreground" aria-live="polite">{header}</p>
+            <div className="shrink-0 border-b border-line px-4 py-2.5">
+              <p className="text-sm font-semibold text-foreground" aria-live="polite">{header}</p>
+              {rewards && <p className="text-xs text-muted-foreground">{EARN_SUBLINE}</p>}
+            </div>
             <div ref={panel} className="min-h-0 flex-1 overflow-y-auto">{list}</div>
           </section>
         </div>
@@ -346,6 +345,7 @@ export default function Marketplace() {
               className="shrink-0 touch-none px-4 pb-2 pt-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <span className="mx-auto mb-2 block h-1.5 w-10 rounded-full bg-line" aria-hidden />
               <span className="block text-sm font-semibold" aria-live="polite">{header || "Businesses"}</span>
+              {rewards && sheetOpen && <span className="block text-xs text-muted-foreground">{EARN_SUBLINE}</span>}
               <span className="sr-only">{sheetOpen ? "Show map" : "Show list"}</span>
             </button>
             <div ref={panel} className={`min-h-0 flex-1 overflow-y-auto ${sheetOpen || mapFailed ? "" : "hidden"}`}>{list}</div>
@@ -362,8 +362,7 @@ export default function Marketplace() {
               <SheetHeader><SheetTitle>Filters</SheetTitle></SheetHeader>
               <div className="mt-4 grid gap-4">
                 <label className="grid gap-1 text-sm font-medium">Trade{tradeSelect("h-11 w-full")}</label>
-                <div>{rewardsChip}</div>
-                <label className="grid gap-1 text-sm font-medium">Sort{sortSelect("h-11 w-full")}</label>
+                {!rewards && <label className="grid gap-1 text-sm font-medium">Sort{sortSelect("h-11 w-full")}</label>}
                 <Button className="h-11" onClick={() => setFiltersOpen(false)}>Show results</Button>
                 <Link to="/signup" className="text-center text-sm font-medium text-primary underline underline-offset-4" onClick={() => track("cta_clicked", { cta: "marketplace_list_free" })}>List your business free</Link>
               </div>

@@ -463,6 +463,13 @@
       "when": 1795648577708,
       "tag": "0065_directory_referral_interest_and_trust",
       "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1795649137537,
+      "tag": "0066_marketplace_earn_mode_and_reward_alerts",
+      "breakpoints": true
     }
   ]
 }

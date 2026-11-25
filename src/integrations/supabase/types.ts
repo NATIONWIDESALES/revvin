@@ -1507,6 +1507,42 @@ export type Database = {
           },
         ]
       }
+      marketplace_reward_alerts: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string
+          id: string
+          lat: number
+          lng: number
+          trade: string | null
+          unsubscribed_at: string | null
+          visitor_hash: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          lat: number
+          lng: number
+          trade?: string | null
+          unsubscribed_at?: string | null
+          visitor_hash: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          lat?: number
+          lng?: number
+          trade?: string | null
+          unsubscribed_at?: string | null
+          visitor_hash?: string
+        }
+        Relationships: []
+      }
       metros: {
         Row: {
           center_lat: number
@@ -4111,6 +4147,38 @@ export type Database = {
       }
       fn_directory_country: { Args: { p_raw: string }; Returns: string }
       fn_directory_domain: { Args: { p_url: string }; Returns: string }
+      fn_directory_earn_search: {
+        Args: {
+          p_category?: string
+          p_lat?: number
+          p_limit?: number
+          p_lng?: number
+          p_max_lat?: number
+          p_max_lng?: number
+          p_min_lat?: number
+          p_min_lng?: number
+          p_offset?: number
+          p_order?: string
+        }
+        Returns: {
+          category: string
+          city: string
+          country: string
+          distance_km: number
+          has_reward: boolean
+          is_pro: boolean
+          is_verified: boolean
+          kind: string
+          lat: number
+          lng: number
+          logo_url: string
+          name: string
+          region: string
+          reward_text: string
+          slug: string
+          total_count: number
+        }[]
+      }
       fn_directory_find: {
         Args: { p_city?: string; p_limit?: number; p_name: string }
         Returns: {
@@ -4202,6 +4270,10 @@ export type Database = {
           reward_text: string
           slug: string
         }[]
+      }
+      fn_directory_nearest_city: {
+        Args: { p_lat: number; p_lng: number }
+        Returns: string
       }
       fn_directory_public_count: { Args: never; Returns: number }
       fn_directory_referral_interest: {
@@ -4370,6 +4442,15 @@ export type Database = {
         Args: { p_business_id: string }
         Returns: boolean
       }
+      fn_marketplace_reward_alert: {
+        Args: {
+          p_email: string
+          p_lat: number
+          p_lng: number
+          p_trade?: string
+        }
+        Returns: Json
+      }
       fn_me_email_eligible: { Args: { p_email: string }; Returns: boolean }
       fn_monitor_health: { Args: never; Returns: Json }
       fn_monitor_scheduled_http: { Args: never; Returns: Json }
@@ -4508,6 +4589,7 @@ export type Database = {
           state: string
         }[]
       }
+      fn_reward_dollars: { Args: { p_text: string }; Returns: number }
       fn_rewrite_scheduled_http: {
         Args: { job_key: string; source: string }
         Returns: string

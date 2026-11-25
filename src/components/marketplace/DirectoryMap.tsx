@@ -2,7 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import type { Map as MlMap, GeoJSONSource, Marker, Popup } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
-  DEFAULT_VIEW, PIN_ZOOM, cardRewardAmount, clusterLabel, initials, placeLine, tradePlace, realTrade,
+  DEFAULT_VIEW, PIN_ZOOM, cardRewardAmount, clusterLabel, initials, placeLine, rewardPinLabel, tradePlace, realTrade,
   type Bounds, type DirectoryCluster, type DirectoryEntry,
 } from "@/lib/directory";
 
@@ -73,7 +73,10 @@ const DirectoryMap = forwardRef<DirectoryMapHandle, Props>(function DirectoryMap
     if (!m || !ml || entry.lat == null || entry.lng == null) return;
     const reward = cardRewardAmount(entry);
     const href = cb.current.hrefFor?.(entry) ?? "#";
-    const html = `<div class="dir-pop"><p class="dir-pop-name">${esc(entry.name)}</p><p class="dir-pop-meta">${esc(tradePlace(entry))}</p>${entry.is_pro && entry.extra && entry.extra.review_count > 0 && entry.extra.rating_avg !== null ? `<p class="dir-pop-meta">${"★".repeat(Math.round(entry.extra.rating_avg))}${"☆".repeat(5 - Math.round(entry.extra.rating_avg))} ${entry.extra.rating_avg.toFixed(1)} (${entry.extra.review_count})</p>` : ""}${reward ? `<p class="dir-pop-reward">Pays ${esc(reward)} per referral</p>` : ""}<a class="dir-pop-link" href="${esc(href)}">View profile</a></div>`;
+    const refer = reward ? `/r/${encodeURIComponent(entry.slug)}` : null;
+    const html = refer
+      ? `<div class="dir-pop"><p class="dir-pop-reward dir-pop-reward-lead">Earn ${esc(reward!)} per referral</p><p class="dir-pop-name">${esc(entry.name)}</p><p class="dir-pop-meta">${esc(tradePlace(entry))}</p><p class="dir-pop-meta">Paid by the business when the job closes.</p><div class="dir-pop-actions"><a class="dir-pop-btn" href="${refer}">Refer someone</a><a class="dir-pop-link" href="${esc(href)}">View profile</a></div></div>`
+      : `<div class="dir-pop"><p class="dir-pop-name">${esc(entry.name)}</p><p class="dir-pop-meta">${esc(tradePlace(entry))}</p>${entry.is_pro && entry.extra && entry.extra.review_count > 0 && entry.extra.rating_avg !== null ? `<p class="dir-pop-meta">${"★".repeat(Math.round(entry.extra.rating_avg))}${"☆".repeat(5 - Math.round(entry.extra.rating_avg))} ${entry.extra.rating_avg.toFixed(1)} (${entry.extra.review_count})</p>` : ""}${reward ? `<p class="dir-pop-reward">Pays ${esc(reward)} per referral</p>` : ""}<a class="dir-pop-link" href="${esc(href)}">View profile</a></div>`;
     popup.current?.remove();
     const p = new ml.Popup({ closeButton: true, closeOnClick: true, offset: 14, maxWidth: "260px", focusAfterOpen: false })
       .setLngLat([entry.lng, entry.lat]).setHTML(html).addTo(m);
@@ -96,9 +99,11 @@ const DirectoryMap = forwardRef<DirectoryMapHandle, Props>(function DirectoryMap
       if (!rec) {
         const node = document.createElement("button");
         node.type = "button";
-        const tier = e.kind === "listing" ? "unclaimed" : e.is_pro ? "pro" : "claimed";
+        const rewarded = Boolean(cardRewardAmount(e));
+        const tier = e.kind === "listing" ? "unclaimed" : rewarded ? "reward" : e.is_pro ? "pro" : "claimed";
         node.className = `dir-pin dir-pin-${tier}`;
         node.setAttribute("aria-label", [e.name, realTrade(e.category)].filter(Boolean).join(", "));
+        if (tier === "reward") { node.textContent = rewardPinLabel(e.reward_text); node.setAttribute("aria-label", `${e.name}, reward ${rewardPinLabel(e.reward_text)}`); }
         if (tier === "pro") {
           if (e.logo_url) { const img = document.createElement("img"); img.src = e.logo_url; img.alt = ""; img.loading = "lazy"; node.appendChild(img); }
           else node.textContent = initials(e.name);
@@ -115,7 +120,7 @@ const DirectoryMap = forwardRef<DirectoryMapHandle, Props>(function DirectoryMap
       }
       rec.entry = e;
       rec.node.classList.toggle("is-active", e.slug === s);
-      rec.marker.getElement().style.zIndex = e.slug === s ? "5" : e.is_pro ? "3" : e.kind === "business" ? "2" : "1";
+      rec.marker.getElement().style.zIndex = rec.node.classList.contains("dir-pin-reward") ? (e.slug === s ? "7" : "6") : e.slug === s ? "5" : e.is_pro ? "3" : e.kind === "business" ? "2" : "1";
     }
     for (const [key, rec] of markers.current) {
       if (!keep.has(key)) { rec.marker.remove(); markers.current.delete(key); }
@@ -127,7 +132,7 @@ const DirectoryMap = forwardRef<DirectoryMapHandle, Props>(function DirectoryMap
     if (!m || !ready.current) return;
     (m.getSource("clusters") as GeoJSONSource | undefined)?.setData({
       type: "FeatureCollection",
-      features: data.current.clusters.map((k) => ({ type: "Feature", properties: { count: Number(k.count), label: clusterLabel(Number(k.count)) }, geometry: { type: "Point", coordinates: [k.lng, k.lat] } })),
+      features: data.current.clusters.map((k) => ({ type: "Feature", properties: { count: Number(k.count), label: clusterLabel(Number(k.count)), reward: Boolean(k.reward) }, geometry: { type: "Point", coordinates: [k.lng, k.lat] } })),
     });
     syncMarkers();
   };
@@ -174,6 +179,11 @@ const DirectoryMap = forwardRef<DirectoryMapHandle, Props>(function DirectoryMap
           m.addLayer({ id: "cluster-circles", type: "circle", source: "clusters", paint: {
             "circle-color": forest, "circle-opacity": 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 2,
             "circle-radius": ["interpolate", ["linear"], ["get", "count"], 1, 14, 10, 18, 100, 24, 1000, 30, 10000, 36],
+          } });
+          // Small yellow dot on clusters that hold at least one reward-paying business.
+          m.addLayer({ id: "cluster-reward-dot", type: "circle", source: "clusters", filter: ["==", ["get", "reward"], true], paint: {
+            "circle-color": token("--sign"), "circle-radius": 5, "circle-stroke-color": forest, "circle-stroke-width": 1.5,
+            "circle-translate": [13, -13],
           } });
           m.addLayer({ id: "cluster-labels", type: "symbol", source: "clusters", layout: {
             "text-field": ["get", "label"], "text-size": 12, "text-font": ["Noto Sans Bold"], "text-allow-overlap": true,

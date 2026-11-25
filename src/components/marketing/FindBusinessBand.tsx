@@ -107,6 +107,7 @@ export default function FindBusinessBand() {
             </ul>
           )}
           <p className="mt-4"><Link to="/marketplace" className="font-semibold text-forest underline underline-offset-4">Browse the map</Link></p>
+          <p className="mt-2 text-sm"><Link to="/marketplace?mode=earn" className="text-muted-foreground underline underline-offset-4 hover:text-forest">Looking to earn? See businesses paying referral rewards</Link></p>
         </div>
         <Link to="/marketplace" aria-label="Open the marketplace map" className="relative block h-[220px] overflow-hidden rounded-2xl border border-line bg-secondary lg:h-[340px]">
           <span aria-hidden className="absolute inset-0 opacity-60 [background-image:linear-gradient(hsl(var(--line))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--line))_1px,transparent_1px)] [background-size:40px_40px]" />

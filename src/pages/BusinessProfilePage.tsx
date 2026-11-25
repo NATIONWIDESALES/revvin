@@ -177,7 +177,7 @@ export default function BusinessProfilePage() {
           {refer && (
             <div className="rounded-xl bg-forest p-4 text-primary-foreground" data-testid="referral-box">
               <p className="font-semibold">{refer}</p>
-              <Button asChild variant="sign" className="mt-3 h-11 w-full"><Link to={`/r/${p.slug}`} onClick={() => track("cta_clicked", { cta: "profile_refer" })}>Refer someone</Link></Button>
+              <Button asChild variant="sign" className="mt-3 h-11 w-full"><Link to={`/r/${p.slug}`} onClick={() => track("cta_clicked", { cta: "profile_refer" })}>{(() => { const a = cardRewardAmount({ kind: "business", category: p.category, has_reward: p.has_reward, reward_text: p.reward_text }); return a ? `Refer someone and earn ${a}` : "Refer someone"; })()}</Link></Button>
               <p className="mt-2 text-xs opacity-90">Paid by the business.</p>
             </div>
           )}

@@ -36,6 +36,7 @@ const Footer = () => {
               <Link to="/how-it-works" className={link}>How it works</Link>
               <Link to="/tools" className={link}>Contractor Growth Toolkit</Link>
               <Link to="/marketplace" className={link}>Marketplace</Link>
+              <Link to="/marketplace?mode=earn" className={link}>Earn rewards</Link>
               <Link to="/pricing" className={link}>Pricing</Link>
               <Link to="/referral-programs" className={link}>Referral programs by industry</Link>
               <Link to="/ask-kit" className={link}>Referral ask kit</Link>

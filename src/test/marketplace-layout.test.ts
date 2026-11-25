@@ -58,3 +58,22 @@ describe("listing name cleanup", () => {
     expect("row" in r && r.row.name).toBe("Acme");
   });
 });
+
+import { rewardPinLabel as pinLabel, rewardDollars as dollars, parseMarketplaceParams as parseMp, marketplaceSearch as mpSearch } from "@/lib/directory";
+describe("earn mode", () => {
+  it("mode=earn and the old rewards=1 both open earn mode, and links are written as mode=earn", () => {
+    expect(parseMp("?mode=earn").rewards).toBe(true);
+    expect(parseMp("?rewards=1").rewards).toBe(true);
+    expect(parseMp("").rewards).toBe(false);
+    const qs = mpSearch("?rewards=1", { lat: null, lng: null, z: null, q: "", trade: "", rewards: true });
+    expect(qs).toBe("?mode=earn");
+  });
+  it("reward pin labels", () => {
+    expect(pinLabel("$250")).toBe("$250");
+    expect(pinLabel("1,000")).toBe("$1,000");
+    expect(pinLabel("10% of the job")).toBe("10%");
+    expect(pinLabel("Gift Certificate")).toBe("Gift card");
+    expect(pinLabel("Free tune-up")).toBe("Reward");
+    expect(dollars("$300.00 min 3 day delivery")).toBeNull();
+  });
+});

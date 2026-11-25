@@ -24,7 +24,7 @@ export interface DirectoryEntry {
   /** Card extras loaded in one batch for claimed businesses (photo, stars). */
   extra?: { cover_url: string | null; photo_url: string | null; rating_avg: number | null; review_count: number; trust?: { review_count: number; rating_avg: number | null; has_license: boolean } };
 }
-export interface DirectoryCluster { lat: number; lng: number; count: number }
+export interface DirectoryCluster { lat: number; lng: number; count: number; reward?: boolean }
 export interface Bounds { minLat: number; minLng: number; maxLat: number; maxLng: number }
 
 export interface DirectoryListing {
@@ -190,6 +190,7 @@ export const TIMEZONE_VIEWS: Record<string, { lat: number; lng: number; z: numbe
   "Pacific/Honolulu": { lat: 21.31, lng: -157.86, z: 8 },
 };
 
+/** rewards is earn mode ("Earn rewards"). URLs use mode=earn; the older rewards=1 still opens earn mode. */
 export interface MarketplaceState { lat: number | null; lng: number | null; z: number | null; q: string; trade: string; rewards: boolean }
 
 const num = (v: string | null, lim: number) => {
@@ -207,19 +208,19 @@ export function parseMarketplaceParams(search: string): MarketplaceState {
     lat: ok ? lat : null, lng: ok ? lng : null, z: ok ? z : null,
     q: (p.get("q") ?? "").slice(0, 80),
     trade: (DIRECTORY_CATEGORIES as readonly string[]).includes(trade) ? trade : "",
-    rewards: p.get("rewards") === "1",
+    rewards: p.get("mode") === "earn" || p.get("rewards") === "1",
   };
 }
 /** Query string for a view, other parameters (utm and similar) kept. */
 export function marketplaceSearch(current: string, s: MarketplaceState): string {
   const p = new URLSearchParams(current);
-  for (const k of ["lat", "lng", "z", "q", "trade", "rewards"]) p.delete(k);
+  for (const k of ["lat", "lng", "z", "q", "trade", "rewards", "mode"]) p.delete(k);
   if (s.lat !== null && s.lng !== null && s.z !== null) {
     p.set("lat", s.lat.toFixed(4)); p.set("lng", s.lng.toFixed(4)); p.set("z", s.z.toFixed(2));
   }
   if (s.q.trim()) p.set("q", s.q.trim());
   if (s.trade) p.set("trade", s.trade);
-  if (s.rewards) p.set("rewards", "1");
+  if (s.rewards) p.set("mode", "earn");
   const out = p.toString();
   return out ? `?${out}` : "";
 }
@@ -240,6 +241,43 @@ export async function searchMap(opts: { bounds: Bounds | null; category?: string
   });
   return { rows: rows ?? [], total: rows?.[0] ? Number(rows[0].total_count) : 0 };
 }
+/** Dollar value of a plain amount ("$250", "1,000", "$300.00"), else null. Mirrors fn_reward_dollars. */
+export function rewardDollars(text: string | null | undefined): number | null {
+  const t = (text ?? "").trim();
+  if (!/^(us)?\$?\s*\d[\d,]*(\.\d+)?\s*(usd|dollars)?$/i.test(t)) return null;
+  return Number(t.match(/\d[\d,]*(?:\.\d+)?/)![0].replace(/,/g, ""));
+}
+/** Short label for a reward map pin: "$250", "10%", "Gift card", else "Reward". */
+export function rewardPinLabel(text: string | null | undefined): string {
+  const d = rewardDollars(text);
+  if (d !== null) return `$${d % 1 === 0 ? d.toLocaleString("en-US") : d.toFixed(2)}`;
+  const t = (text ?? "").trim();
+  const pct = t.match(/^(\d{1,3}(?:\.\d+)?)\s*%/);
+  if (pct) return `${pct[1]}%`;
+  if (/gift\s*(card|certificate)/i.test(t)) return "Gift card";
+  return "Reward";
+}
+export type EarnRow = DirectoryEntry & { distance_km: number | null; total_count: number };
+/** Earn mode: businesses with an active reward only, highest dollar reward first (or nearest first), regulated trades never included. */
+export async function earnSearch(opts: { bounds: Bounds | null; category?: string; center?: { lat: number; lng: number } | null; order?: "reward" | "distance"; offset?: number; limit?: number }) {
+  const b = opts.bounds;
+  const rows = await rpc<EarnRow[]>("fn_directory_earn_search", {
+    p_min_lat: b?.minLat ?? null, p_min_lng: b?.minLng ?? null, p_max_lat: b?.maxLat ?? null, p_max_lng: b?.maxLng ?? null,
+    p_category: opts.category || null, p_lat: opts.center?.lat ?? null, p_lng: opts.center?.lng ?? null,
+    p_order: opts.order ?? "reward", p_limit: opts.limit ?? PAGE_SIZE, p_offset: opts.offset ?? 0,
+  });
+  return { rows: rows ?? [], total: rows?.[0] ? Number(rows[0].total_count) : 0 };
+}
+export function rewardAlert(email: string, lat: number, lng: number, trade: string | null) {
+  return rpc<{ ok: boolean; city: string | null; duplicate: boolean }>("fn_marketplace_reward_alert", { p_email: email.trim(), p_lat: lat, p_lng: lng, p_trade: trade || null });
+}
+export const earnCountLine = (n: number) => `${n.toLocaleString("en-US")} ${n === 1 ? "business" : "businesses"} paying referral rewards in this area`;
+/** Same grid as fn_directory_clusters, so a reward point can be matched to its cluster. */
+export const clusterCell = (lat: number, lng: number, zoom: number) => {
+  const cell = 90 / Math.pow(2, Math.min(Math.max(Math.round(zoom), 0), 20));
+  return `${Math.floor(lat / cell)}:${Math.floor(lng / cell)}`;
+};
+
 export async function rewardBounds(): Promise<Bounds | null> {
   const r = (await rpc<{ min_lat: number | null; min_lng: number | null; max_lat: number | null; max_lng: number | null }[]>("fn_directory_reward_bounds", {}))?.[0];
   return r && r.min_lat !== null ? { minLat: r.min_lat, minLng: r.min_lng as number, maxLat: r.max_lat as number, maxLng: r.max_lng as number } : null;

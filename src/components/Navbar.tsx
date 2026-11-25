@@ -198,7 +198,7 @@ const Navbar = () => {
             <div
               className="overflow-hidden border-t border-line bg-paper px-6 pb-5 animate-in fade-in slide-in-from-top-2 duration-200 motion-reduce:animate-none md:hidden"
             >
-              {navLinks.map((link) => (
+              {[...navLinks.slice(0, 1), { to: "/marketplace?mode=earn", label: "Earn rewards" }, ...navLinks.slice(1)].map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
