@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { track } from "@/lib/track";
 import { loadSupabase } from "@/lib/supabaseLazy";
 import { capturePreview, previewSignupUrl, storePreview, suggestedReward } from "@/lib/instantPreview";
-import { DEFAULT_VIEW, clusterLabel, directoryClusters, listingClaimPreview, loadListing, placeLine, type DirectoryCluster } from "@/lib/directory";
+import { DEFAULT_VIEW, clusterLabel, directoryClusters, listingClaimPreview, loadListing, placeLine, tradePlace, type DirectoryCluster } from "@/lib/directory";
 import { bandCountLine, cachedValue, clusterSpots, FIND_MIN_CHARS, type FindRow } from "@/lib/findBusiness";
 
 const HOUR = 60 * 60 * 1000;
@@ -87,7 +87,7 @@ export default function FindBusinessBand() {
                 <li key={r.id} className="flex items-center gap-3 px-4 py-3">
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-semibold text-foreground">{r.name}</span>
-                    <span className="block truncate text-sm text-muted-foreground">{[r.category, placeLine(r)].filter(Boolean).join(" · ")}</span>
+                    <span className="block truncate text-sm text-muted-foreground">{tradePlace(r)}</span>
                   </span>
                   {r.claimed ? (
                     <span className="flex shrink-0 items-center gap-3">

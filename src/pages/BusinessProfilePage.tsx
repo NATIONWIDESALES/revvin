@@ -9,6 +9,7 @@ import Stars from "@/components/profile/Stars";
 import { Breadcrumb, Lightbox, NearbyStrip, QuoteForm, RatingBreakdown, ReviewItem } from "@/components/profile/ProfileParts";
 import { tradeIcon } from "@/components/marketplace/DirectoryCard";
 import { cardRewardAmount } from "@/lib/directory";
+import { realTrade, referralSentence } from "@/lib/directory";
 import { loadProfile, loadReviews, photoUrls, profileTitle, stateCode, type BusinessProfile, type Hours, type PublicReview } from "@/lib/profile";
 import { profileAllows } from "@/config/planFeatures";
 import { track } from "@/lib/track";
@@ -21,7 +22,7 @@ const safeUrl = (u: string | null | undefined) => (u && /^https:\/\/[^\s]+$/i.te
 
 export function referralLine(p: Pick<BusinessProfile, "name" | "category" | "has_reward" | "reward_text">) {
   const amount = cardRewardAmount({ kind: "business", category: p.category, has_reward: p.has_reward, reward_text: p.reward_text });
-  return amount ? `Know someone who needs ${p.category.toLowerCase()}? Refer them and ${p.name} pays you ${amount} when the job closes.` : null;
+  return amount ? referralSentence(p.name, p.category, amount) : null;
 }
 
 export default function BusinessProfilePage() {
@@ -59,13 +60,15 @@ export default function BusinessProfilePage() {
   const tel = p.phone ? `tel:${p.phone.replace(/[^\d+]/g, "")}` : null;
   const site = safeUrl(p.website?.startsWith("http") ? p.website : p.website ? `https://${p.website}` : null);
   const hours = p.hours && DAYS.filter(([d]) => p.hours?.[d]);
-  const desc = (p.description ?? "").trim() || `${p.name} is a ${p.category.toLowerCase()} business${place ? ` in ${place}` : ""}.`;
+  const desc = (p.description ?? "").trim();
+  const metaDesc = desc || [p.name, realTrade(p.category), place ? `in ${place}` : ""].filter(Boolean).join(", ").replace(/, in /, " in ") + " on Revvin.";
+  const aboutFacts = Boolean(p.service_area || (pro && (p.founded_year || p.license_number || p.social_links)));
   const more = pro && reviews.length < stats.count;
   const loadMore = async () => { setMorePending(true); try { const r = await loadReviews(p.slug, reviews.length, 10); setReviews((x) => [...x, ...(r ?? [])]); } finally { setMorePending(false); } };
 
   return (
     <main className={`bg-paper ${pro ? "pb-20 lg:pb-0" : ""}`} data-level={pro ? "pro" : "free"}>
-      <SEOHead title={profileTitle(p)} description={desc.slice(0, 155)} path={`/b/${p.slug}`} noindex={!p.index_approved || p.is_owner_preview} />
+      <SEOHead title={profileTitle(p)} description={metaDesc.slice(0, 155)} path={`/b/${p.slug}`} noindex={!p.index_approved || p.is_owner_preview} />
       {p.is_owner_preview && <p className="bg-sign/40 px-4 py-2 text-center text-sm font-medium">Only you can see this preview. It is not listed in the marketplace yet.</p>}
       <header className={pro ? "relative" : "bg-forest text-primary-foreground"}>
         {pro && (
@@ -85,7 +88,7 @@ export default function BusinessProfilePage() {
                 {pro && <span className="rounded bg-forest px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-primary-foreground">Pro</span>}
                 {p.is_verified && <span className="inline-flex items-center gap-1 font-medium"><BadgeCheck className="h-4 w-4" aria-hidden />Verified</span>}
                 {pro && hasStars && <span className="inline-flex items-center gap-1.5"><Stars value={Number(stats.avg)} /> {Number(stats.avg).toFixed(1)} ({stats.count})</span>}
-                <span className={pro ? "text-muted-foreground" : "opacity-90"}>{[p.category, place].filter(Boolean).join(" · ")}</span>
+                <span className={pro ? "text-muted-foreground" : "opacity-90"}>{[realTrade(p.category), place].filter(Boolean).join(" · ")}</span>
               </div>
             </div>
           </div>
@@ -95,9 +98,9 @@ export default function BusinessProfilePage() {
 
       <div className="mk-wrap grid gap-8 py-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="min-w-0 space-y-8">
-          <section aria-labelledby="about-h">
+          {(desc || aboutFacts) && <section aria-labelledby="about-h">
             <h2 id="about-h" className="text-xl font-bold text-forest">About</h2>
-            <p className="mt-2 whitespace-pre-wrap">{desc}</p>
+            {desc && <p className="mt-2 whitespace-pre-wrap">{desc}</p>}
             <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
               {pro && p.founded_year && <li>In business since {p.founded_year}</li>}
               {pro && p.license_number && <li>Licence {p.license_number}</li>}
@@ -111,7 +114,7 @@ export default function BusinessProfilePage() {
                 })}
               </ul>
             )}
-          </section>
+          </section>}
 
           {pro && p.services && p.services.length > 0 && (
             <section aria-labelledby="svc-h">

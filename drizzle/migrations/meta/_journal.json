@@ -421,6 +421,20 @@
       "when": 1795630523943,
       "tag": "0059_funnel_events_home_find_business",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1795631170173,
+      "tag": "0060_directory_claim_copies_listing_details",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1795631707494,
+      "tag": "0061_directory_removal_email_city",
+      "breakpoints": true
     }
   ]
 }

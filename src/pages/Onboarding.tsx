@@ -86,7 +86,7 @@ const Onboarding = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id,name,category,service_area,offer_amount,slug,business_email,launch_package_status,phone,is_published")
+        .select("id,name,category,service_area,city,state,offer_amount,slug,business_email,launch_package_status,phone,is_published")
         .eq("user_id", user.id)
         .limit(1);
       const b = data?.[0];
@@ -101,12 +101,26 @@ const Onboarding = () => {
         }
         // Claimed from an unclaimed marketplace profile (/b/:slug): link the listing.
         const listingSlug = claimedListingSlug(preview?.landing_path);
-        if (listingSlug) void claimListing(listingSlug, b.id);
+        if (listingSlug) void claimListing(listingSlug, b.id).then(async (ok) => {
+          if (!ok || b.service_area || b.city) return;
+          // The claim copies the listing's city; show it so saving does not clear it.
+          const { data: fresh } = await supabase.from("businesses").select("city,state").eq("id", b.id).limit(1);
+          const f = fresh?.[0];
+          if (!f?.city) return;
+          const area = [f.city, f.state].filter(Boolean).join(", ");
+          setServiceArea((cur) => {
+            if (cur.trim() && cur.trim() !== area) return cur;
+            loadedAreaRef.current = area;
+            return area;
+          });
+        });
         setLaunchPackageStatus(b.launch_package_status || null);
         setName(b.name || preview?.name || "");
         setCategory(b.category || (preview ? previewCategory(preview.trade) : ""));
-        setServiceArea(b.service_area || (preview?.city ? [preview.city, preview.region].filter(Boolean).join(", ") : ""));
-        loadedAreaRef.current = b.service_area || "";
+        const storedArea = b.service_area || (b.city ? [b.city, b.state].filter(Boolean).join(", ") : "");
+        setServiceArea(storedArea || (preview?.city ? [preview.city, preview.region?.replace(/^(US|CA)-/i, "")].filter(Boolean).join(", ") : ""));
+        // An area built from the stored city keeps the stored map location unless the owner edits it.
+        loadedAreaRef.current = storedArea;
         setOfferAmount(b.offer_amount || (preview ? `$${preview.reward}` : ""));
         setMobile(b.phone || "");
         setExistingSlug(b.slug || null);

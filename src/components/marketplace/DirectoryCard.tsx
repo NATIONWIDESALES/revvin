@@ -4,7 +4,7 @@ import {
   BadgeCheck, Building2, Bug, Car, Flame, Hammer, Home, KeyRound, Paintbrush, Snowflake, Sparkles, Sun, Trees, Wrench, Zap,
   type LucideIcon,
 } from "lucide-react";
-import { cardRewardAmount, entryHref, placeLine, type DirectoryEntry } from "@/lib/directory";
+import { cardRewardAmount, entryHref, placeLine, tradePlace, type DirectoryEntry } from "@/lib/directory";
 import { track } from "@/lib/track";
 import { cardMedia } from "@/lib/profile";
 import Stars from "@/components/profile/Stars";
@@ -59,7 +59,7 @@ const DirectoryCard = forwardRef<HTMLAnchorElement, Props>(({ entry, selected, c
           <span className="truncate font-semibold text-foreground/85">{entry.name}</span>
           <span className="shrink-0 rounded border border-line px-1.5 py-0.5 text-[11px] text-muted-foreground">Unclaimed</span>
         </span>
-        <span className="block truncate text-sm text-muted-foreground">{[entry.category, place].filter(Boolean).join(" · ")}</span>
+        <span className="block truncate text-sm text-muted-foreground">{tradePlace(entry)}</span>
         <span className="block text-sm text-primary underline underline-offset-4">Is this yours? Claim it</span>
       </span>
     </Link>
@@ -91,7 +91,7 @@ const DirectoryCard = forwardRef<HTMLAnchorElement, Props>(({ entry, selected, c
       </span>
       <span className="flex min-w-0 flex-1 flex-col p-3">
         <span className={`line-clamp-2 break-words font-semibold ${unclaimed ? "text-foreground/85" : "text-foreground"}`}>{entry.name}</span>
-        <span className="mt-0.5 block truncate text-sm text-muted-foreground">{[entry.category, place].filter(Boolean).join(" · ")}</span>
+        <span className="mt-0.5 block truncate text-sm text-muted-foreground">{tradePlace(entry)}</span>
         {rated && (
           <span className="mt-1 flex items-center gap-1.5 text-sm">
             <Stars value={entry.extra!.rating_avg!} size={14} />

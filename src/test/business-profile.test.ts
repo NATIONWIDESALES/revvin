@@ -47,7 +47,7 @@ describe("profile display", () => {
     expect(profileTitle({ name: "Acme", category: "Plumbing", city: "Phoenix", state: "AZ" })).toBe("Acme, Plumbing in Phoenix, AZ | Revvin");
   });
   it("referral box hides rewards for regulated trades", () => {
-    expect(referralLine({ name: "Acme", category: "Plumbing", has_reward: true, reward_text: "100" })).toBe("Know someone who needs plumbing? Refer them and Acme pays you $100 when the job closes.");
+    expect(referralLine({ name: "Acme", category: "Plumbing", has_reward: true, reward_text: "100" })).toBe("Know someone who needs a plumber? Refer them and Acme pays you $100 when the job closes.");
     expect(referralLine({ name: "Acme", category: "Mortgage", has_reward: true, reward_text: "100" })).toBeNull();
   });
   it("review labels and copy", () => {

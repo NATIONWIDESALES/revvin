@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { track } from "@/lib/track";
 import { previewSignupUrl, storePreview } from "@/lib/instantPreview";
-import { listingClaimPreview, loadListing, placeLine, requestRemoval, type DirectoryListing } from "@/lib/directory";
+import { realTrade, listingClaimPreview, loadListing, placeLine, requestRemoval, type DirectoryListing } from "@/lib/directory";
 
 const DirectoryMap = lazy(() => import("@/components/marketplace/DirectoryMap"));
 const noop = () => {};
@@ -92,7 +92,7 @@ export default function DirectoryListingPage() {
   const Icon = tradeIcon(listing.category);
   return (
     <main className="bg-paper">
-      <SEOHead title={`${listing.name}${place ? `, ${place}` : ""} | Revvin`} description={`${listing.name} is a ${listing.category.toLowerCase()} business${place ? ` in ${place}` : ""}.`} path={`/b/${listing.slug}`} noindex />
+      <SEOHead title={`${listing.name}${place ? `, ${place}` : ""} | Revvin`} description={`${[listing.name, realTrade(listing.category)].filter(Boolean).join(", ")}${place ? ` in ${place}` : ""} on Revvin.`} path={`/b/${listing.slug}`} noindex />
       <header className="bg-muted">
         <div className="mk-wrap py-8">
           <Breadcrumb />
@@ -100,7 +100,7 @@ export default function DirectoryListingPage() {
             <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-card" aria-hidden><Icon className="h-8 w-8 text-muted-foreground" strokeWidth={1.5} /></span>
             <div className="min-w-0">
               <h1 className="break-words font-display text-[clamp(28px,4vw,44px)] leading-[1.05] text-forest">{listing.name}</h1>
-              <p className="mt-1 text-lg text-muted-foreground">{[listing.category, place].filter(Boolean).join(" · ")}</p>
+              <p className="mt-1 text-lg text-muted-foreground">{[realTrade(listing.category), place].filter(Boolean).join(" · ")}</p>
               <span className="mt-2 inline-block rounded border border-line bg-card px-2 py-0.5 text-xs text-muted-foreground">Unclaimed</span>
             </div>
           </div>

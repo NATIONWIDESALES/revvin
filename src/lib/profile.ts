@@ -1,3 +1,4 @@
+import { realTrade } from "@/lib/directory";
 import { loadSupabase } from "@/lib/supabaseLazy";
 import type { DirectoryEntry } from "@/lib/directory";
 
@@ -65,7 +66,8 @@ export function cardMedia(e: Pick<DirectoryEntry, "logo_url" | "is_pro">, x?: Ca
 export const stateCode = (s: string | null) => (s ?? "").replace(/^(US|CA)-/i, "").trim();
 export const profileTitle = (p: { name: string; category: string; city: string | null; state: string | null }) => {
   const place = [p.city, stateCode(p.state)].filter(Boolean).join(", ");
-  return `${p.name}, ${p.category}${place ? ` in ${place}` : ""} | Revvin`;
+  const trade = realTrade(p.category);
+  return `${p.name}${trade ? `, ${trade}` : ""}${place ? ` in ${place}` : ""} | Revvin`;
 };
 
 /** Profile completeness for the owner editor: percent and the next suggested step. */

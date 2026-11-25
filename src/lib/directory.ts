@@ -53,6 +53,25 @@ export function cardReward(e: Pick<DirectoryEntry, "kind" | "category" | "has_re
 export const entryHref = (e: Pick<DirectoryEntry, "kind" | "slug">) => `/b/${e.slug}`;
 export const placeLine = (e: { city: string | null; region: string | null }) =>
   [e.city, e.region?.replace(/^(US|CA)-/i, "")].filter(Boolean).join(", ");
+/** The category as a trade, or null when it is "Other", empty or missing. */
+export const realTrade = (category: string | null | undefined): string | null => {
+  const c = (category ?? "").trim();
+  return c && c.toLowerCase() !== "other" ? c : null;
+};
+/** "Trade · City, ST", or just the place when there is no real trade. */
+export const tradePlace = (e: { category: string | null; city: string | null; region: string | null }) =>
+  [realTrade(e.category), placeLine(e)].filter(Boolean).join(" · ");
+/** What a referred customer needs, per trade. Anything missing uses "could use {Business}". */
+export const TRADE_NEEDS: Record<string, string> = {
+  "hvac": "heating or cooling work", "roofing": "a roofer", "plumbing": "a plumber", "electrical": "an electrician",
+  "landscaping": "a landscaper", "solar": "solar", "auto repair": "auto repair", "painting": "a painter", "cleaning": "a cleaner",
+  "general contractor": "a contractor", "home services": "help around the house", "pest control": "pest control", "flooring": "new floors",
+};
+export function referralSentence(name: string, category: string | null | undefined, amount: string): string {
+  const need = TRADE_NEEDS[(realTrade(category) ?? "").toLowerCase()];
+  const ask = need ? `Know someone who needs ${need}?` : `Know someone who could use ${name}?`;
+  return `${ask} Refer them and ${name} pays you ${amount} when the job closes.`;
+}
 export const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("") || "?";
 
 const rpc = async <T,>(fn: string, args: Record<string, unknown>): Promise<T> => {
