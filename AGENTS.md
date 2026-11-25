@@ -46,4 +46,3 @@
 - Security dependency overrides pin patched transitive packages; deployment-specific remote imports must be reviewed separately. Why: a browser lockfile does not update remote edge dependencies.
 - Lazy/Vite recovery uses a 30-second path guard and deferred chunk_reload reports; crash stacks keep bounded file:line; main supplies missing ResizeObserver before rendering and Slider retains a fallback. Why: recover safely on every page in reduced-feature browsers.
 - Correlate failure sessions in build_id. Why: preserve the RPC and schema.
-- The marketplace directory is read only through anon-callable SECURITY DEFINER fn_directory_* functions that return fixed safe columns; directory tables have no client policies and imports go through service-only directory-import. Why: unclaimed listings and owner data never become directly queryable.

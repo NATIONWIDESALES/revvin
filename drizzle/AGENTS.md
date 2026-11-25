@@ -1,0 +1,1 @@
+- Directory data is read only via fn_directory_* safe-column functions; writes are service-only. Why: no direct table access.
