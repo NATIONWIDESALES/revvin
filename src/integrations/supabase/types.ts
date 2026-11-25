@@ -730,8 +730,10 @@ export type Database = {
           region: string | null
           slug: string
           source: string
+          source_category: string | null
           source_id: string
           source_license: string | null
+          source_release: string | null
           status: string
           updated_at: string
           website: string | null
@@ -751,8 +753,10 @@ export type Database = {
           region?: string | null
           slug: string
           source: string
+          source_category?: string | null
           source_id: string
           source_license?: string | null
+          source_release?: string | null
           status?: string
           updated_at?: string
           website?: string | null
@@ -772,8 +776,10 @@ export type Database = {
           region?: string | null
           slug?: string
           source?: string
+          source_category?: string | null
           source_id?: string
           source_license?: string | null
+          source_release?: string | null
           status?: string
           updated_at?: string
           website?: string | null
@@ -3746,6 +3752,26 @@ export type Database = {
         Returns: undefined
       }
       fn_data_retention: { Args: never; Returns: Json }
+      fn_directory_business_rows: {
+        Args: never
+        Returns: {
+          category: string
+          city: string
+          country: string
+          has_reward: boolean
+          is_pro: boolean
+          is_verified: boolean
+          kind: string
+          lat: number
+          lng: number
+          logo_url: string
+          name: string
+          rank: number
+          region: string
+          reward_text: string
+          slug: string
+        }[]
+      }
       fn_directory_claim: {
         Args: { p_business_id: string; p_slug: string }
         Returns: boolean

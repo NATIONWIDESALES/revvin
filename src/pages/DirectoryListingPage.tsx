@@ -100,7 +100,9 @@ export default function DirectoryListingPage() {
           </div>
           {showRemoval && <div className="mt-5 max-w-md rounded-xl border border-line bg-card p-5"><RemovalForm slug={listing.slug} /></div>}
           <p className="mt-8 text-xs text-muted-foreground">
-            Business details from {listing.source}{listing.source_license ? `, ${listing.source_license}` : ""}.
+            {listing.source === "overture"
+              ? <>Business information from Overture Maps Foundation, <a className="underline" href="https://overturemaps.org" target="_blank" rel="noopener noreferrer">overturemaps.org</a>{listing.source_license ? ` (${listing.source_license})` : ""}.</>
+              : <>Business details from {listing.source}{listing.source_license ? `, ${listing.source_license}` : ""}.</>}
           </p>
         </section>
         {listing.lat != null && listing.lng != null && (

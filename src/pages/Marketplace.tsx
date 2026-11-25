@@ -179,6 +179,9 @@ export default function Marketplace() {
           )}
           <div className={view === "map" && !desktop && !mapFailed ? "hidden" : ""}>{list}</div>
         </div>
+        <p className="mt-8 text-xs text-muted-foreground">
+          Data sources: businesses that joined Revvin entered their own details. Unclaimed listings come from the Overture Maps Foundation Places data (<a className="underline" href="https://overturemaps.org" target="_blank" rel="noopener noreferrer">overturemaps.org</a>), licensed CDLA-Permissive-2.0, with some records under Apache-2.0. Map data from OpenStreetMap contributors.
+        </p>
       </section>
     </main>
   );

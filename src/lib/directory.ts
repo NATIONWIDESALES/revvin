@@ -48,7 +48,8 @@ export function cardReward(e: Pick<DirectoryEntry, "kind" | "category" | "has_re
 }
 
 export const entryHref = (e: Pick<DirectoryEntry, "kind" | "slug">) => (e.kind === "business" ? `/r/${e.slug}` : `/b/${e.slug}`);
-export const placeLine = (e: { city: string | null; region: string | null }) => [e.city, e.region].filter(Boolean).join(", ");
+export const placeLine = (e: { city: string | null; region: string | null }) =>
+  [e.city, e.region?.replace(/^(US|CA)-/i, "")].filter(Boolean).join(", ");
 export const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("") || "?";
 
 const rpc = async <T,>(fn: string, args: Record<string, unknown>): Promise<T> => {
