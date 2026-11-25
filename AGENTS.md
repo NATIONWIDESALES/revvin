@@ -46,4 +46,4 @@
 - Security dependency overrides pin patched transitive packages; deployment-specific remote imports must be reviewed separately. Why: a browser lockfile does not update remote edge dependencies.
 - Lazy/Vite recovery uses a 30-second path guard and deferred chunk_reload reports; crash stacks keep bounded file:line; main supplies missing ResizeObserver before rendering and Slider retains a fallback. Why: recover safely on every page in reduced-feature browsers.
 - Correlate failure sessions in build_id. Why: preserve the RPC and schema.
-- Marketplace chain/franchise hiding is a reversible directory_listings.is_chain flag recomputed by fn_directory_flag_chains (run by fn_directory_import); every public listing read must filter NOT is_chain. Why: hide chains without deleting rows, and claimed listings always show.
+- Public listing reads filter NOT is_chain (set by fn_directory_flag_chains). Why: reversible chain hiding.
