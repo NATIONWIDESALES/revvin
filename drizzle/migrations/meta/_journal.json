@@ -449,6 +449,13 @@
       "when": 1795645508047,
       "tag": "0063_directory_chain_brand_phrases",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1795647930391,
+      "tag": "0064_directory_split_trades_hide_dealers_suppliers",
+      "breakpoints": true
     }
   ]
 }

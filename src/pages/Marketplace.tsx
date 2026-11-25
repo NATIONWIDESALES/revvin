@@ -1,4 +1,4 @@
-import { panelColumns } from "@/lib/directory";
+import { panelColumns, tradeFilterGroups, legacyFilterTrades, visibleTrades } from "@/lib/directory";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { List, Map as MapIcon, Search, SlidersHorizontal } from "lucide-react";
@@ -8,14 +8,14 @@ import { PAGE_META } from "@/content/pageMeta";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DirectoryCard, { CardSkeleton, OwnerCard } from "@/components/marketplace/DirectoryCard";
 import type { DirectoryMapHandle } from "@/components/marketplace/DirectoryMap";
 import { track } from "@/lib/track";
 import { loadCardExtras } from "@/lib/profile";
 import { zoomBucket } from "@/lib/analyticsPrivacy";
 import {
-  DIRECTORY_CATEGORIES, PAGE_SIZE, PIN_ZOOM, cityLocation, countLine, directoryClusters, entryHref,
+  PAGE_SIZE, PIN_ZOOM, cityLocation, countLine, directoryClusters, entryHref,
   marketplaceSearch, openingView, parseMarketplaceParams, rewardBounds, searchMap,
   type Bounds, type DirectoryCluster, type DirectoryEntry, type MapSort, type MarketplaceState,
 } from "@/lib/directory";
@@ -45,6 +45,8 @@ export default function Marketplace() {
   const [placeQ, setPlaceQ] = useState<string | null>(null);
   const [trade, setTrade] = useState(ALL);
   const cat = trade === ALL ? "" : trade;
+  const [shownTrades, setShownTrades] = useState<Set<string> | null>(null);
+  useEffect(() => { visibleTrades().then(setShownTrades).catch(() => {}); }, []);
   const [rewards, setRewards] = useState(false);
   const [sort, setSort] = useState<MapSort>("featured");
   const [desktop, setDesktop] = useState(true);
@@ -207,7 +209,18 @@ export default function Marketplace() {
       <SelectTrigger className={cls} aria-label="Trade"><SelectValue /></SelectTrigger>
       <SelectContent>
         <SelectItem value={ALL}>All trades</SelectItem>
-        {DIRECTORY_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+        {tradeFilterGroups(shownTrades, cat).map((g) => (
+          <SelectGroup key={g.group}>
+            <SelectLabel>{g.group}</SelectLabel>
+            {g.trades.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+          </SelectGroup>
+        ))}
+        {legacyFilterTrades(shownTrades, cat).length > 0 && (
+          <SelectGroup>
+            <SelectLabel>More</SelectLabel>
+            {legacyFilterTrades(shownTrades, cat).map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+          </SelectGroup>
+        )}
       </SelectContent>
     </Select>
   );

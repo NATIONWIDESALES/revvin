@@ -1,9 +1,9 @@
 import { loadSupabase } from "@/lib/supabaseLazy";
 import { PREVIEW_TRADES } from "@/content/previewTrades";
 import { suggestedReward, type PreviewData } from "@/lib/instantPreview";
-import { directoryRegulated, rewardLine, DIRECTORY_CATEGORIES } from "../../supabase/functions/_shared/directory";
+import { directoryRegulated, rewardLine, DIRECTORY_CATEGORIES, TRADES, TRADE_GROUPS, tradeInfo } from "../../supabase/functions/_shared/directory";
 
-export { directoryRegulated, rewardLine, DIRECTORY_CATEGORIES };
+export { directoryRegulated, rewardLine, DIRECTORY_CATEGORIES, TRADES, TRADE_GROUPS, tradeInfo };
 
 /** One public directory row from fn_directory_search. Safe columns only. */
 export interface DirectoryEntry {
@@ -61,11 +61,10 @@ export const realTrade = (category: string | null | undefined): string | null =>
 /** "Trade · City, ST", or just the place when there is no real trade. */
 export const tradePlace = (e: { category: string | null; city: string | null; region: string | null }) =>
   [realTrade(e.category), placeLine(e)].filter(Boolean).join(" · ");
-/** What a referred customer needs, per trade. Anything missing uses "could use {Business}". */
+/** What a referred customer needs, per trade, from the shared TRADES list. Anything missing uses "could use {Business}". */
 export const TRADE_NEEDS: Record<string, string> = {
-  "hvac": "heating or cooling work", "roofing": "a roofer", "plumbing": "a plumber", "electrical": "an electrician",
-  "landscaping": "a landscaper", "solar": "solar", "auto repair": "auto repair", "painting": "a painter", "cleaning": "a cleaner",
-  "general contractor": "a contractor", "home services": "help around the house", "pest control": "pest control", "flooring": "new floors",
+  ...Object.fromEntries(TRADES.filter((t) => t.need).map((t) => [t.name.toLowerCase(), t.need])),
+  "general contractor": "a contractor",
 };
 export function referralSentence(name: string, category: string | null | undefined, amount: string): string {
   const need = TRADE_NEEDS[(realTrade(category) ?? "").toLowerCase()];
@@ -141,6 +140,25 @@ export function clusterLabel(n: number): string {
   if (n < 10000) return n.toLocaleString("en-US");
   if (n < 1_000_000) return `${(Math.round(n / 100) / 10).toString()}k`;
   return `${(Math.round(n / 100000) / 10).toString()}m`;
+}
+/** Filter groups holding only trades in `visible` (plus the current selection), in TRADES order. */
+export function tradeFilterGroups(visible: ReadonlySet<string> | null, selected = ""): { group: string; trades: string[] }[] {
+  return TRADE_GROUPS.map((group) => ({
+    group,
+    trades: TRADES.filter((t) => t.group === group && (!visible || visible.has(t.name) || t.name === selected)).map((t) => t.name),
+  })).filter((g) => g.trades.length > 0);
+}
+/** Legacy catch-alls (Home Services, Auto) appear only when a visible listing uses them. */
+export const legacyFilterTrades = (visible: ReadonlySet<string> | null, selected = "") =>
+  TRADES.filter((t) => !t.group && t.name !== "Other" && (visible?.has(t.name) || t.name === selected)).map((t) => t.name);
+let tradesCache: { at: number; p: Promise<Set<string>> } | null = null;
+/** Trades with at least one visible listing, cached for an hour. */
+export function visibleTrades(): Promise<Set<string>> {
+  if (tradesCache && Date.now() - tradesCache.at < 3_600_000) return tradesCache.p;
+  const p = rpc<{ category: string }[]>("fn_directory_trades", {}).then((r) => new Set(r.map((x) => x.category)));
+  p.catch(() => { tradesCache = null; });
+  tradesCache = { at: Date.now(), p };
+  return p;
 }
 export const countLine = (n: number) => `${n.toLocaleString("en-US")} ${n === 1 ? "business" : "businesses"} in this area`;
 

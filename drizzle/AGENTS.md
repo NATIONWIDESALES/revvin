@@ -1,3 +1,4 @@
 - Directory data is read only via fn_directory_* safe-column functions; writes are service-only. Why: no direct table access.
 - Public Pro labels and limits in SQL use fn_plan_is_pro. Why: one server rule matching fn_effective_plan.
 - Public listing reads filter NOT is_chain (set by fn_directory_flag_chains). Why: reversible chain hiding.
+- Directory trades come from TRADES in supabase/functions/_shared/directory.ts; source-category mapping is mirrored in fn_directory_source_trade. Why: filter, icons, referral wording, pickers and imports agree.

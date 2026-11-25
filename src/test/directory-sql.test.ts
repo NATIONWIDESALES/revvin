@@ -174,6 +174,8 @@ async function setupChains() {
   await db.exec(chainMigration());
   const f2 = readdirSync("drizzle/migrations").find((n) => /_directory_chain_brand_phrases\.sql$/.test(n));
   await db.exec(readFileSync(`drizzle/migrations/${f2}`, "utf8").replace(/--> statement-breakpoint/g, ""));
+  const f3 = readdirSync("drizzle/migrations").find((n) => /_directory_split_trades_hide_dealers_suppliers\.sql$/.test(n));
+  await db.exec(readFileSync(`drizzle/migrations/${f3}`, "utf8").replace(/--> statement-breakpoint/g, ""));
   return db;
 }
 
@@ -221,6 +223,32 @@ describe("chain and franchise hiding", () => {
         { name: "M&R Electric", chain_reason: null },
         { name: "Mr. Electric of Tulsa", chain_reason: "brand" },
         { name: "Tesla Electric", chain_reason: null },
+      ]);
+    } finally { await db.close(); }
+  }, 30000);
+
+  it("maps a 'contractor' source row to General Contracting", async () => {
+    const db = await setupChains();
+    try {
+      await importRows(db, [listing("gc", { name: "Bob Builds", category: "Home Services", source_category: "contractor" })]);
+      const [l] = await rows(db, "SELECT category, source_category FROM public.directory_listings");
+      expect(l).toEqual({ category: "General Contracting", source_category: "contractor" });
+    } finally { await db.close(); }
+  }, 30000);
+
+  it("hides dealerships but not independent shops, and hides suppliers", async () => {
+    const db = await setupChains();
+    try {
+      await importRows(db, [
+        listing("d1", { name: "The BMW Store", category: "Auto Repair" }),
+        listing("d2", { name: "Mike's Honda Repair", category: "Auto Repair" }),
+        listing("s1", { name: "Vancouver Irrigation Supply Ltd", category: "Landscaping" }),
+      ]);
+      const r = await rows(db, "SELECT name, chain_reason FROM public.directory_listings ORDER BY name");
+      expect(r).toEqual([
+        { name: "Mike's Honda Repair", chain_reason: null },
+        { name: "The BMW Store", chain_reason: "dealership" },
+        { name: "Vancouver Irrigation Supply Ltd", chain_reason: "supplier" },
       ]);
     } finally { await db.close(); }
   }, 30000);

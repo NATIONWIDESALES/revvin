@@ -1007,6 +1007,27 @@ export type Database = {
           },
         ]
       }
+      directory_trade_flag_snapshot_20261125b: {
+        Row: {
+          category: string | null
+          chain_reason: string | null
+          id: string | null
+          is_chain: boolean | null
+        }
+        Insert: {
+          category?: string | null
+          chain_reason?: string | null
+          id?: string | null
+          is_chain?: boolean | null
+        }
+        Update: {
+          category?: string | null
+          chain_reason?: string | null
+          id?: string | null
+          is_chain?: boolean | null
+        }
+        Relationships: []
+      }
       email_leads: {
         Row: {
           business_contact: string | null
@@ -4214,6 +4235,14 @@ export type Database = {
       fn_directory_slug_base: {
         Args: { p_city: string; p_name: string }
         Returns: string
+      }
+      fn_directory_source_trade: { Args: { p: string }; Returns: string }
+      fn_directory_trades: {
+        Args: never
+        Returns: {
+          category: string
+          count: number
+        }[]
       }
       fn_earn_businesses: {
         Args: { p_metro_slug: string }

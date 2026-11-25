@@ -1,12 +1,70 @@
 // Pure marketplace directory rules shared by the directory-import function,
 // the marketplace page and tests. No runtime imports.
 
-/** Trade vocabulary for directory entries: the business picker plus the regulated trades. */
-export const DIRECTORY_CATEGORIES = [
-  "Roofing", "HVAC", "Plumbing", "Electrical", "Landscaping", "Painting",
-  "Auto", "Solar", "Real Estate", "Mortgage", "Insurance", "Home Services", "Other",
-] as const;
-export type DirectoryCategory = (typeof DIRECTORY_CATEGORIES)[number];
+/** Marketplace filter groups, in display order. */
+export const TRADE_GROUPS = ["Home exterior", "Home interior", "Systems", "Outdoor", "Cleaning and maintenance", "Auto", "Professional"] as const;
+export type TradeGroup = (typeof TRADE_GROUPS)[number];
+export interface Trade {
+  name: string;
+  /** Filter group, or null for catch-alls kept only for businesses that already use them. */
+  group: TradeGroup | null;
+  /** What a referred customer needs: "Know someone who needs {need}?". Empty uses "could use {Business}". */
+  need: string;
+  /** Icon key, mapped to an icon by the card component. */
+  icon: string;
+}
+/**
+ * The one trade list: marketplace filter, referral sentence, card icons and
+ * the business trade picker. Category values already stored on businesses
+ * (Home Services, Auto, Other) stay valid.
+ */
+export const TRADES: readonly Trade[] = [
+  { name: "Roofing", group: "Home exterior", need: "a roofer", icon: "roof" },
+  { name: "Gutters and Siding", group: "Home exterior", need: "gutter or siding work", icon: "roof" },
+  { name: "Windows and Doors", group: "Home exterior", need: "new windows or doors", icon: "door" },
+  { name: "Garage Doors", group: "Home exterior", need: "garage door repair", icon: "garage" },
+  { name: "Painting", group: "Home exterior", need: "a painter", icon: "paint" },
+  { name: "Concrete and Masonry", group: "Home exterior", need: "concrete or masonry work", icon: "brick" },
+  { name: "General Contracting", group: "Home exterior", need: "a contractor", icon: "hammer" },
+  { name: "Remodeling", group: "Home interior", need: "a remodel", icon: "hammer" },
+  { name: "Flooring", group: "Home interior", need: "new floors", icon: "layers" },
+  { name: "Insulation and Drywall", group: "Home interior", need: "insulation or drywall work", icon: "layers" },
+  { name: "Handyman", group: "Home interior", need: "a handyman", icon: "hammer" },
+  { name: "Appliance Repair", group: "Home interior", need: "appliance repair", icon: "fridge" },
+  { name: "Locksmith", group: "Home interior", need: "a locksmith", icon: "key" },
+  { name: "Home Inspection", group: "Home interior", need: "a home inspection", icon: "inspect" },
+  { name: "HVAC", group: "Systems", need: "heating or cooling work", icon: "flame" },
+  { name: "Plumbing", group: "Systems", need: "a plumber", icon: "wrench" },
+  { name: "Electrical", group: "Systems", need: "an electrician", icon: "zap" },
+  { name: "Solar", group: "Systems", need: "solar", icon: "sun" },
+  { name: "Landscaping", group: "Outdoor", need: "a landscaper", icon: "trees" },
+  { name: "Tree Service", group: "Outdoor", need: "tree work", icon: "trees" },
+  { name: "Fencing and Decks", group: "Outdoor", need: "a new fence or deck", icon: "fence" },
+  { name: "Pools and Spas", group: "Outdoor", need: "pool or spa service", icon: "waves" },
+  { name: "Septic", group: "Outdoor", need: "septic service", icon: "drops" },
+  { name: "Cleaning", group: "Cleaning and maintenance", need: "a cleaner", icon: "sparkles" },
+  { name: "Pest Control", group: "Cleaning and maintenance", need: "pest control", icon: "bug" },
+  { name: "Moving", group: "Cleaning and maintenance", need: "a mover", icon: "truck" },
+  { name: "Junk Removal", group: "Cleaning and maintenance", need: "junk removal", icon: "trash" },
+  { name: "Auto Repair", group: "Auto", need: "auto repair", icon: "car" },
+  { name: "Auto Body", group: "Auto", need: "body work on their car", icon: "car" },
+  { name: "Tires", group: "Auto", need: "new tires", icon: "tire" },
+  { name: "Auto Detailing", group: "Auto", need: "car detailing", icon: "sparkles" },
+  { name: "Auto Glass", group: "Auto", need: "auto glass repair", icon: "car" },
+  { name: "Real Estate", group: "Professional", need: "", icon: "building" },
+  { name: "Mortgage", group: "Professional", need: "", icon: "building" },
+  { name: "Insurance", group: "Professional", need: "", icon: "building" },
+  { name: "Home Services", group: null, need: "help around the house", icon: "hammer" },
+  { name: "Auto", group: null, need: "car work", icon: "car" },
+  { name: "Other", group: null, need: "", icon: "building" },
+];
+const TRADE_BY_NAME = new Map(TRADES.map((t) => [t.name.toLowerCase(), t]));
+/** The trade entry for a stored category, case-insensitive. */
+export const tradeInfo = (category: string | null | undefined): Trade | undefined => TRADE_BY_NAME.get((category ?? "").trim().toLowerCase());
+
+/** Trade vocabulary for directory entries, from TRADES. */
+export const DIRECTORY_CATEGORIES = TRADES.map((t) => t.name);
+export type DirectoryCategory = string;
 
 const squash = (v: string | null | undefined) => (v ?? "").toLowerCase().replace(/[^a-z]/g, "");
 
@@ -25,11 +83,28 @@ const ALIASES: Record<string, DirectoryCategory> = {
   electrician: "Electrical", electricians: "Electrical",
   landscaper: "Landscaping", gardener: "Landscaping", lawncare: "Landscaping",
   painter: "Painting", painters: "Painting",
-  autorepair: "Auto", carrepair: "Auto", mechanic: "Auto",
+  autorepair: "Auto Repair", carrepair: "Auto Repair", mechanic: "Auto Repair",
   solarinstaller: "Solar", realtor: "Real Estate", realestateagent: "Real Estate", estateagent: "Real Estate",
-  mortgagebroker: "Mortgage", insuranceagent: "Insurance", handyman: "Home Services", contractor: "Home Services",
+  mortgagebroker: "Mortgage", insuranceagent: "Insurance", handyman: "Handyman", contractor: "General Contracting", generalcontractor: "General Contracting",
 };
 const BY_SQUASH = new Map<string, DirectoryCategory>(DIRECTORY_CATEGORIES.map((c) => [squash(c), c]));
+/** Source category (Overture taxonomy.primary) to trade. Mirrors fn_directory_source_trade. */
+export const SOURCE_TRADES: Record<string, string> = Object.fromEntries(Object.entries({
+  "General Contracting": "contractor building_contractor",
+  Remodeling: "kitchen_remodeling bathroom_remodeling altering_and_remodeling_contractor",
+  "Pest Control": "pest_control_service", Moving: "mover",
+  Cleaning: "cleaning_service home_cleaning janitorial_service office_cleaning carpet_cleaning window_washing pressure_washing chimney_sweep chimney_service air_duct_cleaning_service",
+  "Concrete and Masonry": "masonry_concrete masonry_contractor stone_and_masonry paving_contractor excavation_service demolition_service",
+  Flooring: "flooring_contractor carpet_installation", "Windows and Doors": "windows_installation door_sales_service",
+  "Garage Doors": "garage_door_service", "Fencing and Decks": "fence_and_gate_sales_service deck_and_railing_sales_service",
+  "Pools and Spas": "pool_and_hot_tub_service pool_cleaning", Locksmith: "key_and_locksmith", "Appliance Repair": "appliance_repair_service",
+  "Insulation and Drywall": "insulation_installation drywall_service waterproofing", Handyman: "handyman home_service",
+  "Home Inspection": "home_inspector", "Junk Removal": "junk_removal_and_hauling", "Tree Service": "tree_service",
+  "Gutters and Siding": "gutter_service siding", Septic: "septic_service",
+  "Auto Repair": "automotive_repair automotive_service brake_service_and_repair transmission_repair auto_electrical_repair oil_change_station auto_restoration_service auto_upholstery",
+  "Auto Body": "auto_body_shop", Tires: "tire_shop", "Auto Detailing": "auto_detailing car_window_tinting", "Auto Glass": "auto_glass_service",
+}).flatMap(([trade, keys]) => keys.split(" ").map((k) => [k, trade])));
+
 /** Maps a free-text category onto the directory vocabulary, or "Other". */
 export function mapDirectoryCategory(raw: string | null | undefined): DirectoryCategory {
   const k = squash(raw);
@@ -40,7 +115,7 @@ export function mapDirectoryCategory(raw: string | null | undefined): DirectoryC
 export const rewardLine = (reward: string) => `Pays ${reward} per referral, paid by the business when the job closes`;
 
 export interface ImportRow {
-  name: string; category: DirectoryCategory; city: string | null; region: string | null; country: "US" | "CA";
+  name: string; category: DirectoryCategory; source_category: string | null; city: string | null; region: string | null; country: "US" | "CA";
   postal_code: string | null; latitude: number | null; longitude: number | null; phone: string | null;
   website: string | null; source: string; source_id: string; source_license: string | null;
 }
@@ -85,8 +160,9 @@ export function validateImportRow(input: unknown): { row: ImportRow } | { error:
   let website = text(r.website, 300);
   if (website && !/^https?:\/\//i.test(website)) website = `https://${website}`;
   if (website) { try { const u = new URL(website); if (!/^https?:$/.test(u.protocol)) website = null; } catch { website = null; } }
+  const source_category = text(r.source_category, 80);
   return { row: {
-    name, category: mapDirectoryCategory(text(r.category, 80)), city: text(r.city, 120), region: text(r.region, 40)?.toUpperCase() ?? null,
+    name, category: (source_category && SOURCE_TRADES[source_category.toLowerCase()]) || mapDirectoryCategory(text(r.category, 80)), source_category, city: text(r.city, 120), region: text(r.region, 40)?.toUpperCase() ?? null,
     country, postal_code: text(r.postal_code, 20), latitude, longitude, phone: text(r.phone, 32), website,
     source, source_id, source_license: text(r.source_license, 200),
   } };

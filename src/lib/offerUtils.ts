@@ -1,3 +1,4 @@
+import { TRADES } from "../../supabase/functions/_shared/directory";
 import type { Country, Offer } from "../types/offer";
 
 export const categories = [
@@ -12,10 +13,7 @@ export const categories = [
  * trade-oriented list than `categories` above (which drives offer and
  * marketplace filtering). Single source of truth for the onboarding picker.
  */
-export const BUSINESS_CATEGORIES = [
-  "Roofing", "HVAC", "Plumbing", "Electrical", "Landscaping", "Painting",
-  "Auto", "Solar", "Real Estate", "Home Services", "Other",
-];
+export const BUSINESS_CATEGORIES: string[] = TRADES.map((t) => t.name).filter((n) => n !== "Mortgage" && n !== "Insurance");
 
 // Note: cityJumpsCA / cityJumpsUS are retained for backward compatibility
 // but MapView now derives city chips dynamically from the filtered offers.

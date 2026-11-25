@@ -1,31 +1,24 @@
 import { forwardRef } from "react";
 import { Link } from "react-router-dom";
 import {
-  BadgeCheck, Building2, Bug, Car, Flame, Hammer, Home, KeyRound, Paintbrush, Snowflake, Sparkles, Sun, Trees, Wrench, Zap,
+  BadgeCheck, BrickWall, Bug, Building2, Car, CircleDot, ClipboardCheck, DoorOpen, Droplets, Fence, Flame, Hammer, Home, KeyRound,
+  Layers, Paintbrush, Refrigerator, Sparkles, Sun, Trash2, Trees, Truck, Warehouse, Waves, Wrench, Zap,
   type LucideIcon,
 } from "lucide-react";
-import { cardRewardAmount, entryHref, placeLine, tradePlace, type DirectoryEntry } from "@/lib/directory";
+import { tradeInfo, cardRewardAmount, entryHref, placeLine, tradePlace, type DirectoryEntry } from "@/lib/directory";
 import { track } from "@/lib/track";
 import { cardMedia } from "@/lib/profile";
 import Stars from "@/components/profile/Stars";
 
-/** A plain trade icon for cards with no photo or logo. Never a stock photo. */
-export function tradeIcon(category: string): LucideIcon {
-  const c = category.toLowerCase();
-  if (c.includes("plumb")) return Wrench;
-  if (c.includes("hvac") || c.includes("heat")) return Flame;
-  if (c.includes("cool") || c.includes("air")) return Snowflake;
-  if (c.includes("roof")) return Home;
-  if (c.includes("electric")) return Zap;
-  if (c.includes("landscap") || c.includes("lawn") || c.includes("tree")) return Trees;
-  if (c.includes("auto") || c.includes("car")) return Car;
-  if (c.includes("paint")) return Paintbrush;
-  if (c.includes("lock")) return KeyRound;
-  if (c.includes("pest")) return Bug;
-  if (c.includes("clean")) return Sparkles;
-  if (c.includes("solar")) return Sun;
-  if (c.includes("contractor") || c.includes("home services") || c.includes("handyman")) return Hammer;
-  return Building2;
+const ICONS: Record<string, LucideIcon> = {
+  roof: Home, door: DoorOpen, garage: Warehouse, paint: Paintbrush, brick: BrickWall, hammer: Hammer, layers: Layers,
+  fridge: Refrigerator, key: KeyRound, inspect: ClipboardCheck, flame: Flame, wrench: Wrench, zap: Zap, sun: Sun, trees: Trees,
+  fence: Fence, waves: Waves, drops: Droplets, sparkles: Sparkles, bug: Bug, truck: Truck, trash: Trash2, car: Car, tire: CircleDot,
+  building: Building2,
+};
+/** A plain trade icon for cards with no photo or logo, from the shared trade list. Never a stock photo. */
+export function tradeIcon(category: string | null | undefined): LucideIcon {
+  return ICONS[tradeInfo(category)?.icon ?? ""] ?? Building2;
 }
 
 interface Props { entry: DirectoryEntry; selected?: boolean; compact?: boolean; onHover?: (slug: string | null) => void }
