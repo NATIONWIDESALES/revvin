@@ -972,6 +972,38 @@ export type Database = {
           },
         ]
       }
+      directory_referral_interest: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          listing_id: string
+          visitor_hash: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          listing_id: string
+          visitor_hash: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          listing_id?: string
+          visitor_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "directory_referral_interest_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "directory_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       directory_removal_requests: {
         Row: {
           created_at: string
@@ -4041,6 +4073,15 @@ export type Database = {
           slug: string
         }[]
       }
+      fn_directory_card_trust: {
+        Args: { p_slugs: string[] }
+        Returns: {
+          has_license: boolean
+          rating_avg: number
+          review_count: number
+          slug: string
+        }[]
+      }
       fn_directory_city: {
         Args: { p_q: string }
         Returns: {
@@ -4085,6 +4126,7 @@ export type Database = {
       fn_directory_flag_chains: { Args: never; Returns: Json }
       fn_directory_html: { Args: { p: string }; Returns: string }
       fn_directory_import: { Args: { p_rows: Json }; Returns: Json }
+      fn_directory_interest_count: { Args: { p_slug: string }; Returns: number }
       fn_directory_listing: {
         Args: { p_slug: string }
         Returns: {
@@ -4162,6 +4204,10 @@ export type Database = {
         }[]
       }
       fn_directory_public_count: { Args: never; Returns: number }
+      fn_directory_referral_interest: {
+        Args: { p_email?: string; p_slug: string }
+        Returns: number
+      }
       fn_directory_regulated: { Args: { p_category: string }; Returns: boolean }
       fn_directory_request_removal: {
         Args: {

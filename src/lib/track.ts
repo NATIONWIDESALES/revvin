@@ -69,7 +69,7 @@ export const FUNNEL_EVENTS = [
   "kit_ready_viewed", "kit_send_clicked", "intake_opened", "intake_send_us_clicked", "intake_import_succeeded",
   "print_pdf_downloaded", "print_kit_downloaded", "print_kit_emailed", "print_pdf_failed",
   "marketplace_viewed", "marketplace_map_moved", "marketplace_card_clicked",
-  "listing_viewed", "listing_claim_clicked", "listing_removal_requested",
+  "listing_viewed", "listing_claim_clicked", "listing_removal_requested", "listing_interest_clicked", "listing_interest_email",
 ] as const;
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];

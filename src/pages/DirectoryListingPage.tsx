@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Check, Globe, Phone } from "lucide-react";
 import { tradeIcon } from "@/components/marketplace/DirectoryCard";
 import { Breadcrumb, NearbyStrip } from "@/components/profile/ProfileParts";
+import { ClaimPreview, ReferInterest } from "@/components/profile/ClaimPreview";
 import { lazyWithChunkRecovery as lazy } from "@/lib/chunkRecovery";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { track } from "@/lib/track";
 import { previewSignupUrl, storePreview } from "@/lib/instantPreview";
-import { realTrade, listingClaimPreview, loadListing, placeLine, requestRemoval, type DirectoryListing } from "@/lib/directory";
+import { realTrade, listingClaimPreview, loadListing, placeLine, requestRemoval, interestCount, type DirectoryListing } from "@/lib/directory";
 
 const DirectoryMap = lazy(() => import("@/components/marketplace/DirectoryMap"));
 const noop = () => {};
@@ -60,6 +61,8 @@ export default function DirectoryListingPage() {
   const navigate = useNavigate();
   const [listing, setListing] = useState<DirectoryListing | null | undefined>(undefined);
   const [showRemoval, setShowRemoval] = useState(false);
+  const [interest, setInterest] = useState(0);
+  useEffect(() => { let live = true; interestCount(slug).then((n) => { if (live) setInterest(Number(n) || 0); }).catch(() => {}); return () => { live = false; }; }, [slug]);
 
   useEffect(() => {
     let live = true;
@@ -114,16 +117,11 @@ export default function DirectoryListingPage() {
             <ul className="mt-4 grid gap-2">
               {CLAIM_BENEFITS.map((b) => <li key={b} className="flex gap-2"><Check className="mt-0.5 h-5 w-5 shrink-0 text-green" aria-hidden />{b}</li>)}
             </ul>
+            {interest > 0 && <p className="mt-4 rounded-lg bg-sign/30 px-3 py-2 text-sm font-medium text-forest" data-testid="interest-count">{interest === 1 ? "1 person has" : `${interest.toLocaleString("en-US")} people have`} said they would refer customers to this business.</p>}
             <Button className="mt-5 h-12" onClick={claim}>Claim this business free</Button>
           </div>
-          <div className="rounded-2xl border border-dashed border-line bg-card p-5" aria-label="Example of a completed profile">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Illustration: what a claimed profile can show</p>
-            <div className="mt-4 grid grid-cols-3 gap-2">{["Your photos", "Your photos", "Your photos"].map((l, i) => <div key={i} className="flex aspect-video items-center justify-center rounded-lg bg-muted text-xs text-muted-foreground">{l}</div>)}</div>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              <div className="rounded-lg bg-muted p-4 text-xs text-muted-foreground">Your reviews</div>
-              <div className="rounded-lg bg-muted p-4 text-xs text-muted-foreground">Your referral reward</div>
-            </div>
-          </div>
+          <ClaimPreview listing={listing} onClaim={claim} />
+          <ReferInterest slug={listing.slug} onCount={setInterest} />
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button variant="outline" className="h-11" onClick={() => setShowRemoval((v) => !v)} aria-expanded={showRemoval}>Request removal</Button>
           </div>

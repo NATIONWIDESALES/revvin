@@ -8,7 +8,7 @@ import {
 import { tradeInfo, cardRewardAmount, entryHref, placeLine, tradePlace, type DirectoryEntry } from "@/lib/directory";
 import { track } from "@/lib/track";
 import { cardMedia } from "@/lib/profile";
-import Stars from "@/components/profile/Stars";
+import TrustBadges from "@/components/profile/TrustBadges";
 
 const ICONS: Record<string, LucideIcon> = {
   roof: Home, door: DoorOpen, garage: Warehouse, paint: Paintbrush, brick: BrickWall, hammer: Hammer, layers: Layers,
@@ -29,7 +29,6 @@ const DirectoryCard = forwardRef<HTMLAnchorElement, Props>(({ entry, selected, c
   const unclaimed = entry.kind === "listing";
   const Icon = tradeIcon(entry.category);
   const media = cardMedia(entry, entry.extra);
-  const rated = entry.is_pro && entry.extra && entry.extra.review_count > 0 && entry.extra.rating_avg !== null;
   if (unclaimed) return (
     <Link
       ref={ref}
@@ -85,24 +84,17 @@ const DirectoryCard = forwardRef<HTMLAnchorElement, Props>(({ entry, selected, c
       <span className="flex min-w-0 flex-1 flex-col p-3">
         <span className={`line-clamp-2 break-words font-semibold ${unclaimed ? "text-foreground/85" : "text-foreground"}`}>{entry.name}</span>
         <span className="mt-0.5 block truncate text-sm text-muted-foreground">{tradePlace(entry)}</span>
-        {rated && (
-          <span className="mt-1 flex items-center gap-1.5 text-sm">
-            <Stars value={entry.extra!.rating_avg!} size={14} />
-            <span className="text-muted-foreground">{entry.extra!.rating_avg!.toFixed(1)} ({entry.extra!.review_count.toLocaleString("en-US")})</span>
-          </span>
-        )}
         {(entry.is_pro || entry.is_verified) && (
           <span className="mt-1.5 flex flex-wrap items-center gap-2">
             {entry.is_pro && <span className="rounded bg-forest px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-primary-foreground">Pro</span>}
             {entry.is_verified && <span className="inline-flex items-center gap-1 text-xs font-medium text-primary"><BadgeCheck className="h-3.5 w-3.5" aria-hidden />Verified</span>}
           </span>
         )}
-        {reward && (
-          <span className="mt-2 block">
-            <span className="inline-block rounded-full bg-sign/30 px-2.5 py-0.5 text-sm font-semibold text-forest">Pays {reward} per referral</span>
-            <span className="mt-1 block text-xs text-muted-foreground">paid by the business when the job closes</span>
-          </span>
-        )}
+        <TrustBadges className="mt-2" max={3} facts={{
+          reward, reviewCount: entry.extra?.trust?.review_count ?? 0, ratingAvg: entry.extra?.trust?.rating_avg ?? null,
+          hasLicense: entry.extra?.trust?.has_license ?? false, takesQuotes: entry.is_pro,
+        }} />
+        {reward && <span className="mt-1 block text-xs text-muted-foreground">Reward paid by the business when the job closes</span>}
         {unclaimed && <span className="mt-auto pt-2 text-sm text-primary underline underline-offset-4">Is this yours? Claim it</span>}
       </span>
     </Link>

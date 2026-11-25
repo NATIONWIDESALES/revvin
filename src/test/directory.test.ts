@@ -90,3 +90,11 @@ describe("plan lines", () => {
     expect(PRO_FEATURES.map((f) => f.label)).toContain("Full marketplace profile: cover photo, photo gallery, all reviews with stars, quote requests, featured placement, no competitors on your page");
   });
 });
+
+import { placeLine as placeLineFix } from "@/lib/directory";
+describe("card place line", () => {
+  it("shows city and region only, never the postal code or a repeated region", () => {
+    expect(placeLineFix({ city: "Vancouver, BC, V7Y1C6", region: "BC" })).toBe("Vancouver, BC");
+    expect(placeLineFix({ city: "Denver", region: "US-CO" })).toBe("Denver, CO");
+  });
+});

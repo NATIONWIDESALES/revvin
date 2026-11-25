@@ -40,17 +40,29 @@ export async function photoUrls(paths: string[]): Promise<Record<string, string>
   return out;
 }
 
-export interface CardExtra { cover_url: string | null; photo_url: string | null; rating_avg: number | null; review_count: number }
+export interface CardExtra {
+  cover_url: string | null; photo_url: string | null; rating_avg: number | null; review_count: number;
+  /** Trust badge data: published reviews for any plan, licence on file (Pro profiles show the licence). */
+  trust?: { review_count: number; rating_avg: number | null; has_license: boolean };
+}
 /** One call for a whole page of cards. */
 export async function loadCardExtras(slugs: string[]): Promise<Record<string, CardExtra>> {
   if (slugs.length === 0) return {};
   const rows = await rpc<{ slug: string; cover_url: string | null; photo_path: string | null; rating_avg: number | null; review_count: number }[]>(
     "fn_directory_card_extras", { p_slugs: slugs.slice(0, 100) });
+  const trust = await rpc<{ slug: string; review_count: number; rating_avg: number | null; has_license: boolean }[]>(
+    "fn_directory_card_trust", { p_slugs: slugs.slice(0, 100) }).catch(() => []);
+  const tmap = new Map((trust ?? []).map((t) => [t.slug, t]));
   const urls = await photoUrls((rows ?? []).map((r) => r.photo_path ?? "")).catch(() => ({} as Record<string, string>));
   const out: Record<string, CardExtra> = {};
   for (const r of rows ?? []) out[r.slug] = {
     cover_url: r.cover_url, photo_url: r.photo_path ? urls[r.photo_path] ?? null : null,
     rating_avg: r.rating_avg === null ? null : Number(r.rating_avg), review_count: Number(r.review_count ?? 0),
+    trust: tmap.has(r.slug) ? {
+      review_count: Number(tmap.get(r.slug)!.review_count ?? 0),
+      rating_avg: tmap.get(r.slug)!.rating_avg === null ? null : Number(tmap.get(r.slug)!.rating_avg),
+      has_license: Boolean(tmap.get(r.slug)!.has_license),
+    } : undefined,
   };
   return out;
 }

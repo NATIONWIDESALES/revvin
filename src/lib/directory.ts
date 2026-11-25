@@ -22,7 +22,7 @@ export interface DirectoryEntry {
   reward_text: string | null;
   logo_url: string | null;
   /** Card extras loaded in one batch for claimed businesses (photo, stars). */
-  extra?: { cover_url: string | null; photo_url: string | null; rating_avg: number | null; review_count: number };
+  extra?: { cover_url: string | null; photo_url: string | null; rating_avg: number | null; review_count: number; trust?: { review_count: number; rating_avg: number | null; has_license: boolean } };
 }
 export interface DirectoryCluster { lat: number; lng: number; count: number }
 export interface Bounds { minLat: number; minLng: number; maxLat: number; maxLng: number }
@@ -51,8 +51,12 @@ export function cardReward(e: Pick<DirectoryEntry, "kind" | "category" | "has_re
 
 /** Every card opens the business profile; the profile links to the referral form at /r/:slug. */
 export const entryHref = (e: Pick<DirectoryEntry, "kind" | "slug">) => `/b/${e.slug}`;
-export const placeLine = (e: { city: string | null; region: string | null }) =>
-  [e.city, e.region?.replace(/^(US|CA)-/i, "")].filter(Boolean).join(", ");
+/** "City, ST" only. Imported city values sometimes carry the region and postal code ("Vancouver, BC, V7Y1C6"); keep the first part. */
+export const placeLine = (e: { city: string | null; region: string | null }) => {
+  const region = e.region?.replace(/^(US|CA)-/i, "").trim() || null;
+  const city = (e.city ?? "").split(",")[0].trim() || null;
+  return [city, region && region.toLowerCase() !== (city ?? "").toLowerCase() ? region : null].filter(Boolean).join(", ");
+};
 /** The category as a trade, or null when it is "Other", empty or missing. */
 export const realTrade = (category: string | null | undefined): string | null => {
   const c = (category ?? "").trim();
@@ -100,6 +104,12 @@ export async function loadListing(slug: string): Promise<DirectoryListing | null
 export function requestRemoval(slug: string, name: string, email: string, reason: string) {
   return rpc<boolean>("fn_directory_request_removal", { p_slug: slug, p_name: name, p_email: email, p_reason: reason });
 }
+
+/** Records "I'd refer customers here" for an unclaimed listing; a later call with an email adds it. Returns the listing's count. */
+export function referralInterest(slug: string, email?: string) {
+  return rpc<number>("fn_directory_referral_interest", { p_slug: slug, p_email: email?.trim() || null });
+}
+export const interestCount = (slug: string) => rpc<number>("fn_directory_interest_count", { p_slug: slug });
 
 /** Marks a listing claimed after its owner signs up from /b/:slug. The server checks the signup came from that page. */
 export async function claimListing(slug: string, businessId: string) {

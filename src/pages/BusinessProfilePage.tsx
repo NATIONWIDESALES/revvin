@@ -6,6 +6,7 @@ import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import DirectoryListingPage from "@/pages/DirectoryListingPage";
 import Stars from "@/components/profile/Stars";
+import TrustBadges from "@/components/profile/TrustBadges";
 import { Breadcrumb, Lightbox, NearbyStrip, QuoteForm, RatingBreakdown, ReviewItem } from "@/components/profile/ProfileParts";
 import { tradeIcon } from "@/components/marketplace/DirectoryCard";
 import { cardRewardAmount } from "@/lib/directory";
@@ -92,6 +93,11 @@ export default function BusinessProfilePage() {
               </div>
             </div>
           </div>
+          <TrustBadges className="mt-3" facts={{
+            reward: cardRewardAmount({ kind: "business", category: p.category, has_reward: p.has_reward, reward_text: p.reward_text }),
+            reviewCount: stats.count, ratingAvg: hasStars ? Number(stats.avg) : null,
+            hasLicense: Boolean(pro && p.license_number?.trim()), takesQuotes: pro,
+          }} />
           {pro && <div className="mt-3"><Breadcrumb /></div>}
         </div>
       </header>
