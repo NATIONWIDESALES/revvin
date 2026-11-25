@@ -172,6 +172,8 @@ async function setupChains() {
     CREATE OR REPLACE FUNCTION public.fn_directory_business_rows() RETURNS TABLE(kind text, slug text, name text, category text, city text, region text, country text, lat double precision, lng double precision, is_pro boolean, is_verified boolean, has_reward boolean, reward_text text, logo_url text, rank integer)
       LANGUAGE sql STABLE AS $$ SELECT 'business'::text, b.slug, b.name, b.category, b.city, b.state, b.country, b.latitude, b.longitude, b.plan = 'pro', false, false, NULL::text, NULL::text, 1 FROM public.businesses b WHERE false $$;`);
   await db.exec(chainMigration());
+  const f2 = readdirSync("drizzle/migrations").find((n) => /_directory_chain_brand_phrases\.sql$/.test(n));
+  await db.exec(readFileSync(`drizzle/migrations/${f2}`, "utf8").replace(/--> statement-breakpoint/g, ""));
   return db;
 }
 
@@ -207,6 +209,19 @@ describe("chain and franchise hiding", () => {
       await db.query("SELECT public.fn_directory_flag_chains()");
       const [l] = await rows(db, "SELECT is_chain, chain_reason FROM public.directory_listings");
       expect(l).toEqual({ is_chain: false, chain_reason: null });
+    } finally { await db.close(); }
+  }, 30000);
+
+  it("matches brands as whole words, so M&R Electric is not Mr. Electric", async () => {
+    const db = await setupChains();
+    try {
+      await importRows(db, [listing("a", { name: "M&R Electric" }), listing("b", { name: "Mr. Electric of Tulsa" }), listing("c", { name: "Tesla Electric" })]);
+      const r = await rows(db, "SELECT name, chain_reason FROM public.directory_listings ORDER BY name");
+      expect(r).toEqual([
+        { name: "M&R Electric", chain_reason: null },
+        { name: "Mr. Electric of Tulsa", chain_reason: "brand" },
+        { name: "Tesla Electric", chain_reason: null },
+      ]);
     } finally { await db.close(); }
   }, 30000);
 });

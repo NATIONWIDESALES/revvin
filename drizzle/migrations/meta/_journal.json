@@ -442,6 +442,13 @@
       "when": 1795645080560,
       "tag": "0062_directory_hide_chains_distance_sort",
       "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1795645508047,
+      "tag": "0063_directory_chain_brand_phrases",
+      "breakpoints": true
     }
   ]
 }

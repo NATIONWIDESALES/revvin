@@ -845,16 +845,37 @@ export type Database = {
           created_at: string
           note: string | null
           pattern: string
+          phrase: string | null
         }
         Insert: {
           created_at?: string
           note?: string | null
           pattern: string
+          phrase?: string | null
         }
         Update: {
           created_at?: string
           note?: string | null
           pattern?: string
+          phrase?: string | null
+        }
+        Relationships: []
+      }
+      directory_chain_flag_snapshot_20261125: {
+        Row: {
+          chain_reason: string | null
+          id: string | null
+          is_chain: boolean | null
+        }
+        Insert: {
+          chain_reason?: string | null
+          id?: string | null
+          is_chain?: boolean | null
+        }
+        Update: {
+          chain_reason?: string | null
+          id?: string | null
+          is_chain?: boolean | null
         }
         Relationships: []
       }
@@ -4094,6 +4115,7 @@ export type Database = {
           total_count: number
         }[]
       }
+      fn_directory_name_words: { Args: { p: string }; Returns: string }
       fn_directory_nearby: {
         Args: {
           p_category: string
