@@ -774,3 +774,19 @@ body[data-dash-shell] .app-topbar { display: none; }
   @media (prefers-reduced-motion: reduce) { .phone-float { animation: none; } }
 }
 
+
+/* Marketplace map pins and popup (MapLibre markers are plain DOM, so kept outside layers to survive purging). */
+.dir-pin { display: block; border-radius: 9999px; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+.dir-pin:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
+.dir-pin-unclaimed { width: 10px; height: 10px; background: hsl(var(--muted-foreground) / .75); border: 1.5px solid hsl(var(--background)); }
+.dir-pin-claimed { width: 14px; height: 14px; background: hsl(var(--green)); border: 2px solid hsl(var(--background)); box-shadow: 0 0 0 1px hsl(var(--forest)); }
+.dir-pin-pro { width: 34px; height: 34px; overflow: hidden; background: hsl(var(--forest)); color: hsl(var(--primary-foreground)); border: 3px solid hsl(var(--green)); font: 700 12px/28px inherit; text-align: center; box-shadow: 0 2px 6px hsl(var(--forest) / .35); }
+.dir-pin-pro img { width: 100%; height: 100%; object-fit: cover; background: hsl(var(--background)); }
+.dir-pin.is-active, .dir-pin:hover { transform: scale(1.45); box-shadow: 0 0 0 4px hsl(var(--sign) / .6); }
+.dir-pop { font-size: 13px; line-height: 1.35; color: hsl(var(--foreground)); }
+.dir-pop-name { font-weight: 700; margin-right: 14px; }
+.dir-pop-meta { color: hsl(var(--muted-foreground)); margin-top: 2px; }
+.dir-pop-reward { margin-top: 6px; display: inline-block; border-radius: 9999px; padding: 1px 8px; background: hsl(var(--sign) / .35); color: hsl(var(--forest)); font-weight: 600; }
+.dir-pop-link { display: block; margin-top: 8px; font-weight: 600; color: hsl(var(--forest)); text-decoration: underline; text-underline-offset: 3px; }
+.site-full > div { height: 100%; }
+@media (prefers-reduced-motion: reduce) { .dir-pin { transition: none; } }

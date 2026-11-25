@@ -3772,10 +3772,18 @@ export type Database = {
           slug: string
         }[]
       }
+      fn_directory_city: {
+        Args: { p_q: string }
+        Returns: {
+          lat: number
+          lng: number
+        }[]
+      }
       fn_directory_claim: {
         Args: { p_business_id: string; p_slug: string }
         Returns: boolean
       }
+      fn_directory_clean_name: { Args: { p: string }; Returns: string }
       fn_directory_clusters: {
         Args: {
           p_category?: string
@@ -3814,6 +3822,37 @@ export type Database = {
           website: string
         }[]
       }
+      fn_directory_map_search: {
+        Args: {
+          p_category?: string
+          p_limit?: number
+          p_max_lat?: number
+          p_max_lng?: number
+          p_min_lat?: number
+          p_min_lng?: number
+          p_offset?: number
+          p_q?: string
+          p_rewards_only?: boolean
+          p_sort?: string
+        }
+        Returns: {
+          category: string
+          city: string
+          country: string
+          has_reward: boolean
+          is_pro: boolean
+          is_verified: boolean
+          kind: string
+          lat: number
+          lng: number
+          logo_url: string
+          name: string
+          region: string
+          reward_text: string
+          slug: string
+          total_count: number
+        }[]
+      }
       fn_directory_regulated: { Args: { p_category: string }; Returns: boolean }
       fn_directory_request_removal: {
         Args: {
@@ -3823,6 +3862,16 @@ export type Database = {
           p_slug: string
         }
         Returns: boolean
+      }
+      fn_directory_reward_bounds: {
+        Args: never
+        Returns: {
+          count: number
+          max_lat: number
+          max_lng: number
+          min_lat: number
+          min_lng: number
+        }[]
       }
       fn_directory_rows: {
         Args: never

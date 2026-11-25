@@ -1,111 +1,201 @@
-import { useEffect, useRef } from "react";
-import type { Map as MlMap, GeoJSONSource } from "maplibre-gl";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import type { Map as MlMap, GeoJSONSource, Marker, Popup } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { DEFAULT_VIEW, PIN_ZOOM, type Bounds, type DirectoryCluster, type DirectoryEntry } from "@/lib/directory";
+import {
+  DEFAULT_VIEW, PIN_ZOOM, cardRewardAmount, clusterLabel, initials, placeLine,
+  type Bounds, type DirectoryCluster, type DirectoryEntry,
+} from "@/lib/directory";
 
 // Free, keyless vector style. Its own attribution is kept and the credit below added.
 export const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
-const CREDIT = '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>';
+const CREDIT = '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a> <a href="https://overturemaps.org" target="_blank" rel="noopener">Overture Maps Foundation</a>';
 
 const token = (name: string) => {
   const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   return v ? `hsl(${v.split(/\s+/).join(", ")})` : "#0F4A2A";
 };
+const reducedMotion = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+
+export interface DirectoryMapHandle {
+  flyTo: (lat: number, lng: number, zoom: number) => void;
+  fitBounds: (b: Bounds) => void;
+  resize: () => void;
+}
 
 interface Props {
   clusters: DirectoryCluster[];
   pins: DirectoryEntry[];
   selected: string | null;
-  /** initial is true for the default view right after load, before anyone moves the map. */
-  onMove: (bounds: Bounds, zoom: number, initial: boolean) => void;
+  /** initial is true for the first view right after load, before anyone moves the map. */
+  onMove: (bounds: Bounds, zoom: number, initial: boolean, center?: { lat: number; lng: number }) => void;
   onSelect: (slug: string) => void;
   onFail: () => void;
   /** Single-point mode for a profile page: no clusters, no moving events. */
   point?: { lat: number; lng: number } | null;
+  /** Opening center and zoom; otherwise the continental view. */
+  initialView?: { lat: number; lng: number; z: number } | null;
+  /** Link for "View profile" in the pin popup. */
+  hrefFor?: (e: DirectoryEntry) => string;
+  /** Called when "View profile" is used, so the page can navigate without a reload. */
+  onOpen?: (e: DirectoryEntry) => void;
   className?: string;
 }
 
-export default function DirectoryMap({ clusters, pins, selected, onMove, onSelect, onFail, point, className }: Props) {
+const DirectoryMap = forwardRef<DirectoryMapHandle, Props>(function DirectoryMap(
+  { clusters, pins, selected, onMove, onSelect, onFail, point, initialView, hrefFor, onOpen, className }, handle) {
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<MlMap | null>(null);
+  const lib = useRef<typeof import("maplibre-gl") | null>(null);
   const ready = useRef(false);
-  const cb = useRef({ onMove, onSelect, onFail });
-  cb.current = { onMove, onSelect, onFail };
+  const markers = useRef(new Map<string, { marker: Marker; node: HTMLButtonElement; entry: DirectoryEntry }>());
+  const popup = useRef<Popup | null>(null);
+  const cb = useRef({ onMove, onSelect, onFail, hrefFor, onOpen });
+  cb.current = { onMove, onSelect, onFail, hrefFor, onOpen };
   const data = useRef({ clusters, pins, selected });
   data.current = { clusters, pins, selected };
+
+  useImperativeHandle(handle, () => ({
+    flyTo: (lat, lng, zoom) => {
+      const m = map.current; if (!m) return;
+      if (reducedMotion()) m.jumpTo({ center: [lng, lat], zoom }); else m.flyTo({ center: [lng, lat], zoom, speed: 1.6 });
+    },
+    fitBounds: (b) => {
+      const m = map.current; if (!m) return;
+      const pad = 0.05;
+      m.fitBounds([[b.minLng - pad, b.minLat - pad], [b.maxLng + pad, b.maxLat + pad]], { padding: 48, maxZoom: 12, animate: !reducedMotion() });
+    },
+    resize: () => map.current?.resize(),
+  }), []);
+
+  const showPopup = (entry: DirectoryEntry) => {
+    const m = map.current, ml = lib.current;
+    if (!m || !ml || entry.lat == null || entry.lng == null) return;
+    const reward = cardRewardAmount(entry);
+    const href = cb.current.hrefFor?.(entry) ?? "#";
+    const html = `<div class="dir-pop"><p class="dir-pop-name">${esc(entry.name)}</p><p class="dir-pop-meta">${esc([entry.category, placeLine(entry)].filter(Boolean).join(" · "))}</p>${reward ? `<p class="dir-pop-reward">Pays ${esc(reward)} per referral</p>` : ""}<a class="dir-pop-link" href="${esc(href)}">View profile</a></div>`;
+    popup.current?.remove();
+    const p = new ml.Popup({ closeButton: true, closeOnClick: true, offset: 14, maxWidth: "260px", focusAfterOpen: false })
+      .setLngLat([entry.lng, entry.lat]).setHTML(html).addTo(m);
+    p.getElement()?.querySelector("a.dir-pop-link")?.addEventListener("click", (ev) => {
+      if (cb.current.onOpen) { ev.preventDefault(); cb.current.onOpen(entry); }
+    });
+    popup.current = p;
+  };
+
+  const syncMarkers = () => {
+    const m = map.current, ml = lib.current;
+    if (!m || !ml || !ready.current || point) return;
+    const { pins: p, selected: s } = data.current;
+    const keep = new Set<string>();
+    for (const e of p) {
+      if (e.lat == null || e.lng == null) continue;
+      const key = `${e.kind}:${e.slug}`;
+      keep.add(key);
+      let rec = markers.current.get(key);
+      if (!rec) {
+        const node = document.createElement("button");
+        node.type = "button";
+        const tier = e.kind === "listing" ? "unclaimed" : e.is_pro ? "pro" : "claimed";
+        node.className = `dir-pin dir-pin-${tier}`;
+        node.setAttribute("aria-label", `${e.name}, ${e.category}`);
+        if (tier === "pro") {
+          if (e.logo_url) { const img = document.createElement("img"); img.src = e.logo_url; img.alt = ""; img.loading = "lazy"; node.appendChild(img); }
+          else node.textContent = initials(e.name);
+        }
+        node.addEventListener("mouseenter", () => showPopup(rec!.entry));
+        node.addEventListener("focus", () => showPopup(rec!.entry));
+        node.addEventListener("click", (ev) => { ev.stopPropagation(); showPopup(rec!.entry); cb.current.onSelect(rec!.entry.slug); });
+        // MapLibre positions the outer element with a transform, so scaling happens on the inner button.
+        const wrap = document.createElement("div");
+        wrap.appendChild(node);
+        const marker = new ml.Marker({ element: wrap, anchor: "center" }).setLngLat([e.lng, e.lat]).addTo(m);
+        rec = { marker, node, entry: e };
+        markers.current.set(key, rec);
+      }
+      rec.entry = e;
+      rec.node.classList.toggle("is-active", e.slug === s);
+      rec.marker.getElement().style.zIndex = e.slug === s ? "5" : e.is_pro ? "3" : e.kind === "business" ? "2" : "1";
+    }
+    for (const [key, rec] of markers.current) {
+      if (!keep.has(key)) { rec.marker.remove(); markers.current.delete(key); }
+    }
+  };
 
   const sync = () => {
     const m = map.current;
     if (!m || !ready.current) return;
-    const { clusters: c, pins: p, selected: s } = data.current;
     (m.getSource("clusters") as GeoJSONSource | undefined)?.setData({
       type: "FeatureCollection",
-      features: c.map((k) => ({ type: "Feature", properties: { count: Number(k.count), label: String(k.count) }, geometry: { type: "Point", coordinates: [k.lng, k.lat] } })),
+      features: data.current.clusters.map((k) => ({ type: "Feature", properties: { count: Number(k.count), label: clusterLabel(Number(k.count)) }, geometry: { type: "Point", coordinates: [k.lng, k.lat] } })),
     });
-    (m.getSource("pins") as GeoJSONSource | undefined)?.setData({
-      type: "FeatureCollection",
-      features: p.filter((e) => e.lat != null && e.lng != null).map((e) => ({
-        type: "Feature", properties: { slug: e.slug, selected: e.slug === s ? 1 : 0, pro: e.is_pro ? 1 : 0 },
-        geometry: { type: "Point", coordinates: [e.lng as number, e.lat as number] },
-      })),
-    });
+    syncMarkers();
   };
 
   useEffect(() => {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let ro: ResizeObserver | undefined;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") popup.current?.remove(); };
     (async () => {
       try {
         const ml = (await import("maplibre-gl")).default;
         if (cancelled || !el.current) return;
+        lib.current = ml as unknown as typeof import("maplibre-gl");
+        const start = point ? { center: [point.lng, point.lat] as [number, number], zoom: 10 }
+          : initialView ? { center: [initialView.lng, initialView.lat] as [number, number], zoom: initialView.z }
+          : { bounds: DEFAULT_VIEW.bounds, fitBoundsOptions: { padding: 16 } };
         const m = new ml.Map({
           container: el.current,
           style: MAP_STYLE_URL,
-          ...(point ? { center: [point.lng, point.lat] as [number, number], zoom: 10 } : { bounds: DEFAULT_VIEW.bounds, fitBoundsOptions: { padding: 16 } }),
+          ...start,
           attributionControl: { compact: false, customAttribution: CREDIT },
           interactive: !point,
         });
         map.current = m;
-        if (!point) m.addControl(new ml.NavigationControl({ showCompass: false }), "top-right");
+        if (!point) {
+          m.addControl(new ml.NavigationControl({ showCompass: false }), "top-right");
+          // Asks for the browser location only when the button is pressed.
+          m.addControl(new ml.GeolocateControl({ positionOptions: { enableHighAccuracy: false }, trackUserLocation: false, fitBoundsOptions: { maxZoom: 11 } }), "top-right");
+          document.addEventListener("keydown", onKey);
+        }
+        if (typeof ResizeObserver !== "undefined" && el.current) {
+          ro = new ResizeObserver(() => m.resize());
+          ro.observe(el.current);
+        }
         timer = setTimeout(() => { if (!ready.current) cb.current.onFail(); }, 15000);
         m.on("error", (e) => { if (!ready.current) { console.warn("map failed", e?.error?.message); cb.current.onFail(); } });
         m.on("load", () => {
           ready.current = true;
           clearTimeout(timer);
-          const forest = token("--forest"), sign = token("--sign"), green = token("--green");
+          const forest = token("--forest");
           m.addSource("clusters", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
           m.addSource("pins", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
           m.addLayer({ id: "cluster-circles", type: "circle", source: "clusters", paint: {
             "circle-color": forest, "circle-opacity": 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 2,
-            "circle-radius": ["interpolate", ["linear"], ["get", "count"], 1, 14, 10, 18, 100, 26, 1000, 34],
+            "circle-radius": ["interpolate", ["linear"], ["get", "count"], 1, 14, 10, 18, 100, 24, 1000, 30, 10000, 36],
           } });
           m.addLayer({ id: "cluster-labels", type: "symbol", source: "clusters", layout: {
-            "text-field": ["get", "label"], "text-size": 13, "text-font": ["Noto Sans Bold"], "text-allow-overlap": true,
+            "text-field": ["get", "label"], "text-size": 12, "text-font": ["Noto Sans Bold"], "text-allow-overlap": true,
           }, paint: { "text-color": "#fff" } });
-          m.addLayer({ id: "pin-circles", type: "circle", source: "pins", paint: {
-            "circle-color": ["case", ["==", ["get", "selected"], 1], sign, ["==", ["get", "pro"], 1], forest, green],
-            "circle-radius": ["case", ["==", ["get", "selected"], 1], 11, 8],
-            "circle-stroke-color": forest, "circle-stroke-width": ["case", ["==", ["get", "selected"], 1], 3, 2],
-          } });
           if (point) {
-            (m.getSource("pins") as GeoJSONSource).setData({ type: "FeatureCollection", features: [{ type: "Feature", properties: { selected: 1, pro: 0 }, geometry: { type: "Point", coordinates: [point.lng, point.lat] } }] });
+            m.addLayer({ id: "pin-circles", type: "circle", source: "pins", paint: { "circle-color": token("--sign"), "circle-radius": 10, "circle-stroke-color": forest, "circle-stroke-width": 3 } });
+            (m.getSource("pins") as GeoJSONSource).setData({ type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [point.lng, point.lat] } }] });
             return;
           }
           m.on("click", "cluster-circles", (e) => {
             const f = e.features?.[0];
-            if (f?.geometry.type === "Point") m.easeTo({ center: f.geometry.coordinates as [number, number], zoom: Math.min(m.getZoom() + 2.5, PIN_ZOOM + 1) });
+            if (f?.geometry.type === "Point") m.easeTo({ center: f.geometry.coordinates as [number, number], zoom: Math.min(m.getZoom() + 2.5, PIN_ZOOM + 1), animate: !reducedMotion() });
           });
-          m.on("click", "pin-circles", (e) => { const s = e.features?.[0]?.properties?.slug; if (typeof s === "string") cb.current.onSelect(s); });
-          for (const id of ["cluster-circles", "pin-circles"]) {
-            m.on("mouseenter", id, () => { m.getCanvas().style.cursor = "pointer"; });
-            m.on("mouseleave", id, () => { m.getCanvas().style.cursor = ""; });
-          }
+          m.on("mouseenter", "cluster-circles", () => { m.getCanvas().style.cursor = "pointer"; });
+          m.on("mouseleave", "cluster-circles", () => { m.getCanvas().style.cursor = ""; });
           const emit = (initial = false) => {
             const b = m.getBounds();
+            const c = m.getCenter();
             cb.current.onMove({
               minLat: Math.max(-90, b.getSouth()), maxLat: Math.min(90, b.getNorth()),
               minLng: Math.max(-180, b.getWest()), maxLng: Math.min(180, b.getEast()),
-            }, m.getZoom(), initial);
+            }, m.getZoom(), initial, { lat: c.lat, lng: c.lng });
           };
           m.on("moveend", () => emit());
           emit(true);
@@ -116,11 +206,20 @@ export default function DirectoryMap({ clusters, pins, selected, onMove, onSelec
         if (!cancelled) cb.current.onFail();
       }
     })();
-    return () => { cancelled = true; clearTimeout(timer); map.current?.remove(); map.current = null; ready.current = false; };
+    return () => {
+      cancelled = true; clearTimeout(timer); ro?.disconnect();
+      document.removeEventListener("keydown", onKey);
+      popup.current?.remove();
+      for (const r of markers.current.values()) r.marker.remove();
+      markers.current.clear();
+      map.current?.remove(); map.current = null; ready.current = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(sync, [clusters, pins, selected]);
 
   return <div ref={el} className={className} role="region" aria-label="Map of listed businesses" />;
-}
+});
+
+export default DirectoryMap;

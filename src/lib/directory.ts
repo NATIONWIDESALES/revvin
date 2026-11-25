@@ -98,3 +98,101 @@ export function listingClaimPreview(l: DirectoryListing): PreviewData {
     city: l.city ?? undefined, region: l.region ?? undefined, country: l.country,
   };
 }
+
+/* ---------- Full-screen map search (marketplace layout) ---------- */
+
+export type MapSort = "featured" | "name";
+export const PAGE_SIZE = 40;
+
+/** The reward amount a card may show ("$100"), or null. Same rules as cardReward. */
+export function cardRewardAmount(e: Pick<DirectoryEntry, "kind" | "category" | "has_reward" | "reward_text">): string | null {
+  if (!cardReward(e)) return null;
+  const t = (e.reward_text as string).trim();
+  return /^\d+(?:\.\d+)?$/.test(t) ? `$${t}` : t;
+}
+
+/** Cluster label: thousands separators below 10,000, compact form (12.4k) above. */
+export function clusterLabel(n: number): string {
+  if (n < 10000) return n.toLocaleString("en-US");
+  if (n < 1_000_000) return `${(Math.round(n / 100) / 10).toString()}k`;
+  return `${(Math.round(n / 100000) / 10).toString()}m`;
+}
+export const countLine = (n: number) => `${n.toLocaleString("en-US")} ${n === 1 ? "business" : "businesses"} in this area`;
+
+/** Browser time zone to a nearby metro. No IP lookup; unknown zones get the continental view. */
+export const TIMEZONE_VIEWS: Record<string, { lat: number; lng: number; z: number }> = {
+  "America/Los_Angeles": { lat: 34.05, lng: -118.24, z: 8 },
+  "America/Phoenix": { lat: 33.45, lng: -112.07, z: 8 },
+  "America/Denver": { lat: 39.74, lng: -104.99, z: 8 },
+  "America/Chicago": { lat: 41.88, lng: -87.63, z: 8 },
+  "America/New_York": { lat: 40.71, lng: -74.01, z: 8 },
+  "America/Toronto": { lat: 43.65, lng: -79.38, z: 8 },
+  "America/Vancouver": { lat: 49.28, lng: -123.12, z: 8 },
+  "America/Edmonton": { lat: 51.05, lng: -114.07, z: 8 },
+  "America/Winnipeg": { lat: 49.9, lng: -97.14, z: 8 },
+  "America/Halifax": { lat: 44.65, lng: -63.58, z: 8 },
+  "America/Detroit": { lat: 42.33, lng: -83.05, z: 8 },
+  "America/Boise": { lat: 43.62, lng: -116.2, z: 8 },
+  "America/Anchorage": { lat: 61.22, lng: -149.9, z: 8 },
+  "Pacific/Honolulu": { lat: 21.31, lng: -157.86, z: 8 },
+};
+
+export interface MarketplaceState { lat: number | null; lng: number | null; z: number | null; q: string; trade: string; rewards: boolean }
+
+const num = (v: string | null, lim: number) => {
+  if (v === null || v.trim() === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) && Math.abs(n) <= lim ? n : null;
+};
+/** Reads a shared view from the query string. Bad values are ignored. */
+export function parseMarketplaceParams(search: string): MarketplaceState {
+  const p = new URLSearchParams(search);
+  const lat = num(p.get("lat"), 90), lng = num(p.get("lng"), 180), z = num(p.get("z"), 22);
+  const ok = lat !== null && lng !== null && z !== null && z >= 0;
+  const trade = p.get("trade") ?? "";
+  return {
+    lat: ok ? lat : null, lng: ok ? lng : null, z: ok ? z : null,
+    q: (p.get("q") ?? "").slice(0, 80),
+    trade: (DIRECTORY_CATEGORIES as readonly string[]).includes(trade) ? trade : "",
+    rewards: p.get("rewards") === "1",
+  };
+}
+/** Query string for a view, other parameters (utm and similar) kept. */
+export function marketplaceSearch(current: string, s: MarketplaceState): string {
+  const p = new URLSearchParams(current);
+  for (const k of ["lat", "lng", "z", "q", "trade", "rewards"]) p.delete(k);
+  if (s.lat !== null && s.lng !== null && s.z !== null) {
+    p.set("lat", s.lat.toFixed(4)); p.set("lng", s.lng.toFixed(4)); p.set("z", s.z.toFixed(2));
+  }
+  if (s.q.trim()) p.set("q", s.q.trim());
+  if (s.trade) p.set("trade", s.trade);
+  if (s.rewards) p.set("rewards", "1");
+  const out = p.toString();
+  return out ? `?${out}` : "";
+}
+
+/** Opening view: the URL first, then the browser time zone, else null (continental view). */
+export function openingView(s: MarketplaceState, timeZone: string | undefined) {
+  if (s.lat !== null && s.lng !== null && s.z !== null) return { lat: s.lat, lng: s.lng, z: s.z };
+  return (timeZone && TIMEZONE_VIEWS[timeZone]) || null;
+}
+
+export type MapRow = DirectoryEntry & { total_count: number };
+export async function searchMap(opts: { bounds: Bounds | null; category?: string; q?: string; rewardsOnly?: boolean; sort?: MapSort; offset?: number; limit?: number }) {
+  const b = opts.bounds;
+  const rows = await rpc<MapRow[]>("fn_directory_map_search", {
+    p_min_lat: b?.minLat ?? null, p_min_lng: b?.minLng ?? null, p_max_lat: b?.maxLat ?? null, p_max_lng: b?.maxLng ?? null,
+    p_category: opts.category || null, p_q: opts.q?.trim() || null, p_rewards_only: Boolean(opts.rewardsOnly),
+    p_sort: opts.sort ?? "featured", p_limit: opts.limit ?? PAGE_SIZE, p_offset: opts.offset ?? 0,
+  });
+  return { rows: rows ?? [], total: rows?.[0] ? Number(rows[0].total_count) : 0 };
+}
+export async function rewardBounds(): Promise<Bounds | null> {
+  const r = (await rpc<{ min_lat: number | null; min_lng: number | null; max_lat: number | null; max_lng: number | null }[]>("fn_directory_reward_bounds", {}))?.[0];
+  return r && r.min_lat !== null ? { minLat: r.min_lat, minLng: r.min_lng as number, maxLat: r.max_lat as number, maxLng: r.max_lng as number } : null;
+}
+export async function cityLocation(q: string): Promise<{ lat: number; lng: number } | null> {
+  if (q.trim().length < 3) return null;
+  const r = (await rpc<{ lat: number; lng: number }[]>("fn_directory_city", { p_q: q.trim() }))?.[0];
+  return r && r.lat != null ? r : null;
+}

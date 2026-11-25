@@ -32,6 +32,7 @@ describe("title and description lengths", () => {
       expect(r.description.length, r.description).toBeGreaterThanOrEqual(120);
       expect(r.description.length, r.description).toBeLessThanOrEqual(155);
       if (r.path === "/") expect(r.title).toBe("Revvin | Free referral program for home-service businesses");
+      else if (r.path === "/browse" || r.path === "/marketplace") expect(r.title).toBe("Find a local business near you | Revvin Marketplace");
       else expect(r.title.endsWith(" | Revvin"), r.title).toBe(true);
     });
   }

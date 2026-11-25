@@ -32,9 +32,9 @@ export const PAGE_META = {
     description: `${PLAN_SPLIT.line} Your referral page is free to publish. You pay your referrers directly.`,
   },
   "/browse": {
-    title: "Find local businesses that pay for referrals | Revvin",
+    title: "Find a local business near you | Revvin Marketplace",
     description:
-      "Browse local businesses on a map. Know someone who needs one? Refer them, and the business pays you a reward directly when the job closes.",
+      "Search local businesses on a map. Businesses on Revvin can offer referral rewards, paid directly by the business when a referred job closes.",
   },
   "/referral-programs": {
     title: "Referral programs by industry | Revvin",

@@ -1,3 +1,8 @@
+# Marketplace full-screen map layout, November 25
+- [x] Full-screen map and results panel, filter bar, true area count, 40-per-page loading, owner card, new cards and pins, URL-shared views, time zone opening view, rewards toggle with empty state, phone bottom sheet.
+- [x] Name cleanup (migrations 0052/0053) and the same cleaning in directory-import (deployed).
+- [x] Browser checks at 1440x900, 2400x1200 and 390x844; /b/ and /r/ pages render. Not published.
+
 # Prebuilt pages for outbound sales
 
 # Scheduled HTTP timeouts and alert thresholds, November 24

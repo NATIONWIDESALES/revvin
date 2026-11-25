@@ -421,11 +421,11 @@ const handwritten: PrerenderRoute[] = [
     noindex: true,
     title: PAGE_META["/browse"].title,
     description: PAGE_META["/browse"].description,
-    h1: "Find local businesses that pay for referrals",
+    h1: "Find a local business",
     sections: [
       {
         heading: "Browse businesses near you",
-        body: "Browse businesses near you. Know someone who needs one? Refer them, and the business pays you a reward when the job closes. Search by business name or city, filter by trade, and move the map to see what is listed in that area.",
+        body: "Browse businesses near you on a map. Businesses on Revvin can offer a referral reward, paid by the business when the job closes. Search by business name or city, filter by trade, and move the map to see what is listed in that area.",
       },
       {
         heading: "How a marketplace referral works",
@@ -563,11 +563,11 @@ const handwritten: PrerenderRoute[] = [
     canonical: "https://revvin.co/browse",
     title: PAGE_META["/browse"].title,
     description: PAGE_META["/browse"].description,
-    h1: "Find local businesses that pay for referrals",
+    h1: "Find a local business",
     sections: [
       {
         heading: "Browse businesses near you",
-        body: "Browse businesses near you. Know someone who needs one? Refer them, and the business pays you a reward when the job closes.",
+        body: "Browse businesses near you on a map. Businesses on Revvin can offer a referral reward, paid by the business when the job closes.",
       },
       {
         heading: "How referring works",

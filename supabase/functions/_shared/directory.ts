@@ -58,11 +58,21 @@ const coord = (v: unknown, lim: number) => {
 
 export const MAX_IMPORT_BATCH = 1000;
 
+/**
+ * Same cleaning as fn_directory_clean_name: drops U+FE0F and zero-width
+ * characters, then any leading characters that are not a letter, digit or
+ * opening quote/bracket, then trims.
+ */
+export function cleanListingName(v: string): string {
+  return v.replace(/[\uFE0F\u200B\u200C\u200D\u2060\uFEFF]/g, "").replace(/^[^\p{L}\p{N}"'(\[{\u201C\u2018]+/u, "").trim();
+}
+
 /** Validates one import row. Returns the clean row or the reason it was rejected. */
 export function validateImportRow(input: unknown): { row: ImportRow } | { error: string } {
   if (!input || typeof input !== "object") return { error: "not_an_object" };
   const r = input as Record<string, unknown>;
-  const name = text(r.name, 200);
+  const raw = text(r.name, 200);
+  const name = raw ? cleanListingName(raw) || null : null;
   if (!name) return { error: "name_required" };
   const country = text(r.country, 2)?.toUpperCase();
   if (country !== "US" && country !== "CA") return { error: "invalid_country" };
