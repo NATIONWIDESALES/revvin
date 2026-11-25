@@ -54,6 +54,7 @@ const Navbar = () => {
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? "U";
 
   const navLinks = [
+    { to: "/marketplace", label: "Marketplace" },
     { to: "/how-it-works", label: "How it works" },
     { to: "/pricing", label: "Pricing" },
     ...(earnLive ? [{ to: "/earn", label: "Earn money" }] : []),

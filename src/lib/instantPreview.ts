@@ -74,7 +74,7 @@ export function readPreview(search = ""): PreviewData | null {
     const trade = typeof input.trade === "string" && (input.trade === "other" || INDUSTRIES.some(i => i.slug === input.trade)) ? input.trade : "other";
     const reward = Number(input.reward);
     if (!name || !Number.isFinite(reward) || reward <= 0 || reward > 1000000) return null;
-    const data: PreviewData = { name, trade, reward, landing_path: typeof input.landing_path === "string" && /^\/(?:start(?:\/[a-z-]+)?|preview\/[A-Za-z0-9_-]{10,64})?$/.test(input.landing_path) ? input.landing_path : "/" };
+    const data: PreviewData = { name, trade, reward, landing_path: typeof input.landing_path === "string" && /^\/(?:start(?:\/[a-z-]+)?|preview\/[A-Za-z0-9_-]{10,64}|b\/[a-z0-9]+(?:-[a-z0-9]+){0,30})?$/.test(input.landing_path) ? input.landing_path : "/" };
     for (const key of UTM_KEYS) if (typeof input[key] === "string") data[key] = input[key].slice(0, 200);
     for (const key of PROSPECT_KEYS) {
       const value = input[key];

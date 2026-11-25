@@ -28,6 +28,7 @@ describe("Free", () => {
     expect(FREE_FEATURES.map((f) => f.label)).toEqual([
       "Referral page on your own link", "A personal link for every customer", "QR code and print-ready kit",
       "Lead inbox and referral alerts", "Reward tracking", "Bring up to 500 customers", "One launch campaign", "Ask one at a time, any time",
+      "A free marketplace profile",
     ]);
     expect(FREE_CONTACT_LIMIT).toBe(500);
     expect(FREE_FEATURES.find((f) => f.label === "One launch campaign")?.description).toMatch(/two follow-ups/);
@@ -39,7 +40,7 @@ describe("Free", () => {
 describe("Pro", () => {
   it("lists exactly the approved Pro features, mirrored in email copy", () => {
     const labels = PRO_FEATURES.map((f) => f.label);
-    expect(labels).toEqual(["Unlimited customers", "Unlimited launch campaigns", "Automatic ask after each job", "Win-back email campaigns", "ROI reporting and monthly recap", "Custom page branding"]);
+    expect(labels).toEqual(["Unlimited customers", "Unlimited launch campaigns", "Automatic ask after each job", "Win-back email campaigns", "ROI reporting and monthly recap", "Custom page branding", "Featured placement and Pro badge in the marketplace"]);
     expect(PRO_FEATURE_LABELS).toEqual(labels);
     expect(PLAN_SPLIT.proDetail).toMatch(/Job done, job software, API or Zapier/);
   });

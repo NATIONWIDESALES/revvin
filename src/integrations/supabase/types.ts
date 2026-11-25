@@ -236,6 +236,7 @@ export type Database = {
           invite_code: string | null
           is_demo: boolean | null
           is_disabled: boolean
+          is_internal: boolean
           is_published: boolean
           is_verified: boolean
           jobber_access_token_encrypted: string | null
@@ -312,6 +313,7 @@ export type Database = {
           invite_code?: string | null
           is_demo?: boolean | null
           is_disabled?: boolean
+          is_internal?: boolean
           is_published?: boolean
           is_verified?: boolean
           jobber_access_token_encrypted?: string | null
@@ -388,6 +390,7 @@ export type Database = {
           invite_code?: string | null
           is_demo?: boolean | null
           is_disabled?: boolean
+          is_internal?: boolean
           is_published?: boolean
           is_verified?: boolean
           jobber_access_token_encrypted?: string | null
@@ -711,6 +714,122 @@ export type Database = {
         }
         Relationships: []
       }
+      directory_listings: {
+        Row: {
+          category: string
+          city: string | null
+          claimed_business_id: string | null
+          country: string
+          created_at: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+          phone: string | null
+          postal_code: string | null
+          region: string | null
+          slug: string
+          source: string
+          source_id: string
+          source_license: string | null
+          status: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          category?: string
+          city?: string | null
+          claimed_business_id?: string | null
+          country: string
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          phone?: string | null
+          postal_code?: string | null
+          region?: string | null
+          slug: string
+          source: string
+          source_id: string
+          source_license?: string | null
+          status?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          category?: string
+          city?: string | null
+          claimed_business_id?: string | null
+          country?: string
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          phone?: string | null
+          postal_code?: string | null
+          region?: string | null
+          slug?: string
+          source?: string
+          source_id?: string
+          source_license?: string | null
+          status?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "directory_listings_claimed_business_id_fkey"
+            columns: ["claimed_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "directory_listings_claimed_business_id_fkey"
+            columns: ["claimed_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      directory_removal_requests: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          listing_id: string
+          reason: string | null
+          requester_name: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          listing_id: string
+          reason?: string | null
+          requester_name: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          listing_id?: string
+          reason?: string | null
+          requester_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "directory_removal_requests_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "directory_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_leads: {
         Row: {
           business_contact: string | null
@@ -894,6 +1013,30 @@ export type Database = {
           referrer?: string | null
           session_id?: string | null
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      geocode_cache: {
+        Row: {
+          created_at: string
+          latitude: number | null
+          longitude: number | null
+          query_key: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          latitude?: number | null
+          longitude?: number | null
+          query_key: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          latitude?: number | null
+          longitude?: number | null
+          query_key?: string
+          status?: string
         }
         Relationships: []
       }
@@ -3603,6 +3746,112 @@ export type Database = {
         Returns: undefined
       }
       fn_data_retention: { Args: never; Returns: Json }
+      fn_directory_claim: {
+        Args: { p_business_id: string; p_slug: string }
+        Returns: boolean
+      }
+      fn_directory_clusters: {
+        Args: {
+          p_category?: string
+          p_max_lat: number
+          p_max_lng: number
+          p_min_lat: number
+          p_min_lng: number
+          p_zoom?: number
+        }
+        Returns: {
+          count: number
+          lat: number
+          lng: number
+        }[]
+      }
+      fn_directory_country: { Args: { p_raw: string }; Returns: string }
+      fn_directory_html: { Args: { p: string }; Returns: string }
+      fn_directory_import: { Args: { p_rows: Json }; Returns: Json }
+      fn_directory_listing: {
+        Args: { p_slug: string }
+        Returns: {
+          category: string
+          city: string
+          claimed_slug: string
+          country: string
+          lat: number
+          lng: number
+          name: string
+          phone: string
+          postal_code: string
+          region: string
+          slug: string
+          source: string
+          source_license: string
+          status: string
+          website: string
+        }[]
+      }
+      fn_directory_regulated: { Args: { p_category: string }; Returns: boolean }
+      fn_directory_request_removal: {
+        Args: {
+          p_email: string
+          p_name: string
+          p_reason: string
+          p_slug: string
+        }
+        Returns: boolean
+      }
+      fn_directory_rows: {
+        Args: never
+        Returns: {
+          category: string
+          city: string
+          country: string
+          has_reward: boolean
+          is_pro: boolean
+          is_verified: boolean
+          kind: string
+          lat: number
+          lng: number
+          logo_url: string
+          name: string
+          rank: number
+          region: string
+          reward_text: string
+          slug: string
+        }[]
+      }
+      fn_directory_search: {
+        Args: {
+          p_category?: string
+          p_country?: string
+          p_limit?: number
+          p_max_lat?: number
+          p_max_lng?: number
+          p_min_lat?: number
+          p_min_lng?: number
+          p_offset?: number
+          p_q?: string
+          p_region?: string
+        }
+        Returns: {
+          category: string
+          city: string
+          country: string
+          has_reward: boolean
+          is_pro: boolean
+          is_verified: boolean
+          kind: string
+          lat: number
+          lng: number
+          logo_url: string
+          name: string
+          region: string
+          reward_text: string
+          slug: string
+        }[]
+      }
+      fn_directory_slug_base: {
+        Args: { p_city: string; p_name: string }
+        Returns: string
+      }
       fn_earn_businesses: {
         Args: { p_metro_slug: string }
         Returns: {

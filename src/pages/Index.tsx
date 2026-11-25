@@ -8,6 +8,7 @@ import ReferralWorthCalculator from "@/components/marketing/ReferralWorthCalcula
 import HeroYardSign, { SIGN_EXAMPLES, type SignExample } from "@/components/marketing/HeroYardSign";
 import InstantPreview from "@/components/marketing/InstantPreview";
 import StepTrack from "@/components/marketing/StepTrack";
+import OwnerStrip from "@/components/marketplace/OwnerStrip";
 import FinalBand from "@/components/marketing/FinalBand";
 import { useSale } from "@/lib/useSale";
 import { priceTextForSale } from "@/config/pricing";
@@ -110,6 +111,11 @@ const Index = () => {
           <HeroYardSign example={preview ?? SIGN_EXAMPLES[0]} preview={Boolean(preview)} />
         </div>
       </div>
+    </section>
+
+    {/* Owners: list free in the marketplace */}
+    <section className="mk-wrap pt-10 pb-2" aria-label="List your business">
+      <OwnerStrip />
     </section>
 
     {/* Journey */}

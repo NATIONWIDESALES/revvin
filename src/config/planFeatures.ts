@@ -36,6 +36,10 @@ export const FREE_FEATURES = [
     label: "Ask one at a time, any time",
     description: "Ask any customer from your own phone or email app whenever you like.",
   },
+  {
+    label: "A free marketplace profile",
+    description: "Your business is listed in the Revvin marketplace, linked to your referral page.",
+  },
 ] as const satisfies readonly PlanFeature[];
 
 export const PRO_FEATURES = [
@@ -62,6 +66,10 @@ export const PRO_FEATURES = [
   {
     label: "Custom page branding",
     description: "Add your color, cover image, headline, welcome message and testimonials.",
+  },
+  {
+    label: "Featured placement and Pro badge in the marketplace",
+    description: "Pro businesses are listed first in the marketplace, with a Pro badge on their card.",
   },
 ] as const satisfies readonly PlanFeature[];
 

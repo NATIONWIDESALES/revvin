@@ -1,5 +1,7 @@
 import { isPlatformAdmin } from "../_shared/admin-auth.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkCronAuth } from "../_shared/cron-auth.ts";
+import { cityQueryKey, cityQueryFromBusiness } from "../_shared/geocode-city.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,7 +16,7 @@ Deno.serve(async (req) => {
   try {
     const authHeader = req.headers.get("Authorization") ?? "";
     const token = authHeader.replace("Bearer ", "");
-    if (!token) return json({ error: "unauthorized" }, 401);
+    if (!token && !req.headers.get("x-cron-secret")) return json({ error: "unauthorized" }, 401);
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -25,12 +27,25 @@ Deno.serve(async (req) => {
       return json({ error: "Google Maps connector not configured" }, 500);
     }
 
+    const body = await req.json().catch(() => ({}));
+    const geo = (address: string) => googleGeocode(address, LOVABLE_API_KEY, GMAPS_KEY);
+
+    // City-level backfill for listed businesses without coordinates.
+    // Server credential only; cached per place and capped per call.
+    if (body?.backfill === true) {
+      if (!checkCronAuth(req).ok) {
+        const { data: who } = await createClient(SUPABASE_URL, ANON).auth.getUser(token);
+        const caller = createClient(SUPABASE_URL, ANON, { global: { headers: { Authorization: `Bearer ${token}` } } });
+        if (!who?.user || !(await isPlatformAdmin(null, who.user, caller))) return json({ error: "unauthorized" }, 401);
+      }
+      return json(await backfillCities(createClient(SUPABASE_URL, SERVICE), geo, Math.min(Number(body.limit) || 25, 50)));
+    }
+
     const anonClient = createClient(SUPABASE_URL, ANON);
     const { data: userRes } = await anonClient.auth.getUser(token);
     const user = userRes?.user;
     if (!user) return json({ error: "unauthorized" }, 401);
 
-    const body = await req.json().catch(() => ({}));
     const businessId = body.business_id as string | undefined;
     if (!businessId) return json({ error: "business_id required" }, 400);
 
@@ -95,6 +110,47 @@ Deno.serve(async (req) => {
     return json({ error: (err as Error).message }, 500);
   }
 });
+
+async function googleGeocode(address: string, lovableKey: string, mapsKey: string) {
+  const r = await fetch(`${GATEWAY_URL}/maps/api/geocode/json?address=${encodeURIComponent(address)}`, {
+    headers: { Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": mapsKey },
+  });
+  const data = await r.json().catch(() => ({}));
+  const loc = data?.results?.[0]?.geometry?.location;
+  if (!r.ok || data.status !== "OK" || typeof loc?.lat !== "number" || typeof loc?.lng !== "number") {
+    return { status: String(data?.status || `http_${r.status}`), lat: null, lng: null };
+  }
+  return { status: "ok", lat: loc.lat as number, lng: loc.lng as number };
+}
+
+// deno-lint-ignore no-explicit-any
+async function backfillCities(admin: any, geo: (a: string) => Promise<{ status: string; lat: number | null; lng: number | null }>, limit: number) {
+  const { data: rows } = await admin.from("businesses")
+    .select("id,city,state,service_area,country")
+    .is("latitude", null).eq("is_published", true).eq("marketplace_listed", true)
+    .eq("is_demo", false).eq("is_internal", false).limit(200);
+  let located = 0, cached = 0, looked_up = 0, skipped = 0, failed = 0;
+  for (const b of rows ?? []) {
+    const q = cityQueryFromBusiness(b);
+    if (!q) { skipped++; continue; }
+    const key = cityQueryKey(q);
+    const { data: hit } = await admin.from("geocode_cache").select("latitude,longitude,status").eq("query_key", key).limit(1);
+    let res = hit?.[0] ? { status: hit[0].status, lat: hit[0].latitude, lng: hit[0].longitude } : null;
+    if (res) cached++;
+    else {
+      if (looked_up >= limit) { skipped++; continue; }
+      looked_up++;
+      res = await geo(q);
+      await admin.from("geocode_cache").upsert({ query_key: key, latitude: res.lat, longitude: res.lng, status: res.status });
+      await new Promise((r) => setTimeout(r, 200));
+    }
+    if (res.status === "ok" && res.lat !== null) {
+      await admin.from("businesses").update({ latitude: res.lat, longitude: res.lng, geocode_status: "city", geocoded_at: new Date().toISOString() }).eq("id", b.id);
+      located++;
+    } else failed++;
+  }
+  return { ok: true, located, cached, looked_up, skipped, failed };
+}
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {

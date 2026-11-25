@@ -421,19 +421,19 @@ const handwritten: PrerenderRoute[] = [
     noindex: true,
     title: PAGE_META["/browse"].title,
     description: PAGE_META["/browse"].description,
-    h1: "Browse referral offers",
+    h1: "Find local businesses that pay for referrals",
     sections: [
       {
-        heading: "The marketplace is launching",
-        body: "Listings are limited while businesses come on board. You can filter what is live by category, by country and region across the United States, Canada and the UAE, by payout, and by distance from where you are. If nothing matches yet you can leave your email and hear when offers go live in your area.",
+        heading: "Browse businesses near you",
+        body: "Browse businesses near you. Know someone who needs one? Refer them, and the business pays you a reward when the job closes. Search by business name or city, filter by trade, and move the map to see what is listed in that area.",
       },
       {
         heading: "How a marketplace referral works",
-        body: "Open an offer, read the reward and the qualification criteria the business set, then submit the customer's details on that business's referral page. The business qualifies and works the deal and pays you the full advertised amount directly when it closes.",
+        body: "Open a business, read the reward and what qualifies, then submit the customer's details on that business's referral page. The business pays the reward itself, directly, when the job closes. Revvin does not move the money.",
       },
       {
-        heading: "Are you a business?",
-        body: "Publishing your referral page and appearing in the marketplace as it opens city by city is free. Set your offer and your reward, publish, and referrers will be able to find you there. Revvin Pro is available at " + PRO + " for the tools that ask your whole customer list for you.",
+        heading: "Own a business?",
+        body: "List it free and get your own referral program. A marketplace profile is free on every plan; Pro businesses are listed first with a Pro badge. Revvin Pro is " + PRO + ".",
       },
     ],
   },
@@ -494,7 +494,7 @@ const handwritten: PrerenderRoute[] = [
       },
       {
         heading: "Verification and approval",
-        body: "Restricted categories (real estate, mortgage and insurance) are not listed in the public marketplace. Outcomes are confirmed by the business in its dashboard, and status changes are kept in an audit log.",
+        body: "Real estate, mortgage and insurance businesses can appear in the marketplace, but without a reward amount. Outcomes are confirmed by the business in its dashboard, and status changes are kept in an audit log.",
       },
       {
         heading: "Disputes and non-payment",
@@ -558,21 +558,20 @@ const handwritten: PrerenderRoute[] = [
   {
     path: "/marketplace",
     noindex: true,
-    // Alias route: /marketplace renders the same Browse component and the same
-    // offer listing as /browse, so it canonicals there and is kept out of the
-    // sitemap.
+    // Alias route: /marketplace renders the same page as /browse, so it
+    // canonicals there and is kept out of the sitemap.
     canonical: "https://revvin.co/browse",
     title: PAGE_META["/browse"].title,
     description: PAGE_META["/browse"].description,
-    h1: "Browse referral offers",
+    h1: "Find local businesses that pay for referrals",
     sections: [
       {
-        heading: "The marketplace is launching",
-        body: "This is the same listing as the Revvin browse page. Listings are limited while businesses come on board. You can filter what is live by category, by country and region across the United States, Canada and the UAE, by payout, and by distance from where you are. If nothing matches yet you can leave your email and hear when offers go live in your area.",
+        heading: "Browse businesses near you",
+        body: "Browse businesses near you. Know someone who needs one? Refer them, and the business pays you a reward when the job closes.",
       },
       {
         heading: "How referring works",
-        body: "Joining as a referrer is free. You submit a customer's details on a business's referral page, the business contacts and qualifies them, and when the deal closes the business pays you the full advertised reward directly. Revvin takes no cut and does not process the payout.",
+        body: "Joining as a referrer is free. You submit a customer's details on a business's referral page, the business contacts and qualifies them, and when the job closes the business pays you the reward directly. Revvin takes no cut and does not process the payout.",
       },
     ],
   },

@@ -33,6 +33,7 @@ function approvedPath(path: string): string | null {
   // malformed/encoded paths cannot match these deliberately narrow patterns.
   if (/^\/r\/(?!status$)[a-z0-9-]{1,80}$/.test(normalized)) return "/r/:business";
   if (/^\/earn\/[a-z0-9-]{1,40}$/.test(normalized)) return "/earn/:metro";
+  if (/^\/b\/[a-z0-9-]{1,100}$/.test(normalized)) return "/b/:listing";
   if (/^\/offer\/[a-z0-9-]{1,80}(?:\/[a-z0-9-]{1,80})?$/.test(normalized)) return "/offer/:offer";
   return null;
 }
@@ -136,6 +137,7 @@ export const HOME_CTA_LABELS = [
   "home_tool_grader", "home_tool_calculator", "home_tool_generator", "home_tools_all",
   "nav_signup", "nav_menu_signup", "invite_signup",
   "hero_sample", "home_founder_call", "home_earn",
+  "owner_strip_list_free",
 ] as const;
 // Toolkit steps ride on cta_clicked with a fixed label, so measuring the free
 // tools needs no new event name. A label names the tool and the step and nothing
@@ -158,6 +160,11 @@ const RECIPIENT_BUCKETS = new Set<string>(LAUNCH_RECIPIENT_BUCKETS);
 export const recipientBucket = (n: number) => (n <= 10 ? "1-10" : n <= 50 ? "11-50" : n <= 200 ? "51-200" : "201-500");
 const PRINT_ASSET_SET = new Set(["yard-sign", "door-hanger", "invoice-insert", "card-back", "truck-magnet"]);
 const INTAKE_METHOD_SET = new Set(["upload", "paste", "export_help", "send_us"]);
+// Marketplace map zoom, bucketed. Card kind is one of two fixed strings.
+export const ZOOM_BUCKETS = ["continent", "region", "city", "street"] as const;
+export const zoomBucket = (z: number) => (z < 5 ? "continent" : z < 8 ? "region" : z < 12 ? "city" : "street");
+const ZOOM_SET = new Set<string>(ZOOM_BUCKETS);
+const CARD_KINDS = new Set(["business", "listing"]);
 const PUBLISH_SURFACES = new Set(["onboarding", "dashboard_banner", "share_tools", "checklist", "home_kit"]);
 const PUBLISH_REASONS = new Set<string>(PUBLISH_FAILURE_REASONS);
 export function safeAnalyticsMeta(event: string, context: AnalyticsContext, input?: Record<string, unknown>) {
@@ -173,11 +180,13 @@ export function safeAnalyticsMeta(event: string, context: AnalyticsContext, inpu
   if ((event === "print_pdf_downloaded" || event === "print_pdf_failed") && typeof input?.asset === "string" && PRINT_ASSET_SET.has(input.asset)) result.asset = input.asset;
   if ((event === "launch_sent" || event === "intake_import_succeeded") && typeof input?.recipients === "string" && RECIPIENT_BUCKETS.has(input.recipients)) result.recipients = input.recipients;
   if (typeof input?.step === "string" && STEP_LABELS.has(input.step)) result.step = input.step;
+  if (event === "marketplace_map_moved" && typeof input?.zoom === "string" && ZOOM_SET.has(input.zoom)) result.zoom = input.zoom;
+  if (event === "marketplace_card_clicked" && typeof input?.kind === "string" && CARD_KINDS.has(input.kind)) result.kind = input.kind;
   if (event === "publish_failed" && context.traffic === "product" && typeof input?.reason === "string" && PUBLISH_REASONS.has(input.reason)) result.reason = input.reason;
   return result;
 }
 
-const PUBLIC_EVENTS = new Set(["page_viewed", "cta_clicked", "demo_started", "demo_completed", "sample_page_viewed", "email_lead_submitted", "referral_submitted", "referral_page_load_failed", "promo_popup_shown", "promo_cta_clicked", "pwa_install_cta_shown", "pwa_install_cta_clicked"]);
+const PUBLIC_EVENTS = new Set(["marketplace_viewed", "marketplace_map_moved", "marketplace_card_clicked", "listing_viewed", "listing_claim_clicked", "listing_removal_requested", "page_viewed", "cta_clicked", "demo_started", "demo_completed", "sample_page_viewed", "email_lead_submitted", "referral_submitted", "referral_page_load_failed", "promo_popup_shown", "promo_cta_clicked", "pwa_install_cta_shown", "pwa_install_cta_clicked"]);
 export function analyticsEventAllowed(event: string, context: AnalyticsContext): boolean {
   if (context.traffic === "product") {
     if (SIGNUP_STEP_EVENTS.has(event)) return context.path === SIGNUP_PATH;

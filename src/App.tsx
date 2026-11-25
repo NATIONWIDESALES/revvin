@@ -23,7 +23,8 @@ import PartnerCapture from "@/components/partners/PartnerCapture";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
-const Browse = lazy(() => import("./pages/Browse"));
+const Marketplace = lazy(() => import("./pages/Marketplace"));
+const DirectoryListingPage = lazy(() => import("./pages/DirectoryListingPage"));
 const Start = lazy(() => import("./pages/Start"));
 const OfferDetail = lazy(() => import("./pages/OfferDetail"));
 const SavedOffers = lazy(() => import("./pages/SavedOffers"));
@@ -122,8 +123,9 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
                 <Route path="/__health" element={<ConnectionHealth />} />
                 <Route element={<Layout />}>
                   <Route path="/" element={<Index />} />
-                  <Route path="/browse" element={<Browse />} />
-                  <Route path="/marketplace" element={<Browse />} />
+                  <Route path="/browse" element={<Marketplace />} />
+                  <Route path="/marketplace" element={<Marketplace />} />
+                  <Route path="/b/:slug" element={<DirectoryListingPage />} />
                   <Route path="/saved" element={<SavedOffers />} />
                   <Route path="/offer/:businessSlug/:id" element={<OfferDetail />} />
                   <Route path="/offer/:id" element={<OfferDetail />} />

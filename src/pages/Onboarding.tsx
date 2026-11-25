@@ -26,6 +26,7 @@ import { copyText } from "@/lib/clipboard";
 import { CHECKOUT_FALLBACK_TOAST, parsePlan, peekCheckoutIntent, startHeldCheckout } from "@/lib/proCheckoutIntent";
 import { readPreview, previewCategory } from "@/lib/instantPreview";
 import { claimProspectPage } from "@/lib/prospects";
+import { claimListing, claimedListingSlug } from "@/lib/directory";
 import { withSaleOffer } from "@/lib/salePresentation";
 
 const Onboarding = () => {
@@ -98,10 +99,13 @@ const Onboarding = () => {
         if (preview?.prospect_code) {
           void claimProspectPage(preview.prospect_code, b.id);
         }
+        // Claimed from an unclaimed marketplace profile (/b/:slug): link the listing.
+        const listingSlug = claimedListingSlug(preview?.landing_path);
+        if (listingSlug) void claimListing(listingSlug, b.id);
         setLaunchPackageStatus(b.launch_package_status || null);
         setName(b.name || preview?.name || "");
         setCategory(b.category || (preview ? previewCategory(preview.trade) : ""));
-        setServiceArea(b.service_area || "");
+        setServiceArea(b.service_area || (preview?.city ? [preview.city, preview.region].filter(Boolean).join(", ") : ""));
         loadedAreaRef.current = b.service_area || "";
         setOfferAmount(b.offer_amount || (preview ? `$${preview.reward}` : ""));
         setMobile(b.phone || "");
