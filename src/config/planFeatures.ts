@@ -37,8 +37,8 @@ export const FREE_FEATURES = [
     description: "Ask any customer from your own phone or email app whenever you like.",
   },
   {
-    label: "A free marketplace profile",
-    description: "Your business is listed in the Revvin marketplace, linked to your referral page.",
+    label: "Marketplace profile with logo, 3 photos and 3 reviews shown",
+    description: "Your business profile in the Revvin marketplace, with reviews collected from your own customers and a link to your referral page.",
   },
 ] as const satisfies readonly PlanFeature[];
 
@@ -68,10 +68,42 @@ export const PRO_FEATURES = [
     description: "Add your color, cover image, headline, welcome message and testimonials.",
   },
   {
-    label: "Featured placement and Pro badge in the marketplace",
-    description: "Pro businesses are listed first in the marketplace, with a Pro badge on their card.",
+    label: "Full marketplace profile: cover photo, photo gallery, all reviews with stars, quote requests, featured placement, no competitors on your page",
+    description: "Pro businesses are listed first with a Pro badge, and their profile adds up to 30 photos, services, licence and social links, every review with your average rating, and a quote form that emails you.",
   },
 ] as const satisfies readonly PlanFeature[];
+
+/**
+ * Marketplace profile features by plan. The single place profile screens ask
+ * "is this allowed?". A business on an active Pro trial counts as Pro.
+ * The database enforces the same photo limits.
+ */
+export const PROFILE_LIMITS = {
+  free: { photos: 3, reviewsShown: 3, reviewRequestsPerMonth: 50 },
+  pro: { photos: 30, reviewsShown: Infinity, reviewRequestsPerMonth: Infinity },
+} as const;
+export type ProfileFeature =
+  | "cover_photo" | "photo_gallery" | "services" | "founded_year" | "license_number" | "social_links"
+  | "quote_requests" | "all_reviews" | "rating_breakdown" | "no_competitors";
+const PRO_PROFILE_FEATURES: readonly ProfileFeature[] = [
+  "cover_photo", "photo_gallery", "services", "founded_year", "license_number", "social_links",
+  "quote_requests", "all_reviews", "rating_breakdown", "no_competitors",
+];
+export const profileAllows = (isPro: boolean, feature: ProfileFeature) => isPro || !PRO_PROFILE_FEATURES.includes(feature);
+export const photoLimit = (isPro: boolean) => (isPro ? PROFILE_LIMITS.pro.photos : PROFILE_LIMITS.free.photos);
+/** One line per Pro profile feature, shown at the moment a Free owner reaches it. */
+export const PROFILE_UPGRADE_LINES: Record<ProfileFeature, string> = {
+  cover_photo: "A cover photo across the top of your profile is part of Pro.",
+  photo_gallery: "Free shows 3 photos. Pro shows a gallery of up to 30.",
+  services: "Services, licence and social links show on Pro profiles.",
+  founded_year: "Services, licence and social links show on Pro profiles.",
+  license_number: "Services, licence and social links show on Pro profiles.",
+  social_links: "Services, licence and social links show on Pro profiles.",
+  quote_requests: "A Request a quote form that emails you is part of Pro.",
+  all_reviews: "Free shows your 3 latest reviews. Pro shows every review with your average and breakdown.",
+  rating_breakdown: "Free shows your 3 latest reviews. Pro shows every review with your average and breakdown.",
+  no_competitors: "Pro removes Similar businesses nearby from your profile.",
+};
 
 /** The one trial statement. The trial starts at the first launch campaign, never at signup. */
 export const TRIAL_DAYS = 14;

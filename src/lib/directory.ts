@@ -21,6 +21,8 @@ export interface DirectoryEntry {
   has_reward: boolean;
   reward_text: string | null;
   logo_url: string | null;
+  /** Card extras loaded in one batch for claimed businesses (photo, stars). */
+  extra?: { cover_url: string | null; photo_url: string | null; rating_avg: number | null; review_count: number };
 }
 export interface DirectoryCluster { lat: number; lng: number; count: number }
 export interface Bounds { minLat: number; minLng: number; maxLat: number; maxLng: number }
@@ -47,7 +49,8 @@ export function cardReward(e: Pick<DirectoryEntry, "kind" | "category" | "has_re
   return rewardLine(amount);
 }
 
-export const entryHref = (e: Pick<DirectoryEntry, "kind" | "slug">) => (e.kind === "business" ? `/r/${e.slug}` : `/b/${e.slug}`);
+/** Every card opens the business profile; the profile links to the referral form at /r/:slug. */
+export const entryHref = (e: Pick<DirectoryEntry, "kind" | "slug">) => `/b/${e.slug}`;
 export const placeLine = (e: { city: string | null; region: string | null }) =>
   [e.city, e.region?.replace(/^(US|CA)-/i, "")].filter(Boolean).join(", ");
 export const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("") || "?";

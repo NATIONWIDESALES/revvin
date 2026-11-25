@@ -55,7 +55,7 @@ const Layout = () => {
         <PageTransition />
       </main>
       {!app && !full && <Footer />}
-      {!app && !full && <ScrollToTopButton />}
+      {!app && !full && !/^\/b\/[^/]+\/?$/.test(pathname) && <ScrollToTopButton />}
       {startBar && <MobileStartBar pathname={pathname} />}
     </div>
   );

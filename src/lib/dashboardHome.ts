@@ -4,11 +4,11 @@
 export type DashTab =
   | "home" | "leads" | "customers" | "referrers" | "payouts"
   | "page" | "share" | "jobdone" | "campaigns" | "reports"
-  | "account" | "billing" | "offers" | "referrals" | "integrations";
+  | "account" | "billing" | "offers" | "referrals" | "integrations" | "profile";
 
 export const VALID_TABS: DashTab[] = [
   "home", "leads", "customers", "referrers", "payouts", "page", "share", "jobdone",
-  "campaigns", "reports", "account", "billing", "offers", "referrals", "integrations",
+  "campaigns", "reports", "account", "billing", "offers", "referrals", "integrations", "profile",
 ];
 
 /** Older links used names that now live elsewhere in the rail. */

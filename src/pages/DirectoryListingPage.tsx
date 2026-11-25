@@ -1,6 +1,8 @@
 import { Suspense, useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
-import { Globe, Phone } from "lucide-react";
+import { Check, Globe, Phone } from "lucide-react";
+import { tradeIcon } from "@/components/marketplace/DirectoryCard";
+import { Breadcrumb, NearbyStrip } from "@/components/profile/ProfileParts";
 import { lazyWithChunkRecovery as lazy } from "@/lib/chunkRecovery";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
@@ -14,6 +16,12 @@ import { listingClaimPreview, loadListing, placeLine, requestRemoval, type Direc
 const DirectoryMap = lazy(() => import("@/components/marketplace/DirectoryMap"));
 const noop = () => {};
 
+export const CLAIM_BENEFITS = [
+  "Add your logo and photos",
+  "Collect reviews from your own customers",
+  "Get your own referral program and QR print kit",
+  "Show up above unclaimed businesses in your city",
+];
 export const UNCLAIMED_NOTE = "This business has not claimed its profile yet.";
 
 function RemovalForm({ slug }: { slug: string }) {
@@ -61,7 +69,7 @@ export default function DirectoryListingPage() {
   useEffect(() => { if (listing?.status === "unclaimed") track("listing_viewed"); }, [listing]);
 
   if (listing === undefined) return <main className="mk-wrap min-h-[50vh] py-16"><SEOHead title="Business profile | Revvin" description="A local business in the Revvin marketplace." noindex /><p className="text-muted-foreground">Loading</p></main>;
-  if (listing?.status === "claimed" && listing.claimed_slug) return <Navigate to={`/r/${listing.claimed_slug}`} replace />;
+  if (listing?.status === "claimed" && listing.claimed_slug) return <Navigate to={`/b/${listing.claimed_slug}`} replace />;
   if (!listing || listing.status !== "unclaimed") {
     return (
       <main className="mk-wrap py-16">
@@ -81,38 +89,66 @@ export default function DirectoryListingPage() {
   };
   const site = listing.website?.replace(/^https?:\/\//, "").replace(/\/$/, "");
 
+  const Icon = tradeIcon(listing.category);
   return (
     <main className="bg-paper">
       <SEOHead title={`${listing.name}${place ? `, ${place}` : ""} | Revvin`} description={`${listing.name} is a ${listing.category.toLowerCase()} business${place ? ` in ${place}` : ""}.`} path={`/b/${listing.slug}`} noindex />
-      <div className="mk-wrap grid gap-8 py-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-        <section className="min-w-0">
-          <p className="text-sm"><Link to="/marketplace" className="text-primary underline underline-offset-4">Marketplace</Link></p>
-          <h1 className="mt-3 break-words font-display text-[clamp(30px,4.4vw,48px)] leading-[1.05] text-forest">{listing.name}</h1>
-          <p className="mt-2 text-lg text-muted-foreground">{[listing.category, place].filter(Boolean).join(" · ")}</p>
-          <p className="mt-5 rounded-lg border border-line bg-card p-4 text-sm">{UNCLAIMED_NOTE}</p>
-          <ul className="mt-5 grid gap-2 text-base">
-            {listing.phone && <li><a href={`tel:${listing.phone.replace(/[^\d+]/g, "")}`} className="inline-flex min-h-11 items-center gap-2 text-primary underline underline-offset-4"><Phone className="h-4 w-4" aria-hidden />{listing.phone}</a></li>}
-            {listing.website && <li><a href={listing.website} target="_blank" rel="noopener nofollow ugc" className="inline-flex min-h-11 items-center gap-2 break-all text-primary underline underline-offset-4"><Globe className="h-4 w-4 shrink-0" aria-hidden />{site}</a></li>}
-          </ul>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Button className="h-12" onClick={claim}>Is this your business? Claim it free</Button>
-            <Button variant="outline" className="h-12" onClick={() => setShowRemoval((v) => !v)} aria-expanded={showRemoval}>Request removal</Button>
+      <header className="bg-muted">
+        <div className="mk-wrap py-8">
+          <Breadcrumb />
+          <div className="mt-4 flex items-start gap-4">
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-card" aria-hidden><Icon className="h-8 w-8 text-muted-foreground" strokeWidth={1.5} /></span>
+            <div className="min-w-0">
+              <h1 className="break-words font-display text-[clamp(28px,4vw,44px)] leading-[1.05] text-forest">{listing.name}</h1>
+              <p className="mt-1 text-lg text-muted-foreground">{[listing.category, place].filter(Boolean).join(" · ")}</p>
+              <span className="mt-2 inline-block rounded border border-line bg-card px-2 py-0.5 text-xs text-muted-foreground">Unclaimed</span>
+            </div>
           </div>
-          {showRemoval && <div className="mt-5 max-w-md rounded-xl border border-line bg-card p-5"><RemovalForm slug={listing.slug} /></div>}
-          <p className="mt-8 text-xs text-muted-foreground">
+        </div>
+      </header>
+      <div className="mk-wrap grid gap-8 py-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        <section className="min-w-0 space-y-6">
+          <p className="rounded-lg border border-line bg-card p-4 text-sm">{UNCLAIMED_NOTE}</p>
+          <div className="rounded-2xl border-2 border-green bg-card p-6" data-testid="claim-panel">
+            <h2 className="text-2xl font-bold text-forest">Is this your business? Claim it free.</h2>
+            <ul className="mt-4 grid gap-2">
+              {CLAIM_BENEFITS.map((b) => <li key={b} className="flex gap-2"><Check className="mt-0.5 h-5 w-5 shrink-0 text-green" aria-hidden />{b}</li>)}
+            </ul>
+            <Button className="mt-5 h-12" onClick={claim}>Claim this business free</Button>
+          </div>
+          <div className="rounded-2xl border border-dashed border-line bg-card p-5" aria-label="Example of a completed profile">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Illustration: what a claimed profile can show</p>
+            <div className="mt-4 grid grid-cols-3 gap-2">{["Your photos", "Your photos", "Your photos"].map((l, i) => <div key={i} className="flex aspect-video items-center justify-center rounded-lg bg-muted text-xs text-muted-foreground">{l}</div>)}</div>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <div className="rounded-lg bg-muted p-4 text-xs text-muted-foreground">Your reviews</div>
+              <div className="rounded-lg bg-muted p-4 text-xs text-muted-foreground">Your referral reward</div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button variant="outline" className="h-11" onClick={() => setShowRemoval((v) => !v)} aria-expanded={showRemoval}>Request removal</Button>
+          </div>
+          {showRemoval && <div className="max-w-md rounded-xl border border-line bg-card p-5"><RemovalForm slug={listing.slug} /></div>}
+          <p className="text-xs text-muted-foreground">
             {listing.source === "overture"
               ? <>Business information from Overture Maps Foundation, <a className="underline" href="https://overturemaps.org" target="_blank" rel="noopener noreferrer">overturemaps.org</a>{listing.source_license ? ` (${listing.source_license})` : ""}.</>
               : <>Business details from {listing.source}{listing.source_license ? `, ${listing.source_license}` : ""}.</>}
           </p>
         </section>
-        {listing.lat != null && listing.lng != null && (
-          <div className="min-w-0">
-            <Suspense fallback={<div className="h-72 rounded-xl border border-line bg-card" />}>
-              <DirectoryMap clusters={[]} pins={[]} selected={null} onMove={noop} onSelect={noop} onFail={noop} point={{ lat: listing.lat, lng: listing.lng }} className="h-72 overflow-hidden rounded-xl border border-line" />
+        <aside className="min-w-0 space-y-4">
+          {(listing.phone || listing.website) && (
+            <ul className="grid gap-2 rounded-xl border border-line bg-card p-4 text-base">
+              {listing.phone && <li><a href={`tel:${listing.phone.replace(/[^\d+]/g, "")}`} className="inline-flex min-h-11 items-center gap-2 text-primary underline underline-offset-4"><Phone className="h-4 w-4" aria-hidden />{listing.phone}</a></li>}
+              {listing.website && <li><a href={listing.website} target="_blank" rel="noopener nofollow ugc" className="inline-flex min-h-11 items-center gap-2 break-all text-primary underline underline-offset-4"><Globe className="h-4 w-4 shrink-0" aria-hidden />{site}</a></li>}
+            </ul>
+          )}
+          {listing.lat != null && listing.lng != null && (
+            <Suspense fallback={<div className="h-64 rounded-xl border border-line bg-card" />}>
+              <DirectoryMap clusters={[]} pins={[]} selected={null} onMove={noop} onSelect={noop} onFail={noop} point={{ lat: listing.lat, lng: listing.lng }} className="h-64 overflow-hidden rounded-xl border border-line" />
             </Suspense>
-          </div>
-        )}
+          )}
+        </aside>
       </div>
+      {listing.lat != null && listing.lng != null && <NearbyStrip lat={listing.lat} lng={listing.lng} category={listing.category} exclude={listing.slug} />}
     </main>
   );
 }

@@ -41,7 +41,7 @@ it("reproduces the old first-view payload rejection", () => {
 });
 it("every latest SQL transactional writer supplies the queue delivery contract", () => {
   const writers = [...functions].filter(([, sql]) => /enqueue_email\(\s*'transactional_emails'/.test(sql));
-  expect(writers.map(([name]) => name).sort()).toEqual(["fn_directory_claim", "fn_directory_request_removal", "fn_earn_get_link", "fn_prospect_claim", "fn_prospect_view", "fn_report_failure"]);
+  expect(writers.map(([name]) => name).sort()).toEqual(["fn_directory_claim", "fn_directory_request_removal", "fn_earn_get_link", "fn_prospect_claim", "fn_prospect_view", "fn_report_failure", "fn_review_flag"]);
   for (const [, sql] of writers) assertContract(sql);
 });
 it("view, claim and Earn emit valid distinct stable keys in rollback-only PostgreSQL", async () => {

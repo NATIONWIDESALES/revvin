@@ -24,7 +24,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 const Marketplace = lazy(() => import("./pages/Marketplace"));
-const DirectoryListingPage = lazy(() => import("./pages/DirectoryListingPage"));
+const BusinessProfilePage = lazy(() => import("./pages/BusinessProfilePage"));
+const ReviewPage = lazy(() => import("./pages/ReviewPage"));
 const Start = lazy(() => import("./pages/Start"));
 const OfferDetail = lazy(() => import("./pages/OfferDetail"));
 const SavedOffers = lazy(() => import("./pages/SavedOffers"));
@@ -125,7 +126,8 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
                   <Route path="/" element={<Index />} />
                   <Route path="/browse" element={<Marketplace />} />
                   <Route path="/marketplace" element={<Marketplace />} />
-                  <Route path="/b/:slug" element={<DirectoryListingPage />} />
+                  <Route path="/b/:slug" element={<BusinessProfilePage />} />
+                  <Route path="/review/:token" element={<ReviewPage />} />
                   <Route path="/saved" element={<SavedOffers />} />
                   <Route path="/offer/:businessSlug/:id" element={<OfferDetail />} />
                   <Route path="/offer/:id" element={<OfferDetail />} />

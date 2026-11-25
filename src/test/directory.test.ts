@@ -86,7 +86,7 @@ describe("marketplace events", () => {
 
 describe("plan lines", () => {
   it("lists the marketplace profile on Free and featured placement on Pro", () => {
-    expect(FREE_FEATURES.map((f) => f.label)).toContain("A free marketplace profile");
-    expect(PRO_FEATURES.map((f) => f.label)).toContain("Featured placement and Pro badge in the marketplace");
+    expect(FREE_FEATURES.map((f) => f.label)).toContain("Marketplace profile with logo, 3 photos and 3 reviews shown");
+    expect(PRO_FEATURES.map((f) => f.label)).toContain("Full marketplace profile: cover photo, photo gallery, all reviews with stars, quote requests, featured placement, no competitors on your page");
   });
 });

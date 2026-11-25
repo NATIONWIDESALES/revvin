@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { cardRewardAmount, entryHref, placeLine, type DirectoryEntry } from "@/lib/directory";
 import { track } from "@/lib/track";
+import { cardMedia } from "@/lib/profile";
+import Stars from "@/components/profile/Stars";
 
 /** A plain trade icon for cards with no photo or logo. Never a stock photo. */
 export function tradeIcon(category: string): LucideIcon {
@@ -33,6 +35,8 @@ const DirectoryCard = forwardRef<HTMLAnchorElement, Props>(({ entry, selected, c
   const place = placeLine(entry);
   const unclaimed = entry.kind === "listing";
   const Icon = tradeIcon(entry.category);
+  const media = cardMedia(entry, entry.extra);
+  const rated = entry.is_pro && entry.extra && entry.extra.review_count > 0 && entry.extra.rating_avg !== null;
   return (
     <Link
       ref={ref}
@@ -48,8 +52,10 @@ const DirectoryCard = forwardRef<HTMLAnchorElement, Props>(({ entry, selected, c
         entry.is_pro ? "border-2 border-green" : "border-line"} ${selected ? "ring-2 ring-sign" : ""}`}
     >
       <span className={`relative flex w-full shrink-0 items-center justify-center ${compact ? "aspect-[16/7]" : "aspect-video"} ${unclaimed ? "bg-muted" : "bg-secondary"}`}>
-        {entry.logo_url ? (
-          <img src={entry.logo_url} alt="" loading="lazy" className="max-h-[60%] max-w-[60%] rounded-lg object-contain" />
+        {media?.kind === "photo" ? (
+          <img src={media.url} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+        ) : media?.kind === "logo" ? (
+          <img src={media.url} alt="" loading="lazy" className="max-h-[60%] max-w-[60%] rounded-lg object-contain" />
         ) : (
           <Icon className={`h-10 w-10 ${unclaimed ? "text-muted-foreground/60" : "text-forest/70"}`} aria-hidden strokeWidth={1.5} />
         )}
@@ -59,6 +65,12 @@ const DirectoryCard = forwardRef<HTMLAnchorElement, Props>(({ entry, selected, c
       <span className="flex min-w-0 flex-1 flex-col p-3">
         <span className={`line-clamp-2 break-words font-semibold ${unclaimed ? "text-foreground/85" : "text-foreground"}`}>{entry.name}</span>
         <span className="mt-0.5 block truncate text-sm text-muted-foreground">{[entry.category, place].filter(Boolean).join(" · ")}</span>
+        {rated && (
+          <span className="mt-1 flex items-center gap-1.5 text-sm">
+            <Stars value={entry.extra!.rating_avg!} size={14} />
+            <span className="text-muted-foreground">{entry.extra!.rating_avg!.toFixed(1)} ({entry.extra!.review_count.toLocaleString("en-US")})</span>
+          </span>
+        )}
         {(entry.is_pro || entry.is_verified) && (
           <span className="mt-1.5 flex flex-wrap items-center gap-2">
             {entry.is_pro && <span className="rounded bg-forest px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-primary-foreground">Pro</span>}

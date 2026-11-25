@@ -1,4 +1,5 @@
 import { useSale } from "@/lib/useSale";
+import MarketplaceProfileTab from "@/components/dashboard/MarketplaceProfileTab";
 import { useBillingPlan } from "@/lib/useBillingPlan";
 import { priceTextForSale } from "@/config/pricing";
 import { CHECKOUT_PRICE_VERSION } from "@/config/pricing";
@@ -463,6 +464,7 @@ const BusinessDashboard = () => {
         <CampaignsTab biz={{ id: biz.id, name: biz.name, slug: biz.slug, offer_amount: biz.offer_amount, business_email: biz.business_email ?? null }} publicUrl={publicUrl} isPro={isPro} onGo={changeTab} onLaunchSent={() => setHasLaunchCampaign(true)} />
       ))}
 
+      {tab === "profile" && <MarketplaceProfileTab businessId={biz.id} isPro={isPro} isDemo={!!biz.is_demo} onGo={changeTab} />}
       {tab === "reports" && (isPro ? <RoiSummaryCard businessId={biz.id} /> : <ProUpsell title={PRO_COPY.reporting.title} body={PRO_COPY.reporting.body} />)}
 
       {tab === "leads" && (
@@ -501,7 +503,7 @@ const BusinessDashboard = () => {
 
 const TAB_TITLE: Record<DashTab, string> = {
   home: "Home", leads: "Leads", customers: "Customers", referrers: "Referrers", payouts: "Rewards",
-  page: "Edit page", share: "Print pack and QR", jobdone: "Job done asks", campaigns: "Ask your customers",
+  page: "Edit page", share: "Print pack and QR", jobdone: "Job done asks", campaigns: "Ask your customers", profile: "Marketplace profile",
   reports: "Reports", account: "Settings", billing: "Billing", offers: "Offers",
   referrals: "Marketplace referrals", integrations: "Settings",
 };

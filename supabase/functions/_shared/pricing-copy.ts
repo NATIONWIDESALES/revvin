@@ -33,7 +33,7 @@ export const PRO_FEATURE_LABELS: string[] = [
   "Win-back email campaigns",
   "ROI reporting and monthly recap",
   "Custom page branding",
-  "Featured placement and Pro badge in the marketplace",
+  "Full marketplace profile: cover photo, photo gallery, all reviews with stars, quote requests, featured placement, no competitors on your page",
 ];
 
 /** Mirrors TRIAL_LINE in src/config/planFeatures.ts. */

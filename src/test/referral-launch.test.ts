@@ -149,6 +149,6 @@ describe("reactivation path unchanged", () => {
     expect(src).toContain('if (plan !== "pro") return json({ error: "Reactivation campaigns require Revvin Pro" }, 403);');
     expect(src).toContain('label: "reactivation-campaign"');
     const queue = readFileSync("supabase/functions/process-email-queue/index.ts", "utf8");
-    expect(queue).toContain("if (plan !== 'pro' && payload.label !== 'referral-launch')");
+    expect(queue).toContain("if (plan !== 'pro' && payload.label !== 'referral-launch' && payload.label !== 'review-request')");
   });
 });

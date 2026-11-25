@@ -113,6 +113,11 @@ const ReferralKitHome = ({ biz, publicUrl, displayUrl, isLive, customersTotal, o
         </div>
       </section>
 
+      <a href="?tab=profile" onClick={(e) => { e.preventDefault(); onGo("profile"); }} data-testid="kit-profile-step"
+        className="flex min-h-11 items-center gap-3 rounded-[14px] border border-line bg-card p-4 font-semibold text-forest hover:border-forest">
+        <span aria-hidden className="h-5 w-5 shrink-0 rounded border-2 border-line" />Finish your marketplace profile
+      </a>
+
       {intakeOpen && <div id="kit-intake">{renderIntake()}</div>}
     </div>
   );

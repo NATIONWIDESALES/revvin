@@ -379,6 +379,34 @@
       "when": 1795627139422,
       "tag": "0053_marketplace_map_search_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1795628223549,
+      "tag": "0054_business_profiles_photos_reviews_quotes",
+      "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1795628246756,
+      "tag": "0055_fix_review_submit_variable",
+      "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1795628261909,
+      "tag": "0056_business_photos_read_policy",
+      "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "7",
+      "when": 1795628277193,
+      "tag": "0057_owns_business_anon_execute",
+      "breakpoints": true
     }
   ]
 }

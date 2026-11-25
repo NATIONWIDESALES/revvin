@@ -73,7 +73,7 @@ const DirectoryMap = forwardRef<DirectoryMapHandle, Props>(function DirectoryMap
     if (!m || !ml || entry.lat == null || entry.lng == null) return;
     const reward = cardRewardAmount(entry);
     const href = cb.current.hrefFor?.(entry) ?? "#";
-    const html = `<div class="dir-pop"><p class="dir-pop-name">${esc(entry.name)}</p><p class="dir-pop-meta">${esc([entry.category, placeLine(entry)].filter(Boolean).join(" · "))}</p>${reward ? `<p class="dir-pop-reward">Pays ${esc(reward)} per referral</p>` : ""}<a class="dir-pop-link" href="${esc(href)}">View profile</a></div>`;
+    const html = `<div class="dir-pop"><p class="dir-pop-name">${esc(entry.name)}</p><p class="dir-pop-meta">${esc([entry.category, placeLine(entry)].filter(Boolean).join(" · "))}</p>${entry.is_pro && entry.extra && entry.extra.review_count > 0 && entry.extra.rating_avg !== null ? `<p class="dir-pop-meta">${"★".repeat(Math.round(entry.extra.rating_avg))}${"☆".repeat(5 - Math.round(entry.extra.rating_avg))} ${entry.extra.rating_avg.toFixed(1)} (${entry.extra.review_count})</p>` : ""}${reward ? `<p class="dir-pop-reward">Pays ${esc(reward)} per referral</p>` : ""}<a class="dir-pop-link" href="${esc(href)}">View profile</a></div>`;
     popup.current?.remove();
     const p = new ml.Popup({ closeButton: true, closeOnClick: true, offset: 14, maxWidth: "260px", focusAfterOpen: false })
       .setLngLat([entry.lng, entry.lat]).setHTML(html).addTo(m);

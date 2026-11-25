@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import DirectoryCard, { CardSkeleton, OwnerCard } from "@/components/marketplace/DirectoryCard";
 import type { DirectoryMapHandle } from "@/components/marketplace/DirectoryMap";
 import { track } from "@/lib/track";
+import { loadCardExtras } from "@/lib/profile";
 import { zoomBucket } from "@/lib/analyticsPrivacy";
 import {
   DIRECTORY_CATEGORIES, PAGE_SIZE, PIN_ZOOM, cityLocation, countLine, directoryClusters, entryHref,
@@ -102,6 +103,7 @@ export default function Marketplace() {
     if (!rawView && !init.state.lat) { s.lat = null; s.lng = null; s.z = null; }
     const next = `${window.location.pathname}${marketplaceSearch(window.location.search, s)}${window.location.hash}`;
     if (next !== `${window.location.pathname}${window.location.search}${window.location.hash}`) window.history.replaceState(window.history.state, "", next);
+    try { sessionStorage.setItem("revvin:marketplace_view", marketplaceSearch("", s)); } catch { /* storage blocked */ }
   }, [init, rawView, query, cat, rewards]);
 
   // A search that names a known city moves the map there instead of filtering by text.
@@ -174,7 +176,21 @@ export default function Marketplace() {
     else if (!mapFailed) mapRef.current?.flyTo(45, -96, 3);
   };
 
-  const pins = useMemo(() => (clustered ? [] : entries), [clustered, entries]);
+  // Photos and stars for claimed businesses, one batched call per page of results.
+  const [extras, setExtras] = useState<Record<string, NonNullable<DirectoryEntry["extra"]>>>({});
+  useEffect(() => {
+    const need = entries.filter((e) => e.kind === "business" && !(e.slug in extras)).map((e) => e.slug);
+    if (need.length === 0) return;
+    let live = true;
+    loadCardExtras(need).then((x) => { if (live) setExtras((prev) => {
+      const next = { ...prev, ...x };
+      for (const s of need) if (!(s in next)) next[s] = { cover_url: null, photo_url: null, rating_avg: null, review_count: 0 };
+      return next;
+    }); }).catch(() => {});
+    return () => { live = false; };
+  }, [entries, extras]);
+  const shown = useMemo(() => entries.map((e) => (e.kind === "business" && extras[e.slug] ? { ...e, extra: extras[e.slug] } : e)), [entries, extras]);
+  const pins = useMemo(() => (clustered ? [] : shown), [clustered, shown]);
   const showSkeleton = loading || !ready;
   const header = showSkeleton ? "Loading businesses" : failed ? "" : countLine(total);
   const cols = desktop && twoCols ? "grid-cols-2" : "grid-cols-1";
@@ -217,7 +233,7 @@ export default function Marketplace() {
     </label>
   );
 
-  const items: React.ReactNode[] = entries.map((e) => (
+  const items: React.ReactNode[] = shown.map((e) => (
     <li key={`${e.kind}:${e.slug}`}>
       <DirectoryCard entry={e} compact={compact} selected={selected === e.slug}
         onHover={(s) => setSelected(s)}

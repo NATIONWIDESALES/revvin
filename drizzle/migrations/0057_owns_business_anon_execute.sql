@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.fn_owns_business(uuid) TO anon;

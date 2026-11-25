@@ -191,6 +191,117 @@ export type Database = {
           },
         ]
       }
+      business_photos: {
+        Row: {
+          business_id: string
+          caption: string | null
+          created_at: string
+          id: string
+          sort_order: number
+          storage_path: string
+        }
+        Insert: {
+          business_id: string
+          caption?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          storage_path: string
+        }
+        Update: {
+          business_id?: string
+          caption?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_photos_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_photos_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_reviews: {
+        Row: {
+          body: string | null
+          business_id: string
+          contact_id: string | null
+          created_at: string
+          flag_reason: string | null
+          flagged_at: string | null
+          id: string
+          owner_replied_at: string | null
+          owner_reply: string | null
+          rating: number | null
+          reviewer_display_name: string | null
+          reviewer_email: string | null
+          status: string
+          submitted_at: string | null
+          token: string
+        }
+        Insert: {
+          body?: string | null
+          business_id: string
+          contact_id?: string | null
+          created_at?: string
+          flag_reason?: string | null
+          flagged_at?: string | null
+          id?: string
+          owner_replied_at?: string | null
+          owner_reply?: string | null
+          rating?: number | null
+          reviewer_display_name?: string | null
+          reviewer_email?: string | null
+          status?: string
+          submitted_at?: string | null
+          token: string
+        }
+        Update: {
+          body?: string | null
+          business_id?: string
+          contact_id?: string | null
+          created_at?: string
+          flag_reason?: string | null
+          flagged_at?: string | null
+          id?: string
+          owner_replied_at?: string | null
+          owner_reply?: string | null
+          rating?: number | null
+          reviewer_display_name?: string | null
+          reviewer_email?: string | null
+          status?: string
+          submitted_at?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_trial_history: {
         Row: {
           granted_at: string
@@ -226,10 +337,12 @@ export type Database = {
           description: string | null
           dunning_notified_at: string | null
           first_share_at: string | null
+          founded_year: number | null
           geocode_status: string | null
           geocoded_at: string | null
           google_review_url: string | null
           headline: string | null
+          hours: Json | null
           id: string
           index_approved: boolean
           industry: string | null
@@ -246,6 +359,7 @@ export type Database = {
           jobber_token_expires_at: string | null
           latitude: number | null
           launch_package_status: string | null
+          license_number: string | null
           logo_url: string | null
           longitude: number | null
           marketplace_listed: boolean
@@ -265,9 +379,11 @@ export type Database = {
           referral_cta_label: string | null
           service_area: string | null
           service_radius_km: number | null
+          services: string[] | null
           show_on_earn: boolean
           signup_notified_at: string | null
           slug: string | null
+          social_links: Json | null
           state: string | null
           street_address: string | null
           stripe_connect_status: string | null
@@ -303,10 +419,12 @@ export type Database = {
           description?: string | null
           dunning_notified_at?: string | null
           first_share_at?: string | null
+          founded_year?: number | null
           geocode_status?: string | null
           geocoded_at?: string | null
           google_review_url?: string | null
           headline?: string | null
+          hours?: Json | null
           id?: string
           index_approved?: boolean
           industry?: string | null
@@ -323,6 +441,7 @@ export type Database = {
           jobber_token_expires_at?: string | null
           latitude?: number | null
           launch_package_status?: string | null
+          license_number?: string | null
           logo_url?: string | null
           longitude?: number | null
           marketplace_listed?: boolean
@@ -342,9 +461,11 @@ export type Database = {
           referral_cta_label?: string | null
           service_area?: string | null
           service_radius_km?: number | null
+          services?: string[] | null
           show_on_earn?: boolean
           signup_notified_at?: string | null
           slug?: string | null
+          social_links?: Json | null
           state?: string | null
           street_address?: string | null
           stripe_connect_status?: string | null
@@ -380,10 +501,12 @@ export type Database = {
           description?: string | null
           dunning_notified_at?: string | null
           first_share_at?: string | null
+          founded_year?: number | null
           geocode_status?: string | null
           geocoded_at?: string | null
           google_review_url?: string | null
           headline?: string | null
+          hours?: Json | null
           id?: string
           index_approved?: boolean
           industry?: string | null
@@ -400,6 +523,7 @@ export type Database = {
           jobber_token_expires_at?: string | null
           latitude?: number | null
           launch_package_status?: string | null
+          license_number?: string | null
           logo_url?: string | null
           longitude?: number | null
           marketplace_listed?: boolean
@@ -419,9 +543,11 @@ export type Database = {
           referral_cta_label?: string | null
           service_area?: string | null
           service_radius_km?: number | null
+          services?: string[] | null
           show_on_earn?: boolean
           signup_notified_at?: string | null
           slug?: string | null
+          social_links?: Json | null
           state?: string | null
           street_address?: string | null
           stripe_connect_status?: string | null
@@ -2353,6 +2479,54 @@ export type Database = {
           },
         ]
       }
+      quote_requests: {
+        Row: {
+          business_id: string
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          phone: string | null
+          status: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          status?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_requests_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_requests_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referral_contact_sends: {
         Row: {
           business_id: string
@@ -3609,6 +3783,10 @@ export type Database = {
           slug: string
         }[]
       }
+      fn_admin_remove_review: {
+        Args: { p_review_id: string }
+        Returns: boolean
+      }
       fn_admin_update_business: {
         Args: { p_business_id: string; p_patch: Json }
         Returns: Json
@@ -3617,7 +3795,9 @@ export type Database = {
         Args: { p_referrer: string; p_ua: string }
         Returns: string
       }
+      fn_business_is_pro: { Args: { p_business_id: string }; Returns: boolean }
       fn_business_metro: { Args: { p_slug: string }; Returns: string }
+      fn_business_photo_public: { Args: { p_path: string }; Returns: boolean }
       fn_business_privileged_unchanged: {
         Args: {
           p_account_status: string
@@ -3635,6 +3815,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      fn_business_profile: { Args: { p_slug: string }; Returns: Json }
       fn_business_referrers: {
         Args: never
         Returns: {
@@ -3647,6 +3828,18 @@ export type Database = {
           rewards_owed: number
           rewards_paid: number
           token: string
+        }[]
+      }
+      fn_business_reviews: {
+        Args: { p_limit?: number; p_offset?: number; p_slug: string }
+        Returns: {
+          body: string
+          id: string
+          owner_replied_at: string
+          owner_reply: string
+          rating: number
+          reviewer_display_name: string
+          submitted_at: string
         }[]
       }
       fn_campaign_click: {
@@ -3772,6 +3965,16 @@ export type Database = {
           slug: string
         }[]
       }
+      fn_directory_card_extras: {
+        Args: { p_slugs: string[] }
+        Returns: {
+          cover_url: string
+          photo_path: string
+          rating_avg: number
+          review_count: number
+          slug: string
+        }[]
+      }
       fn_directory_city: {
         Args: { p_q: string }
         Returns: {
@@ -3851,6 +4054,30 @@ export type Database = {
           reward_text: string
           slug: string
           total_count: number
+        }[]
+      }
+      fn_directory_nearby: {
+        Args: {
+          p_category: string
+          p_exclude: string
+          p_lat: number
+          p_lng: number
+        }
+        Returns: {
+          category: string
+          city: string
+          country: string
+          has_reward: boolean
+          is_pro: boolean
+          is_verified: boolean
+          kind: string
+          lat: number
+          lng: number
+          logo_url: string
+          name: string
+          region: string
+          reward_text: string
+          slug: string
         }[]
       }
       fn_directory_regulated: { Args: { p_category: string }; Returns: boolean }
@@ -4017,6 +4244,7 @@ export type Database = {
         Args: { p_category: string }
         Returns: boolean
       }
+      fn_owns_business: { Args: { p_business_id: string }; Returns: boolean }
       fn_page_live: {
         Args: {
           p_account_status: string
@@ -4111,6 +4339,34 @@ export type Database = {
       fn_resolve_referrer: {
         Args: { p_slug: string; p_token: string }
         Returns: Json
+      }
+      fn_review_display_name: { Args: { p: string }; Returns: string }
+      fn_review_flag: {
+        Args: { p_reason: string; p_review_id: string }
+        Returns: boolean
+      }
+      fn_review_reply: {
+        Args: { p_reply: string; p_review_id: string }
+        Returns: boolean
+      }
+      fn_review_submit: {
+        Args: {
+          p_body: string
+          p_display_name: string
+          p_rating: number
+          p_token: string
+        }
+        Returns: boolean
+      }
+      fn_review_text_allowed: { Args: { p: string }; Returns: boolean }
+      fn_review_token_info: {
+        Args: { p_token: string }
+        Returns: {
+          business_name: string
+          display_name: string
+          logo_url: string
+          state: string
+        }[]
       }
       fn_rewrite_scheduled_http: {
         Args: { job_key: string; source: string }
