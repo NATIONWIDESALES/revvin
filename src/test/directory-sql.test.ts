@@ -158,3 +158,55 @@ describe("claim, removal and import", () => {
     } finally { await db.close(); }
   }, 30000);
 });
+
+const chainMigration = () => {
+  const f = readdirSync("drizzle/migrations").find((n) => /_directory_hide_chains_distance_sort\.sql$/.test(n));
+  return readFileSync(`drizzle/migrations/${f}`, "utf8").replace(/--> statement-breakpoint/g, "");
+};
+
+async function setupChains() {
+  const db = await setup();
+  await db.exec(`ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS is_internal boolean DEFAULT false;
+    CREATE OR REPLACE FUNCTION public.fn_plan_is_pro(p text, t timestamptz) RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT p = 'pro' OR t > now() $$;
+    CREATE OR REPLACE FUNCTION public.similarity(a text, b text) RETURNS real LANGUAGE sql IMMUTABLE AS $$ SELECT CASE WHEN a = b THEN 1 ELSE 0.5 END::real $$;
+    CREATE OR REPLACE FUNCTION public.fn_directory_business_rows() RETURNS TABLE(kind text, slug text, name text, category text, city text, region text, country text, lat double precision, lng double precision, is_pro boolean, is_verified boolean, has_reward boolean, reward_text text, logo_url text, rank integer)
+      LANGUAGE sql STABLE AS $$ SELECT 'business'::text, b.slug, b.name, b.category, b.city, b.state, b.country, b.latitude, b.longitude, b.plan = 'pro', false, false, NULL::text, NULL::text, 1 FROM public.businesses b WHERE false $$;`);
+  await db.exec(chainMigration());
+  return db;
+}
+
+describe("chain and franchise hiding", () => {
+  it("hides brand matches and names repeated five times from map search and the homepage count", async () => {
+    const db = await setupChains();
+    try {
+      await importRows(db, [
+        listing("j1", { name: "1-800-GOT-JUNK?" }),
+        ...Array.from({ length: 5 }, (_, i) => listing(`r${i}`, { name: "Acme Local Chain", latitude: 39.7 + i / 100 })),
+        listing("ok", { name: "Bob's Roofing" }),
+      ]);
+      const reasons = await rows(db, "SELECT name, chain_reason FROM public.directory_listings WHERE is_chain ORDER BY name");
+      expect(reasons.find((r) => r.name === "1-800-GOT-JUNK?")?.chain_reason).toBe("brand");
+      expect(reasons.filter((r) => r.chain_reason === "name_repeat").length).toBe(5);
+      await db.exec("SET ROLE anon");
+      const r = await rows(db, "SELECT name, total_count FROM public.fn_directory_map_search(39, -106, 41, -104)");
+      expect(r.map((x) => x.name)).toEqual(["Bob's Roofing"]);
+      expect(Number(r[0].total_count)).toBe(1);
+      const [{ n }] = await rows(db, "SELECT public.fn_directory_public_count()::int n");
+      await db.exec("RESET ROLE");
+      const live = (await rows(db, "SELECT count(*)::int c FROM public.businesses WHERE public.fn_page_live(account_status, is_published, is_disabled) AND NOT coalesce(is_demo,false) AND NOT coalesce(is_internal,false) AND slug IS NOT NULL"))[0].c as number;
+      expect(n).toBe(live + 1);
+    } finally { await db.close(); }
+  }, 30000);
+
+  it("never hides a claimed listing even with a chain name", async () => {
+    const db = await setupChains();
+    try {
+      await importRows(db, [listing("j1", { name: "Minute Key" })]);
+      const [{ id }] = await rows(db, "SELECT id FROM public.businesses WHERE slug = 'alpha'");
+      await db.query("UPDATE public.directory_listings SET status = 'claimed', claimed_business_id = $1", [id]);
+      await db.query("SELECT public.fn_directory_flag_chains()");
+      const [l] = await rows(db, "SELECT is_chain, chain_reason FROM public.directory_listings");
+      expect(l).toEqual({ is_chain: false, chain_reason: null });
+    } finally { await db.close(); }
+  }, 30000);
+});

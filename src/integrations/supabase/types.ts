@@ -840,14 +840,34 @@ export type Database = {
         }
         Relationships: []
       }
+      directory_chain_brands: {
+        Row: {
+          created_at: string
+          note: string | null
+          pattern: string
+        }
+        Insert: {
+          created_at?: string
+          note?: string | null
+          pattern: string
+        }
+        Update: {
+          created_at?: string
+          note?: string | null
+          pattern?: string
+        }
+        Relationships: []
+      }
       directory_listings: {
         Row: {
           category: string
+          chain_reason: string | null
           city: string | null
           claimed_business_id: string | null
           country: string
           created_at: string
           id: string
+          is_chain: boolean
           latitude: number | null
           longitude: number | null
           name: string
@@ -866,11 +886,13 @@ export type Database = {
         }
         Insert: {
           category?: string
+          chain_reason?: string | null
           city?: string | null
           claimed_business_id?: string | null
           country: string
           created_at?: string
           id?: string
+          is_chain?: boolean
           latitude?: number | null
           longitude?: number | null
           name: string
@@ -889,11 +911,13 @@ export type Database = {
         }
         Update: {
           category?: string
+          chain_reason?: string | null
           city?: string | null
           claimed_business_id?: string | null
           country?: string
           created_at?: string
           id?: string
+          is_chain?: boolean
           latitude?: number | null
           longitude?: number | null
           name?: string
@@ -4003,6 +4027,7 @@ export type Database = {
         }[]
       }
       fn_directory_country: { Args: { p_raw: string }; Returns: string }
+      fn_directory_domain: { Args: { p_url: string }; Returns: string }
       fn_directory_find: {
         Args: { p_city?: string; p_limit?: number; p_name: string }
         Returns: {
@@ -4015,6 +4040,7 @@ export type Database = {
           slug: string
         }[]
       }
+      fn_directory_flag_chains: { Args: never; Returns: Json }
       fn_directory_html: { Args: { p: string }; Returns: string }
       fn_directory_import: { Args: { p_rows: Json }; Returns: Json }
       fn_directory_listing: {

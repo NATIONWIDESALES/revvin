@@ -241,7 +241,7 @@ export default function Marketplace() {
         ref={(node) => { if (node) cards.current.set(e.slug, node); else cards.current.delete(e.slug); }} />
     </li>
   ));
-  if (!rewards && entries.length > 0) items.splice(Math.min(2, items.length), 0, <li key="owner-card" className={desktop && panelCols > 1 ? "col-span-full" : ""}><OwnerCard wide={desktop && panelCols > 1} /></li>);
+  if (!rewards && entries.length > 0) items.unshift(<li key="owner-card" className="col-span-full"><OwnerCard wide={!desktop || panelCols > 1} /></li>);
 
   const list = (
     <div className="p-4">

@@ -120,13 +120,13 @@ export default DirectoryCard;
 
 export function OwnerCard({ wide = false }: { wide?: boolean }) {
   return (
-    <div className={`flex h-full ${wide ? "min-h-[84px] sm:flex-row sm:items-center sm:justify-between sm:gap-6" : "min-h-[220px]"} flex-col justify-center rounded-xl bg-forest p-5 text-primary-foreground`}>
+    <div className={`flex h-full ${wide ? "min-[480px]:flex-row min-[480px]:items-center min-[480px]:justify-between min-[480px]:gap-4" : ""} flex-col justify-center rounded-xl bg-forest px-4 py-3 text-primary-foreground`}>
       <div>
-      <p className="text-lg font-bold leading-snug">Own a business? Claim your free profile</p>
-      <p className="mt-2 text-sm opacity-90">Add your logo, photos and a referral reward. Free.</p>
+      <p className="text-base font-bold leading-snug">Own a business? Claim your free profile</p>
+      <p className="mt-1 text-sm opacity-90">Add your logo, photos and a referral reward. Free.</p>
       </div>
       <Link to="/signup" onClick={() => track("cta_clicked", { cta: "marketplace_owner_card" })}
-        className="mt-4 inline-flex h-11 shrink-0 items-center justify-center rounded-md bg-sign px-4 font-semibold text-forest hover:bg-sign/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        className={`${wide ? "mt-3 min-[480px]:mt-0" : "mt-3"} inline-flex h-11 shrink-0 items-center justify-center rounded-md bg-sign px-4 font-semibold text-forest hover:bg-sign/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}>
         List your business free
       </Link>
     </div>

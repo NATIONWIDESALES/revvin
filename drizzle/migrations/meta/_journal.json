@@ -435,6 +435,13 @@
       "when": 1795631707494,
       "tag": "0061_directory_removal_email_city",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1795645080560,
+      "tag": "0062_directory_hide_chains_distance_sort",
+      "breakpoints": true
     }
   ]
 }
