@@ -4,6 +4,8 @@ import { Check, Globe, Phone } from "lucide-react";
 import { tradeIcon } from "@/components/marketplace/DirectoryCard";
 import { Breadcrumb, NearbyStrip } from "@/components/profile/ProfileParts";
 import { ClaimPreview, ReferInterest } from "@/components/profile/ClaimPreview";
+import GetQuotes from "@/components/marketplace/GetQuotes";
+import { isQuoteTrade, quoteDemand } from "@/lib/quotes";
 import { lazyWithChunkRecovery as lazy } from "@/lib/chunkRecovery";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
@@ -62,6 +64,16 @@ export default function DirectoryListingPage() {
   const [listing, setListing] = useState<DirectoryListing | null | undefined>(undefined);
   const [showRemoval, setShowRemoval] = useState(false);
   const [interest, setInterest] = useState(0);
+  const [demand, setDemand] = useState(0);
+  const [quoteOpen, setQuoteOpen] = useState(false);
+  const [desktop, setDesktop] = useState(true);
+  useEffect(() => { const mq = window.matchMedia("(min-width: 1024px)"); setDesktop(mq.matches); }, []);
+  useEffect(() => {
+    if (!listing || listing.lat == null || listing.lng == null || !isQuoteTrade(listing.category)) return;
+    let live = true;
+    quoteDemand(listing.category, listing.lat, listing.lng).then((n) => { if (live) setDemand(Number(n) || 0); }).catch(() => {});
+    return () => { live = false; };
+  }, [listing]);
   useEffect(() => { let live = true; interestCount(slug).then((n) => { if (live) setInterest(Number(n) || 0); }).catch(() => {}); return () => { live = false; }; }, [slug]);
 
   useEffect(() => {
@@ -118,6 +130,7 @@ export default function DirectoryListingPage() {
               {CLAIM_BENEFITS.map((b) => <li key={b} className="flex gap-2"><Check className="mt-0.5 h-5 w-5 shrink-0 text-green" aria-hidden />{b}</li>)}
             </ul>
             {interest > 0 && <p className="mt-4 rounded-lg bg-sign/30 px-3 py-2 text-sm font-medium text-forest" data-testid="interest-count">{interest === 1 ? "1 person has" : `${interest.toLocaleString("en-US")} people have`} said they would refer customers to this business.</p>}
+            {demand > 0 && <p className="mt-3 rounded-lg bg-secondary px-3 py-2 text-sm font-medium text-forest" data-testid="quote-demand">{demand === 1 ? "1 person" : `${demand.toLocaleString("en-US")} people`} near {(listing.city ?? "").split(",")[0] || "here"} asked for {listing.category} quotes on Revvin in the last 30 days. Claimed businesses receive these requests.</p>}
             <Button className="mt-5 h-12" onClick={claim}>Claim this business free</Button>
           </div>
           <ClaimPreview listing={listing} onClaim={claim} />
@@ -133,6 +146,14 @@ export default function DirectoryListingPage() {
           </p>
         </section>
         <aside className="min-w-0 space-y-4">
+          {isQuoteTrade(listing.category) && listing.lat != null && listing.lng != null && (
+            <div className="rounded-xl border border-line bg-card p-4" data-testid="unclaimed-quote-box">
+              <p className="text-sm">This business has not claimed its profile, so it cannot receive requests here. Get quotes from claimed {listing.category} businesses nearby.</p>
+              <Button className="mt-3 h-11 w-full" onClick={() => { setQuoteOpen(true); track("cta_clicked", { cta: "listing_get_quotes" }); }}>Get quotes</Button>
+              <GetQuotes open={quoteOpen} onOpenChange={setQuoteOpen} desktop={desktop}
+                start={{ trade: listing.category, lat: listing.lat, lng: listing.lng, city: (listing.city ?? "").split(",")[0] || null }} />
+            </div>
+          )}
           {(listing.phone || listing.website) && (
             <ul className="grid gap-2 rounded-xl border border-line bg-card p-4 text-base">
               {listing.phone && <li><a href={`tel:${listing.phone.replace(/[^\d+]/g, "")}`} className="inline-flex min-h-11 items-center gap-2 text-primary underline underline-offset-4"><Phone className="h-4 w-4" aria-hidden />{listing.phone}</a></li>}

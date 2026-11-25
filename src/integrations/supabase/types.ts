@@ -1507,6 +1507,57 @@ export type Database = {
           },
         ]
       }
+      marketplace_quote_broadcasts: {
+        Row: {
+          city: string
+          created_at: string
+          details: string
+          email: string
+          id: string
+          lat: number
+          lng: number
+          matched_count: number
+          name: string
+          phone: string | null
+          share_later_consent: boolean
+          timing: string | null
+          trade: string
+          visitor_hash: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          details: string
+          email: string
+          id?: string
+          lat: number
+          lng: number
+          matched_count?: number
+          name: string
+          phone?: string | null
+          share_later_consent?: boolean
+          timing?: string | null
+          trade: string
+          visitor_hash: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          details?: string
+          email?: string
+          id?: string
+          lat?: number
+          lng?: number
+          matched_count?: number
+          name?: string
+          phone?: string | null
+          share_later_consent?: boolean
+          timing?: string | null
+          trade?: string
+          visitor_hash?: string
+        }
+        Relationships: []
+      }
       marketplace_reward_alerts: {
         Row: {
           city: string | null
@@ -2615,6 +2666,7 @@ export type Database = {
       }
       quote_requests: {
         Row: {
+          broadcast_id: string | null
           business_id: string
           created_at: string
           email: string
@@ -2625,6 +2677,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          broadcast_id?: string | null
           business_id: string
           created_at?: string
           email: string
@@ -2635,6 +2688,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          broadcast_id?: string | null
           business_id?: string
           created_at?: string
           email?: string
@@ -2645,6 +2699,13 @@ export type Database = {
           status?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "quote_requests_broadcast_id_fkey"
+            columns: ["broadcast_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_quote_broadcasts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "quote_requests_business_id_fkey"
             columns: ["business_id"]
@@ -3917,6 +3978,10 @@ export type Database = {
           slug: string
         }[]
       }
+      fn_admin_quote_deliver_saved: {
+        Args: { p_business_id: string }
+        Returns: number
+      }
       fn_admin_remove_review: {
         Args: { p_review_id: string }
         Returns: boolean
@@ -4484,6 +4549,68 @@ export type Database = {
       fn_prospect_peek: { Args: { p_code: string }; Returns: Json }
       fn_prospect_remove: { Args: { p_code: string }; Returns: boolean }
       fn_prospect_view: { Args: { p_code: string }; Returns: Json }
+      fn_quote_broadcast_submit: { Args: { p: Json }; Returns: Json }
+      fn_quote_candidates: {
+        Args: {
+          p_lat: number
+          p_limit?: number
+          p_lng: number
+          p_trade: string
+        }
+        Returns: {
+          business_email: string
+          city: string
+          id: string
+          is_pro: boolean
+          km: number
+          name: string
+          rating_avg: number
+          region: string
+          review_count: number
+          slug: string
+        }[]
+      }
+      fn_quote_deliver_one: {
+        Args: { p_broadcast: string; p_business: string }
+        Returns: boolean
+      }
+      fn_quote_deliver_saved: {
+        Args: { p_business_id: string }
+        Returns: number
+      }
+      fn_quote_demand_count: {
+        Args: { p_lat: number; p_lng: number; p_trade: string }
+        Returns: number
+      }
+      fn_quote_km: {
+        Args: { a_lat: number; a_lng: number; b_lat: number; b_lng: number }
+        Returns: number
+      }
+      fn_quote_match_preview: {
+        Args: { p_lat: number; p_lng: number; p_trade: string }
+        Returns: {
+          city: string
+          is_pro: boolean
+          km: number
+          name: string
+          rating_avg: number
+          region: string
+          review_count: number
+          slug: string
+        }[]
+      }
+      fn_quote_unclaimed_nearby: {
+        Args: { p_lat: number; p_lng: number; p_trade: string }
+        Returns: {
+          city: string
+          km: number
+          name: string
+          phone: string
+          region: string
+          slug: string
+          website: string
+        }[]
+      }
       fn_rate_bucket_hit: {
         Args: { p_key: string; p_max_hits: number; p_window: string }
         Returns: boolean

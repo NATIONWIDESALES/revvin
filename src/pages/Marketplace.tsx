@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import DirectoryCard, { CardSkeleton, OwnerCard } from "@/components/marketplace/DirectoryCard";
 import type { DirectoryMapHandle } from "@/components/marketplace/DirectoryMap";
 import { track } from "@/lib/track";
+import GetQuotes, { type QuoteStart } from "@/components/marketplace/GetQuotes";
+import { isQuoteTrade, needLine } from "@/lib/quotes";
 import { EARN_SUBLINE, EarnCard, EarnEmpty, EarnExplainer, ModeSwitch } from "@/components/marketplace/EarnParts";
 import { loadCardExtras } from "@/lib/profile";
 import { zoomBucket } from "@/lib/analyticsPrivacy";
@@ -65,6 +67,8 @@ export default function Marketplace() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [panelCols, setPanelCols] = useState(1);
+  const [quote, setQuote] = useState<QuoteStart | null>(null);
+  const [quoteOpen, setQuoteOpen] = useState(false);
   const mapRef = useRef<DirectoryMapHandle>(null);
   const panel = useRef<HTMLDivElement>(null);
   const sentinel = useRef<HTMLDivElement>(null);
@@ -238,6 +242,13 @@ export default function Marketplace() {
       </SelectContent>
     </Select>
   );
+  const openQuotes = () => {
+    const c = view?.center ?? (init?.view ? { lat: init.view.lat, lng: init.view.lng } : { lat: 45, lng: -96 });
+    setQuote({ trade: isQuoteTrade(cat) ? cat : undefined, lat: c.lat, lng: c.lng });
+    setQuoteOpen(true);
+    track("cta_clicked", { cta: "marketplace_get_quotes" });
+  };
+  const quotesButton = (cls = "") => <Button type="button" variant="outline" className={`h-10 shrink-0 ${cls}`} onClick={openQuotes}>Get quotes</Button>;
   const setMode = (earn: boolean) => { setRewards(earn); if (earn) setSheetOpen(true); track("cta_clicked", { cta: earn ? "marketplace_mode_earn" : "marketplace_mode_find" }); };
   const searchBox = (
     <label className="relative min-w-0 flex-1 lg:max-w-sm">
@@ -254,6 +265,11 @@ export default function Marketplace() {
         ref={(node) => { if (node) cards.current.set(e.slug, node); else cards.current.delete(e.slug); }} />}
     </li>
   ));
+  if (!rewards && entries.length > 0 && isQuoteTrade(cat)) items.unshift(
+    <li key="quote-line" className="col-span-full flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line bg-secondary/60 px-4 py-2 text-sm" data-testid="quote-line">
+      <span className="font-medium text-forest">{needLine(cat)}</span>
+      <button type="button" onClick={openQuotes} className="font-semibold text-primary underline underline-offset-4">Get quotes</button>
+    </li>);
   if (!rewards && entries.length > 0) items.unshift(<li key="owner-card" className="col-span-full"><OwnerCard wide={!desktop || panelCols > 1} /></li>);
 
   const list = (
@@ -301,6 +317,7 @@ export default function Marketplace() {
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-paper">
+      <GetQuotes open={quoteOpen} onOpenChange={setQuoteOpen} start={quote} desktop={desktop} />
       <SEOHead title={PAGE_META["/browse"].title} description={PAGE_META["/browse"].description} path="/browse" noindex follow />
       <h1 className="sr-only">{MARKETPLACE_H1}</h1>
       {/* Filter bar */}
@@ -311,6 +328,7 @@ export default function Marketplace() {
           <>
             {tradeSelect("h-10 w-48")}
             {!rewards && sortSelect("h-10 w-40")}
+            {!rewards && quotesButton()}
             <span className="ml-auto" />
             {listFree}
           </>
@@ -320,7 +338,7 @@ export default function Marketplace() {
           </Button>
         )}
       </form>
-      {!desktop && <div className="shrink-0 border-b border-line bg-paper px-3 py-2"><ModeSwitch earn={rewards} onChange={setMode} className="w-full" /></div>}
+      {!desktop && <div className="shrink-0 border-b border-line bg-paper px-3 py-2"><div className="flex gap-2"><ModeSwitch earn={rewards} onChange={setMode} className="flex-1" />{!rewards && quotesButton("h-10")}</div></div>}
 
       {desktop ? (
         <div className="flex min-h-0 flex-1">

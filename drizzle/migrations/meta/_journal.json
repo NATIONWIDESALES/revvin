@@ -470,6 +470,20 @@
       "when": 1795649137537,
       "tag": "0066_marketplace_earn_mode_and_reward_alerts",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1795649839814,
+      "tag": "0067_marketplace_quote_broadcasts",
+      "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1795650043923,
+      "tag": "0068_quote_candidates_pro_order_fix",
+      "breakpoints": true
     }
   ]
 }

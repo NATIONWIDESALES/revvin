@@ -55,7 +55,9 @@ export default function MarketplaceProfileTab({ businessId, isPro, isDemo, onGo 
       supabase.from("businesses").select("id,name,slug,description,phone,website,service_area,hours,logo_url,cover_image_url,services,founded_year,license_number,social_links,offer_amount").eq("id", businessId).limit(1),
       supabase.from("business_photos").select("id,storage_path,caption,sort_order").eq("business_id", businessId).order("sort_order").order("created_at"),
       supabase.from("business_reviews").select("id,rating,body,reviewer_display_name,status,owner_reply,flagged_at,submitted_at,created_at").eq("business_id", businessId).eq("status", "published").order("submitted_at", { ascending: false }).limit(200),
-      isPro ? supabase.from("quote_requests").select("id,name,email,phone,message,status,created_at").eq("business_id", businessId).order("created_at", { ascending: false }).limit(100) : Promise.resolve({ data: [] }),
+      // Pro sees every quote request; Free sees the marketplace "Get quotes" requests sent to it.
+      isPro ? supabase.from("quote_requests").select("id,name,email,phone,message,status,created_at").eq("business_id", businessId).order("created_at", { ascending: false }).limit(100)
+        : supabase.from("quote_requests").select("id,name,email,phone,message,status,created_at").eq("business_id", businessId).not("broadcast_id", "is", null).order("created_at", { ascending: false }).limit(100),
     ]);
     setBiz((b?.[0] as unknown as Biz) ?? null);
     setPhotos((ph as Photo[]) ?? []);
@@ -221,6 +223,20 @@ export default function MarketplaceProfileTab({ businessId, isPro, isDemo, onGo 
       <Section title="Quote requests">
         {locked("quote_requests") ? (
           <div>
+            {quotes.length > 0 && (
+              <div className="mb-4" data-testid="marketplace-quotes">
+                <p className="mb-2 text-sm font-semibold">Requests from the Revvin marketplace</p>
+                <ul className="grid gap-3">
+                  {quotes.map((q) => (
+                    <li key={q.id} className="rounded-xl border border-line p-3 text-sm">
+                      <p className="font-semibold">{q.name} <span className="font-normal text-muted-foreground">{new Date(q.created_at).toLocaleDateString()}</span></p>
+                      <p><a className="text-primary underline" href={`mailto:${q.email}`}>{q.email}</a>{q.phone && <> · <a className="text-primary underline" href={`tel:${q.phone}`}>{q.phone}</a></>}</p>
+                      {q.message && <p className="mt-1 whitespace-pre-wrap">{q.message}</p>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div className="pointer-events-none select-none space-y-2 opacity-50" aria-hidden>
               {["Name", "Email", "Message"].map((l) => <div key={l} className="h-10 rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">{l}</div>)}
             </div>
