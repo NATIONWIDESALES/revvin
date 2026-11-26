@@ -20,6 +20,7 @@ import ProspectsPanel from "@/components/admin/ProspectsPanel";
 import MetrosPanel from "@/components/admin/MetrosPanel";
 import SecurityPanel from "@/components/admin/SecurityPanel";
 import FailuresPanel from "@/components/admin/FailuresPanel";
+import OwnershipReviewsPanel from "@/components/admin/OwnershipReviewsPanel";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -133,7 +134,10 @@ const SuperAdminCRM = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState("all");
-  const [activeTab, setActiveTab] = useState(() => new URLSearchParams(window.location.search).get("tab") === "failures" ? "failures" : "overview");
+  const [activeTab, setActiveTab] = useState(() => {
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    return tab === "failures" || tab === "ownership" ? tab : "overview";
+  });
   const [expandedBiz, setExpandedBiz] = useState<Record<string, boolean>>({});
   const [bizReferrals, setBizReferrals] = useState<Record<string, Referral[]>>({});
   const [bizAudit, setBizAudit] = useState<Record<string, AuditEntry[]>>({});
@@ -386,8 +390,16 @@ const SuperAdminCRM = () => {
   const updateBusinessStatus = (bizId: string, newStatus: "approved" | "rejected" | "pending_approval") =>
     adminUpdateBusiness(bizId, { account_status: newStatus }, `Business status updated to ${newStatus}`);
 
-  const toggleVerified = (bizId: string, next: boolean) =>
-    adminUpdateBusiness(bizId, { is_verified: next }, next ? "Business verified" : "Verification removed");
+  const toggleVerified = async (bizId: string, next: boolean) => {
+    setApprovingBiz(bizId);
+    const { error } = await supabase.rpc("fn_admin_set_ownership", { p_business_id: bizId, p_status: next ? "verified" : "pending" });
+    setApprovingBiz(null);
+    if (error) return toast({ title: "Not saved", description: adminUpdateMessage(error), variant: "destructive" });
+    const fields = { is_verified: next, verified: next, ownership_status: next ? "verified" : "pending" };
+    setBusinesses(prev => prev.map(b => b.id === bizId ? { ...b, ...fields } : b));
+    setOverview(prev => prev ? { ...prev, businesses: prev.businesses.map(b => b.id === bizId ? { ...b, ...fields } : b) } : prev);
+    toast({ title: next ? "Business verified" : "Verification removed" });
+  };
 
   const approveAccount = async (bizId: string) => {
     await updateBusinessStatus(bizId, "approved");
@@ -483,6 +495,7 @@ const SuperAdminCRM = () => {
                   <BadgeCheck className="h-3.5 w-3.5" /> Verification
                   {businesses.filter(b => (b as any).account_status === "pending_approval").length > 0 && <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-xs text-destructive-foreground flex items-center justify-center font-bold">{businesses.filter(b => (b as any).account_status === "pending_approval").length}</span>}
                 </TabsTrigger>
+                <TabsTrigger value="ownership" className="gap-1"><Shield className="h-3.5 w-3.5" /> Ownership reviews</TabsTrigger>
                 <TabsTrigger value="payments" className="gap-1">
                   <DollarSign className="h-3.5 w-3.5" /> Payments
                 </TabsTrigger>
@@ -641,6 +654,8 @@ const SuperAdminCRM = () => {
                   )}
                 </div>
               </TabsContent>
+
+              <TabsContent value="ownership"><OwnershipReviewsPanel /></TabsContent>
 
               {/* VERIFICATION TAB */}
               <TabsContent value="verification">

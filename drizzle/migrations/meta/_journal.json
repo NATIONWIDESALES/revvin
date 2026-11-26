@@ -484,6 +484,48 @@
       "when": 1795650043923,
       "tag": "0068_quote_candidates_pro_order_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1795652500492,
+      "tag": "0069_business_ownership_status_and_marketplace_rules",
+      "breakpoints": true
+    },
+    {
+      "idx": 70,
+      "version": "7",
+      "when": 1795652556899,
+      "tag": "0070_ownership_domain_codes_and_documents",
+      "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1795652588925,
+      "tag": "0071_ownership_disputes_and_admin_review",
+      "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1795652717469,
+      "tag": "0072_ownership_code_attempts_persist",
+      "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1795652846099,
+      "tag": "0073_ownership_dispute_writer_service_only",
+      "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1795653090055,
+      "tag": "0074_ownership_legacy_flag_sync",
+      "breakpoints": true
     }
   ]
 }

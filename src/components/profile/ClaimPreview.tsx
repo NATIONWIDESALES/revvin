@@ -84,6 +84,7 @@ export function ClaimPreview({ listing, onClaim }: { listing: DirectoryListing; 
       </div>
       <Button className="mt-5 h-12 w-full sm:w-auto" onClick={onClaim}>Claim this profile free</Button>
       <p className="mt-2 text-sm text-muted-foreground">Takes about 2 minutes. No card.</p>
+      <p className="mt-1 text-sm text-muted-foreground">We confirm ownership before a profile shows as owner-claimed or receives quote requests.</p>
     </section>
   );
 }

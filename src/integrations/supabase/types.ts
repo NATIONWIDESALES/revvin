@@ -367,6 +367,9 @@ export type Database = {
           offer_amount: string | null
           offer_fine_print: string | null
           offer_trigger: string | null
+          ownership_method: string | null
+          ownership_status: string
+          ownership_verified_at: string | null
           partner_attributed_at: string | null
           partner_id: string | null
           phone: string | null
@@ -449,6 +452,9 @@ export type Database = {
           offer_amount?: string | null
           offer_fine_print?: string | null
           offer_trigger?: string | null
+          ownership_method?: string | null
+          ownership_status?: string
+          ownership_verified_at?: string | null
           partner_attributed_at?: string | null
           partner_id?: string | null
           phone?: string | null
@@ -531,6 +537,9 @@ export type Database = {
           offer_amount?: string | null
           offer_fine_print?: string | null
           offer_trigger?: string | null
+          ownership_method?: string | null
+          ownership_status?: string
+          ownership_verified_at?: string | null
           partner_attributed_at?: string | null
           partner_id?: string | null
           phone?: string | null
@@ -2095,6 +2104,183 @@ export type Database = {
           },
           {
             foreignKeyName: "offers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ownership_disputes: {
+        Row: {
+          business_id: string
+          created_at: string
+          details: string
+          email: string
+          file_path: string | null
+          id: string
+          name: string
+          phone: string | null
+          prior_method: string | null
+          prior_status: string | null
+          prior_verified_at: string | null
+          resolution: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          role: string
+          status: string
+          visitor_hash: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          details: string
+          email: string
+          file_path?: string | null
+          id: string
+          name: string
+          phone?: string | null
+          prior_method?: string | null
+          prior_status?: string | null
+          prior_verified_at?: string | null
+          resolution?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role: string
+          status?: string
+          visitor_hash: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          details?: string
+          email?: string
+          file_path?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          prior_method?: string | null
+          prior_status?: string | null
+          prior_verified_at?: string | null
+          resolution?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role?: string
+          status?: string
+          visitor_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ownership_disputes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ownership_disputes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ownership_email_codes: {
+        Row: {
+          attempts: number
+          business_id: string
+          code_hash: string
+          consumed_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+        }
+        Insert: {
+          attempts?: number
+          business_id: string
+          code_hash: string
+          consumed_at?: string | null
+          created_at?: string
+          email: string
+          expires_at: string
+          id: string
+        }
+        Update: {
+          attempts?: number
+          business_id?: string
+          code_hash?: string
+          consumed_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ownership_email_codes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ownership_email_codes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ownership_verification_requests: {
+        Row: {
+          business_id: string
+          created_at: string
+          file_path: string
+          id: string
+          method: string
+          note: string | null
+          reject_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          file_path: string
+          id?: string
+          method?: string
+          note?: string | null
+          reject_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          file_path?: string
+          id?: string
+          method?: string
+          note?: string | null
+          reject_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ownership_verification_requests_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ownership_verification_requests_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses_public"
@@ -3978,12 +4164,25 @@ export type Database = {
           slug: string
         }[]
       }
+      fn_admin_ownership_queue: { Args: never; Returns: Json }
+      fn_admin_ownership_review: {
+        Args: { p_decision: string; p_reason?: string; p_request_id: string }
+        Returns: boolean
+      }
       fn_admin_quote_deliver_saved: {
         Args: { p_business_id: string }
         Returns: number
       }
       fn_admin_remove_review: {
         Args: { p_review_id: string }
+        Returns: boolean
+      }
+      fn_admin_resolve_dispute: {
+        Args: { p_action: string; p_dispute_id: string }
+        Returns: boolean
+      }
+      fn_admin_set_ownership: {
+        Args: { p_business_id: string; p_status: string }
         Returns: boolean
       }
       fn_admin_update_business: {
@@ -4525,6 +4724,47 @@ export type Database = {
       fn_offer_is_restricted_category: {
         Args: { p_category: string }
         Returns: boolean
+      }
+      fn_ownership_auto_verify: {
+        Args: { p_business_id: string }
+        Returns: boolean
+      }
+      fn_ownership_file_dispute: {
+        Args: {
+          p_details: string
+          p_email: string
+          p_file_path: string
+          p_name: string
+          p_phone: string
+          p_role: string
+          p_slug: string
+          p_visitor_hash: string
+        }
+        Returns: string
+      }
+      fn_ownership_host: { Args: { p_value: string }; Returns: string }
+      fn_ownership_registrable_domain: {
+        Args: { p_value: string }
+        Returns: string
+      }
+      fn_ownership_release_listing: {
+        Args: { p_business_id: string }
+        Returns: undefined
+      }
+      fn_ownership_send_code: { Args: { p_email: string }; Returns: boolean }
+      fn_ownership_set_status: {
+        Args: { p_business_id: string; p_method?: string; p_status: string }
+        Returns: boolean
+      }
+      fn_ownership_status: { Args: never; Returns: Json }
+      fn_ownership_submit_document: {
+        Args: { p_file_path: string; p_note?: string }
+        Returns: string
+      }
+      fn_ownership_verify_code: { Args: { p_code: string }; Returns: boolean }
+      fn_ownership_website_domain: {
+        Args: { p_business_id: string }
+        Returns: string
       }
       fn_owns_business: { Args: { p_business_id: string }; Returns: boolean }
       fn_page_live: {

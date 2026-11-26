@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import DirectoryListingPage from "@/pages/DirectoryListingPage";
 import Stars from "@/components/profile/Stars";
 import TrustBadges from "@/components/profile/TrustBadges";
+import OwnershipDispute from "@/components/profile/OwnershipDispute";
 import { Breadcrumb, Lightbox, NearbyStrip, QuoteForm, RatingBreakdown, ReviewItem } from "@/components/profile/ProfileParts";
 import { tradeIcon } from "@/components/marketplace/DirectoryCard";
 import { cardRewardAmount } from "@/lib/directory";
@@ -53,6 +54,7 @@ export default function BusinessProfilePage() {
 
   const p = profile;
   const pro = p.is_pro;
+  const verified = p.ownership_status === "verified";
   const place = [p.city, stateCode(p.state)].filter(Boolean).join(", ");
   const refer = referralLine(p);
   const stats = p.reviews;
@@ -87,17 +89,17 @@ export default function BusinessProfilePage() {
               <h1 className={`break-words font-display text-[clamp(26px,3.6vw,42px)] leading-[1.05] ${pro ? "text-forest" : "text-primary-foreground"}`}>{p.name}</h1>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
                 {pro && <span className="rounded bg-forest px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-primary-foreground">Pro</span>}
-                {p.is_verified && <span className="inline-flex items-center gap-1 font-medium"><BadgeCheck className="h-4 w-4" aria-hidden />Verified</span>}
+                {verified ? <span className="inline-flex items-center gap-1 font-medium"><BadgeCheck className="h-4 w-4" aria-hidden />Verified</span> : <span className="inline-flex items-center rounded-full border border-line px-2 py-0.5 text-xs font-medium">Claim pending</span>}
                 {pro && hasStars && <span className="inline-flex items-center gap-1.5"><Stars value={Number(stats.avg)} /> {Number(stats.avg).toFixed(1)} ({stats.count})</span>}
                 <span className={pro ? "text-muted-foreground" : "opacity-90"}>{[realTrade(p.category), place].filter(Boolean).join(" · ")}</span>
               </div>
             </div>
           </div>
-          <TrustBadges className="mt-3" facts={{
+          {verified && <TrustBadges className="mt-3" facts={{
             reward: cardRewardAmount({ kind: "business", category: p.category, has_reward: p.has_reward, reward_text: p.reward_text }),
             reviewCount: stats.count, ratingAvg: hasStars ? Number(stats.avg) : null,
             hasLicense: Boolean(pro && p.license_number?.trim()), takesQuotes: pro,
-          }} />
+          }} />}
           {pro && <div className="mt-3"><Breadcrumb /></div>}
         </div>
       </header>
@@ -181,12 +183,14 @@ export default function BusinessProfilePage() {
               <p className="mt-2 text-xs opacity-90">Paid by the business.</p>
             </div>
           )}
-          {pro && (
-            <div className="relative rounded-xl border border-line bg-card p-4">
+          {pro && (verified ? (
+            <div className="relative rounded-xl border border-line bg-card p-4" id="quote">
               <h2 className="mb-3 font-bold text-forest">Request a quote</h2>
               <QuoteForm slug={p.slug} businessName={p.name} />
             </div>
-          )}
+          ) : (
+            <div className="rounded-xl border border-line bg-card p-4 text-sm text-muted-foreground">This business is confirming its ownership.</div>
+          ))}
           {p.lat != null && p.lng != null && (
             <div>
               <Suspense fallback={<div className="h-56 rounded-xl border border-line bg-card" />}>
@@ -195,6 +199,7 @@ export default function BusinessProfilePage() {
               {p.service_area && <p className="mt-1 text-xs text-muted-foreground">Service area: {p.service_area}</p>}
             </div>
           )}
+          {!p.is_owner_preview && <OwnershipDispute slug={p.slug} />}
         </aside>
       </div>
 
@@ -203,7 +208,7 @@ export default function BusinessProfilePage() {
       {pro && (
         <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 gap-2 border-t border-line bg-paper p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] lg:hidden">
           {tel ? <Button asChild variant="outline" className="h-11"><a href={tel}>Call</a></Button> : <span />}
-          <Button asChild className="h-11"><a href="#quote">Request a quote</a></Button>
+          {verified ? <Button asChild className="h-11"><a href="#quote">Request a quote</a></Button> : <span />}
           {refer ? <Button asChild variant="sign" className="h-11"><Link to={`/r/${p.slug}`}>Refer someone</Link></Button> : <span />}
         </div>
       )}

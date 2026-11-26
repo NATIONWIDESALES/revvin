@@ -90,10 +90,14 @@ const DirectoryCard = forwardRef<HTMLAnchorElement, Props>(({ entry, selected, c
             {entry.is_verified && <span className="inline-flex items-center gap-1 text-xs font-medium text-primary"><BadgeCheck className="h-3.5 w-3.5" aria-hidden />Verified</span>}
           </span>
         )}
-        <TrustBadges className="mt-2" max={3} facts={{
-          reward, reviewCount: entry.extra?.trust?.review_count ?? 0, ratingAvg: entry.extra?.trust?.rating_avg ?? null,
-          hasLicense: entry.extra?.trust?.has_license ?? false, takesQuotes: entry.is_pro,
-        }} />
+        {!entry.is_verified ? (
+          <span className="mt-2 inline-flex w-fit rounded-full border border-line px-2 py-0.5 text-xs font-medium text-muted-foreground">Claim pending</span>
+        ) : (
+          <TrustBadges className="mt-2" max={3} facts={{
+            reward, reviewCount: entry.extra?.trust?.review_count ?? 0, ratingAvg: entry.extra?.trust?.rating_avg ?? null,
+            hasLicense: entry.extra?.trust?.has_license ?? false, takesQuotes: entry.is_pro,
+          }} />
+        )}
         {reward && <span className="mt-1 block text-xs text-muted-foreground">Reward paid by the business when the job closes</span>}
         {unclaimed && <span className="mt-auto pt-2 text-sm text-primary underline underline-offset-4">Is this yours? Claim it</span>}
       </span>

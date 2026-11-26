@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import AssetSheet, { type SheetBusiness } from "@/components/print/AssetSheet";
+import { OwnershipKitItem } from "@/components/dashboard/OwnershipCard";
 import { PRINT_ASSETS } from "@/lib/printAssets";
 import { publishPage } from "@/lib/publishPage";
 import { track } from "@/lib/track";
@@ -117,6 +118,7 @@ const ReferralKitHome = ({ biz, publicUrl, displayUrl, isLive, customersTotal, o
         className="flex min-h-11 items-center gap-3 rounded-[14px] border border-line bg-card p-4 font-semibold text-forest hover:border-forest">
         <span aria-hidden className="h-5 w-5 shrink-0 rounded border-2 border-line" />Finish your marketplace profile
       </a>
+      <OwnershipKitItem onGo={onGo} />
 
       {intakeOpen && <div id="kit-intake">{renderIntake()}</div>}
     </div>

@@ -33,11 +33,12 @@ Deno.serve(async (req) => {
   if (!url || !serviceKey) return json({ error: "Server configuration error" }, 500);
   const db = createClient(url, serviceKey, { auth: { persistSession: false } });
   const { data: rows } = await db.from("businesses")
-    .select("id, name, slug, business_email, account_status, is_published, is_disabled, is_internal, is_demo")
+    .select("id, name, slug, business_email, account_status, is_published, is_disabled, is_internal, is_demo, ownership_status")
     .eq("slug", q.slug).limit(1);
   const b = rows?.[0];
   const live = b && b.account_status === "approved" && b.is_published && !b.is_disabled && !b.is_demo;
   if (!b || !live) return json({ error: "not_found" }, 404);
+  if (b.ownership_status !== "verified") return json({ error: "not_available" }, 403);
   try { if ((await effectivePlan(db, b.id)) !== "pro") return json({ error: "not_available" }, 403); }
   catch { return json({ error: "unavailable" }, 503); }
 

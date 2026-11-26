@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { uploadUserImage } from "@/lib/imageUpload";
 import Stars from "@/components/profile/Stars";
 import { InvitedLabel } from "@/components/profile/ProfileParts";
+import OwnershipCard, { useOwnershipState } from "@/components/dashboard/OwnershipCard";
 import { PHOTO_BUCKET, photoUrls, profileCompleteness, type Hours, type SocialLinks } from "@/lib/profile";
 import { PROFILE_LIMITS, PROFILE_UPGRADE_LINES, photoLimit, profileAllows, type ProfileFeature } from "@/config/planFeatures";
 import { reviewBody, reviewSubject } from "../../../supabase/functions/_shared/reviews";
@@ -49,6 +50,7 @@ export default function MarketplaceProfileTab({ businessId, isPro, isDemo, onGo 
   const [saving, setSaving] = useState(false);
   const [photoPrompt, setPhotoPrompt] = useState(false);
   const [drag, setDrag] = useState<number | null>(null);
+  const ownership = useOwnershipState(!isDemo);
 
   const load = useCallback(async () => {
     const [{ data: b }, { data: ph }, { data: rv }, { data: q }] = await Promise.all([
@@ -75,9 +77,10 @@ export default function MarketplaceProfileTab({ businessId, isPro, isDemo, onGo 
     if (isDemo) return toast({ title: "Demo account", description: "Changes are not saved in the demo." });
     setSaving(true);
     const patch: Record<string, unknown> = {
-      description: biz.description?.slice(0, 2000) || null, phone: biz.phone?.slice(0, 40) || null, website: biz.website?.slice(0, 300) || null,
+      description: biz.description?.slice(0, 2000) || null, phone: biz.phone?.slice(0, 40) || null,
       service_area: biz.service_area?.slice(0, 200) || null, hours: biz.hours,
     };
+    if (!ownership.state?.has_listing || ownership.state.status === "verified") patch.website = biz.website?.slice(0, 300) || null;
     if (isPro) Object.assign(patch, {
       services: (biz.services ?? []).map((s) => s.trim()).filter(Boolean).slice(0, 30), founded_year: biz.founded_year || null,
       license_number: biz.license_number?.slice(0, 80) || null, social_links: biz.social_links,
@@ -139,12 +142,14 @@ export default function MarketplaceProfileTab({ businessId, isPro, isDemo, onGo 
         </>)}
       </div>
 
+      {ownership.state && <OwnershipCard state={ownership.state} reload={ownership.reload} />}
+
       <Section title="Basics">
         <div className="grid gap-4">
           <div className="grid gap-1.5"><Label htmlFor="pf-desc">About your business</Label><Textarea id="pf-desc" rows={5} maxLength={2000} value={biz.description ?? ""} onChange={(e) => set("description", e.target.value)} /></div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5"><Label htmlFor="pf-phone">Phone</Label><Input id="pf-phone" className="h-11" maxLength={40} value={biz.phone ?? ""} onChange={(e) => set("phone", e.target.value)} /></div>
-            <div className="grid gap-1.5"><Label htmlFor="pf-web">Website</Label><Input id="pf-web" className="h-11" maxLength={300} value={biz.website ?? ""} onChange={(e) => set("website", e.target.value)} /></div>
+            <div className="grid gap-1.5"><Label htmlFor="pf-web">Website</Label><Input id="pf-web" className="h-11" maxLength={300} value={biz.website ?? ""} disabled={Boolean(ownership.state?.has_listing && ownership.state.status !== "verified")} onChange={(e) => set("website", e.target.value)} />{ownership.state?.has_listing && ownership.state.status !== "verified" && <p className="text-xs text-muted-foreground">The claimed listing's website is locked while ownership is confirmed. This keeps verification tied to the original business domain.</p>}</div>
           </div>
           <div className="grid gap-1.5"><Label htmlFor="pf-area">Service area</Label><Input id="pf-area" className="h-11" maxLength={200} value={biz.service_area ?? ""} onChange={(e) => set("service_area", e.target.value)} /></div>
           <fieldset className="grid gap-2"><legend className="mb-1 text-sm font-medium">Hours</legend>

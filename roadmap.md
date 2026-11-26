@@ -1,3 +1,9 @@
+# Ownership verification after claiming, November 26
+- [x] Add pending/verified/rejected/disputed ownership, grandfather 17 existing businesses, reconcile old verification meaning, and enforce trust, ranking, quote and Earn eligibility.
+- [x] Add domain-email instant verification, expiring hashed email codes, private document review and website locking while pending.
+- [x] Add owner dashboard verification, admin reviews/actions, public disputes, alerts and owner emails without changing signup, referrals, billing or claim speed.
+- [x] Six ownership SQL scenarios and 11 focused tests pass. Browser claim/pending/card/dashboard checks passed with full database cleanup. Two admin claim emails were sent and cannot be retracted. Full suite: 1712 passed, 3 skipped; unrelated analytics fixture and known load-time admin SQL failures documented. Changelog: docs/ownership-verification-2026-11-26.md. No publication.
+
 # Marketplace full-screen map layout, November 25
 - [x] Decouple results from map readiness, preserve local bounds on failure, retry map and verify blocked tiles on desktop/phone. 45 related tests passed; changelog: docs/marketplace-map-loading-2026-11-25.md. No publication.
 - [x] Full-screen map and results panel, filter bar, true area count, 40-per-page loading, owner card, new cards and pins, URL-shared views, time zone opening view, rewards toggle with empty state, phone bottom sheet.

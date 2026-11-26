@@ -132,6 +132,7 @@ export default function DirectoryListingPage() {
             {interest > 0 && <p className="mt-4 rounded-lg bg-sign/30 px-3 py-2 text-sm font-medium text-forest" data-testid="interest-count">{interest === 1 ? "1 person has" : `${interest.toLocaleString("en-US")} people have`} said they would refer customers to this business.</p>}
             {demand > 0 && <p className="mt-3 rounded-lg bg-secondary px-3 py-2 text-sm font-medium text-forest" data-testid="quote-demand">{demand === 1 ? "1 person" : `${demand.toLocaleString("en-US")} people`} near {(listing.city ?? "").split(",")[0] || "here"} asked for {listing.category} quotes on Revvin in the last 30 days. Claimed businesses receive these requests.</p>}
             <Button className="mt-5 h-12" onClick={claim}>Claim this business free</Button>
+            <p className="mt-2 text-sm text-muted-foreground">We confirm ownership before a profile shows as owner-claimed or receives quote requests.</p>
           </div>
           <ClaimPreview listing={listing} onClaim={claim} />
           <ReferInterest slug={listing.slug} onCount={setInterest} />

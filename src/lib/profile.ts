@@ -12,7 +12,7 @@ export interface BusinessProfile {
   service_area: string | null; website: string | null; phone: string | null; city: string | null; state: string | null; country: string | null;
   lat: number | null; lng: number | null; google_review_url: string | null; hours: Hours | null;
   services: string[] | null; founded_year: number | null; license_number: string | null; social_links: SocialLinks | null;
-  is_pro: boolean; is_verified: boolean; index_approved: boolean; has_reward: boolean; reward_text: string | null;
+  is_pro: boolean; is_verified: boolean; ownership_status: "pending" | "verified" | "rejected" | "disputed"; index_approved: boolean; has_reward: boolean; reward_text: string | null;
   photos: { id: string; path: string; caption: string | null }[]; reviews: ProfileReviewStats; is_owner_preview: boolean;
 }
 export interface PublicReview { id: string; rating: number; body: string; reviewer_display_name: string; owner_reply: string | null; owner_replied_at: string | null; submitted_at: string }

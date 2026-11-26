@@ -20,11 +20,13 @@ beforeAll(async () => {
     CREATE TABLE wallet_balances(user_id uuid UNIQUE);
     CREATE TABLE business_trial_history(user_id uuid PRIMARY KEY);
     CREATE TABLE businesses(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),user_id uuid,name text,industry text,city text,phone text,
-      category text,service_area text,slug text,offer_amount text,account_status text DEFAULT 'pending_approval',
+      category text,service_area text,slug text,offer_amount text,website text,account_status text DEFAULT 'pending_approval',
       is_published boolean DEFAULT false,is_disabled boolean DEFAULT false,verified boolean DEFAULT false,is_verified boolean DEFAULT false,index_approved boolean DEFAULT false,
+      ownership_status text DEFAULT 'pending',ownership_method text,ownership_verified_at timestamptz,
       subscription_status text DEFAULT 'none',stripe_customer_id text,stripe_subscription_id text,stripe_connected_account_id text,stripe_connect_status text,
       launch_package_status text,current_period_end timestamptz,updated_at timestamptz DEFAULT now(),
       pro_trial_ends_at timestamptz,published_notified_at timestamptz,acquisition jsonb,partner_id uuid,partner_attributed_at timestamptz,contact_outreach_consent_at timestamptz,plan text DEFAULT 'free');
+    CREATE TABLE directory_listings(claimed_business_id uuid,status text);
     CREATE FUNCTION has_role(uuid,app_role) RETURNS boolean LANGUAGE sql SECURITY DEFINER AS $$ SELECT EXISTS(SELECT 1 FROM user_roles WHERE user_id=$1 AND role=$2) $$;
     CREATE FUNCTION fn_slug_rejection(text) RETURNS text LANGUAGE sql AS $$ SELECT NULL::text $$;`);
   await db.exec(readFileSync("src/test/helpers/derivePlanFixture.sql", "utf8"));
