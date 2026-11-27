@@ -1,3 +1,7 @@
+# Google static installation checker, November 27
+- [x] Move denied-consent bootstrap and single Google tag into index.html; remove dynamic injection while preserving all measurement gates and automatic-collection safeguards.
+- [x] Update shared disclosure and test public/private prerender retention, denied defaults, event gates and withdrawal. Browser stub checks passed without Google transport, accounts or signup. Production checker and actual container behavior remain unverified. No publication. See docs/google-static-tag-2026-11-27.md.
+
 # Google Ads tag, November 27
 - [x] Install one permission-gated Google tag with cleaned SPA page views, new-account signup and one-use welcome eligibility.
 - [x] Update shared privacy and llms disclosure; 193 related tests passed and intercepted actual-container browser checks covered single loading, SPA queue, later welcome exclusion and withdrawal. No publication or account creation. Provider page-view/sign-up receipt remains unverified; see docs/google-ads-tag-2026-11-27.md.

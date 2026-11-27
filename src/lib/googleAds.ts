@@ -8,6 +8,7 @@ declare global {
 }
 interface GoogleState {
   initialized: boolean;
+  queue?: unknown[];
   granted: boolean;
   version: number;
   permitted: () => boolean;
@@ -21,7 +22,7 @@ interface GoogleState {
 const states = new WeakMap<Document, GoogleState>();
 function state() {
   const existing = states.get(document);
-  if (existing && (!existing.initialized || window.gtag)) return existing;
+  if (existing && (!existing.initialized || (window.gtag && existing.queue === window.dataLayer))) return existing;
   const next: GoogleState = { initialized: false, granted: false, version: 0, permitted: () => false,
     captureAllowed: () => false, consentAllowed: () => false, resolveConsent: async () => false,
     pages: new Set(), signups: new Set() };
@@ -38,7 +39,7 @@ export function googleSafePath(path: string, search: string, hash: string, conve
 export function setGoogleAdPermission(options: Pick<GoogleState, "permitted" | "captureAllowed" | "consentAllowed" | "resolveConsent">) {
   Object.assign(state(), options);
 }
-const denied = { ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" };
+const denied = { ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied", analytics_storage: "denied" };
 const granted = { ad_storage: "granted", ad_user_data: "denied", ad_personalization: "denied" };
 
 /** Drop queued measurements on withdrawal. No denied/cookieless application events are sent. */
@@ -58,16 +59,10 @@ export function pauseGoogleAds() {
 }
 function initialize(current: GoogleState, signupAuthorized = false) {
   if (!GOOGLE_TAG_ID || !current.consentAllowed() || (!signupAuthorized && !current.permitted())) return false;
+  // The document owns loading. Never inject a fallback or a second Google tag.
+  if (!window.gtag || !window.dataLayer || !document.querySelector(`script[src="https://www.googletagmanager.com/gtm.js?id=${GOOGLE_TAG_ID}"]`)) return false;
   if (!current.initialized) {
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = window.gtag || function (..._args: GoogleCommand) { window.dataLayer?.push(arguments); };
-    window.gtag("consent", "default", denied);
-    window.gtag("set", { send_page_view: false, allow_enhanced_conversions: false, allow_google_signals: false,
-      allow_ad_personalization_signals: false, ads_data_redaction: true,
-      ae_block_history: true, ae_block_form: true, ae_block_outbound_click: true,
-      ae_block_scroll: true, ae_block_downloads: true, ae_block_video: true });
     window.gtag("consent", "update", granted);
-    window.gtag("js", new Date());
     // GTM containers require their bootstrap event, in addition to the supplied gtag queue.
     window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
     window.gtag("config", GOOGLE_ADS_DESTINATION_ID, { send_page_view: false,
@@ -75,12 +70,7 @@ function initialize(current: GoogleState, signupAuthorized = false) {
       user_data_settings: { enable_code: false, auto_detect: { email: false, phone: false, address: false } },
       ae_block_history: true, ae_block_form: true, ae_block_outbound_click: true,
       ae_block_scroll: true, ae_block_downloads: true, ae_block_video: true });
-    if (!document.querySelector('script[src*="googletagmanager.com/"]')) {
-      const script = document.createElement("script");
-      script.id = "google-ad-tag"; script.async = true;
-      script.src = `https://www.googletagmanager.com/gtm.js?id=${GOOGLE_TAG_ID}`;
-      document.head.appendChild(script);
-    }
+    current.queue = window.dataLayer;
     current.initialized = true; current.granted = true;
   } else if (!current.granted) {
     window.gtag?.("consent", "update", granted); current.granted = true;
