@@ -76,6 +76,10 @@ export const META_PIXEL_ID = "1941132123224407";
 export const OPENAI_PIXEL_ID = "PsQihxvTbEPvdwqHWKuL2n";
 /** Vendor debug logging; off for production. */
 export const OPENAI_PIXEL_DEBUG = false;
+/** Google Ads measurement via the owner-supplied Google Tag Manager container. */
+export const GOOGLE_TAG_ID = "GTM-TX7W9QD3";
+/** Destination read from that container, not the Google Ads account number. */
+export const GOOGLE_ADS_DESTINATION_ID = "AW-18599386401";
 
 /**
  * Microsoft Clarity project id. Empty means session recording is off

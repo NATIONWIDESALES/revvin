@@ -4,7 +4,7 @@
 
 Revvin is operated by Nationwide Sales Group Inc.
 
-Last updated: 2026-11-24
+Last updated: 2026-11-27
 
 Revvin gives a home-service business a referral page on its own link, a personal link for every person who refers, and an ask after every job. The business pays a reward only when a referral turns into a job, and pays it directly. Revvin is not affiliated with the Revvin digital mortgage platform.
 
@@ -53,7 +53,7 @@ $297 one-time: we load your customer list, set up your page and reward with you,
 - [Home](/): What Revvin is and how it works.
 - [Pricing](/pricing): Free and Revvin Pro.
 - [About](/about): The company, what it does not do and the team.
-- [Privacy](/privacy): Data handling and advertising measurement by Meta and OpenAI (ChatGPT Ads). When permitted, OpenAI measures qualified home-service signup completion and uses its own __oppref (30 days) and __obref (365 days) first-party cookies. OpenAI's Pixel may also detect email and phone typed into signup forms, hash them with SHA-256 in the browser and send only the hash for ad matching; raw values are not sent. Opting out stops measurement and this matching and removes the cookies.
+- [Privacy](/privacy): Data handling and advertising measurement by Meta, OpenAI (ChatGPT Ads) and Google (Google Ads). Google receives eligible public page views, landing ad click identifiers and an account-creation event with the selected trade, but no contact details or enhanced conversions. Google receives a welcome page view only after new account creation, not later setup visits. The same advertising opt-out and regional exclusions cover Google. When permitted, OpenAI measures qualified home-service signup completion and uses its own __oppref (30 days) and __obref (365 days) first-party cookies. OpenAI's Pixel may also detect email and phone typed into signup forms, hash them with SHA-256 in the browser and send only the hash for ad matching; raw values are not sent. Opting out stops measurement and this matching and removes the cookies.
 - [Earn](/earn): Get paid for referrals, city by city.
 - [How it works](/how-it-works): The referral flow end to end.
 - [Guides](/guides): Referral program guides for service businesses.

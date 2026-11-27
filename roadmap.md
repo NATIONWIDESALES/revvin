@@ -1,3 +1,7 @@
+# Google Ads tag, November 27
+- [x] Install one permission-gated Google tag with cleaned SPA page views, new-account signup and one-use welcome eligibility.
+- [x] Update shared privacy and llms disclosure; 193 related tests passed and intercepted actual-container browser checks covered single loading, SPA queue, later welcome exclusion and withdrawal. No publication or account creation. Provider page-view/sign-up receipt remains unverified; see docs/google-ads-tag-2026-11-27.md.
+
 # Ownership verification after claiming, November 26
 - [x] Add pending/verified/rejected/disputed ownership, grandfather 17 existing businesses, reconcile old verification meaning, and enforce trust, ranking, quote and Earn eligibility.
 - [x] Add domain-email instant verification, expiring hashed email codes, private document review and website locking while pending.

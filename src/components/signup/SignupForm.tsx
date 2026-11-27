@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, MailCheck } from "lucide-react";
 import { track } from "@/lib/track";
 import { captureOpenAiSignupEligibility, trackOpenAiAdEvent } from "@/lib/openAiAds";
+import { captureGoogleSignupEligibility, trackGoogleSignup } from "@/lib/googleAds";
 import { PRICE_TEXT } from "@/config/pricing";
 import InviteBanner, { InviteTerms } from "@/components/invite/InviteBanner";
 import { captureInviteFromSearch, getInviteCode } from "@/lib/invite";
@@ -151,6 +152,7 @@ const SignupForm = ({
     const homeService = isHomeServiceTrade(signupTrade);
     const metaConsent = homeService ? registrationConsent().catch(() => ({ advertising_allowed: false, country: null })) : null;
     const openAiEligibility = homeService ? captureOpenAiSignupEligibility() : undefined;
+    const googleEligibility = captureGoogleSignupEligibility();
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -176,6 +178,8 @@ const SignupForm = ({
       return;
     }
     track("signup_succeeded");
+    // Supplied identities are empty for an obfuscated existing-account signup response.
+    if (data.user?.id && data.user.identities?.length) void trackGoogleSignup(data.user.id, signupTrade, googleEligibility);
     if (homeService) {
       const eventID = data.user?.id ? registrationEventId(data.user.id) : undefined;
       track("signup_completed", undefined, eventID);

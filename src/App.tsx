@@ -14,6 +14,7 @@ import FrameGuard from "@/components/FrameGuard";
 import Analytics from "@/components/Analytics";
 import MetaPixel from "@/components/MetaPixel";
 import OpenAiPixel from "@/components/OpenAiPixel";
+import GoogleAdsTag from "@/components/GoogleAdsTag";
 import OrigamiVisitors from "@/components/OrigamiVisitors";
 import PartnerCapture from "@/components/partners/PartnerCapture";
 
@@ -105,6 +106,7 @@ const App = ({ Router = BrowserRouter as RouterComponent, location }: { Router?:
               <Analytics />
               <MetaPixel />
               <OpenAiPixel />
+              <GoogleAdsTag />
               <OrigamiVisitors />
               <PartnerCapture />
               <Suspense fallback={null}><ClarityLoader /></Suspense>
