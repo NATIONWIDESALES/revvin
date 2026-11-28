@@ -1,9 +1,9 @@
 """Original background music, synthesized from scratch (no samples, no third-party audio)."""
-import numpy as np, sys
+import numpy as np, sys, os
 from scipy.io import wavfile
 from scipy.signal import butter, lfilter
 
-SR = 44100
+SR = int(os.environ.get("REVVIN_SR", "44100"))
 
 def env(n, a=0.005, d=0.2, s=0.0, r=0.05):
     t = np.arange(n) / SR
